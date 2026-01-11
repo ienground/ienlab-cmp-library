@@ -13,8 +13,13 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ienground-kmp-library-template"
+rootProject.name = "ienlab-cmp-library"
 include(":library")
 include(":example")
 include(":example:composeApp")
 include(":example:iosApp")
+include(":cmp-ui")
+include(":cmp-date")
+include(":cmp-icon")
+include(":cmp-adaptive")
+include(":cmp-firebase")

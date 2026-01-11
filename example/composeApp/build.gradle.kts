@@ -38,7 +38,11 @@ kotlin {
             implementation(libs.lifecycle.viewmodel)
             implementation(libs.lifecycle.runtime)
 
-            implementation(project(":library"))
+            implementation(project(":cmp-adaptive"))
+            implementation(project(":cmp-date"))
+            implementation(project(":cmp-firebase"))
+            implementation(project(":cmp-icon"))
+            implementation(project(":cmp-ui"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
