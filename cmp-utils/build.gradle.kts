@@ -7,7 +7,7 @@ plugins {
 
 kotlin {
     androidLibrary {
-        namespace = "zone.ien.utils.firebase"
+        namespace = "zone.ien.utils.utils"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
 
@@ -26,9 +26,6 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.compose.resources)
-
-            implementation(libs.kdatetime)
-            implementation(libs.firebase.firestore)
         }
 
         commonTest.dependencies {
