@@ -28,7 +28,6 @@ vanniktechMavenPublish = "0.35.0"
 runner = "1.7.0"
 coreVersion = "1.7.0"
 junit = "1.3.0"
-kotlinStdlib = "2.2.21"
 android-ui-graphics = "1.10.0"
 
 [libraries]
@@ -55,7 +54,7 @@ kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotl
 runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 core = { group = "androidx.test", name = "core", version.ref = "coreVersion" }
 junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
-android-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "android-ui-graphics" } # android only
+android-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "android-ui-graphics" }
 
 [plugins]
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
