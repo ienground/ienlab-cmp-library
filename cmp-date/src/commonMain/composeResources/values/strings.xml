@@ -1,0 +1,72 @@
+<resources>
+    <!--요일-->
+    <string name="sun">일</string>
+    <string name="mon">월</string>
+    <string name="tue">화</string>
+    <string name="wed">수</string>
+    <string name="thu">목</string>
+    <string name="fri">금</string>
+    <string name="sat">토</string>
+    <string name="sunday">일요일</string>
+    <string name="monday">월요일</string>
+    <string name="tuesday">화요일</string>
+    <string name="wednesday">수요일</string>
+    <string name="thursday">목요일</string>
+    <string name="friday">금요일</string>
+    <string name="saturday">토요일</string>
+
+    <!--시간-->
+    <string name="time_am">오전</string>
+    <string name="time_pm">오후</string>
+    <string name="time_just_now">방금</string>
+
+    <!--시간 형식-->
+    <string name="time_format_24">HH:mm</string>
+    <string name="time_format_24_short">H:mm</string>
+    <string name="time_format_12">A h:mm</string>
+    <string name="time_format_12_no_apm">H:mm</string>
+
+    <plurals name="hour_format">
+        <item quantity="one">1시간</item>
+        <item quantity="other">%1$d시간</item>
+    </plurals>
+    <plurals name="minute_format">
+        <item quantity="one">1분</item>
+        <item quantity="other">%1$d분</item>
+    </plurals>
+    <plurals name="second_format">
+        <item quantity="one">1초</item>
+        <item quantity="other">%1$d초</item>
+    </plurals>
+
+    <!--날짜 형식-->
+    <string name="date_format">yyyy년 M월 d일 E요일</string>
+    <string name="date_format_no_year">M월 d일 E요일</string>
+    <string name="date_format_short">yyyy년 M월 d일</string>
+    <string name="date_format_no_year_short">M월 d일</string>
+
+    <plurals name="day_format">
+        <item quantity="one">1일</item>
+        <item quantity="other">%1$d일</item>
+    </plurals>
+    <plurals name="week_format">
+        <item quantity="one">1주</item>
+        <item quantity="other">%1$d주</item>
+    </plurals>
+    <plurals name="month_format">
+        <item quantity="one">1개월</item>
+        <item quantity="other">%1$d개월</item>
+    </plurals>
+    <plurals name="year_format">
+        <item quantity="one">1년</item>
+        <item quantity="other">%1$d년</item>
+    </plurals>
+
+    <!--날짜 및 시간 형식-->
+    <string name="date_time_format">yyyy년 M월 d일 E요일 A h:mm</string>
+    <string name="date_time_format_short">yyyy.M.d A h:mm</string>
+    <string name="date_time_format_short_sec">yyyy.M.d A h:mm:ss</string>
+    <string name="date_time_format_no_year">M월 d일 E요일 A h:mm</string>
+    <string name="date_time_format_no_year_short">M.d A h:mm</string>
+
+</resources>
