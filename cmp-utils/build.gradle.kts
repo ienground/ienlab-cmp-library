@@ -33,6 +33,7 @@ kotlin {
         }
 
         androidMain.dependencies {
+            implementation(libs.android.ui.graphics)
         }
 
         getByName("androidDeviceTest").dependencies {
