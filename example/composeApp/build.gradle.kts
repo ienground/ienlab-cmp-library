@@ -45,6 +45,8 @@ kotlin {
             implementation(project(":cmp-firebase"))
             implementation(project(":cmp-icon"))
             implementation(project(":cmp-ui"))
+            implementation(project(":cmp-utils"))
+            implementation(project(":cmp-navigation"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

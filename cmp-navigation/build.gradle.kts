@@ -25,7 +25,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.compose.resources)
+            implementation(libs.compose.navigation3)
+            implementation(libs.lifecycle.viewmodel)
         }
 
         commonTest.dependencies {
