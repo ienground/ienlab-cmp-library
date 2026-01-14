@@ -14,7 +14,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "ienlab-cmp-library"
-include(":library")
 include(":example")
 include(":example:composeApp")
 include(":example:iosApp")

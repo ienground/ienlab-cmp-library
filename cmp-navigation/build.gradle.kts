@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.android.lint)
+    alias(libs.plugins.compose.compiler)
 }
 
 kotlin {

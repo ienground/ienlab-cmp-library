@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.android.lint)
+    alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
@@ -26,6 +27,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.compose.resources)
+            implementation(libs.compose.material3)
 
             implementation(libs.kdatetime)
             implementation(libs.firebase.firestore)
@@ -36,6 +38,8 @@ kotlin {
         }
 
         androidMain.dependencies {
+            implementation(libs.firebase.common.android)
+            implementation(libs.firebase.firestore.android)
         }
 
         getByName("androidDeviceTest").dependencies {
