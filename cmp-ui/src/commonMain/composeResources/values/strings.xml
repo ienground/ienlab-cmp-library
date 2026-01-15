@@ -1,0 +1,15 @@
+<resources>
+    <string name="close">Close</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+
+    <!--Delete Dialog-->
+    <string name="delete_dialog_title">Delete?</string>
+    <string name="delete_dialog_content">This action cannot be undone.</string>
+
+    <!--Save Dialog-->
+    <string name="save_dialog_title">Save?</string>
+    <string name="save_dialog_content">Unsaved changes will be lost.</string>
+    <string name="not_save">Not save</string>
+    <string name="save">Save</string>
+</resources>

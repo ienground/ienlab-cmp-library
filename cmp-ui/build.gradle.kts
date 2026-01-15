@@ -1,7 +1,9 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
+    alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.android.lint)
+    alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
@@ -9,6 +11,7 @@ kotlin {
         namespace = "zone.ien.utils.ui"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
+        experimentalProperties["android.experimental.kmp.enableAndroidResources"] = true
 
         withHostTestBuilder {
         }
@@ -24,7 +27,10 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(libs.compose.material3)
+            implementation(libs.compose.resources)
 
+            implementation(project(":cmp-common"))
         }
 
         commonTest.dependencies {
@@ -43,4 +49,9 @@ kotlin {
         iosMain.dependencies {
         }
     }
+}
+
+compose.resources {
+    publicResClass = true
+    generateResClass = auto
 }

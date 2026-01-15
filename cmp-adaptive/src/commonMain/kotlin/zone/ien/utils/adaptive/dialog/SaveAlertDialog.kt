@@ -4,10 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-expect fun DeleteAlertDialog(
+expect fun SaveAlertDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-    enabledConfirm: Boolean = true
+    onCancel: () -> Unit,
+    onUnsave: () -> Unit,
+    enabledUnsave: Boolean = true,
+    onSave: () -> Unit,
+    enabledSave: Boolean = true,
 )

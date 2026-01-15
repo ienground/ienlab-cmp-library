@@ -1,4 +1,4 @@
-package zone.ien.utils.navigation
+package zone.ien.utils.navigation.data
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
@@ -21,32 +21,12 @@ import androidx.navigation3.ui.defaultPredictivePopTransitionSpec
 import androidx.navigation3.ui.defaultTransitionSpec
 import androidx.navigationevent.NavigationEvent
 
-fun <T: NavKey> NavBackStack<T>.navigateBack(): T {
-    return removeAt(lastIndex)
-}
-
-fun <T: NavKey> NavBackStack<T>.onBackPressed(
-    back: () -> Unit
-) {
-    if (size > 1) {
-        navigateBack()
-    } else {
-        back()
-    }
-}
-fun <T: NavKey> NavBackStack<T>.popUpTo(route: T, inclusive: Boolean = false) {
-    val bIndex = indexOfFirst { it == route }
-    if (bIndex != -1) {
-        repeat(size - bIndex) { navigateBack() }
-    }
-}
-
 @Composable
 fun <T : NavKey> BaseNavDisplay(
     backStack: NavBackStack<T>,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
-    onBack: () -> Unit = { if (backStack.size > 1) backStack.removeLastOrNull() },
+    onBack: () -> Unit = { if (backStack.size > 1) backStack.navigateBack() },
     entryDecorators: List<NavEntryDecorator<T>> =
         listOf(
             rememberSaveableStateHolderNavEntryDecorator(),

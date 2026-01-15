@@ -1,6 +1,7 @@
 package zone.ien.utils.example
 
 import androidx.compose.material3.Button
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -22,4 +23,8 @@ actual fun AlertDialog(
             modifier = modifier
         )
     }
+}
+
+@Composable
+actual fun DeviceBox(modifier: Modifier) {
 }

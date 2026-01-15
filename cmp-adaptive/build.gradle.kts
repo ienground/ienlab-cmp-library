@@ -31,6 +31,8 @@ kotlin {
             implementation(libs.compose.resources)
 
             implementation(libs.backdrop)
+
+            implementation(project(":cmp-ui")) // includes UI
         }
 
         commonTest.dependencies {

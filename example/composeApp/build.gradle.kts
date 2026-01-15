@@ -1,4 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -38,13 +37,14 @@ kotlin {
             implementation(libs.lifecycle.runtime)
 
             implementation(libs.backdrop)
+            implementation(libs.haze)
 
-            implementation(project(":cmp-common"))
+//            implementation(project(":cmp-common"))
             implementation(project(":cmp-adaptive"))
-            implementation(project(":cmp-date"))
-            implementation(project(":cmp-firebase"))
-            implementation(project(":cmp-icon"))
             implementation(project(":cmp-ui"))
+            implementation(project(":cmp-date"))
+//            implementation(project(":cmp-firebase"))
+            implementation(project(":cmp-icon"))
             implementation(project(":cmp-utils"))
             implementation(project(":cmp-navigation"))
         }
