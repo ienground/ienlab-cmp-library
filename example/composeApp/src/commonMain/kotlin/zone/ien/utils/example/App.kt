@@ -19,6 +19,7 @@ import androidx.compose.material3.SecureTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,11 +34,13 @@ import com.kashif_e.backdrop.backdrops.layerBackdrop
 import com.kashif_e.backdrop.backdrops.rememberLayerBackdrop
 import ienlab_cmp_library.example.composeapp.generated.resources.Res
 import ienlab_cmp_library.example.composeapp.generated.resources.compose_multiplatform
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
 import zone.ien.utils.adaptive.components.LiquidButton
 import zone.ien.utils.adaptive.components.LiquidSlider
 import zone.ien.utils.adaptive.components.LiquidToggle
 import zone.ien.utils.adaptive.dialog.DeleteAlertDialog
+import zone.ien.utils.adaptive.dialog.ProgressDialog
 import zone.ien.utils.adaptive.dialog.SaveAlertDialog
 import zone.ien.utils.adaptive.dialog.UIAlertActionStyle
 import zone.ien.utils.ui.dialog.M3DeleteAlertDialog
@@ -65,6 +68,19 @@ fun App() {
             var switchValue by remember { mutableStateOf(false) }
             var value by remember { mutableStateOf(0.5f) }
             val backdrop = rememberLayerBackdrop()
+            var progress by remember { mutableStateOf(0f) }
+
+            LaunchedEffect(Unit) {
+                while (true) {
+                    progress += 0.2f
+                    if (progress > 1f) {
+                        progress = 0f
+                    }
+
+                    delay(1000)
+                }
+            }
+
 //            val hazeState = rememberHazeState()
 
             Box(
@@ -166,18 +182,23 @@ fun App() {
 //                onDismiss = { showDialog = false },
 //                onConfirm = { showDialog = false }
 //            )
-            SaveAlertDialog(
-                visible = showDialog,
-                onCancel = { showDialog = false },
-                onUnsave = { showDialog = false },
-                onSave = { showDialog = false }
-            )
+//            SaveAlertDialog(
+//                visible = showDialog,
+//                onCancel = { showDialog = false },
+//                onUnsave = { showDialog = false },
+//                onSave = { showDialog = false }
+//            )
+
+//            ProgressDialog(
+//                visible = showDialog,
+//                progress = { progress }
+//            )
 
 //            zone.ien.utils.adaptive.dialog.AlertDialog(
 //                visible = showDialog,
 //                title = "Hello",
 //                message = "World",
-//                styleDismiss = UIAlertActionStyle.Destructive,
+//                styleDismiss = UIAlertActionStyle.Default,
 //                onDismiss = { showDialog = false }
 //            )
 

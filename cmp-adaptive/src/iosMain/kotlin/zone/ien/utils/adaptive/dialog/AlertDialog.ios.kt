@@ -105,6 +105,8 @@ actual fun AlertDialog(
 
         alertController.addAction(dismissAction)
         alertController.addAction(confirmAction)
+
+        alertController.preferredAction = confirmAction
     }
 }
 
@@ -159,5 +161,7 @@ actual fun AlertDialog(
         alertController.addAction(neutralAction)
         alertController.addAction(negativeAction)
         alertController.addAction(positiveAction)
+
+        alertController.preferredAction = positiveAction
     }
 }
