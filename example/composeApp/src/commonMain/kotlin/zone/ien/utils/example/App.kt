@@ -13,10 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecureTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kashif_e.backdrop.backdrops.layerBackdrop
@@ -43,15 +46,20 @@ import zone.ien.utils.adaptive.dialog.DeleteAlertDialog
 import zone.ien.utils.adaptive.dialog.NetworkAlertDialog
 import zone.ien.utils.adaptive.dialog.ProgressDialog
 import zone.ien.utils.adaptive.dialog.SaveAlertDialog
+import zone.ien.utils.adaptive.dialog.TextFieldDialog
 import zone.ien.utils.adaptive.dialog.UIAlertActionStyle
 import zone.ien.utils.adaptive.dialog.UpdateAlertDialog
+import zone.ien.utils.ui.dialog.M3BaseAlertDialog
+import zone.ien.utils.ui.dialog.M3BaseTextFieldDialog
 import zone.ien.utils.ui.dialog.M3DeleteAlertDialog
+import zone.ien.utils.ui.dialog.M3TextFieldDialog
+import zone.ien.utils.ui.utils.TextFieldDialogData
 import zone.ien.utils.utils.Dlog
 import zone.ien.utils.utils.getDataDirectory
 import zone.ien.utils.utils.openAppStoreUrl
 import zone.ien.utils.utils.openUrl
 
-const val TAG = "CmpLibTA"
+const val TAG = "CmpLibTAG"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -147,13 +155,22 @@ fun App() {
                         )
                         LiquidButton(
                             onClick = {
+                                showDialog = true
+                            },
+                            tint = Color(0xFF0088FF),
+                            backdrop = backdrop
+                        ) {
+                            Text(text = "dialog")
+                        }
+                        LiquidButton(
+                            onClick = {
 //                                showDialog = true
                                 openUrl("https://www.naver.com")
                             },
                             tint = Color(0xFF0088FF),
                             backdrop = backdrop
                         ) {
-                            Text(text = "hi")
+                            Text(text = "url")
                         }
                         LiquidButton(
                             onClick = {
@@ -164,7 +181,7 @@ fun App() {
                             backdrop = backdrop
                         ) {
 
-                            Text(text = "hi")
+                            Text(text = "store")
                         }
                     }
                     LiquidSlider(
@@ -194,10 +211,69 @@ fun App() {
 //                )
             }
 
-            UpdateAlertDialog(
+//            UpdateAlertDialog(
+//                visible = showDialog,
+//                appName = "App Name",
+//                onDismiss = { showDialog = false },
+//            )
+
+//            M3BaseAlertDialog(
+//                visible = showDialog,
+//                icon = { Icon(imageVector = Android, contentDescription = null) },
+//                title = "Hello",
+//                message = "World",
+//                onDismiss = { showDialog = false },
+//                buttons = {
+//                    TextButton(
+//                        onClick = {}
+//                    ) { Text(text = "hi") }
+//                }
+//            )
+
+//            M3BaseTextFieldDialog(
+//                visible = showDialog,
+//                icon = { Icon(imageVector = Android, contentDescription = null) },
+//                title = "Hello",
+//                message = "World",
+//                onDismiss = { showDialog = false },
+//                textFields = {
+////                    TextField(
+////                        value
+////                    )
+//                },
+//                buttons = {
+//                    TextButton(
+//                        onClick = {}
+//                    ) { Text(text = "hi") }
+//                }
+//            )
+            
+            TextFieldDialog(
                 visible = showDialog,
-                appName = "App Name",
+                icon = { Icon(imageVector = Android, contentDescription = null) },
+                title = "Hello",
+//                message = "World",
+                textFields = mapOf(
+                    "hi" to TextFieldDialogData(
+                        initialValue = "Hello",
+                        placeholder = "placeholder",
+                        prefix = "prefix",
+                        suffix = "suffix",
+                        keyboardType = KeyboardType.Email
+                    ),
+                    "hi2" to TextFieldDialogData(
+                        initialValue = "Hello",
+                        placeholder = "placeholder",
+                        prefix = "prefix",
+                        suffix = "suffix",
+                        keyboardType = KeyboardType.Password
+                    )
+                ),
                 onDismiss = { showDialog = false },
+                onConfirm = {
+                    Dlog.d(TAG, it.toString())
+                    showDialog = false
+                }
             )
 
 
@@ -225,11 +301,6 @@ fun App() {
 //                styleDismiss = UIAlertActionStyle.Default,
 //                onDismiss = { showDialog = false }
 //            )
-            NetworkAlertDialog(
-                visible = showDialog,
-                onDismiss = { showDialog = false },
-                onConfirm = { showDialog = false }
-            )
 
 
 //            AlertDialog(
