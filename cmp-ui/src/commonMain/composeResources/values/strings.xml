@@ -12,4 +12,10 @@
     <string name="save_dialog_content">Unsaved changes will be lost.</string>
     <string name="not_save">Not save</string>
     <string name="save">Save</string>
+
+    <!--Version Update Dialog-->
+    <string name="version_update_dialog_title">Update Required</string>
+    <string name="version_update_dialog_content">%1$s version outdated. Update required for access.</string>
+    <string name="move_to_play_store">Open Play Store</string>
+    <string name="move_to_app_store">Open App Store</string>
 </resources>
