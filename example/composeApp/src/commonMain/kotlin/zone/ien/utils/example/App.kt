@@ -44,6 +44,7 @@ import zone.ien.utils.adaptive.dialog.NetworkAlertDialog
 import zone.ien.utils.adaptive.dialog.ProgressDialog
 import zone.ien.utils.adaptive.dialog.SaveAlertDialog
 import zone.ien.utils.adaptive.dialog.UIAlertActionStyle
+import zone.ien.utils.adaptive.dialog.UpdateAlertDialog
 import zone.ien.utils.ui.dialog.M3DeleteAlertDialog
 import zone.ien.utils.utils.Dlog
 import zone.ien.utils.utils.getDataDirectory
@@ -177,6 +178,11 @@ fun App() {
 //                )
             }
 
+            UpdateAlertDialog(
+                visible = showDialog,
+                appName = "App Name",
+                onDismiss = { showDialog = false },
+            )
 
 
 //            DeleteAlertDialog(

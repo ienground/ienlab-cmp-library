@@ -18,4 +18,9 @@
     <string name="network_dialog_title">연결 안 됨</string>
     <string name="network_dialog_content">인터넷에 연결되지 않았습니다.</string>
 
+    <!--Version Update Dialog-->
+    <string name="version_update_dialog_title">업데이트 필요</string>
+    <string name="version_update_dialog_content">%1$s 버전이 낮아 접속할 수 없습니다. 최신 버전으로 업데이트하세요.</string>
+    <string name="move_to_play_store">Play 스토어로 이동</string>
+    <string name="move_to_app_store">App Store로 이동</string>
 </resources>

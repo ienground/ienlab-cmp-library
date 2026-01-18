@@ -10,8 +10,13 @@ import zone.ien.utils.ui.icon.rounded.CloudOff
 import zone.ien.utils.ui.icon.rounded.Delete
 import zone.ien.utils.ui.icon.rounded.Save
 import zone.ien.utils.ui.icon.sharp.CloudOff
+import zone.ien.utils.ui.icon.filled.Update
+import zone.ien.utils.ui.icon.rounded.Delete
+import zone.ien.utils.ui.icon.rounded.Save
+import zone.ien.utils.ui.icon.rounded.Update
 import zone.ien.utils.ui.icon.sharp.Delete
 import zone.ien.utils.ui.icon.sharp.Save
+import zone.ien.utils.ui.icon.sharp.Update
 
 object MaterialIcons {
     object Filled
@@ -38,4 +43,9 @@ object MaterialIcons {
         IconStyle.Sharp -> Sharp.CloudOff
     }
 
+    val Update @Composable get() = when (LocalIconStyle.current) {
+        IconStyle.Filled -> Filled.Update
+        IconStyle.Rounded -> Rounded.Update
+        IconStyle.Sharp -> Sharp.Update
+    }
 }
