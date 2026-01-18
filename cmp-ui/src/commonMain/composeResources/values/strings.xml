@@ -2,6 +2,7 @@
     <string name="close">Close</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="retry">Retry</string>
 
     <!--Delete Dialog-->
     <string name="delete_dialog_title">Delete?</string>
@@ -12,4 +13,14 @@
     <string name="save_dialog_content">Unsaved changes will be lost.</string>
     <string name="not_save">Not save</string>
     <string name="save">Save</string>
+
+    <!--Network Dialog-->
+    <string name="network_dialog_title">Not Connected</string>
+    <string name="network_dialog_content">No internet connection.</string>
+  
+    <!--Version Update Dialog-->
+    <string name="version_update_dialog_title">Update Required</string>
+    <string name="version_update_dialog_content">%1$s version outdated. Update required for access.</string>
+    <string name="move_to_play_store">Open Play Store</string>
+    <string name="move_to_app_store">Open App Store</string>
 </resources>

@@ -40,9 +40,11 @@ import zone.ien.utils.adaptive.components.LiquidButton
 import zone.ien.utils.adaptive.components.LiquidSlider
 import zone.ien.utils.adaptive.components.LiquidToggle
 import zone.ien.utils.adaptive.dialog.DeleteAlertDialog
+import zone.ien.utils.adaptive.dialog.NetworkAlertDialog
 import zone.ien.utils.adaptive.dialog.ProgressDialog
 import zone.ien.utils.adaptive.dialog.SaveAlertDialog
 import zone.ien.utils.adaptive.dialog.UIAlertActionStyle
+import zone.ien.utils.adaptive.dialog.UpdateAlertDialog
 import zone.ien.utils.ui.dialog.M3DeleteAlertDialog
 import zone.ien.utils.utils.Dlog
 import zone.ien.utils.utils.getDataDirectory
@@ -192,6 +194,11 @@ fun App() {
 //                )
             }
 
+            UpdateAlertDialog(
+                visible = showDialog,
+                appName = "App Name",
+                onDismiss = { showDialog = false },
+            )
 
 
 //            DeleteAlertDialog(
@@ -218,6 +225,11 @@ fun App() {
 //                styleDismiss = UIAlertActionStyle.Default,
 //                onDismiss = { showDialog = false }
 //            )
+            NetworkAlertDialog(
+                visible = showDialog,
+                onDismiss = { showDialog = false },
+                onConfirm = { showDialog = false }
+            )
 
 
 //            AlertDialog(
