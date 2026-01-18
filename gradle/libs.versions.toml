@@ -13,7 +13,7 @@ compose-navigation3 = "1.0.0-alpha06"
 
 # firebase
 kmp-firebase = "2.4.0"
-firebase-firestore = "26.0.2"
+firebase-firestore = "26.1.0"
 firebase-common = "22.0.1"
 
 # ui
@@ -25,7 +25,7 @@ haze = "1.7.1"
 # functionality
 kdatetime = "1.1.2"
 kotlin-coroutine = "1.10.2"
-startup-runtime = "1.1.1"
+startup-runtime = "1.2.0"
 kotlinx-io-core = "0.8.2"
 
 # backend
