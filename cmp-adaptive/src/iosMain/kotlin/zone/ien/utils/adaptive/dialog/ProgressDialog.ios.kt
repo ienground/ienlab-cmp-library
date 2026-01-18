@@ -27,24 +27,33 @@ actual fun ProgressDialog(
 ) {
     val viewController = LocalUIViewController.current
 
-    if (visible) {
-        val alert = UIAlertController.alertControllerWithTitle("\n", null, UIAlertControllerStyleAlert)
+    var alertRef by remember { mutableStateOf<UIAlertController?>(null) }
 
-        val loadingIndicator = UIActivityIndicatorView()
+    LaunchedEffect(visible) {
+        if (visible) {
+            val alert = UIAlertController.alertControllerWithTitle("\n", null, UIAlertControllerStyleAlert)
 
-        loadingIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleLarge
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
-        loadingIndicator.startAnimating()
+            val loadingIndicator = UIActivityIndicatorView()
 
-        alert.view.addSubview(loadingIndicator)
-        NSLayoutConstraint.activateConstraints(listOf(
-            loadingIndicator.centerXAnchor().constraintEqualToAnchor(alert.view.centerXAnchor),
-            loadingIndicator.centerYAnchor().constraintEqualToAnchor(alert.view.centerYAnchor)
-        ))
+            loadingIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleLarge
+            loadingIndicator.hidesWhenStopped = true
+            loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
+            loadingIndicator.startAnimating()
 
-        viewController.presentViewController(alert, animated = true, completion = null)
+            alert.view.addSubview(loadingIndicator)
+            NSLayoutConstraint.activateConstraints(listOf(
+                loadingIndicator.centerXAnchor().constraintEqualToAnchor(alert.view.centerXAnchor),
+                loadingIndicator.centerYAnchor().constraintEqualToAnchor(alert.view.centerYAnchor)
+            ))
+
+            alertRef = alert
+            viewController.presentViewController(alert, animated = true, completion = null)
+        } else {
+            alertRef?.dismissViewControllerAnimated(true, null)
+            alertRef = null
+        }
     }
+
 }
 
 @Composable

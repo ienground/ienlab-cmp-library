@@ -2,12 +2,12 @@ package zone.ien.utils.date.format
 
 import androidx.compose.runtime.Composable
 import com.sunnychung.lib.multiplatform.kdatetime.KDateTimeFormat
-import ienlab_cmp_library.cmp_date.generated.resources.Res
-import ienlab_cmp_library.cmp_date.generated.resources.date_time_format
-import ienlab_cmp_library.cmp_date.generated.resources.date_time_format_no_year
-import ienlab_cmp_library.cmp_date.generated.resources.date_time_format_no_year_short
-import ienlab_cmp_library.cmp_date.generated.resources.date_time_format_short
-import ienlab_cmp_library.cmp_date.generated.resources.date_time_format_short_sec
+import zone.ien.utils.cmp_date.generated.resources.Res
+import zone.ien.utils.cmp_date.generated.resources.date_time_format
+import zone.ien.utils.cmp_date.generated.resources.date_time_format_no_year
+import zone.ien.utils.cmp_date.generated.resources.date_time_format_no_year_short
+import zone.ien.utils.cmp_date.generated.resources.date_time_format_short
+import zone.ien.utils.cmp_date.generated.resources.date_time_format_short_sec
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 

@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import com.sunnychung.lib.multiplatform.kdatetime.KDuration
 import com.sunnychung.lib.multiplatform.kdatetime.KFixedTimeUnit
 import com.sunnychung.lib.multiplatform.kdatetime.KZonedDateTime
-import ienlab_cmp_library.cmp_date.generated.resources.Res
-import ienlab_cmp_library.cmp_date.generated.resources.hour_format
-import ienlab_cmp_library.cmp_date.generated.resources.minute_format
+import zone.ien.utils.cmp_date.generated.resources.Res
+import zone.ien.utils.cmp_date.generated.resources.hour_format
+import zone.ien.utils.cmp_date.generated.resources.minute_format
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 

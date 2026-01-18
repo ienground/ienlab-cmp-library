@@ -9,8 +9,8 @@ import com.sunnychung.lib.multiplatform.kdatetime.KInstant
 import com.sunnychung.lib.multiplatform.kdatetime.KZoneOffset
 import com.sunnychung.lib.multiplatform.kdatetime.KZonedDateTime
 import com.sunnychung.lib.multiplatform.kdatetime.toKZonedDateTime
-import ienlab_cmp_library.cmp_date.generated.resources.Res
-import ienlab_cmp_library.cmp_date.generated.resources.day_format
+import zone.ien.utils.cmp_date.generated.resources.Res
+import zone.ien.utils.cmp_date.generated.resources.day_format
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -30,6 +30,13 @@ fun KDate.plusMonth(month: Int): KDate {
     return copy(year = newYear, month = newMonth)
 }
 fun KDate.minusMonth(month: Int): KDate = plusMonth(-month)
+fun KDate.plusYear(year: Int): KDate {
+    val newYear = this.year + year
+    return copy(year = newYear)
+}
+fun KDate.minusYear(year: Int): KDate = plusYear(-year)
+
+
 fun KDate.atTime(time: KDuration = KDuration.from(0, 0), timeZone: KZoneOffset = KZoneOffset.local()) = KZonedDateTime(year, month, day, time.hourPart(), time.minutePart(), time.secondPart(), time.millisecondPart(), timeZone)
 
 fun KDate.isEqual(other: KDate) = year == other.year && month == other.month && day == other.day

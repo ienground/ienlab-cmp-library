@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.android.lint)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.vanniktech.mavenPublish)
 }
 
 kotlin {

@@ -39,6 +39,8 @@ kotlin {
             implementation(libs.backdrop)
             implementation(libs.haze)
 
+            implementation(libs.kotlinx.io.core)
+
 //            implementation(project(":cmp-common"))
             implementation(project(":cmp-adaptive"))
             implementation(project(":cmp-ui"))
@@ -63,7 +65,7 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
-        versionName = "1.0"
+        versionName = libs.versions.lib.version.name.get()
     }
     packaging {
         resources {
@@ -82,6 +84,6 @@ android {
 }
 
 dependencies {
-
+    implementation(libs.compose.ui.tooling)
 }
 

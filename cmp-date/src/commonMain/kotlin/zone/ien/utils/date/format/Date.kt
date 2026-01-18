@@ -2,11 +2,11 @@ package zone.ien.utils.date.format
 
 import androidx.compose.runtime.Composable
 import com.sunnychung.lib.multiplatform.kdatetime.KDateTimeFormat
-import ienlab_cmp_library.cmp_date.generated.resources.Res
-import ienlab_cmp_library.cmp_date.generated.resources.date_format
-import ienlab_cmp_library.cmp_date.generated.resources.date_format_no_year
-import ienlab_cmp_library.cmp_date.generated.resources.date_format_no_year_short
-import ienlab_cmp_library.cmp_date.generated.resources.date_format_short
+import zone.ien.utils.cmp_date.generated.resources.Res
+import zone.ien.utils.cmp_date.generated.resources.date_format
+import zone.ien.utils.cmp_date.generated.resources.date_format_no_year
+import zone.ien.utils.cmp_date.generated.resources.date_format_no_year_short
+import zone.ien.utils.cmp_date.generated.resources.date_format_short
 import org.jetbrains.compose.resources.stringResource
 
 val KDateTimeFormat.Companion.DateFormat: KDateTimeFormat

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.android.lint)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.vanniktech.mavenPublish)
 }
 
 kotlin {
@@ -10,6 +11,7 @@ kotlin {
         namespace = "zone.ien.utils.icon"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
+        experimentalProperties["android.experimental.kmp.enableAndroidResources"] = true
 
         withHostTestBuilder {
         }

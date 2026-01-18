@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.android.lint)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.vanniktech.mavenPublish)
 }
 
 kotlin {
@@ -11,6 +12,7 @@ kotlin {
         namespace = "zone.ien.utils.utils"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
+        experimentalProperties["android.experimental.kmp.enableAndroidResources"] = true
 
         withHostTestBuilder {
         }
@@ -28,6 +30,7 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.compose.material3)
             implementation(libs.compose.resources)
+            implementation(libs.kotlinx.io.core)
         }
 
         commonTest.dependencies {
@@ -36,6 +39,7 @@ kotlin {
 
         androidMain.dependencies {
             implementation(libs.android.ui.graphics)
+            implementation(libs.startup.runtime)
         }
 
         getByName("androidDeviceTest").dependencies {

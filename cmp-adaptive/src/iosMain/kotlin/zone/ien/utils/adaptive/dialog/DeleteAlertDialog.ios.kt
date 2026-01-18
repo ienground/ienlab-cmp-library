@@ -2,9 +2,9 @@ package zone.ien.utils.adaptive.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import ienlab_cmp_library.cmp_ui.generated.resources.Res
-import ienlab_cmp_library.cmp_ui.generated.resources.delete_dialog_content
-import ienlab_cmp_library.cmp_ui.generated.resources.delete_dialog_title
+import zone.ien.utils.cmp_ui.generated.resources.Res
+import zone.ien.utils.cmp_ui.generated.resources.delete_dialog_content
+import zone.ien.utils.cmp_ui.generated.resources.delete_dialog_title
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

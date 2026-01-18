@@ -10,10 +10,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ienlab_cmp_library.cmp_ui.generated.resources.Res
-import ienlab_cmp_library.cmp_ui.generated.resources.cancel
-import ienlab_cmp_library.cmp_ui.generated.resources.close
-import ienlab_cmp_library.cmp_ui.generated.resources.ok
+import zone.ien.utils.cmp_ui.generated.resources.Res
+import zone.ien.utils.cmp_ui.generated.resources.cancel
+import zone.ien.utils.cmp_ui.generated.resources.close
+import zone.ien.utils.cmp_ui.generated.resources.ok
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
