@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kashif_e.backdrop.backdrops.layerBackdrop
 import com.kashif_e.backdrop.backdrops.rememberLayerBackdrop
+import com.sunnychung.lib.multiplatform.kdatetime.KZonedDateTime
 import ienlab_cmp_library.example.composeapp.generated.resources.Res
 import ienlab_cmp_library.example.composeapp.generated.resources.compose_multiplatform
 import kotlinx.coroutines.delay
@@ -42,6 +43,8 @@ import zone.ien.utils.adaptive.components.LiquidButton
 import zone.ien.utils.adaptive.components.LiquidSlider
 import zone.ien.utils.adaptive.components.LiquidToggle
 import zone.ien.utils.adaptive.dialog.TextFieldDialog
+import zone.ien.utils.date.fromMillis
+import zone.ien.utils.ui.dialog.M3DatePickerDialog
 import zone.ien.utils.ui.utils.TextFieldDialogData
 import zone.ien.utils.utils.Dlog
 import zone.ien.utils.utils.openAppStoreUrl
@@ -236,31 +239,41 @@ fun App() {
 //                }
 //            )
             
-            TextFieldDialog(
+//            TextFieldDialog(
+//                visible = showDialog,
+//                icon = { Icon(imageVector = Android, contentDescription = null) },
+//                title = "Hello",
+////                message = "World",
+//                textFields = mapOf(
+//                    "hi" to TextFieldDialogData(
+//                        initialValue = "Hello",
+//                        placeholder = "placeholder",
+//                        prefix = "prefix",
+//                        suffix = "suffix",
+//                        keyboardType = KeyboardType.Email
+//                    ),
+//                    "hi2" to TextFieldDialogData(
+//                        initialValue = "Hello",
+//                        placeholder = "placeholder",
+//                        prefix = "prefix",
+//                        suffix = "suffix",
+//                        keyboardType = KeyboardType.Password
+//                    )
+//                ),
+//                onDismiss = { showDialog = false },
+//                onConfirm = {
+//                    Dlog.d(TAG, it.toString())
+//                    showDialog = false
+//                }
+//            )
+
+            M3DatePickerDialog(
                 visible = showDialog,
-                icon = { Icon(imageVector = Android, contentDescription = null) },
                 title = "Hello",
-//                message = "World",
-                textFields = mapOf(
-                    "hi" to TextFieldDialogData(
-                        initialValue = "Hello",
-                        placeholder = "placeholder",
-                        prefix = "prefix",
-                        suffix = "suffix",
-                        keyboardType = KeyboardType.Email
-                    ),
-                    "hi2" to TextFieldDialogData(
-                        initialValue = "Hello",
-                        placeholder = "placeholder",
-                        prefix = "prefix",
-                        suffix = "suffix",
-                        keyboardType = KeyboardType.Password
-                    )
-                ),
                 onDismiss = { showDialog = false },
                 onConfirm = {
-                    Dlog.d(TAG, it.toString())
                     showDialog = false
+                    Dlog.d(TAG, "${KZonedDateTime.fromMillis(it)}")
                 }
             )
 

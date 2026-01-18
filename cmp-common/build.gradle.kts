@@ -29,6 +29,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.compose.material3)
+            implementation(libs.kdatetime)
         }
 
         commonTest.dependencies {

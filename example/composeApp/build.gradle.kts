@@ -40,6 +40,7 @@ kotlin {
             implementation(libs.haze)
 
             implementation(libs.kotlinx.io.core)
+            implementation(libs.kdatetime)
 
             implementation(project(":cmp-common"))
             implementation(project(":cmp-adaptive"))
