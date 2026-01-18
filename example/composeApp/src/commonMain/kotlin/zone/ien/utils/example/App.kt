@@ -40,6 +40,7 @@ import zone.ien.utils.adaptive.components.LiquidButton
 import zone.ien.utils.adaptive.components.LiquidSlider
 import zone.ien.utils.adaptive.components.LiquidToggle
 import zone.ien.utils.adaptive.dialog.DeleteAlertDialog
+import zone.ien.utils.adaptive.dialog.NetworkAlertDialog
 import zone.ien.utils.adaptive.dialog.ProgressDialog
 import zone.ien.utils.adaptive.dialog.SaveAlertDialog
 import zone.ien.utils.adaptive.dialog.UIAlertActionStyle
@@ -208,6 +209,11 @@ fun App() {
 //                styleDismiss = UIAlertActionStyle.Default,
 //                onDismiss = { showDialog = false }
 //            )
+            NetworkAlertDialog(
+                visible = showDialog,
+                onDismiss = { showDialog = false },
+                onConfirm = { showDialog = false }
+            )
 
 
 //            AlertDialog(

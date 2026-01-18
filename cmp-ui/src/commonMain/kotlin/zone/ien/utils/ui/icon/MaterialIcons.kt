@@ -3,8 +3,13 @@ package zone.ien.utils.ui.icon
 import androidx.compose.runtime.Composable
 import zone.ien.utils.icon.IconStyle
 import zone.ien.utils.icon.LocalIconStyle
+import zone.ien.utils.ui.icon.filled.CloudOff
 import zone.ien.utils.ui.icon.filled.Delete
 import zone.ien.utils.ui.icon.filled.Save
+import zone.ien.utils.ui.icon.rounded.CloudOff
+import zone.ien.utils.ui.icon.rounded.Delete
+import zone.ien.utils.ui.icon.rounded.Save
+import zone.ien.utils.ui.icon.sharp.CloudOff
 import zone.ien.utils.ui.icon.filled.Update
 import zone.ien.utils.ui.icon.rounded.Delete
 import zone.ien.utils.ui.icon.rounded.Save
@@ -30,6 +35,12 @@ object MaterialIcons {
         IconStyle.Filled -> Filled.Save
         IconStyle.Rounded -> Rounded.Save
         IconStyle.Sharp -> Sharp.Save
+    }
+
+    val CloudOff @Composable get() = when (LocalIconStyle.current) {
+        IconStyle.Filled -> Filled.CloudOff
+        IconStyle.Rounded -> Rounded.CloudOff
+        IconStyle.Sharp -> Sharp.CloudOff
     }
 
     val Update @Composable get() = when (LocalIconStyle.current) {

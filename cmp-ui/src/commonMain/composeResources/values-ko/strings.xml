@@ -2,6 +2,7 @@
     <string name="close">닫기</string>
     <string name="ok">확인</string>
     <string name="cancel">취소</string>
+    <string name="retry">다시 시도</string>
 
     <!--Delete Dialog-->
     <string name="delete_dialog_title">삭제할까요?</string>
@@ -12,6 +13,10 @@
     <string name="save_dialog_content">저장하지 않은 정보는 손실됩니다.</string>
     <string name="not_save">저장하지 않음</string>
     <string name="save">저장</string>
+
+    <!--Network Dialog-->
+    <string name="network_dialog_title">연결 안 됨</string>
+    <string name="network_dialog_content">인터넷에 연결되지 않았습니다.</string>
 
     <!--Version Update Dialog-->
     <string name="version_update_dialog_title">업데이트 필요</string>
