@@ -36,6 +36,7 @@ runner = "1.7.0"
 coreVersion = "1.7.0"
 junit = "1.3.0"
 android-ui-graphics = "1.10.1"
+androidx-core = "1.17.0"
 
 [libraries]
 
@@ -63,13 +64,15 @@ kdatetime = { group = "io.github.sunny-chung", name = "kdatetime-multiplatform",
 kotlin-coroutine = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlin-coroutine" }
 startup-runtime = { group = "androidx.startup", name = "startup-runtime", version.ref = "startup-runtime" } # android only
 kotlinx-io-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-io-core", version.ref = "kotlinx-io-core" }
+android-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "android-ui-graphics" } # android only
+androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core"} # android only
+
 
 # test
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 core = { group = "androidx.test", name = "core", version.ref = "coreVersion" }
 junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
-android-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "android-ui-graphics" }
 
 [plugins]
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }

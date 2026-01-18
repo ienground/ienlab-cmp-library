@@ -40,6 +40,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.android.ui.graphics)
             implementation(libs.startup.runtime)
+            implementation(libs.androidx.core)
         }
 
         getByName("androidDeviceTest").dependencies {
