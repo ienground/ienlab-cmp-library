@@ -3,7 +3,6 @@ package zone.ien.utils.adaptive.dialog
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import zone.ien.utils.ui.dialog.M3TextFieldDialog
-import zone.ien.utils.ui.utils.TextFieldDialogData
 
 @Composable
 actual fun TextFieldDialog(
@@ -12,7 +11,7 @@ actual fun TextFieldDialog(
     icon: @Composable (() -> Unit)?,
     title: String?,
     message: String?,
-    textFields: Map<String, zone.ien.utils.ui.utils.TextFieldDialogData>,
+    textFields: Map<String, TextFieldDialogData>,
     textDismiss: String,
     styleDismiss: UIAlertActionStyle,
     onDismiss: () -> Unit,
