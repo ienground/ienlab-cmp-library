@@ -46,6 +46,8 @@ import zone.ien.utils.adaptive.dialog.UIAlertActionStyle
 import zone.ien.utils.ui.dialog.M3DeleteAlertDialog
 import zone.ien.utils.utils.Dlog
 import zone.ien.utils.utils.getDataDirectory
+import zone.ien.utils.utils.openAppStoreUrl
+import zone.ien.utils.utils.openUrl
 
 const val TAG = "CmpLibTA"
 
@@ -142,10 +144,24 @@ fun App() {
                             backdrop = backdrop
                         )
                         LiquidButton(
-                            onClick = { showDialog = true },
+                            onClick = {
+//                                showDialog = true
+                                openUrl("https://www.naver.com")
+                            },
                             tint = Color(0xFF0088FF),
                             backdrop = backdrop
                         ) {
+                            Text(text = "hi")
+                        }
+                        LiquidButton(
+                            onClick = {
+//                                showDialog = true
+                                openAppStoreUrl("org.realsoup.lovehero", "6755778247")
+                            },
+                            tint = Color(0xFF0088FF),
+                            backdrop = backdrop
+                        ) {
+
                             Text(text = "hi")
                         }
                     }
