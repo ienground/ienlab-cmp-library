@@ -12,4 +12,10 @@
     <string name="save_dialog_content">저장하지 않은 정보는 손실됩니다.</string>
     <string name="not_save">저장하지 않음</string>
     <string name="save">저장</string>
+
+    <!--Version Update Dialog-->
+    <string name="version_update_dialog_title">업데이트 필요</string>
+    <string name="version_update_dialog_content">%1$s 버전이 낮아 접속할 수 없습니다. 최신 버전으로 업데이트하세요.</string>
+    <string name="move_to_play_store">Play 스토어로 이동</string>
+    <string name="move_to_app_store">App Store로 이동</string>
 </resources>
