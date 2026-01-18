@@ -2,7 +2,6 @@ package zone.ien.utils.ui.utils
 
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.VisualTransformation
 
 data class TextFieldDialogData(
     val initialValue: String = "",

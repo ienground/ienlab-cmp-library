@@ -18,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecureTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,20 +41,9 @@ import org.jetbrains.compose.resources.painterResource
 import zone.ien.utils.adaptive.components.LiquidButton
 import zone.ien.utils.adaptive.components.LiquidSlider
 import zone.ien.utils.adaptive.components.LiquidToggle
-import zone.ien.utils.adaptive.dialog.DeleteAlertDialog
-import zone.ien.utils.adaptive.dialog.NetworkAlertDialog
-import zone.ien.utils.adaptive.dialog.ProgressDialog
-import zone.ien.utils.adaptive.dialog.SaveAlertDialog
 import zone.ien.utils.adaptive.dialog.TextFieldDialog
-import zone.ien.utils.adaptive.dialog.UIAlertActionStyle
-import zone.ien.utils.adaptive.dialog.UpdateAlertDialog
-import zone.ien.utils.ui.dialog.M3BaseAlertDialog
-import zone.ien.utils.ui.dialog.M3BaseTextFieldDialog
-import zone.ien.utils.ui.dialog.M3DeleteAlertDialog
-import zone.ien.utils.ui.dialog.M3TextFieldDialog
 import zone.ien.utils.ui.utils.TextFieldDialogData
 import zone.ien.utils.utils.Dlog
-import zone.ien.utils.utils.getDataDirectory
 import zone.ien.utils.utils.openAppStoreUrl
 import zone.ien.utils.utils.openUrl
 

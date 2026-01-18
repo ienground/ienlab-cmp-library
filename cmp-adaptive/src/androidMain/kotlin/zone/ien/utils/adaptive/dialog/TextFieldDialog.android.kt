@@ -12,7 +12,7 @@ actual fun TextFieldDialog(
     icon: @Composable (() -> Unit)?,
     title: String?,
     message: String?,
-    textFields: Map<String, TextFieldDialogData>,
+    textFields: Map<String, zone.ien.utils.ui.utils.TextFieldDialogData>,
     textDismiss: String,
     styleDismiss: UIAlertActionStyle,
     onDismiss: () -> Unit,
