@@ -1,31 +1,28 @@
-package zone.ien.utils.ui.dialog
+package zone.ien.utils.adaptive.dialog
 
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
-import zone.ien.utils.cmp_ui.generated.resources.move_to_play_store
+import zone.ien.utils.cmp_ui.generated.resources.move_to_app_store
 import zone.ien.utils.cmp_ui.generated.resources.version_update_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.version_update_dialog_title
 import zone.ien.utils.ui.icon.MaterialIcons
 
 @Composable
-fun M3UpdateAlertDialog(
-    modifier: Modifier = Modifier,
+actual fun UpdateAlertDialog(
+    modifier: Modifier,
     visible: Boolean,
     appName: String,
-    onDismiss: () -> Unit,
+    onDismiss: () -> Unit
 ) {
-    M3AlertDialog(
+    AlertDialog(
         modifier = modifier,
         visible = visible,
-        icon = { Icon(imageVector = MaterialIcons.Update, contentDescription = null) },
+        icon = null,
         title = stringResource(Res.string.version_update_dialog_title),
         message = stringResource(Res.string.version_update_dialog_content, appName),
         onDismiss = onDismiss,
-        textDismiss = updateAlertDismissText
+        textDismiss = stringResource(Res.string.move_to_app_store)
     )
 }
-
-internal expect val updateAlertDismissText: String
