@@ -156,7 +156,9 @@ actual fun AlertDialog(
             handler = {
                 onPositive()
             }
-        )
+        ).apply {
+            setEnabled(enabledPositive)
+        }
 
         alertController.addAction(neutralAction)
         alertController.addAction(negativeAction)
