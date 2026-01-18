@@ -10,7 +10,6 @@ data class TextFieldDialogData(
     val placeholder: String = "",
     val prefix: String? = null,
     val suffix: String? = null,
-    val visualTransformation: VisualTransformation = VisualTransformation.None,
     val keyboardType: KeyboardType = KeyboardType.Unspecified,
     val imeAction: ImeAction = ImeAction.Unspecified,
     val maxLines: Int = Int.MAX_VALUE,

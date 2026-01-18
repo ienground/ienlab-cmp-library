@@ -12,15 +12,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.mapSaver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
@@ -44,19 +40,22 @@ fun M3BaseTextFieldDialog(
             modifier = modifier,
             icon = icon,
             title = title,
-            content = message?.let { {
-                Text(
-                    text = it,
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .fillMaxWidth()
-                )
+            content = {
                 Column(
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    message?.let {
+                        Text(
+                            text = it,
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp)
+                                .padding(bottom = 16.dp)
+                                .fillMaxWidth()
+                        )
+                    }
                     textFields()
                 }
-            } },
+            },
             onCancel = onDismiss,
             buttons = { Row(modifier = it) { buttons() } }
         )
@@ -84,9 +83,11 @@ fun M3TextFieldDialog(
         }
     }
 
-    val enabledConfirm = textFields.all { (key, field) ->
-        val text = textStates[key] ?: ""
-        field.valid(text)
+    val enabledConfirm by derivedStateOf {
+        textFields.all { (key, field) ->
+            val text = textStates[key] ?: ""
+            field.valid(text)
+        }
     }
 
     M3BaseTextFieldDialog(
@@ -104,7 +105,6 @@ fun M3TextFieldDialog(
                     placeholder = { Text(text = field.placeholder) },
                     prefix = field.prefix?.let { { Text(text = it) } },
                     suffix = field.suffix?.let { { Text(text = it) } },
-                    visualTransformation = field.visualTransformation,
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = field.keyboardType,
                         imeAction = field.imeAction

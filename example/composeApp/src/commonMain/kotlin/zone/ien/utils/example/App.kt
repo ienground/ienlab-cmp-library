@@ -46,6 +46,7 @@ import zone.ien.utils.adaptive.dialog.DeleteAlertDialog
 import zone.ien.utils.adaptive.dialog.NetworkAlertDialog
 import zone.ien.utils.adaptive.dialog.ProgressDialog
 import zone.ien.utils.adaptive.dialog.SaveAlertDialog
+import zone.ien.utils.adaptive.dialog.TextFieldDialog
 import zone.ien.utils.adaptive.dialog.UIAlertActionStyle
 import zone.ien.utils.adaptive.dialog.UpdateAlertDialog
 import zone.ien.utils.ui.dialog.M3BaseAlertDialog
@@ -247,19 +248,25 @@ fun App() {
 //                }
 //            )
             
-            M3TextFieldDialog(
+            TextFieldDialog(
                 visible = showDialog,
                 icon = { Icon(imageVector = Android, contentDescription = null) },
                 title = "Hello",
-                message = "World",
+//                message = "World",
                 textFields = mapOf(
                     "hi" to TextFieldDialogData(
                         initialValue = "Hello",
-                        valid = { it == "k" },
                         placeholder = "placeholder",
                         prefix = "prefix",
                         suffix = "suffix",
                         keyboardType = KeyboardType.Email
+                    ),
+                    "hi2" to TextFieldDialogData(
+                        initialValue = "Hello",
+                        placeholder = "placeholder",
+                        prefix = "prefix",
+                        suffix = "suffix",
+                        keyboardType = KeyboardType.Password
                     )
                 ),
                 onDismiss = { showDialog = false },

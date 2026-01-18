@@ -4,7 +4,7 @@ kotlin = "2.2.21"
 android-minSdk = "29"
 android-compileSdk = "36"
 android-targetSdk = "36"
-lib-version-name = "0.1.1-alpha02"
+lib-version-name = "0.1.1-alpha03"
 
 # plugin
 compose-plugin = "1.10.0"
