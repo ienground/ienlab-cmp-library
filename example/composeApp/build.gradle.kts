@@ -41,7 +41,7 @@ kotlin {
 
             implementation(libs.kotlinx.io.core)
 
-//            implementation(project(":cmp-common"))
+            implementation(project(":cmp-common"))
             implementation(project(":cmp-adaptive"))
             implementation(project(":cmp-ui"))
             implementation(project(":cmp-date"))

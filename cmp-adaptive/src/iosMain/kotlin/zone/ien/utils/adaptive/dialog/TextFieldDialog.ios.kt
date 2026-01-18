@@ -135,7 +135,6 @@ actual fun TextFieldDialog(
                 NSNotificationCenter.defaultCenter.addObserverForName(
                     UITextFieldTextDidChangeNotification, `object` = textField, queue = NSOperationQueue.mainQueue()) { notification ->
                     textStates[key] = textField?.text.orEmpty()
-                    println(textField?.text.orEmpty())
                 }
             }
         }

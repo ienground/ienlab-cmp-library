@@ -3,6 +3,7 @@ package zone.ien.utils.adaptive.dialog
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import zone.ien.utils.ui.dialog.M3TextFieldDialog
+import zone.ien.utils.ui.utils.TextFieldDialogData
 
 @Composable
 actual fun TextFieldDialog(
