@@ -1,10 +1,16 @@
 package zone.ien.utils.ui.dialog
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
@@ -14,6 +20,7 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -21,8 +28,15 @@ import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimeInput
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
@@ -31,11 +45,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
 import zone.ien.utils.cmp_ui.generated.resources.ok
+import zone.ien.utils.ui.icon.MaterialIcons
 import zone.ien.utils.ui.utils.rememberMyDatePickerState
 import kotlin.math.max
 
@@ -131,6 +147,72 @@ fun M3DatePickerDialog(
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun M3TimePickerDialog(
+    modifier: Modifier = Modifier,
+    visible: Boolean,
+    initialHour: Int,
+    initialMinute: Int,
+    is24Hour: Boolean = false,
+    title: String,
+    onDismiss: () -> Unit,
+    onConfirm: (Int, Int) -> Unit
+) {
+    if (visible) {
+        val timePickerState = rememberTimePickerState(
+            initialHour = initialHour,
+            initialMinute = initialMinute,
+            is24Hour = is24Hour,
+        )
+        var isTimePickerDial by remember { mutableStateOf(true) }
+
+        Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = true)) {
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                tonalElevation = 6.dp,
+                modifier = modifier
+                    .height(IntrinsicSize.Min)
+                    .background(
+                        shape = MaterialTheme.shapes.extraLarge,
+                        color = MaterialTheme.colorScheme.surface
+                    ),
+            ) {
+                Column {
+                    Text(text = title, modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 24.dp, end = 24.dp, top = 16.dp))
+                    if (isTimePickerDial) {
+                        TimePicker(state = timePickerState, modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp))
+                    } else {
+                        TimeInput(state = timePickerState, modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp))
+                    }
+                    Row(modifier = Modifier.padding(horizontal = 16.dp)) {
+                        androidx.compose.material3.IconButton(onClick = {
+                            isTimePickerDial = !isTimePickerDial
+                        }) {
+                            AnimatedContent(
+                                targetState = if (isTimePickerDial) MaterialIcons.Keyboard else MaterialIcons.Schedule,
+                                label = "time_picker_dial"
+                            ) {
+                                Icon(imageVector = it, contentDescription = "", tint = MaterialTheme.colorScheme.onSurface)
+                            }
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
+                        TextButton(onClick = onDismiss) {
+                            Text(text = stringResource(Res.string.cancel))
+                        }
+                        TextButton(onClick = { onConfirm(timePickerState.hour, timePickerState.minute) }) {
+                            Text(text = stringResource(Res.string.ok))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 internal fun AlertDialogFlowRow(
