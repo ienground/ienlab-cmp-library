@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kashif_e.backdrop.backdrops.layerBackdrop
 import com.kashif_e.backdrop.backdrops.rememberLayerBackdrop
+import com.sunnychung.lib.multiplatform.kdatetime.KDate
 import com.sunnychung.lib.multiplatform.kdatetime.KZonedDateTime
 import ienlab_cmp_library.example.composeapp.generated.resources.Res
 import ienlab_cmp_library.example.composeapp.generated.resources.compose_multiplatform
@@ -42,8 +43,11 @@ import org.jetbrains.compose.resources.painterResource
 import zone.ien.utils.adaptive.components.LiquidButton
 import zone.ien.utils.adaptive.components.LiquidSlider
 import zone.ien.utils.adaptive.components.LiquidToggle
+import zone.ien.utils.adaptive.dialog.DatePickerDialog
 import zone.ien.utils.adaptive.dialog.TextFieldDialog
 import zone.ien.utils.date.fromMillis
+import zone.ien.utils.date.now
+import zone.ien.utils.date.timeInMillis
 import zone.ien.utils.ui.dialog.M3DatePickerDialog
 import zone.ien.utils.ui.utils.TextFieldDialogData
 import zone.ien.utils.utils.Dlog
@@ -267,10 +271,14 @@ fun App() {
 //                }
 //            )
 
-            M3DatePickerDialog(
+            DatePickerDialog(
                 visible = showDialog,
                 title = "Hello",
-                onDismiss = { showDialog = false },
+                initialSelectedDateMillis = KDate(2023, 1, 1).timeInMillis(),
+                onDismiss = {
+                    Dlog.d(TAG, "dimiss date picker dialog")
+                    showDialog = false
+                },
                 onConfirm = {
                     showDialog = false
                     Dlog.d(TAG, "${KZonedDateTime.fromMillis(it)}")
