@@ -5,17 +5,23 @@ import zone.ien.utils.icon.IconStyle
 import zone.ien.utils.icon.LocalIconStyle
 import zone.ien.utils.ui.icon.filled.CloudOff
 import zone.ien.utils.ui.icon.filled.Delete
+import zone.ien.utils.ui.icon.filled.Keyboard
 import zone.ien.utils.ui.icon.filled.Save
+import zone.ien.utils.ui.icon.filled.Schedule
 import zone.ien.utils.ui.icon.rounded.CloudOff
 import zone.ien.utils.ui.icon.rounded.Delete
 import zone.ien.utils.ui.icon.rounded.Save
 import zone.ien.utils.ui.icon.sharp.CloudOff
 import zone.ien.utils.ui.icon.filled.Update
 import zone.ien.utils.ui.icon.rounded.Delete
+import zone.ien.utils.ui.icon.rounded.Keyboard
 import zone.ien.utils.ui.icon.rounded.Save
+import zone.ien.utils.ui.icon.rounded.Schedule
 import zone.ien.utils.ui.icon.rounded.Update
 import zone.ien.utils.ui.icon.sharp.Delete
+import zone.ien.utils.ui.icon.sharp.Keyboard
 import zone.ien.utils.ui.icon.sharp.Save
+import zone.ien.utils.ui.icon.sharp.Schedule
 import zone.ien.utils.ui.icon.sharp.Update
 
 object MaterialIcons {
@@ -47,5 +53,17 @@ object MaterialIcons {
         IconStyle.Filled -> Filled.Update
         IconStyle.Rounded -> Rounded.Update
         IconStyle.Sharp -> Sharp.Update
+    }
+
+    val Keyboard @Composable get() = when (LocalIconStyle.current) {
+        IconStyle.Filled -> Filled.Keyboard
+        IconStyle.Rounded -> Rounded.Keyboard
+        IconStyle.Sharp -> Sharp.Keyboard
+    }
+
+    val Schedule @Composable get() = when (LocalIconStyle.current) {
+        IconStyle.Filled -> Filled.Schedule
+        IconStyle.Rounded -> Rounded.Schedule
+        IconStyle.Sharp -> Sharp.Schedule
     }
 }
