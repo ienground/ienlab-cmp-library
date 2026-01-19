@@ -22,3 +22,18 @@ expect fun DatePickerDialog(
     onDismiss: () -> Unit,
     onConfirm: (Long) -> Unit,
 )
+
+/**
+ * @param is24Hour depends on System settings in iOS.
+ */
+@Composable
+expect fun TimePickerDialog(
+    modifier: Modifier = Modifier,
+    visible: Boolean,
+    initialHour: Int,
+    initialMinute: Int,
+    is24Hour: Boolean = false,
+    title: String,
+    onDismiss: () -> Unit,
+    onConfirm: (Int, Int) -> Unit
+)

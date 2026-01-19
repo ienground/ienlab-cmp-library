@@ -45,6 +45,7 @@ import zone.ien.utils.adaptive.components.LiquidSlider
 import zone.ien.utils.adaptive.components.LiquidToggle
 import zone.ien.utils.adaptive.dialog.DatePickerDialog
 import zone.ien.utils.adaptive.dialog.TextFieldDialog
+import zone.ien.utils.adaptive.dialog.TimePickerDialog
 import zone.ien.utils.date.fromMillis
 import zone.ien.utils.date.now
 import zone.ien.utils.date.timeInMillis
@@ -73,6 +74,7 @@ fun App() {
             var text1 by remember { mutableStateOf("") }
             val text2 = rememberTextFieldState()
             var showDialog by remember { mutableStateOf(false) }
+            var showDialog2 by remember { mutableStateOf(false) }
             var switchValue by remember { mutableStateOf(false) }
             var value by remember { mutableStateOf(0.5f) }
             val backdrop = rememberLayerBackdrop()
@@ -159,13 +161,12 @@ fun App() {
                         }
                         LiquidButton(
                             onClick = {
-//                                showDialog = true
-                                openUrl("https://www.naver.com")
+                                showDialog2 = true
                             },
                             tint = Color(0xFF0088FF),
                             backdrop = backdrop
                         ) {
-                            Text(text = "url")
+                            Text(text = "time")
                         }
                         LiquidButton(
                             onClick = {
@@ -282,6 +283,20 @@ fun App() {
                 onConfirm = {
                     showDialog = false
                     Dlog.d(TAG, "${KZonedDateTime.fromMillis(it)}")
+                }
+            )
+            TimePickerDialog(
+                visible = showDialog2,
+                title = "Hello",
+                initialHour = 5,
+                initialMinute = 20,
+                onDismiss = {
+                    Dlog.d(TAG, "dimiss time picker dialog")
+                    showDialog2 = false
+                },
+                onConfirm = { hour, minute ->
+                    showDialog2 = false
+                    Dlog.d(TAG, "${hour} $minute")
                 }
             )
 
