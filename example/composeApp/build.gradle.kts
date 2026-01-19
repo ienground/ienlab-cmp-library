@@ -46,7 +46,6 @@ kotlin {
             implementation(project(":cmp-adaptive"))
             implementation(project(":cmp-ui"))
             implementation(project(":cmp-date"))
-//            implementation(project(":cmp-firebase"))
             implementation(project(":cmp-icon"))
             implementation(project(":cmp-utils"))
             implementation(project(":cmp-navigation"))

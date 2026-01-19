@@ -204,112 +204,6 @@ private fun BaseDateTimePickerDialog(
     }
 }
 
-/*
-@OptIn(ExperimentalForeignApi::class)
-@Composable
-actual fun DatePickerDialog(
-    modifier: Modifier,
-    visible: Boolean,
-    initialSelectedDateMillis: Long?,
-    initialDisplayedMonthMillis: Long?,
-    yearRange: IntRange,
-    initialDisplayMode: DisplayMode,
-    selectableDates: SelectableDates,
-    title: String,
-    onDismiss: () -> Unit,
-    onConfirm: (Long) -> Unit
-) {
-    val delegate = remember { object: NSObject(), UISheetPresentationControllerDelegateProtocol {
-        override fun presentationControllerDidDismiss(presentationController: UIPresentationController) {
-            onDismiss()
-        }
-    } }
-    var datePickerRef by remember { mutableStateOf<UIDatePicker?>(null) }
-    val buttonTarget = remember { object: NSObject() {
-        @ObjCAction
-        fun onBackClick() = onDismiss()
-
-        @ObjCAction
-        fun onFinishClick() {
-            datePickerRef?.date?.let { onConfirm(it.timeIntervalSince1970.toLong() * 1000) }
-        }
-    } }
-
-    LaunchedEffect(visible) {
-        if (visible) {
-            val viewController = UIViewController()
-            val navBar = UINavigationBar()
-            val navItem = UINavigationItem(title = title)
-
-            navItem.leftBarButtonItem = UIBarButtonItem(
-                image = UIImage.systemImageNamed("xmark"),
-                style = UIBarButtonItemStyle.UIBarButtonItemStylePlain,
-                target = buttonTarget,
-                action = NSSelectorFromString("onBackClick")
-            )
-
-            navItem.rightBarButtonItem = UIBarButtonItem(
-                image = UIImage.systemImageNamed("checkmark"),
-                style = UIBarButtonItemStyle.UIBarButtonItemStyleDone,
-                target = buttonTarget,
-                action = NSSelectorFromString("onFinishClick")
-            )
-
-            navBar.items = listOf(navItem)
-            navBar.translatesAutoresizingMaskIntoConstraints = false
-
-            viewController.view.addSubview(navBar)
-
-            NSLayoutConstraint.activateConstraints(listOf(
-                navBar.topAnchor.constraintEqualToAnchor(viewController.view.safeAreaLayoutGuide.topAnchor, 16.0),
-                navBar.leadingAnchor.constraintEqualToAnchor(viewController.view.leadingAnchor),
-                navBar.trailingAnchor.constraintEqualToAnchor(viewController.view.trailingAnchor),
-            ))
-
-            val datePicker = UIDatePicker().apply {
-                this.datePickerMode = UIDatePickerMode.UIDatePickerModeDate
-                this.preferredDatePickerStyle = UIDatePickerStyle.UIDatePickerStyleWheels
-                initialSelectedDateMillis?.let { this.setDate(NSDate.dateWithTimeIntervalSince1970(it / 1000.0)) }
-                this.minimumDate = createNSDate(yearRange.first, 1, 1)
-                this.maximumDate = createNSDate(yearRange.last, 12, 31)
-            }
-            datePickerRef = datePicker
-
-            viewController.view.addSubview(datePicker)
-            datePicker.translatesAutoresizingMaskIntoConstraints = false
-
-            NSLayoutConstraint.activateConstraints(listOf(
-                datePicker.topAnchor.constraintEqualToAnchor(navBar.bottomAnchor),
-                datePicker.leadingAnchor.constraintEqualToAnchor(viewController.view.leadingAnchor, constant = 16.0),
-                datePicker.trailingAnchor.constraintEqualToAnchor(viewController.view.trailingAnchor, constant = -16.0),
-            ))
-
-
-            val sheet = viewController.sheetPresentationController
-            sheet?.detents = listOf(
-                UISheetPresentationControllerDetent.customDetentWithIdentifier(
-                    identifier = "contentSize",
-                    resolver = { _ -> 260.0 }
-                )
-            )
-
-            sheet?.prefersGrabberVisible = true
-            sheet?.prefersScrollingExpandsWhenScrolledToEdge = true
-            sheet?.delegate = delegate
-
-            UIApplication.sharedApplication.keyWindow?.rootViewController?.presentViewController(viewController, true, null)
-        } else {
-            UIApplication.sharedApplication.keyWindow?.rootViewController?.dismissViewControllerAnimated(true, null)
-            datePickerRef = null
-        }
-    }
-}
-
- */
-
-
-
-@OptIn(ExperimentalForeignApi::class)
 @Composable
 actual fun DatePickerDialog(
     modifier: Modifier,
@@ -383,7 +277,6 @@ private fun createTimeNSDate(hour: Int, minute: Int): NSDate {
     return NSCalendar.currentCalendar.dateFromComponents(components)!!
 }
 
-// 선택된 시간 분해
 private fun NSDate.getHourMinute(): Pair<Int, Int> {
     val calendar = NSCalendar.currentCalendar
     val components = calendar.components(NSCalendarUnitHour or NSCalendarUnitMinute, this)
