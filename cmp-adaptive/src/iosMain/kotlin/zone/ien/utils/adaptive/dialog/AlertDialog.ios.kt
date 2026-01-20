@@ -29,7 +29,6 @@ fun HigBaseAlertDialog(
     buttons: (UIAlertController) -> Unit
 ) {
     val viewController = LocalUIViewController.current
-
     var alertRef by remember { mutableStateOf<UIAlertController?>(null) }
 
     LaunchedEffect(visible) {

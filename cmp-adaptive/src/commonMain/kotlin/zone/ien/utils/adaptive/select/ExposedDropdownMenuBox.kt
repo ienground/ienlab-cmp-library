@@ -1,0 +1,32 @@
+package zone.ien.utils.adaptive.select
+
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import zone.ien.utils.ui.icon.MaterialIcons
+import zone.ien.utils.ui.view.textfield.M3TextFieldIconButton
+
+/**
+ * @param dropdownMenuItem is not used at iOS.
+ */
+@Composable
+expect fun <T> ExposedDropdownMenuBox(
+    modifier: Modifier = Modifier,
+    itemsWithLabels: Map<T, String>,
+    currentItem: T?,
+    onItemSelected: (T) -> Unit,
+    trailingIconButton: @Composable (
+        onClick: () -> Unit,
+        expanded: Boolean
+    ) -> Unit = { onClick, expanded ->
+        M3TextFieldIconButton(
+            onClick = onClick,
+            icon = if (expanded) MaterialIcons.ArrowDropUp else MaterialIcons.ArrowDropDown
+        )
+    },
+    dropdownMenuItem: @Composable (
+        text: @Composable () -> Unit,
+        onClick: () -> Unit,
+    ) -> Unit = { text, onClick -> DropdownMenuItem(text = text, onClick = onClick) },
+    textField: @Composable (value: String, trailingIcon: @Composable () -> Unit) -> Unit
+)

@@ -44,77 +44,6 @@ import platform.UIKit.UIViewController
 import platform.UIKit.sheetPresentationController
 import platform.darwin.NSObject
 
-/*
-@Composable
-actual fun DatePickerDialog(
-    modifier: Modifier,
-    visible: Boolean,
-    initialSelectedDateMillis: Long?,
-    initialDisplayedMonthMillis: Long?,
-    yearRange: IntRange,
-    initialDisplayMode: DisplayMode,
-    selectableDates: SelectableDates,
-    title: String,
-    onDismiss: () -> Unit,
-    onConfirm: (Long) -> Unit
-) {
-    val viewController = LocalUIViewController.current
-
-    var alertRef by remember { mutableStateOf<UIAlertController?>(null) }
-
-    LaunchedEffect(visible) {
-        if (visible) {
-            val alert = UIAlertController.alertControllerWithTitle(
-                title = title,
-                message = "\n\n\n\n\n\n\n\n\n\n",
-                preferredStyle = UIAlertControllerStyleActionSheet
-            )
-
-            val datePicker = UIDatePicker().apply {
-                this.datePickerMode = UIDatePickerMode.UIDatePickerModeDate
-                this.preferredDatePickerStyle = UIDatePickerStyle.UIDatePickerStyleCompact
-            }
-
-            alert.view.addSubview(datePicker)
-//            NSLayoutConstraint.activateConstraints(listOf(
-//                datePicker.centerXAnchor().constraintEqualToAnchor(alert.view.centerXAnchor),
-//                datePicker.centerYAnchor().constraintEqualToAnchor(alert.view.centerYAnchor)
-//            ))
-
-            val dismissAction = UIAlertAction.actionWithTitle(
-                title = "dismiss",
-                style = UIAlertActionStyleCancel,
-//                style = styleDismiss.toStyle(),
-                handler = {
-                    onDismiss()
-                }
-            )
-            val confirmAction = UIAlertAction.actionWithTitle(
-                title = "confirm",
-                style = UIAlertActionStyleDefault,
-//                title = textConfirm,
-//                style = styleConfirm.toStyle(),
-                handler = {
-                    onConfirm(0L)
-                }
-            ).apply {
-//                setEnabled(enabledConfirm)
-            }
-
-            alert.addAction(dismissAction)
-            alert.addAction(confirmAction)
-
-            alertRef = alert
-            viewController.presentViewController(alert, animated = true, completion = null)
-        } else {
-            alertRef?.dismissViewControllerAnimated(true, null)
-            alertRef = null
-        }
-    }
-}
-
- */
-
 @OptIn(ExperimentalForeignApi::class)
 @Composable
 private fun BaseDateTimePickerDialog(
@@ -182,7 +111,6 @@ private fun BaseDateTimePickerDialog(
                 datePicker.leadingAnchor.constraintEqualToAnchor(viewController.view.leadingAnchor, constant = 16.0),
                 datePicker.trailingAnchor.constraintEqualToAnchor(viewController.view.trailingAnchor, constant = -16.0),
             ))
-
 
             val sheet = viewController.sheetPresentationController
             sheet?.detents = listOf(

@@ -46,10 +46,12 @@ import zone.ien.utils.adaptive.components.LiquidToggle
 import zone.ien.utils.adaptive.dialog.DatePickerDialog
 import zone.ien.utils.adaptive.dialog.TextFieldDialog
 import zone.ien.utils.adaptive.dialog.TimePickerDialog
+import zone.ien.utils.adaptive.select.ExposedDropdownMenuBox
 import zone.ien.utils.date.fromMillis
 import zone.ien.utils.date.now
 import zone.ien.utils.date.timeInMillis
 import zone.ien.utils.ui.dialog.M3DatePickerDialog
+import zone.ien.utils.ui.select.M3ExposedDropdownMenuBox
 import zone.ien.utils.ui.utils.TextFieldDialogData
 import zone.ien.utils.utils.Dlog
 import zone.ien.utils.utils.openAppStoreUrl
@@ -124,11 +126,32 @@ fun App() {
                             backdrop = backdrop
                         )
                     }
-                    TextField(
-                        value = text1,
-                        onValueChange = { text1 = it },
+                    var currentItem by remember { mutableStateOf(1) }
+                    ExposedDropdownMenuBox(
+                        itemsWithLabels = mapOf(
+                            1 to "item1",
+                            2 to "item2",
+                            3 to "item3",
+                            4 to "item4",
+                            5 to "item5",
+                            6 to "item6",
+                            7 to "item7",
+                            8 to "item8",
+                            9 to "item9",
+                            10 to "item10",
+                        ),
+                        currentItem = currentItem,
+                        onItemSelected = { currentItem = it },
                         modifier = Modifier.fillMaxWidth()
-                    )
+                    ) { value, icon ->
+                        TextField(
+                            value = value,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = icon,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                     SecureTextField(
                         state = text2,
                         modifier = Modifier

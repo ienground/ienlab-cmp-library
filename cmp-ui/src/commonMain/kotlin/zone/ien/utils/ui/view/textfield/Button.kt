@@ -1,0 +1,80 @@
+package zone.ien.utils.ui.view.textfield
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.dp
+
+@Composable
+fun M3TextFieldIconButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit = {},
+    loading: Boolean = false,
+    enabled: Boolean = true,
+    icon: ImageVector,
+    contentDescription: String? = null
+) {
+    val buttonColors = IconButtonDefaults.iconButtonColors()
+    val containerColor = if (enabled) buttonColors.containerColor else buttonColors.disabledContainerColor
+    val contentColor = if (enabled) buttonColors.contentColor else buttonColors.disabledContentColor
+    Box(
+        modifier = modifier
+            .minimumInteractiveComponentSize()
+            .size(40.dp)
+            .clip(CircleShape)
+            .background(color = containerColor)
+            .combinedClickable(
+                enabled = enabled && !loading,
+                onClick = onClick,
+                onLongClick = onLongClick,
+                role = Role.Button,
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.size(40.dp)
+        ) {
+            AnimatedVisibility(
+                visible = !loading,
+                enter = fadeIn(tween(700)),
+                exit = fadeOut(tween(700))
+            ) {
+                CompositionLocalProvider(LocalContentColor provides contentColor) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = contentDescription
+                    )
+                }
+            }
+            AnimatedVisibility(
+                visible = loading,
+                enter = fadeIn(tween(700)),
+                exit = fadeOut(tween(700))
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+    }
+}
