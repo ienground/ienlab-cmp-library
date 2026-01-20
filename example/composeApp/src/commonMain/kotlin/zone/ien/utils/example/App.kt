@@ -50,6 +50,7 @@ import zone.ien.utils.date.fromMillis
 import zone.ien.utils.date.now
 import zone.ien.utils.date.timeInMillis
 import zone.ien.utils.ui.dialog.M3DatePickerDialog
+import zone.ien.utils.ui.select.M3ExposedDropdownMenuBox
 import zone.ien.utils.ui.utils.TextFieldDialogData
 import zone.ien.utils.utils.Dlog
 import zone.ien.utils.utils.openAppStoreUrl
@@ -124,11 +125,25 @@ fun App() {
                             backdrop = backdrop
                         )
                     }
-                    TextField(
-                        value = text1,
-                        onValueChange = { text1 = it },
+                    var currentItem by remember { mutableStateOf(1) }
+                    M3ExposedDropdownMenuBox(
+                        itemsWithLabels = mapOf(
+                            1 to "item1",
+                            2 to "item2",
+                            3 to "item3"
+                        ),
+                        currentItem = currentItem,
+                        onItemSelected = { currentItem = it },
                         modifier = Modifier.fillMaxWidth()
-                    )
+                    ) { value, icon ->
+                        TextField(
+                            value = value,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = icon,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                     SecureTextField(
                         state = text2,
                         modifier = Modifier
