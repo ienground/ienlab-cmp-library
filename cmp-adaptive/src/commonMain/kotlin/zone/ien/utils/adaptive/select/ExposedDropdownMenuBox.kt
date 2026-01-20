@@ -7,7 +7,6 @@ import zone.ien.utils.ui.icon.MaterialIcons
 import zone.ien.utils.ui.view.textfield.M3TextFieldIconButton
 
 /**
- * @param trailingIconButton is not used at iOS.
  * @param dropdownMenuItem is not used at iOS.
  */
 @Composable

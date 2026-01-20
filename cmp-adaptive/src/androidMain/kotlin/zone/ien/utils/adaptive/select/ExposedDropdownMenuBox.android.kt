@@ -4,10 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import zone.ien.utils.ui.select.M3ExposedDropdownMenuBox
 
-/**
- * @param trailingIconButton is not used at iOS.
- * @param dropdownMenuItem is not used at iOS.
- */
 @Composable
 actual fun <T> ExposedDropdownMenuBox(
     modifier: Modifier,
