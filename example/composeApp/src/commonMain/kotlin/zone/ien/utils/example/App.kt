@@ -127,6 +127,7 @@ fun App() {
                         )
                     }
                     var currentItem by remember { mutableStateOf(1) }
+                    var currentItems by remember { mutableStateOf(listOf(1)) }
                     ExposedDropdownMenuBox(
                         itemsWithLabels = mapOf(
                             1 to "item1",
@@ -142,6 +143,31 @@ fun App() {
                         ),
                         currentItem = currentItem,
                         onItemSelected = { currentItem = it },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { value, icon ->
+                        TextField(
+                            value = value,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = icon,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    M3ExposedDropdownMenuBox(
+                        itemsWithLabels = mapOf(
+                            1 to "item1",
+                            2 to "item2",
+                            3 to "item3",
+                            4 to "item4",
+                            5 to "item5",
+                            6 to "item6",
+                            7 to "item7",
+                            8 to "item8",
+                            9 to "item9",
+                            10 to "item10",
+                        ),
+                        currentItems = currentItems,
+                        onItemsSelected = { currentItems = it },
                         modifier = Modifier.fillMaxWidth()
                     ) { value, icon ->
                         TextField(
