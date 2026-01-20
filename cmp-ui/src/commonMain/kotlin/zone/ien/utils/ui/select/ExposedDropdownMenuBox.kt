@@ -17,7 +17,7 @@ import zone.ien.utils.ui.view.textfield.M3TextFieldIconButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T: Any> M3ExposedDropdownMenuBox(
+fun <T> M3ExposedDropdownMenuBox(
     modifier: Modifier = Modifier,
     itemsWithLabels: Map<T, String>,
     currentItem: T?,
