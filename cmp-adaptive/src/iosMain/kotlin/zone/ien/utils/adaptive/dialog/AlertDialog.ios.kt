@@ -1,6 +1,11 @@
 package zone.ien.utils.adaptive.dialog
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.uikit.LocalUIViewController
 import platform.UIKit.UIAlertAction
@@ -10,32 +15,40 @@ import platform.UIKit.UIAlertActionStyleDestructive
 import platform.UIKit.UIAlertController
 import platform.UIKit.UIAlertControllerStyleAlert
 
-private fun UIAlertActionStyle.toStyle() = when (this) {
+internal fun UIAlertActionStyle.toStyle() = when (this) {
     UIAlertActionStyle.Cancel -> UIAlertActionStyleCancel
     UIAlertActionStyle.Default -> UIAlertActionStyleDefault
     UIAlertActionStyle.Destructive -> UIAlertActionStyleDestructive
 }
 
 @Composable
-private fun BaseAlertDialog(
+fun HigBaseAlertDialog(
     visible: Boolean,
     title: String?,
     message: String?,
     buttons: (UIAlertController) -> Unit
 ) {
     val viewController = LocalUIViewController.current
+    var alertRef by remember { mutableStateOf<UIAlertController?>(null) }
 
-    if (visible) {
-        val alert = UIAlertController.alertControllerWithTitle(
-            title = title,
-            message = message,
-            preferredStyle = UIAlertControllerStyleAlert
-        )
+    LaunchedEffect(visible) {
+        if (visible) {
+            val alert = UIAlertController.alertControllerWithTitle(
+                title = title,
+                message = message,
+                preferredStyle = UIAlertControllerStyleAlert
+            )
 
-        buttons(alert)
+            buttons(alert)
 
-        viewController.presentViewController(alert, animated = true, completion = null)
+            alertRef = alert
+            viewController.presentViewController(alert, animated = true, completion = null)
+        } else {
+            alertRef?.dismissViewControllerAnimated(true, null)
+            alertRef = null
+        }
     }
+
 }
 
 @Composable
@@ -49,7 +62,7 @@ actual fun AlertDialog(
     styleDismiss: UIAlertActionStyle,
     onDismiss: () -> Unit
 ) {
-    BaseAlertDialog(
+    HigBaseAlertDialog(
         visible = visible,
         title = title,
         message = message
@@ -81,7 +94,7 @@ actual fun AlertDialog(
     onConfirm: () -> Unit,
     enabledConfirm: Boolean
 ) {
-    BaseAlertDialog(
+    HigBaseAlertDialog(
         visible = visible,
         title = title,
         message = message
@@ -129,7 +142,7 @@ actual fun AlertDialog(
     onPositive: () -> Unit,
     enabledPositive: Boolean
 ) {
-    BaseAlertDialog(
+    HigBaseAlertDialog(
         visible = visible,
         title = title,
         message = message
@@ -156,7 +169,9 @@ actual fun AlertDialog(
             handler = {
                 onPositive()
             }
-        )
+        ).apply {
+            setEnabled(enabledPositive)
+        }
 
         alertController.addAction(neutralAction)
         alertController.addAction(negativeAction)

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecureTextField
@@ -28,10 +29,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kashif_e.backdrop.backdrops.layerBackdrop
 import com.kashif_e.backdrop.backdrops.rememberLayerBackdrop
+import com.sunnychung.lib.multiplatform.kdatetime.KDate
+import com.sunnychung.lib.multiplatform.kdatetime.KZonedDateTime
 import ienlab_cmp_library.example.composeapp.generated.resources.Res
 import ienlab_cmp_library.example.composeapp.generated.resources.compose_multiplatform
 import kotlinx.coroutines.delay
@@ -39,19 +43,21 @@ import org.jetbrains.compose.resources.painterResource
 import zone.ien.utils.adaptive.components.LiquidButton
 import zone.ien.utils.adaptive.components.LiquidSlider
 import zone.ien.utils.adaptive.components.LiquidToggle
-import zone.ien.utils.adaptive.dialog.DeleteAlertDialog
-import zone.ien.utils.adaptive.dialog.NetworkAlertDialog
-import zone.ien.utils.adaptive.dialog.ProgressDialog
-import zone.ien.utils.adaptive.dialog.SaveAlertDialog
-import zone.ien.utils.adaptive.dialog.UIAlertActionStyle
-import zone.ien.utils.adaptive.dialog.UpdateAlertDialog
-import zone.ien.utils.ui.dialog.M3DeleteAlertDialog
+import zone.ien.utils.adaptive.dialog.DatePickerDialog
+import zone.ien.utils.adaptive.dialog.TextFieldDialog
+import zone.ien.utils.adaptive.dialog.TimePickerDialog
+import zone.ien.utils.adaptive.select.ExposedDropdownMenuBox
+import zone.ien.utils.date.fromMillis
+import zone.ien.utils.date.now
+import zone.ien.utils.date.timeInMillis
+import zone.ien.utils.ui.dialog.M3DatePickerDialog
+import zone.ien.utils.ui.select.M3ExposedDropdownMenuBox
+import zone.ien.utils.ui.utils.TextFieldDialogData
 import zone.ien.utils.utils.Dlog
-import zone.ien.utils.utils.getDataDirectory
 import zone.ien.utils.utils.openAppStoreUrl
 import zone.ien.utils.utils.openUrl
 
-const val TAG = "CmpLibTA"
+const val TAG = "CmpLibTAG"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,6 +76,7 @@ fun App() {
             var text1 by remember { mutableStateOf("") }
             val text2 = rememberTextFieldState()
             var showDialog by remember { mutableStateOf(false) }
+            var showDialog2 by remember { mutableStateOf(false) }
             var switchValue by remember { mutableStateOf(false) }
             var value by remember { mutableStateOf(0.5f) }
             val backdrop = rememberLayerBackdrop()
@@ -119,10 +126,68 @@ fun App() {
                             backdrop = backdrop
                         )
                     }
-                    TextField(
-                        value = text1,
-                        onValueChange = { text1 = it },
+                    var currentItem by remember { mutableStateOf(1) }
+                    var currentItems by remember { mutableStateOf(listOf<Int>()) }
+                    ExposedDropdownMenuBox(
+                        title = "Hello",
+                        itemsWithLabels = mapOf(
+                            1 to "item1",
+                            2 to "item2",
+                            3 to "item3",
+                            4 to "item4",
+                            5 to "item5",
+                            6 to "item6",
+                            7 to "item7",
+                            8 to "item8",
+                            9 to "item9",
+                            10 to "item10",
+                        ),
+                        currentItem = currentItem,
+                        onItemSelected = { currentItem = it },
                         modifier = Modifier.fillMaxWidth()
+                    ) { value, icon ->
+                        TextField(
+                            value = value,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = icon,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    ExposedDropdownMenuBox(
+                        title = "Hello",
+                        itemsWithLabels = mapOf(
+                            1 to "item1",
+                            2 to "item2",
+                            3 to "item3",
+                            4 to "item4",
+                            5 to "item5",
+                            6 to "item6",
+                            7 to "item7",
+                            8 to "item8",
+                            9 to "item9",
+                            10 to "item10",
+                            11 to "item11",
+                            12 to "item12",
+                            13 to "item13",
+                            14 to "item14",
+                            15 to "item15",
+                            16 to "item16",
+                        ),
+                        currentItems = currentItems,
+                        onItemsSelected = { Dlog.d(TAG, "new: $it"); currentItems = it },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { value, icon ->
+                        TextField(
+                            value = value,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = icon,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    Text(
+                        text = "${currentItems.joinToString(",")}"
                     )
                     SecureTextField(
                         state = text2,
@@ -147,13 +212,21 @@ fun App() {
                         )
                         LiquidButton(
                             onClick = {
-//                                showDialog = true
-                                openUrl("https://www.naver.com")
+                                showDialog = true
                             },
                             tint = Color(0xFF0088FF),
                             backdrop = backdrop
                         ) {
-                            Text(text = "hi")
+                            Text(text = "dialog")
+                        }
+                        LiquidButton(
+                            onClick = {
+                                showDialog2 = true
+                            },
+                            tint = Color(0xFF0088FF),
+                            backdrop = backdrop
+                        ) {
+                            Text(text = "time")
                         }
                         LiquidButton(
                             onClick = {
@@ -164,7 +237,7 @@ fun App() {
                             backdrop = backdrop
                         ) {
 
-                            Text(text = "hi")
+                            Text(text = "store")
                         }
                     }
                     LiquidSlider(
@@ -194,10 +267,97 @@ fun App() {
 //                )
             }
 
-            UpdateAlertDialog(
+//            UpdateAlertDialog(
+//                visible = showDialog,
+//                appName = "App Name",
+//                onDismiss = { showDialog = false },
+//            )
+
+//            M3BaseAlertDialog(
+//                visible = showDialog,
+//                icon = { Icon(imageVector = Android, contentDescription = null) },
+//                title = "Hello",
+//                message = "World",
+//                onDismiss = { showDialog = false },
+//                buttons = {
+//                    TextButton(
+//                        onClick = {}
+//                    ) { Text(text = "hi") }
+//                }
+//            )
+
+//            M3BaseTextFieldDialog(
+//                visible = showDialog,
+//                icon = { Icon(imageVector = Android, contentDescription = null) },
+//                title = "Hello",
+//                message = "World",
+//                onDismiss = { showDialog = false },
+//                textFields = {
+////                    TextField(
+////                        value
+////                    )
+//                },
+//                buttons = {
+//                    TextButton(
+//                        onClick = {}
+//                    ) { Text(text = "hi") }
+//                }
+//            )
+            
+//            TextFieldDialog(
+//                visible = showDialog,
+//                icon = { Icon(imageVector = Android, contentDescription = null) },
+//                title = "Hello",
+////                message = "World",
+//                textFields = mapOf(
+//                    "hi" to TextFieldDialogData(
+//                        initialValue = "Hello",
+//                        placeholder = "placeholder",
+//                        prefix = "prefix",
+//                        suffix = "suffix",
+//                        keyboardType = KeyboardType.Email
+//                    ),
+//                    "hi2" to TextFieldDialogData(
+//                        initialValue = "Hello",
+//                        placeholder = "placeholder",
+//                        prefix = "prefix",
+//                        suffix = "suffix",
+//                        keyboardType = KeyboardType.Password
+//                    )
+//                ),
+//                onDismiss = { showDialog = false },
+//                onConfirm = {
+//                    Dlog.d(TAG, it.toString())
+//                    showDialog = false
+//                }
+//            )
+
+            DatePickerDialog(
                 visible = showDialog,
-                appName = "App Name",
-                onDismiss = { showDialog = false },
+                title = "Hello",
+                initialSelectedDateMillis = KDate(2023, 1, 1).timeInMillis(),
+                onDismiss = {
+                    Dlog.d(TAG, "dimiss date picker dialog")
+                    showDialog = false
+                },
+                onConfirm = {
+                    showDialog = false
+                    Dlog.d(TAG, "${KZonedDateTime.fromMillis(it)}")
+                }
+            )
+            TimePickerDialog(
+                visible = showDialog2,
+                title = "Hello",
+                initialHour = 5,
+                initialMinute = 20,
+                onDismiss = {
+                    Dlog.d(TAG, "dimiss time picker dialog")
+                    showDialog2 = false
+                },
+                onConfirm = { hour, minute ->
+                    showDialog2 = false
+                    Dlog.d(TAG, "${hour} $minute")
+                }
             )
 
 
@@ -225,11 +385,6 @@ fun App() {
 //                styleDismiss = UIAlertActionStyle.Default,
 //                onDismiss = { showDialog = false }
 //            )
-            NetworkAlertDialog(
-                visible = showDialog,
-                onDismiss = { showDialog = false },
-                onConfirm = { showDialog = false }
-            )
 
 
 //            AlertDialog(

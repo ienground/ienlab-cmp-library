@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.android.lint)
     alias(libs.plugins.compose.compiler)
@@ -34,6 +35,7 @@ kotlin {
             implementation(libs.backdrop)
 
             implementation(project(":cmp-ui")) // includes UI
+            implementation(project(":cmp-common"))
         }
 
         commonTest.dependencies {
