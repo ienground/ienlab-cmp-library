@@ -127,7 +127,9 @@ fun App() {
                         )
                     }
                     var currentItem by remember { mutableStateOf(1) }
+                    var currentItems by remember { mutableStateOf(listOf<Int>()) }
                     ExposedDropdownMenuBox(
+                        title = "Hello",
                         itemsWithLabels = mapOf(
                             1 to "item1",
                             2 to "item2",
@@ -152,6 +154,41 @@ fun App() {
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
+                    ExposedDropdownMenuBox(
+                        title = "Hello",
+                        itemsWithLabels = mapOf(
+                            1 to "item1",
+                            2 to "item2",
+                            3 to "item3",
+                            4 to "item4",
+                            5 to "item5",
+                            6 to "item6",
+                            7 to "item7",
+                            8 to "item8",
+                            9 to "item9",
+                            10 to "item10",
+                            11 to "item11",
+                            12 to "item12",
+                            13 to "item13",
+                            14 to "item14",
+                            15 to "item15",
+                            16 to "item16",
+                        ),
+                        currentItems = currentItems,
+                        onItemsSelected = { Dlog.d(TAG, "new: $it"); currentItems = it },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { value, icon ->
+                        TextField(
+                            value = value,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = icon,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    Text(
+                        text = "${currentItems.joinToString(",")}"
+                    )
                     SecureTextField(
                         state = text2,
                         modifier = Modifier

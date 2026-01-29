@@ -54,13 +54,13 @@ private fun BaseDateTimePickerDialog(
     onDismiss: () -> Unit,
     onConfirm: (NSDate) -> Unit
 ) {
-    val delegate = remember { object: NSObject(), UISheetPresentationControllerDelegateProtocol {
+    val delegate = remember(visible) { object: NSObject(), UISheetPresentationControllerDelegateProtocol {
         override fun presentationControllerDidDismiss(presentationController: UIPresentationController) {
             onDismiss()
         }
     } }
-    var datePickerRef by remember { mutableStateOf<UIDatePicker?>(null) }
-    val buttonTarget = remember { object: NSObject() {
+    var datePickerRef by remember(visible) { mutableStateOf<UIDatePicker?>(null) }
+    val buttonTarget = remember(visible) { object: NSObject() {
         @ObjCAction
         fun onBackClick() = onDismiss()
 
