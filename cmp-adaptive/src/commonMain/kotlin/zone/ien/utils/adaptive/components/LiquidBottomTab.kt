@@ -1,9 +1,5 @@
 package zone.ien.utils.adaptive.components
 
-/**
- * Original Source by Kyant(@Kyant0)
- */
-
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +16,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
-internal val LocalLiquidBottomTabScale = staticCompositionLocalOf { { 1f } }
+internal val LocalLiquidBottomTabScale =
+    staticCompositionLocalOf { { 1f } }
 
 @Composable
 fun RowScope.LiquidBottomTab(
@@ -28,7 +25,7 @@ fun RowScope.LiquidBottomTab(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val getScale = LocalLiquidBottomTabScale.current
+    val scale = LocalLiquidBottomTabScale.current
     Column(
         modifier
             .clip(RoundedCornerShape(100.dp))
@@ -41,7 +38,7 @@ fun RowScope.LiquidBottomTab(
             .fillMaxHeight()
             .weight(1f)
             .graphicsLayer {
-                val scale = getScale()
+                val scale = scale()
                 scaleX = scale
                 scaleY = scale
             },

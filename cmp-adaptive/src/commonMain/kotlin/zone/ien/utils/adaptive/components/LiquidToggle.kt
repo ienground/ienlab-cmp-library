@@ -3,6 +3,7 @@ package zone.ien.utils.adaptive.components
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,18 +30,17 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.lerp
-import com.kashif_e.backdrop.Backdrop
-import com.kashif_e.backdrop.backdrops.layerBackdrop
-import com.kashif_e.backdrop.backdrops.rememberBackdrop
-import com.kashif_e.backdrop.backdrops.rememberCombinedBackdrop
-import com.kashif_e.backdrop.backdrops.rememberLayerBackdrop
-import com.kashif_e.backdrop.drawBackdrop
-import com.kashif_e.backdrop.effects.blur
-import com.kashif_e.backdrop.effects.lens
-import com.kashif_e.backdrop.highlight.Highlight
-import com.kashif_e.backdrop.shadow.InnerShadow
-import com.kashif_e.backdrop.shadow.Shadow
-import androidx.compose.foundation.shape.RoundedCornerShape
+import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberBackdrop
+import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.drawBackdrop
+import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.lens
+import com.kyant.backdrop.highlight.Highlight
+import com.kyant.backdrop.shadow.InnerShadow
+import com.kyant.backdrop.shadow.Shadow
 import kotlinx.coroutines.flow.collectLatest
 import zone.ien.utils.adaptive.utils.DampedDragAnimation
 
