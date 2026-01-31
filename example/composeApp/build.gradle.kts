@@ -1,16 +1,33 @@
+import com.android.build.api.dsl.androidLibrary
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
+    /*
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
+        }
+    }
+
+     */
+    androidLibrary {
+        namespace = "zone.ien.utils.example"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+
+        androidResources {
+            enable = true
         }
     }
     
@@ -25,9 +42,9 @@ kotlin {
     }
     
     sourceSets {
-        androidMain.dependencies {
-            implementation(libs.activity.compose)
-        }
+//        androidMain.dependencies {
+//            implementation(libs.activity.compose)
+//        }
         commonMain.dependencies {
             implementation(libs.compose.material3)
             implementation(libs.compose.preview)
@@ -56,6 +73,7 @@ kotlin {
     }
 }
 
+/*
 android {
     namespace = "zone.ien.utils.example"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -83,7 +101,5 @@ android {
     }
 }
 
-dependencies {
-    implementation(libs.compose.ui.tooling)
-}
+ */
 
