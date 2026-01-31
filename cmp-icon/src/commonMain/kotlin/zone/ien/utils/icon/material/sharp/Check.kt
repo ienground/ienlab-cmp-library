@@ -1,13 +1,13 @@
-package zone.ien.utils.ui.icon.filled
+package zone.ien.utils.icon.material.sharp
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.ui.icon.MaterialIcons
+import zone.ien.utils.icon.material.MaterialIcons
 
-val MaterialIcons.Filled.Check: ImageVector
+val MaterialIcons.Sharp.Check: ImageVector
     get() {
         if (_Check != null) {
             return _Check!!

@@ -7,7 +7,6 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.move_to_app_store
 import zone.ien.utils.cmp_ui.generated.resources.version_update_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.version_update_dialog_title
-import zone.ien.utils.ui.icon.MaterialIcons
 
 @Composable
 actual fun UpdateAlertDialog(

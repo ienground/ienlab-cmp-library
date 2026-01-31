@@ -32,6 +32,7 @@ kotlin {
             implementation(libs.compose.resources)
 
             implementation(project(":cmp-common"))
+            implementation(project(":cmp-icon"))
         }
 
         commonTest.dependencies {

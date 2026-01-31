@@ -9,7 +9,7 @@ import zone.ien.utils.cmp_ui.generated.resources.close
 import zone.ien.utils.cmp_ui.generated.resources.network_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.network_dialog_title
 import zone.ien.utils.cmp_ui.generated.resources.retry
-import zone.ien.utils.ui.icon.MaterialIcons
+import zone.ien.utils.icon.material.MaterialIcons
 
 @Composable
 fun M3NetworkAlertDialog(

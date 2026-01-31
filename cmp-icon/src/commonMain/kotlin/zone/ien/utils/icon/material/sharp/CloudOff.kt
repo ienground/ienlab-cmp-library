@@ -1,13 +1,13 @@
-package zone.ien.utils.ui.icon.rounded
+package zone.ien.utils.icon.material.sharp
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.ui.icon.MaterialIcons
+import zone.ien.utils.icon.material.MaterialIcons
 
-val MaterialIcons.Rounded.CloudOff: ImageVector
+val MaterialIcons.Sharp.CloudOff: ImageVector
     get() {
         if (_CloudOff != null) {
             return _CloudOff!!
@@ -20,25 +20,19 @@ val MaterialIcons.Rounded.CloudOff: ImageVector
             viewportHeight = 960f
         ).apply {
             path(fill = SolidColor(Color.Black)) {
-                moveTo(260f, 800f)
+                moveTo(792f, 904f)
+                lineTo(686f, 800f)
+                lineTo(260f, 800f)
                 quadToRelative(-92f, 0f, -156f, -64f)
                 reflectiveQuadTo(40f, 580f)
                 quadToRelative(0f, -77f, 47.5f, -137f)
                 reflectiveQuadTo(210f, 366f)
                 quadToRelative(3f, -8f, 6f, -15.5f)
                 reflectiveQuadToRelative(6f, -16.5f)
-                lineTo(84f, 196f)
-                quadToRelative(-11f, -11f, -11f, -28f)
-                reflectiveQuadToRelative(11f, -28f)
-                quadToRelative(11f, -11f, 28f, -11f)
-                reflectiveQuadToRelative(28f, 11f)
-                lineToRelative(680f, 680f)
-                quadToRelative(11f, 11f, 11.5f, 27.5f)
-                reflectiveQuadTo(820f, 876f)
-                quadToRelative(-11f, 11f, -27.5f, 11.5f)
-                reflectiveQuadTo(764f, 877f)
-                lineToRelative(-78f, -77f)
-                lineTo(260f, 800f)
+                lineTo(56f, 168f)
+                lineToRelative(56f, -56f)
+                lineToRelative(736f, 736f)
+                lineToRelative(-56f, 56f)
                 close()
                 moveTo(864f, 750f)
                 lineTo(322f, 209f)

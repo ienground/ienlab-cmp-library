@@ -1,11 +1,11 @@
-package zone.ien.utils.ui.icon.rounded
+package zone.ien.utils.icon.material.rounded
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.ui.icon.MaterialIcons
+import zone.ien.utils.icon.material.MaterialIcons
 
 val MaterialIcons.Rounded.Keyboard: ImageVector
     get() {

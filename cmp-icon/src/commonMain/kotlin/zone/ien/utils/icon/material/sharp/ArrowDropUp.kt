@@ -1,13 +1,13 @@
-package zone.ien.utils.ui.icon.filled
+package zone.ien.utils.icon.material.sharp
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.ui.icon.MaterialIcons
+import zone.ien.utils.icon.material.MaterialIcons
 
-val MaterialIcons.Filled.ArrowDropUp: ImageVector
+val MaterialIcons.Sharp.ArrowDropUp: ImageVector
     get() {
         if (_ArrowDropUp != null) {
             return _ArrowDropUp!!

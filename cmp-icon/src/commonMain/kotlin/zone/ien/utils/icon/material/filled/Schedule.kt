@@ -1,13 +1,13 @@
-package zone.ien.utils.ui.icon.rounded
+package zone.ien.utils.icon.material.filled
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.ui.icon.MaterialIcons
+import zone.ien.utils.icon.material.MaterialIcons
 
-val MaterialIcons.Rounded.Schedule: ImageVector
+val MaterialIcons.Filled.Schedule: ImageVector
     get() {
         if (_Schedule != null) {
             return _Schedule!!
@@ -20,21 +20,13 @@ val MaterialIcons.Rounded.Schedule: ImageVector
             viewportHeight = 960f
         ).apply {
             path(fill = SolidColor(Color.Black)) {
-                moveTo(520f, 464f)
-                verticalLineToRelative(-144f)
-                quadToRelative(0f, -17f, -11.5f, -28.5f)
-                reflectiveQuadTo(480f, 280f)
-                quadToRelative(-17f, 0f, -28.5f, 11.5f)
-                reflectiveQuadTo(440f, 320f)
-                verticalLineToRelative(159f)
-                quadToRelative(0f, 8f, 3f, 15.5f)
-                reflectiveQuadToRelative(9f, 13.5f)
-                lineToRelative(132f, 132f)
-                quadToRelative(11f, 11f, 28f, 11f)
-                reflectiveQuadToRelative(28f, -11f)
-                quadToRelative(11f, -11f, 11f, -28f)
-                reflectiveQuadToRelative(-11f, -28f)
-                lineTo(520f, 464f)
+                moveToRelative(612f, 668f)
+                lineToRelative(56f, -56f)
+                lineToRelative(-148f, -148f)
+                verticalLineToRelative(-184f)
+                horizontalLineToRelative(-80f)
+                verticalLineToRelative(216f)
+                lineToRelative(172f, 172f)
                 close()
                 moveTo(480f, 880f)
                 quadToRelative(-83f, 0f, -156f, -31.5f)
