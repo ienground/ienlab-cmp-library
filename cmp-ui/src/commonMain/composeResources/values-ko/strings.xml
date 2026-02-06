@@ -23,4 +23,7 @@
     <string name="version_update_dialog_content">%1$s 버전이 낮아 접속할 수 없습니다. 최신 버전으로 업데이트하세요.</string>
     <string name="move_to_play_store">Play 스토어로 이동</string>
     <string name="move_to_app_store">App Store로 이동</string>
+
+    <!--MenuItems-->
+    <string name="more_options">더보기</string>
 </resources>

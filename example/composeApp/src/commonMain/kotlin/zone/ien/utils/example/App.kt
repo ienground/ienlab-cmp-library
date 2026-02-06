@@ -54,6 +54,8 @@ import zone.ien.utils.adaptive.select.ExposedDropdownMenuBox
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.date.fromMillis
 import zone.ien.utils.date.timeInMillis
+import zone.ien.utils.ui.menu.ActionMenuItem
+import zone.ien.utils.ui.screen.M3TopAppBarScaffold
 import zone.ien.utils.utils.Dlog
 import zone.ien.utils.utils.openAppStoreUrl
 
@@ -133,12 +135,32 @@ fun App() {
 
 //    /*
     MaterialTheme {
+        M3TopAppBarScaffold(
+            actions = listOf(
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "hi",
+                    onClick = {},
+                    icon = Android
+                )
+            ),
+            title = {
+                Text(
+                    text = "Hello World!"
+                )
+            },
+            isCenterAligned = true,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Column(
+                modifier = Modifier.padding(it)
+            ) {
+                Text(
+                    text = "hi"
+                )
+            }
+        }
+        /*
         Scaffold(
-//            topBar = {
-//                TopAppBar(
-//                    title = {}
-//                )
-//            }
         ) {
             var text1 by remember { mutableStateOf("") }
             val text2 = rememberTextFieldState()
@@ -188,7 +210,8 @@ fun App() {
                             modifier = Modifier.weight(1f)
                         )
                         LiquidToggle(
-                            selected = { !switchValue },
+                            checked = !switchValue,
+//                            selected = { !switchValue },
                             onSelect = { switchValue = !it },
                             backdrop = backdrop
                         )
@@ -284,7 +307,8 @@ fun App() {
                     )
                     Row {
                         LiquidToggle(
-                            selected = { switchValue },
+                            checked = switchValue,
+//                            selected = { switchValue },
                             onSelect = { switchValue = it },
                             backdrop = backdrop
                         )
@@ -470,6 +494,7 @@ fun App() {
 //                onCancel = { showDialog = false }
 //            )
         }
+        */
     }
 
 //     */

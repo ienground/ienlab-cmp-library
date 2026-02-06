@@ -10,6 +10,7 @@ import zone.ien.utils.icon.material.filled.Check
 import zone.ien.utils.icon.material.filled.CloudOff
 import zone.ien.utils.icon.material.filled.Delete
 import zone.ien.utils.icon.material.filled.Keyboard
+import zone.ien.utils.icon.material.filled.MoreVert
 import zone.ien.utils.icon.material.filled.Save
 import zone.ien.utils.icon.material.filled.Schedule
 import zone.ien.utils.icon.material.filled.Update
@@ -20,6 +21,7 @@ import zone.ien.utils.icon.material.rounded.Check
 import zone.ien.utils.icon.material.rounded.CloudOff
 import zone.ien.utils.icon.material.rounded.Delete
 import zone.ien.utils.icon.material.rounded.Keyboard
+import zone.ien.utils.icon.material.rounded.MoreVert
 import zone.ien.utils.icon.material.rounded.Save
 import zone.ien.utils.icon.material.rounded.Schedule
 import zone.ien.utils.icon.material.rounded.Update
@@ -30,6 +32,7 @@ import zone.ien.utils.icon.material.sharp.Check
 import zone.ien.utils.icon.material.sharp.CloudOff
 import zone.ien.utils.icon.material.sharp.Delete
 import zone.ien.utils.icon.material.sharp.Keyboard
+import zone.ien.utils.icon.material.sharp.MoreVert
 import zone.ien.utils.icon.material.sharp.Save
 import zone.ien.utils.icon.material.sharp.Schedule
 import zone.ien.utils.icon.material.sharp.Update
@@ -97,5 +100,11 @@ object MaterialIcons {
         IconStyle.Filled -> Filled.ArrowBack
         IconStyle.Rounded -> Rounded.ArrowBack
         IconStyle.Sharp -> Sharp.ArrowBack
+    }
+
+    val MoreVert @Composable get() = when (LocalIconStyle.current) {
+        IconStyle.Filled -> Filled.MoreVert
+        IconStyle.Rounded -> Rounded.MoreVert
+        IconStyle.Sharp -> Sharp.MoreVert
     }
 }
