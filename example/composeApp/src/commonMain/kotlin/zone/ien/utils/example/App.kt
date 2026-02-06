@@ -2,6 +2,7 @@ package zone.ien.utils.example
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -55,6 +58,7 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.date.fromMillis
 import zone.ien.utils.date.timeInMillis
 import zone.ien.utils.ui.menu.ActionMenuItem
+import zone.ien.utils.ui.screen.M3BackButton
 import zone.ien.utils.ui.screen.M3TopAppBarScaffold
 import zone.ien.utils.utils.Dlog
 import zone.ien.utils.utils.openAppStoreUrl
@@ -134,8 +138,11 @@ fun App() {
      */
 
 //    /*
-    MaterialTheme {
+    MaterialTheme(
+        colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
+    ) {
         M3TopAppBarScaffold(
+            navigationIcon = { M3BackButton {  } },
             actions = listOf(
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
                     title = "hi",

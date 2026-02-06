@@ -26,4 +26,7 @@
 
     <!--MenuItems-->
     <string name="more_options">More options</string>
+    <string name="back">Back</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
 </resources>
