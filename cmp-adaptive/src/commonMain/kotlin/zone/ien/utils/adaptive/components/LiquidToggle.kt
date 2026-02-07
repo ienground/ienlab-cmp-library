@@ -3,6 +3,7 @@ package zone.ien.utils.adaptive.components
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -10,6 +11,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -29,28 +31,30 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.lerp
-import com.kashif_e.backdrop.Backdrop
-import com.kashif_e.backdrop.backdrops.layerBackdrop
-import com.kashif_e.backdrop.backdrops.rememberBackdrop
-import com.kashif_e.backdrop.backdrops.rememberCombinedBackdrop
-import com.kashif_e.backdrop.backdrops.rememberLayerBackdrop
-import com.kashif_e.backdrop.drawBackdrop
-import com.kashif_e.backdrop.effects.blur
-import com.kashif_e.backdrop.effects.lens
-import com.kashif_e.backdrop.highlight.Highlight
-import com.kashif_e.backdrop.shadow.InnerShadow
-import com.kashif_e.backdrop.shadow.Shadow
-import androidx.compose.foundation.shape.RoundedCornerShape
+import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberBackdrop
+import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.drawBackdrop
+import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.lens
+import com.kyant.backdrop.highlight.Highlight
+import com.kyant.backdrop.shadow.InnerShadow
+import com.kyant.backdrop.shadow.Shadow
 import kotlinx.coroutines.flow.collectLatest
 import zone.ien.utils.adaptive.utils.DampedDragAnimation
 
 @Composable
 fun LiquidToggle(
-    selected: () -> Boolean,
+//    selected: () -> Boolean,
+    checked: Boolean,
     onSelect: (Boolean) -> Unit,
     backdrop: Backdrop,
     modifier: Modifier = Modifier
 ) {
+    val updatedChecked by rememberUpdatedState(checked)
+
     val isLightTheme = !isSystemInDarkTheme()
     val accentColor =
         if (isLightTheme) Color(0xFF34C759)
@@ -64,7 +68,7 @@ fun LiquidToggle(
     val dragWidth = with(density) { 20f.dp.toPx() }
     val animationScope = rememberCoroutineScope()
     var didDrag by remember { mutableStateOf(false) }
-    var fraction by remember { mutableFloatStateOf(if (selected()) 1f else 0f) }
+    var fraction by remember { mutableFloatStateOf(if (updatedChecked) 1f else 0f) }
     val dampedDragAnimation = remember(animationScope) {
         DampedDragAnimation(
             animationScope = animationScope,
@@ -80,7 +84,7 @@ fun LiquidToggle(
                     onSelect(fraction == 1f)
                     didDrag = false
                 } else {
-                    fraction = if (selected()) 0f else 1f
+                    fraction = if (updatedChecked) 0f else 1f
                     onSelect(fraction == 1f)
                 }
             },
@@ -101,8 +105,8 @@ fun LiquidToggle(
                 dampedDragAnimation.updateValue(fraction)
             }
     }
-    LaunchedEffect(selected) {
-        snapshotFlow { selected() }
+    LaunchedEffect(updatedChecked) {
+        snapshotFlow { updatedChecked }
             .collectLatest { isSelected ->
                 val target = if (isSelected) 1f else 0f
                 if (target != fraction) {

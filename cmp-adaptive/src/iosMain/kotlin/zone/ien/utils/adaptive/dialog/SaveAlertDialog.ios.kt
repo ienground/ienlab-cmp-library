@@ -10,8 +10,7 @@ import zone.ien.utils.cmp_ui.generated.resources.save
 import zone.ien.utils.cmp_ui.generated.resources.save_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.save_dialog_title
 import org.jetbrains.compose.resources.stringResource
-import zone.ien.utils.ui.dialog.M3AlertDialog
-import zone.ien.utils.ui.icon.MaterialIcons
+import zone.ien.utils.icon.material.MaterialIcons
 
 @Composable
 actual fun SaveAlertDialog(

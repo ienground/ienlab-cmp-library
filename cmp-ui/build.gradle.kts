@@ -12,7 +12,9 @@ kotlin {
         namespace = "zone.ien.utils.ui"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
-        experimentalProperties["android.experimental.kmp.enableAndroidResources"] = true
+        androidResources {
+            enable = true
+        }
 
         withHostTestBuilder {
         }
@@ -32,6 +34,7 @@ kotlin {
             implementation(libs.compose.resources)
 
             implementation(project(":cmp-common"))
+            implementation(project(":cmp-icon"))
         }
 
         commonTest.dependencies {

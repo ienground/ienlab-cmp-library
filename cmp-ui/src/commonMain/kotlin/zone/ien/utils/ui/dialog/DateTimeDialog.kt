@@ -51,7 +51,7 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
 import zone.ien.utils.cmp_ui.generated.resources.ok
-import zone.ien.utils.ui.icon.MaterialIcons
+import zone.ien.utils.icon.material.MaterialIcons
 import zone.ien.utils.ui.utils.rememberMyDatePickerState
 import kotlin.math.max
 

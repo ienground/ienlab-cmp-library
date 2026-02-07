@@ -2,23 +2,33 @@ package zone.ien.utils.example
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicSecureTextField
+import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecureTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,14 +39,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kashif_e.backdrop.backdrops.layerBackdrop
-import com.kashif_e.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.sunnychung.lib.multiplatform.kdatetime.KDate
 import com.sunnychung.lib.multiplatform.kdatetime.KZonedDateTime
-import ienlab_cmp_library.example.composeapp.generated.resources.Res
 import ienlab_cmp_library.example.composeapp.generated.resources.compose_multiplatform
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
@@ -44,18 +52,16 @@ import zone.ien.utils.adaptive.components.LiquidButton
 import zone.ien.utils.adaptive.components.LiquidSlider
 import zone.ien.utils.adaptive.components.LiquidToggle
 import zone.ien.utils.adaptive.dialog.DatePickerDialog
-import zone.ien.utils.adaptive.dialog.TextFieldDialog
 import zone.ien.utils.adaptive.dialog.TimePickerDialog
 import zone.ien.utils.adaptive.select.ExposedDropdownMenuBox
+import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.date.fromMillis
-import zone.ien.utils.date.now
 import zone.ien.utils.date.timeInMillis
-import zone.ien.utils.ui.dialog.M3DatePickerDialog
-import zone.ien.utils.ui.select.M3ExposedDropdownMenuBox
-import zone.ien.utils.ui.utils.TextFieldDialogData
+import zone.ien.utils.ui.menu.ActionMenuItem
+import zone.ien.utils.ui.screen.M3BackButton
+import zone.ien.utils.ui.screen.M3TopAppBarScaffold
 import zone.ien.utils.utils.Dlog
 import zone.ien.utils.utils.openAppStoreUrl
-import zone.ien.utils.utils.openUrl
 
 const val TAG = "CmpLibTAG"
 
@@ -65,13 +71,103 @@ const val TAG = "CmpLibTAG"
 fun App() {
     Dlog.init(isDebug = true)
 
+    /*
     MaterialTheme {
+        val backdrop = rememberLayerBackdrop()
+
         Scaffold(
-//            topBar = {
-//                TopAppBar(
-//                    title = {}
-//                )
-//            }
+            topBar = {
+                TopAppBar(
+                    title = {},
+                    navigationIcon = {
+                        LiquidButton(
+                            backdrop = backdrop,
+                            onClick = {}
+                        ) {
+                            Text(text = "hi")
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                    ),
+                )
+            },
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            Column(
+                modifier = Modifier
+                    .layerBackdrop(backdrop)
+                    .fillMaxSize()
+//                    .padding(
+//                        top = it.calculateTopPadding(),
+//                        start = it.calculateStartPadding(LocalLayoutDirection.current),
+//                        end = it.calculateEndPadding(LocalLayoutDirection.current),
+//                        bottom = it.calculateBottomPadding()
+//                    )
+//                    .padding(it)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Dlog.d(TAG, "pv: ${it.calculateTopPadding()} ${it.calculateBottomPadding()}")
+                    Dlog.d(TAG, "top: ${WindowInsets.statusBars.asPaddingValues().calculateTopPadding()} ${WindowInsets.statusBars.asPaddingValues().calculateBottomPadding()}")
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(
+                                it.calculateTopPadding()// - WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+//                                        + it.calculateBottomPadding() - WindowInsets.statusBars.asPaddingValues().calculateBottomPadding()
+                            )
+                    )
+
+                    repeat(60) {
+                        Text(
+                            text = "Hello World!",
+                            modifier = Modifier.background(Color.Red)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+     */
+
+//    /*
+    MaterialTheme(
+        colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
+    ) {
+        M3TopAppBarScaffold(
+            navigationIcon = { M3BackButton {  } },
+            actions = listOf(
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "hi",
+                    onClick = {},
+                    icon = Android
+                )
+            ),
+            title = {
+                Text(
+                    text = "Hello World!"
+                )
+            },
+            isCenterAligned = true,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Column(
+                modifier = Modifier.padding(it)
+            ) {
+                Text(
+                    text = "hi"
+                )
+            }
+        }
+        /*
+        Scaffold(
         ) {
             var text1 by remember { mutableStateOf("") }
             val text2 = rememberTextFieldState()
@@ -99,7 +195,7 @@ fun App() {
                 modifier = Modifier.padding(it)
             ) {
                 Image(
-                    painter = painterResource(Res.drawable.compose_multiplatform),
+                    painter = painterResource(ienlab_cmp_library.example.composeapp.generated.resources.Res.drawable.compose_multiplatform),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -121,13 +217,15 @@ fun App() {
                             modifier = Modifier.weight(1f)
                         )
                         LiquidToggle(
-                            selected = { !switchValue },
+                            checked = !switchValue,
+//                            selected = { !switchValue },
                             onSelect = { switchValue = !it },
                             backdrop = backdrop
                         )
                     }
                     var currentItem by remember { mutableStateOf(1) }
                     var currentItems by remember { mutableStateOf(listOf<Int>()) }
+
                     ExposedDropdownMenuBox(
                         title = "Hello",
                         itemsWithLabels = mapOf(
@@ -195,18 +293,29 @@ fun App() {
                     )
                     BasicSecureTextField(
                         state = text2,
-                        decorator = {
-                            Box(
+                        decorator = object: TextFieldDecorator {
+                            @Composable
+                            override fun Decoration(innerTextField: @Composable () -> Unit) {
+                                Box(
 
-                            ) {
-                                it()
+                                ) {
+                                    innerTextField()
+                                }
                             }
                         },
+//                        decorator = {
+//                            Box(
+//
+//                            ) {
+//                                it()
+//                            }
+//                        },
                         modifier = Modifier.fillMaxWidth()
                     )
                     Row {
                         LiquidToggle(
-                            selected = { switchValue },
+                            checked = switchValue,
+//                            selected = { switchValue },
                             onSelect = { switchValue = it },
                             backdrop = backdrop
                         )
@@ -392,7 +501,10 @@ fun App() {
 //                onCancel = { showDialog = false }
 //            )
         }
+        */
     }
+
+//     */
 }
 
 @Composable
