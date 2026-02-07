@@ -23,4 +23,10 @@
     <string name="version_update_dialog_content">%1$s version outdated. Update required for access.</string>
     <string name="move_to_play_store">Open Play Store</string>
     <string name="move_to_app_store">Open App Store</string>
+
+    <!--MenuItems-->
+    <string name="more_options">More options</string>
+    <string name="back">Back</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
 </resources>

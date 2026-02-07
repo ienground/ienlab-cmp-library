@@ -4,7 +4,7 @@ kotlin = "2.3.0"
 android-minSdk = "29"
 android-compileSdk = "36"
 android-targetSdk = "36"
-lib-version-name = "0.1.2-alpha01"
+lib-version-name = "0.1.2-alpha05"
 
 # plugin
 compose-plugin = "1.10.0"
@@ -18,7 +18,7 @@ firebase-common = "22.0.1"
 
 # ui
 activity-compose = "1.12.3"
-lifecycle = "2.10.0-alpha07"
+lifecycle = "2.10.0-alpha08"
 backdrop = "2.0.0-alpha01"
 haze = "1.7.1"
 
@@ -81,6 +81,5 @@ android-library = { id = "com.android.library" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktechMavenPublish" }
 android-lint = { id = "com.android.lint", version.ref = "agp" }
