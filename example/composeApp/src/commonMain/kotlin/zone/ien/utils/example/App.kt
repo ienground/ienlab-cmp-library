@@ -48,12 +48,16 @@ import com.sunnychung.lib.multiplatform.kdatetime.KZonedDateTime
 import ienlab_cmp_library.example.composeapp.generated.resources.compose_multiplatform
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
+import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.adaptive.Theme
 import zone.ien.utils.adaptive.components.LiquidButton
 import zone.ien.utils.adaptive.components.LiquidSlider
 import zone.ien.utils.adaptive.components.LiquidToggle
 import zone.ien.utils.adaptive.dialog.DatePickerDialog
 import zone.ien.utils.adaptive.dialog.TimePickerDialog
+import zone.ien.utils.adaptive.screen.AdaptiveTopAppBar
 import zone.ien.utils.adaptive.select.ExposedDropdownMenuBox
+import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.date.fromMillis
 import zone.ien.utils.date.timeInMillis
@@ -64,12 +68,15 @@ import zone.ien.utils.utils.Dlog
 import zone.ien.utils.utils.openAppStoreUrl
 
 const val TAG = "CmpLibTAG"
+expect val currentTheme: Theme
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAdaptiveApi::class)
 @Composable
 @Preview
 fun App() {
     Dlog.init(isDebug = true)
+
+
 
     /*
     MaterialTheme {
@@ -137,7 +144,7 @@ fun App() {
 
      */
 
-//    /*
+    /*
     MaterialTheme(
         colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
     ) {
@@ -503,18 +510,27 @@ fun App() {
         }
         */
     }
+     */
 
-//     */
+    GeneratedAdaptiveTheme(
+        target = currentTheme
+    ) {
+        Scaffold(
+            topBar = {
+                AdaptiveTopAppBar(
+                    title = {},
+                    navigationIcon = {},
+
+                )
+            }
+        ) {
+            Column(
+                modifier = Modifier.padding(it)
+            ) {
+                Text(
+                    text = "Hello World!"
+                )
+            }
+        }
+    }
 }
-
-@Composable
-expect fun AlertDialog(
-    modifier: Modifier = Modifier,
-    visible: Boolean,
-    onCancel: () -> Unit
-)
-
-@Composable
-expect fun DeviceBox(
-    modifier: Modifier = Modifier
-)

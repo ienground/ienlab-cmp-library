@@ -50,6 +50,9 @@ kotlin {
             implementation(libs.kotlinx.io.core)
             implementation(libs.kdatetime)
 
+            implementation(libs.bundles.hig)
+            implementation(libs.capsule)
+
             implementation(project(":cmp-common"))
             implementation(project(":cmp-adaptive"))
             implementation(project(":cmp-ui"))
