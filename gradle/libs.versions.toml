@@ -1,6 +1,6 @@
 [versions]
 agp = "9.0.0"
-kotlin = "2.3.0"
+kotlin = "2.3.10"
 android-minSdk = "29"
 android-compileSdk = "36"
 android-targetSdk = "36"
@@ -21,7 +21,7 @@ activity-compose = "1.12.4"
 lifecycle = "2.10.0-alpha08"
 backdrop = "2.0.0-alpha03"
 haze = "1.7.2"
-hig = "0.1.0-alpha02"
+hig = "0.1.0-alpha06"
 capsule = "1.2.0"
 
 # functionality

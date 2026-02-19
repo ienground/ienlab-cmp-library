@@ -68,3 +68,4 @@ import zone.ien.hig.adaptive.Theme
 import zone.ien.utils.utils.Dlog
 
 actual val currentTheme: Theme = Theme.Cupertino
+actual val isIos: Boolean = true
