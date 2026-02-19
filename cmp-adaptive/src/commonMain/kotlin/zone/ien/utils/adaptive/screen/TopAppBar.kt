@@ -90,16 +90,16 @@ class M3TopAppBarAdaptation internal constructor(
 @Stable
 class HigTopAppBarAdaptation internal constructor(
     windowInsets: WindowInsets,
-//    isBackgroundAdaptive: Boolean = true,
-//    backdrop: LayerBackdrop,
+    isBackgroundAdaptive: Boolean = true,
+    backdrop: LayerBackdrop,
     isCenterAligned: Boolean = true,
     isTransparent: Boolean = false,
     isTranslucent: Boolean = true,
     colors: CupertinoTopAppBarColors
 ) {
     var windowInsets: WindowInsets by mutableStateOf(windowInsets)
-//    var isBackgroundAdaptive: Boolean by mutableStateOf(isBackgroundAdaptive)
-//    var backdrop: LayerBackdrop by mutableStateOf(backdrop)
+    var isBackgroundAdaptive: Boolean by mutableStateOf(isBackgroundAdaptive)
+    var backdrop: LayerBackdrop by mutableStateOf(backdrop)
     var isCenterAligned: Boolean by mutableStateOf(isCenterAligned)
     var isTransparent: Boolean by mutableStateOf(isTransparent)
     var isTranslucent: Boolean by mutableStateOf(isTranslucent)
@@ -122,8 +122,8 @@ internal class TopAppBarAdaptation: Adaptation<HigTopAppBarAdaptation, M3TopAppB
         return remember(windowInsets, isBackgroundAdaptive, backdrop, isCenterAligned, isTransparent, isTranslucent, colors) {
             HigTopAppBarAdaptation(
                 windowInsets = windowInsets,
-//                isBackgroundAdaptive = isBackgroundAdaptive,
-//                backdrop = backdrop,
+                isBackgroundAdaptive = isBackgroundAdaptive,
+                backdrop = backdrop,
                 isCenterAligned = isCenterAligned,
                 isTransparent = isTransparent,
                 isTranslucent = isTranslucent,

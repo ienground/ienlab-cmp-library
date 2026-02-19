@@ -6,14 +6,20 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScaffoldDefaults
@@ -26,9 +32,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.CupertinoLiquidButton
+import zone.ien.hig.CupertinoLiquidButtonDefaults
+import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.CupertinoScaffold
 import zone.ien.hig.CupertinoScaffoldDefaults
 import zone.ien.hig.CupertinoTopAppBar
@@ -40,7 +52,10 @@ import zone.ien.hig.adaptive.Adaptation
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.utils.adaptive.menu.HigActionMenu
+import zone.ien.utils.adaptive.menu.HigActionsMenu
 import zone.ien.utils.ui.menu.ActionMenuItem
+import zone.ien.utils.ui.menu.M3ActionsMenu
 import zone.ien.utils.ui.screen.LocalIsScrollTint
 import zone.ien.utils.ui.screen.M3TopAppBarScaffold
 
@@ -145,7 +160,7 @@ fun AdaptiveTopAppBarScaffold(
     )
 }
 
-@OptIn(ExperimentalAdaptiveApi::class)
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun AdaptiveTopAppBarScaffold(
     modifier: Modifier = Modifier,
@@ -154,7 +169,7 @@ fun AdaptiveTopAppBarScaffold(
     showTopBar: Boolean = true,
     navigationIcon: @Composable () -> Unit = {},
     actions: List<ActionMenuItem> = listOf(),
-    primaryAction: ActionMenuItem? = null,
+    primaryAction: ActionMenuItem.IconMenuItem? = null,
     bottomBar: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
@@ -164,23 +179,93 @@ fun AdaptiveTopAppBarScaffold(
     content: @Composable (PaddingValues) -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
-
-    AdaptiveTopAppBarScaffold(
-        modifier = modifier,
-        topBarModifier = topBarModifier,
-        title = title,
-        showTopBar = showTopBar,
-        navigationIcon = navigationIcon,
-        actions = {
-
+    val scaffold: @Composable (@Composable (RowScope.() -> Unit)) -> Unit = { actions ->
+        AdaptiveTopAppBarScaffold(
+            modifier = modifier,
+            topBarModifier = topBarModifier,
+            title = title,
+            showTopBar = showTopBar,
+            navigationIcon = navigationIcon,
+            actions = actions,
+            bottomBar = bottomBar,
+            snackbarHost = snackbarHost,
+            floatingActionButton = floatingActionButton,
+            fabPosition = fabPosition,
+            higFabPosition = higFabPosition,
+            adaptation = adaptation,
+            content = content
+        )
+    }
+    AdaptiveWidget(
+        adaptation = remember { TopAppBarScaffoldAdaptation() },
+        adaptationScope = adaptation,
+        material = {
+            scaffold {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxHeight()
+                ) {
+                    M3ActionsMenu(
+                        items = primaryAction?.let { actions + it } ?: actions,
+                        isOpen = menuExpanded,
+                        closeDropdown = { menuExpanded = false },
+                        onToggleOverflow = { menuExpanded = !menuExpanded },
+                        maxVisibleItems = 5,
+                    )
+                }
+            }
         },
-        bottomBar = bottomBar,
-        snackbarHost = snackbarHost,
-        floatingActionButton = floatingActionButton,
-        fabPosition = fabPosition,
-        higFabPosition = higFabPosition,
-        adaptation = adaptation,
-        content = content
+        cupertino = {
+            scaffold {
+                if (actions.isNotEmpty()) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    val menu = @Composable {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(24.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxHeight()
+                        ) {
+                            HigActionsMenu(
+                                items = actions,
+                                isOpen = menuExpanded,
+                                closeDropdown = { menuExpanded = false },
+                                onToggleOverflow = { menuExpanded = !menuExpanded },
+                                maxVisibleItems = 3,
+                            )
+                        }
+                    }
+                    if (actions.size == 1) {
+                        CupertinoLiquidIconButton(
+                            onClick = {},
+                            backdrop = it.backdrop,
+                            isBackgroundAdaptive = it.isCenterAligned
+                        ) {
+                            menu()
+                        }
+                    } else {
+                        CupertinoLiquidButton(
+                            onClick = {},
+                            backdrop = it.backdrop,
+                            isBackgroundAdaptive = it.isBackgroundAdaptive
+                        ) {
+                            menu()
+                        }
+                    }
+                    primaryAction?.let { actions ->
+                        CupertinoLiquidIconButton(
+                            onClick = actions.onClick,
+                            enabled = actions.enabled,
+                            colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+                            backdrop = it.backdrop,
+                            isBackgroundAdaptive = it.isBackgroundAdaptive
+                        ) {
+                            HigActionMenu(actions)
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+            }
+        }
     )
 }
 
@@ -208,6 +293,8 @@ class M3TopAppBarScaffoldAdaptation internal constructor(
 class HigTopAppBarScaffoldAdaptation internal constructor(
     topBarWindowInsets: WindowInsets,
     contentWindowInsets: WindowInsets,
+    isBackgroundAdaptive: Boolean = true,
+    backdrop: LayerBackdrop,
     isCenterAligned: Boolean = true,
     isTransparent: Boolean = false,
     isTranslucent: Boolean = true,
@@ -217,6 +304,8 @@ class HigTopAppBarScaffoldAdaptation internal constructor(
 ) {
     var topBarWindowInsets: WindowInsets by mutableStateOf(topBarWindowInsets)
     var contentWindowInsets: WindowInsets by mutableStateOf(contentWindowInsets)
+    var isBackgroundAdaptive: Boolean by mutableStateOf(isBackgroundAdaptive)
+    var backdrop: LayerBackdrop by mutableStateOf(backdrop)
     var isCenterAligned: Boolean by mutableStateOf(isCenterAligned)
     var isTransparent: Boolean by mutableStateOf(isTransparent)
     var isTranslucent: Boolean by mutableStateOf(isTranslucent)
@@ -244,6 +333,8 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
             HigTopAppBarScaffoldAdaptation(
                 topBarWindowInsets = topBarWindowInsets,
                 contentWindowInsets = contentWindowInsets,
+                isBackgroundAdaptive = isBackgroundAdaptive,
+                backdrop = backdrop,
                 isCenterAligned = isCenterAligned,
                 isTransparent = isTransparent,
                 isTranslucent = isTranslucent,

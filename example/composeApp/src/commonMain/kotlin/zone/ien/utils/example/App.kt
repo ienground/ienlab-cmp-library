@@ -48,6 +48,9 @@ import zone.ien.utils.adaptive.component.AdaptiveSmallFloatingActionButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBar
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
+import zone.ien.utils.icon.hig.Ellipsis
+import zone.ien.utils.icon.hig.HigIcons
+import zone.ien.utils.icon.material.MaterialIcons
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.utils.Dlog
 
@@ -583,14 +586,23 @@ fun App() {
             navigationIcon = {
                 AdaptiveBackButton(backdrop = backdrop) {}
             },
-            actions = {},
-//            actions = listOf(
-//                ActionMenuItem.IconMenuItem.ShownIfRoom(
-//                    title = "Hi",
-//                    onClick = {},
-//                    icon = Android,
-//                )
-//            ),
+            actions = listOf(
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "Hi",
+                    onClick = {},
+                    icon = Android,
+                ),
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "Hi",
+                    onClick = {},
+                    icon = MaterialIcons.Delete,
+                ),
+            ),
+            primaryAction = ActionMenuItem.IconMenuItem.ShownIfRoom(
+                title = "Hi",
+                onClick = {},
+                icon = HigIcons.Ellipsis,
+            ),
             title = {
                 Text(
                     text = "title"
@@ -600,6 +612,7 @@ fun App() {
                 cupertino {
                     isTransparent = true
                     isTranslucent = false
+                    this.backdrop = backdrop
                 }
             },
             fabPosition = FabPosition.End,
