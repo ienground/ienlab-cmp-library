@@ -36,6 +36,7 @@ import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoScaffold
 import zone.ien.hig.CupertinoTopAppBar
 import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.FabPosition
 import zone.ien.hig.adaptive.AdaptiveSwitch
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
@@ -47,6 +48,7 @@ import zone.ien.utils.adaptive.component.AdaptiveSmallFloatingActionButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBar
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
+import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.utils.Dlog
 
 const val TAG = "CmpLibTAG"
@@ -579,28 +581,28 @@ fun App() {
 
         AdaptiveTopAppBarScaffold(
             navigationIcon = {
-                CupertinoLiquidButton(
-                    onClick = {},
-                    backdrop = backdrop
-                ) {
-                    Icon(
-                        imageVector = Android,
-                        contentDescription = null
-                    )
-                }
-//                AdaptiveBackButton(backdrop = backdrop) {}
+                AdaptiveBackButton(backdrop = backdrop) {}
             },
+            actions = {},
+//            actions = listOf(
+//                ActionMenuItem.IconMenuItem.ShownIfRoom(
+//                    title = "Hi",
+//                    onClick = {},
+//                    icon = Android,
+//                )
+//            ),
             title = {
                 Text(
                     text = "title"
                 )
             },
-            topBarAdaptation = {
+            adaptation = {
                 cupertino {
                     isTransparent = true
                     isTranslucent = false
                 }
             },
+            fabPosition = FabPosition.End,
             floatingActionButton = {
                 AdaptiveMediumFloatingActionButton(
                     onClick = {},

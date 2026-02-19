@@ -11,14 +11,12 @@ sealed interface ActionMenuItem {
     sealed interface IconMenuItem : ActionMenuItem {
         val icon: ImageVector?
         val badge: Int
-        val isPrimary: Boolean
 
         data class AlwaysShown(
             override val title: String,
             override val onClick: () -> Unit,
             override val icon: ImageVector?,
             override val badge: Int = 0,
-            override val isPrimary: Boolean = false,
             override val visible: Boolean = true,
             override val enabled: Boolean = true
         ) : IconMenuItem
@@ -28,7 +26,6 @@ sealed interface ActionMenuItem {
             override val onClick: () -> Unit,
             override val icon: ImageVector?,
             override val badge: Int = 0,
-            override val isPrimary: Boolean = false,
             override val visible: Boolean = true,
             override val enabled: Boolean = true
         ) : IconMenuItem

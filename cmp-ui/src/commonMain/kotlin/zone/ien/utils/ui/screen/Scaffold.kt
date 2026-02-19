@@ -1,6 +1,7 @@
 package zone.ien.utils.ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -18,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -37,15 +37,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import zone.ien.utils.ui.menu.ActionMenuItem
-import zone.ien.utils.ui.menu.ActionsMenu
+import zone.ien.utils.ui.menu.M3ActionsMenu
 import zone.ien.utils.ui.utils.conditional
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun M3TopAppBarScaffold(
     modifier: Modifier = Modifier,
-    title: @Composable () -> Unit = {},
     topBarModifier: Modifier = Modifier,
+    title: @Composable () -> Unit = {},
     showTopBar: Boolean = true,
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable (RowScope.() -> Unit) = {},
@@ -72,8 +72,8 @@ fun M3TopAppBarScaffold(
             Box {
                 AnimatedVisibility(
                     visible = showTopBar,
-                    enter = expandVertically(tween(700)) + fadeIn(tween(700)),
-                    exit = shrinkVertically(tween(700)) + fadeOut(tween(700))
+                    enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
+                    exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
                 ) {
                     M3TopAppBar(
                         title = title,
@@ -89,22 +89,14 @@ fun M3TopAppBarScaffold(
                 }
                 AnimatedVisibility(
                     visible = !showTopBar,
-                    enter = expandVertically(tween(700)) + fadeIn(tween(700)),
-                    exit = shrinkVertically(tween(700)) + fadeOut(tween(700))
+                    enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
+                    exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
                 ) {
                     Box(
-                        modifier = Modifier
-                            .height(IntrinsicSize.Min)
+                        modifier = Modifier.height(IntrinsicSize.Min)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .statusBarsPadding()
-                        )
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(MaterialTheme.colorScheme.surface)
-                        )
+                        Box(modifier = Modifier.statusBarsPadding())
+                        Box(modifier = Modifier.fillMaxSize())
                     }
                 }
             }
@@ -156,7 +148,7 @@ fun M3TopAppBarScaffold(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxHeight()
             ) {
-                ActionsMenu(
+                M3ActionsMenu(
                     items = actions,
                     isOpen = menuExpanded,
                     closeDropdown = { menuExpanded = false },

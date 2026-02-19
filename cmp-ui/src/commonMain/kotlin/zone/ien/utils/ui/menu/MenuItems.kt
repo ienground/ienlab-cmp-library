@@ -8,17 +8,8 @@ import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DropdownMenu
@@ -26,44 +17,23 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TooltipAnchorPosition
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.minimumInteractiveComponentSize
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupPositionProvider
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
-import zone.ien.utils.cmp_ui.generated.resources.back
 import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.icon.material.MaterialIcons
 import zone.ien.utils.ui.view.MyTooltipBox
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ActionsMenu(
+fun M3ActionsMenu(
     items: List<ActionMenuItem>,
     isOpen: Boolean,
     closeDropdown: () -> Unit,
@@ -93,51 +63,25 @@ fun ActionsMenu(
                         )
                     }
                 }) {
-                    if (item.isPrimary) {
-                        TextButton(
+                    MyTooltipBox(
+                        label = item.title
+                    ) {
+                        IconButton(
                             enabled = item.enabled,
                             onClick = item.onClick,
+                            modifier = Modifier.size(LocalMenuIconButtonSize.current.first),
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            AnimatedContent(
+                                targetState = item.icon,
+                                label = "menu_icon"
                             ) {
-                                AnimatedContent(
-                                    targetState = item.icon,
-                                    label = "menu_icon"
-                                ) {
-                                    Icon(
-                                        imageVector = icon,
-                                        contentDescription = item.title,
-                                        modifier = Modifier.alpha(alpha)
-                                    )
-                                }
-                                Text(
-                                    text = item.title
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = item.title,
+                                    modifier = Modifier
+                                        .alpha(alpha)
+                                        .size(LocalMenuIconButtonSize.current.first - 16.dp)
                                 )
-                            }
-                        }
-                    } else {
-                        MyTooltipBox(
-                            label = item.title
-                        ) {
-                            IconButton(
-                                enabled = item.enabled,
-                                onClick = item.onClick,
-                                modifier = Modifier.size(LocalMenuIconButtonSize.current.first),
-                            ) {
-                                AnimatedContent(
-                                    targetState = item.icon,
-                                    label = "menu_icon"
-                                ) {
-                                    Icon(
-                                        imageVector = icon,
-                                        contentDescription = item.title,
-                                        modifier = Modifier
-                                            .alpha(alpha)
-                                            .size(LocalMenuIconButtonSize.current.first - 16.dp)
-                                    )
-                                }
                             }
                         }
                     }
@@ -155,19 +99,8 @@ fun ActionsMenu(
     }
 
     if (menuItems.overflowItems.isNotEmpty()) {
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.Below),
-            state = rememberTooltipState(isPersistent = false),
-            focusable = false,
-            enableUserInput = false,
-            tooltip = {
-                Text(
-                    text = stringResource(Res.string.more_options),
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.surfaceContainerHighest, RoundedCornerShape(8.dp))
-                        .padding(horizontal = 8.dp)
-                )
-            },
+        MyTooltipBox(
+            label = stringResource(Res.string.more_options),
         ) {
             IconButton(
                 onClick = onToggleOverflow,
