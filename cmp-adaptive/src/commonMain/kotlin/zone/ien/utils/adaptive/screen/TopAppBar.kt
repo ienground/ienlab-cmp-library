@@ -15,9 +15,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import zone.ien.hig.CupertinoLiquidTopAppBar
-import zone.ien.hig.CupertinoLiquidTopAppBarColors
-import zone.ien.hig.CupertinoLiquidTopAppBarDefaults
+import zone.ien.hig.CupertinoTopAppBar
+import zone.ien.hig.CupertinoTopAppBarColors
+import zone.ien.hig.CupertinoTopAppBarDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.Adaptation
 import zone.ien.hig.adaptive.AdaptationScope
@@ -56,14 +56,12 @@ fun AdaptiveTopAppBar(
             )
         },
         cupertino = {
-            CupertinoLiquidTopAppBar(
+            CupertinoTopAppBar(
                 title = title,
                 modifier = modifier,
                 navigationIcon = navigationIcon,
                 actions = actions,
                 windowInsets = it.windowInsets,
-                isBackgroundAdaptive = it.isBackgroundAdaptive,
-                backdrop = it.backdrop,
                 isCenterAligned = it.isCenterAligned,
                 isTransparent = it.isTransparent,
                 isTranslucent = it.isTranslucent,
@@ -77,10 +75,10 @@ fun AdaptiveTopAppBar(
 @OptIn(ExperimentalMaterial3Api::class)
 class M3TopAppBarAdaptation internal constructor(
     windowInsets: WindowInsets,
-    scrollBehavior: TopAppBarScrollBehavior?,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
     isScrollTint: Boolean,
     colors: TopAppBarColors,
-    isCenterAligned: Boolean
+    isCenterAligned: Boolean = false
 ) {
     var windowInsets: WindowInsets by mutableStateOf(windowInsets)
     var scrollBehavior: TopAppBarScrollBehavior? by mutableStateOf(scrollBehavior)
@@ -92,20 +90,20 @@ class M3TopAppBarAdaptation internal constructor(
 @Stable
 class HigTopAppBarAdaptation internal constructor(
     windowInsets: WindowInsets,
-    isBackgroundAdaptive: Boolean = true,
-    backdrop: LayerBackdrop,
+//    isBackgroundAdaptive: Boolean = true,
+//    backdrop: LayerBackdrop,
     isCenterAligned: Boolean = true,
     isTransparent: Boolean = false,
     isTranslucent: Boolean = true,
-    colors: CupertinoLiquidTopAppBarColors
+    colors: CupertinoTopAppBarColors
 ) {
     var windowInsets: WindowInsets by mutableStateOf(windowInsets)
-    var isBackgroundAdaptive: Boolean by mutableStateOf(isBackgroundAdaptive)
-    var backdrop: LayerBackdrop by mutableStateOf(backdrop)
+//    var isBackgroundAdaptive: Boolean by mutableStateOf(isBackgroundAdaptive)
+//    var backdrop: LayerBackdrop by mutableStateOf(backdrop)
     var isCenterAligned: Boolean by mutableStateOf(isCenterAligned)
     var isTransparent: Boolean by mutableStateOf(isTransparent)
     var isTranslucent: Boolean by mutableStateOf(isTranslucent)
-    var colors: CupertinoLiquidTopAppBarColors by mutableStateOf(colors)
+    var colors: CupertinoTopAppBarColors by mutableStateOf(colors)
 }
 
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -113,19 +111,19 @@ class HigTopAppBarAdaptation internal constructor(
 private class TopAppBarAdaptation: Adaptation<HigTopAppBarAdaptation, M3TopAppBarAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): HigTopAppBarAdaptation {
-        val windowInsets = CupertinoLiquidTopAppBarDefaults.windowInsets
+        val windowInsets = CupertinoTopAppBarDefaults.windowInsets
         val isBackgroundAdaptive = true
         val backdrop = rememberLayerBackdrop()
         val isCenterAligned = true
         val isTransparent = false
         val isTranslucent = true
-        val colors = CupertinoLiquidTopAppBarDefaults.topAppBarColors()
+        val colors = CupertinoTopAppBarDefaults.topAppBarColors()
 
         return remember(windowInsets, isBackgroundAdaptive, backdrop, isCenterAligned, isTransparent, isTranslucent, colors) {
             HigTopAppBarAdaptation(
                 windowInsets = windowInsets,
-                isBackgroundAdaptive = isBackgroundAdaptive,
-                backdrop = backdrop,
+//                isBackgroundAdaptive = isBackgroundAdaptive,
+//                backdrop = backdrop,
                 isCenterAligned = isCenterAligned,
                 isTransparent = isTransparent,
                 isTranslucent = isTranslucent,
