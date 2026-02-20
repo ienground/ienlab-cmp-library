@@ -11,3 +11,10 @@ val LocalTopBarAdaptation: ProvidableCompositionLocal<AdaptationScope<HigTopAppB
             isCenterAligned = true
         }
     } }
+
+@OptIn(ExperimentalAdaptiveApi::class)
+val LocalTopBarScaffoldAdaptation: ProvidableCompositionLocal<AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit> = staticCompositionLocalOf { {
+        material {
+            isCenterAligned = true
+        }
+    } }

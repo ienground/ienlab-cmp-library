@@ -1,4 +1,4 @@
-package zone.ien.utils.ui.view
+package zone.ien.utils.adaptive.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
@@ -7,37 +7,50 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import zone.ien.hig.adaptive.AdaptiveWidget
+import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.utils.ui.view.BaseTooltipBox
+import zone.ien.utils.ui.view.M3TooltipBox
+import zone.ien.utils.ui.view.M3TooltipText
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAdaptiveApi::class)
 @Composable
-fun BaseTooltipBox(
+fun AdaptiveTooltipBox(
     modifier: Modifier = Modifier,
     positioning: TooltipAnchorPosition = TooltipAnchorPosition.Below,
     isPersistent: Boolean = false,
     label: String,
-    tooltipText: @Composable (Modifier, String) -> Unit,
     content: @Composable () -> Unit
 ) {
-    TooltipBox(
-        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(positioning = positioning),
-        state = rememberTooltipState(isPersistent = isPersistent),
-        tooltip = {
-            tooltipText(Modifier, label)
+    AdaptiveWidget(
+        material = {
+            M3TooltipBox(
+                modifier = modifier,
+                positioning = positioning,
+                isPersistent = isPersistent,
+                label = label,
+                content = content
+            )
         },
-        content = content,
-        modifier = modifier
+        cupertino = {
+            HigTooltipBox(
+                modifier = modifier,
+                positioning = positioning,
+                isPersistent = isPersistent,
+                label = label,
+                content = content
+            )
+        }
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun M3TooltipBox(
+fun HigTooltipBox(
     modifier: Modifier = Modifier,
     positioning: TooltipAnchorPosition = TooltipAnchorPosition.Below,
     isPersistent: Boolean = false,
@@ -50,7 +63,7 @@ fun M3TooltipBox(
         isPersistent = isPersistent,
         label = label,
         tooltipText = { modifier, label ->
-            M3TooltipText(
+            HigTooltipText(
                 modifier = modifier,
                 label = label
             )
@@ -60,15 +73,15 @@ fun M3TooltipBox(
 }
 
 @Composable
-fun M3TooltipText(
+fun HigTooltipText(
     modifier: Modifier = Modifier,
     label: String
 ) {
     Text(
         text = label,
-        style = MaterialTheme.typography.labelMedium,
+        style = CupertinoTheme.typography.caption1,
         modifier = modifier
-            .background(MaterialTheme.colorScheme.surfaceContainerHighest, RoundedCornerShape(4.dp))
+            .background(CupertinoTheme.colorScheme.systemFill, RoundedCornerShape(4.dp))
             .padding(4.dp)
     )
 }

@@ -75,13 +75,13 @@ fun AdaptiveTopAppBar(
 @OptIn(ExperimentalMaterial3Api::class)
 class M3TopAppBarAdaptation internal constructor(
     windowInsets: WindowInsets,
-    scrollBehavior: TopAppBarScrollBehavior? = null,
+    scrollBehavior: TopAppBarScrollBehavior,
     isScrollTint: Boolean,
     colors: TopAppBarColors,
     isCenterAligned: Boolean = false
 ) {
     var windowInsets: WindowInsets by mutableStateOf(windowInsets)
-    var scrollBehavior: TopAppBarScrollBehavior? by mutableStateOf(scrollBehavior)
+    var scrollBehavior: TopAppBarScrollBehavior by mutableStateOf(scrollBehavior)
     var isScrollTint: Boolean by mutableStateOf(isScrollTint)
     var colors: TopAppBarColors by mutableStateOf(colors)
     var isCenterAligned: Boolean by mutableStateOf(isCenterAligned)
@@ -90,16 +90,16 @@ class M3TopAppBarAdaptation internal constructor(
 @Stable
 class HigTopAppBarAdaptation internal constructor(
     windowInsets: WindowInsets,
-//    isBackgroundAdaptive: Boolean = true,
-//    backdrop: LayerBackdrop,
+    isBackgroundAdaptive: Boolean = true,
+    backdrop: LayerBackdrop,
     isCenterAligned: Boolean = true,
     isTransparent: Boolean = false,
     isTranslucent: Boolean = true,
     colors: CupertinoTopAppBarColors
 ) {
     var windowInsets: WindowInsets by mutableStateOf(windowInsets)
-//    var isBackgroundAdaptive: Boolean by mutableStateOf(isBackgroundAdaptive)
-//    var backdrop: LayerBackdrop by mutableStateOf(backdrop)
+    var isBackgroundAdaptive: Boolean by mutableStateOf(isBackgroundAdaptive)
+    var backdrop: LayerBackdrop by mutableStateOf(backdrop)
     var isCenterAligned: Boolean by mutableStateOf(isCenterAligned)
     var isTransparent: Boolean by mutableStateOf(isTransparent)
     var isTranslucent: Boolean by mutableStateOf(isTranslucent)
@@ -108,7 +108,7 @@ class HigTopAppBarAdaptation internal constructor(
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
-private class TopAppBarAdaptation: Adaptation<HigTopAppBarAdaptation, M3TopAppBarAdaptation>() {
+internal class TopAppBarAdaptation: Adaptation<HigTopAppBarAdaptation, M3TopAppBarAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): HigTopAppBarAdaptation {
         val windowInsets = CupertinoTopAppBarDefaults.windowInsets
@@ -122,8 +122,8 @@ private class TopAppBarAdaptation: Adaptation<HigTopAppBarAdaptation, M3TopAppBa
         return remember(windowInsets, isBackgroundAdaptive, backdrop, isCenterAligned, isTransparent, isTranslucent, colors) {
             HigTopAppBarAdaptation(
                 windowInsets = windowInsets,
-//                isBackgroundAdaptive = isBackgroundAdaptive,
-//                backdrop = backdrop,
+                isBackgroundAdaptive = isBackgroundAdaptive,
+                backdrop = backdrop,
                 isCenterAligned = isCenterAligned,
                 isTransparent = isTransparent,
                 isTranslucent = isTranslucent,
@@ -136,7 +136,7 @@ private class TopAppBarAdaptation: Adaptation<HigTopAppBarAdaptation, M3TopAppBa
     @Composable
     override fun rememberMaterialAdaptation(): M3TopAppBarAdaptation {
         val windowInsets = TopAppBarDefaults.windowInsets
-        val scrollBehavior = null
+        val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
         val isScrollTint = LocalIsScrollTint.current
         val colors = TopAppBarDefaults.topAppBarColors()
         val isCenterAligned = false
