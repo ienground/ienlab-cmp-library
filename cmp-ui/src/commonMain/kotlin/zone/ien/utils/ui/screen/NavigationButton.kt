@@ -13,7 +13,7 @@ import zone.ien.utils.cmp_ui.generated.resources.close
 import zone.ien.utils.icon.LocalBackButtonIcon
 import zone.ien.utils.icon.LocalButtonProviderDefault
 import zone.ien.utils.icon.LocalCloseButtonIcon
-import zone.ien.utils.ui.view.MyTooltipBox
+import zone.ien.utils.ui.view.M3TooltipBox
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,7 +23,7 @@ fun M3BackButton(
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
-    MyTooltipBox(
+    M3TooltipBox(
         label = stringResource(Res.string.back)
     ) {
         IconButton(
@@ -47,7 +47,7 @@ fun M3CloseButton(
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
-    MyTooltipBox(
+    M3TooltipBox(
         label = stringResource(Res.string.close)
     ) {
         IconButton(

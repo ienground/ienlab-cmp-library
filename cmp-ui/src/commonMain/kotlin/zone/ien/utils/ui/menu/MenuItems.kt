@@ -29,7 +29,7 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.icon.material.MaterialIcons
-import zone.ien.utils.ui.view.MyTooltipBox
+import zone.ien.utils.ui.view.M3TooltipBox
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,7 +63,7 @@ fun M3ActionsMenu(
                         )
                     }
                 }) {
-                    MyTooltipBox(
+                    M3TooltipBox(
                         label = item.title
                     ) {
                         IconButton(
@@ -99,7 +99,7 @@ fun M3ActionsMenu(
     }
 
     if (menuItems.overflowItems.isNotEmpty()) {
-        MyTooltipBox(
+        M3TooltipBox(
             label = stringResource(Res.string.more_options),
         ) {
             IconButton(

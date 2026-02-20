@@ -14,11 +14,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -27,23 +24,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
-import com.kyant.backdrop.Backdrop
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.ExperimentalCupertinoApi
-import zone.ien.hig.adaptive.AdaptiveWidget
-import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
-import zone.ien.hig.icons.CupertinoIcons
+import zone.ien.utils.adaptive.view.AdaptiveTooltipBox
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.icon.hig.Ellipsis
 import zone.ien.utils.icon.hig.HigIcons
-import zone.ien.utils.icon.material.MaterialIcons
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.menu.LocalMenuIconButtonSize
-import zone.ien.utils.ui.menu.M3ActionsMenu
-import zone.ien.utils.ui.view.MyTooltipBox
+import zone.ien.utils.ui.view.M3TooltipBox
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,7 +63,7 @@ fun HigActionMenu(
                     )
                 }
             }) {
-                MyTooltipBox(
+                AdaptiveTooltipBox(
                     label = item.title
                 ) {
                     Box(
@@ -121,7 +113,7 @@ fun HigActionsMenu(
     menuItems.alwaysShownItems.forEach { HigActionMenu(it) }
 
     if (menuItems.overflowItems.isNotEmpty()) {
-        MyTooltipBox(
+        M3TooltipBox(
             label = stringResource(Res.string.more_options),
         ) {
             Box(
