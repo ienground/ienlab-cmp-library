@@ -212,6 +212,7 @@ fun AdaptiveTopAppBarScaffold(
                         onToggleOverflow = { menuExpanded = !menuExpanded },
                         maxVisibleItems = 5,
                     )
+                    Spacer(modifier = Modifier.width(16.dp))
                 }
             }
         },

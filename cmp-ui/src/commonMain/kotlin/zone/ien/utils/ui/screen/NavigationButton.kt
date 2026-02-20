@@ -1,11 +1,15 @@
 package zone.ien.utils.ui.screen
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.back
@@ -29,7 +33,8 @@ fun M3BackButton(
         IconButton(
             onClick = onClick,
             enabled = enabled,
-            modifier = modifier
+            colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest),
+            modifier = modifier.padding(horizontal = 16.dp)
         ) {
             Icon(
                 imageVector = icon,
