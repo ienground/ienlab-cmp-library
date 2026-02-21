@@ -49,6 +49,8 @@ import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.component.AdaptiveLargeFloatingActionButton
 import zone.ien.utils.adaptive.component.AdaptiveMediumFloatingActionButton
 import zone.ien.utils.adaptive.component.AdaptiveSmallFloatingActionButton
+import zone.ien.utils.adaptive.menu.adaptiveDeleteButton
+import zone.ien.utils.adaptive.menu.adaptiveSaveButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBar
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
@@ -56,6 +58,7 @@ import zone.ien.utils.icon.hig.Ellipsis
 import zone.ien.utils.icon.hig.HigIcons
 import zone.ien.utils.icon.material.MaterialIcons
 import zone.ien.utils.ui.menu.ActionMenuItem
+import zone.ien.utils.ui.menu.IconData
 import zone.ien.utils.utils.Dlog
 
 const val TAG = "CmpLibTAG"
@@ -600,7 +603,7 @@ fun App() {
                             snackbarState.showSnackbar("hi")
                         }
                     },
-                    icon = Android,
+                    icon = IconData.Vector(Android)
                 ),
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
                     title = "Hi",
@@ -609,17 +612,11 @@ fun App() {
                             snackbarState.showSnackbar("delete")
                         }
                     },
-                    icon = MaterialIcons.Delete,
+                    icon = null//IconData.Vector(MaterialIcons.Delete),
                 ),
             ),
-            primaryAction = ActionMenuItem.IconMenuItem.ShownIfRoom(
-                title = "Hi",
-                onClick = {
-                    coroutineScope.launch {
-                        snackbarState.showSnackbar("ellipsis")
-                    }
-                },
-                icon = HigIcons.Ellipsis,
+            primaryAction = adaptiveSaveButton(
+                onClick = {}
             ),
             snackbarHost = { SnackbarHost(snackbarState) },
             title = {

@@ -64,6 +64,7 @@ haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "haze" }
 hig-core = { group = "zone.ien.hig", name = "hig-core", version.ref = "hig" }
 hig = { group = "zone.ien.hig", name = "hig", version.ref = "hig"}
 hig-adaptive = { group = "zone.ien.hig", name = "hig-adaptive", version.ref = "hig" }
+hig-icons = { group = "zone.ien.hig", name = "hig-icons-extended", version.ref = "hig" }
 capsule = { group = "io.github.kyant0", name = "shapes", version.ref = "capsule"}
 
 # functionality
@@ -82,7 +83,7 @@ core = { group = "androidx.test", name = "core", version.ref = "coreVersion" }
 junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
 
 [bundles]
-hig = ["hig-core", "hig", "hig-adaptive"]
+hig = ["hig-core", "hig", "hig-adaptive", "hig-icons"]
 
 [plugins]
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
