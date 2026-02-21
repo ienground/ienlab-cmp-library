@@ -75,13 +75,26 @@ fun M3ActionsMenu(
                                 targetState = item.icon,
                                 label = "menu_icon"
                             ) {
-                                Icon(
-                                    imageVector = icon,
-                                    contentDescription = item.title,
-                                    modifier = Modifier
-                                        .alpha(alpha)
-                                        .size(LocalMenuIconButtonSize.current.first - 16.dp)
-                                )
+                                when (icon) {
+                                    is IconData.Vector -> {
+                                        Icon(
+                                            imageVector = icon.imageVector,
+                                            contentDescription = item.title,
+                                            modifier = Modifier
+                                                .alpha(alpha)
+                                                .size(LocalMenuIconButtonSize.current.first - 16.dp)
+                                        )
+                                    }
+                                    is IconData.Paint -> {
+                                        Icon(
+                                            painter = icon.painter,
+                                            contentDescription = item.title,
+                                            modifier = Modifier
+                                                .alpha(alpha)
+                                                .size(LocalMenuIconButtonSize.current.first - 16.dp)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }

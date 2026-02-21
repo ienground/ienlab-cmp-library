@@ -6,6 +6,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -34,12 +35,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Modifier.Companion
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
+import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.CupertinoButtonSize
 import zone.ien.hig.CupertinoLiquidButton
+import zone.ien.hig.CupertinoLiquidButtonColors
 import zone.ien.hig.CupertinoLiquidButtonDefaults
+import zone.ien.hig.CupertinoLiquidButtonDefaults.glassButtonColors
+import zone.ien.hig.CupertinoLiquidButtonDefaults.glassProminentButtonColors
 import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.CupertinoScaffold
 import zone.ien.hig.CupertinoScaffoldDefaults
@@ -52,6 +60,7 @@ import zone.ien.hig.adaptive.Adaptation
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.utils.adaptive.menu.HigActionMenu
 import zone.ien.utils.adaptive.menu.HigActionsMenu
 import zone.ien.utils.ui.menu.ActionMenuItem
@@ -220,7 +229,46 @@ fun AdaptiveTopAppBarScaffold(
             scaffold {
                 if (actions.isNotEmpty()) {
                     Spacer(modifier = Modifier.width(8.dp))
-                    val menu = @Composable {
+
+                    @Composable
+                    fun liquidButton(
+                        onClick: () -> Unit,
+                        isIconButton: Boolean,
+                        enabled: Boolean = true,
+                        colors: CupertinoLiquidButtonColors = glassButtonColors(),
+                        backdrop: Backdrop,
+                        isBackgroundAdaptive: Boolean = true,
+                        content: @Composable () -> Unit
+                    ) {
+                        if (isIconButton) {
+                            CupertinoLiquidIconButton(
+                                onClick = onClick,
+                                enabled = enabled,
+                                colors = colors,
+                                backdrop = backdrop,
+                                isBackgroundAdaptive = isBackgroundAdaptive,
+                            ) {
+                                content()
+                            }
+                        } else {
+                            CupertinoLiquidButton(
+                                onClick = onClick,
+                                enabled = enabled,
+                                colors = colors,
+                                backdrop = backdrop,
+                                isBackgroundAdaptive = isBackgroundAdaptive
+                            ) {
+                                content()
+                            }
+                        }
+                    }
+
+                    liquidButton(
+                        onClick = {},
+                        isIconButton = actions.size == 1 && actions.first().let { it is ActionMenuItem.IconMenuItem && it.icon != null },
+                        backdrop = it.backdrop,
+                        isBackgroundAdaptive = it.isBackgroundAdaptive
+                    ) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(24.dp),
                             verticalAlignment = Alignment.CenterVertically,
@@ -235,32 +283,17 @@ fun AdaptiveTopAppBarScaffold(
                             )
                         }
                     }
-                    if (actions.size == 1) {
-                        CupertinoLiquidIconButton(
-                            onClick = {},
-                            backdrop = it.backdrop,
-                            isBackgroundAdaptive = it.isCenterAligned
-                        ) {
-                            menu()
-                        }
-                    } else {
-                        CupertinoLiquidButton(
-                            onClick = {},
+
+                    primaryAction?.let { action ->
+                        liquidButton(
+                            onClick = action.onClick,
+                            isIconButton = action.icon != null,
+                            enabled = action.enabled,
+                            colors = glassProminentButtonColors(),
                             backdrop = it.backdrop,
                             isBackgroundAdaptive = it.isBackgroundAdaptive
                         ) {
-                            menu()
-                        }
-                    }
-                    primaryAction?.let { actions ->
-                        CupertinoLiquidIconButton(
-                            onClick = actions.onClick,
-                            enabled = actions.enabled,
-                            colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
-                            backdrop = it.backdrop,
-                            isBackgroundAdaptive = it.isBackgroundAdaptive
-                        ) {
-                            HigActionMenu(actions)
+                            HigActionMenu(action)
                         }
                     }
                     Spacer(modifier = Modifier.width(8.dp))

@@ -34,6 +34,7 @@ import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.icon.hig.Ellipsis
 import zone.ien.utils.icon.hig.HigIcons
 import zone.ien.utils.ui.menu.ActionMenuItem
+import zone.ien.utils.ui.menu.IconData
 import zone.ien.utils.ui.menu.LocalMenuIconButtonSize
 import zone.ien.utils.ui.view.M3TooltipBox
 
@@ -73,26 +74,43 @@ fun HigActionMenu(
                             indication = null,
                             interactionSource = null
                         )
-                    )
-                    AnimatedContent(
-                        targetState = item.icon,
-                        label = "menu_icon"
                     ) {
-                        CupertinoIcon(
-                            imageVector = icon,
-                            contentDescription = item.title,
-                            modifier = Modifier
-                                .alpha(alpha)
-                                .size(LocalMenuIconButtonSize.current.first - 16.dp)
-                        )
+                        AnimatedContent(
+                            targetState = item.icon,
+                            label = "menu_icon"
+                        ) {
+                            when (icon) {
+                                is IconData.Vector -> {
+                                    CupertinoIcon(
+                                        imageVector = icon.imageVector,
+                                        contentDescription = item.title,
+                                        modifier = Modifier
+                                            .alpha(alpha)
+                                            .size(LocalMenuIconButtonSize.current.first - 16.dp)
+                                    )
+                                }
+                                is IconData.Paint -> {
+                                    CupertinoIcon(
+                                        painter = icon.painter,
+                                        contentDescription = item.title,
+                                        modifier = Modifier
+                                            .alpha(alpha)
+                                            .size(LocalMenuIconButtonSize.current.first - 16.dp)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
-
             }
         } ?: run {
-            TextButton(
-                enabled = item.enabled,
-                onClick = item.onClick
+            Box(
+                modifier = Modifier.clickable(
+                    enabled = item.enabled,
+                    onClick = item.onClick,
+                    indication = null,
+                    interactionSource = null
+                )
             ) {
                 Text(text = item.title)
             }

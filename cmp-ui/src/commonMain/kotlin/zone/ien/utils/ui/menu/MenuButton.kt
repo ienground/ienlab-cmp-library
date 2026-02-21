@@ -1,4 +1,4 @@
-package zone.ien.utils.ui.component
+package zone.ien.utils.ui.menu
 
 import androidx.compose.runtime.Composable
 import org.jetbrains.compose.resources.stringResource
@@ -7,7 +7,6 @@ import zone.ien.utils.cmp_ui.generated.resources.delete
 import zone.ien.utils.cmp_ui.generated.resources.edit
 import zone.ien.utils.cmp_ui.generated.resources.save
 import zone.ien.utils.icon.material.MaterialIcons
-import zone.ien.utils.ui.menu.ActionMenuItem
 
 @Composable
 fun m3DeleteButton(
@@ -16,7 +15,7 @@ fun m3DeleteButton(
     onClick: () -> Unit
 ) = ActionMenuItem.IconMenuItem.ShownIfRoom(
     title = stringResource(Res.string.delete),
-    icon = MaterialIcons.Delete,
+    icon = IconData.Vector(MaterialIcons.Delete),
     onClick = onClick,
     visible = visible,
     enabled = enabled
@@ -29,7 +28,7 @@ fun m3SaveButton(
     onClick: () -> Unit
 ) = ActionMenuItem.IconMenuItem.ShownIfRoom(
     title = stringResource(Res.string.save),
-    icon = MaterialIcons.Save,
+    icon = IconData.Vector(MaterialIcons.Save),
     onClick = onClick,
     visible = visible,
     enabled = enabled
@@ -42,7 +41,7 @@ fun m3EditButton(
     onClick: () -> Unit
 ) = ActionMenuItem.IconMenuItem.ShownIfRoom(
     title = stringResource(Res.string.edit),
-    icon = MaterialIcons.Edit,
+    icon = IconData.Vector(MaterialIcons.Edit),
     onClick = onClick,
     visible = visible,
     enabled = enabled
