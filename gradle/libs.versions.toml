@@ -19,9 +19,9 @@ firebase-common = "22.0.1"
 # ui
 activity-compose = "1.12.4"
 lifecycle = "2.10.0-alpha08"
-backdrop = "2.0.0-alpha03"
+backdrop = "2.0.0-alpha04+dev1"
 haze = "1.7.2"
-hig = "0.1.0-alpha10"
+hig = "0.1.0-alpha14"
 capsule = "1.2.0"
 
 # functionality

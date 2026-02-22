@@ -6,7 +6,8 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -18,9 +19,11 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScaffoldDefaults
@@ -29,23 +32,21 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.Modifier.Companion
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import zone.ien.hig.CupertinoButtonSize
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonColors
-import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidButtonDefaults.glassButtonColors
 import zone.ien.hig.CupertinoLiquidButtonDefaults.glassProminentButtonColors
 import zone.ien.hig.CupertinoLiquidIconButton
@@ -60,7 +61,6 @@ import zone.ien.hig.adaptive.Adaptation
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
-import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.utils.adaptive.menu.HigActionMenu
 import zone.ien.utils.adaptive.menu.HigActionsMenu
 import zone.ien.utils.ui.menu.ActionMenuItem
@@ -121,6 +121,18 @@ fun AdaptiveTopAppBarScaffold(
             )
         },
         cupertino = {
+            val isScrolled by remember {
+                val state = it.scrollableState
+                derivedStateOf {
+                    when (state) {
+                        is ScrollState -> state.value > 20
+                        is LazyListState -> state.firstVisibleItemIndex > 0 || state.firstVisibleItemScrollOffset > 0
+                        is LazyGridState -> state.firstVisibleItemIndex > 0 || state.firstVisibleItemScrollOffset > 0
+                        else -> false
+                    }
+                }
+            }
+
             CupertinoScaffold(
                 modifier = modifier,
                 topBar = {
@@ -137,8 +149,9 @@ fun AdaptiveTopAppBarScaffold(
                                 actions = actions,
                                 windowInsets = it.topBarWindowInsets,
                                 isCenterAligned = it.isCenterAligned,
-                                isTransparent = it.isTransparent,
-                                isTranslucent = it.isTranslucent,
+                                isBackgroundAdaptive = it.isBackgroundAdaptive,
+                                isBackgroundGradient = it.isBackgroundGradient && isScrolled,
+                                backdrop = it.backdrop,
                                 colors = it.colors
                             )
                         }
@@ -169,7 +182,7 @@ fun AdaptiveTopAppBarScaffold(
     )
 }
 
-@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AdaptiveTopAppBarScaffold(
     modifier: Modifier = Modifier,
@@ -307,45 +320,45 @@ fun AdaptiveTopAppBarScaffold(
 class M3TopAppBarScaffoldAdaptation internal constructor(
     topBarWindowInsets: WindowInsets,
     contentWindowInsets: WindowInsets,
-    scrollBehavior: TopAppBarScrollBehavior,
     isScrollTint: Boolean,
     colors: TopAppBarColors,
     isCenterAligned: Boolean = false,
     scaffoldContainerColor: Color,
-    scaffoldContentColor: Color
+    scaffoldContentColor: Color,
+    scrollBehavior: TopAppBarScrollBehavior
 ) {
     var topBarWindowInsets: WindowInsets by mutableStateOf(topBarWindowInsets)
     var contentWindowInsets: WindowInsets by mutableStateOf(contentWindowInsets)
-    var scrollBehavior: TopAppBarScrollBehavior by mutableStateOf(scrollBehavior)
     var isScrollTint: Boolean by mutableStateOf(isScrollTint)
     var colors: TopAppBarColors by mutableStateOf(colors)
     var isCenterAligned: Boolean by mutableStateOf(isCenterAligned)
     var scaffoldContainerColor: Color by mutableStateOf(scaffoldContainerColor)
     var scaffoldContentColor: Color by mutableStateOf(scaffoldContentColor)
+    var scrollBehavior: TopAppBarScrollBehavior by mutableStateOf(scrollBehavior)
 }
 
 class HigTopAppBarScaffoldAdaptation internal constructor(
     topBarWindowInsets: WindowInsets,
     contentWindowInsets: WindowInsets,
-    isBackgroundAdaptive: Boolean = true,
-    backdrop: LayerBackdrop,
     isCenterAligned: Boolean = true,
-    isTransparent: Boolean = false,
-    isTranslucent: Boolean = true,
+    isBackgroundAdaptive: Boolean = true,
+    isBackgroundGradient: Boolean = false,
+    backdrop: LayerBackdrop,
     colors: CupertinoTopAppBarColors,
     scaffoldContainerColor: Color,
-    scaffoldContentColor: Color
+    scaffoldContentColor: Color,
+    scrollableState: ScrollableState
 ) {
     var topBarWindowInsets: WindowInsets by mutableStateOf(topBarWindowInsets)
     var contentWindowInsets: WindowInsets by mutableStateOf(contentWindowInsets)
-    var isBackgroundAdaptive: Boolean by mutableStateOf(isBackgroundAdaptive)
-    var backdrop: LayerBackdrop by mutableStateOf(backdrop)
     var isCenterAligned: Boolean by mutableStateOf(isCenterAligned)
-    var isTransparent: Boolean by mutableStateOf(isTransparent)
-    var isTranslucent: Boolean by mutableStateOf(isTranslucent)
+    var isBackgroundAdaptive: Boolean by mutableStateOf(isBackgroundAdaptive)
+    var isBackgroundGradient: Boolean by mutableStateOf(isBackgroundGradient)
+    var backdrop: LayerBackdrop by mutableStateOf(backdrop)
     var colors: CupertinoTopAppBarColors by mutableStateOf(colors)
     var scaffoldContainerColor: Color by mutableStateOf(scaffoldContainerColor)
     var scaffoldContentColor: Color by mutableStateOf(scaffoldContentColor)
+    var scrollableState: ScrollableState by mutableStateOf(scrollableState)
 }
 
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -354,27 +367,27 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
     override fun rememberCupertinoAdaptation(): HigTopAppBarScaffoldAdaptation {
         val topBarWindowInsets = CupertinoTopAppBarDefaults.windowInsets
         val contentWindowInsets = CupertinoScaffoldDefaults.contentWindowInsets
-        val isBackgroundAdaptive = true
-        val backdrop = rememberLayerBackdrop()
         val isCenterAligned = true
-        val isTransparent = false
-        val isTranslucent = true
+        val isBackgroundAdaptive = LocalIsBackgroundAdaptive.current
+        val isBackgroundGradient = LocalIsBackgroundGradient.current
+        val backdrop = rememberLayerBackdrop()
         val colors = CupertinoTopAppBarDefaults.topAppBarColors()
         val scaffoldContainerColor = CupertinoScaffoldDefaults.containerColor
         val scaffoldContentColor = CupertinoScaffoldDefaults.contentColor
+        val scrollableState = rememberScrollState()
 
-        return remember(topBarWindowInsets, contentWindowInsets, isBackgroundAdaptive, backdrop, isCenterAligned, isTransparent, isTranslucent, colors, scaffoldContainerColor, scaffoldContentColor) {
+        return remember(topBarWindowInsets, contentWindowInsets, backdrop, isCenterAligned, isBackgroundAdaptive, isBackgroundGradient, colors, scaffoldContainerColor, scaffoldContentColor, scrollableState) {
             HigTopAppBarScaffoldAdaptation(
                 topBarWindowInsets = topBarWindowInsets,
                 contentWindowInsets = contentWindowInsets,
-                isBackgroundAdaptive = isBackgroundAdaptive,
-                backdrop = backdrop,
                 isCenterAligned = isCenterAligned,
-                isTransparent = isTransparent,
-                isTranslucent = isTranslucent,
+                isBackgroundAdaptive = isBackgroundAdaptive,
+                isBackgroundGradient = isBackgroundGradient,
+                backdrop = backdrop,
                 colors = colors,
                 scaffoldContainerColor = scaffoldContainerColor,
-                scaffoldContentColor = scaffoldContentColor
+                scaffoldContentColor = scaffoldContentColor,
+                scrollableState = scrollableState
             )
         }
     }
@@ -384,23 +397,23 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
     override fun rememberMaterialAdaptation(): M3TopAppBarScaffoldAdaptation {
         val topBarWindowInsets = TopAppBarDefaults.windowInsets
         val contentWindowInsets = ScaffoldDefaults.contentWindowInsets
-        val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
         val isScrollTint = LocalIsScrollTint.current
         val colors = TopAppBarDefaults.topAppBarColors()
-        val isCenterAligned = false
+        val isCenterAligned = true
         val scaffoldContainerColor = MaterialTheme.colorScheme.background
         val scaffoldContentColor = contentColorFor(scaffoldContainerColor)
+        val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
-        return remember(topBarWindowInsets, contentWindowInsets, scrollBehavior, isScrollTint, colors, isCenterAligned) {
+        return remember(topBarWindowInsets, contentWindowInsets, isScrollTint, colors, isCenterAligned, scaffoldContainerColor, scaffoldContentColor, scrollBehavior) {
             M3TopAppBarScaffoldAdaptation(
                 topBarWindowInsets = topBarWindowInsets,
                 contentWindowInsets = contentWindowInsets,
-                scrollBehavior = scrollBehavior,
                 isScrollTint = isScrollTint,
                 colors = colors,
                 isCenterAligned = isCenterAligned,
                 scaffoldContainerColor = scaffoldContainerColor,
-                scaffoldContentColor = scaffoldContentColor
+                scaffoldContentColor = scaffoldContentColor,
+                scrollBehavior = scrollBehavior
             )
         }
     }
