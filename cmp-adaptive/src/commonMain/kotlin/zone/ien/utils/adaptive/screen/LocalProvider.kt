@@ -18,3 +18,6 @@ val LocalTopBarScaffoldAdaptation: ProvidableCompositionLocal<AdaptationScope<Hi
             isCenterAligned = true
         }
     } }
+
+val LocalIsBackgroundAdaptive: ProvidableCompositionLocal<Boolean> = staticCompositionLocalOf { true }
+val LocalIsBackgroundGradient: ProvidableCompositionLocal<Boolean> = staticCompositionLocalOf { false }

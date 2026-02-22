@@ -638,9 +638,9 @@ fun App() {
                     isCenterAligned = true
                 }
                 cupertino {
-                    isTransparent = true
-                    isTranslucent = false
+                    this.isBackgroundGradient = true
                     this.backdrop = backdrop
+                    this.scrollableState = scrollState
                 }
             },
             fabPosition = FabPosition.End,
