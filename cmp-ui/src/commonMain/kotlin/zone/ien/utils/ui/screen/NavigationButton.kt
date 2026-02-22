@@ -34,7 +34,7 @@ fun M3BackButton(
             onClick = onClick,
             enabled = enabled,
             colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest),
-            modifier = modifier.padding(horizontal = 16.dp)
+            modifier = modifier.padding(horizontal = 8.dp)
         ) {
             Icon(
                 imageVector = icon,
