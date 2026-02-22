@@ -614,6 +614,15 @@ fun App() {
                     },
                     icon = null//IconData.Vector(MaterialIcons.Delete),
                 ),
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "Hi",
+                    onClick = {
+                        coroutineScope.launch {
+                            snackbarState.showSnackbar("delete")
+                        }
+                    },
+                    icon = null//IconData.Vector(MaterialIcons.Delete),
+                ),
             ),
             primaryAction = adaptiveSaveButton(
                 onClick = {}
@@ -625,6 +634,9 @@ fun App() {
                 )
             },
             adaptation = {
+                material {
+                    isCenterAligned = true
+                }
                 cupertino {
                     isTransparent = true
                     isTranslucent = false
