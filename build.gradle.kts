@@ -42,6 +42,8 @@ subprojects {
                     developerConnection = "scm:git:https://github.com/ienground/ienlab-cmp-library.git"
                 }
             }
+
+            signAllPublications()
         }
     }
 }
