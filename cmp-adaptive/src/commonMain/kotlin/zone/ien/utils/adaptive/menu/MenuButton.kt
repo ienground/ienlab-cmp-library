@@ -40,7 +40,12 @@ fun adaptiveSaveButton(
     onClick: () -> Unit
 ) =  ActionMenuItem.IconMenuItem.ShownIfRoom(
     title = stringResource(Res.string.save),
-    icon = IconData.Vector(MaterialIcons.Save).takeIf { currentTheme == Theme.Material3 },
+    icon = MaterialIcons.Save.let { IconData.Paint(
+        AdaptiveIcons.painter(
+            material = { it },
+            cupertino = { "checkmark" }
+        )
+    ) },
     onClick = onClick,
     visible = visible,
     enabled = enabled

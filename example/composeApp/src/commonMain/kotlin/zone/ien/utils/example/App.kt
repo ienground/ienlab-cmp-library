@@ -638,7 +638,7 @@ fun App() {
                     isCenterAligned = true
                 }
                 cupertino {
-                    this.isBackgroundGradient = true
+                    this.isBackgroundGradient = false
                     this.backdrop = backdrop
                     this.scrollableState = scrollState
                 }
