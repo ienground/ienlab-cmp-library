@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.compose.compiler) apply false
 }
 
+val isReleaseVersion = !version.toString().endsWith("SNAPSHOT")
+
 subprojects {
     plugins.withId("com.vanniktech.maven.publish") {
         configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
@@ -41,6 +43,13 @@ subprojects {
                     connection = "scm:git:https://github.com/ienground/ienlab-cmp-library.git"
                     developerConnection = "scm:git:https://github.com/ienground/ienlab-cmp-library.git"
                 }
+            }
+
+            val isSnapshot = version.toString().endsWith("SNAPSHOT")
+            val hasSigningKey = !(project.findProperty("signingInMemoryKeyId") as String?).isNullOrBlank()
+
+            if (!isSnapshot && hasSigningKey) {
+                signAllPublications()
             }
         }
     }

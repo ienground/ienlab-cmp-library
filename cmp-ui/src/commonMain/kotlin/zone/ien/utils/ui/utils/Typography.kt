@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontFamily
 
 @Composable
-fun getTypography(fontFamily: FontFamily? = null): Typography =
+fun getM3Typography(fontFamily: FontFamily? = null): Typography =
     MaterialTheme.typography.let {
         it.copy(
             displayLarge = fontFamily?.let { f -> it.displayLarge.copy(fontFamily = f) } ?: it.displayLarge,

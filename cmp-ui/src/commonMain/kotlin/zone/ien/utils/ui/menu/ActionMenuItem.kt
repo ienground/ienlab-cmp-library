@@ -1,6 +1,12 @@
 package zone.ien.utils.ui.menu
 
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+
+sealed interface IconData {
+    data class Vector(val imageVector: ImageVector): IconData
+    data class Paint(val painter: Painter): IconData
+}
 
 sealed interface ActionMenuItem {
     val title: String
@@ -9,16 +15,14 @@ sealed interface ActionMenuItem {
     val enabled: Boolean
 
     sealed interface IconMenuItem : ActionMenuItem {
-        val icon: ImageVector?
+        val icon: IconData?
         val badge: Int
-        val isPrimary: Boolean
 
         data class AlwaysShown(
             override val title: String,
             override val onClick: () -> Unit,
-            override val icon: ImageVector?,
+            override val icon: IconData?,
             override val badge: Int = 0,
-            override val isPrimary: Boolean = false,
             override val visible: Boolean = true,
             override val enabled: Boolean = true
         ) : IconMenuItem
@@ -26,9 +30,8 @@ sealed interface ActionMenuItem {
         data class ShownIfRoom(
             override val title: String,
             override val onClick: () -> Unit,
-            override val icon: ImageVector?,
+            override val icon: IconData?,
             override val badge: Int = 0,
-            override val isPrimary: Boolean = false,
             override val visible: Boolean = true,
             override val enabled: Boolean = true
         ) : IconMenuItem

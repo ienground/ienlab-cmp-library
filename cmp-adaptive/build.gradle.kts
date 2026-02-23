@@ -35,6 +35,8 @@ kotlin {
             implementation(libs.compose.resources)
 
             implementation(libs.backdrop)
+            implementation(libs.capsule)
+            implementation(libs.bundles.hig)
 
             implementation(project(":cmp-ui"))
             implementation(project(":cmp-common"))
