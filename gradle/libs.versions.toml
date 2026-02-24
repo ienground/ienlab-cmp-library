@@ -32,6 +32,7 @@ kotlinx-io-core = "0.9.0"
 
 # backend
 vanniktechMavenPublish = "0.36.0"
+datastore = "1.2.0"
 
 # test
 runner = "1.7.0"
@@ -75,6 +76,8 @@ kotlinx-io-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-io-core", v
 android-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "android-ui-graphics" } # android only
 androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core"} # android only
 
+# backend
+datastore-pref = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 
 # test
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
