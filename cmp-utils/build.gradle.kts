@@ -33,6 +33,7 @@ kotlin {
             implementation(libs.compose.material3)
             implementation(libs.compose.resources)
             implementation(libs.kotlinx.io.core)
+            implementation(libs.datastore.pref)
         }
 
         commonTest.dependencies {

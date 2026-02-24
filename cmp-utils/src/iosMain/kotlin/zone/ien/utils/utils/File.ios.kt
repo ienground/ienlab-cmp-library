@@ -1,8 +1,11 @@
 package zone.ien.utils.utils
 
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.io.files.Path
 import platform.Foundation.NSApplicationSupportDirectory
 import platform.Foundation.NSCachesDirectory
+import platform.Foundation.NSDocumentDirectory
+import platform.Foundation.NSFileManager
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSUserDomainMask
 
@@ -16,4 +19,16 @@ actual fun cacheDirectory(appId: String): Path {
         .firstOrNull()?.toString()?.toPath() ?: error("Unable to get 'NSCachesDirectory'")
 
     return cachesDirectory
+}
+
+@OptIn(ExperimentalForeignApi::class)
+fun documentDirectory(): String {
+    val documentDirectory = NSFileManager.defaultManager.URLForDirectory(
+        directory = NSDocumentDirectory,
+        inDomain = NSUserDomainMask,
+        appropriateForURL = null,
+        create = false,
+        error = null,
+    )
+    return requireNotNull(documentDirectory?.path)
 }
