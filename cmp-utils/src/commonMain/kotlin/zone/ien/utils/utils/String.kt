@@ -1,6 +1,9 @@
 package zone.ien.utils.utils
 
 import androidx.compose.runtime.Composable
+import org.jetbrains.compose.resources.stringResource
+import zone.ien.utils.cmp_utils.generated.resources.Res
+import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
@@ -9,7 +12,10 @@ fun String.checkDouble() = matches(Regex("^\\d*(\\.\\d*)?\$"))
 
 fun String.toSafeInt(): Int = toIntOrNull() ?: 0
 
-fun String?.ifEmptyOrNull(defaultValue: () -> String) = if (isNullOrEmpty()) defaultValue() else this
-
-@Composable
-fun String?.ifEmptyOrNull(defaultValue: @Composable () -> String) = if (isNullOrEmpty()) defaultValue() else this
+@OptIn(ExperimentalContracts::class)
+inline fun CharSequence?.ifEmptyOrNull(defaultValue: () -> String): String {
+    contract {
+        callsInPlace(defaultValue, InvocationKind.AT_MOST_ONCE)
+    }
+    return if (isNullOrEmpty()) defaultValue() else this.toString()
+}
