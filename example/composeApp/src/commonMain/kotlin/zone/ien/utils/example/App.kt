@@ -88,35 +88,35 @@ fun App() {
             navigationIcon = {
                 AdaptiveBackButton(backdrop = backdrop) {}
             },
-//            actions = listOf(
-//                ActionMenuItem.IconMenuItem.ShownIfRoom(
-//                    title = "Hi",
-//                    onClick = {
-//                        coroutineScope.launch {
-//                            snackbarState.showSnackbar("hi")
-//                        }
-//                    },
-//                    icon = IconData.Vector(Android)
-//                ),
-//                ActionMenuItem.IconMenuItem.ShownIfRoom(
-//                    title = "Hi",
-//                    onClick = {
-//                        coroutineScope.launch {
-//                            snackbarState.showSnackbar("delete")
-//                        }
-//                    },
-//                    icon = null//IconData.Vector(MaterialIcons.Delete),
-//                ),
-//                ActionMenuItem.IconMenuItem.ShownIfRoom(
-//                    title = "Hi",
-//                    onClick = {
-//                        coroutineScope.launch {
-//                            snackbarState.showSnackbar("delete")
-//                        }
-//                    },
-//                    icon = null//IconData.Vector(MaterialIcons.Delete),
-//                ),
-//            ),
+            actions = listOf(
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "Hi",
+                    onClick = {
+                        coroutineScope.launch {
+                            snackbarState.showSnackbar("hi")
+                        }
+                    },
+                    icon = IconData.Vector(Android)
+                ),
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "Hi",
+                    onClick = {
+                        coroutineScope.launch {
+                            snackbarState.showSnackbar("delete")
+                        }
+                    },
+                    icon = null//IconData.Vector(MaterialIcons.Delete),
+                ),
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "Hi",
+                    onClick = {
+                        coroutineScope.launch {
+                            snackbarState.showSnackbar("delete")
+                        }
+                    },
+                    icon = null//IconData.Vector(MaterialIcons.Delete),
+                ),
+            ),
             primaryAction = adaptiveSaveButton(
                 onClick = {}
             ),
