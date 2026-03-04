@@ -240,42 +240,42 @@ fun AdaptiveTopAppBarScaffold(
         },
         cupertino = {
             scaffold {
-                if (actions.isNotEmpty()) {
-                    Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(8.dp))
 
-                    @Composable
-                    fun liquidButton(
-                        onClick: () -> Unit,
-                        isIconButton: Boolean,
-                        enabled: Boolean = true,
-                        colors: CupertinoLiquidButtonColors = glassButtonColors(),
-                        backdrop: Backdrop,
-                        isBackgroundAdaptive: Boolean = true,
-                        content: @Composable () -> Unit
-                    ) {
-                        if (isIconButton) {
-                            CupertinoLiquidIconButton(
-                                onClick = onClick,
-                                enabled = enabled,
-                                colors = colors,
-                                backdrop = backdrop,
-                                isBackgroundAdaptive = isBackgroundAdaptive,
-                            ) {
-                                content()
-                            }
-                        } else {
-                            CupertinoLiquidButton(
-                                onClick = onClick,
-                                enabled = enabled,
-                                colors = colors,
-                                backdrop = backdrop,
-                                isBackgroundAdaptive = isBackgroundAdaptive
-                            ) {
-                                content()
-                            }
+                @Composable
+                fun liquidButton(
+                    onClick: () -> Unit,
+                    isIconButton: Boolean,
+                    enabled: Boolean = true,
+                    colors: CupertinoLiquidButtonColors = glassButtonColors(),
+                    backdrop: Backdrop,
+                    isBackgroundAdaptive: Boolean = true,
+                    content: @Composable () -> Unit
+                ) {
+                    if (isIconButton) {
+                        CupertinoLiquidIconButton(
+                            onClick = onClick,
+                            enabled = enabled,
+                            colors = colors,
+                            backdrop = backdrop,
+                            isBackgroundAdaptive = isBackgroundAdaptive,
+                        ) {
+                            content()
+                        }
+                    } else {
+                        CupertinoLiquidButton(
+                            onClick = onClick,
+                            enabled = enabled,
+                            colors = colors,
+                            backdrop = backdrop,
+                            isBackgroundAdaptive = isBackgroundAdaptive
+                        ) {
+                            content()
                         }
                     }
+                }
 
+                if (actions.isNotEmpty()) {
                     liquidButton(
                         onClick = {},
                         isIconButton = actions.size == 1 && actions.first().let { it is ActionMenuItem.IconMenuItem && it.icon != null },
@@ -296,21 +296,21 @@ fun AdaptiveTopAppBarScaffold(
                             )
                         }
                     }
-
-                    primaryAction?.let { action ->
-                        liquidButton(
-                            onClick = action.onClick,
-                            isIconButton = action.icon != null,
-                            enabled = action.enabled,
-                            colors = glassProminentButtonColors(),
-                            backdrop = it.backdrop,
-                            isBackgroundAdaptive = it.isBackgroundAdaptive
-                        ) {
-                            HigActionMenu(action)
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
                 }
+
+                primaryAction?.let { action ->
+                    liquidButton(
+                        onClick = action.onClick,
+                        isIconButton = action.icon != null,
+                        enabled = action.enabled,
+                        colors = glassProminentButtonColors(),
+                        backdrop = it.backdrop,
+                        isBackgroundAdaptive = it.isBackgroundAdaptive
+                    ) {
+                        HigActionMenu(action)
+                    }
+                }
+                Spacer(modifier = Modifier.width(8.dp))
             }
         }
     )
