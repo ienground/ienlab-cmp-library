@@ -58,7 +58,12 @@ fun adaptiveEditButton(
     onClick: () -> Unit
 ) = ActionMenuItem.IconMenuItem.ShownIfRoom(
     title = stringResource(Res.string.edit),
-    icon = IconData.Vector(MaterialIcons.Edit),
+    icon = MaterialIcons.Edit.let { IconData.Paint(
+        AdaptiveIcons.painter(
+            material = { it },
+            cupertino = { "pencil" }
+        )
+    ) },
     onClick = onClick,
     visible = visible,
     enabled = enabled
