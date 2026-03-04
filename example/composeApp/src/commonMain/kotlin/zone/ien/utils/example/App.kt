@@ -118,7 +118,8 @@ fun App() {
                 ),
             ),
             primaryAction = adaptiveSaveButton(
-                onClick = {}
+                onClick = { coroutineScope.launch { snackbarState.showSnackbar("primary action clicked") } },
+                enabled = false
             ),
             snackbarHost = { SnackbarHost(snackbarState) },
             title = {
