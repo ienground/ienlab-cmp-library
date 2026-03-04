@@ -1,4 +1,4 @@
-package zone.ien.utils.navigation.data
+package zone.ien.utils.navigation
 
 import androidx.navigationevent.NavigationEventInfo
 

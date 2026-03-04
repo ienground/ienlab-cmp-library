@@ -1,4 +1,4 @@
-package zone.ien.utils.navigation.data.tracker
+package zone.ien.utils.navigation.tracker
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.flow.MutableStateFlow
