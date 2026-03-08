@@ -7,7 +7,7 @@ android-targetSdk = "36"
 lib-version-name = "0.1.4-alpha09"
 
 # pluginπ
-compose-plugin = "1.10.1"
+compose-plugin = "1.10.2"
 compose-plugin-experimental = "1.10.0-alpha05"
 compose-navigation3 = "1.0.0-alpha06"
 
@@ -21,7 +21,7 @@ activity-compose = "1.12.4"
 lifecycle = "2.10.0-alpha08"
 backdrop = "2.0.0-alpha04+dev1"
 haze = "1.7.2"
-hig = "0.1.1-alpha03"
+hig = "0.1.1-alpha04"
 capsule = "1.2.0"
 
 # functionality
