@@ -30,6 +30,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,13 +40,22 @@ import androidx.compose.ui.window.Popup
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import kotlinx.coroutines.launch
+import zone.ien.hig.CupertinoDropdownMenu
+import zone.ien.hig.CupertinoIcon
+import zone.ien.hig.CupertinoText
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.FabPosition
+import zone.ien.hig.MenuAction
+import zone.ien.hig.MenuSection
 import zone.ien.hig.adaptive.AdaptiveSwitch
 import zone.ien.hig.adaptive.AdaptiveTextButton
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
+import zone.ien.hig.icons.CupertinoIcons
+import zone.ien.hig.icons.outlined.CheckmarkCircle
+import zone.ien.hig.icons.outlined.PersonCropCircle
+import zone.ien.hig.icons.outlined.Pin
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.component.AdaptiveMediumFloatingActionButton
 import zone.ien.utils.adaptive.menu.adaptiveSaveButton
@@ -73,7 +83,8 @@ expect val isIos: Boolean
 fun App() {
     Dlog.init(isDebug = true)
 
-    var isMaterialTheme by remember { mutableStateOf(!isIos) }
+    var isMaterialTheme by remember { mutableStateOf(false) }
+//    var isMaterialTheme by remember { mutableStateOf(!isIos) }
     val backdrop = rememberLayerBackdrop()
     val snackbarState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -188,7 +199,7 @@ fun App() {
                             )
                         }
                     },
-                    modifier = Modifier.padding(start = 40.dp)
+                    modifier = Modifier.padding(start = 0.dp)
                 ) {
                     AdaptiveDropdownMenu(
                         expanded = expanded,
@@ -234,6 +245,151 @@ fun App() {
                             )
                         )
                     )
+                }
+                Box(
+                    modifier = Modifier.padding(start = 0.dp)
+                ) {
+                    AdaptiveTextButton(
+                        onClick = { expanded2 = !expanded2 },
+                        adaptation = {
+                            cupertino {}
+                        },
+                        modifier = Modifier.conditional(currentTheme == Theme.Cupertino) {
+                            padding(start = 16.dp)
+                        }
+                    ) {
+                        Text(
+                            text = "Trigger",
+                        )
+                        Icon(
+                            imageVector = MaterialIcons.ArrowDropDown,
+                            contentDescription = null
+                        )
+                    }
+
+                    /*
+                    AdaptiveDropdownMenu(
+                        expanded = expanded2,
+                        onDismissRequest = { expanded2 = false },
+                        items = listOf(
+                            DropdownMenuSection(
+                                items = listOf(
+                                    DropdownMenuSection.Action(
+                                        text = { Text(text = "hi") },
+                                        icon = { Icon(imageVector = Android, contentDescription = null) },
+                                        onClick = { expanded2 = false }
+                                    ),
+                                    DropdownMenuSection.Action(
+                                        text = { Text(text = "hi2") },
+                                        icon = { Icon(imageVector = Android, contentDescription = null) },
+                                        onClick = { expanded2 = false }
+                                    ),
+                                    DropdownMenuSection.Action(
+                                        text = { Text(text = "hi3") },
+                                        icon = { Icon(imageVector = Android, contentDescription = null) },
+                                        onClick = { expanded2 = false }
+                                    ),
+                                )
+                            ),
+                            DropdownMenuSection(
+                                items = listOf(
+                                    Action(
+                                        text = { Text(text = "hi5") },
+                                        icon = { Icon(imageVector = Android, contentDescription = null) },
+                                        onClick = { expanded2 = false }
+                                    ),
+                                    DropdownMenuSection.Action(
+                                        text = { Text(text = "hi62") },
+                                        icon = { Icon(imageVector = Android, contentDescription = null) },
+                                        onClick = { expanded2 = false }
+                                    ),
+                                    DropdownMenuSection.Action(
+                                        text = { Text(text = "hi73") },
+                                        icon = { Icon(imageVector = Android, contentDescription = null) },
+                                        onClick = { expanded2 = false }
+                                    ),
+                                )
+                            )
+                        )
+                    )
+
+                     */
+
+                    CupertinoDropdownMenu(
+                        expanded = expanded2,
+                        onDismissRequest = { expanded2 = false },
+                        backdrop = rememberLayerBackdrop()
+                    ) {
+                        MenuSection {
+                            MenuAction(
+                                onClick = { expanded = false },
+                                icon = {
+                                    CupertinoIcon(
+                                        imageVector = CupertinoIcons.Default.CheckmarkCircle,
+                                        contentDescription = null
+                                    )
+                                },
+                            ) {
+                                CupertinoText("메시지 선택")
+                            }
+                            MenuAction(
+                                onClick = { expanded = false },
+                                icon = {
+                                    CupertinoIcon(
+                                        imageVector = CupertinoIcons.Default.Pin,
+                                        contentDescription = null
+                                    )
+                                }
+                            ) {
+                                CupertinoText("고정 편집")
+                            }
+                            MenuAction(
+                                onClick = { expanded = false },
+                                icon = {
+                                    CupertinoIcon(
+                                        imageVector = CupertinoIcons.Default.PersonCropCircle,
+                                        contentDescription = null
+                                    )
+                                }
+                            ) {
+                                CupertinoText("이름 및 사진 설정")
+                            }
+                        }
+//                    MenuDivider()
+//                    MenuSection(
+////                        title = {
+////                            Text("Menu")
+////                        }
+//                    ) {
+//                        MenuAction(
+//                            onClick = {
+//                                expanded = false
+//                            },
+//                            icon = {
+//                                CupertinoIcon(
+//                                    imageVector = CupertinoIcons.Default.SquareAndArrowUp,
+//                                    contentDescription = null
+//                                )
+//                            }
+//                        ) {
+//                            CupertinoText("Share")
+//                        }
+//                        MenuAction(
+//                            enabled = false,
+//                            onClick = {
+//                                expanded = false
+//                            },
+//                            icon = {
+//                                CupertinoIcon(
+//                                    imageVector = CupertinoIcons.Default.Bookmark,
+//                                    contentDescription = null
+//                                )
+//                            }
+//                        ) {
+//                            CupertinoText("Add to Favorites")
+//                        }
+//                    }
+                    }
                 }
 
                 /*

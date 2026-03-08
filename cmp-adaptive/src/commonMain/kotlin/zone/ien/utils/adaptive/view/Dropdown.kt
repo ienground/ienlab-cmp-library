@@ -19,7 +19,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -57,14 +59,19 @@ fun AdaptiveDropdownBox(
         },
         cupertino = {
             Box(
-                modifier = modifier
+                modifier = modifier.graphicsLayer { clip = false }
             ) {
                 val alpha by animateFloatAsState(
-                    targetValue = if (expanded) 0.6f else 1f,
+                    targetValue = if (expanded) 0.1f else 1f,
                     animationSpec = spring(1.2f)
                 )
                 Box(
-                    modifier = Modifier.alpha(alpha)
+                    modifier = modifier.graphicsLayer {
+                        this.scaleX = alpha
+                        this.scaleY = alpha
+                        this.alpha = alpha
+                        compositingStrategy = CompositingStrategy.ModulateAlpha
+                    }
                 ) {
                     trigger()
                 }
@@ -82,7 +89,7 @@ fun AdaptiveDropdownMenu(
     modifier: Modifier = Modifier,
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     scrollState: ScrollState = rememberScrollState(),
-    properties: PopupProperties = PopupProperties(),
+    properties: PopupProperties = PopupProperties(clippingEnabled = false),
     adaptation: AdaptationScope<HigDropdownMenuAdaptation, M3DropdownMenuAdaptation>.() -> Unit = {},
     items: List<DropdownMenuSection>,
 ) {
