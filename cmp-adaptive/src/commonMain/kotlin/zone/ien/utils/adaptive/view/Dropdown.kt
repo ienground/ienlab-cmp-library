@@ -66,7 +66,7 @@ fun AdaptiveDropdownBox(
                     animationSpec = spring(1.2f)
                 )
                 Box(
-                    modifier = modifier.graphicsLayer {
+                    modifier = Modifier.graphicsLayer {
                         this.scaleX = alpha
                         this.scaleY = alpha
                         this.alpha = alpha
