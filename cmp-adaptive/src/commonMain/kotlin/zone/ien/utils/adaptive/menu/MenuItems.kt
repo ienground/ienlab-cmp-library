@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoIcon
@@ -150,6 +151,7 @@ fun HigActionsMenu(
         CupertinoDropdownMenu(
             expanded = isOpen,
             onDismissRequest = onToggleOverflow,
+            backdrop = rememberLayerBackdrop()
         ) {
             menuItems.overflowItems.forEach { item ->
                 if (item.visible) {
