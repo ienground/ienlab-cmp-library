@@ -132,7 +132,7 @@ fun HigActionsMenu(
     menuItems.alwaysShownItems.forEach { HigActionMenu(it) }
 
     if (menuItems.overflowItems.isNotEmpty()) {
-        M3TooltipBox(
+        AdaptiveTooltipBox(
             label = stringResource(Res.string.more_options),
         ) {
             Box(
