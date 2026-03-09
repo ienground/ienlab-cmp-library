@@ -1,0 +1,53 @@
+package zone.ien.utils.ui.utils.visual_transformation
+
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
+import zone.ien.utils.utils.DecimalFormat
+
+open class MoneyCommaVisualTransformation(private val symbol: String) : VisualTransformation {
+    private val decimalFormat = DecimalFormat()
+
+    override fun filter(text: AnnotatedString): TransformedText {
+        // 숫자만 추출 (숫자 이외는 무시)
+        val raw = text.text.filter { it.isDigit() }
+        // 비었으면 기본값 반환
+        if (raw.isEmpty()) {
+            return TransformedText(AnnotatedString(symbol + "0"), MoneyCommaOffsetMapping(raw.length, 2))
+        }
+        // 콤마 포매팅 + 원기호 붙이기
+        val formatted = symbol + decimalFormat.format(raw.toInt())
+
+        return TransformedText(AnnotatedString(formatted), MoneyCommaOffsetMapping(raw.length, formatted.length))
+    }
+}
+
+class WonCommaVisualTransformation: MoneyCommaVisualTransformation("₩")
+
+private class MoneyCommaOffsetMapping(
+    private val originalLength: Int,
+    private val transformedLength: Int
+) : OffsetMapping {
+    // 입력(원본)에서 출력(포맷된)으로 변환
+    override fun originalToTransformed(offset: Int): Int {
+        // 첫째자리에서 ₩ 때문에 +1, 그 뒤로 콤마 추가 위치만큼 오프셋
+        if (originalLength == 0) return 2 // ₩0 기호 2글자
+        val commas = when {
+            originalLength < 4 -> 0
+            originalLength < 7 -> 1
+            originalLength < 10 -> 2
+            else -> (originalLength - 1) / 3
+        }
+        return (offset + 1 + commas).coerceAtMost(transformedLength)
+    }
+
+    // 출력(포맷된)에서 입력(원본)으로 변환
+    override fun transformedToOriginal(offset: Int): Int {
+        if (originalLength == 0) return 0 // 입력이 비었을 때 항상 0 반환
+        val noWon = offset - 1
+        if (noWon <= 0) return 0
+        val commas = noWon / 4  // 한자리마다 ₩+세자리+콤마 기준 역산
+        return (noWon - commas).coerceAtMost(originalLength)
+    }
+}
