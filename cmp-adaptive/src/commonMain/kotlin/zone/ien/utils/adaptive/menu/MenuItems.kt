@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoIcon
@@ -131,7 +132,7 @@ fun HigActionsMenu(
     menuItems.alwaysShownItems.forEach { HigActionMenu(it) }
 
     if (menuItems.overflowItems.isNotEmpty()) {
-        M3TooltipBox(
+        AdaptiveTooltipBox(
             label = stringResource(Res.string.more_options),
         ) {
             Box(
@@ -150,6 +151,7 @@ fun HigActionsMenu(
         CupertinoDropdownMenu(
             expanded = isOpen,
             onDismissRequest = onToggleOverflow,
+            backdrop = rememberDefaultBackdrop()
         ) {
             menuItems.overflowItems.forEach { item ->
                 if (item.visible) {

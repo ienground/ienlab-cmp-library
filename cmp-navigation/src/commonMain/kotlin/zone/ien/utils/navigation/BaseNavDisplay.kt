@@ -1,4 +1,4 @@
-package zone.ien.utils.navigation.data
+package zone.ien.utils.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
@@ -20,6 +20,7 @@ import androidx.navigation3.ui.defaultPopTransitionSpec
 import androidx.navigation3.ui.defaultPredictivePopTransitionSpec
 import androidx.navigation3.ui.defaultTransitionSpec
 import androidx.navigationevent.NavigationEvent
+import zone.ien.utils.navigation.transition.fadeInOutPopTransitionSpec
 
 @Composable
 fun <T : NavKey> BaseNavDisplay(
@@ -34,15 +35,9 @@ fun <T : NavKey> BaseNavDisplay(
         ),
     sceneStrategy: SceneStrategy<T> = SinglePaneSceneStrategy(),
     sizeTransform: SizeTransform? = null,
-    transitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform =
-        defaultTransitionSpec(),
-    popTransitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform =
-        defaultPopTransitionSpec(),
-    predictivePopTransitionSpec:
-    AnimatedContentTransitionScope<Scene<T>>.(
-        @NavigationEvent.SwipeEdge Int
-    ) -> ContentTransform =
-        defaultPredictivePopTransitionSpec(),
+    transitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform = defaultTransitionSpec(),
+    popTransitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform = defaultPopTransitionSpec(),
+    predictivePopTransitionSpec: AnimatedContentTransitionScope<Scene<T>>.(@NavigationEvent.SwipeEdge Int) -> ContentTransform = fadeInOutPopTransitionSpec(),
     entryProvider: (key: T) -> NavEntry<T>,
 ) {
     NavDisplay(

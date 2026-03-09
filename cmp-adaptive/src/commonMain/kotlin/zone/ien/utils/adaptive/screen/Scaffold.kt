@@ -44,7 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonColors
 import zone.ien.hig.CupertinoLiquidButtonDefaults.glassButtonColors
@@ -240,42 +240,42 @@ fun AdaptiveTopAppBarScaffold(
         },
         cupertino = {
             scaffold {
-                if (actions.isNotEmpty()) {
-                    Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(8.dp))
 
-                    @Composable
-                    fun liquidButton(
-                        onClick: () -> Unit,
-                        isIconButton: Boolean,
-                        enabled: Boolean = true,
-                        colors: CupertinoLiquidButtonColors = glassButtonColors(),
-                        backdrop: Backdrop,
-                        isBackgroundAdaptive: Boolean = true,
-                        content: @Composable () -> Unit
-                    ) {
-                        if (isIconButton) {
-                            CupertinoLiquidIconButton(
-                                onClick = onClick,
-                                enabled = enabled,
-                                colors = colors,
-                                backdrop = backdrop,
-                                isBackgroundAdaptive = isBackgroundAdaptive,
-                            ) {
-                                content()
-                            }
-                        } else {
-                            CupertinoLiquidButton(
-                                onClick = onClick,
-                                enabled = enabled,
-                                colors = colors,
-                                backdrop = backdrop,
-                                isBackgroundAdaptive = isBackgroundAdaptive
-                            ) {
-                                content()
-                            }
+                @Composable
+                fun liquidButton(
+                    onClick: () -> Unit,
+                    isIconButton: Boolean,
+                    enabled: Boolean = true,
+                    colors: CupertinoLiquidButtonColors = glassButtonColors(),
+                    backdrop: Backdrop,
+                    isBackgroundAdaptive: Boolean = true,
+                    content: @Composable () -> Unit
+                ) {
+                    if (isIconButton) {
+                        CupertinoLiquidIconButton(
+                            onClick = onClick,
+                            enabled = enabled,
+                            colors = colors,
+                            backdrop = backdrop,
+                            isBackgroundAdaptive = isBackgroundAdaptive,
+                        ) {
+                            content()
+                        }
+                    } else {
+                        CupertinoLiquidButton(
+                            onClick = onClick,
+                            enabled = enabled,
+                            colors = colors,
+                            backdrop = backdrop,
+                            isBackgroundAdaptive = isBackgroundAdaptive
+                        ) {
+                            content()
                         }
                     }
+                }
 
+                if (actions.isNotEmpty()) {
                     liquidButton(
                         onClick = {},
                         isIconButton = actions.size == 1 && actions.first().let { it is ActionMenuItem.IconMenuItem && it.icon != null },
@@ -296,21 +296,21 @@ fun AdaptiveTopAppBarScaffold(
                             )
                         }
                     }
-
-                    primaryAction?.let { action ->
-                        liquidButton(
-                            onClick = action.onClick,
-                            isIconButton = action.icon != null,
-                            enabled = action.enabled,
-                            colors = glassProminentButtonColors(),
-                            backdrop = it.backdrop,
-                            isBackgroundAdaptive = it.isBackgroundAdaptive
-                        ) {
-                            HigActionMenu(action)
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
                 }
+
+                primaryAction?.let { action ->
+                    liquidButton(
+                        onClick = action.onClick,
+                        isIconButton = action.icon != null,
+                        enabled = action.enabled,
+                        colors = glassProminentButtonColors(),
+                        backdrop = it.backdrop,
+                        isBackgroundAdaptive = it.isBackgroundAdaptive
+                    ) {
+                        HigActionMenu(action)
+                    }
+                }
+                Spacer(modifier = Modifier.width(8.dp))
             }
         }
     )
@@ -370,7 +370,7 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
         val isCenterAligned = true
         val isBackgroundAdaptive = LocalIsBackgroundAdaptive.current
         val isBackgroundGradient = LocalIsBackgroundGradient.current
-        val backdrop = rememberLayerBackdrop()
+        val backdrop = rememberDefaultBackdrop()
         val colors = CupertinoTopAppBarDefaults.topAppBarColors()
         val scaffoldContainerColor = CupertinoScaffoldDefaults.containerColor
         val scaffoldContentColor = CupertinoScaffoldDefaults.contentColor

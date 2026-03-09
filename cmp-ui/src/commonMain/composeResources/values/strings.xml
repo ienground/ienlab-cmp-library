@@ -3,6 +3,8 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="retry">Retry</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
 
     <!--Delete Dialog-->
     <string name="delete_dialog_title">Delete?</string>
