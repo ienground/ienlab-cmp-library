@@ -45,8 +45,6 @@ fun LazySectionScope.link(
     onClickLabel: String? = null,
     interactionSource: MutableInteractionSource? = null,
     supportingContent: @Composable () -> Unit = {},
-    isIosCaption: Boolean = true,
-    showIosSupporting: Boolean = false,
     trailingContent: @Composable () -> Unit = {},
     title: @Composable () -> Unit,
 ) = labelWithCustomChevron(
@@ -80,6 +78,7 @@ fun LazySectionScope.switch(
     dividerPadding = dividerPadding,
     modifier = { modifier },
     enabled = enabled,
+    leadingContent = leadingContent,
     trailingContent = {
         Switch(
             enabled = enabled,
@@ -89,8 +88,8 @@ fun LazySectionScope.switch(
             interactionSource = interactionSource ?: remember { MutableInteractionSource() },
         )
     },
-    title = title,
     supportingContent = supportingContent,
+    title = title,
 )
 
 fun LazySectionScope.empty(
