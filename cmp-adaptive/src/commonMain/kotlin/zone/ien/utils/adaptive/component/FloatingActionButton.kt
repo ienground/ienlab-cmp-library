@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import com.kyant.backdrop.Backdrop
-import zone.ien.hig.utils.rememberDefaultLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoLargeFloatingActionButton
 import zone.ien.hig.CupertinoLiquidButtonColors
 import zone.ien.hig.CupertinoLiquidButtonDefaults
@@ -178,7 +178,7 @@ private class SmallFloatingActionButtonAdaptation: Adaptation<HigFloatingActionB
         val colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
         val shape = CircleShape
         val interactionSource = remember { MutableInteractionSource() }
-        val backdrop = rememberDefaultLayerBackdrop()
+        val backdrop = rememberDefaultBackdrop()
         val isBackgroundAdaptive = true
 
         return remember(colors, shape, interactionSource, backdrop, isBackgroundAdaptive) {
@@ -219,7 +219,7 @@ private class MediumFloatingActionButtonAdaptation: Adaptation<HigFloatingAction
         val colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
         val shape = CircleShape
         val interactionSource = remember { MutableInteractionSource() }
-        val backdrop = rememberDefaultLayerBackdrop()
+        val backdrop = rememberDefaultBackdrop()
         val isBackgroundAdaptive = true
 
         return remember(colors, shape, interactionSource, backdrop, isBackgroundAdaptive) {
@@ -261,7 +261,7 @@ private class LargeFloatingActionButtonAdaptation: Adaptation<HigFloatingActionB
         val colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
         val shape = CircleShape
         val interactionSource = remember { MutableInteractionSource() }
-        val backdrop = rememberDefaultLayerBackdrop()
+        val backdrop = rememberDefaultBackdrop()
         val isBackgroundAdaptive = true
 
         return remember(colors, shape, interactionSource, backdrop, isBackgroundAdaptive) {
