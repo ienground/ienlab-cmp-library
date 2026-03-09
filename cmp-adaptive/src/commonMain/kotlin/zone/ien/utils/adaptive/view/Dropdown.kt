@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.kyant.backdrop.Backdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoDropdownMenuDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
@@ -212,7 +212,7 @@ private class DropdownMenuAdaptation: Adaptation<HigDropdownMenuAdaptation, M3Dr
         val paddingValues = CupertinoDropdownMenuDefaults.PaddingValues
         val containerColor = CupertinoDropdownMenuDefaults.ContainerColor
         val width = CupertinoDropdownMenuDefaults.DefaultWidth
-        val backdrop = rememberLayerBackdrop()
+        val backdrop = rememberDefaultBackdrop()
 
         return remember(paddingValues, containerColor, width, backdrop) {
             HigDropdownMenuAdaptation(

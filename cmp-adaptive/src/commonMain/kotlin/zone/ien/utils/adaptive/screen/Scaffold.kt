@@ -44,7 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonColors
 import zone.ien.hig.CupertinoLiquidButtonDefaults.glassButtonColors
@@ -370,7 +370,7 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
         val isCenterAligned = true
         val isBackgroundAdaptive = LocalIsBackgroundAdaptive.current
         val isBackgroundGradient = LocalIsBackgroundGradient.current
-        val backdrop = rememberLayerBackdrop()
+        val backdrop = rememberDefaultBackdrop()
         val colors = CupertinoTopAppBarDefaults.topAppBarColors()
         val scaffoldContainerColor = CupertinoScaffoldDefaults.containerColor
         val scaffoldContentColor = CupertinoScaffoldDefaults.contentColor

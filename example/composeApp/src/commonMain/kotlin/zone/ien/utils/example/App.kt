@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.window.Popup
 import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import kotlinx.coroutines.launch
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoIcon
@@ -84,8 +84,7 @@ fun App() {
     Dlog.init(isDebug = true)
 
     var isMaterialTheme by remember { mutableStateOf(false) }
-//    var isMaterialTheme by remember { mutableStateOf(!isIos) }
-    val backdrop = rememberLayerBackdrop()
+    val backdrop = rememberDefaultBackdrop()
     val snackbarState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     GeneratedAdaptiveTheme(
@@ -318,7 +317,7 @@ fun App() {
                     CupertinoDropdownMenu(
                         expanded = expanded2,
                         onDismissRequest = { expanded2 = false },
-                        backdrop = rememberLayerBackdrop()
+                        backdrop = rememberDefaultBackdrop()
                     ) {
                         MenuSection {
                             MenuAction(
