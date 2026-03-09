@@ -23,9 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastSumBy
+import zone.ien.hig.section.SectionScope
 import zone.ien.utils.ui.utils.conditional
-
-interface SectionScope
 
 @Stable
 internal object SectionScopeImpl: SectionScope

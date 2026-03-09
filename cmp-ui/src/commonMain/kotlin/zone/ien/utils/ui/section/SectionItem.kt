@@ -59,6 +59,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import zone.ien.hig.section.SectionScope
 import zone.ien.utils.ui.view.M3AsteriskTextWrapper
 import zone.ien.utils.ui.view.textfield.M3TextFieldClearButton
 import zone.ien.utils.ui.view.textfield.PlaceholderBasicSecureTextField
