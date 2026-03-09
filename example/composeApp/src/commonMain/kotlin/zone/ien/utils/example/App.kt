@@ -59,6 +59,9 @@ import zone.ien.utils.adaptive.wrapper.RootWrapper
 import zone.ien.utils.icon.material.MaterialIcons
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.menu.IconData
+import zone.ien.utils.ui.section.M3ProvideSectionStyle
+import zone.ien.utils.ui.section.M3Section
+import zone.ien.utils.ui.section.M3SectionItem
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.utils.Dlog
 
@@ -178,6 +181,23 @@ fun App() {
                         state = textFieldState,
                         modifier = Modifier.fillMaxWidth()
                     )
+                    M3ProvideSectionStyle(
+                        scrollable = false,
+                        fullHeight = false,
+                        modifier = Modifier.height(400.dp)
+                    ) {
+                        M3Section {
+                            M3SectionItem(
+                                title = { Text(text = "title") }
+                            )
+                            M3SectionItem(
+                                title = { Text(text = "title") }
+                            )
+                            M3SectionItem(
+                                title = { Text(text = "title") }
+                            )
+                        }
+                    }
                     AdaptiveDropdownBox(
                         expanded = expanded,
                         trigger = {
@@ -267,53 +287,6 @@ fun App() {
                             )
                         }
 
-                        /*
-                        AdaptiveDropdownMenu(
-                            expanded = expanded2,
-                            onDismissRequest = { expanded2 = false },
-                            items = listOf(
-                                DropdownMenuSection(
-                                    items = listOf(
-                                        DropdownMenuSection.Action(
-                                            text = { Text(text = "hi") },
-                                            icon = { Icon(imageVector = Android, contentDescription = null) },
-                                            onClick = { expanded2 = false }
-                                        ),
-                                        DropdownMenuSection.Action(
-                                            text = { Text(text = "hi2") },
-                                            icon = { Icon(imageVector = Android, contentDescription = null) },
-                                            onClick = { expanded2 = false }
-                                        ),
-                                        DropdownMenuSection.Action(
-                                            text = { Text(text = "hi3") },
-                                            icon = { Icon(imageVector = Android, contentDescription = null) },
-                                            onClick = { expanded2 = false }
-                                        ),
-                                    )
-                                ),
-                                DropdownMenuSection(
-                                    items = listOf(
-                                        Action(
-                                            text = { Text(text = "hi5") },
-                                            icon = { Icon(imageVector = Android, contentDescription = null) },
-                                            onClick = { expanded2 = false }
-                                        ),
-                                        DropdownMenuSection.Action(
-                                            text = { Text(text = "hi62") },
-                                            icon = { Icon(imageVector = Android, contentDescription = null) },
-                                            onClick = { expanded2 = false }
-                                        ),
-                                        DropdownMenuSection.Action(
-                                            text = { Text(text = "hi73") },
-                                            icon = { Icon(imageVector = Android, contentDescription = null) },
-                                            onClick = { expanded2 = false }
-                                        ),
-                                    )
-                                )
-                            )
-                        )
-
-                         */
 
                         CupertinoDropdownMenu(
                             expanded = expanded2,

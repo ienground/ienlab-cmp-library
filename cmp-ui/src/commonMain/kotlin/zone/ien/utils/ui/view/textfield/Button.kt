@@ -1,9 +1,12 @@
 package zone.ien.utils.ui.view.textfield
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -22,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import zone.ien.utils.icon.material.MaterialIcons
 
 @Composable
 fun M3TextFieldIconButton(
@@ -76,5 +80,22 @@ fun M3TextFieldIconButton(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun M3TextFieldClearButton(
+    visible: Boolean,
+    onClick: () -> Unit
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(spring(1.2f)) + scaleIn(spring(1.2f), initialScale = 0.75f),
+        exit = fadeOut(spring(1.2f)) + scaleOut(spring(1.2f), targetScale = 0.75f)
+    ) {
+        M3TextFieldIconButton(
+            icon = MaterialIcons.Cancel,
+            onClick = onClick
+        )
     }
 }
