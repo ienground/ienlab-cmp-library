@@ -3,6 +3,8 @@
     <string name="ok">확인</string>
     <string name="cancel">취소</string>
     <string name="retry">다시 시도</string>
+    <string name="previous">이전</string>
+    <string name="next">다음</string>
 
     <!--Delete Dialog-->
     <string name="delete_dialog_title">삭제할까요?</string>
