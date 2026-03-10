@@ -45,20 +45,32 @@ import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.outlined.CheckmarkCircle
 import zone.ien.hig.icons.outlined.PersonCropCircle
 import zone.ien.hig.icons.outlined.Pin
+import zone.ien.hig.section.SectionStyle
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.component.AdaptiveMediumFloatingActionButton
 import zone.ien.utils.adaptive.menu.adaptiveSaveButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
+import zone.ien.utils.adaptive.section.AdaptiveProvideSectionStyle
+import zone.ien.utils.adaptive.section.AdaptiveSection
+import zone.ien.utils.adaptive.section.AdaptiveSectionItem
+import zone.ien.utils.adaptive.section.AdaptiveSectionSecureTextField
+import zone.ien.utils.adaptive.section.AdaptiveSectionSlider
+import zone.ien.utils.adaptive.section.AdaptiveSectionSwitchItem
+import zone.ien.utils.adaptive.section.AdaptiveSectionTextField
 import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
 import zone.ien.utils.adaptive.view.AdaptiveDropdownBox
 import zone.ien.utils.adaptive.view.AdaptiveDropdownMenu
 import zone.ien.utils.adaptive.view.DropdownMenuSection
 import zone.ien.utils.adaptive.view.DropdownMenuSection.Action
+import zone.ien.utils.adaptive.view.textfield.AdaptiveTextFieldClearButton
 import zone.ien.utils.adaptive.wrapper.RootWrapper
 import zone.ien.utils.icon.material.MaterialIcons
 import zone.ien.utils.ui.menu.ActionMenuItem
-import zone.ien.utils.ui.menu.IconData
+import zone.ien.utils.ui.section.M3ProvideSectionStyle
+import zone.ien.utils.ui.section.M3Section
+import zone.ien.utils.ui.section.M3SectionItem
+import zone.ien.utils.ui.utils.IconData
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.utils.Dlog
 
@@ -88,6 +100,8 @@ fun App() {
             val scrollState = rememberScrollState()
             var expanded by remember { mutableStateOf(false) }
             var expanded2 by remember { mutableStateOf(false) }
+            var text by remember { mutableStateOf("") }
+            var sliderValue by remember { mutableStateOf(0.3f) }
 
             AdaptiveTopAppBarScaffold(
                 modifier = it,
@@ -174,10 +188,51 @@ fun App() {
                         text = "Hello World"
                     )
                     val textFieldState = rememberTextFieldState()
+                    var checked by remember { mutableStateOf(false) }
                     TextField(
                         state = textFieldState,
+                        trailingIcon = { AdaptiveTextFieldClearButton(visible = true, onClick = {}) },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    AdaptiveProvideSectionStyle(
+                        scrollable = false,
+                        fullHeight = false,
+                        style = SectionStyle.InsetGrouped,
+                        modifier = Modifier.height(400.dp)
+                    ) {
+                        AdaptiveSection {
+                            AdaptiveSectionItem(
+                                title = { Text(text = "title") }
+                            )
+                            AdaptiveSectionItem(
+                                title = { Text(text = "title") }
+                            )
+                            AdaptiveSectionItem(
+                                title = { Text(text = "title") }
+                            )
+                            AdaptiveSectionSwitchItem(
+                                title = { Text(text = "title") },
+                                checked = checked,
+                                onCheckedChange = { checked = it }
+                            )
+                            AdaptiveSectionTextField(
+                                value = text,
+                                onValueChange = { text = it }
+                            )
+                            AdaptiveSectionSecureTextField(
+                                state = rememberTextFieldState()
+                            )
+                            AdaptiveSectionSlider(
+                                value = sliderValue,
+                                onValueChange = { sliderValue = it }
+                            )
+                        }
+                        AdaptiveSection {
+                            AdaptiveSectionItem(
+                                title = { Text(text = "title") }
+                            )
+                        }
+                    }
                     AdaptiveDropdownBox(
                         expanded = expanded,
                         trigger = {
@@ -267,53 +322,6 @@ fun App() {
                             )
                         }
 
-                        /*
-                        AdaptiveDropdownMenu(
-                            expanded = expanded2,
-                            onDismissRequest = { expanded2 = false },
-                            items = listOf(
-                                DropdownMenuSection(
-                                    items = listOf(
-                                        DropdownMenuSection.Action(
-                                            text = { Text(text = "hi") },
-                                            icon = { Icon(imageVector = Android, contentDescription = null) },
-                                            onClick = { expanded2 = false }
-                                        ),
-                                        DropdownMenuSection.Action(
-                                            text = { Text(text = "hi2") },
-                                            icon = { Icon(imageVector = Android, contentDescription = null) },
-                                            onClick = { expanded2 = false }
-                                        ),
-                                        DropdownMenuSection.Action(
-                                            text = { Text(text = "hi3") },
-                                            icon = { Icon(imageVector = Android, contentDescription = null) },
-                                            onClick = { expanded2 = false }
-                                        ),
-                                    )
-                                ),
-                                DropdownMenuSection(
-                                    items = listOf(
-                                        Action(
-                                            text = { Text(text = "hi5") },
-                                            icon = { Icon(imageVector = Android, contentDescription = null) },
-                                            onClick = { expanded2 = false }
-                                        ),
-                                        DropdownMenuSection.Action(
-                                            text = { Text(text = "hi62") },
-                                            icon = { Icon(imageVector = Android, contentDescription = null) },
-                                            onClick = { expanded2 = false }
-                                        ),
-                                        DropdownMenuSection.Action(
-                                            text = { Text(text = "hi73") },
-                                            icon = { Icon(imageVector = Android, contentDescription = null) },
-                                            onClick = { expanded2 = false }
-                                        ),
-                                    )
-                                )
-                            )
-                        )
-
-                         */
 
                         CupertinoDropdownMenu(
                             expanded = expanded2,
