@@ -54,7 +54,10 @@ import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.section.AdaptiveProvideSectionStyle
 import zone.ien.utils.adaptive.section.AdaptiveSection
 import zone.ien.utils.adaptive.section.AdaptiveSectionItem
+import zone.ien.utils.adaptive.section.AdaptiveSectionSecureTextField
+import zone.ien.utils.adaptive.section.AdaptiveSectionSlider
 import zone.ien.utils.adaptive.section.AdaptiveSectionSwitchItem
+import zone.ien.utils.adaptive.section.AdaptiveSectionTextField
 import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
 import zone.ien.utils.adaptive.view.AdaptiveDropdownBox
 import zone.ien.utils.adaptive.view.AdaptiveDropdownMenu
@@ -97,6 +100,8 @@ fun App() {
             val scrollState = rememberScrollState()
             var expanded by remember { mutableStateOf(false) }
             var expanded2 by remember { mutableStateOf(false) }
+            var text by remember { mutableStateOf("") }
+            var sliderValue by remember { mutableStateOf(0.3f) }
 
             AdaptiveTopAppBarScaffold(
                 modifier = it,
@@ -209,6 +214,17 @@ fun App() {
                                 title = { Text(text = "title") },
                                 checked = checked,
                                 onCheckedChange = { checked = it }
+                            )
+                            AdaptiveSectionTextField(
+                                value = text,
+                                onValueChange = { text = it }
+                            )
+                            AdaptiveSectionSecureTextField(
+                                state = rememberTextFieldState()
+                            )
+                            AdaptiveSectionSlider(
+                                value = sliderValue,
+                                onValueChange = { sliderValue = it }
                             )
                         }
                         AdaptiveSection {
