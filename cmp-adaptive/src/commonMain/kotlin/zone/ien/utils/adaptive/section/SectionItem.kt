@@ -3,16 +3,13 @@ package zone.ien.utils.adaptive.section
 import androidx.annotation.IntRange
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
@@ -20,9 +17,8 @@ import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.ListItemColors
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
@@ -43,31 +39,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.slapps.cupertino.CupertinoCheckBox
-import com.slapps.cupertino.CupertinoSlider
-import com.slapps.cupertino.CupertinoSwitch
-import com.slapps.cupertino.CupertinoTextField
-import com.slapps.cupertino.CupertinoTextFieldColors
-import com.slapps.cupertino.CupertinoTextFieldDefaults
-import com.slapps.cupertino.ExperimentalCupertinoApi
-import com.slapps.cupertino.ProvideTextStyle
-import com.slapps.cupertino.adaptive.Adaptation
-import com.slapps.cupertino.adaptive.AdaptationScope
-import com.slapps.cupertino.adaptive.AdaptiveWidget
-import com.slapps.cupertino.adaptive.ExperimentalAdaptiveApi
-import com.slapps.cupertino.adaptive.Theme
-import com.slapps.cupertino.adaptive.currentTheme
-import com.slapps.cupertino.section.CupertinoSectionDefaults
-import com.slapps.cupertino.section.SectionItem
-import com.slapps.cupertino.section.SectionLink
-import com.slapps.cupertino.section.SectionScope
-import com.slapps.cupertino.theme.CupertinoColors
-import com.slapps.cupertino.theme.CupertinoTheme
-import com.slapps.cupertino.theme.systemBlue
-import com.slapps.cupertino.theme.systemGray
-import com.slapps.cupertino.theme.systemRed
+import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
 import zone.ien.hig.CupertinoCheckBox
+import zone.ien.hig.CupertinoSlider
 import zone.ien.hig.CupertinoSwitch
+import zone.ien.hig.CupertinoTextFieldColors
+import zone.ien.hig.CupertinoTextFieldDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.Adaptation
 import zone.ien.hig.adaptive.AdaptationScope
@@ -76,28 +53,30 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.currentTheme
 import zone.ien.hig.section.CupertinoSectionDefaults
+import zone.ien.hig.section.LocalSectionStyle
 import zone.ien.hig.section.SectionItem
 import zone.ien.hig.section.SectionLink
 import zone.ien.hig.section.SectionScope
+import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.theme.systemBlue
+import zone.ien.hig.theme.systemGray
+import zone.ien.hig.theme.systemRed
+import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.utils.adaptive.view.AsteriskTextWrapper
+import zone.ien.utils.adaptive.view.textfield.AdaptiveTextFieldClearButton
+import zone.ien.utils.hig.section.SectionSecureTextField
+import zone.ien.utils.hig.section.SectionTextField
+import zone.ien.utils.ui.section.M3SectionButton
 import zone.ien.utils.ui.section.M3SectionCheckboxItem
+import zone.ien.utils.ui.section.M3SectionColors
 import zone.ien.utils.ui.section.M3SectionItem
 import zone.ien.utils.ui.section.M3SectionLink
+import zone.ien.utils.ui.section.M3SectionLinkDefault
+import zone.ien.utils.ui.section.M3SectionSecureTextField
+import zone.ien.utils.ui.section.M3SectionSlider
 import zone.ien.utils.ui.section.M3SectionSwitchItem
-import zone.ien.utils.ui.utils.AsteriskTextWrapper
-import zone.ien.utils.ui.view.adaptive.AdaptiveIcon
-import zone.ien.utils.ui.view.adaptive.button.AdaptiveTextFieldClearButton
-import zone.ien.utils.ui.view.cupertino.section.SectionSecureTextField
-import zone.ien.utils.ui.view.cupertino.section.SectionTextField
-import zone.ien.utils.ui.view.m3.section.M3SectionButton
-import zone.ien.utils.ui.view.m3.section.M3SectionCheckboxItem
-import zone.ien.utils.ui.view.m3.section.M3SectionItem
-import zone.ien.utils.ui.view.m3.section.M3SectionLink
-import zone.ien.utils.ui.view.m3.section.M3SectionLinkButton
-import zone.ien.utils.ui.view.m3.section.M3SectionSecureTextField
-import zone.ien.utils.ui.view.m3.section.M3SectionSlider
-import zone.ien.utils.ui.view.m3.section.M3SectionSwitchItem
-import zone.ien.utils.ui.view.m3.section.M3SectionTextField
+import zone.ien.utils.ui.section.M3SectionTextField
 
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
@@ -160,7 +139,6 @@ class HigSectionItemAdaptation internal constructor(
     var showSupportingContent by mutableStateOf(showSupportingContent)
     var paddingValues by mutableStateOf(paddingValues)
 }
-
 @OptIn(ExperimentalAdaptiveApi::class)
 internal class SectionItemAdaptation: Adaptation<HigSectionItemAdaptation, M3SectionItemAdaptation>() {
     @Composable
@@ -184,80 +162,21 @@ internal class SectionItemAdaptation: Adaptation<HigSectionItemAdaptation, M3Sec
     }
 }
 
-@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
-@Composable
-fun SectionScope.AdaptiveSectionLink(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    onClickLabel: String? = null,
-    indication: Indication? = LocalIndication.current,
-    interactionSource: MutableInteractionSource? = null,
-    caption: @Composable (() -> Unit)? = null,
-    isIosCaption: Boolean = true,
-    showIosSupporting: Boolean = false,
-    trailingContent: @Composable (() -> Unit)? = if (currentTheme == Theme.Material3) null else { { CupertinoSectionDefaults.LabelChevron() }
-    },
-    title: @Composable () -> Unit,
-) {
-    AdaptiveWidget(
-        material = {
-            M3SectionLink(
-                onClick = onClick,
-                modifier = modifier,
-                enabled = enabled,
-                leadingIcon = leadingIcon,
-                onClickLabel = onClickLabel,
-                indication = indication,
-                interactionSource = interactionSource,
-                caption = caption,
-                trailingContent = trailingContent,
-                title = title
-            )
-        },
-        cupertino = {
-            SectionLink(
-                onClick = onClick,
-                modifier = modifier,
-                enabled = enabled,
-                icon = { leadingIcon?.invoke() },
-                onClickLabel = onClickLabel,
-                indication = indication,
-                interactionSource = interactionSource,
-                caption = { if (isIosCaption) caption?.invoke() },
-                chevron = { trailingContent?.invoke() },
-                title = {
-                    Column {
-                        title()
-                        if (showIosSupporting && !isIosCaption) {
-                            ProvideTextStyle(
-                                value = MaterialTheme.typography.bodyMedium.copy(color = CupertinoTheme.colorScheme.secondaryLabel)
-                            ) {
-                                caption?.invoke()
-                            }
-                        }
-                    }
-                }
-            )
-        }
-    )
-}
-
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
 fun SectionScope.AdaptiveSectionSwitchItem(
     modifier: Modifier = Modifier,
-    paddingValues: PaddingValues = CupertinoSectionDefaults.PaddingValues,
     leadingContent: (@Composable () -> Unit)? = null,
-    enableCupertinoLeadingContent: Boolean = false,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     enabled: Boolean = true,
     supportingContent: @Composable (() -> Unit)? = null,
+    adaptation: AdaptationScope<HigSectionItemAdaptation, M3SectionItemAdaptation>.() -> Unit = {},
     title: @Composable () -> Unit
 ) {
     AdaptiveWidget(
+        adaptation = remember { SectionItemAdaptation() },
+        adaptationScope = adaptation,
         material = {
             M3SectionSwitchItem(
                 modifier = modifier,
@@ -270,18 +189,33 @@ fun SectionScope.AdaptiveSectionSwitchItem(
             )
         },
         cupertino = {
+            val backgroundColor = CupertinoSectionDefaults.containerColor(LocalSectionStyle.current)
+            val backdrop = rememberCanvasBackdrop { drawRect(backgroundColor) }
+
             SectionItem(
-                modifier,
-                paddingValues,
-                if (enableCupertinoLeadingContent) leadingContent ?: {} else {{}},
+                modifier = modifier,
+                paddingValues = it.paddingValues,
+                leadingContent = if (it.showLeadingContent && leadingContent != null) leadingContent else {{}},
                 trailingContent = {
                     CupertinoSwitch(
                         checked = checked,
                         onCheckedChange = onCheckedChange,
                         enabled = enabled,
+                        backdrop = backdrop
                     )
                 },
-                title
+                title = {
+                    Column {
+                        title()
+                        if (it.showSupportingContent) {
+                            ProvideTextStyle(
+                                value = MaterialTheme.typography.bodyMedium.copy(color = CupertinoTheme.colorScheme.secondaryLabel)
+                            ) {
+                                supportingContent?.invoke()
+                            }
+                        }
+                    }
+                }
             )
         }
     )
@@ -291,15 +225,16 @@ fun SectionScope.AdaptiveSectionSwitchItem(
 @Composable
 fun SectionScope.AdaptiveSectionCheckboxItem(
     modifier: Modifier = Modifier,
-    paddingValues: PaddingValues = CupertinoSectionDefaults.PaddingValues,
     leadingContent: (@Composable () -> Unit)? = null,
-    enableCupertinoLeadingContent: Boolean = false,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     supportingContent: @Composable (() -> Unit)? = null,
+    adaptation: AdaptationScope<HigSectionItemAdaptation, M3SectionItemAdaptation>.() -> Unit = {},
     title: @Composable () -> Unit
 ) {
     AdaptiveWidget(
+        adaptation = remember { SectionItemAdaptation() },
+        adaptationScope = adaptation,
         material = {
             M3SectionCheckboxItem(
                 modifier = modifier,
@@ -312,16 +247,27 @@ fun SectionScope.AdaptiveSectionCheckboxItem(
         },
         cupertino = {
             SectionItem(
-                modifier,
-                paddingValues,
-                if (enableCupertinoLeadingContent) leadingContent ?: {} else {{}},
+                modifier = modifier,
+                paddingValues = it.paddingValues,
+                leadingContent = if (it.showLeadingContent && leadingContent != null) leadingContent else {{}},
                 trailingContent = {
                     CupertinoCheckBox(
                         checked = checked,
                         onCheckedChange = onCheckedChange
                     )
                 },
-                title
+                title = {
+                    Column {
+                        title()
+                        if (it.showSupportingContent) {
+                            ProvideTextStyle(
+                                value = MaterialTheme.typography.bodyMedium.copy(color = CupertinoTheme.colorScheme.secondaryLabel)
+                            ) {
+                                supportingContent?.invoke()
+                            }
+                        }
+                    }
+                }
             )
         }
     )
@@ -358,10 +304,11 @@ fun SectionScope.AdaptiveSectionTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    materialColors: TextFieldColors = TextFieldDefaults.colors(),
-    cupertinoColors: CupertinoTextFieldColors? = null,
+    adaptation: AdaptationScope<HigSectionTextFieldAdaptation, M3SectionTextFieldAdaptation>.() -> Unit = {},
 ) {
     AdaptiveWidget(
+        adaptation = remember { SectionTextFieldAdaptation() },
+        adaptationScope = adaptation,
         material = {
             M3SectionTextField(
                 value = value,
@@ -382,7 +329,7 @@ fun SectionScope.AdaptiveSectionTextField(
                 maxLines = maxLines,
                 minLines = minLines,
                 interactionSource = interactionSource,
-                colors = materialColors
+                colors = it.colors
             )
         },
         cupertino = {
@@ -398,7 +345,7 @@ fun SectionScope.AdaptiveSectionTextField(
                     enabled = enabled,
                     readOnly = readOnly,
                     textStyle = (textStyle ?: LocalTextStyle.current),
-                    placeholder = placeholder?.let { { if (isRequired) AsteriskTextWrapper { it() } else it() } },
+                    placeholder = placeholder,
                     leadingIcon = leadingIcon,
                     trailingIcon = trailingIcon,
                     visualTransformation = visualTransformation,
@@ -408,7 +355,7 @@ fun SectionScope.AdaptiveSectionTextField(
                     maxLines = maxLines,
                     minLines = minLines,
                     interactionSource = interactionSource,
-                    colors = cupertinoColors
+                    colors = it.colors
                 )
             }
 
@@ -440,16 +387,19 @@ fun SectionScope.AdaptiveSectionSecureTextField(
     isError: Boolean = false,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    materialColors: TextFieldColors = TextFieldDefaults.colors(),
     textObfuscationMode: TextObfuscationMode = TextObfuscationMode.RevealLastTyped,
     textObfuscationCharacter: Char = '\u2022',
+    adaptation: AdaptationScope<HigSectionTextFieldAdaptation, M3SectionTextFieldAdaptation>.() -> Unit = {},
 ) {
     AdaptiveWidget(
+        adaptation = remember { SectionTextFieldAdaptation() },
+        adaptationScope = adaptation,
         material = {
             M3SectionSecureTextField(
                 state = state,
                 modifier = modifier,
                 enabled = enabled,
+                readOnly = readOnly,
                 textStyle = textStyle,
                 placeholder = placeholder,
                 isRequired = isRequired,
@@ -458,7 +408,7 @@ fun SectionScope.AdaptiveSectionSecureTextField(
                 isError = isError,
                 keyboardOptions = keyboardOptions,
                 interactionSource = interactionSource,
-                colors = materialColors,
+                colors = it.colors,
                 textObfuscationMode = textObfuscationMode,
                 textObfuscationCharacter = textObfuscationCharacter,
             )
@@ -480,6 +430,7 @@ fun SectionScope.AdaptiveSectionSecureTextField(
                     trailingIcon = trailingIcon,
                     keyboardOptions = keyboardOptions,
                     interactionSource = interactionSource,
+                    colors = it.colors,
                     textObfuscationMode = textObfuscationMode,
                     textObfuscationCharacter = textObfuscationCharacter,
                 )
@@ -519,10 +470,11 @@ fun SectionScope.AdaptiveSectionTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    materialColors: TextFieldColors = TextFieldDefaults.colors(),
-    cupertinoColors: CupertinoTextFieldColors? = null,
+    adaptation: AdaptationScope<HigSectionTextFieldAdaptation, M3SectionTextFieldAdaptation>.() -> Unit = {},
 ) {
     AdaptiveWidget(
+        adaptation = remember { SectionTextFieldAdaptation() },
+        adaptationScope = adaptation,
         material = {
             M3SectionTextField(
                 value = value,
@@ -542,7 +494,7 @@ fun SectionScope.AdaptiveSectionTextField(
                 maxLines = maxLines,
                 minLines = minLines,
                 interactionSource = interactionSource,
-                colors = materialColors
+                colors = it.colors
             )
         },
         cupertino = {
@@ -568,7 +520,7 @@ fun SectionScope.AdaptiveSectionTextField(
                     maxLines = maxLines,
                     minLines = minLines,
                     interactionSource = interactionSource,
-                    colors = cupertinoColors
+                    colors = it.colors
                 )
             }
 
@@ -576,100 +528,64 @@ fun SectionScope.AdaptiveSectionTextField(
     )
 }
 
-@ExperimentalCupertinoApi
+class M3SectionTextFieldAdaptation internal constructor(
+    colors: TextFieldColors
+) {
+    var colors by mutableStateOf(colors)
+}
+class HigSectionTextFieldAdaptation internal constructor(
+    colors: CupertinoTextFieldColors
+) {
+    var colors by mutableStateOf(colors)
+}
+@OptIn(ExperimentalAdaptiveApi::class)
+internal class SectionTextFieldAdaptation: Adaptation<HigSectionTextFieldAdaptation, M3SectionTextFieldAdaptation>() {
+    @Composable
+    override fun rememberCupertinoAdaptation(): HigSectionTextFieldAdaptation {
+        val colors = CupertinoTextFieldDefaults.colors()
+
+        return remember(colors) { HigSectionTextFieldAdaptation(colors = colors) }
+    }
+
+    @Composable
+    override fun rememberMaterialAdaptation(): M3SectionTextFieldAdaptation {
+        val colors = TextFieldDefaults.colors()
+
+        return remember(colors) { M3SectionTextFieldAdaptation(colors = colors) }
+    }
+}
+
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
-private fun SectionScope.SectionTextField(
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    readOnly: Boolean = false,
-    textStyle: TextStyle? = null,
-    placeholder: @Composable (() -> Unit)? = null,
-    isRequired: Boolean = false,
-    trailingIcon: @Composable ((InteractionSource) -> Unit)? = {
-        val focused by it.collectIsFocusedAsState()
-        val updatedValueChange by rememberUpdatedState(onValueChange)
-
-        AdaptiveTextFieldClearButton(
-            visible = focused && value.text.isNotEmpty(),
-            onClick = {
-                updatedValueChange.invoke(TextFieldValue(""))
-            },
-        )
-    },
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    singleLine: Boolean = false,
-    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
-    minLines: Int = 1,
-    interactionSource: MutableInteractionSource? = null,
-    colors: CupertinoTextFieldColors? = null,
-) = SectionItem(
-    modifier = modifier,
-    title = {
-        ProvideTextStyle(
-            textStyle ?: CupertinoTheme.typography.body,
-        ) {
-            Box(
-                contentAlignment = Alignment.CenterStart,
-            ) {
-                val actualInteractionSource =
-                    interactionSource ?: remember {
-                        MutableInteractionSource()
-                    }
-
-                CupertinoTextField(
-                    value = value,
-                    onValueChange = onValueChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = colors ?: CupertinoTextFieldDefaults.colors(),
-                    enabled = enabled,
-                    readOnly = readOnly,
-                    visualTransformation = visualTransformation,
-                    keyboardOptions = keyboardOptions,
-                    keyboardActions = keyboardActions,
-                    singleLine = singleLine,
-                    maxLines = maxLines,
-                    minLines = minLines,
-                    placeholder = placeholder?.let { { if (isRequired) AsteriskTextWrapper { it() } else it() } },
-                    interactionSource = actualInteractionSource,
-                    trailingIcon =
-                        trailingIcon?.let {
-                            { it(actualInteractionSource) }
-                        },
-                )
-            }
-        }
-    },
-)
-
-@OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class,)
-@Composable
-fun SectionScope.AdaptiveSectionLinkButton(
-    modifier: Modifier = Modifier,
+fun SectionScope.AdaptiveSectionLink(
     onClick: () -> Unit,
-    materialIcon: @Composable (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    materialColors: ListItemColors = ListItemDefaults.colors(
-        headlineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        leadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        supportingColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        overlineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        trailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-    ),
-    label: @Composable () -> Unit,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    onClickLabel: String? = null,
+    indication: Indication? = LocalIndication.current,
+    interactionSource: MutableInteractionSource? = null,
+    caption: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = if (currentTheme == Theme.Material3) null else { { CupertinoSectionDefaults.LabelChevron() } },
+    adaptation: AdaptationScope<HigSectionLinkAdaptation, M3SectionLinkAdaptation>.() -> Unit = {},
+    title: @Composable () -> Unit,
 ) {
     AdaptiveWidget(
+        adaptation = remember { SectionLinkAdaptation() },
+        adaptationScope = adaptation,
         material = {
-            M3SectionLinkButton(
-                modifier = modifier,
+            M3SectionLink(
                 onClick = onClick,
-                icon = materialIcon,
+                modifier = modifier,
                 enabled = enabled,
-                colors = materialColors,
-                label = label
+                leadingIcon = leadingIcon,
+                onClickLabel = onClickLabel,
+                indication = indication,
+                interactionSource = interactionSource,
+                colors = it.colors,
+                caption = caption,
+                trailingContent = trailingContent,
+                title = title
             )
         },
         cupertino = {
@@ -677,23 +593,60 @@ fun SectionScope.AdaptiveSectionLinkButton(
                 onClick = onClick,
                 modifier = modifier,
                 enabled = enabled,
-                chevron = {},
+                icon = { leadingIcon?.invoke() },
+                onClickLabel = onClickLabel,
+                indication = indication,
+                interactionSource = interactionSource,
+                caption = { if (it.isCaption) caption?.invoke() },
+                chevron = { trailingContent?.invoke() },
                 title = {
-                    ProvideTextStyle(
-                        value = TextStyle.Default.copy(
-                            color =
-                                if (enabled) {
-                                    CupertinoColors.systemBlue
-                                } else {
-                                    CupertinoColors.systemGray
-                                }
-                        ),
-                        content = label
-                    )
+                    Column {
+                        title()
+                        if (it.showSupportingContent && !it.isCaption) {
+                            ProvideTextStyle(
+                                value = MaterialTheme.typography.bodyMedium.copy(color = CupertinoTheme.colorScheme.secondaryLabel)
+                            ) {
+                                caption?.invoke()
+                            }
+                        }
+                    }
                 }
             )
         }
     )
+}
+
+class M3SectionLinkAdaptation internal constructor(
+    colors: M3SectionColors
+) {
+    var colors by mutableStateOf(colors)
+}
+class HigSectionLinkAdaptation internal constructor(
+    isCaption: Boolean = true,
+    showSupportingContent: Boolean = false
+) {
+    var isCaption by mutableStateOf(isCaption)
+    var showSupportingContent by mutableStateOf(showSupportingContent)
+}
+@OptIn(ExperimentalAdaptiveApi::class)
+internal class SectionLinkAdaptation: Adaptation<HigSectionLinkAdaptation, M3SectionLinkAdaptation>() {
+    @Composable
+    override fun rememberCupertinoAdaptation(): HigSectionLinkAdaptation {
+        val isCaption = false
+        val showSupportingContent = false
+        return remember(isCaption, showSupportingContent) {
+            HigSectionLinkAdaptation(
+                isCaption = isCaption,
+                showSupportingContent = showSupportingContent
+            )
+        }
+    }
+
+    @Composable
+    override fun rememberMaterialAdaptation(): M3SectionLinkAdaptation {
+        val colors = M3SectionLinkDefault.colors()
+        return remember(colors) { M3SectionLinkAdaptation(colors = colors) }
+    }
 }
 
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class,)
@@ -701,19 +654,20 @@ fun SectionScope.AdaptiveSectionLinkButton(
 fun SectionScope.AdaptiveSectionButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
-    materialIcon: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
-    materialColors: ButtonColors = ButtonDefaults.buttonColors(),
     label: @Composable () -> Unit,
+    adaptation: AdaptationScope<HigSectionButtonAdaptation, M3SectionButtonAdaptation>.() -> Unit = {}
 ) {
     AdaptiveWidget(
+        adaptation = remember { SectionButtonAdaptation() },
+        adaptationScope = adaptation,
         material = {
             M3SectionButton(
                 modifier = modifier,
                 onClick = onClick,
-                icon = materialIcon,
+                icon = it.icon,
                 enabled = enabled,
-                colors = materialColors,
+                colors = it.colors,
                 label = label
             )
         },
@@ -739,6 +693,35 @@ fun SectionScope.AdaptiveSectionButton(
             )
         }
     )
+}
+
+class M3SectionButtonAdaptation internal constructor(
+    icon: @Composable (() -> Unit)? = null,
+    colors: ButtonColors
+) {
+    var icon by mutableStateOf(icon)
+    var colors by mutableStateOf(colors)
+}
+class HigSectionButtonAdaptation internal constructor()
+@OptIn(ExperimentalAdaptiveApi::class)
+internal class SectionButtonAdaptation: Adaptation<HigSectionButtonAdaptation, M3SectionButtonAdaptation>() {
+    @Composable
+    override fun rememberCupertinoAdaptation(): HigSectionButtonAdaptation {
+        return remember { HigSectionButtonAdaptation() }
+    }
+
+    @Composable
+    override fun rememberMaterialAdaptation(): M3SectionButtonAdaptation {
+        val icon: @Composable (() -> Unit)? = null
+        val colors = ButtonDefaults.buttonColors()
+
+        return remember(icon, colors) {
+            M3SectionButtonAdaptation(
+                icon = icon,
+                colors = colors
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
@@ -750,7 +733,7 @@ fun SectionScope.AdaptiveSectionSlider(
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     @IntRange(from = 0) steps: Int = 0,
-    adaptation: AdaptationScope<CupertinoSectionSliderAdaptation, MaterialSectionSliderAdaptation>.() -> Unit = {}
+    adaptation: AdaptationScope<HigSectionSliderAdaptation, M3SectionSliderAdaptation>.() -> Unit = {}
 ) {
     AdaptiveWidget(
         adaptation = remember { SectionSliderAdaptation() },
@@ -767,6 +750,9 @@ fun SectionScope.AdaptiveSectionSlider(
             )
         },
         cupertino = {
+            val backgroundColor = CupertinoSectionDefaults.containerColor(LocalSectionStyle.current)
+            val backdrop = rememberCanvasBackdrop { drawRect(backgroundColor) }
+
             SectionItem(
                 title = {
                     Row(
@@ -774,7 +760,7 @@ fun SectionScope.AdaptiveSectionSlider(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         it.startIcon?.let {
-                            AdaptiveIcon(
+                            Icon(
                                 imageVector = it,
                                 contentDescription = null,
                             )
@@ -785,10 +771,11 @@ fun SectionScope.AdaptiveSectionSlider(
                             enabled = enabled,
                             valueRange = valueRange,
                             steps = steps,
+                            backdrop = backdrop,
                             modifier = Modifier.weight(1f)
                         )
                         it.endIcon?.let {
-                            AdaptiveIcon(
+                            Icon(
                                 imageVector = it,
                                 contentDescription = null,
                             )
@@ -827,44 +814,42 @@ private fun SectionScope.AdaptiveSectionProgressBar(
     )
 }
 
-class CupertinoSectionSliderAdaptation(
+class HigSectionSliderAdaptation(
     startIcon: ImageVector?,
     endIcon: ImageVector?,
 ) {
     var startIcon: ImageVector? by mutableStateOf(startIcon)
     var endIcon: ImageVector? by mutableStateOf(endIcon)
 }
-
-class MaterialSectionSliderAdaptation(
+class M3SectionSliderAdaptation(
     title: String? = null,
     icon: ImageVector?
 ) {
     var title: String? by mutableStateOf(title)
     var icon: ImageVector? by mutableStateOf(icon)
 }
-
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
-private class SectionSliderAdaptation: Adaptation<CupertinoSectionSliderAdaptation, MaterialSectionSliderAdaptation>() {
+private class SectionSliderAdaptation: Adaptation<HigSectionSliderAdaptation, M3SectionSliderAdaptation>() {
     @Composable
-    override fun rememberCupertinoAdaptation(): CupertinoSectionSliderAdaptation {
+    override fun rememberCupertinoAdaptation(): HigSectionSliderAdaptation {
         val startIcon: ImageVector? = null
         val endIcon: ImageVector? = null
 
         return remember(startIcon, endIcon) {
-            CupertinoSectionSliderAdaptation(
+            HigSectionSliderAdaptation(
                 startIcon, endIcon
             )
         }
     }
 
     @Composable
-    override fun rememberMaterialAdaptation(): MaterialSectionSliderAdaptation {
+    override fun rememberMaterialAdaptation(): M3SectionSliderAdaptation {
         val title: String? = null
         val icon: ImageVector? = null
 
         return remember(title, icon) {
-            MaterialSectionSliderAdaptation(
+            M3SectionSliderAdaptation(
                 title, icon
             )
         }

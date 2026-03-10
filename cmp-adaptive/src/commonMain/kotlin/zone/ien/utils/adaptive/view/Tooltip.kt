@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.utils.hig.view.HigTooltipBox
 import zone.ien.utils.ui.view.BaseTooltipBox
 import zone.ien.utils.ui.view.M3TooltipBox
 import zone.ien.utils.ui.view.M3TooltipText
@@ -45,43 +46,5 @@ fun AdaptiveTooltipBox(
                 content = content
             )
         }
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun HigTooltipBox(
-    modifier: Modifier = Modifier,
-    positioning: TooltipAnchorPosition = TooltipAnchorPosition.Below,
-    isPersistent: Boolean = false,
-    label: String,
-    content: @Composable () -> Unit
-) {
-    BaseTooltipBox(
-        modifier = modifier,
-        positioning = positioning,
-        isPersistent = isPersistent,
-        label = label,
-        tooltipText = { modifier, label ->
-            HigTooltipText(
-                modifier = modifier,
-                label = label
-            )
-        },
-        content = content
-    )
-}
-
-@Composable
-fun HigTooltipText(
-    modifier: Modifier = Modifier,
-    label: String
-) {
-    Text(
-        text = label,
-        style = CupertinoTheme.typography.caption1,
-        modifier = modifier
-            .background(CupertinoTheme.colorScheme.systemFill, RoundedCornerShape(4.dp))
-            .padding(4.dp)
     )
 }

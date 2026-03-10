@@ -39,6 +39,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -51,6 +53,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.semantics.Role
@@ -90,46 +93,6 @@ fun SectionScope.M3SectionItem(
         modifier = Modifier
             .clip(RoundedCornerShape(4.dp))
             .then(modifier)
-    )
-}
-
-@Composable
-fun SectionScope.M3SectionLink(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingContent: @Composable (() -> Unit)? = null,
-    onClickLabel: String? = null,
-    indication: Indication? = LocalIndication.current,
-    interactionSource: MutableInteractionSource? = null,
-    colors: ListItemColors = ListItemDefaults.colors(
-        headlineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        leadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        supportingColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        overlineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        trailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-    ),
-    caption: @Composable (() -> Unit)? = null,
-    title: @Composable () -> Unit,
-) {
-    M3SectionItem(
-        modifier =
-            modifier
-                .clickable(
-                    enabled = enabled,
-                    onClick = onClick,
-                    role = Role.Button,
-                    onClickLabel = onClickLabel,
-                    interactionSource = interactionSource ?: remember { MutableInteractionSource() },
-                    indication = indication,
-                ),
-        enabled = enabled,
-        title = title,
-        leadingContent = leadingIcon,
-        trailingContent = trailingContent,
-        supportingContent = caption,
-        colors = colors
     )
 }
 
@@ -343,6 +306,7 @@ fun SectionScope.M3SectionSecureTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    readOnly: Boolean = false,
     textStyle: TextStyle? = null,
     placeholder: @Composable (() -> Unit)? = null,
     isRequired: Boolean = false,
@@ -388,6 +352,7 @@ fun SectionScope.M3SectionSecureTextField(
                         .fillMaxWidth()
                         .heightIn(min = 48.dp),
                     enabled = enabled,
+                    readOnly = readOnly,
                     textStyle = (textStyle ?: LocalTextStyle.current),
                     placeholder = placeholder?.let { { if (isRequired) M3AsteriskTextWrapper { it() } else it() } },
                     leadingIcon = leadingIcon,
@@ -405,27 +370,130 @@ fun SectionScope.M3SectionSecureTextField(
 }
 
 @Composable
-fun SectionScope.M3SectionLinkButton(
-    modifier: Modifier = Modifier,
+fun SectionScope.M3SectionLink(
     onClick: () -> Unit,
-    icon: @Composable (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    colors: ListItemColors = ListItemDefaults.colors(
-        headlineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        leadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        supportingColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        overlineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        trailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-    ),
-    label: @Composable () -> Unit,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
+    onClickLabel: String? = null,
+    indication: Indication? = LocalIndication.current,
+    interactionSource: MutableInteractionSource? = null,
+    colors: M3SectionColors = M3SectionLinkDefault.colors(),
+    caption: @Composable (() -> Unit)? = null,
+    title: @Composable () -> Unit,
 ) {
-    M3SectionLink(
-        onClick = onClick,
+    M3SectionItem(
+        modifier =
+            modifier
+                .clickable(
+                    enabled = enabled,
+                    onClick = onClick,
+                    role = Role.Button,
+                    onClickLabel = onClickLabel,
+                    interactionSource = interactionSource ?: remember { MutableInteractionSource() },
+                    indication = indication,
+                ),
         enabled = enabled,
-        leadingIcon = icon,
-        title = label,
-        colors = colors,
-        modifier = modifier
+        title = title,
+        leadingContent = leadingIcon,
+        trailingContent = trailingContent,
+        supportingContent = caption,
+        colors = colors.toListItemColors(enabled)
+    )
+}
+
+
+@Immutable
+class M3SectionColors(
+    val containerColor: Color,
+    val headlineColor: Color,
+    val leadingIconColor: Color,
+    val overlineColor: Color,
+    val supportingTextColor: Color,
+    val trailingIconColor: Color,
+    val disabledHeadlineColor: Color,
+    val disabledLeadingIconColor: Color,
+    val disabledOverlineColor: Color,
+    val disabledSupportingTextColor: Color,
+    val disabledTrailingIconColor: Color,
+) {
+    /**
+     * Returns a copy of this ListItemColors, optionally overriding some of the values. This uses
+     * the Color.Unspecified to mean “use the value from the source”
+     */
+    fun copy(
+        containerColor: Color = this.containerColor,
+        headlineColor: Color = this.headlineColor,
+        leadingIconColor: Color = this.leadingIconColor,
+        overlineColor: Color = this.overlineColor,
+        supportingTextColor: Color = this.supportingTextColor,
+        trailingIconColor: Color = this.trailingIconColor,
+        disabledHeadlineColor: Color = this.disabledHeadlineColor,
+        disabledLeadingIconColor: Color = this.disabledLeadingIconColor,
+        disabledOverlineColor: Color = this.disabledOverlineColor,
+        disabledSupportingTextColor: Color = this.disabledSupportingTextColor,
+        disabledTrailingIconColor: Color = this.disabledTrailingIconColor,
+    ) =
+        M3SectionColors(
+            containerColor = containerColor.takeOrElse { this.containerColor },
+            headlineColor = headlineColor.takeOrElse { this.headlineColor },
+            leadingIconColor = leadingIconColor.takeOrElse { this.leadingIconColor },
+            overlineColor = overlineColor.takeOrElse { this.overlineColor },
+            supportingTextColor = supportingTextColor.takeOrElse { this.supportingTextColor },
+            trailingIconColor = trailingIconColor.takeOrElse { this.trailingIconColor },
+            disabledHeadlineColor = disabledHeadlineColor.takeOrElse { this.disabledHeadlineColor },
+            disabledLeadingIconColor = disabledLeadingIconColor.takeOrElse { this.disabledLeadingIconColor },
+            disabledOverlineColor = disabledOverlineColor.takeOrElse { this.disabledOverlineColor },
+            disabledSupportingTextColor = disabledSupportingTextColor.takeOrElse { this.disabledSupportingTextColor },
+            disabledTrailingIconColor = disabledTrailingIconColor.takeOrElse { this.disabledTrailingIconColor },
+        )
+
+    fun toListItemColors(enabled: Boolean) = ListItemColors(
+        containerColor = containerColor(),
+        headlineColor = headlineColor(enabled),
+        leadingIconColor = leadingIconColor(enabled),
+        overlineColor = overlineColor(enabled),
+        supportingTextColor = supportingColor(enabled),
+        trailingIconColor = trailingIconColor(enabled),
+        disabledHeadlineColor = disabledHeadlineColor,
+        disabledLeadingIconColor = disabledLeadingIconColor,
+        disabledTrailingIconColor = disabledTrailingIconColor,
+    )
+
+    /** The container color of this [ListItem] based on enabled state */
+    internal fun containerColor(): Color = containerColor
+
+    /** The color of this [ListItem]'s headline text based on enabled state */
+    @Stable internal fun headlineColor(enabled: Boolean): Color = if (enabled) headlineColor else disabledHeadlineColor
+
+    /** The color of this [ListItem]'s leading content based on enabled state */
+    @Stable internal fun leadingIconColor(enabled: Boolean): Color = if (enabled) leadingIconColor else disabledLeadingIconColor
+
+    /** The color of this [ListItem]'s overline text based on enabled state */
+    @Stable internal fun overlineColor(enabled: Boolean): Color = if (enabled) overlineColor else disabledOverlineColor
+
+    /** The color of this [ListItem]'s supporting text based on enabled state */
+    @Stable internal fun supportingColor(enabled: Boolean): Color = if (enabled) supportingTextColor else disabledSupportingTextColor
+
+    /** The color of this [ListItem]'s trailing content based on enabled state */
+    @Stable internal fun trailingIconColor(enabled: Boolean): Color = if (enabled) trailingIconColor else disabledTrailingIconColor
+}
+
+object M3SectionLinkDefault {
+    @Composable
+    fun colors() = M3SectionColors(
+        containerColor = Color.Unspecified,
+        headlineColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        leadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        supportingTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        overlineColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        trailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        disabledHeadlineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f),
+        disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f),
+        disabledSupportingTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f),
+        disabledOverlineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f),
+        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f)
     )
 }
 

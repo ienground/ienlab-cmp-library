@@ -45,23 +45,29 @@ import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.outlined.CheckmarkCircle
 import zone.ien.hig.icons.outlined.PersonCropCircle
 import zone.ien.hig.icons.outlined.Pin
+import zone.ien.hig.section.SectionStyle
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.component.AdaptiveMediumFloatingActionButton
 import zone.ien.utils.adaptive.menu.adaptiveSaveButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
+import zone.ien.utils.adaptive.section.AdaptiveProvideSectionStyle
+import zone.ien.utils.adaptive.section.AdaptiveSection
+import zone.ien.utils.adaptive.section.AdaptiveSectionItem
+import zone.ien.utils.adaptive.section.AdaptiveSectionSwitchItem
 import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
 import zone.ien.utils.adaptive.view.AdaptiveDropdownBox
 import zone.ien.utils.adaptive.view.AdaptiveDropdownMenu
 import zone.ien.utils.adaptive.view.DropdownMenuSection
 import zone.ien.utils.adaptive.view.DropdownMenuSection.Action
+import zone.ien.utils.adaptive.view.textfield.AdaptiveTextFieldClearButton
 import zone.ien.utils.adaptive.wrapper.RootWrapper
 import zone.ien.utils.icon.material.MaterialIcons
 import zone.ien.utils.ui.menu.ActionMenuItem
-import zone.ien.utils.ui.menu.IconData
 import zone.ien.utils.ui.section.M3ProvideSectionStyle
 import zone.ien.utils.ui.section.M3Section
 import zone.ien.utils.ui.section.M3SectionItem
+import zone.ien.utils.ui.utils.IconData
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.utils.Dlog
 
@@ -177,23 +183,36 @@ fun App() {
                         text = "Hello World"
                     )
                     val textFieldState = rememberTextFieldState()
+                    var checked by remember { mutableStateOf(false) }
                     TextField(
                         state = textFieldState,
+                        trailingIcon = { AdaptiveTextFieldClearButton(visible = true, onClick = {}) },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    M3ProvideSectionStyle(
+                    AdaptiveProvideSectionStyle(
                         scrollable = false,
                         fullHeight = false,
+                        style = SectionStyle.InsetGrouped,
                         modifier = Modifier.height(400.dp)
                     ) {
-                        M3Section {
-                            M3SectionItem(
+                        AdaptiveSection {
+                            AdaptiveSectionItem(
                                 title = { Text(text = "title") }
                             )
-                            M3SectionItem(
+                            AdaptiveSectionItem(
                                 title = { Text(text = "title") }
                             )
-                            M3SectionItem(
+                            AdaptiveSectionItem(
+                                title = { Text(text = "title") }
+                            )
+                            AdaptiveSectionSwitchItem(
+                                title = { Text(text = "title") },
+                                checked = checked,
+                                onCheckedChange = { checked = it }
+                            )
+                        }
+                        AdaptiveSection {
+                            AdaptiveSectionItem(
                                 title = { Text(text = "title") }
                             )
                         }

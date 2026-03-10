@@ -9,6 +9,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -19,6 +20,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,6 +28,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.ui.utils.IconData
 
 @Composable
 fun M3TextFieldIconButton(
@@ -34,12 +37,14 @@ fun M3TextFieldIconButton(
     onLongClick: () -> Unit = {},
     loading: Boolean = false,
     enabled: Boolean = true,
-    icon: ImageVector,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    icon: IconData,
     contentDescription: String? = null
 ) {
     val buttonColors = IconButtonDefaults.iconButtonColors()
     val containerColor = if (enabled) buttonColors.containerColor else buttonColors.disabledContainerColor
     val contentColor = if (enabled) buttonColors.contentColor else buttonColors.disabledContentColor
+
     Box(
         modifier = modifier
             .minimumInteractiveComponentSize()
@@ -51,6 +56,7 @@ fun M3TextFieldIconButton(
                 onClick = onClick,
                 onLongClick = onLongClick,
                 role = Role.Button,
+                interactionSource = interactionSource
             ),
         contentAlignment = Alignment.Center
     ) {
@@ -64,10 +70,20 @@ fun M3TextFieldIconButton(
                 exit = fadeOut(tween(700))
             ) {
                 CompositionLocalProvider(LocalContentColor provides contentColor) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = contentDescription
-                    )
+                    when (icon) {
+                        is IconData.Vector -> {
+                            Icon(
+                                imageVector = icon.imageVector,
+                                contentDescription = contentDescription
+                            )
+                        }
+                        is IconData.Paint -> {
+                            Icon(
+                                painter = icon.painter,
+                                contentDescription = contentDescription
+                            )
+                        }
+                    }
                 }
             }
             AnimatedVisibility(
@@ -94,7 +110,7 @@ fun M3TextFieldClearButton(
         exit = fadeOut(spring(1.2f)) + scaleOut(spring(1.2f), targetScale = 0.75f)
     ) {
         M3TextFieldIconButton(
-            icon = MaterialIcons.Cancel,
+            icon = IconData.Vector(MaterialIcons.Cancel),
             onClick = onClick
         )
     }
