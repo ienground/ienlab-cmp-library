@@ -2,19 +2,23 @@ package zone.ien.utils.ui.screen
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LargeFlexibleTopAppBar
+import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun M3TopAppBar(
     title: @Composable () -> Unit,
+    subtitle: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable (RowScope.() -> Unit) = {},
@@ -22,10 +26,12 @@ fun M3TopAppBar(
     scrollBehavior: TopAppBarScrollBehavior? = null,
     isScrollTint: Boolean = LocalIsScrollTint.current,
     isCenterAligned: Boolean = false,
-    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors()
+    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
+    size: TopBarSize = TopBarSize.Small
 ) {
-    SingleRowTopAppBar(
+    TopAppBarImpl(
         title = title,
+        subtitle = subtitle,
         isCenterAligned = isCenterAligned,
         colors = colors.let { if (isScrollTint) it else it.copy(scrolledContainerColor = it.containerColor) },
         modifier = modifier,
@@ -33,40 +39,63 @@ fun M3TopAppBar(
         actions = actions,
         windowInsets = windowInsets,
         scrollBehavior = scrollBehavior,
+        size = size
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-internal fun SingleRowTopAppBar(
+private fun TopAppBarImpl(
     title: @Composable () -> Unit,
+    subtitle: @Composable (() -> Unit)?,
     isCenterAligned: Boolean,
     colors: TopAppBarColors,
-    modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable (RowScope.() -> Unit) = {},
-    windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    scrollBehavior: TopAppBarScrollBehavior? = null,
+    modifier: Modifier,
+    navigationIcon: @Composable () -> Unit,
+    actions: @Composable (RowScope.() -> Unit),
+    windowInsets: WindowInsets,
+    scrollBehavior: TopAppBarScrollBehavior?,
+    size: TopBarSize
 ) {
-    if (isCenterAligned) {
-        CenterAlignedTopAppBar(
-            title = title,
-            modifier = modifier,
-            navigationIcon = navigationIcon,
-            actions = actions,
-            windowInsets = windowInsets,
-            colors = colors,
-            scrollBehavior = scrollBehavior,
-        )
-    } else {
-        TopAppBar(
-            title = title,
-            modifier = modifier,
-            navigationIcon = navigationIcon,
-            actions = actions,
-            windowInsets = windowInsets,
-            colors = colors,
-            scrollBehavior = scrollBehavior,
-        )
+    when (size) {
+        TopBarSize.Small -> {
+            TopAppBar(
+                title = title,
+                modifier = modifier,
+                subtitle = subtitle ?: {},
+                navigationIcon = navigationIcon,
+                actions = actions,
+                titleHorizontalAlignment = if (isCenterAligned) Alignment.CenterHorizontally else Alignment.Start,
+                windowInsets = windowInsets,
+                colors = colors,
+                scrollBehavior = scrollBehavior,
+            )
+        }
+        TopBarSize.Medium -> {
+            MediumFlexibleTopAppBar(
+                title = title,
+                modifier = modifier,
+                subtitle = subtitle,
+                navigationIcon = navigationIcon,
+                actions = actions,
+                titleHorizontalAlignment = if (isCenterAligned) Alignment.CenterHorizontally else Alignment.Start,
+                windowInsets = windowInsets,
+                colors = colors,
+                scrollBehavior = scrollBehavior
+            )
+        }
+        TopBarSize.Large -> {
+            LargeFlexibleTopAppBar(
+                title = title,
+                modifier = modifier,
+                subtitle = subtitle,
+                navigationIcon = navigationIcon,
+                actions = actions,
+                titleHorizontalAlignment = if (isCenterAligned) Alignment.CenterHorizontally else Alignment.Start,
+                windowInsets = windowInsets,
+                colors = colors,
+                scrollBehavior = scrollBehavior
+            )
+        }
     }
 }

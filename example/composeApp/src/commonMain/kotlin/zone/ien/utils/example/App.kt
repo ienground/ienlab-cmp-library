@@ -17,6 +17,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +34,6 @@ import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoText
 import zone.ien.hig.ExperimentalCupertinoApi
-import zone.ien.hig.FabPosition
 import zone.ien.hig.MenuAction
 import zone.ien.hig.MenuSection
 import zone.ien.hig.adaptive.AdaptiveSwitch
@@ -67,9 +67,7 @@ import zone.ien.utils.adaptive.view.textfield.AdaptiveTextFieldClearButton
 import zone.ien.utils.adaptive.wrapper.RootWrapper
 import zone.ien.utils.icon.material.MaterialIcons
 import zone.ien.utils.ui.menu.ActionMenuItem
-import zone.ien.utils.ui.section.M3ProvideSectionStyle
-import zone.ien.utils.ui.section.M3Section
-import zone.ien.utils.ui.section.M3SectionItem
+import zone.ien.utils.ui.screen.TopBarSize
 import zone.ien.utils.ui.utils.IconData
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.utils.Dlog
@@ -103,6 +101,8 @@ fun App() {
             var text by remember { mutableStateOf("") }
             var sliderValue by remember { mutableStateOf(0.3f) }
 
+//            /*
+//            M3TopAppBarScaffold(
             AdaptiveTopAppBarScaffold(
                 modifier = it,
                 navigationIcon = {
@@ -147,17 +147,22 @@ fun App() {
                         text = "title"
                     )
                 },
+//                isCenterAligned = false,
+
                 adaptation = {
                     material {
-                        isCenterAligned = true
+                        isCenterAligned = false
+                        size = TopBarSize.Medium
+                        scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
                     }
                     cupertino {
                         this.isBackgroundGradient = false
                         this.backdrop = backdrop
                         this.scrollableState = scrollState
+                        showNavTitle = true
                     }
                 },
-                fabPosition = FabPosition.End,
+//                fabPosition = FabPosition.End,
                 floatingActionButton = {
                     AdaptiveMediumFloatingActionButton(
                         onClick = {},
@@ -176,14 +181,15 @@ fun App() {
                         )
                     }
                 }
-            ) {
+            ) { pv, title ->
                 val children = listOf("abcdefg", "abcdefg2", "abcdefg3")
                 Column(
                     modifier = Modifier
                         .layerBackdrop(backdrop)
                         .verticalScroll(scrollState)
-                        .padding(it)
+                        .padding(pv)
                 ) {
+                    title()
                     Text(
                         text = "Hello World"
                     )
@@ -488,6 +494,57 @@ fun App() {
                     )
                 }
             }
+
+//             */
+
+            /*
+            val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+            Scaffold(
+                topBar = {
+                    val fraction = scrollBehavior.state.collapsedFraction
+                    val alignment = if (fraction > 0.5f) Alignment.CenterHorizontally else Alignment.Start
+
+//                    MediumFlexibleTopAppBar(
+//                        title = {
+//                            Text(
+//                                text = "Title",
+//                            )
+//                        },
+//                        subtitle = { Text(text = "sub title") },
+//                        scrollBehavior = scrollBehavior,
+//                        titleHorizontalAlignment = alignment,
+//                        modifier = it
+//                    )
+
+                    M3TopAppBar(
+                        title = {
+                            Text(
+                                text = "Title",
+                            )
+                        },
+                        subtitle = { Text(text = "sub title") },
+                        scrollBehavior = scrollBehavior,
+                        size = TopAppBarSize.Large,
+                        modifier = it
+                    )
+                },
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .fillMaxWidth()
+                        .padding(it)
+                ) {
+                    Text(text = "title")
+                    Box(
+                        modifier = Modifier.fillMaxWidth().height(1400.dp)
+                    )
+                    Text(text = "title")
+                }
+            }
+
+             */
         }
     }
 
