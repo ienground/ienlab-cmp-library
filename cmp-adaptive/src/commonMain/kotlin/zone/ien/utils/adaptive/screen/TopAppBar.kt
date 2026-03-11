@@ -26,9 +26,9 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.utils.ui.screen.LocalIsHigTopBarCenterAligned
 import zone.ien.utils.ui.screen.LocalIsM3TopBarCenterAligned
 import zone.ien.utils.ui.screen.LocalIsScrollTint
-import zone.ien.utils.ui.screen.LocalTopAppBarSize
+import zone.ien.utils.ui.screen.LocalM3TopBarSize
 import zone.ien.utils.ui.screen.M3TopAppBar
-import zone.ien.utils.ui.screen.TopAppBarSize
+import zone.ien.utils.ui.screen.TopBarSize
 
 @OptIn(
     ExperimentalAdaptiveApi::class,
@@ -85,7 +85,7 @@ class M3TopAppBarAdaptation internal constructor(
     isScrollTint: Boolean,
     colors: TopAppBarColors,
     isCenterAligned: Boolean,
-    size: TopAppBarSize
+    size: TopBarSize
 ) {
     var windowInsets by mutableStateOf(windowInsets)
     var scrollBehavior by mutableStateOf(scrollBehavior)
@@ -144,7 +144,7 @@ internal class TopAppBarAdaptation: Adaptation<HigTopAppBarAdaptation, M3TopAppB
         val isScrollTint = LocalIsScrollTint.current
         val colors = TopAppBarDefaults.topAppBarColors()
         val isCenterAligned = LocalIsM3TopBarCenterAligned.current
-        val size = LocalTopAppBarSize.current
+        val size = LocalM3TopBarSize.current
 
         return remember(windowInsets, isScrollTint, colors, isCenterAligned, size) {
             M3TopAppBarAdaptation(

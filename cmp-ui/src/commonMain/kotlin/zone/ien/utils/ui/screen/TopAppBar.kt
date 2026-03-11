@@ -2,17 +2,14 @@ package zone.ien.utils.ui.screen
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MediumFlexibleTopAppBar
-import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.TwoRowsTopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,7 +27,7 @@ fun M3TopAppBar(
     isScrollTint: Boolean = LocalIsScrollTint.current,
     isCenterAligned: Boolean = false,
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
-    size: TopAppBarSize = TopAppBarSize.Small
+    size: TopBarSize = TopBarSize.Small
 ) {
     TopAppBarImpl(
         title = title,
@@ -58,10 +55,10 @@ private fun TopAppBarImpl(
     actions: @Composable (RowScope.() -> Unit),
     windowInsets: WindowInsets,
     scrollBehavior: TopAppBarScrollBehavior?,
-    size: TopAppBarSize
+    size: TopBarSize
 ) {
     when (size) {
-        TopAppBarSize.Small -> {
+        TopBarSize.Small -> {
             TopAppBar(
                 title = title,
                 modifier = modifier,
@@ -74,7 +71,7 @@ private fun TopAppBarImpl(
                 scrollBehavior = scrollBehavior,
             )
         }
-        TopAppBarSize.Medium -> {
+        TopBarSize.Medium -> {
             MediumFlexibleTopAppBar(
                 title = title,
                 modifier = modifier,
@@ -87,7 +84,7 @@ private fun TopAppBarImpl(
                 scrollBehavior = scrollBehavior
             )
         }
-        TopAppBarSize.Large -> {
+        TopBarSize.Large -> {
             LargeFlexibleTopAppBar(
                 title = title,
                 modifier = modifier,

@@ -60,9 +60,9 @@ fun M3TopAppBarScaffold(
     scaffoldContainerColor: Color = MaterialTheme.colorScheme.background,
     scaffoldContentColor: Color = contentColorFor(scaffoldContainerColor),
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
-    scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
     isScrollTint: Boolean = LocalIsScrollTint.current,
-    size: TopAppBarSize = LocalTopAppBarSize.current,
+    size: TopBarSize = LocalM3TopBarSize.current,
+    scrollBehavior: TopAppBarScrollBehavior = if (size == TopBarSize.Small) TopAppBarDefaults.pinnedScrollBehavior() else TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
     content: @Composable (PaddingValues) -> Unit
 ) {
     Scaffold(
@@ -133,9 +133,9 @@ fun M3TopAppBarScaffold(
     scaffoldContainerColor: Color = MaterialTheme.colorScheme.background,
     scaffoldContentColor: Color = contentColorFor(scaffoldContainerColor),
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
-    scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
     isScrollTint: Boolean = LocalIsScrollTint.current,
-    size: TopAppBarSize = LocalTopAppBarSize.current,
+    size: TopBarSize = LocalM3TopBarSize.current,
+    scrollBehavior: TopAppBarScrollBehavior = if (size == TopBarSize.Small) TopAppBarDefaults.pinnedScrollBehavior() else TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
     content: @Composable (PaddingValues) -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }

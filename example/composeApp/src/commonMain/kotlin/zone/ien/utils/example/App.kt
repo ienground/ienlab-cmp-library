@@ -7,42 +7,33 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MediumFlexibleTopAppBar
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.TwoRowsTopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
 import kotlinx.coroutines.launch
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoIcon
-import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoText
 import zone.ien.hig.ExperimentalCupertinoApi
-import zone.ien.hig.FabPosition
 import zone.ien.hig.MenuAction
 import zone.ien.hig.MenuSection
 import zone.ien.hig.adaptive.AdaptiveSwitch
@@ -76,12 +67,7 @@ import zone.ien.utils.adaptive.view.textfield.AdaptiveTextFieldClearButton
 import zone.ien.utils.adaptive.wrapper.RootWrapper
 import zone.ien.utils.icon.material.MaterialIcons
 import zone.ien.utils.ui.menu.ActionMenuItem
-import zone.ien.utils.ui.screen.M3TopAppBar
-import zone.ien.utils.ui.screen.M3TopAppBarScaffold
-import zone.ien.utils.ui.screen.TopAppBarSize
-import zone.ien.utils.ui.section.M3ProvideSectionStyle
-import zone.ien.utils.ui.section.M3Section
-import zone.ien.utils.ui.section.M3SectionItem
+import zone.ien.utils.ui.screen.TopBarSize
 import zone.ien.utils.ui.utils.IconData
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.utils.Dlog
@@ -162,15 +148,18 @@ fun App() {
                     )
                 },
 //                isCenterAligned = false,
-                size = TopAppBarSize.Medium,
+
                 adaptation = {
                     material {
                         isCenterAligned = false
+                        size = TopBarSize.Medium
+                        scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
                     }
                     cupertino {
                         this.isBackgroundGradient = false
                         this.backdrop = backdrop
                         this.scrollableState = scrollState
+                        showNavTitle = true
                     }
                 },
 //                fabPosition = FabPosition.End,

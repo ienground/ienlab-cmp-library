@@ -1,5 +1,5 @@
 package zone.ien.utils.ui.screen
 
-enum class TopAppBarSize {
+enum class TopBarSize {
     Small, Medium, Large
 }
