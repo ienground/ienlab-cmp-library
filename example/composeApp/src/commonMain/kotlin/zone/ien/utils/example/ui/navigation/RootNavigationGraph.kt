@@ -50,7 +50,9 @@ fun RootNavigationGraph(
                 )
             }
             entry<RootRoute.Settings> {
-                SettingsScreen()
+                SettingsScreen(
+                    navigateBack = { backStack.navigateBack() }
+                )
             }
             entry<RootRoute.Playground> {
                 PlaygroundScreen()
