@@ -152,6 +152,7 @@ fun AdaptiveTopAppBarScaffold(
                         ) {
                             CupertinoTopAppBar(
                                 title = title,
+                                subtitle = subtitle,
                                 modifier = modifier,
                                 navigationIcon = navigationIcon,
                                 actions = actions,

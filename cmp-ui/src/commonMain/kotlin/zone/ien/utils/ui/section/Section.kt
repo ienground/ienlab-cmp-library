@@ -1,5 +1,6 @@
 package zone.ien.utils.ui.section
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,16 +39,15 @@ fun Modifier.m3SectionBackground(): Modifier {
 fun M3ProvideSectionStyle(
     modifier: Modifier = Modifier,
     fullHeight: Boolean = true,
-    scrollable: Boolean = true,
+    scrollState: ScrollState? = null,
     shape: Shape = RectangleShape,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val scrollState = rememberScrollState()
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier
             .conditional(fullHeight) { fillMaxHeight() }
-            .conditional(scrollable) { verticalScroll(scrollState) }
+            .conditional(scrollState != null) { scrollState?.let { this.verticalScroll(it) } ?: this }
             .clip(shape)
             .m3SectionBackground()
             .then(modifier)

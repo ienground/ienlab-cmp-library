@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
+    alias(libs.plugins.serialization)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
 }
@@ -49,9 +50,12 @@ kotlin {
 
             implementation(libs.kotlinx.io.core)
             implementation(libs.kdatetime)
+            implementation(libs.datastore.pref)
 
             implementation(libs.bundles.hig)
             implementation(libs.capsule)
+
+            implementation(libs.bundles.koin)
 
             implementation(project(":cmp-common"))
             implementation(project(":cmp-adaptive"))
