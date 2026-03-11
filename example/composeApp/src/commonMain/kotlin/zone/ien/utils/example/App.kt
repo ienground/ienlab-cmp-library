@@ -7,30 +7,39 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MediumFlexibleTopAppBar
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.TwoRowsTopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
 import kotlinx.coroutines.launch
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoIcon
+import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoText
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.FabPosition
@@ -67,6 +76,9 @@ import zone.ien.utils.adaptive.view.textfield.AdaptiveTextFieldClearButton
 import zone.ien.utils.adaptive.wrapper.RootWrapper
 import zone.ien.utils.icon.material.MaterialIcons
 import zone.ien.utils.ui.menu.ActionMenuItem
+import zone.ien.utils.ui.screen.M3TopAppBar
+import zone.ien.utils.ui.screen.M3TopAppBarScaffold
+import zone.ien.utils.ui.screen.TopAppBarSize
 import zone.ien.utils.ui.section.M3ProvideSectionStyle
 import zone.ien.utils.ui.section.M3Section
 import zone.ien.utils.ui.section.M3SectionItem
@@ -103,6 +115,8 @@ fun App() {
             var text by remember { mutableStateOf("") }
             var sliderValue by remember { mutableStateOf(0.3f) }
 
+//            /*
+//            M3TopAppBarScaffold(
             AdaptiveTopAppBarScaffold(
                 modifier = it,
                 navigationIcon = {
@@ -147,9 +161,11 @@ fun App() {
                         text = "title"
                     )
                 },
+//                isCenterAligned = false,
+                size = TopAppBarSize.Medium,
                 adaptation = {
                     material {
-                        isCenterAligned = true
+                        isCenterAligned = false
                     }
                     cupertino {
                         this.isBackgroundGradient = false
@@ -157,7 +173,7 @@ fun App() {
                         this.scrollableState = scrollState
                     }
                 },
-                fabPosition = FabPosition.End,
+//                fabPosition = FabPosition.End,
                 floatingActionButton = {
                     AdaptiveMediumFloatingActionButton(
                         onClick = {},
@@ -176,14 +192,15 @@ fun App() {
                         )
                     }
                 }
-            ) {
+            ) { pv, title ->
                 val children = listOf("abcdefg", "abcdefg2", "abcdefg3")
                 Column(
                     modifier = Modifier
                         .layerBackdrop(backdrop)
                         .verticalScroll(scrollState)
-                        .padding(it)
+                        .padding(pv)
                 ) {
+                    title()
                     Text(
                         text = "Hello World"
                     )
@@ -488,6 +505,57 @@ fun App() {
                     )
                 }
             }
+
+//             */
+
+            /*
+            val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+            Scaffold(
+                topBar = {
+                    val fraction = scrollBehavior.state.collapsedFraction
+                    val alignment = if (fraction > 0.5f) Alignment.CenterHorizontally else Alignment.Start
+
+//                    MediumFlexibleTopAppBar(
+//                        title = {
+//                            Text(
+//                                text = "Title",
+//                            )
+//                        },
+//                        subtitle = { Text(text = "sub title") },
+//                        scrollBehavior = scrollBehavior,
+//                        titleHorizontalAlignment = alignment,
+//                        modifier = it
+//                    )
+
+                    M3TopAppBar(
+                        title = {
+                            Text(
+                                text = "Title",
+                            )
+                        },
+                        subtitle = { Text(text = "sub title") },
+                        scrollBehavior = scrollBehavior,
+                        size = TopAppBarSize.Large,
+                        modifier = it
+                    )
+                },
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .fillMaxWidth()
+                        .padding(it)
+                ) {
+                    Text(text = "title")
+                    Box(
+                        modifier = Modifier.fillMaxWidth().height(1400.dp)
+                    )
+                    Text(text = "title")
+                }
+            }
+
+             */
         }
     }
 
