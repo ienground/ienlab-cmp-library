@@ -64,6 +64,7 @@ kotlin {
             implementation(project(":cmp-icon"))
             implementation(project(":cmp-utils"))
             implementation(project(":cmp-navigation"))
+            implementation(project(":cmp-pref"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

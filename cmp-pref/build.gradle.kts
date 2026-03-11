@@ -30,8 +30,17 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.compose.material3)
+            implementation(libs.compose.resources)
+//            implementation(libs.hig.core)
+            implementation(libs.hig)
+            implementation(libs.hig.adaptive)
+            implementation(libs.backdrop)
+            implementation(libs.datastore.pref)
 
             implementation(project(":cmp-common"))
+            implementation(project(":cmp-icon"))
+            implementation(project(":cmp-utils"))
+            implementation(project(":cmp-adaptive"))
         }
 
         commonTest.dependencies {

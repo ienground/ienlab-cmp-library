@@ -104,6 +104,7 @@ fun HomeScreen(
                 }
                 Box(
                     modifier = Modifier
+                        .clickable { backStack.add(RootRoute.Settings) }
                         .fillMaxWidth()
                         .height(400.dp)
                         .background(Color.Blue)

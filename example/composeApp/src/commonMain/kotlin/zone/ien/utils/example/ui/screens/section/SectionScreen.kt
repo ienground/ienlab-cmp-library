@@ -18,6 +18,7 @@ import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.section.AdaptiveProvideSectionStyle
 import zone.ien.utils.adaptive.section.AdaptiveSection
 import zone.ien.utils.adaptive.section.AdaptiveSectionItem
+import zone.ien.utils.adaptive.section.AdaptiveSectionLink
 import zone.ien.utils.adaptive.section.AdaptiveSectionSwitchItem
 import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
 
@@ -55,7 +56,9 @@ fun SectionScreen(
                     AdaptiveSectionItem {
                         Text(text = "Section2")
                     }
-                    AdaptiveSectionItem {
+                    AdaptiveSectionLink(
+                        onClick = {}
+                    ) {
                         Text(text = "Section3")
                     }
                     AdaptiveSectionItem {

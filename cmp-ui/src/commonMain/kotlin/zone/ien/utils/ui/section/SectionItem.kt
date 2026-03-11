@@ -483,13 +483,13 @@ class M3SectionColors(
 object M3SectionLinkDefault {
     @Composable
     fun colors() = M3SectionColors(
-        containerColor = Color.Unspecified,
-        headlineColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        containerColor = MaterialTheme.colorScheme.surface,
+        headlineColor = MaterialTheme.colorScheme.onSurface,
         leadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        supportingTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
         overlineColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        supportingTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
         trailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        disabledHeadlineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f),
+        disabledHeadlineColor = MaterialTheme.colorScheme.onSurface.copy(0.35f),
         disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f),
         disabledSupportingTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f),
         disabledOverlineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f),
