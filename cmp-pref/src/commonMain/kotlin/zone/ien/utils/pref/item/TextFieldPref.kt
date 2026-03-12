@@ -168,7 +168,13 @@ fun SectionScope.TextFieldPref(
         enabled = enabled,
         summary = summary(value),
         leadingIcon = if (showIcon) leadingIcon else null,
-        chevron = {}
+        chevron = {},
+        adaptation = {
+            cupertino {
+                isCaption = true
+                showSupportingContent = true
+            }
+        }
     )
 
 //    AlertDialog(
@@ -200,7 +206,7 @@ fun SectionScope.TextFieldPref(
         title = title,
         textFields = mapOf(
             "value" to TextFieldDialogData(
-                keyboardType = KeyboardType.Number
+                keyboardType = KeyboardType.Decimal
             )
         ),
         onDismiss = { showDialog = false },

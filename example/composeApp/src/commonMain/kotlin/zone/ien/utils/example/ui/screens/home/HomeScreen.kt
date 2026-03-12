@@ -35,7 +35,7 @@ import zone.ien.utils.example.Android
 import zone.ien.utils.example.ui.navigation.RootRoute
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.screen.TopBarSize
-import zone.ien.utils.ui.utils.IconData
+import zone.ien.utils.icon.IconData
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable

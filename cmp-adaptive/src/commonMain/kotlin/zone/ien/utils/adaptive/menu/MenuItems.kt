@@ -31,11 +31,11 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.view.AdaptiveTooltipBox
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
+import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.hig.Ellipsis
-import zone.ien.utils.icon.hig.HigIcons
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.menu.LocalMenuIconButtonSize
-import zone.ien.utils.ui.utils.IconData
+import zone.ien.utils.icon.IconData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,26 +78,13 @@ fun HigActionMenu(
                             targetState = item.icon,
                             label = "menu_icon"
                         ) {
-                            when (icon) {
-                                is IconData.Vector -> {
-                                    CupertinoIcon(
-                                        imageVector = icon.imageVector,
-                                        contentDescription = item.title,
-                                        modifier = Modifier
-                                            .alpha(alpha)
-                                            .size(LocalMenuIconButtonSize.current.first - 16.dp)
-                                    )
-                                }
-                                is IconData.Paint -> {
-                                    CupertinoIcon(
-                                        painter = icon.painter,
-                                        contentDescription = item.title,
-                                        modifier = Modifier
-                                            .alpha(alpha)
-                                            .size(LocalMenuIconButtonSize.current.first - 16.dp)
-                                    )
-                                }
-                            }
+                            ComplexIcon(
+                                icon = icon,
+                                contentDescription = item.title,
+                                modifier = Modifier
+                                    .alpha(alpha)
+                                    .size(LocalMenuIconButtonSize.current.first - 16.dp)
+                            )
                         }
                     }
                 }
@@ -141,7 +128,7 @@ fun HigActionsMenu(
                 )
             ) {
                 CupertinoIcon(
-                    imageVector = HigIcons.Ellipsis,
+                    imageVector = zone.ien.utils.icon.hig.HigIcons.Ellipsis,
                     contentDescription = stringResource(Res.string.more_options),
                 )
             }

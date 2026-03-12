@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
-import zone.ien.utils.cmp_ui.generated.resources.move_to_play_store
 import zone.ien.utils.cmp_ui.generated.resources.version_update_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.version_update_dialog_title
 import zone.ien.utils.icon.material.MaterialIcons

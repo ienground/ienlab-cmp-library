@@ -83,7 +83,8 @@ fun SettingsScreen(
                         adaptation = {
                             cupertino {
 //                                isCaption = false
-                                showSupportingContent = false
+                                isCaption = true
+                                showSupportingContent = true
                             }
                         }
                     )

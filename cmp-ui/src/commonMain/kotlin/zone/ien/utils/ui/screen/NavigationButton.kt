@@ -14,6 +14,8 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.back
 import zone.ien.utils.cmp_ui.generated.resources.close
+import zone.ien.utils.icon.ComplexIcon
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.LocalBackButtonIcon
 import zone.ien.utils.icon.LocalButtonProviderDefault
 import zone.ien.utils.icon.LocalCloseButtonIcon
@@ -23,7 +25,7 @@ import zone.ien.utils.ui.view.M3TooltipBox
 @Composable
 fun M3BackButton(
     modifier: Modifier = Modifier,
-    icon: ImageVector = LocalBackButtonIcon.current ?: LocalButtonProviderDefault.BackIcon,
+    icon: IconData = LocalBackButtonIcon.current?.let(IconData::Vector) ?: LocalButtonProviderDefault.BackIcon,
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
@@ -36,8 +38,8 @@ fun M3BackButton(
             colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest),
             modifier = modifier.padding(horizontal = 8.dp)
         ) {
-            Icon(
-                imageVector = icon,
+            ComplexIcon(
+                icon = icon,
                 contentDescription = stringResource(Res.string.back)
             )
         }
@@ -48,7 +50,7 @@ fun M3BackButton(
 @Composable
 fun M3CloseButton(
     modifier: Modifier = Modifier,
-    icon: ImageVector = LocalCloseButtonIcon.current ?: LocalButtonProviderDefault.CloseIcon,
+    icon: IconData = LocalCloseButtonIcon.current?.let(IconData::Vector) ?: LocalButtonProviderDefault.CloseIcon,
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
@@ -60,8 +62,8 @@ fun M3CloseButton(
             enabled = enabled,
             modifier = modifier
         ) {
-            Icon(
-                imageVector = icon,
+            ComplexIcon(
+                icon = icon,
                 contentDescription = stringResource(Res.string.close)
             )
         }

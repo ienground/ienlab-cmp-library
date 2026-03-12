@@ -6,27 +6,21 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
@@ -35,7 +29,6 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
-import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.AdaptiveScaffold
 import zone.ien.hig.adaptive.AdaptiveWidget
@@ -47,11 +40,8 @@ import zone.ien.hig.icons.outlined.ChevronUp
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.close
-import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.cmp_ui.generated.resources.next
 import zone.ien.utils.cmp_ui.generated.resources.previous
-import zone.ien.utils.icon.hig.Ellipsis
-import zone.ien.utils.icon.hig.HigIcons
 import zone.ien.utils.isIos
 import zone.ien.utils.ui.utils.advancedImePadding
 import zone.ien.utils.ui.utils.conditional
@@ -91,7 +81,7 @@ fun RootWrapper(
                         .layerBackdrop(backdrop)
                 )
                 AnimatedVisibility(
-                    visible = isKeyboardVisible && true,
+                    visible = isKeyboardVisible && isIos,
                     enter = fadeIn(tween(150)) + expandVertically(tween(150)),
                     exit = fadeOut(tween(150)) + shrinkVertically(tween(150))
                 ) {
