@@ -57,6 +57,7 @@ fun M3ProvideSectionStyle(
         content = {
             Spacer(modifier = Modifier.height(4.dp))
             content()
+            Spacer(modifier = Modifier.height(4.dp))
         }
     )
 }
