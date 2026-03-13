@@ -32,6 +32,7 @@ import zone.ien.utils.adaptive.section.AdaptiveSectionLink
 import zone.ien.utils.adaptive.section.AdaptiveSectionSwitchItem
 import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
 import zone.ien.utils.example.Android
+import zone.ien.utils.example.isIos
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.section.M3ProvideSectionStyle
 
@@ -44,7 +45,7 @@ fun SectionScreen(
     val backdrop = rememberDefaultBackdrop()
     val scrollState = rememberScrollState()
 
-    var isMaterialTheme by remember { mutableStateOf(false) }
+    var isMaterialTheme by remember { mutableStateOf(!isIos) }
     var checked by remember { mutableStateOf(false) }
 
     GeneratedAdaptiveTheme(
@@ -71,6 +72,7 @@ fun SectionScreen(
             ) {
                 title()
                 AdaptiveSection(
+                    title = { Text(text = "title") }
                 ) {
                     AdaptiveSectionItem(
                         leadingContent = {

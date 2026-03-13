@@ -21,6 +21,12 @@ import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.section.sectionBackground
 import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
 import zone.ien.utils.example.currentTheme
+import zone.ien.utils.example.isIos
+import zone.ien.utils.ui.section.lazy.empty
+import zone.ien.utils.ui.section.lazy.link
+import zone.ien.utils.ui.section.lazy.m3Section
+import zone.ien.utils.ui.section.lazy.switch
+import zone.ien.utils.ui.section.m3SectionBackground
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -31,7 +37,8 @@ fun LazySectionScreen(
     val backdrop = rememberDefaultBackdrop()
     val lazyListState = rememberLazyListState()
 //    val isMaterialTheme = currentTheme == Theme.Material3
-    var isMaterialTheme by remember { mutableStateOf(false) }
+    var isMaterialTheme by remember { mutableStateOf(!isIos) }
+    var enabled by remember { mutableStateOf(false) }
 
     GeneratedAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
@@ -59,15 +66,16 @@ fun LazySectionScreen(
                 state = lazyListState,
                 contentPadding = pv,
                 modifier = Modifier
-                    .sectionBackground(sectionStyle = SectionStyle.InsetGrouped)
+                    .m3SectionBackground()
+//                    .sectionBackground(sectionStyle = SectionStyle.InsetGrouped)
                     .fillMaxSize()
             ) {
                 item {
                     title()
                 }
-                /*
-                adaptiveSection(
-                    isMaterialTheme = isMaterialTheme,
+//                /*
+                m3Section(
+//                    isMaterialTheme = isMaterialTheme,
                     title = { Text(text = "title") }
                 ) {
                     empty {
@@ -84,8 +92,8 @@ fun LazySectionScreen(
                         supportingContent = { Text(text = "supporting") }
                     )
                 }
-
-                 */
+//
+//                 */
             }
         }
     }

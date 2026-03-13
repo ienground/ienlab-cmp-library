@@ -28,7 +28,6 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
@@ -75,13 +74,7 @@ fun SectionScope.M3SectionItem(
     leadingContent: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
-    colors: ListItemColors = ListItemDefaults.colors(
-        headlineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        leadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        supportingColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        overlineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        trailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-    ),
+    colors: M3SectionColors = M3SectionLinkDefault.colors(),
     title: @Composable () -> Unit
 ) {
     ListItem(
@@ -89,7 +82,7 @@ fun SectionScope.M3SectionItem(
         supportingContent = supportingContent,
         leadingContent = leadingContent,
         trailingContent = trailingContent,
-        colors = colors,
+        colors = colors.toListItemColors(enabled),
         modifier = Modifier
             .clip(RoundedCornerShape(4.dp))
             .then(modifier)
@@ -399,7 +392,7 @@ fun SectionScope.M3SectionLink(
         leadingContent = leadingIcon,
         trailingContent = trailingContent,
         supportingContent = caption,
-        colors = colors.toListItemColors(enabled)
+        colors = colors
     )
 }
 
