@@ -32,6 +32,7 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.compose.material3)
             implementation(libs.compose.resources)
+            implementation(libs.hig.core)
 
             implementation(project(":cmp-common"))
             implementation(project(":cmp-icon"))

@@ -3,8 +3,6 @@ package zone.ien.utils.adaptive.menu
 import androidx.compose.runtime.Composable
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
-import zone.ien.hig.adaptive.Theme
-import zone.ien.hig.adaptive.currentTheme
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.delete
@@ -12,7 +10,7 @@ import zone.ien.utils.cmp_ui.generated.resources.edit
 import zone.ien.utils.cmp_ui.generated.resources.save
 import zone.ien.utils.icon.material.MaterialIcons
 import zone.ien.utils.ui.menu.ActionMenuItem
-import zone.ien.utils.ui.menu.IconData
+import zone.ien.utils.icon.IconData
 
 @Composable
 fun adaptiveDeleteButton(
@@ -21,12 +19,12 @@ fun adaptiveDeleteButton(
     onClick: () -> Unit
 ) = ActionMenuItem.IconMenuItem.ShownIfRoom(
     title = stringResource(Res.string.delete),
-    icon = MaterialIcons.Delete.let { IconData.Paint(
+    icon = IconData.Paint(
         AdaptiveIcons.painter(
-            material = { it },
+            material = { MaterialIcons.Delete },
             cupertino = { "trash.fill" }
         )
-    ) },
+    ),
     onClick = onClick,
     visible = visible,
     enabled = enabled
@@ -40,12 +38,12 @@ fun adaptiveSaveButton(
     onClick: () -> Unit
 ) =  ActionMenuItem.IconMenuItem.ShownIfRoom(
     title = stringResource(Res.string.save),
-    icon = MaterialIcons.Save.let { IconData.Paint(
+    icon = IconData.Paint(
         AdaptiveIcons.painter(
-            material = { it },
+            material = { MaterialIcons.Save },
             cupertino = { "checkmark" }
         )
-    ) },
+    ),
     onClick = onClick,
     visible = visible,
     enabled = enabled
@@ -58,12 +56,12 @@ fun adaptiveEditButton(
     onClick: () -> Unit
 ) = ActionMenuItem.IconMenuItem.ShownIfRoom(
     title = stringResource(Res.string.edit),
-    icon = MaterialIcons.Edit.let { IconData.Paint(
+    icon = IconData.Paint(
         AdaptiveIcons.painter(
-            material = { it },
+            material = { MaterialIcons.Edit },
             cupertino = { "pencil" }
         )
-    ) },
+    ),
     onClick = onClick,
     visible = visible,
     enabled = enabled

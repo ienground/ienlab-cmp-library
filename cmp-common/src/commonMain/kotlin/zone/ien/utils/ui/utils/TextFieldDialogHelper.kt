@@ -5,6 +5,7 @@ import androidx.compose.ui.text.input.KeyboardType
 
 data class TextFieldDialogData(
     val initialValue: String = "",
+    val onValueChange: (String) -> String? = { it },
     val valid: (String) -> Boolean = { true },
     val placeholder: String = "",
     val prefix: String? = null,

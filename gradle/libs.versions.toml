@@ -4,7 +4,7 @@ kotlin = "2.3.10"
 android-minSdk = "29"
 android-compileSdk = "36"
 android-targetSdk = "36"
-lib-version-name = "0.1.4"
+lib-version-name = "0.1.5"
 
 # pluginπ
 compose-plugin = "1.10.2"
@@ -21,7 +21,7 @@ activity-compose = "1.12.4"
 lifecycle = "2.10.0-alpha08"
 backdrop = "2.0.0-alpha04+dev1"
 haze = "1.7.2"
-hig = "0.1.1-alpha07"
+hig = "0.1.1-alpha14"
 capsule = "1.2.0"
 
 # functionality
@@ -33,6 +33,7 @@ kotlinx-io-core = "0.9.0"
 # backend
 vanniktechMavenPublish = "0.36.0"
 datastore = "1.2.0"
+koin = "4.2.0-RC1"
 
 # test
 runner = "1.7.0"
@@ -78,6 +79,11 @@ androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "and
 
 # backend
 datastore-pref = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+koin-compose = { group = "io.insert-koin", name = "koin-compose", version.ref = "koin" }
+koin-compose-nav3 = { group = "io.insert-koin", name = "koin-compose-navigation3", version.ref = "koin" }
+koin-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel", version.ref = "koin" }
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
 
 # test
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -87,6 +93,7 @@ junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
 
 [bundles]
 hig = ["hig-core", "hig", "hig-adaptive", "hig-icons"]
+koin = ["koin-compose", "koin-core", "koin-viewmodel", "koin-compose-nav3"]
 
 [plugins]
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
@@ -95,5 +102,6 @@ android-library = { id = "com.android.library" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
 vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktechMavenPublish" }
 android-lint = { id = "com.android.lint", version.ref = "agp" }

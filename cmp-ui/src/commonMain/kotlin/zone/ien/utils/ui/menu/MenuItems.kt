@@ -28,7 +28,9 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
+import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.view.M3TooltipBox
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,26 +77,13 @@ fun M3ActionsMenu(
                                 targetState = item.icon,
                                 label = "menu_icon"
                             ) {
-                                when (icon) {
-                                    is IconData.Vector -> {
-                                        Icon(
-                                            imageVector = icon.imageVector,
-                                            contentDescription = item.title,
-                                            modifier = Modifier
-                                                .alpha(alpha)
-                                                .size(LocalMenuIconButtonSize.current.first - 16.dp)
-                                        )
-                                    }
-                                    is IconData.Paint -> {
-                                        Icon(
-                                            painter = icon.painter,
-                                            contentDescription = item.title,
-                                            modifier = Modifier
-                                                .alpha(alpha)
-                                                .size(LocalMenuIconButtonSize.current.first - 16.dp)
-                                        )
-                                    }
-                                }
+                                ComplexIcon(
+                                    icon = icon,
+                                    contentDescription = item.title,
+                                    modifier = Modifier
+                                        .alpha(alpha)
+                                        .size(LocalMenuIconButtonSize.current.first - 16.dp)
+                                )
                             }
                         }
                     }

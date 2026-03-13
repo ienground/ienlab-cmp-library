@@ -32,6 +32,7 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.compose.material3)
             implementation(libs.kdatetime)
+            implementation(libs.hig.icons)
         }
 
         commonTest.dependencies {
