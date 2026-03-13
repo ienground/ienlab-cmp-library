@@ -108,13 +108,18 @@ fun HomeScreen(
                         .fillMaxWidth()
                         .height(400.dp)
                         .background(Color.Blue)
-                )
+                ) {
+                    Text(text = "Settings")
+                }
                 Box(
                     modifier = Modifier
+                        .clickable { backStack.add(RootRoute.LazySection) }
                         .fillMaxWidth()
                         .height(400.dp)
                         .background(Color.Green)
-                )
+                ) {
+                    Text(text = "Lazy")
+                }
             }
         }
     }
