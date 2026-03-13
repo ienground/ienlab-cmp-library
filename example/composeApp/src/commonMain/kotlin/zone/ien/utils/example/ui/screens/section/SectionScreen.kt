@@ -49,9 +49,120 @@ fun SectionScreen(
         AdaptiveTopAppBarScaffold(
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
             title = { Text(text = "Title") },
-            adaptation = { cupertino { this.backdrop = backdrop } },
+            adaptation = {
+                cupertino {
+                    this.backdrop = backdrop
+                    this.showNavTitle = true
+                }
+            },
             modifier = modifier
         ) { pv, title ->
+            AdaptiveProvideSectionStyle(
+                style = SectionStyle.InsetGrouped,
+                scrollState = null,
+                fullHeight = true,
+                //                scrollState = scrollState,
+                backdrop = backdrop,
+                modifier = Modifier
+                    .padding(pv)
+            ) {
+                title()
+                AdaptiveSection(
+//                    title = { Text(text = "Title") }
+                ) {
+                    AdaptiveSectionItem {
+                        Text(text = "Section1")
+                    }
+                    AdaptiveSectionItem {
+                        Text(text = "Section2")
+                    }
+                    AdaptiveSectionLink(
+                        onClick = {}
+                    ) {
+                        Text(text = "Section3")
+                    }
+                    AdaptiveSectionItem {
+                        Text(text = "Section4")
+                    }
+                    AdaptiveSectionSwitchItem(
+                        title = { Text(text = "Check") },
+                        checked = isMaterialTheme,
+                        onCheckedChange = { isMaterialTheme = it }
+                    )
+                }
+                AdaptiveSection(
+//                    title = { Text(text = "Title") }
+                ) {
+                    AdaptiveSectionItem {
+                        Text(text = "Section4")
+                    }
+                    AdaptiveSectionSwitchItem(
+                        title = { Text(text = "Check") },
+                        checked = isMaterialTheme,
+                        onCheckedChange = { isMaterialTheme = it }
+                    )
+                }
+                AdaptiveSection(
+                    title = { Text(text = "Title") }
+                ) {
+                    AdaptiveSectionItem {
+                        Text(text = "Section4")
+                    }
+                    AdaptiveSectionSwitchItem(
+                        title = { Text(text = "Check") },
+                        checked = isMaterialTheme,
+                        onCheckedChange = { isMaterialTheme = it }
+                    )
+                }
+                /*
+                AdaptiveSection(
+                    title = { Text(text = "Section Title") },
+                    caption = { Text(text = "Section Caption") }
+                ){
+                    AdaptiveSectionItem {
+                        Text(text = "Section1")
+                    }
+                    AdaptiveSectionItem {
+                        Text(text = "Section2")
+                    }
+                    AdaptiveSectionItem {
+                        Text(text = "Section3")
+                    }
+                    AdaptiveSectionItem {
+                        Text(text = "Section4")
+                    }
+                    AdaptiveSectionSwitchItem(
+                        title = { Text(text = "Check") },
+                        checked = checked,
+                        onCheckedChange = { checked = it }
+                    )
+                }
+                AdaptiveSection(
+                    title = { Text(text = "Section Title") },
+                    caption = { Text(text = "Section Caption") }
+                ){
+                    AdaptiveSectionItem {
+                        Text(text = "Section1")
+                    }
+                    AdaptiveSectionItem {
+                        Text(text = "Section2")
+                    }
+                    AdaptiveSectionItem {
+                        Text(text = "Section3")
+                    }
+                    AdaptiveSectionItem {
+                        Text(text = "Section4")
+                    }
+                    AdaptiveSectionSwitchItem(
+                        title = { Text(text = "Check") },
+                        checked = checked,
+                        onCheckedChange = { checked = it }
+                    )
+                }
+
+                 */
+            }
+            /*
             Column(
                 modifier = Modifier
                     .layerBackdrop(backdrop)
@@ -67,82 +178,82 @@ fun SectionScreen(
                 )
 //                M3ProvideSectionStyle(
                 AdaptiveProvideSectionStyle(
-                style = SectionStyle.InsetGrouped,
-                scrollState = null,
-                fullHeight = true,
-//                scrollState = scrollState,
-                    modifier = Modifier
+                    style = SectionStyle.InsetGrouped,
+                    scrollState = null,
+                    fullHeight = true,
+    //                scrollState = scrollState,
+                        modifier = Modifier
                 ) {
-                    title()
-                    AdaptiveSection {
-                        AdaptiveSectionItem {
-                            Text(text = "Section1")
+                        title()
+                        AdaptiveSection {
+                            AdaptiveSectionItem {
+                                Text(text = "Section1")
+                            }
+                            AdaptiveSectionItem {
+                                Text(text = "Section2")
+                            }
+                            AdaptiveSectionLink(
+                                onClick = {}
+                            ) {
+                                Text(text = "Section3")
+                            }
+                            AdaptiveSectionItem {
+                                Text(text = "Section4")
+                            }
+                            AdaptiveSectionSwitchItem(
+                                title = { Text(text = "Check") },
+                                checked = isMaterialTheme,
+                                onCheckedChange = { isMaterialTheme = it }
+                            )
                         }
-                        AdaptiveSectionItem {
-                            Text(text = "Section2")
+                        /*
+                        AdaptiveSection(
+                            title = { Text(text = "Section Title") },
+                            caption = { Text(text = "Section Caption") }
+                        ){
+                            AdaptiveSectionItem {
+                                Text(text = "Section1")
+                            }
+                            AdaptiveSectionItem {
+                                Text(text = "Section2")
+                            }
+                            AdaptiveSectionItem {
+                                Text(text = "Section3")
+                            }
+                            AdaptiveSectionItem {
+                                Text(text = "Section4")
+                            }
+                            AdaptiveSectionSwitchItem(
+                                title = { Text(text = "Check") },
+                                checked = checked,
+                                onCheckedChange = { checked = it }
+                            )
                         }
-                        AdaptiveSectionLink(
-                            onClick = {}
-                        ) {
-                            Text(text = "Section3")
+                        AdaptiveSection(
+                            title = { Text(text = "Section Title") },
+                            caption = { Text(text = "Section Caption") }
+                        ){
+                            AdaptiveSectionItem {
+                                Text(text = "Section1")
+                            }
+                            AdaptiveSectionItem {
+                                Text(text = "Section2")
+                            }
+                            AdaptiveSectionItem {
+                                Text(text = "Section3")
+                            }
+                            AdaptiveSectionItem {
+                                Text(text = "Section4")
+                            }
+                            AdaptiveSectionSwitchItem(
+                                title = { Text(text = "Check") },
+                                checked = checked,
+                                onCheckedChange = { checked = it }
+                            )
                         }
-                        AdaptiveSectionItem {
-                            Text(text = "Section4")
-                        }
-                        AdaptiveSectionSwitchItem(
-                            title = { Text(text = "Check") },
-                            checked = isMaterialTheme,
-                            onCheckedChange = { isMaterialTheme = it }
-                        )
-                    }
-                    /*
-                    AdaptiveSection(
-                        title = { Text(text = "Section Title") },
-                        caption = { Text(text = "Section Caption") }
-                    ){
-                        AdaptiveSectionItem {
-                            Text(text = "Section1")
-                        }
-                        AdaptiveSectionItem {
-                            Text(text = "Section2")
-                        }
-                        AdaptiveSectionItem {
-                            Text(text = "Section3")
-                        }
-                        AdaptiveSectionItem {
-                            Text(text = "Section4")
-                        }
-                        AdaptiveSectionSwitchItem(
-                            title = { Text(text = "Check") },
-                            checked = checked,
-                            onCheckedChange = { checked = it }
-                        )
-                    }
-                    AdaptiveSection(
-                        title = { Text(text = "Section Title") },
-                        caption = { Text(text = "Section Caption") }
-                    ){
-                        AdaptiveSectionItem {
-                            Text(text = "Section1")
-                        }
-                        AdaptiveSectionItem {
-                            Text(text = "Section2")
-                        }
-                        AdaptiveSectionItem {
-                            Text(text = "Section3")
-                        }
-                        AdaptiveSectionItem {
-                            Text(text = "Section4")
-                        }
-                        AdaptiveSectionSwitchItem(
-                            title = { Text(text = "Check") },
-                            checked = checked,
-                            onCheckedChange = { checked = it }
-                        )
-                    }
 
-                     */
-                }
+                         */
+                    }
                 Text(
                     text = "Hello World",
                     modifier = Modifier
@@ -151,6 +262,8 @@ fun SectionScreen(
                         .background(Color.Red)
                 )
             }
+
+             */
         }
     }
 }

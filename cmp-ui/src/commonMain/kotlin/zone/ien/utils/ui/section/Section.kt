@@ -55,7 +55,7 @@ fun M3ProvideSectionStyle(
             .then(modifier)
         ,
         content = {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             content()
         }
     )
@@ -77,7 +77,7 @@ fun M3Section(
             title?.let {
                 Box(
                     modifier = Modifier
-                        .padding(top = 16.dp, bottom = 8.dp)
+                        .padding(bottom = 8.dp)
                         .padding(horizontal = 22.dp),
                 ) { it() }
             }
