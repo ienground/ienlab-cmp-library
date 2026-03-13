@@ -65,14 +65,12 @@ fun SectionScreen(
                 style = SectionStyle.InsetGrouped,
                 scrollState = null,
                 fullHeight = true,
-//                scrollState = scrollState,
                 backdrop = backdrop,
                 modifier = Modifier
                     .padding(pv)
             ) {
                 title()
                 AdaptiveSection(
-//                    title = { Text(text = "Title") }
                 ) {
                     AdaptiveSectionItem(
                         leadingContent = {
