@@ -19,7 +19,7 @@ internal fun SectionTitle(
     ) {
         Box(
             modifier = modifier
-                .padding(top = 4.dp, bottom = 8.dp)
+                .padding(bottom = 8.dp)
                 .padding(horizontal = 22.dp),
         ) { content(PaddingValues(0.dp)) }
     }

@@ -2,6 +2,7 @@ package zone.ien.utils.example.ui.screens.settings
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -27,6 +28,7 @@ import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
 import zone.ien.utils.example.di.KoinKey.DEFAULT_DATASTORE
+import zone.ien.utils.example.isIos
 import zone.ien.utils.icon.material.MaterialIcons
 import zone.ien.utils.icon.material.rounded.Delete
 import zone.ien.utils.pref.PrefsGroup
@@ -43,7 +45,7 @@ fun SettingsScreen(
 ) {
     val backdrop = rememberDefaultBackdrop()
     val dataStore: DataStore<Preferences> = koinInject(named(DEFAULT_DATASTORE))
-    var isMaterialTheme by remember { mutableStateOf(false) }
+    var isMaterialTheme by remember { mutableStateOf(!isIos) }
 
     GeneratedAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
@@ -61,6 +63,7 @@ fun SettingsScreen(
             PrefsScreen(
                 dataStore = dataStore,
                 title = title,
+                scrollState = rememberScrollState(),
                 backdrop = backdrop,
                 modifier = Modifier.padding(pv)
             ) {
@@ -91,6 +94,10 @@ fun SettingsScreen(
                             }
                         }
                     )
+                }
+                PrefsGroup(
+                    title = { Text(text = "Pref Group") }
+                ) {
                     TextPref(
                         title = "Title OnClick",
                         summary = "summary!!",
@@ -108,7 +115,12 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     TextFieldPref(
-                        leadingIcon = { Icon(imageVector = MaterialIcons.Rounded.Delete, contentDescription = null) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = MaterialIcons.Rounded.Delete,
+                                contentDescription = null
+                            )
+                        },
                         title = "Title OnClick",
                         summary = { "내 숫자는 ${it}" },
                         enabled = Pair(booleanPreferencesKey("test"), true),
@@ -116,7 +128,12 @@ fun SettingsScreen(
                         defaultValue = "!hi"
                     )
                     TextFieldPref(
-                        leadingIcon = { Icon(imageVector = MaterialIcons.Rounded.Delete, contentDescription = null) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = MaterialIcons.Rounded.Delete,
+                                contentDescription = null
+                            )
+                        },
                         title = "Title OnClick",
                         summary = { "내 숫자는 ${it}" },
                         key = intPreferencesKey("real_num"),
@@ -124,7 +141,12 @@ fun SettingsScreen(
                         defaultValue = 1254
                     )
                     TextFieldPref(
-                        leadingIcon = { Icon(imageVector = MaterialIcons.Rounded.Delete, contentDescription = null) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = MaterialIcons.Rounded.Delete,
+                                contentDescription = null
+                            )
+                        },
                         title = "Title OnClick",
                         summary = { "내 숫자는 ${it}" },
                         key = intPreferencesKey("real_num"),
@@ -132,13 +154,22 @@ fun SettingsScreen(
                         defaultValue = 1254
                     )
                     TextFieldPref(
-                        leadingIcon = { Icon(imageVector = MaterialIcons.Rounded.Delete, contentDescription = null) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = MaterialIcons.Rounded.Delete,
+                                contentDescription = null
+                            )
+                        },
                         title = "Title OnClick",
                         summary = { "내 숫자는 ${it}" },
                         key = intPreferencesKey("real_num"),
                         enabled = Pair(booleanPreferencesKey("test"), true),
                         defaultValue = 1254
                     )
+                }
+                PrefsGroup(
+                    title = { Text(text = "Pref Group") }
+                ) {
                     TextFieldPref(
                         leadingIcon = { Icon(imageVector = MaterialIcons.Rounded.Delete, contentDescription = null) },
                         title = "Title OnClick",

@@ -99,6 +99,7 @@ fun SectionScope.AdaptiveSectionItem(
                 leadingContent = leadingContent,
                 trailingContent = trailingContent,
                 supportingContent = supportingContent,
+                colors = it.colors,
                 title = title
             )
         },
@@ -129,11 +130,15 @@ fun SectionScope.AdaptiveSectionItem(
     )
 }
 
-class M3SectionItemAdaptation internal constructor()
+class M3SectionItemAdaptation internal constructor(
+    colors: M3SectionColors
+) {
+    var colors by mutableStateOf(colors)
+}
 class HigSectionItemAdaptation internal constructor(
     showLeadingContent: Boolean = false,
     showSupportingContent: Boolean = false,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
 ) {
     var showLeadingContent by mutableStateOf(showLeadingContent)
     var showSupportingContent by mutableStateOf(showSupportingContent)
@@ -151,14 +156,17 @@ internal class SectionItemAdaptation: Adaptation<HigSectionItemAdaptation, M3Sec
             HigSectionItemAdaptation(
                 showLeadingContent = showLeadingContent,
                 showSupportingContent = showSupportingContent,
-                paddingValues = paddingValues
+                paddingValues = paddingValues,
             )
         }
     }
 
     @Composable
     override fun rememberMaterialAdaptation(): M3SectionItemAdaptation {
-        return remember { M3SectionItemAdaptation() }
+        val colors = M3SectionLinkDefault.colors()
+        return remember(colors) {
+            M3SectionItemAdaptation(colors = colors)
+        }
     }
 }
 

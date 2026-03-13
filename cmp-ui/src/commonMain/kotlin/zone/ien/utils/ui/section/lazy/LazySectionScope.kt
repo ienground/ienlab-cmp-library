@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
@@ -20,18 +19,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-
-object M3SectionDefaults {
-    val PaddingValues = PaddingValues(horizontal = 18.dp, vertical = 8.dp)
-
-    val DividerPadding = 18.dp
-}
+import zone.ien.utils.ui.section.M3SectionColors
+import zone.ien.utils.ui.section.M3SectionLinkDefault
 
 sealed interface LazySectionScope {
     fun item(
         key: Any? = null,
         contentType: Any? = null,
-        dividerPadding: Dp = M3SectionDefaults.DividerPadding,
+        dividerPadding: Dp = 0.dp,
         content: @Composable (padding: PaddingValues) -> Unit,
     )
 }
@@ -41,7 +36,7 @@ fun LazySectionScope.link(
     key: Any? = null,
     enabled: Boolean = true,
     leadingContent: (@Composable () -> Unit)? = null,
-    dividerPadding: Dp = M3SectionDefaults.DividerPadding,
+    dividerPadding: Dp = 0.dp,
     onClickLabel: String? = null,
     interactionSource: MutableInteractionSource? = null,
     supportingContent: @Composable () -> Unit = {},
@@ -66,8 +61,7 @@ fun LazySectionScope.switch(
     modifier: Modifier = Modifier,
     key: Any? = null,
     enabled: Boolean = true,
-    leadingContent: @Composable (() -> Unit)? = null,
-    dividerPadding: Dp = M3SectionDefaults.DividerPadding,
+    dividerPadding: Dp = 0.dp,
     interactionSource: MutableInteractionSource? = null,
     thumbContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
@@ -76,11 +70,11 @@ fun LazySectionScope.switch(
     key = key,
     contentType = ContentTypeToggle,
     dividerPadding = dividerPadding,
-    modifier = { modifier },
-    enabled = enabled,
-    leadingContent = leadingContent,
+    title = title,
+    supportingContent = supportingContent,
     trailingContent = {
         Switch(
+            modifier = modifier,
             enabled = enabled,
             checked = checked,
             thumbContent = thumbContent,
@@ -88,8 +82,6 @@ fun LazySectionScope.switch(
             interactionSource = interactionSource ?: remember { MutableInteractionSource() },
         )
     },
-    supportingContent = supportingContent,
-    title = title,
 )
 
 fun LazySectionScope.empty(
@@ -100,7 +92,7 @@ fun LazySectionScope.empty(
     item(
         key = key,
         contentType = ContentTypeEmpty,
-        dividerPadding = M3SectionDefaults.DividerPadding,
+        dividerPadding = 0.dp,
     ) {
         Box(
             modifier = Modifier
@@ -119,7 +111,7 @@ inline fun <T> LazySectionScope.items(
     items: Collection<T>,
     key: (T) -> Any? = { null },
     contentType: (T) -> Any? = { null },
-    dividerPadding: Dp = M3SectionDefaults.DividerPadding,
+    dividerPadding: Dp = 0.dp,
     crossinline content: @Composable (item: T, padding: PaddingValues) -> Unit,
 ) = items.forEach {
     item(
@@ -136,7 +128,7 @@ private fun LazySectionScope.labelWithCustomChevron(
     key: Any? = null,
     enabled: Boolean = true,
     leadingContent: @Composable (() -> Unit)? = null,
-    dividerPadding: Dp = M3SectionDefaults.DividerPadding,
+    dividerPadding: Dp = 0.dp,
     onClickLabel: String? = null,
     interactionSource: MutableInteractionSource? = null,
     trailingContent: @Composable () -> Unit,
@@ -164,7 +156,6 @@ private fun LazySectionScope.labelWithCustomChevron(
     title = title,
 )
 
-
 private fun LazySectionScope.row(
     key: Any?,
     contentType: Any?,
@@ -174,6 +165,7 @@ private fun LazySectionScope.row(
     leadingContent: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
+    colors: @Composable () -> M3SectionColors = { M3SectionLinkDefault.colors() },
     title: @Composable () -> Unit,
 ) = item(
     key = key,
@@ -185,13 +177,7 @@ private fun LazySectionScope.row(
         supportingContent = supportingContent,
         leadingContent = leadingContent,
         trailingContent = trailingContent,
-        colors = ListItemDefaults.colors(
-            headlineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-            leadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-            supportingColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-            overlineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-            trailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.35f),
-        ),
+        colors = colors().toListItemColors(enabled),
         modifier = Modifier
             .clip(RoundedCornerShape(4.dp))
             .then(modifier())
