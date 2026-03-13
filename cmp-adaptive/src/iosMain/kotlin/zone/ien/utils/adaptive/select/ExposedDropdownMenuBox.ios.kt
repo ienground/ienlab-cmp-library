@@ -276,8 +276,6 @@ actual fun <T> ExposedDropdownMenuBox(
         }
     }
 
-    println("currentItems: ${currentItems.joinToString(",")}")
-
     textField(currentItems.map { itemsWithLabels[it] }.joinToString(", ")) {
         trailingIconButton({ expanded = !expanded }, expanded)
     }

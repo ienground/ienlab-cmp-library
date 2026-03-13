@@ -1,8 +1,11 @@
 package zone.ien.utils.example.ui.screens.settings
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -99,6 +102,10 @@ fun SettingsScreen(
                                 showSupportingContent = false
                             }
                         }
+                    )
+                    TextField(
+                        state = rememberTextFieldState(),
+                        modifier = Modifier.fillMaxWidth()
                     )
                     TextFieldPref(
                         leadingIcon = { Icon(imageVector = MaterialIcons.Rounded.Delete, contentDescription = null) },

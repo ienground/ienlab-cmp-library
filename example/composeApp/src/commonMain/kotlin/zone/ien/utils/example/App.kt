@@ -38,7 +38,8 @@ fun App() {
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino,
     ) {
         RootWrapper(
-            showKeyboardDirection = false
+            showKeyboardDirection = false,
+            enableImePadding = true
         ) {
             RootNavigationGraph(
                 modifier = it,

@@ -177,36 +177,15 @@ fun SectionScope.TextFieldPref(
         }
     )
 
-//    AlertDialog(
-//        visible = showDialog,
-//        isIosSheetDialog = false,
-//        icon = leadingIcon,
-//        title = title,
-//        content = {
-//            ProvideTextStyle(
-//                value = LocalTextStyle.current.copy(textAlign = TextAlign.Start)
-//            ) {
-//                AdaptiveTextField(
-//                    value = textValue,
-//                    onValueChange = { if (!onlyDecimal || it.checkDecimal()) textValue = it },
-//                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-//                )
-//            }
-//        },
-//        onCancel = { showDialog = false },
-//        onConfirm = {
-//            edit()
-//            showDialog = false
-//        }
-//    )
-
     TextFieldDialog(
         visible = showDialog,
         icon = leadingIcon,
         title = title,
         textFields = mapOf(
             "value" to TextFieldDialogData(
-                keyboardType = KeyboardType.Decimal
+                keyboardType = KeyboardType.Decimal,
+                initialValue = textValue,
+                onValueChange = { it.takeIf { !onlyDecimal || it.checkDecimal() }  }
             )
         ),
         onDismiss = { showDialog = false },

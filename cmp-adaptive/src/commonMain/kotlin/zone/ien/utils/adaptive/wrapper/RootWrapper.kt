@@ -17,12 +17,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
 import org.jetbrains.compose.resources.stringResource
@@ -43,6 +49,8 @@ import zone.ien.utils.cmp_ui.generated.resources.close
 import zone.ien.utils.cmp_ui.generated.resources.next
 import zone.ien.utils.cmp_ui.generated.resources.previous
 import zone.ien.utils.isIos
+import zone.ien.utils.ui.screen.LocalEnableImePadding
+import zone.ien.utils.ui.screen.LocalSetEnableImePadding
 import zone.ien.utils.ui.utils.advancedImePadding
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.ui.utils.dragToKeyboardClose
@@ -61,104 +69,114 @@ fun RootWrapper(
     val keyboardManager = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val backdrop = rememberDefaultBackdrop()
+    var localEnableImePadding by remember { mutableStateOf(enableImePadding) }
 
-    AdaptiveScaffold(
-        contentWindowInsets = WindowInsets(0.dp),
-        modifier = modifier
+    CompositionLocalProvider(
+        LocalEnableImePadding provides localEnableImePadding,
+        LocalSetEnableImePadding provides { localEnableImePadding = it }
     ) {
-        Box(
-            modifier = Modifier
-                .conditional(enableImePadding) { advancedImePadding(isIos) }
-                .dragToKeyboardClose(isKeyboardVisible)
-                .padding(it)
+
+        AdaptiveScaffold(
+            contentWindowInsets = WindowInsets(0.dp),
+            modifier = modifier
         ) {
             Box(
-                contentAlignment = Alignment.BottomCenter,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .conditional(localEnableImePadding) { advancedImePadding(isIos) }
+                    .dragToKeyboardClose(isKeyboardVisible)
+                    .padding(it)
             ) {
-                content(
-                    Modifier
-                        .layerBackdrop(backdrop)
-                )
-                AnimatedVisibility(
-                    visible = isKeyboardVisible && isIos,
-                    enter = fadeIn(tween(150)) + expandVertically(tween(150)),
-                    exit = fadeOut(tween(150)) + shrinkVertically(tween(150))
+                Box(
+                    contentAlignment = Alignment.BottomCenter,
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(horizontal = 4.dp, vertical = 8.dp)
-                            .fillMaxWidth()
+                    content(
+                        Modifier
+                            .layerBackdrop(backdrop)
+                    )
+                    AnimatedVisibility(
+                        visible = isKeyboardVisible && isIos,
+                        enter = fadeIn(tween(150)) + expandVertically(tween(150)),
+                        exit = fadeOut(tween(150)) + shrinkVertically(tween(150))
                     ) {
-                        if (showKeyboardDirection) {
-                            CupertinoLiquidButton(
-                                backdrop = backdrop,
-                                onClick = {},
-                                isInteractive = false,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Box(
-                                    modifier = Modifier.clickable(
-                                        onClick = { focusManager.moveFocus(FocusDirection.Previous) },
-                                        indication = null,
-                                        interactionSource = null
-                                    )
+                        Row(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .fillMaxWidth()
+                        ) {
+                            if (showKeyboardDirection) {
+                                CupertinoLiquidButton(
+                                    backdrop = backdrop,
+                                    onClick = {},
+                                    isInteractive = false,
+                                    modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    CupertinoIcon(
-                                        painter = AdaptiveIcons.painter(
-                                            material = { CupertinoIcons.Default.ChevronUp },
-                                            cupertino = { "chevron_up" }
-                                        ),
-                                        contentDescription = stringResource(Res.string.previous)
-                                    )
+                                    Box(
+                                        modifier = Modifier.clickable(
+                                            onClick = { focusManager.moveFocus(FocusDirection.Previous) },
+                                            indication = null,
+                                            interactionSource = null
+                                        )
+                                    ) {
+                                        CupertinoIcon(
+                                            painter = AdaptiveIcons.painter(
+                                                material = { CupertinoIcons.Default.ChevronUp },
+                                                cupertino = { "chevron_up" }
+                                            ),
+                                            contentDescription = stringResource(Res.string.previous)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Box(
+                                        modifier = Modifier.clickable(
+                                            onClick = { focusManager.moveFocus(FocusDirection.Next) },
+                                            indication = null,
+                                            interactionSource = null
+                                        )
+                                    ) {
+                                        CupertinoIcon(
+                                            painter = AdaptiveIcons.painter(
+                                                material = { CupertinoIcons.Default.ChevronDown },
+                                                cupertino = { "chevron_down" }
+                                            ),
+                                            contentDescription = stringResource(Res.string.next)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Box(
+                                        modifier = Modifier.clickable(
+                                            onClick = { keyboardManager?.hide() },
+                                            indication = null,
+                                            interactionSource = null
+                                        )
+                                    ) {
+                                        Text(text = stringResource(Res.string.close))
+                                    }
                                 }
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Box(
-                                    modifier = Modifier.clickable(
-                                        onClick = { focusManager.moveFocus(FocusDirection.Next) },
-                                        indication = null,
-                                        interactionSource = null
-                                    )
-                                ) {
-                                    CupertinoIcon(
-                                        painter = AdaptiveIcons.painter(
-                                            material = { CupertinoIcons.Default.ChevronDown },
-                                            cupertino = { "chevron_down" }
-                                        ),
-                                        contentDescription = stringResource(Res.string.next)
-                                    )
-                                }
+                            } else {
                                 Spacer(modifier = Modifier.weight(1f))
-                                Box(
-                                    modifier = Modifier.clickable(
-                                        onClick = { keyboardManager?.hide() },
-                                        indication = null,
-                                        interactionSource = null
-                                    )
+                                CupertinoLiquidButton(
+                                    backdrop = backdrop,
+                                    colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+                                    onClick = { keyboardManager?.hide() }
                                 ) {
-                                    Text(text = stringResource(Res.string.close))
+                                    Text(
+                                        text = stringResource(Res.string.close),
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
-                            }
-                        } else {
-                            Spacer(modifier = Modifier.weight(1f))
-                            CupertinoLiquidButton(
-                                backdrop = backdrop,
-                                colors = CupertinoLiquidButtonDefaults.glassButtonColors(),
-                                onClick = { keyboardManager?.hide() }
-                            ) {
-                                Text(text = stringResource(Res.string.close))
                             }
                         }
                     }
                 }
-            }
 
-            AdaptiveWidget(
-                material = {},
-                cupertino = {
-                    notification()
-                }
-            )
+                AdaptiveWidget(
+                    material = {},
+                    cupertino = {
+                        notification()
+                    }
+                )
+            }
         }
     }
 }
