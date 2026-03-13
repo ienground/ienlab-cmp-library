@@ -2,6 +2,7 @@ package zone.ien.utils.adaptive.section
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +15,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.shapes.RoundedRectangle
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.AdaptiveWidget
@@ -29,6 +33,7 @@ import zone.ien.hig.section.SectionState
 import zone.ien.hig.section.SectionStyle
 import zone.ien.hig.section.rememberSectionState
 import zone.ien.hig.section.sectionContainerBackground
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.ui.section.M3ProvideSectionStyle
 import zone.ien.utils.ui.section.M3Section
 import zone.ien.utils.ui.section.m3SectionBackground
@@ -50,8 +55,9 @@ fun AdaptiveProvideSectionStyle(
     style: SectionStyle,
     modifier: Modifier = Modifier,
     fullHeight: Boolean = true,
-    scrollable: Boolean = true,
+    scrollState: ScrollState? = null,
     shape: Shape = RectangleShape,
+    backdrop: LayerBackdrop = rememberDefaultBackdrop(),
     content: @Composable ColumnScope.() -> Unit
 ) {
     AdaptiveWidget(
@@ -59,7 +65,7 @@ fun AdaptiveProvideSectionStyle(
             M3ProvideSectionStyle(
                 modifier = modifier,
                 fullHeight = fullHeight,
-                scrollable = scrollable,
+                scrollState = scrollState,
                 shape = shape,
                 content = content
             )
@@ -68,13 +74,14 @@ fun AdaptiveProvideSectionStyle(
             ProvideSectionStyle(
                 style = style,
             ) {
-                val scrollState = rememberScrollState()
                 Column(
-                    modifier = modifier
+                    modifier = Modifier
+                        .layerBackdrop(backdrop)
                         .conditional(fullHeight) { fillMaxHeight() }
-                        .conditional(scrollable) { verticalScroll(scrollState) }
+                        .conditional(scrollState != null) { scrollState?.let { this.verticalScroll(it) } ?: this }
                         .clip(shape)
                         .sectionBackground(style)
+                        .then(modifier)
                     ,
                     content = content
                 )

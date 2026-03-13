@@ -1,4 +1,4 @@
-package zone.ien.utils.icon
+package zone.ien.utils.pref
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

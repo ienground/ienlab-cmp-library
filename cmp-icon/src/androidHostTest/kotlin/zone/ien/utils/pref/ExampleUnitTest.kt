@@ -1,4 +1,4 @@
-package zone.ien.utils.icon
+package zone.ien.utils.pref
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

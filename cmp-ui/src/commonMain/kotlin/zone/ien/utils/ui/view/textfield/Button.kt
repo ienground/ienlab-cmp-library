@@ -24,11 +24,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import zone.ien.utils.icon.ComplexIcon
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.MaterialIcons
-import zone.ien.utils.ui.utils.IconData
 
 @Composable
 fun M3TextFieldIconButton(
@@ -70,20 +70,10 @@ fun M3TextFieldIconButton(
                 exit = fadeOut(tween(700))
             ) {
                 CompositionLocalProvider(LocalContentColor provides contentColor) {
-                    when (icon) {
-                        is IconData.Vector -> {
-                            Icon(
-                                imageVector = icon.imageVector,
-                                contentDescription = contentDescription
-                            )
-                        }
-                        is IconData.Paint -> {
-                            Icon(
-                                painter = icon.painter,
-                                contentDescription = contentDescription
-                            )
-                        }
-                    }
+                    ComplexIcon(
+                        icon = icon,
+                        contentDescription = contentDescription
+                    )
                 }
             }
             AnimatedVisibility(

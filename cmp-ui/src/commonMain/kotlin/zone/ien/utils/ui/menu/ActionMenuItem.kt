@@ -1,8 +1,6 @@
 package zone.ien.utils.ui.menu
 
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
-import zone.ien.utils.ui.utils.IconData
+import zone.ien.utils.icon.IconData
 
 sealed interface ActionMenuItem {
     val title: String

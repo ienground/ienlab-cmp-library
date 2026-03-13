@@ -7,12 +7,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
-import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoLiquidIconButton
-import zone.ien.hig.CupertinoNavigateBackButton
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.utils.icon.ComplexIcon
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.LocalBackButtonIcon
 import zone.ien.utils.icon.LocalButtonProviderDefault
 import zone.ien.utils.ui.screen.M3BackButton
@@ -21,7 +21,7 @@ import zone.ien.utils.ui.screen.M3BackButton
 @Composable
 fun AdaptiveBackButton(
     modifier: Modifier = Modifier,
-    icon: ImageVector = LocalBackButtonIcon.current ?: LocalButtonProviderDefault.BackIcon,
+    icon: IconData = LocalBackButtonIcon.current?.let(IconData::Vector) ?: LocalButtonProviderDefault.BackIcon,
     enabled: Boolean = true,
     backdrop: Backdrop,
     isBackgroundAdaptive: Boolean = true,
@@ -44,8 +44,8 @@ fun AdaptiveBackButton(
                 isBackgroundAdaptive = isBackgroundAdaptive,
                 onClick = onClick
             ) {
-                Icon(
-                    imageVector = icon,
+                ComplexIcon(
+                    icon = icon,
                     contentDescription = null
                 )
             }

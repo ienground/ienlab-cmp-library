@@ -7,7 +7,7 @@ import zone.ien.utils.cmp_ui.generated.resources.delete
 import zone.ien.utils.cmp_ui.generated.resources.edit
 import zone.ien.utils.cmp_ui.generated.resources.save
 import zone.ien.utils.icon.material.MaterialIcons
-import zone.ien.utils.ui.utils.IconData
+import zone.ien.utils.icon.IconData
 
 @Composable
 fun m3DeleteButton(

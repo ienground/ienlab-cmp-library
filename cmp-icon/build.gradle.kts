@@ -30,6 +30,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.compose.material3)
+            implementation(libs.hig.adaptive)
 
             implementation(project(":cmp-common"))
         }

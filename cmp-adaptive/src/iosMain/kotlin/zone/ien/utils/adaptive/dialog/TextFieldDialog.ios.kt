@@ -12,11 +12,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.ObjCAction
+import kotlinx.cinterop.ObjCObject
 import kotlinx.cinterop.useContents
+import org.jetbrains.compose.resources.stringResource
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
+import platform.Foundation.NSSelectorFromString
+import platform.UIKit.NSLayoutConstraint
 import platform.UIKit.UIAlertAction
+import platform.UIKit.UIBarButtonItem
+import platform.UIKit.UIBarButtonItemStyle
+import platform.UIKit.UIBarButtonSystemItem
+import platform.UIKit.UIColor
+import platform.UIKit.UIEdgeInsetsMake
 import platform.UIKit.UIKeyboardTypeASCIICapable
 import platform.UIKit.UIKeyboardTypeDecimalPad
 import platform.UIKit.UIKeyboardTypeDefault
@@ -25,10 +35,22 @@ import platform.UIKit.UIKeyboardTypeNumberPad
 import platform.UIKit.UIKeyboardTypePhonePad
 import platform.UIKit.UIKeyboardTypeURL
 import platform.UIKit.UILabel
+import platform.UIKit.UIMenu
 import platform.UIKit.UIReturnKeyType
+import platform.UIKit.UITextField
 import platform.UIKit.UITextFieldTextDidChangeNotification
 import platform.UIKit.UITextFieldViewMode
+import platform.UIKit.UIToolbar
+import platform.UIKit.UIView
+import platform.UIKit.endEditing
+import platform.darwin.NSObject
+import platform.darwin.nil
+import zone.ien.utils.cmp_ui.generated.resources.Res
+import zone.ien.utils.cmp_ui.generated.resources.close
+import zone.ien.utils.ui.screen.LocalEnableImePadding
+import zone.ien.utils.ui.screen.LocalSetEnableImePadding
 import zone.ien.utils.ui.utils.TextFieldDialogData
+import zone.ien.utils.utils.UpdateEffect
 
 internal fun KeyboardType.toHig() = when (this) {
     KeyboardType.Text -> UIKeyboardTypeDefault
@@ -75,7 +97,7 @@ actual fun TextFieldDialog(
     styleConfirm: UIAlertActionStyle,
     onConfirm: (Map<String, String>) -> Unit
 ) {
-    val textStates = remember(textFields.keys) {
+    val textStates = remember(visible, textFields.keys) {
         mutableStateMapOf<String, String>().apply {
             textFields.forEach { (key, data) ->
                 put(key, data.initialValue)
@@ -90,12 +112,32 @@ actual fun TextFieldDialog(
         }
     }
 
-
     var confirmActionRef by remember { mutableStateOf<UIAlertAction?>(null) }
+    val setEnableImePadding = LocalSetEnableImePadding.current
+    val enableImePadding = LocalEnableImePadding.current
+    var lastEnableImePadding by remember { mutableStateOf(enableImePadding) }
+
+    UpdateEffect(visible) {
+        if (visible) {
+            lastEnableImePadding = enableImePadding
+            setEnableImePadding(false)
+        } else {
+            setEnableImePadding(lastEnableImePadding)
+        }
+    }
 
     LaunchedEffect(enabledConfirm) {
         confirmActionRef?.enabled = enabledConfirm
     }
+
+    val doneLabel = stringResource(Res.string.close)
+    var targetTextField by remember { mutableStateOf<UITextField?>(null) }
+    val target = remember(targetTextField) { object: NSObject() {
+        @ObjCAction
+        fun doneBtnFromKeyboardClicked() {
+            targetTextField?.endEditing(true)
+        }
+    } }
 
     HigBaseAlertDialog(
         visible = visible,
@@ -109,6 +151,30 @@ actual fun TextFieldDialog(
                 textField?.placeholder = field.placeholder
                 textField?.keyboardType = field.keyboardType.toHig()
                 textField?.returnKeyType = field.imeAction.toHig()
+
+                val toolbar = UIToolbar()
+                toolbar.sizeToFit()
+
+                val flexSpace = UIBarButtonItem(barButtonSystemItem = UIBarButtonSystemItem.UIBarButtonSystemItemFlexibleSpace, target = null, action = null)
+                targetTextField = textField
+                val doneButton = UIBarButtonItem(title = doneLabel, style = UIBarButtonItemStyle.UIBarButtonItemStyleDone, target = target, action = NSSelectorFromString("doneBtnFromKeyboardClicked"))
+                toolbar.setItems(listOf(flexSpace, doneButton))
+
+                val bottomMargin = 8.0
+                val totalHeight = toolbar.frame.useContents { size.height } + bottomMargin
+                val container = UIView(CGRectMake(0.0, 0.0, 0.0, totalHeight))
+
+                container.setBackgroundColor(UIColor.clearColor)
+                container.addSubview(toolbar)
+
+                toolbar.translatesAutoresizingMaskIntoConstraints = false
+                NSLayoutConstraint.activateConstraints(listOf(
+                    toolbar.topAnchor.constraintEqualToAnchor(container.topAnchor()),
+                    toolbar.leadingAnchor.constraintEqualToAnchor(container.leadingAnchor()),
+                    toolbar.trailingAnchor.constraintEqualToAnchor(container.trailingAnchor())
+                ))
+
+                textField?.inputAccessoryView = container
 
                 // Prefix
                 field.prefix?.let {
@@ -134,7 +200,13 @@ actual fun TextFieldDialog(
 
                 NSNotificationCenter.defaultCenter.addObserverForName(
                     UITextFieldTextDidChangeNotification, `object` = textField, queue = NSOperationQueue.mainQueue()) { notification ->
-                    textStates[key] = textField?.text.orEmpty()
+                    val newValue = field.onValueChange(textField?.text.orEmpty())
+
+                    if (newValue != null) {
+                        textStates[key] = newValue
+                    } else {
+                        textField?.text = textStates[key]
+                    }
                 }
             }
         }

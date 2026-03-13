@@ -1,6 +1,5 @@
 package zone.ien.utils.adaptive.dialog
 
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import zone.ien.utils.cmp_ui.generated.resources.Res
@@ -10,7 +9,6 @@ import zone.ien.utils.cmp_ui.generated.resources.save
 import zone.ien.utils.cmp_ui.generated.resources.save_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.save_dialog_title
 import org.jetbrains.compose.resources.stringResource
-import zone.ien.utils.icon.material.MaterialIcons
 
 @Composable
 actual fun SaveAlertDialog(

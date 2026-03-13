@@ -8,3 +8,5 @@ val LocalM3TopBarSize: ProvidableCompositionLocal<TopBarSize> = staticCompositio
 val LocalHigShowNavTitle: ProvidableCompositionLocal<Boolean> = staticCompositionLocalOf { false }
 val LocalIsM3TopBarCenterAligned: ProvidableCompositionLocal<Boolean> = staticCompositionLocalOf { false }
 val LocalIsHigTopBarCenterAligned: ProvidableCompositionLocal<Boolean> = staticCompositionLocalOf { true }
+val LocalEnableImePadding: ProvidableCompositionLocal<Boolean> = staticCompositionLocalOf { true }
+val LocalSetEnableImePadding: ProvidableCompositionLocal<(Boolean) -> Unit> = staticCompositionLocalOf { {} }

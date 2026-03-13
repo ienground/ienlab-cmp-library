@@ -124,7 +124,9 @@ fun M3TextFieldDialog(
                 } else {
                     TextField(
                         value = textStates[key] ?: "",
-                        onValueChange = { textStates[key] = it },
+                        onValueChange = {
+                            field.onValueChange(it)?.let { textStates[key] = it }
+                        },
                         placeholder = { Text(text = field.placeholder) },
                         prefix = field.prefix?.let { { Text(text = it) } },
                         suffix = field.suffix?.let { { Text(text = it) } },

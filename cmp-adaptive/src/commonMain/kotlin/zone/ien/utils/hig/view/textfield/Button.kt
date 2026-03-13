@@ -25,9 +25,9 @@ import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.material.MaterialIcons
-import zone.ien.utils.ui.utils.IconData
-import zone.ien.utils.ui.view.textfield.M3TextFieldIconButton
+import zone.ien.utils.icon.IconData
 
 @OptIn(ExperimentalCupertinoApi::class)
 @Composable
@@ -63,22 +63,11 @@ fun HigTextFieldIconButton(
                     enter = fadeIn(tween(700)),
                     exit = fadeOut(tween(700))
                 ) {
-                    when (icon) {
-                        is IconData.Vector -> {
-                            CupertinoIcon(
-                                imageVector = icon.imageVector,
-                                contentDescription = contentDescription,
-                                modifier = Modifier.size(CupertinoIconDefaults.MediumSize),
-                            )
-                        }
-                        is IconData.Paint -> {
-                            CupertinoIcon(
-                                painter = icon.painter,
-                                contentDescription = contentDescription,
-                                modifier = Modifier.size(CupertinoIconDefaults.MediumSize),
-                            )
-                        }
-                    }
+                    ComplexIcon(
+                        icon = icon,
+                        contentDescription = contentDescription,
+                        modifier = Modifier.size(CupertinoIconDefaults.MediumSize),
+                    )
                 }
                 androidx.compose.animation.AnimatedVisibility(
                     visible = loading,
