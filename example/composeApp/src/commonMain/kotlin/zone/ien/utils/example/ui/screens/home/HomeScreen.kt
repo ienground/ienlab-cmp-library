@@ -120,6 +120,15 @@ fun HomeScreen(
                 ) {
                     Text(text = "Lazy")
                 }
+                Box(
+                    modifier = Modifier
+                        .clickable { backStack.add(RootRoute.Playground) }
+                        .fillMaxWidth()
+                        .height(400.dp)
+                        .background(Color.Cyan)
+                ) {
+                    Text(text = "Playground")
+                }
             }
         }
     }

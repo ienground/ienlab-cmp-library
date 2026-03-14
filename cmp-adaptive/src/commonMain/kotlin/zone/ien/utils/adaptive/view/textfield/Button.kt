@@ -34,6 +34,7 @@ fun AdaptiveTextFieldIconButton(
     AdaptiveWidget(
         material = {
             M3TextFieldIconButton(
+                modifier = modifier,
                 onClick = onClick,
                 onLongClick = onLongClick,
                 loading = loading,
@@ -45,6 +46,7 @@ fun AdaptiveTextFieldIconButton(
         },
         cupertino = {
             HigTextFieldIconButton(
+                modifier = modifier,
                 onClick = onClick,
                 loading = loading,
                 enabled = enabled,
