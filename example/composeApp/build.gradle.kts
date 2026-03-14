@@ -54,6 +54,7 @@ kotlin {
 
             implementation(libs.bundles.hig)
             implementation(libs.capsule)
+            implementation(libs.placeholder)
 
             implementation(libs.bundles.koin)
 
