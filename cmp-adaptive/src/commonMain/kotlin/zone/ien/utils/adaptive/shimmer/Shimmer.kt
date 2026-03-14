@@ -47,7 +47,7 @@ fun Modifier.adaptivePlaceholder(
     highlight: PlaceholderHighlight? = PlaceholderDefaults.fade,
     placeholderFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() },
     contentFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() },
-    adaptation: AdaptationScope<PlatformPlaceholderAdaptation, PlatformPlaceholderAdaptation>.() -> Unit
+    adaptation: AdaptationScope<PlatformPlaceholderAdaptation, PlatformPlaceholderAdaptation>.() -> Unit = {{}}
 ): Modifier {
     return adaptiveComponent(
         adaptation = remember { PlaceholderAdaptation() },
@@ -95,7 +95,7 @@ fun TextShimmer(
     highlight: PlaceholderHighlight? = PlaceholderDefaults.fade,
     placeholderFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() },
     contentFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() },
-    adaptation: AdaptationScope<PlatformPlaceholderAdaptation, PlatformPlaceholderAdaptation>.() -> Unit
+    adaptation: AdaptationScope<PlatformPlaceholderAdaptation, PlatformPlaceholderAdaptation>.() -> Unit = {}
 ) {
     Box(
         modifier = modifier
