@@ -5,13 +5,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -63,17 +69,28 @@ fun HomeScreen(
                 material {
                     size = TopBarSize.Medium
                     scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+                    contentWindowInsets = WindowInsets(0.dp)
+                    topBarWindowInsets = WindowInsets(0.dp)
                 }
                 cupertino {
                     this.backdrop = backdrop
                     showNavTitle = true
                 }
             },
+            bottomBar = {
+                BottomAppBar {
+                    TextField(
+                        state = rememberTextFieldState(),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+
             modifier = modifier
         ) { pv, title ->
             Column(
                 modifier = Modifier
-                    .layerBackdrop(backdrop)
+                    .layerBackdrop(backdrop).consumeWindowInsets(WindowInsets.ime)
                     .verticalScroll(rememberScrollState())
                     .padding(pv)
             ) {
@@ -129,6 +146,10 @@ fun HomeScreen(
                 ) {
                     Text(text = "Playground")
                 }
+                TextField(
+                    state = rememberTextFieldState(),
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }
