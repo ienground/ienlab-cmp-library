@@ -4,6 +4,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -27,7 +28,7 @@ fun PrefsScreen(
     title: @Composable () -> Unit = {},
     modifier: Modifier = Modifier,
     fullHeight: Boolean = true,
-    scrollState: ScrollState? = null,
+    scrollState: ScrollState? = rememberScrollState(),
     shape: Shape = RectangleShape,
     backdrop: LayerBackdrop = rememberDefaultBackdrop(),
     content: @Composable (ColumnScope.() -> Unit)
