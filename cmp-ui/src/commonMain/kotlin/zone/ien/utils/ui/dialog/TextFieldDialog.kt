@@ -79,7 +79,7 @@ fun M3TextFieldDialog(
     textConfirm: String = stringResource(Res.string.ok),
     onConfirm: (Map<String, String>) -> Unit,
 ) {
-    val textStates = remember(textFields.keys) {
+    val textStates = remember(visible, textFields.keys) {
         mutableStateMapOf<String, String>().apply {
             textFields.forEach { (key, data) ->
                 put(key, data.initialValue)
