@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.Dp
 
 @Composable
 @ReadOnlyComposable
-internal fun PaddingValues.copy(
+fun PaddingValues.copy(
     top: Dp = calculateTopPadding(),
     start: Dp = calculateStartPadding(LocalLayoutDirection.current),
     bottom: Dp = calculateBottomPadding(),
@@ -24,7 +24,7 @@ internal fun PaddingValues.copy(
     )
 
 @Composable
-internal operator fun PaddingValues.plus(other: PaddingValues): PaddingValues {
+operator fun PaddingValues.plus(other: PaddingValues): PaddingValues {
     val layoutDirection = LocalLayoutDirection.current
 
     return PaddingValues(

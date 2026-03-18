@@ -19,16 +19,21 @@ import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
+import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.hig.section.SectionStyle
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
+import zone.ien.utils.adaptive.section.AdaptiveLinkIcon
 import zone.ien.utils.adaptive.section.AdaptiveProvideSectionStyle
 import zone.ien.utils.adaptive.section.AdaptiveSection
 import zone.ien.utils.adaptive.section.AdaptiveSectionItem
 import zone.ien.utils.adaptive.section.AdaptiveSectionLink
 import zone.ien.utils.adaptive.section.AdaptiveSectionSwitchItem
 import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
+import zone.ien.utils.example.Android
+import zone.ien.utils.example.isIos
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.section.M3ProvideSectionStyle
 
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -40,7 +45,7 @@ fun SectionScreen(
     val backdrop = rememberDefaultBackdrop()
     val scrollState = rememberScrollState()
 
-    var isMaterialTheme by remember { mutableStateOf(false) }
+    var isMaterialTheme by remember { mutableStateOf(!isIos) }
     var checked by remember { mutableStateOf(false) }
 
     GeneratedAdaptiveTheme(
@@ -61,16 +66,32 @@ fun SectionScreen(
                 style = SectionStyle.InsetGrouped,
                 scrollState = null,
                 fullHeight = true,
-                //                scrollState = scrollState,
                 backdrop = backdrop,
                 modifier = Modifier
                     .padding(pv)
             ) {
                 title()
                 AdaptiveSection(
-//                    title = { Text(text = "Title") }
+                    title = { Text(text = "title") }
                 ) {
-                    AdaptiveSectionItem {
+                    AdaptiveSectionItem(
+                        leadingContent = {
+                            AdaptiveLinkIcon(
+                                icon = IconData.Paint(
+                                    AdaptiveIcons.painter(
+                                        material = { Android },
+                                        cupertino = { "apple.logo" }
+                                    )
+                                )
+                            )
+                        },
+                        adaptation = {
+                            cupertino {
+                                this.showLeadingContent = true
+                            }
+                        }
+                    ) {
+
                         Text(text = "Section1")
                     }
                     AdaptiveSectionItem {

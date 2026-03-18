@@ -41,7 +41,7 @@ fun Modifier.m3SectionBackground(): Modifier {
 fun M3ProvideSectionStyle(
     modifier: Modifier = Modifier,
     fullHeight: Boolean = true,
-    scrollState: ScrollState? = null,
+    scrollState: ScrollState? = rememberScrollState(),
     shape: Shape = RectangleShape,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -55,9 +55,9 @@ fun M3ProvideSectionStyle(
             .then(modifier)
         ,
         content = {
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier)
             content()
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier)
         }
     )
 }

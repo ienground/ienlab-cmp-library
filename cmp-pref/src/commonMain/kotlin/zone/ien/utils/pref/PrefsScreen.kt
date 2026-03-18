@@ -1,13 +1,17 @@
 package zone.ien.utils.pref
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -21,8 +25,11 @@ lateinit var LocalPrefsDataStore: ProvidableCompositionLocal<DataStore<Preferenc
 @Composable
 fun PrefsScreen(
     dataStore: DataStore<Preferences>,
-    modifier: Modifier = Modifier,
     title: @Composable () -> Unit = {},
+    modifier: Modifier = Modifier,
+    fullHeight: Boolean = true,
+    scrollState: ScrollState? = rememberScrollState(),
+    shape: Shape = RectangleShape,
     backdrop: LayerBackdrop = rememberDefaultBackdrop(),
     content: @Composable (ColumnScope.() -> Unit)
 ) {
@@ -32,6 +39,9 @@ fun PrefsScreen(
         AdaptiveProvideSectionStyle(
             style = SectionStyle.InsetGrouped,
             modifier = modifier,
+            fullHeight = fullHeight,
+            scrollState = scrollState,
+            shape = shape,
             backdrop = backdrop,
             content = {
                 title()

@@ -31,8 +31,10 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.compose.material3)
+            implementation(libs.compose.preview)
             implementation(libs.compose.resources)
             implementation(libs.hig.core)
+            implementation(libs.placeholder)
 
             implementation(project(":cmp-common"))
             implementation(project(":cmp-icon"))
@@ -55,6 +57,10 @@ kotlin {
         iosMain.dependencies {
         }
     }
+}
+
+dependencies {
+    androidRuntimeClasspath(libs.compose.ui.tooling)
 }
 
 compose.resources {

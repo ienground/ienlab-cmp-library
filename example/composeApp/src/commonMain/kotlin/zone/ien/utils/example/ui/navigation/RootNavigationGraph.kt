@@ -10,6 +10,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import zone.ien.utils.example.ui.screens.home.HomeScreen
+import zone.ien.utils.example.ui.screens.lazy.LazySectionScreen
 import zone.ien.utils.example.ui.screens.playground.PlaygroundScreen
 import zone.ien.utils.example.ui.screens.section.SectionScreen
 import zone.ien.utils.example.ui.screens.settings.SettingsScreen
@@ -22,6 +23,7 @@ sealed interface RootRoute: NavKey {
     @Serializable data object Settings: RootRoute
     @Serializable data object Playground: RootRoute
     @Serializable data object Section: RootRoute
+    @Serializable data object LazySection: RootRoute
 }
 
 val rootConfig = SavedStateConfiguration {
@@ -31,6 +33,7 @@ val rootConfig = SavedStateConfiguration {
             subclass(RootRoute.Settings::class, RootRoute.Settings.serializer())
             subclass(RootRoute.Playground::class, RootRoute.Playground.serializer())
             subclass(RootRoute.Section::class, RootRoute.Section.serializer())
+            subclass(RootRoute.LazySection::class, RootRoute.LazySection.serializer())
         }
     }
 }
@@ -55,10 +58,17 @@ fun RootNavigationGraph(
                 )
             }
             entry<RootRoute.Playground> {
-                PlaygroundScreen()
+                PlaygroundScreen(
+                    navigateBack = { backStack.navigateBack() }
+                )
             }
             entry<RootRoute.Section> {
                 SectionScreen(
+                    navigateBack = { backStack.navigateBack() }
+                )
+            }
+            entry<RootRoute.LazySection> {
+                LazySectionScreen(
                     navigateBack = { backStack.navigateBack() }
                 )
             }

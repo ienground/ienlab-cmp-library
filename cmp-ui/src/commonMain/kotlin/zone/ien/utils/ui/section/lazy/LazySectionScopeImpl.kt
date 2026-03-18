@@ -46,7 +46,7 @@ internal class LazySectionScopeImpl : LazySectionScope {
                         content(it)
                     }
                 },
-                dividerPadding = dividerPadding,
+                dividerPadding = dividerPadding
             )
     }
 
@@ -60,7 +60,7 @@ internal class LazySectionScopeImpl : LazySectionScope {
             key = key,
             contentType = contentType,
             dividerPadding = dividerPadding,
-            minHeight = 45.dp,//CupertinoSectionTokens.MinHeight,
+            minHeight = 45.dp,
             content = content,
         )
     }

@@ -82,7 +82,7 @@ fun RootWrapper(
         ) {
             Box(
                 modifier = Modifier
-                    .conditional(localEnableImePadding) { advancedImePadding(isIos) }
+                    .conditional(localEnableImePadding) { advancedImePadding(!isIos) }
                     .dragToKeyboardClose(isKeyboardVisible)
                     .padding(it)
             ) {

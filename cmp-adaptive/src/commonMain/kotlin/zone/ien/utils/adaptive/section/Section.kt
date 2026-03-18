@@ -55,7 +55,7 @@ fun AdaptiveProvideSectionStyle(
     style: SectionStyle,
     modifier: Modifier = Modifier,
     fullHeight: Boolean = true,
-    scrollState: ScrollState? = null,
+    scrollState: ScrollState? = rememberScrollState(),
     shape: Shape = RectangleShape,
     backdrop: LayerBackdrop = rememberDefaultBackdrop(),
     content: @Composable ColumnScope.() -> Unit

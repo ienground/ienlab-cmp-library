@@ -20,12 +20,12 @@ fun LazyListScope.m3Section(
     caption: @Composable (LazyItemScope.() -> Unit)? = null,
     content: LazySectionScope.() -> Unit,
 ) {
-    val itemsPadding = M3SectionDefaults.PaddingValues
+    val itemsPadding = PaddingValues.Zero
 
     item(contentType = SplitPaddingContentType) {
         Spacer(
             Modifier
-                .height(12.dp)
+                .height(16.dp)
                 .fillMaxWidth(),
         )
     }
@@ -52,7 +52,7 @@ fun LazyListScope.m3StickySection(
     caption: @Composable (LazyItemScope.() -> Unit)? = null,
     content: LazySectionScope.() -> Unit,
 ) {
-    val itemsPadding = M3SectionDefaults.PaddingValues
+    val itemsPadding = PaddingValues.Zero
 
     if (title != null) {
         item(contentType = SectionTitleContentType) {
@@ -120,10 +120,8 @@ private fun LazyListScope.itemsAndCaption(
     }
 }
 
-internal object DividerContentType
+private object SplitPaddingContentType
 
-internal object SplitPaddingContentType
+private object SectionTitleContentType
 
-internal object SectionTitleContentType
-
-internal object SectionCaptionContentType
+private object SectionCaptionContentType

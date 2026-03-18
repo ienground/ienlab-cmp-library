@@ -38,9 +38,12 @@ kotlin {
             implementation(libs.capsule)
             implementation(libs.bundles.hig)
 
+            implementation(libs.placeholder)
+
             implementation(project(":cmp-ui"))
             implementation(project(":cmp-common"))
             implementation(project(":cmp-icon"))
+            implementation(project(":cmp-utils"))
         }
 
         commonTest.dependencies {
@@ -60,4 +63,9 @@ kotlin {
         }
     }
 }
+
+dependencies {
+    androidRuntimeClasspath(libs.compose.ui.tooling)
+}
+
 
