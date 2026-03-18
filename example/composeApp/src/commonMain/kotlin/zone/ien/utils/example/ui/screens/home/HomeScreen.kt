@@ -60,8 +60,37 @@ fun HomeScreen(
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
                     title = "Text",
                     onClick = {},
+                    badge = 1,
                     icon = IconData.Vector(Android)
-                )
+                ),
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "Text",
+                    onClick = {},
+                    badge = 2,
+                    icon = IconData.Vector(Android)
+                ),
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "Text",
+                    onClick = {},
+                    badge = 3,
+                    icon = IconData.Vector(Android)
+                ),
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "Text",
+                    onClick = {},
+                    badge = 4,
+                    icon = IconData.Vector(Android)
+                ),
+//                ActionMenuItem.IconMenuItem.ShownIfRoom(
+//                    title = "Text",
+//                    onClick = {},
+//                    icon = IconData.Vector(Android)
+//                ),
+//                ActionMenuItem.IconMenuItem.ShownIfRoom(
+//                    title = "Text",
+//                    onClick = {},
+//                    icon = IconData.Vector(Android)
+//                ),
             ),
             title = { Text(text = "IENGROUND") },
             subtitle = { Text(text = "Sub Title") },
@@ -69,8 +98,7 @@ fun HomeScreen(
                 material {
                     size = TopBarSize.Medium
                     scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-                    contentWindowInsets = WindowInsets(0.dp)
-                    topBarWindowInsets = WindowInsets(0.dp)
+                    isCenterAligned = true
                 }
                 cupertino {
                     this.backdrop = backdrop

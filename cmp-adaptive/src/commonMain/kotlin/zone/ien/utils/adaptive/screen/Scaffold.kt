@@ -254,7 +254,7 @@ fun AdaptiveTopAppBarScaffold(
                         isOpen = menuExpanded,
                         closeDropdown = { menuExpanded = false },
                         onToggleOverflow = { menuExpanded = !menuExpanded },
-                        maxVisibleItems = 5,
+                        maxVisibleItems = 3,
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                 }
@@ -298,24 +298,26 @@ fun AdaptiveTopAppBarScaffold(
                 }
 
                 if (actions.isNotEmpty()) {
-                    liquidButton(
-                        onClick = {},
-                        isIconButton = actions.size == 1 && actions.first().let { it is ActionMenuItem.IconMenuItem && it.icon != null },
-                        backdrop = it.backdrop,
-                        isBackgroundAdaptive = it.isBackgroundAdaptive
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(24.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxHeight()
+                    HigActionsMenu(
+                        items = actions,
+                        isOpen = menuExpanded,
+                        closeDropdown = { menuExpanded = false },
+                        onToggleOverflow = { menuExpanded = !menuExpanded },
+                        maxVisibleItems = 3,
+                    ) { content ->
+                        liquidButton(
+                            onClick = {},
+                            isIconButton = actions.size == 1 && actions.first().let { it is ActionMenuItem.IconMenuItem && it.icon != null },
+                            backdrop = it.backdrop,
+                            isBackgroundAdaptive = it.isBackgroundAdaptive
                         ) {
-                            HigActionsMenu(
-                                items = actions,
-                                isOpen = menuExpanded,
-                                closeDropdown = { menuExpanded = false },
-                                onToggleOverflow = { menuExpanded = !menuExpanded },
-                                maxVisibleItems = 3,
-                            )
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxHeight()
+                            ) {
+                                content()
+                            }
                         }
                     }
                 }

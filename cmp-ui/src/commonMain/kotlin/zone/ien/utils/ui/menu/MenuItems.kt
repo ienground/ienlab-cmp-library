@@ -8,6 +8,7 @@ import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Badge
@@ -24,8 +25,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
+import zone.ien.hig.theme.CupertinoColors
+import zone.ien.hig.theme.systemRed
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.icon.ComplexIcon
@@ -55,18 +59,20 @@ fun M3ActionsMenu(
             exit = fadeOut(tween(150)) + shrinkHorizontally(tween(300))
         ) {
             item.icon?.let { icon ->
-                BadgedBox(badge = {
-                    if (item.badge != 0) {
-                        Badge(
-                            modifier = Modifier
-                                .offset(x = (-8).dp, y = 8.dp)
-                            ,
-                            content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null
-                        )
-                    }
-                }) {
-                    M3TooltipBox(
-                        label = item.title
+                M3TooltipBox(
+                    label = item.title
+                ) {
+                    BadgedBox(
+                        badge = {
+                            if (item.badge != 0) {
+                                Badge(
+                                    modifier = Modifier
+                                        .offset(x = (-8).dp, y = 8.dp)
+                                    ,
+                                    content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null
+                                )
+                            }
+                        }
                     ) {
                         IconButton(
                             enabled = item.enabled,
@@ -87,7 +93,6 @@ fun M3ActionsMenu(
                             }
                         }
                     }
-
                 }
             } ?: run {
                 TextButton(
@@ -104,31 +109,53 @@ fun M3ActionsMenu(
         M3TooltipBox(
             label = stringResource(Res.string.more_options),
         ) {
-            IconButton(
-                onClick = onToggleOverflow,
-            ) {
-                Icon(
-                    imageVector = MaterialIcons.MoreVert,
-                    contentDescription = stringResource(Res.string.more_options),
-                )
-            }
-        }
-        DropdownMenu(
-            expanded = isOpen,
-            onDismissRequest = onToggleOverflow,
-        ) {
-            menuItems.overflowItems.forEach { item ->
-                if (item.visible) {
-                    DropdownMenuItem(
-                        text = { Text(text = item.title) },
-                        onClick = {
-                            closeDropdown()
-                            item.onClick()
-                        }
+            Box {
+                IconButton(
+                    onClick = onToggleOverflow,
+                ) {
+                    Icon(
+                        imageVector = MaterialIcons.MoreVert,
+                        contentDescription = stringResource(Res.string.more_options),
                     )
+                }
+                DropdownMenu(
+                    expanded = isOpen,
+                    onDismissRequest = onToggleOverflow,
+                ) {
+                    menuItems.overflowItems.forEach { item ->
+                        if (item.visible) {
+                            DropdownMenuItem(
+                                text = { Text(text = item.title) },
+                                leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
+                                    item.icon?.let {
+                                        {
+                                            ComplexIcon(
+                                                icon = it,
+                                                contentDescription = item.title
+                                            )
+                                        }
+                                    }
+                                } else null,
+                                trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
+                                    {
+                                        if (item.badge != 0) {
+                                            Badge(
+                                                content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null
+                                            )
+                                        }
+                                    }
+                                } else null,
+                                onClick = {
+                                    closeDropdown()
+                                    item.onClick()
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
+
     }
 }
 

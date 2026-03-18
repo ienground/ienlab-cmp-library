@@ -22,12 +22,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.theme.CupertinoColors
+import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.theme.systemRed
 import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.utils.adaptive.view.AdaptiveDropdownBox
 import zone.ien.utils.adaptive.view.AdaptiveTooltipBox
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
@@ -53,16 +58,18 @@ fun HigActionMenu(
         exit = fadeOut(tween(150)) + shrinkHorizontally(tween(300))
     ) {
         item.icon?.let { icon ->
-            BadgedBox(badge = {
-                if (item.badge != 0) {
-                    Badge(
-                        modifier = Modifier
-                            .offset(x = (-8).dp, y = 8.dp)
-                        ,
-                        content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null
-                    )
+            BadgedBox(
+                badge = {
+                    if (item.badge != 0) {
+                        Badge(
+                            content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null,
+                            containerColor = CupertinoColors.systemRed,
+                            contentColor = Color.White,
+                            modifier = Modifier//.offset(x = (-8).dp, y = 8.dp)
+                        )
+                    }
                 }
-            }) {
+            ) {
                 AdaptiveTooltipBox(
                     label = item.title
                 ) {
@@ -112,27 +119,36 @@ fun HigActionsMenu(
     closeDropdown: () -> Unit,
     onToggleOverflow: () -> Unit,
     maxVisibleItems: Int,
+    trigger: @Composable (@Composable () -> Unit) -> Unit,
 ) {
     val menuItems = remember(items, maxVisibleItems) { splitMenuItems(items, maxVisibleItems) }
-    menuItems.alwaysShownItems.forEach { HigActionMenu(it) }
 
-    if (menuItems.overflowItems.isNotEmpty()) {
-        AdaptiveTooltipBox(
-            label = stringResource(Res.string.more_options),
-        ) {
-            Box(
-                modifier = Modifier.clickable(
-                    onClick = onToggleOverflow,
-                    indication = null,
-                    interactionSource = null
-                )
-            ) {
-                CupertinoIcon(
-                    imageVector = zone.ien.utils.icon.hig.HigIcons.Ellipsis,
-                    contentDescription = stringResource(Res.string.more_options),
-                )
+    AdaptiveDropdownBox(
+        expanded = isOpen,
+        trigger = {
+            trigger {
+                menuItems.alwaysShownItems.forEach { HigActionMenu(it) }
+                if (menuItems.overflowItems.isNotEmpty()) {
+                    AdaptiveTooltipBox(
+                        label = stringResource(Res.string.more_options),
+                    ) {
+                        Box(
+                            modifier = Modifier.clickable(
+                                onClick = onToggleOverflow,
+                                indication = null,
+                                interactionSource = null
+                            )
+                        ) {
+                            CupertinoIcon(
+                                imageVector = zone.ien.utils.icon.hig.HigIcons.Ellipsis,
+                                contentDescription = stringResource(Res.string.more_options),
+                            )
+                        }
+                    }
+                }
             }
         }
+    ) {
         CupertinoDropdownMenu(
             expanded = isOpen,
             onDismissRequest = onToggleOverflow,
@@ -142,6 +158,27 @@ fun HigActionsMenu(
                 if (item.visible) {
                     DropdownMenuItem(
                         text = { Text(text = item.title) },
+                        leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
+                            item.icon?.let {
+                                {
+                                    ComplexIcon(
+                                        icon = it,
+                                        contentDescription = item.title
+                                    )
+                                }
+                            }
+                        } else null,
+                        trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
+                            {
+                                if (item.badge != 0) {
+                                    Badge(
+                                        content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null,
+                                        containerColor = CupertinoColors.systemRed,
+                                        contentColor = Color.White
+                                    )
+                                }
+                            }
+                        } else null,
                         onClick = {
                             closeDropdown()
                             item.onClick()
