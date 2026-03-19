@@ -17,6 +17,7 @@ import zone.ien.utils.adaptive.wrapper.RootWrapper
 import zone.ien.utils.example.ui.navigation.RootNavigationGraph
 import zone.ien.utils.example.ui.navigation.RootRoute
 import zone.ien.utils.example.ui.navigation.rootConfig
+import zone.ien.utils.example.ui.screens.textfield.TextFieldScreen
 import zone.ien.utils.utils.Dlog
 
 const val TAG = "CmpLibTAG"
@@ -32,15 +33,18 @@ fun App() {
     Dlog.init(isDebug = true)
 
     val backStack = rememberNavBackStack(rootConfig, RootRoute.Home)
-    var isMaterialTheme by remember { mutableStateOf(false) }
+    var isMaterialTheme by remember { mutableStateOf(!isIos) }
 
     GeneratedAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino,
     ) {
         RootWrapper(
-            showKeyboardDirection = false,
+//            showKeyboardDirection = false,
             enableImePadding = true
         ) {
+//            TextFieldScreen(
+//                modifier = it
+//            )
             RootNavigationGraph(
                 modifier = it,
                 backStack = backStack
