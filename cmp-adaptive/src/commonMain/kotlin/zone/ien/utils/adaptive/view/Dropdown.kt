@@ -62,18 +62,16 @@ fun AdaptiveDropdownBox(
         cupertino = {
             Box(
                 contentAlignment = Alignment.TopCenter,
-                modifier = modifier
-                    .graphicsLayer { clip = false }
-                    .background(Color.Red)
+                modifier = modifier.graphicsLayer { clip = false }
             ) {
                 val alpha by animateFloatAsState(
-                    targetValue = if (expanded) 0.1f else 1f,
+                    targetValue = if (expanded) 0f else 1f,
                     animationSpec = spring(1.2f)
                 )
                 Box(
                     modifier = Modifier.graphicsLayer {
-//                        this.scaleX = alpha
-//                        this.scaleY = alpha
+                        this.scaleX = alpha
+                        this.scaleY = alpha
                         this.alpha = alpha
                         compositingStrategy = CompositingStrategy.ModulateAlpha
                     }
