@@ -13,6 +13,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,9 +66,14 @@ fun AdaptiveDropdownBox(
                 modifier = modifier.graphicsLayer { clip = false }
             ) {
                 val alpha by animateFloatAsState(
-                    targetValue = if (expanded) 0f else 1f,
+                    targetValue = if (expanded) 0.001f else 1f,
                     animationSpec = spring(1.2f)
                 )
+
+                LaunchedEffect(alpha) {
+                    println("CmpLib: $alpha")
+                }
+
                 Box(
                     modifier = Modifier.graphicsLayer {
                         this.scaleX = alpha
