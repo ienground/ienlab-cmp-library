@@ -70,10 +70,6 @@ fun AdaptiveDropdownBox(
                     animationSpec = spring(1.2f)
                 )
 
-                LaunchedEffect(alpha) {
-                    println("CmpLib: $alpha")
-                }
-
                 Box(
                     modifier = Modifier.graphicsLayer {
                         this.scaleX = alpha

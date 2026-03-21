@@ -4,7 +4,7 @@ kotlin = "2.3.20"
 android-minSdk = "29"
 android-compileSdk = "36"
 android-targetSdk = "36"
-lib-version-name = "2.1.13-alpha03"
+lib-version-name = "2.1.13-alpha04"
 
 # plugin
 compose-plugin = "1.10.3"
@@ -35,6 +35,7 @@ kotlinx-io-core = "0.9.0"
 vanniktechMavenPublish = "0.36.0"
 datastore = "1.2.1"
 koin = "4.2.0"
+serialization = "1.10.0"
 
 # test
 runner = "1.7.0"
@@ -87,6 +88,8 @@ koin-compose = { group = "io.insert-koin", name = "koin-compose", version.ref = 
 koin-compose-nav3 = { group = "io.insert-koin", name = "koin-compose-navigation3", version.ref = "koin" }
 koin-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel", version.ref = "koin" }
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+
+serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 
 # test
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
