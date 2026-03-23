@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.home
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -69,6 +70,9 @@ fun HomeScreen(
     backStack: NavBackStack<NavKey>
 ) {
     var isMaterialTheme by remember { mutableStateOf(true) }
+    var isDropdownMenu by remember { mutableStateOf(true) }
+    var showVisible by remember { mutableStateOf(true) }
+    var showSingle by remember { mutableStateOf(false) }
     val backdrop = rememberDefaultBackdrop()
     var childExpanded by remember { mutableStateOf(false) }
     val children = listOf("Hi", "Hello")
@@ -77,7 +81,7 @@ fun HomeScreen(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
         AdaptiveTopAppBarScaffold(
-            actions = listOf(
+            actions = if (isDropdownMenu) listOf(
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
                     title = "Text",
                     onClick = {},
@@ -130,6 +134,27 @@ fun HomeScreen(
 //                    onClick = {},
 //                    icon = IconData.Vector(Android)
 //                ),
+            ) else if (showSingle) listOf(
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "Text",
+                    onClick = {},
+                    badge = 1,
+                    icon = IconData.Vector(Android)
+                ),
+            ) else listOf(
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "Text",
+                    onClick = {},
+                    badge = 1,
+                    icon = IconData.Vector(Android)
+                ),
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "Text",
+                    onClick = {},
+                    badge = 2,
+                    visible = showVisible,
+                    icon = IconData.Vector(Android)
+                ),
             ),
             navigationIcon = {
                 AdaptiveDropdownBox(
@@ -221,6 +246,59 @@ fun HomeScreen(
                         checked = isMaterialTheme,
                         onCheckedChange = { isMaterialTheme = it }
                     )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = "isDropdownMenu",
+                        modifier = Modifier.weight(1f)
+                    )
+                    AdaptiveSwitch(
+                        checked = isDropdownMenu,
+                        onCheckedChange = { isDropdownMenu = it }
+                    )
+                }
+                AnimatedVisibility(
+                    visible = !isDropdownMenu,
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "showVisible",
+                            modifier = Modifier.weight(1f)
+                        )
+                        AdaptiveSwitch(
+                            checked = showVisible,
+                            onCheckedChange = { showVisible = it }
+                        )
+                    }
+                }
+                AnimatedVisibility(
+                    visible = !isDropdownMenu,
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "real single",
+                            modifier = Modifier.weight(1f)
+                        )
+                        AdaptiveSwitch(
+                            checked = showSingle,
+                            onCheckedChange = { showSingle = it }
+                        )
+                    }
                 }
                 Box(
                     modifier = Modifier

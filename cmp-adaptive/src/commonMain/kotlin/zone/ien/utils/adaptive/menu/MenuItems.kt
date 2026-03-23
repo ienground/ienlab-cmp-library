@@ -23,6 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.hig.CupertinoDropdownMenu
@@ -52,11 +54,7 @@ fun HigActionMenu(
         label = "action_alpha"
     )
 
-    AnimatedVisibility(
-        visible = item.visible,
-        enter = fadeIn(tween(150)) + expandHorizontally(tween(300)),
-        exit = fadeOut(tween(150)) + shrinkHorizontally(tween(300))
-    ) {
+    if (item.visible) {
         item.icon?.let { icon ->
             BadgedBox(
                 badge = {
