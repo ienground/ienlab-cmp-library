@@ -121,7 +121,7 @@ fun RootWrapper(
                                         CupertinoIcon(
                                             painter = AdaptiveIcons.painter(
                                                 material = { CupertinoIcons.Default.ChevronUp },
-                                                cupertino = { "chevron_up" }
+                                                cupertino = { "chevron.up" }
                                             ),
                                             contentDescription = stringResource(Res.string.previous)
                                         )
@@ -137,7 +137,7 @@ fun RootWrapper(
                                         CupertinoIcon(
                                             painter = AdaptiveIcons.painter(
                                                 material = { CupertinoIcons.Default.ChevronDown },
-                                                cupertino = { "chevron_down" }
+                                                cupertino = { "chevron.down" }
                                             ),
                                             contentDescription = stringResource(Res.string.next)
                                         )
