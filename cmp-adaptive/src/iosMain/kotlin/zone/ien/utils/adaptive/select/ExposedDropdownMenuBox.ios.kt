@@ -1,5 +1,6 @@
 package zone.ien.utils.adaptive.select
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -171,8 +172,12 @@ actual fun <T> ExposedDropdownMenuBox(
         }
     }
 
-    textField(itemsWithLabels[currentItem].orEmpty()) {
-        trailingIconButton({ expanded = !expanded }, expanded)
+    Box(
+        modifier = modifier
+    ) {
+        textField(itemsWithLabels[currentItem].orEmpty()) {
+            trailingIconButton({ expanded = !expanded }, expanded)
+        }
     }
 }
 
