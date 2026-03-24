@@ -86,9 +86,7 @@ fun HigActionMenu(
                             ComplexIcon(
                                 icon = icon,
                                 contentDescription = item.title,
-                                modifier = Modifier
-                                    .alpha(alpha)
-                                    .size(LocalMenuIconButtonSize.current.first - 16.dp)
+                                modifier = Modifier.alpha(alpha)
                             )
                         }
                     }

@@ -25,7 +25,7 @@ import zone.ien.utils.ui.view.M3TooltipBox
 @Composable
 fun M3BackButton(
     modifier: Modifier = Modifier,
-    icon: IconData = LocalBackButtonIcon.current?.let(IconData::Vector) ?: LocalButtonProviderDefault.BackIcon,
+    icon: IconData = LocalBackButtonIcon.current ?: LocalButtonProviderDefault.BackIcon,
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
@@ -50,7 +50,7 @@ fun M3BackButton(
 @Composable
 fun M3CloseButton(
     modifier: Modifier = Modifier,
-    icon: IconData = LocalCloseButtonIcon.current?.let(IconData::Vector) ?: LocalButtonProviderDefault.CloseIcon,
+    icon: IconData = LocalCloseButtonIcon.current ?: LocalButtonProviderDefault.CloseIcon,
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {

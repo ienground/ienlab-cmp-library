@@ -57,6 +57,7 @@ fun AdaptiveProvideSectionStyle(
     fullHeight: Boolean = true,
     scrollState: ScrollState? = rememberScrollState(),
     shape: Shape = RectangleShape,
+    title: @Composable (() -> Unit)? = null,
     backdrop: LayerBackdrop = rememberDefaultBackdrop(),
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -67,6 +68,7 @@ fun AdaptiveProvideSectionStyle(
                 fullHeight = fullHeight,
                 scrollState = scrollState,
                 shape = shape,
+                title = title,
                 content = content
             )
         },
@@ -83,8 +85,10 @@ fun AdaptiveProvideSectionStyle(
                         .sectionBackground(style)
                         .then(modifier)
                     ,
-                    content = content
-                )
+                ) {
+                    title?.invoke()
+                    content()
+                }
             }
         }
     )

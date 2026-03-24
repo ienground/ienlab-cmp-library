@@ -3,11 +3,16 @@ package zone.ien.utils.adaptive.screen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.ScrollableState
@@ -46,6 +51,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
@@ -77,6 +84,7 @@ import zone.ien.utils.ui.screen.LocalIsScrollTint
 import zone.ien.utils.ui.screen.LocalM3TopBarSize
 import zone.ien.utils.ui.screen.M3TopAppBarScaffold
 import zone.ien.utils.ui.screen.TopBarSize
+import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class,
     ExperimentalCupertinoApi::class
@@ -160,7 +168,13 @@ fun AdaptiveTopAppBarScaffold(
                                 subtitle = subtitle,
                                 modifier = topBarModifier,
                                 navigationIcon = navigationIcon,
-                                actions = actions,
+                                actions = {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                        content = actions,
+                                        modifier = Modifier.animateContentSizeWithoutClipping()
+                                    )
+                                },
                                 windowInsets = it.topBarWindowInsets,
                                 isCenterAligned = it.isCenterAligned,
                                 isBackgroundAdaptive = it.isBackgroundAdaptive,
@@ -321,7 +335,7 @@ fun AdaptiveTopAppBarScaffold(
                                 horizontalArrangement = Arrangement.spacedBy(24.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
-                                    .animateContentSize()
+                                    .animateContentSizeWithoutClipping()
                                     .fillMaxHeight()
                             ) {
                                 content()
@@ -331,15 +345,32 @@ fun AdaptiveTopAppBarScaffold(
                 }
 
                 primaryAction?.let { action ->
-                    liquidButton(
-                        onClick = action.onClick,
-                        isIconButton = action.icon != null,
-                        enabled = action.enabled,
-                        colors = glassProminentButtonColors(),
-                        backdrop = it.backdrop,
-                        isBackgroundAdaptive = it.isBackgroundAdaptive
+                    val alpha by animateFloatAsState(
+                        targetValue = if (action.visible) 1f else 0f,
+                        animationSpec = spring(1.2f)
+                    )
+
+                    AnimatedVisibility(
+                        visible = action.visible,
+                        enter = slideInHorizontally(spring(1.2f)) { it / 2 },
+                        exit = slideOutHorizontally(spring(1.2f)) { it / 2 }
+//                        enter = slideInHorizontally(spring(1.2f)) { it / 2 },
+//                        exit = slideOutHorizontally(spring(1.2f)) { it / 2 }
                     ) {
-                        HigActionMenu(action)
+                        liquidButton(
+                            onClick = action.onClick,
+                            isIconButton = action.icon != null,
+                            enabled = action.enabled,
+                            colors = glassProminentButtonColors(),
+                            backdrop = it.backdrop,
+                            isBackgroundAdaptive = it.isBackgroundAdaptive,
+                            modifier = Modifier.graphicsLayer {
+                                this.alpha = alpha
+                                this.compositingStrategy = CompositingStrategy.ModulateAlpha
+                            }
+                        ) {
+                            HigActionMenu(action)
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.width(8.dp))

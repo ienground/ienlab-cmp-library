@@ -43,8 +43,8 @@ fun PrefsScreen(
             scrollState = scrollState,
             shape = shape,
             backdrop = backdrop,
+            title = title,
             content = {
-                title()
                 content()
                 Spacer(modifier = Modifier.height(16.dp))
             }
