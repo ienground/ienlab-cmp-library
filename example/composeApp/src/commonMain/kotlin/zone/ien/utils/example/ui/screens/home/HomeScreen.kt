@@ -190,7 +190,7 @@ fun HomeScreen(
                             DropdownMenuSection(
                                 items = children.fastMap { child ->
                                     DropdownMenuSection.Action(
-                                        text = { Text(text = child) },
+                                        text = child,
                                         onClick = {
                                             childExpanded = false
                                         }

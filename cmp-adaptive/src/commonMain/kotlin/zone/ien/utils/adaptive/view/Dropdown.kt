@@ -4,23 +4,22 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.Badge
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Shape
@@ -31,17 +30,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.kyant.backdrop.Backdrop
 import zone.ien.hig.utils.rememberDefaultBackdrop
-import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoDropdownMenuDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
-import zone.ien.hig.MenuAction
-import zone.ien.hig.MenuDivider
-import zone.ien.hig.MenuSection
 import zone.ien.hig.adaptive.Adaptation
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
-import kotlin.math.exp
+import zone.ien.utils.hig.view.HigDropdownMenu
+import zone.ien.utils.icon.ComplexIcon
+import zone.ien.utils.icon.IconData
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -121,10 +118,24 @@ fun AdaptiveDropdownMenu(
                         }
                         section.items.filter { it.visible }.forEach { action ->
                             DropdownMenuItem(
-                                text = action.text,
+                                text = { Text(text = action.text) },
                                 onClick = action.onClick,
                                 modifier = action.modifier,
-                                leadingIcon = action.icon,
+                                leadingIcon = {
+                                    action.icon?.let {
+                                        ComplexIcon(
+                                            icon = it,
+                                            contentDescription = action.text
+                                        )
+                                    }
+                                },
+                                trailingIcon = {
+                                    if (action.badge != 0) {
+                                        Badge(
+                                            content = if (action.badge > 0) {{ Text(text = action.badge.toString()) }} else null
+                                        )
+                                    }
+                                },
                                 enabled = action.enabled
                             )
                         }
@@ -133,7 +144,7 @@ fun AdaptiveDropdownMenu(
             )
         },
         cupertino = {
-            CupertinoDropdownMenu(
+            HigDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = onDismissRequest,
                 modifier = modifier,
@@ -144,41 +155,23 @@ fun AdaptiveDropdownMenu(
                 scrollState = scrollState,
                 properties = properties,
                 backdrop = it.backdrop,
-                content = {
-                    items.forEachIndexed { index, section ->
-                        if (index != 0) {
-                            MenuDivider()
-                        }
-                        MenuSection(
-                            title = section.title,
-                        ) {
-                            section.items.filter { it.visible }.forEach { action ->
-                                MenuAction(
-                                    onClick = action.onClick,
-                                    modifier = action.modifier,
-                                    icon = action.icon,
-                                    title = action.text,
-                                    enabled = action.enabled
-                                )
-                            }
-                        }
-                    }
-                }
+                items = items
             )
         }
     )
 }
 
 data class DropdownMenuSection(
-    val title: (@Composable () -> Unit)? = null,
+    val title: String? = null,
     val items: List<Action>
 ) {
 
     data class Action(
-        val text: @Composable () -> Unit,
+        val text: String,
         val onClick: () -> Unit,
         val modifier: Modifier = Modifier,
-        val icon: @Composable () -> Unit = {},
+        val icon: IconData? = null,
+        val badge: Int = 0,
         val visible: Boolean = true,
         val enabled: Boolean = true
     )
