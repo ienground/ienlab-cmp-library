@@ -2,6 +2,7 @@ package zone.ien.utils.hig.view
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.Badge
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -15,6 +16,8 @@ import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.MenuAction
 import zone.ien.hig.MenuDivider
 import zone.ien.hig.MenuSection
+import zone.ien.hig.theme.CupertinoColors
+import zone.ien.hig.theme.systemRed
 import zone.ien.utils.adaptive.view.DropdownMenuSection
 import zone.ien.utils.icon.ComplexIcon
 
@@ -56,14 +59,23 @@ actual fun HigDropdownMenu(
                         MenuAction(
                             onClick = action.onClick,
                             modifier = action.modifier,
-                            icon = {
-                                action.icon?.let {
+                            leadingIcon = action.icon?.let {
+                                {
                                     ComplexIcon(
                                         icon = it,
                                         contentDescription = action.text
                                     )
                                 }
                             },
+                            trailingIcon = if (action.badge != 0) {
+                                {
+                                    Badge(
+                                        content = if (action.badge > 0) {{ Text(text = action.badge.toString()) }} else null,
+                                        containerColor = CupertinoColors.systemRed,
+                                        contentColor = Color.White
+                                    )
+                                }
+                            } else null,
                             title = { Text(text = action.text) },
                             enabled = action.enabled
                         )

@@ -121,21 +121,21 @@ fun AdaptiveDropdownMenu(
                                 text = { Text(text = action.text) },
                                 onClick = action.onClick,
                                 modifier = action.modifier,
-                                leadingIcon = {
-                                    action.icon?.let {
+                                leadingIcon = action.icon?.let {
+                                    {
                                         ComplexIcon(
                                             icon = it,
                                             contentDescription = action.text
                                         )
                                     }
                                 },
-                                trailingIcon = {
-                                    if (action.badge != 0) {
+                                trailingIcon = if (action.badge != 0) {
+                                    {
                                         Badge(
                                             content = if (action.badge > 0) {{ Text(text = action.badge.toString()) }} else null
                                         )
                                     }
-                                },
+                                } else null,
                                 enabled = action.enabled
                             )
                         }
