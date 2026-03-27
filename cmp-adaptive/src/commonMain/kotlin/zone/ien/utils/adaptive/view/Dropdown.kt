@@ -156,7 +156,7 @@ fun AdaptiveDropdownMenu(
                                 MenuAction(
                                     onClick = action.onClick,
                                     modifier = action.modifier,
-                                    icon = action.icon,
+                                    leadingIcon = action.icon,
                                     title = action.text,
                                     enabled = action.enabled
                                 )

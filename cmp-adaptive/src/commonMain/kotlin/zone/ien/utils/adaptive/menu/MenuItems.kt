@@ -30,6 +30,7 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.MenuAction
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.systemRed
@@ -152,8 +153,8 @@ fun HigActionsMenu(
         ) {
             menuItems.overflowItems.forEach { item ->
                 if (item.visible) {
-                    DropdownMenuItem(
-                        text = { Text(text = item.title) },
+                    MenuAction(
+                        title = { Text(text = item.title) },
                         leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
                             item.icon?.let {
                                 {
