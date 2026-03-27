@@ -4,7 +4,7 @@ kotlin = "2.3.20"
 android-minSdk = "29"
 android-compileSdk = "36"
 android-targetSdk = "36"
-lib-version-name = "2.1.13-alpha14"
+lib-version-name = "2.1.13-alpha15"
 
 # plugin
 compose-plugin = "1.10.3"
@@ -41,7 +41,7 @@ serialization = "1.10.0"
 runner = "1.7.0"
 coreVersion = "1.7.0"
 junit = "1.3.0"
-android-ui-graphics = "1.10.5"
+android-ui-graphics = "1.10.6"
 androidx-core = "1.18.0"
 
 [libraries]
