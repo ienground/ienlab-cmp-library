@@ -12,6 +12,8 @@ import zone.ien.utils.icon.IconData.Vector
 sealed interface IconData {
     data class Vector(val imageVector: ImageVector): IconData
     data class Paint(val painter: Painter): IconData
+
+    companion object
 }
 
 @Composable

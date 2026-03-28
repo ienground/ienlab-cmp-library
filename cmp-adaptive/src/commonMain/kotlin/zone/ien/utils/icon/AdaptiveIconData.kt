@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
 
 @Composable
-fun adaptiveIconData(
+fun IconData.Companion.Adaptive(
     material: @Composable () -> ImageVector,
     cupertino: @Composable () -> String
 ): IconData.Paint {
