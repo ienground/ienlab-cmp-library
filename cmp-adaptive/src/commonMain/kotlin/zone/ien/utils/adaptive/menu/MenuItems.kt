@@ -23,12 +23,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.hig.CupertinoDropdownMenu
+import zone.ien.hig.CupertinoDropdownMenuNative
 import zone.ien.hig.CupertinoIcon
+import zone.ien.hig.CupertinoMenuItemData
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.MenuAction
 import zone.ien.hig.theme.CupertinoColors
@@ -116,6 +119,7 @@ fun HigActionsMenu(
     closeDropdown: () -> Unit,
     onToggleOverflow: () -> Unit,
     maxVisibleItems: Int,
+    isNative: Boolean = false,
     trigger: @Composable (@Composable () -> Unit) -> Unit,
 ) {
     val menuItems = remember(items, maxVisibleItems) { splitMenuItems(items, maxVisibleItems) }
@@ -146,41 +150,62 @@ fun HigActionsMenu(
             }
         }
     ) {
-        CupertinoDropdownMenu(
-            expanded = isOpen,
-            onDismissRequest = onToggleOverflow,
-            backdrop = rememberDefaultBackdrop()
-        ) {
-            menuItems.overflowItems.forEach { item ->
-                if (item.visible) {
-                    MenuAction(
-                        title = { Text(text = item.title) },
-                        leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
-                            item.icon?.let {
+        if (isNative) {
+            CupertinoDropdownMenuNative(
+                expanded = isOpen,
+                onDismissRequest = onToggleOverflow,
+                backdrop = rememberDefaultBackdrop(),
+                items = menuItems.overflowItems.mapNotNull { item ->
+                    CupertinoMenuItemData(
+                        title = item.title,
+                        icon = if (item is ActionMenuItem.IconMenuItem && item.icon != null) {
+                            when (item.icon) {
+                                is IconData.Vector -> rememberVectorPainter((item.icon as IconData.Vector).imageVector)
+                                is IconData.Paint -> (item.icon as IconData.Paint).painter
+                                else -> null
+                            }
+                        } else null,
+                        onClick = item.onClick
+                    ).takeIf { item.visible }
+                }
+            )
+        } else {
+            CupertinoDropdownMenu(
+                expanded = isOpen,
+                onDismissRequest = onToggleOverflow,
+                backdrop = rememberDefaultBackdrop()
+            ) {
+                menuItems.overflowItems.forEach { item ->
+                    if (item.visible) {
+                        MenuAction(
+                            title = { Text(text = item.title) },
+                            leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
+                                item.icon?.let {
+                                    {
+                                        ComplexIcon(
+                                            icon = it,
+                                            contentDescription = item.title
+                                        )
+                                    }
+                                }
+                            } else null,
+                            trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
                                 {
-                                    ComplexIcon(
-                                        icon = it,
-                                        contentDescription = item.title
-                                    )
+                                    if (item.badge != 0) {
+                                        Badge(
+                                            content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null,
+                                            containerColor = CupertinoColors.systemRed,
+                                            contentColor = Color.White
+                                        )
+                                    }
                                 }
+                            } else null,
+                            onClick = {
+                                closeDropdown()
+                                item.onClick()
                             }
-                        } else null,
-                        trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
-                            {
-                                if (item.badge != 0) {
-                                    Badge(
-                                        content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null,
-                                        containerColor = CupertinoColors.systemRed,
-                                        contentColor = Color.White
-                                    )
-                                }
-                            }
-                        } else null,
-                        onClick = {
-                            closeDropdown()
-                            item.onClick()
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
