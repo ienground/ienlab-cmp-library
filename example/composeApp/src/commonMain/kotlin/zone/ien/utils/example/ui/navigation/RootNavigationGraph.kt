@@ -15,6 +15,7 @@ import zone.ien.utils.example.ui.screens.playground.PlaygroundScreen
 import zone.ien.utils.example.ui.screens.section.SectionScreen
 import zone.ien.utils.example.ui.screens.settings.SettingsScreen
 import zone.ien.utils.navigation.BaseNavDisplay
+import zone.ien.utils.navigation.getConfig
 import zone.ien.utils.navigation.navigateBack
 
 @Serializable
@@ -26,22 +27,10 @@ sealed interface RootRoute: NavKey {
     @Serializable data object LazySection: RootRoute
 }
 
-val rootConfig = SavedStateConfiguration {
-    serializersModule = SerializersModule {
-        polymorphic(NavKey::class) {
-            subclass(RootRoute.Home::class, RootRoute.Home.serializer())
-            subclass(RootRoute.Settings::class, RootRoute.Settings.serializer())
-            subclass(RootRoute.Playground::class, RootRoute.Playground.serializer())
-            subclass(RootRoute.Section::class, RootRoute.Section.serializer())
-            subclass(RootRoute.LazySection::class, RootRoute.LazySection.serializer())
-        }
-    }
-}
-
 @Composable
 fun RootNavigationGraph(
     modifier: Modifier = Modifier,
-    backStack: NavBackStack<NavKey>
+    backStack: NavBackStack<RootRoute>
 ) {
     BaseNavDisplay(
         backStack = backStack,

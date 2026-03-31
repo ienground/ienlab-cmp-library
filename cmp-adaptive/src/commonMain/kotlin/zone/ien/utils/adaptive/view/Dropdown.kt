@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.rememberScrollState
@@ -11,11 +12,14 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -30,6 +34,9 @@ import com.kyant.backdrop.Backdrop
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoDropdownMenuDefaults
+import zone.ien.hig.CupertinoDropdownMenuNative
+import zone.ien.hig.CupertinoMenuItemData
+import zone.ien.hig.CupertinoMenuSectionData
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.MenuAction
 import zone.ien.hig.MenuDivider
@@ -38,6 +45,8 @@ import zone.ien.hig.adaptive.Adaptation
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.utils.icon.ComplexIcon
+import zone.ien.utils.icon.IconData
 import kotlin.math.exp
 
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -59,12 +68,14 @@ fun AdaptiveDropdownBox(
         },
         cupertino = {
             Box(
+                contentAlignment = Alignment.TopCenter,
                 modifier = modifier.graphicsLayer { clip = false }
             ) {
                 val alpha by animateFloatAsState(
-                    targetValue = if (expanded) 0.1f else 1f,
+                    targetValue = if (expanded) 0.001f else 1f,
                     animationSpec = spring(1.2f)
                 )
+
                 Box(
                     modifier = Modifier.graphicsLayer {
                         this.scaleX = alpha
@@ -151,13 +162,87 @@ fun AdaptiveDropdownMenu(
                                 MenuAction(
                                     onClick = action.onClick,
                                     modifier = action.modifier,
-                                    icon = action.icon,
+                                    leadingIcon = action.icon,
                                     title = action.text,
                                     enabled = action.enabled
                                 )
                             }
                         }
                     }
+                }
+            )
+        }
+    )
+}
+
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
+@Composable
+fun AdaptiveDropdownMenuNative(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    scrollState: ScrollState = rememberScrollState(),
+    properties: PopupProperties = PopupProperties(clippingEnabled = false),
+    adaptation: AdaptationScope<HigDropdownMenuAdaptation, M3DropdownMenuAdaptation>.() -> Unit = {},
+    items: List<DropdownMenuSectionNative>,
+) {
+    AdaptiveWidget(
+        adaptation = remember { DropdownMenuAdaptation() },
+        adaptationScope = adaptation,
+        material = {
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = onDismissRequest,
+                modifier = modifier,
+                offset = offset,
+                scrollState = scrollState,
+                properties = properties,
+                shape = it.shape,
+                containerColor = it.containerColor,
+                tonalElevation = it.tonalElevation,
+                shadowElevation = it.shadowElevation,
+                border = it.border,
+                content = {
+                    items.forEachIndexed { index, section ->
+                        if (index != 0) {
+                            HorizontalDivider()
+                        }
+                        section.items.filter { it.visible }.forEach { action ->
+                            DropdownMenuItem(
+                                text = { Text(text = action.text) },
+                                onClick = action.onClick,
+                                modifier = action.modifier,
+                                leadingIcon = action.icon?.let { { ComplexIcon(icon = it) } },
+                                enabled = action.enabled
+                            )
+                        }
+                    }
+                }
+            )
+        },
+        cupertino = {
+            CupertinoDropdownMenuNative(
+                expanded = expanded,
+                onDismissRequest = onDismissRequest,
+                modifier = modifier,
+                offset = offset,
+                paddingValues = it.paddingValues,
+                containerColor = it.containerColor,
+                width = it.width,
+                scrollState = scrollState,
+                properties = properties,
+                backdrop = it.backdrop,
+                sections = items.map { section ->
+                    CupertinoMenuSectionData(
+                        title = "",
+                        items = section.items.filter { it.visible }.map { action ->
+                            CupertinoMenuItemData(
+                                title = action.text,
+                                onClick = action.onClick,
+                            )
+                        }
+                    )
                 }
             )
         }
@@ -174,6 +259,20 @@ data class DropdownMenuSection(
         val onClick: () -> Unit,
         val modifier: Modifier = Modifier,
         val icon: @Composable () -> Unit = {},
+        val visible: Boolean = true,
+        val enabled: Boolean = true
+    )
+}
+
+data class DropdownMenuSectionNative(
+    val title: String? = null,
+    val items: List<Action>
+) {
+    data class Action(
+        val text: String,
+        val onClick: () -> Unit,
+        val modifier: Modifier = Modifier,
+        val icon: IconData? = null,
         val visible: Boolean = true,
         val enabled: Boolean = true
     )

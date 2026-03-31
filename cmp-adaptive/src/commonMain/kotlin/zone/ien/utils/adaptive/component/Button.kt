@@ -1,10 +1,24 @@
 package zone.ien.utils.adaptive.component
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
 import zone.ien.hig.CupertinoLiquidIconButton
@@ -21,35 +35,53 @@ import zone.ien.utils.ui.screen.M3BackButton
 @Composable
 fun AdaptiveBackButton(
     modifier: Modifier = Modifier,
-    icon: IconData = LocalBackButtonIcon.current?.let(IconData::Vector) ?: LocalButtonProviderDefault.BackIcon,
+    icon: IconData = LocalBackButtonIcon.current ?: LocalButtonProviderDefault.BackIcon,
     enabled: Boolean = true,
+    visible: Boolean = true,
     backdrop: Backdrop,
     isBackgroundAdaptive: Boolean = true,
     onClick: () -> Unit
 ) {
-    AdaptiveWidget(
-        material = {
-            M3BackButton(
-                modifier = modifier,
-                icon = icon,
-                enabled = enabled,
-                onClick = onClick
-            )
-        },
-        cupertino = {
-            CupertinoLiquidIconButton(
-                modifier = modifier.padding(horizontal = 16.dp),
-                enabled = enabled,
-                backdrop = backdrop,
-                isBackgroundAdaptive = isBackgroundAdaptive,
-                onClick = onClick
-            ) {
-                ComplexIcon(
-                    icon = icon,
-                    contentDescription = null
-                )
-            }
-        }
+    val alpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = spring(1.2f)
     )
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = slideInHorizontally(spring(1.2f)),
+        exit = slideOutHorizontally(spring(1.2f))
+    ) {
+        AdaptiveWidget(
+            material = {
+                M3BackButton(
+                    modifier = modifier,
+                    icon = icon,
+                    enabled = enabled,
+                    onClick = onClick
+                )
+            },
+            cupertino = {
+                CupertinoLiquidIconButton(
+                    modifier = modifier
+                        .padding(horizontal = 16.dp)
+                        .graphicsLayer {
+                            this.alpha = alpha
+                            this.compositingStrategy = CompositingStrategy.ModulateAlpha
+                        }
+                    ,
+                    enabled = enabled,
+                    backdrop = backdrop,
+                    isBackgroundAdaptive = isBackgroundAdaptive,
+                    onClick = onClick
+                ) {
+                    ComplexIcon(
+                        icon = icon,
+                        contentDescription = null
+                    )
+                }
+            }
+        )
+    }
 }
 

@@ -30,17 +30,18 @@ fun keyboardAsState(): State<Boolean> {
 }
 
 fun Modifier.advancedImePadding(condition: Boolean) = composed {
-    conditional(condition) {
-        var consumePadding by remember { mutableStateOf(0) }
-        onGloballyPositioned { coordinates ->
-            consumePadding = (coordinates.findRootCoordinates().size.height -
-                    (coordinates.positionInWindow().y + coordinates.size.height)).toInt().coerceAtLeast(0)
-        }
-            .consumeWindowInsets(
-                PaddingValues(bottom = with(LocalDensity.current) { consumePadding.toDp() })
-            )
-    }
-        .imePadding()
+//    conditional(condition) {
+//        var consumePadding by remember { mutableStateOf(0) }
+//        onGloballyPositioned { coordinates ->
+//            consumePadding = (coordinates.findRootCoordinates().size.height -
+//                    (coordinates.positionInWindow().y + coordinates.size.height)).toInt().coerceAtLeast(0)
+//        }
+//            .consumeWindowInsets(
+//                PaddingValues(bottom = with(LocalDensity.current) { consumePadding.toDp() })
+//            )
+//    }
+//        .
+        imePadding()
 }
 
 @Composable

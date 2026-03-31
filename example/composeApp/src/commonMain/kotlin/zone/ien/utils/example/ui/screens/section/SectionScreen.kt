@@ -34,6 +34,7 @@ import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
 import zone.ien.utils.example.Android
 import zone.ien.utils.example.isIos
 import zone.ien.utils.icon.IconData
+import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.section.M3ProvideSectionStyle
 
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -60,6 +61,18 @@ fun SectionScreen(
                     this.showNavTitle = true
                 }
             },
+            actions = listOf(
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "Test",
+                    icon = IconData.Paint(
+                        AdaptiveIcons.painter(
+                            material = { Android },
+                            cupertino = { "chevron.right" }
+                        )
+                    ),
+                    onClick = {}
+                )
+            ),
             modifier = modifier
         ) { pv, title ->
             AdaptiveProvideSectionStyle(

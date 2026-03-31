@@ -43,6 +43,7 @@ fun M3ProvideSectionStyle(
     fullHeight: Boolean = true,
     scrollState: ScrollState? = rememberScrollState(),
     shape: Shape = RectangleShape,
+    title: @Composable (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
@@ -55,7 +56,11 @@ fun M3ProvideSectionStyle(
             .then(modifier)
         ,
         content = {
-            Spacer(modifier = Modifier)
+            if (title != null) {
+                title()
+            } else {
+                Spacer(modifier = Modifier)
+            }
             content()
             Spacer(modifier = Modifier)
         }
