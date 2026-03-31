@@ -79,20 +79,10 @@ fun Empty(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
             content = buttons,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
         )
-//        Text(
-//            text = stringResource(Res.string.no_room_available),
-//            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-//            textAlign = TextAlign.Center,
-//            modifier = Modifier.padding(top = 8.dp)
-//        )
-//        Text(
-//            text = stringResource(Res.string.no_room_available_desc),
-//            style = MaterialTheme.typography.labelMedium,
-//            textAlign = TextAlign.Center,
-//            color = MaterialTheme.colorScheme.outline
-//        )
     }
 }
 
