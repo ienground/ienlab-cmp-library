@@ -69,7 +69,7 @@ import zone.ien.utils.utils.ifEmptyOrNull
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    backStack: NavBackStack<NavKey>
+    backStack: NavBackStack<RootRoute>
 ) {
     var isMaterialTheme by remember { mutableStateOf(true) }
     var isDropdownMenu by remember { mutableStateOf(true) }
