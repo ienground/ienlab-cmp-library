@@ -27,11 +27,18 @@ fun <T: NavKey> NavBackStack<T>.popUpTo(route: T, inclusive: Boolean = false) {
     }
 }
 
+
 @OptIn(ExperimentalSerializationApi::class)
-inline fun <reified T: NavKey> getConfig() = SavedStateConfiguration {
+inline fun <reified T : NavKey> getConfig() = SavedStateConfiguration {
     serializersModule = SerializersModule {
         polymorphic(NavKey::class) {
             subclassesOfSealed<T>()
+        }
+        // T가 NavKey가 아닌 경우(RootRoute 등) T scope도 추가 등록
+        if (T::class != NavKey::class) {
+            polymorphic(T::class) {
+                subclassesOfSealed<T>()
+            }
         }
     }
 }
