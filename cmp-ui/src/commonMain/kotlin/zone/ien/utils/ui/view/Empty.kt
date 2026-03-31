@@ -35,7 +35,7 @@ fun Empty(
     icon: (@Composable (Modifier) -> Unit)?,
     title: @Composable () -> Unit,
     content: (@Composable () -> Unit)? = null,
-    buttons: @Composable RowScope.() -> Unit = {}
+    buttons: @Composable (RowScope.() -> Unit)? = null
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -75,14 +75,16 @@ fun Empty(
         ) {
             content?.invoke()
         }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically,
-            content = buttons,
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-        )
+        buttons?.let {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically,
+                content = it,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+            )
+        }
     }
 }
 
