@@ -1,11 +1,20 @@
 package zone.ien.utils.adaptive.menu
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,17 +35,18 @@ import zone.ien.hig.CupertinoMenuItemData
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.MenuAction
 import zone.ien.hig.theme.CupertinoColors
+import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.systemRed
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.view.AdaptiveDropdownBox
-import zone.ien.utils.adaptive.view.AdaptiveDropdownMenu
 import zone.ien.utils.adaptive.view.AdaptiveTooltipBox
-import zone.ien.utils.adaptive.view.DropdownMenuSection
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.hig.Ellipsis
 import zone.ien.utils.ui.menu.ActionMenuItem
+import zone.ien.utils.ui.menu.LocalMenuIconButtonSize
+import zone.ien.utils.icon.IconData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,9 +111,7 @@ fun HigActionMenu(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalCupertinoApi::class,
-    ExperimentalAdaptiveApi::class
-)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalCupertinoApi::class)
 @Composable
 fun HigActionsMenu(
     items: List<ActionMenuItem>,
@@ -199,62 +207,8 @@ fun HigActionsMenu(
                         )
                     }
                 }
-            },
-            items = listOf(
-                DropdownMenuSection(
-                    title = null,
-                    items = menuItems.overflowItems.mapNotNull { item ->
-                        if (item.visible) {
-                            DropdownMenuSection.Action(
-                                text = item.title,
-                                onClick = {
-                                    closeDropdown()
-                                    item.onClick()
-                                },
-                                icon = if (item is ActionMenuItem.IconMenuItem) item.icon else null,
-                                badge = if (item is ActionMenuItem.IconMenuItem) item.badge else 0,
-                                visible = item.visible,
-                                enabled = item.enabled
-                            )
-                        } else null
-                    }
-                )
-            )
-        )
-//        {
-//            menuItems.overflowItems.forEach { item ->
-//                if (item.visible) {
-//                    DropdownMenuItem(
-//                        text = { Text(text = item.title) },
-//                        leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
-//                            item.icon?.let {
-//                                {
-//                                    ComplexIcon(
-//                                        icon = it,
-//                                        contentDescription = item.title
-//                                    )
-//                                }
-//                            }
-//                        } else null,
-//                        trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
-//                            {
-//                                if (item.badge != 0) {
-//                                    Badge(
-//                                        content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null,
-//                                        containerColor = CupertinoColors.systemRed,
-//                                        contentColor = Color.White
-//                                    )
-//                                }
-//                            }
-//                        } else null,
-//                        onClick = {
-//                            closeDropdown()
-//                            item.onClick()
-//                        }
-//                    )
-//                }
-//            }
-//        }
+            }
+        }
     }
 }
 
