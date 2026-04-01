@@ -58,7 +58,6 @@ import zone.ien.utils.adaptive.view.DropdownMenuSection
 import zone.ien.utils.adaptive.view.DropdownMenuSectionNative
 import zone.ien.utils.example.Android
 import zone.ien.utils.example.ui.navigation.RootRoute
-import zone.ien.utils.icon.Adaptive
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.screen.TopBarSize
 import zone.ien.utils.icon.IconData
@@ -196,11 +195,7 @@ fun HomeScreen(
                                         text = child,
                                         onClick = {
                                             childExpanded = false
-                                        },
-                                        icon = IconData.Adaptive(
-                                            material = { Android },
-                                            cupertino = { "chevron.left" }
-                                        )
+                                        }
                                     )
                                 }
                             )

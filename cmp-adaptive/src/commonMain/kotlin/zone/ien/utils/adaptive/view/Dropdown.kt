@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -236,17 +235,11 @@ fun AdaptiveDropdownMenuNative(
                 backdrop = it.backdrop,
                 sections = items.map { section ->
                     CupertinoMenuSectionData(
-                        title = section.title,
-                        items = section.items.map { action ->
+                        title = "",
+                        items = section.items.filter { it.visible }.map { action ->
                             CupertinoMenuItemData(
                                 title = action.text,
                                 onClick = action.onClick,
-                                icon = when (action.icon) {
-                                    is IconData.Vector -> rememberVectorPainter(action.icon.imageVector)
-                                    is IconData.Paint -> action.icon.painter
-                                    else -> null
-                                },
-                                enabled = action.enabled
                             )
                         }
                     )
