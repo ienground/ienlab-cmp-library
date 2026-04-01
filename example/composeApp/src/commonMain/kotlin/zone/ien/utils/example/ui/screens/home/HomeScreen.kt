@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMapIndexed
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.kyant.backdrop.backdrops.layerBackdrop
@@ -71,7 +73,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     backStack: NavBackStack<RootRoute>
 ) {
-    var isMaterialTheme by remember { mutableStateOf(true) }
+    var isMaterialTheme by rememberSaveable { mutableStateOf(true) }
     var isDropdownMenu by remember { mutableStateOf(true) }
     var showVisible by remember { mutableStateOf(true) }
     var showSingle by remember { mutableStateOf(false) }
@@ -188,14 +190,27 @@ fun HomeScreen(
                         expanded = childExpanded,
                         onDismissRequest = { childExpanded = false },
                         adaptation = { cupertino { this.backdrop = backdrop } },
-                        items = listOf(
+                        items = children.fastMapIndexed { index, child ->
+                            DropdownMenuSectionNative.Action(
+                                text = child,
+                                onClick = {
+                                    childExpanded = false
+                                },
+                                icon = IconData.Vector(Android),
+                                isDestructive = index == 1
+                            )
+                        },
+                        sections = listOf(
                             DropdownMenuSectionNative(
-                                items = children.fastMap { child ->
+                                title = "section",
+                                items = children.fastMapIndexed { index, child ->
                                     DropdownMenuSectionNative.Action(
                                         text = child,
                                         onClick = {
                                             childExpanded = false
-                                        }
+                                        },
+                                        icon = IconData.Vector(Android),
+                                        isDestructive = index == 1
                                     )
                                 }
                             )
