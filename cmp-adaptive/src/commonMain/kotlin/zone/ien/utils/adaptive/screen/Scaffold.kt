@@ -323,6 +323,7 @@ fun AdaptiveTopAppBarScaffold(
                         isOpen = menuExpanded,
                         closeDropdown = { menuExpanded = false },
                         onToggleOverflow = { menuExpanded = !menuExpanded },
+                        isNative = it.isDropdownNative,
                         maxVisibleItems = 3,
                     ) { content ->
                         liquidButton(
@@ -354,8 +355,6 @@ fun AdaptiveTopAppBarScaffold(
                         visible = action.visible,
                         enter = slideInHorizontally(spring(1.2f)) { it / 2 },
                         exit = slideOutHorizontally(spring(1.2f)) { it / 2 }
-//                        enter = slideInHorizontally(spring(1.2f)) { it / 2 },
-//                        exit = slideOutHorizontally(spring(1.2f)) { it / 2 }
                     ) {
                         liquidButton(
                             onClick = action.onClick,
@@ -409,6 +408,7 @@ class HigTopAppBarScaffoldAdaptation internal constructor(
     isBackgroundAdaptive: Boolean = true,
     isBackgroundGradient: Boolean = false,
     backdrop: LayerBackdrop,
+    isDropdownNative: Boolean,
     colors: CupertinoTopAppBarColors,
     scaffoldContainerColor: Color,
     scaffoldContentColor: Color,
@@ -421,6 +421,7 @@ class HigTopAppBarScaffoldAdaptation internal constructor(
     var isBackgroundAdaptive by mutableStateOf(isBackgroundAdaptive)
     var isBackgroundGradient by mutableStateOf(isBackgroundGradient)
     var backdrop by mutableStateOf(backdrop)
+    var isDropdownNative by mutableStateOf(isDropdownNative)
     var colors by mutableStateOf(colors)
     var scaffoldContainerColor by mutableStateOf(scaffoldContainerColor)
     var scaffoldContentColor by mutableStateOf(scaffoldContentColor)
@@ -438,13 +439,14 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
         val isBackgroundAdaptive = LocalIsBackgroundAdaptive.current
         val isBackgroundGradient = LocalIsBackgroundGradient.current
         val backdrop = rememberDefaultBackdrop()
+        val isDropdownNative = true
         val colors = CupertinoTopAppBarDefaults.topAppBarColors()
         val scaffoldContainerColor = CupertinoScaffoldDefaults.containerColor
         val scaffoldContentColor = CupertinoScaffoldDefaults.contentColor
         val scrollableState = rememberScrollState()
         val showNavTitle = LocalHigShowNavTitle.current
 
-        return remember(topBarWindowInsets, contentWindowInsets, backdrop, isCenterAligned, isBackgroundAdaptive, isBackgroundGradient, colors, scaffoldContainerColor, scaffoldContentColor, scrollableState, showNavTitle) {
+        return remember(topBarWindowInsets, contentWindowInsets, backdrop,isDropdownNative, isCenterAligned, isBackgroundAdaptive, isBackgroundGradient, colors, scaffoldContainerColor, scaffoldContentColor, scrollableState, showNavTitle) {
             HigTopAppBarScaffoldAdaptation(
                 topBarWindowInsets = topBarWindowInsets,
                 contentWindowInsets = contentWindowInsets,
@@ -452,6 +454,7 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
                 isBackgroundAdaptive = isBackgroundAdaptive,
                 isBackgroundGradient = isBackgroundGradient,
                 backdrop = backdrop,
+                isDropdownNative = isDropdownNative,
                 colors = colors,
                 scaffoldContainerColor = scaffoldContainerColor,
                 scaffoldContentColor = scaffoldContentColor,

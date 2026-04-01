@@ -53,7 +53,9 @@ import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
 import zone.ien.utils.adaptive.view.AdaptiveDropdownBox
 import zone.ien.utils.adaptive.view.AdaptiveDropdownMenu
+import zone.ien.utils.adaptive.view.AdaptiveDropdownMenuNative
 import zone.ien.utils.adaptive.view.DropdownMenuSection
+import zone.ien.utils.adaptive.view.DropdownMenuSectionNative
 import zone.ien.utils.example.Android
 import zone.ien.utils.example.ui.navigation.RootRoute
 import zone.ien.utils.ui.menu.ActionMenuItem
@@ -67,7 +69,7 @@ import zone.ien.utils.utils.ifEmptyOrNull
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    backStack: NavBackStack<NavKey>
+    backStack: NavBackStack<RootRoute>
 ) {
     var isMaterialTheme by remember { mutableStateOf(true) }
     var isDropdownMenu by remember { mutableStateOf(true) }
@@ -182,14 +184,14 @@ fun HomeScreen(
                     },
                     modifier = Modifier.conditional(currentTheme == Theme.Cupertino) { padding(start = 16.dp) }
                 ) {
-                    AdaptiveDropdownMenu(
+                    AdaptiveDropdownMenuNative(
                         expanded = childExpanded,
                         onDismissRequest = { childExpanded = false },
                         adaptation = { cupertino { this.backdrop = backdrop } },
                         items = listOf(
-                            DropdownMenuSection(
+                            DropdownMenuSectionNative(
                                 items = children.fastMap { child ->
-                                    DropdownMenuSection.Action(
+                                    DropdownMenuSectionNative.Action(
                                         text = child,
                                         onClick = {
                                             childExpanded = false

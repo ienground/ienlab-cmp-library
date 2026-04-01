@@ -27,12 +27,10 @@ sealed interface RootRoute: NavKey {
     @Serializable data object LazySection: RootRoute
 }
 
-val rootConfig = getConfig<RootRoute>()
-
 @Composable
 fun RootNavigationGraph(
     modifier: Modifier = Modifier,
-    backStack: NavBackStack<NavKey>
+    backStack: NavBackStack<RootRoute>
 ) {
     BaseNavDisplay(
         backStack = backStack,
