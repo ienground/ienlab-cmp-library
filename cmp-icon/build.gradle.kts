@@ -32,7 +32,7 @@ kotlin {
             implementation(libs.compose.material3)
             implementation(libs.hig.adaptive)
 
-            implementation(project(":cmp-common"))
+            implementation(projects.cmpCommon)
         }
 
         commonTest.dependencies {

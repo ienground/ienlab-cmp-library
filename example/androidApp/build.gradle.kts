@@ -41,7 +41,7 @@ kotlin {
     }
 
     dependencies {
-        implementation(project(":example:composeApp"))
+        implementation(projects.example.composeApp)
         implementation(libs.activity.compose)
         implementation(libs.compose.ui.tooling)
 

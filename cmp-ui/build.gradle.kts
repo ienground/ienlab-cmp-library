@@ -36,9 +36,9 @@ kotlin {
             implementation(libs.hig.core)
             implementation(libs.placeholder)
 
-            implementation(project(":cmp-common"))
-            implementation(project(":cmp-icon"))
-            implementation(project(":cmp-utils"))
+            implementation(projects.cmpCommon)
+            implementation(projects.cmpIcon)
+            implementation(projects.cmpUtils)
         }
 
         commonTest.dependencies {

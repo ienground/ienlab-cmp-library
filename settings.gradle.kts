@@ -1,3 +1,5 @@
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 pluginManagement {
     repositories {
         google()
@@ -29,3 +31,4 @@ include(":cmp-common")
 include(":cmp-utils")
 include(":cmp-navigation")
 include(":cmp-pref")
+include(":cmp-filekit")

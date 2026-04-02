@@ -8,7 +8,7 @@ plugins {
 
 kotlin {
     androidLibrary {
-        namespace = "zone.ien.utils.pref"
+        namespace = "zone.ien.utils.filekit"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
         androidResources {
@@ -31,16 +31,11 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.compose.material3)
             implementation(libs.compose.resources)
-//            implementation(libs.hig.core)
-            implementation(libs.hig)
-            implementation(libs.hig.adaptive)
-            implementation(libs.backdrop)
-            implementation(libs.datastore.pref)
+            implementation(libs.bundles.filekit)
+            implementation(libs.firebase.storage)
 
             implementation(projects.cmpCommon)
-            implementation(projects.cmpIcon)
             implementation(projects.cmpUtils)
-            implementation(projects.cmpAdaptive)
         }
 
         commonTest.dependencies {
@@ -48,6 +43,8 @@ kotlin {
         }
 
         androidMain.dependencies {
+            implementation(libs.firebase.common.android)
+            implementation(libs.firebase.storage.android)
         }
 
         getByName("androidDeviceTest").dependencies {
