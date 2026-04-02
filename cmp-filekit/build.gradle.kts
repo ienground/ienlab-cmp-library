@@ -32,6 +32,7 @@ kotlin {
             implementation(libs.compose.material3)
             implementation(libs.compose.resources)
             implementation(libs.bundles.filekit)
+            implementation(libs.firebase.storage)
 
             implementation(projects.cmpCommon)
             implementation(projects.cmpUtils)

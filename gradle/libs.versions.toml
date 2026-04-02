@@ -4,7 +4,7 @@ kotlin = "2.3.20"
 android-minSdk = "29"
 android-compileSdk = "36"
 android-targetSdk = "36"
-lib-version-name = "2.2.0-alpha03"
+lib-version-name = "2.2.0-alpha04"
 
 # plugin
 compose-plugin = "1.10.3"
@@ -49,6 +49,7 @@ androidx-core = "1.18.0"
 
 # firebase
 firebase-firestore = { group = "dev.gitlive", name = "firebase-firestore", version.ref = "kmp-firebase" }
+firebase-storage = { group = "dev.gitlive", name = "firebase-storage", version.ref = "kmp-firebase" }
 firebase-firestore-android = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebase-firestore" }
 firebase-common-android = { group = "com.google.firebase", name = "firebase-common", version.ref = "firebase-common" }
 
@@ -84,8 +85,8 @@ android-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", ver
 androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core"} # android only
 
 filekit-core = { group = "io.github.vinceglb", name = "filekit-dialogs", version.ref = "filekit" }
-#filekit-compose = { group = "io.github.vinceglb", name = "filekit-dialogs-compose", version.ref = "filekit" }
-#filekit-coil = { group = "io.github.vinceglb", name = "filekit-coil", version.ref = "filekit" }
+filekit-compose = { group = "io.github.vinceglb", name = "filekit-dialogs-compose", version.ref = "filekit" }
+filekit-coil = { group = "io.github.vinceglb", name = "filekit-coil", version.ref = "filekit" }
 
 # backend
 datastore-pref = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
