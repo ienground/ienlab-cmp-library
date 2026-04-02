@@ -8,6 +8,9 @@ import io.github.vinceglb.filekit.compressImage
 import io.github.vinceglb.filekit.readBytes
 
 expect fun PlatformFile.toFile(): File?
+expect fun getFile(path: String): File
+expect fun File.toPath(): String
+
 
 private const val QUALITY_STEP = 5
 suspend fun PlatformFile.compressFile(targetSize: Long): ByteArray? {

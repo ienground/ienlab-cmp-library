@@ -10,3 +10,10 @@ actual fun PlatformFile.toFile(): File? {
     val file = File(url)
     return file
 }
+
+actual fun getFile(path: String): File {
+    val url = NSURL(fileURLWithPath = path)
+    return File(url)
+}
+
+actual fun File.toPath(): String = url.path.orEmpty()
