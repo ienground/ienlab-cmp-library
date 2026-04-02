@@ -43,6 +43,8 @@ kotlin {
         }
 
         androidMain.dependencies {
+            implementation(libs.firebase.common.android)
+            implementation(libs.firebase.storage.android)
         }
 
         getByName("androidDeviceTest").dependencies {

@@ -66,6 +66,7 @@ kotlin {
             implementation(projects.cmpUtils)
             implementation(projects.cmpNavigation)
             implementation(projects.cmpPref)
+            implementation(projects.cmpFilekit)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
