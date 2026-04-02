@@ -49,7 +49,7 @@ import zone.ien.utils.icon.material.sharp.Save
 import zone.ien.utils.icon.material.sharp.Schedule
 import zone.ien.utils.icon.material.sharp.Update
 
-object M3SystemIcon {
+object M3SystemIcons {
     object Filled
     object Rounded
     object Sharp

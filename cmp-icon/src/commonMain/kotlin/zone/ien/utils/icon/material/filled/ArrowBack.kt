@@ -5,9 +5,9 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.icon.material.M3SystemIcon
+import zone.ien.utils.icon.material.M3SystemIcons
 
-val M3SystemIcon.Filled.ArrowBack: ImageVector
+val M3SystemIcons.Filled.ArrowBack: ImageVector
     get() {
         if (_ArrowBack != null) {
             return _ArrowBack!!

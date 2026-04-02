@@ -5,9 +5,9 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.icon.material.M3SystemIcon
+import zone.ien.utils.icon.material.M3SystemIcons
 
-val M3SystemIcon.Filled.Close: ImageVector
+val M3SystemIcons.Filled.Close: ImageVector
     get() {
         if (_Close != null) {
             return _Close!!

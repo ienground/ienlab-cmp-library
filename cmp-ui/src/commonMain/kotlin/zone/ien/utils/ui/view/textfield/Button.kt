@@ -27,7 +27,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.icon.material.M3SystemIcon
+import zone.ien.utils.icon.material.M3SystemIcons
 
 @Composable
 fun M3TextFieldIconButton(
@@ -99,7 +99,7 @@ fun M3TextFieldClearButton(
         exit = fadeOut(spring(1.2f)) + scaleOut(spring(1.2f), targetScale = 0.75f)
     ) {
         M3TextFieldIconButton(
-            icon = IconData.Vector(M3SystemIcon.Cancel),
+            icon = IconData.Vector(M3SystemIcons.Cancel),
             onClick = onClick
         )
     }

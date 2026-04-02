@@ -30,7 +30,7 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.icon.ComplexIcon
-import zone.ien.utils.icon.material.M3SystemIcon
+import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.ui.view.M3TooltipBox
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -110,7 +110,7 @@ fun M3ActionsMenu(
                     onClick = onToggleOverflow,
                 ) {
                     Icon(
-                        imageVector = M3SystemIcon.MoreVert,
+                        imageVector = M3SystemIcons.MoreVert,
                         contentDescription = stringResource(Res.string.more_options),
                     )
                 }

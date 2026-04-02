@@ -51,7 +51,7 @@ import zone.ien.utils.example.ui.navigation.RootRoute
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.screen.TopBarSize
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.icon.material.M3SystemIcon
+import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.ui.utils.conditional
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
@@ -164,7 +164,7 @@ fun HomeScreen(
                             )
                             Icon(
                                 painter = AdaptiveIcons.painter(
-                                    material = { M3SystemIcon.ArrowDropDown },
+                                    material = { M3SystemIcons.ArrowDropDown },
                                     cupertino = { "chevron.down" }
                                 ),
                                 contentDescription = null

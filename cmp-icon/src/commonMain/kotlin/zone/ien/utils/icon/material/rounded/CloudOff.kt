@@ -5,9 +5,9 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.icon.material.M3SystemIcon
+import zone.ien.utils.icon.material.M3SystemIcons
 
-val M3SystemIcon.Rounded.CloudOff: ImageVector
+val M3SystemIcons.Rounded.CloudOff: ImageVector
     get() {
         if (_CloudOff != null) {
             return _CloudOff!!
