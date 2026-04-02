@@ -4,7 +4,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcon
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.view.textfield.M3TextFieldIconButton
 
@@ -25,7 +25,7 @@ expect fun <T> ExposedDropdownMenuBox(
     ) -> Unit = { onClick, expanded ->
         M3TextFieldIconButton(
             onClick = onClick,
-            icon = IconData.Vector(if (expanded) MaterialIcons.ArrowDropUp else MaterialIcons.ArrowDropDown)
+            icon = IconData.Vector(if (expanded) M3SystemIcon.ArrowDropUp else M3SystemIcon.ArrowDropDown)
         )
     },
     dropdownMenuItem: @Composable (
@@ -52,7 +52,7 @@ expect fun <T> ExposedDropdownMenuBox(
     ) -> Unit = { onClick, expanded ->
         M3TextFieldIconButton(
             onClick = onClick,
-            icon = IconData.Vector(if (expanded) MaterialIcons.ArrowDropUp else MaterialIcons.ArrowDropDown)
+            icon = IconData.Vector(if (expanded) M3SystemIcon.ArrowDropUp else M3SystemIcon.ArrowDropDown)
         )
     },
     dropdownMenuItem: @Composable (
@@ -63,7 +63,7 @@ expect fun <T> ExposedDropdownMenuBox(
         DropdownMenuItem(
             text = text,
             onClick = onClick,
-            leadingIcon = if (checked) { { Icon(imageVector = MaterialIcons.Check, contentDescription = null) } } else null
+            leadingIcon = if (checked) { { Icon(imageVector = M3SystemIcon.Check, contentDescription = null) } } else null
         )
     },
     textField: @Composable (value: String, trailingIcon: @Composable () -> Unit) -> Unit

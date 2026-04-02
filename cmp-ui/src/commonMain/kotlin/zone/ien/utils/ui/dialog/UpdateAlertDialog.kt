@@ -7,7 +7,7 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.version_update_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.version_update_dialog_title
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcon
 
 @Composable
 fun M3UpdateAlertDialog(
@@ -19,7 +19,7 @@ fun M3UpdateAlertDialog(
     M3AlertDialog(
         modifier = modifier,
         visible = visible,
-        icon = { Icon(imageVector = MaterialIcons.Update, contentDescription = null) },
+        icon = { Icon(imageVector = M3SystemIcon.Update, contentDescription = null) },
         title = stringResource(Res.string.version_update_dialog_title),
         message = stringResource(Res.string.version_update_dialog_content, appName),
         onDismiss = onDismiss,

@@ -7,7 +7,7 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.delete_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.delete_dialog_title
 import org.jetbrains.compose.resources.stringResource
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcon
 
 @Composable
 fun M3DeleteAlertDialog(
@@ -20,7 +20,7 @@ fun M3DeleteAlertDialog(
     M3AlertDialog(
         modifier = modifier,
         visible = visible,
-        icon = { Icon(imageVector = MaterialIcons.Delete, contentDescription = null) },
+        icon = { Icon(imageVector = M3SystemIcon.Delete, contentDescription = null) },
         title = stringResource(Res.string.delete_dialog_title),
         message = stringResource(Res.string.delete_dialog_content),
         onDismiss = onDismiss,

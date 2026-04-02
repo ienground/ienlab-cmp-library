@@ -1,20 +1,11 @@
 package zone.ien.utils.adaptive.menu
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,9 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoDropdownMenuNative
@@ -35,7 +23,6 @@ import zone.ien.hig.CupertinoMenuItemData
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.MenuAction
 import zone.ien.hig.theme.CupertinoColors
-import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.systemRed
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.view.AdaptiveDropdownBox
@@ -45,7 +32,6 @@ import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.hig.Ellipsis
 import zone.ien.utils.ui.menu.ActionMenuItem
-import zone.ien.utils.ui.menu.LocalMenuIconButtonSize
 import zone.ien.utils.icon.IconData
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -141,7 +127,7 @@ fun HigActionsMenu(
                             )
                         ) {
                             CupertinoIcon(
-                                imageVector = zone.ien.utils.icon.hig.HigIcons.Ellipsis,
+                                imageVector = zone.ien.utils.icon.hig.HigSystemIcons.Ellipsis,
                                 contentDescription = stringResource(Res.string.more_options),
                             )
                         }

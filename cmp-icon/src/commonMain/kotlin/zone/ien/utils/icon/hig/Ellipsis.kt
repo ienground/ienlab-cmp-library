@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-val HigIcons.Ellipsis: ImageVector
+val HigSystemIcons.Ellipsis: ImageVector
     get() {
         if (_Ellipsis != null) {
             return _Ellipsis!!

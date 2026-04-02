@@ -2,7 +2,6 @@ package zone.ien.utils.example.ui.screens.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,15 +12,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
@@ -34,38 +30,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMapIndexed
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import com.kyant.backdrop.backdrops.layerBackdrop
-import org.jetbrains.compose.resources.stringResource
 import zone.ien.hig.adaptive.AdaptiveSwitch
 import zone.ien.hig.adaptive.AdaptiveTextButton
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
-import zone.ien.hig.adaptive.adaptiveComponent
 import zone.ien.hig.adaptive.currentTheme
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
-import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
 import zone.ien.utils.adaptive.view.AdaptiveDropdownBox
-import zone.ien.utils.adaptive.view.AdaptiveDropdownMenu
 import zone.ien.utils.adaptive.view.AdaptiveDropdownMenuNative
-import zone.ien.utils.adaptive.view.DropdownMenuSection
 import zone.ien.utils.adaptive.view.DropdownMenuSectionNative
 import zone.ien.utils.example.Android
 import zone.ien.utils.example.ui.navigation.RootRoute
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.screen.TopBarSize
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcon
 import zone.ien.utils.ui.utils.conditional
-import zone.ien.utils.utils.ifEmptyOrNull
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -177,7 +164,7 @@ fun HomeScreen(
                             )
                             Icon(
                                 painter = AdaptiveIcons.painter(
-                                    material = { MaterialIcons.ArrowDropDown },
+                                    material = { M3SystemIcon.ArrowDropDown },
                                     cupertino = { "chevron.down" }
                                 ),
                                 contentDescription = null

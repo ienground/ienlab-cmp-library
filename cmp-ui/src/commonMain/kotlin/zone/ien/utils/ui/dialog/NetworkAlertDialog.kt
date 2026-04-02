@@ -9,7 +9,7 @@ import zone.ien.utils.cmp_ui.generated.resources.close
 import zone.ien.utils.cmp_ui.generated.resources.network_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.network_dialog_title
 import zone.ien.utils.cmp_ui.generated.resources.retry
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcon
 
 @Composable
 fun M3NetworkAlertDialog(
@@ -21,7 +21,7 @@ fun M3NetworkAlertDialog(
     M3AlertDialog(
         modifier = modifier,
         visible = visible,
-        icon = { Icon(imageVector = MaterialIcons.CloudOff, contentDescription = null) },
+        icon = { Icon(imageVector = M3SystemIcon.CloudOff, contentDescription = null) },
         title = stringResource(Res.string.network_dialog_title),
         message = stringResource(Res.string.network_dialog_content),
         textDismiss = stringResource(Res.string.close),

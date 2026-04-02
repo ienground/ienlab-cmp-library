@@ -43,7 +43,7 @@ import zone.ien.hig.adaptive.adaptiveComponent
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.save
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcon
 import zone.ien.utils.ui.view.textfield.PlaceholderBasicTextField
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAdaptiveApi::class)
@@ -112,7 +112,7 @@ fun TextFieldScreen(
                             modifier = Modifier.size(48.dp)
                         ) {
                             Icon(
-                                imageVector = MaterialIcons.Close,
+                                imageVector = M3SystemIcon.Close,
                                 contentDescription = null
                             )
                         }

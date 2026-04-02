@@ -10,7 +10,7 @@ import zone.ien.utils.cmp_ui.generated.resources.save
 import zone.ien.utils.cmp_ui.generated.resources.save_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.save_dialog_title
 import org.jetbrains.compose.resources.stringResource
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcon
 
 @Composable
 fun M3SaveAlertDialog(
@@ -25,7 +25,7 @@ fun M3SaveAlertDialog(
     M3AlertDialog(
         modifier = modifier,
         visible = visible,
-        icon = { Icon(imageVector = MaterialIcons.Save, contentDescription = null) },
+        icon = { Icon(imageVector = M3SystemIcon.Save, contentDescription = null) },
         title = stringResource(Res.string.save_dialog_title),
         message = stringResource(Res.string.save_dialog_content),
         textNeutral = stringResource(Res.string.not_save),

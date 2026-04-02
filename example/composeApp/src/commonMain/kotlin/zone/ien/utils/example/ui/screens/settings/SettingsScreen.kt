@@ -29,7 +29,7 @@ import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
 import zone.ien.utils.example.di.KoinKey.DEFAULT_DATASTORE
 import zone.ien.utils.example.isIos
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcon
 import zone.ien.utils.icon.material.rounded.Delete
 import zone.ien.utils.pref.PrefsGroup
 import zone.ien.utils.pref.PrefsScreen
@@ -117,7 +117,7 @@ fun SettingsScreen(
                     TextFieldPref(
                         leadingIcon = {
                             Icon(
-                                imageVector = MaterialIcons.Rounded.Delete,
+                                imageVector = M3SystemIcon.Rounded.Delete,
                                 contentDescription = null
                             )
                         },
@@ -130,7 +130,7 @@ fun SettingsScreen(
                     TextFieldPref(
                         leadingIcon = {
                             Icon(
-                                imageVector = MaterialIcons.Rounded.Delete,
+                                imageVector = M3SystemIcon.Rounded.Delete,
                                 contentDescription = null
                             )
                         },
@@ -143,7 +143,7 @@ fun SettingsScreen(
                     TextFieldPref(
                         leadingIcon = {
                             Icon(
-                                imageVector = MaterialIcons.Rounded.Delete,
+                                imageVector = M3SystemIcon.Rounded.Delete,
                                 contentDescription = null
                             )
                         },
@@ -156,7 +156,7 @@ fun SettingsScreen(
                     TextFieldPref(
                         leadingIcon = {
                             Icon(
-                                imageVector = MaterialIcons.Rounded.Delete,
+                                imageVector = M3SystemIcon.Rounded.Delete,
                                 contentDescription = null
                             )
                         },
@@ -171,7 +171,7 @@ fun SettingsScreen(
                     title = { Text(text = "Pref Group") }
                 ) {
                     TextFieldPref(
-                        leadingIcon = { Icon(imageVector = MaterialIcons.Rounded.Delete, contentDescription = null) },
+                        leadingIcon = { Icon(imageVector = M3SystemIcon.Rounded.Delete, contentDescription = null) },
                         title = "Title OnClick",
                         summary = { "내 숫자는 ${it}" },
                         key = intPreferencesKey("real_num"),
@@ -179,7 +179,7 @@ fun SettingsScreen(
                         defaultValue = 1254
                     )
                     TextFieldPref(
-                        leadingIcon = { Icon(imageVector = MaterialIcons.Rounded.Delete, contentDescription = null) },
+                        leadingIcon = { Icon(imageVector = M3SystemIcon.Rounded.Delete, contentDescription = null) },
                         title = "Title OnClick",
                         summary = { "내 숫자는 ${it}" },
                         key = intPreferencesKey("real_num"),

@@ -6,7 +6,7 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.delete
 import zone.ien.utils.cmp_ui.generated.resources.edit
 import zone.ien.utils.cmp_ui.generated.resources.save
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcon
 import zone.ien.utils.icon.IconData
 
 @Composable
@@ -16,7 +16,7 @@ fun m3DeleteButton(
     onClick: () -> Unit
 ) = ActionMenuItem.IconMenuItem.ShownIfRoom(
     title = stringResource(Res.string.delete),
-    icon = IconData.Vector(MaterialIcons.Delete),
+    icon = IconData.Vector(M3SystemIcon.Delete),
     onClick = onClick,
     visible = visible,
     enabled = enabled
@@ -29,7 +29,7 @@ fun m3SaveButton(
     onClick: () -> Unit
 ) = ActionMenuItem.IconMenuItem.ShownIfRoom(
     title = stringResource(Res.string.save),
-    icon = IconData.Vector(MaterialIcons.Save),
+    icon = IconData.Vector(M3SystemIcon.Save),
     onClick = onClick,
     visible = visible,
     enabled = enabled
@@ -42,7 +42,7 @@ fun m3EditButton(
     onClick: () -> Unit
 ) = ActionMenuItem.IconMenuItem.ShownIfRoom(
     title = stringResource(Res.string.edit),
-    icon = IconData.Vector(MaterialIcons.Edit),
+    icon = IconData.Vector(M3SystemIcon.Edit),
     onClick = onClick,
     visible = visible,
     enabled = enabled

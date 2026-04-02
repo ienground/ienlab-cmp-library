@@ -8,7 +8,7 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.delete
 import zone.ien.utils.cmp_ui.generated.resources.edit
 import zone.ien.utils.cmp_ui.generated.resources.save
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcon
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.icon.IconData
 
@@ -21,7 +21,7 @@ fun adaptiveDeleteButton(
     title = stringResource(Res.string.delete),
     icon = IconData.Paint(
         AdaptiveIcons.painter(
-            material = { MaterialIcons.Delete },
+            material = { M3SystemIcon.Delete },
             cupertino = { "trash.fill" }
         )
     ),
@@ -40,7 +40,7 @@ fun adaptiveSaveButton(
     title = stringResource(Res.string.save),
     icon = IconData.Paint(
         AdaptiveIcons.painter(
-            material = { MaterialIcons.Save },
+            material = { M3SystemIcon.Save },
             cupertino = { "checkmark" }
         )
     ),
@@ -58,7 +58,7 @@ fun adaptiveEditButton(
     title = stringResource(Res.string.edit),
     icon = IconData.Paint(
         AdaptiveIcons.painter(
-            material = { MaterialIcons.Edit },
+            material = { M3SystemIcon.Edit },
             cupertino = { "pencil" }
         )
     ),
