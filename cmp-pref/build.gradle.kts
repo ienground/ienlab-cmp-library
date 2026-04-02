@@ -37,10 +37,10 @@ kotlin {
             implementation(libs.backdrop)
             implementation(libs.datastore.pref)
 
-            implementation(project(":cmp-common"))
-            implementation(project(":cmp-icon"))
-            implementation(project(":cmp-utils"))
-            implementation(project(":cmp-adaptive"))
+            implementation(projects.cmpCommon)
+            implementation(projects.cmpIcon)
+            implementation(projects.cmpUtils)
+            implementation(projects.cmpAdaptive)
         }
 
         commonTest.dependencies {

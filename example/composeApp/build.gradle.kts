@@ -58,14 +58,14 @@ kotlin {
 
             implementation(libs.bundles.koin)
 
-            implementation(project(":cmp-common"))
-            implementation(project(":cmp-adaptive"))
-            implementation(project(":cmp-ui"))
-            implementation(project(":cmp-date"))
-            implementation(project(":cmp-icon"))
-            implementation(project(":cmp-utils"))
-            implementation(project(":cmp-navigation"))
-            implementation(project(":cmp-pref"))
+            implementation(projects.cmpCommon)
+            implementation(projects.cmpAdaptive)
+            implementation(projects.cmpUi)
+            implementation(projects.cmpDate)
+            implementation(projects.cmpIcon)
+            implementation(projects.cmpUtils)
+            implementation(projects.cmpNavigation)
+            implementation(projects.cmpPref)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
