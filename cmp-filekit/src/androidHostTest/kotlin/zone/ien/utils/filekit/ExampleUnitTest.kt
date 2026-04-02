@@ -1,4 +1,4 @@
-package zone.ien.utils.pref
+package zone.ien.utils.filekit
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

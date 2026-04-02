@@ -31,9 +31,10 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.compose.material3)
             implementation(libs.compose.resources)
+            implementation(libs.bundles.filekit)
 
-            implementation(project(":cmp-common"))
-            implementation(project(":cmp-utils"))
+            implementation(projects.cmpCommon)
+            implementation(projects.cmpUtils)
         }
 
         commonTest.dependencies {

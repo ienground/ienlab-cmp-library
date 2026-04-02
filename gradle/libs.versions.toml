@@ -30,6 +30,7 @@ kdatetime = "1.1.2"
 kotlin-coroutine = "1.10.2"
 startup-runtime = "1.2.0"
 kotlinx-io-core = "0.9.0"
+filekit = "0.13.0"
 
 # backend
 vanniktechMavenPublish = "0.36.0"
@@ -82,6 +83,10 @@ kotlinx-io-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-io-core", v
 android-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "android-ui-graphics" } # android only
 androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core"} # android only
 
+filekit-core = { group = "io.github.vinceglb", name = "filekit-dialogs", version.ref = "filekit" }
+#filekit-compose = { group = "io.github.vinceglb", name = "filekit-dialogs-compose", version.ref = "filekit" }
+#filekit-coil = { group = "io.github.vinceglb", name = "filekit-coil", version.ref = "filekit" }
+
 # backend
 datastore-pref = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
@@ -101,6 +106,7 @@ junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
 [bundles]
 hig = ["hig-core", "hig", "hig-adaptive", "hig-icons"]
 koin = ["koin-compose", "koin-core", "koin-viewmodel", "koin-compose-nav3"]
+filekit = ["filekit-core"]
 
 [plugins]
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
