@@ -37,3 +37,19 @@ body:
       options:
         - label: "Material3"
         - label: "Cupertino"
+  - type: checkboxes
+    id: module
+    attributes:
+      label: "💻 모듈"
+      options:
+        - label: "Common"
+        - label: "Utilities"
+        - label: "UI"
+        - label: "Adaptive UI"
+        - label: "Preferences"
+        - label: "Navigation3"
+        - label: "Firebase"
+        - label: "DateTime"
+        - label: "FileKit"
+        - label: "Icons"
+        - label: "Example"
