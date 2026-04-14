@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,11 +23,14 @@ fun M3AsteriskTextWrapper(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         modifier = modifier
     ) {
-        content()
-        Text(
-            text = "*",
-            color = MaterialTheme.colorScheme.error,
-            style = style
-        )
+        ProvideTextStyle(
+            value = style
+        ) {
+            content()
+            Text(
+                text = "*",
+                color = MaterialTheme.colorScheme.error
+            )
+        }
     }
 }
