@@ -16,14 +16,15 @@ import zone.ien.utils.ui.screen.TopBarSize
 @Composable
 fun getSurfaceTopAppBarAdaptation(
     backdrop: LayerBackdrop = rememberDefaultBackdrop(),
-    showNavTitle: Boolean = false
+    showNavTitle: Boolean = false,
+    isCenterAligned: Boolean = true
 ): AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit = {
     material {
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.surface,
             scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
         )
-        isCenterAligned = true
+        this.isCenterAligned = isCenterAligned
 
         if (showNavTitle) {
             size = TopBarSize.Medium
@@ -40,14 +41,15 @@ fun getSurfaceTopAppBarAdaptation(
 @Composable
 fun getSurfaceContainerTopAppBarAdaptation(
     backdrop: LayerBackdrop = rememberDefaultBackdrop(),
-    showNavTitle: Boolean = false
+    showNavTitle: Boolean = false,
+    isCenterAligned: Boolean = true
 ): AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit = {
     material {
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
             scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest
         )
-        isCenterAligned = true
+        this.isCenterAligned = isCenterAligned
 
         if (showNavTitle) {
             size = TopBarSize.Medium
@@ -64,11 +66,12 @@ fun getSurfaceContainerTopAppBarAdaptation(
 @Composable
 fun getNoTintTopAppBarAdaptation(
     backdrop: LayerBackdrop = rememberDefaultBackdrop(),
-    showNavTitle: Boolean = false
+    showNavTitle: Boolean = false,
+    isCenterAligned: Boolean = true
 ): AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit = {
     material {
         isScrollTint = false
-        isCenterAligned = true
+        this.isCenterAligned = isCenterAligned
 
         if (showNavTitle) {
             size = TopBarSize.Medium
