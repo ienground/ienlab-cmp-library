@@ -17,6 +17,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        Assert.assertEquals("zone.ien.utils.icon.test", appContext.packageName)
+        Assert.assertEquals("zone.ien.utils.filekit.test", appContext.packageName)
     }
 }
