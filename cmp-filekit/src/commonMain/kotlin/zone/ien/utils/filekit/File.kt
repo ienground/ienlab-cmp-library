@@ -41,19 +41,14 @@ suspend fun PlatformFile.compressFile(targetSize: Long): ByteArray? {
             quality = effectiveQuality,
             imageFormat = ImageFormat.JPEG // JPEG는 손실 압축이므로 크기 감소에 유리
         )
-
-        // 디버깅 용 콘솔 출력 (선택 사항)
-        println("품질: $effectiveQuality, 현재 크기: ${currentBytes.size / 1024}KB")
     }
 
 
 
     // 5. 결과 반환
-    if (currentBytes.size <= targetSize) {
-        return currentBytes
+    return if (currentBytes.size <= targetSize || compressionQuality < QUALITY_STEP) {
+        currentBytes
     } else {
-        // 루프를 돌았는데도 목표 크기를 달성하지 못한 경우 (품질 1%까지 낮췄는데도 실패)
-        // 이 경우, 해상도(Resizing)를 함께 시도하는 로직이 추가로 필요합니다.
-        return null
+        null
     }
 }
