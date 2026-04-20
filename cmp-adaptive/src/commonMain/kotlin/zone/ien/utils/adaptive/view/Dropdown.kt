@@ -301,7 +301,7 @@ private fun DropdownMenuSectionNative.Action.M3Menu() = DropdownMenuItem(
     modifier = modifier,
     leadingIcon = icon?.let { { ComplexIcon(icon = it) } },
     enabled = enabled,
-    colors = if (isDestructive) MenuDefaults.itemColors() else MenuDefaults.itemColors()
+    colors = if (isDestructive) MenuDefaults.itemColors(textColor = MaterialTheme.colorScheme.error, leadingIconColor = MaterialTheme.colorScheme.error) else MenuDefaults.itemColors()
 )
 
 @Composable
