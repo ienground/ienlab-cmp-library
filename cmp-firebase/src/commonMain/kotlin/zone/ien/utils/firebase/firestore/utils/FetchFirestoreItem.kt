@@ -26,23 +26,22 @@ suspend fun <T : FirestoreItem> fetchItems(
     val missingIds = ids - cached.keys
 
     // 병렬 fetch
-    val fetched = missingIds
-        .chunked(30)
-        .map { chunk ->
-            coroutineScope {
+    val fetched = coroutineScope {
+        missingIds
+            .chunked(30)
+            .map {
                 async {
                     collection
-                        .where { FieldPath.documentId inArray chunk }
+                        .where { FieldPath.documentId inArray it }
                         .get()
                         .documents
                         .map { it.transform() }
                 }
             }
-        }
-        .awaitAll()
-        .flatten()
-        .associateBy { it.id }
-
+            .awaitAll()
+            .flatten()
+            .associateBy { it.id }
+    }
     // 캐시 업데이트
     cache.putAll(fetched)
 

@@ -7,10 +7,5 @@ import io.github.vinceglb.filekit.PlatformFile
 actual suspend fun StorageReference.uploadFile(file: PlatformFile, metadata: FirebaseStorageMetadata?) {
     val f = file.toFile() ?: return
 
-    try {
-        putFile(f, metadata)
-        println("File uploaded successfully!")
-    } catch (e: Exception) {
-        println("Error uploading file: ${e.message}")
-    }
+    putFile(f, metadata)
 }
