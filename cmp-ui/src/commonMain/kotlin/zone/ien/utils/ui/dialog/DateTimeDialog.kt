@@ -51,7 +51,7 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
 import zone.ien.utils.cmp_ui.generated.resources.ok
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.ui.utils.rememberMyDatePickerState
 import kotlin.math.max
 
@@ -193,7 +193,7 @@ fun M3TimePickerDialog(
                             isTimePickerDial = !isTimePickerDial
                         }) {
                             AnimatedContent(
-                                targetState = if (isTimePickerDial) MaterialIcons.Keyboard else MaterialIcons.Schedule,
+                                targetState = if (isTimePickerDial) M3SystemIcons.Keyboard else M3SystemIcons.Schedule,
                                 label = "time_picker_dial"
                             ) {
                                 Icon(imageVector = it, contentDescription = "", tint = MaterialTheme.colorScheme.onSurface)

@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-val zone.ien.utils.icon.hig.HigIcons.Xmark: ImageVector
+val zone.ien.utils.icon.hig.HigSystemIcons.Xmark: ImageVector
     get() {
         if (_Xmark != null) {
             return _Xmark!!

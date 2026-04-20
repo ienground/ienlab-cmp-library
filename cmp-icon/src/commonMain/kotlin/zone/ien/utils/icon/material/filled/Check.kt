@@ -5,9 +5,9 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcons
 
-val MaterialIcons.Filled.Check: ImageVector
+val M3SystemIcons.Filled.Check: ImageVector
     get() {
         if (_Check != null) {
             return _Check!!

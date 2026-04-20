@@ -3,7 +3,9 @@ package zone.ien.utils.ui.utils
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun getM3Typography(fontFamily: FontFamily? = null): Typography =
@@ -26,3 +28,13 @@ fun getM3Typography(fontFamily: FontFamily? = null): Typography =
             labelSmall = fontFamily?.let { f -> it.labelSmall.copy(fontFamily = f) } ?: it.labelSmall
         )
     }
+
+fun TextStyle.toThin() = this.copy(fontWeight = FontWeight.Thin)
+fun TextStyle.toExtraLight() = this.copy(fontWeight = FontWeight.ExtraLight)
+fun TextStyle.toLight() = this.copy(fontWeight = FontWeight.Light)
+fun TextStyle.toNormal() = this.copy(fontWeight = FontWeight.Normal)
+fun TextStyle.toMedium() = this.copy(fontWeight = FontWeight.Medium)
+fun TextStyle.toSemiBold() = this.copy(fontWeight = FontWeight.SemiBold)
+fun TextStyle.toBold() = this.copy(fontWeight = FontWeight.Bold)
+fun TextStyle.toExtraBold() = this.copy(fontWeight = FontWeight.ExtraBold)
+fun TextStyle.toBlack() = this.copy(fontWeight = FontWeight.Black)

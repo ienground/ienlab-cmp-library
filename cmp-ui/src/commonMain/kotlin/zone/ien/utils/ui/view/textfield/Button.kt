@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -28,7 +27,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcons
 
 @Composable
 fun M3TextFieldIconButton(
@@ -100,7 +99,7 @@ fun M3TextFieldClearButton(
         exit = fadeOut(spring(1.2f)) + scaleOut(spring(1.2f), targetScale = 0.75f)
     ) {
         M3TextFieldIconButton(
-            icon = IconData.Vector(MaterialIcons.Cancel),
+            icon = IconData.Vector(M3SystemIcons.Cancel),
             onClick = onClick
         )
     }

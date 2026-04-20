@@ -23,7 +23,7 @@ import zone.ien.utils.date.from
 fun KDateTimeFormat.format(time: KZonedDateTime) = format(time.toKZonedInstant())
 fun KDateTimeFormat.format(date: KDate) = format(date.atTime(KDuration.from(0, 0)).toKZonedInstant())
 
-internal val weekdayNames
+val weekdayNames
     @Composable get() = listOf(
         stringResource(Res.string.sun),
         stringResource(Res.string.mon),
@@ -34,7 +34,7 @@ internal val weekdayNames
         stringResource(Res.string.sat)
     )
 
-internal suspend fun getWeekdayNames() = listOf(
+suspend fun getWeekdayNames() = listOf(
     getString(Res.string.sun),
     getString(Res.string.mon),
     getString(Res.string.tue),

@@ -21,12 +21,11 @@ import zone.ien.hig.CupertinoActivityIndicator
 import zone.ien.hig.CupertinoButton
 import zone.ien.hig.CupertinoButtonDefaults.plainButtonColors
 import zone.ien.hig.CupertinoButtonSize
-import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.utils.icon.ComplexIcon
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.icon.IconData
 
 @OptIn(ExperimentalCupertinoApi::class)
@@ -96,7 +95,7 @@ fun HigTextFieldClearButton(
         exit = fadeOut(spring(1.2f)) + scaleOut(spring(1.2f), targetScale = 0.75f)
     ) {
         HigTextFieldIconButton(
-            icon = IconData.Vector(MaterialIcons.Cancel),
+            icon = IconData.Vector(M3SystemIcons.Cancel),
             onClick = onClick
         )
     }

@@ -5,9 +5,9 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcons
 
-val MaterialIcons.Rounded.Delete: ImageVector
+val M3SystemIcons.Rounded.Delete: ImageVector
     get() {
         if (_Delete != null) {
             return _Delete!!

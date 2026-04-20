@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-val HigIcons.ChevronLeft: ImageVector
+val HigSystemIcons.ChevronLeft: ImageVector
     get() {
         if (_ChevronLeft != null) {
             return _ChevronLeft!!

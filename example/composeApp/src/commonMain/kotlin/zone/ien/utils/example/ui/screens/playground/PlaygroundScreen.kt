@@ -30,11 +30,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.revenuecat.placeholder.placeholder
+import org.jetbrains.compose.resources.stringResource
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoLiquidButton
@@ -52,6 +54,7 @@ import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.outlined.ChevronBackward
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
+import zone.ien.utils.adaptive.dialog.TextFieldDialog
 import zone.ien.utils.adaptive.menu.adaptiveSaveButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
@@ -60,6 +63,7 @@ import zone.ien.utils.example.isIos
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.shimmer.m3Placeholder
+import zone.ien.utils.ui.utils.TextFieldDialogData
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
@@ -194,6 +198,7 @@ private fun ScreenBody(
     title: @Composable () -> Unit,
     visible: Boolean = true
 ) {
+    var showTextFieldDialog by remember { mutableStateOf(false) }
     Column(
         verticalArrangement = Arrangement.spacedBy(24.dp),
         modifier = modifier.padding(horizontal = 24.dp)
@@ -239,7 +244,7 @@ private fun ScreenBody(
             exit = slideOutHorizontally(tween(3000))// + shrinkHorizontally(tween(700))
         ) {
             CupertinoLiquidButton(
-                onClick = {},
+                onClick = { showTextFieldDialog = true },
                 backdrop = rememberDefaultBackdrop(),
                 modifier = Modifier
 //                    .padding(32.dp)
@@ -251,6 +256,26 @@ private fun ScreenBody(
             }
         }
     }
+
+    var text by remember { mutableStateOf("") }
+    TextFieldDialog(
+        visible = showTextFieldDialog,
+        title = "Hello Title",
+        textFields = mapOf(
+            "text" to TextFieldDialogData(
+                initialValue = text,
+//                onValueChange = { text = it; it },
+                valid = { it.isNotBlank() },
+                placeholder = "placeholder",
+                keyboardType = KeyboardType.Password
+            )
+        ),
+        onDismiss = { showTextFieldDialog = false },
+        onConfirm = {
+            val newText = it["text"]
+            text = newText.orEmpty()
+        }
+    )
 }
 
 @Preview(showBackground = true)

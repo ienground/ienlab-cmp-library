@@ -5,9 +5,9 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcons
 
-val MaterialIcons.Sharp.ArrowDropUp: ImageVector
+val M3SystemIcons.Sharp.ArrowDropUp: ImageVector
     get() {
         if (_ArrowDropUp != null) {
             return _ArrowDropUp!!

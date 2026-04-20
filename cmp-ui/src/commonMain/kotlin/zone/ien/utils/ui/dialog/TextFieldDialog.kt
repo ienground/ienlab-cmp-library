@@ -27,6 +27,7 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
 import zone.ien.utils.cmp_ui.generated.resources.ok
 import zone.ien.utils.ui.utils.TextFieldDialogData
+import zone.ien.utils.utils.Dlog
 
 @Composable
 fun M3BaseTextFieldDialog(
@@ -106,7 +107,7 @@ fun M3TextFieldDialog(
                 if (field.keyboardType in listOf(KeyboardType.Password, KeyboardType.NumberPassword)) {
                     val passwordState = remember { TextFieldState(initialText = textStates[key] ?: "") }
 
-                    LaunchedEffect(passwordState) {
+                    LaunchedEffect(passwordState.text) {
                         textStates[key] = passwordState.text.toString()
                     }
 

@@ -441,8 +441,8 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
         val backdrop = rememberDefaultBackdrop()
         val isDropdownNative = true
         val colors = CupertinoTopAppBarDefaults.topAppBarColors()
-        val scaffoldContainerColor = CupertinoScaffoldDefaults.containerColor
-        val scaffoldContentColor = CupertinoScaffoldDefaults.contentColor
+        val scaffoldContainerColor = MaterialTheme.colorScheme.background// CupertinoScaffoldDefaults.containerColor
+        val scaffoldContentColor = contentColorFor(scaffoldContainerColor) // CupertinoScaffoldDefaults.contentColor
         val scrollableState = rememberScrollState()
         val showNavTitle = LocalHigShowNavTitle.current
 

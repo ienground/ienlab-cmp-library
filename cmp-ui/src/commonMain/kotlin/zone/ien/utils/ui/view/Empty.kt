@@ -27,7 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.icon.material.MaterialIcons
+import zone.ien.utils.icon.material.M3SystemIcons
 
 @Composable
 fun Empty(
@@ -105,7 +105,7 @@ private fun EmptyPreview() {
             Empty(
                 icon = {
                     Icon(
-                        imageVector = MaterialIcons.Edit,
+                        imageVector = M3SystemIcons.Edit,
                         contentDescription = null,
                         modifier = it
                     )

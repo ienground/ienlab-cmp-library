@@ -25,16 +25,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
-import zone.ien.hig.theme.CupertinoColors
-import zone.ien.hig.theme.systemRed
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.icon.ComplexIcon
-import zone.ien.utils.icon.material.MaterialIcons
-import zone.ien.utils.icon.IconData
+import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.ui.view.M3TooltipBox
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -114,7 +110,7 @@ fun M3ActionsMenu(
                     onClick = onToggleOverflow,
                 ) {
                     Icon(
-                        imageVector = MaterialIcons.MoreVert,
+                        imageVector = M3SystemIcons.MoreVert,
                         contentDescription = stringResource(Res.string.more_options),
                     )
                 }
