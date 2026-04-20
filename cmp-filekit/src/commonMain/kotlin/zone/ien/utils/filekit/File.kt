@@ -43,12 +43,6 @@ suspend fun PlatformFile.compressFile(targetSize: Long): ByteArray? {
         )
     }
 
-
-
     // 5. 결과 반환
-    return if (currentBytes.size <= targetSize || compressionQuality < QUALITY_STEP) {
-        currentBytes
-    } else {
-        null
-    }
+    return currentBytes
 }
