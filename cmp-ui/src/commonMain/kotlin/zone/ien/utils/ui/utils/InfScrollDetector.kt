@@ -1,4 +1,4 @@
-package zone.ien.utils.firebase.firestore.utils
+package zone.ien.utils.ui.utils
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
