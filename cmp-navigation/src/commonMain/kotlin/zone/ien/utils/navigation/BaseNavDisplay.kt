@@ -19,11 +19,9 @@ import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.defaultPopTransitionSpec
-import androidx.navigation3.ui.defaultPredictivePopTransitionSpec
 import androidx.navigation3.ui.defaultTransitionSpec
 import androidx.navigationevent.NavigationEvent
 import zone.ien.utils.navigation.transition.fadeInOutPopTransitionSpec
-import kotlin.collections.listOf
 
 @Composable
 fun <T : NavKey> BaseNavDisplay(
