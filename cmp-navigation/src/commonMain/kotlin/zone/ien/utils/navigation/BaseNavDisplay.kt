@@ -2,6 +2,7 @@ package zone.ien.utils.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.SizeTransform
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -13,6 +14,7 @@ import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.scene.Scene
+import androidx.navigation3.scene.SceneDecoratorStrategy
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.ui.NavDisplay
@@ -21,6 +23,7 @@ import androidx.navigation3.ui.defaultPredictivePopTransitionSpec
 import androidx.navigation3.ui.defaultTransitionSpec
 import androidx.navigationevent.NavigationEvent
 import zone.ien.utils.navigation.transition.fadeInOutPopTransitionSpec
+import kotlin.collections.listOf
 
 @Composable
 fun <T : NavKey> BaseNavDisplay(
@@ -33,7 +36,9 @@ fun <T : NavKey> BaseNavDisplay(
             rememberSaveableStateHolderNavEntryDecorator(),
             rememberViewModelStoreNavEntryDecorator() // 뷰모델 꺼짐 보장
         ),
-    sceneStrategy: SceneStrategy<T> = SinglePaneSceneStrategy(),
+    sceneStrategies: List<SceneStrategy<T>> = listOf(SinglePaneSceneStrategy()),
+    sceneDecoratorStrategies: List<SceneDecoratorStrategy<T>> = emptyList(),
+    sharedTransitionScope: SharedTransitionScope? = null,
     sizeTransform: SizeTransform? = null,
     transitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform = defaultTransitionSpec(),
     popTransitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform = defaultPopTransitionSpec(),
@@ -46,7 +51,9 @@ fun <T : NavKey> BaseNavDisplay(
         contentAlignment = contentAlignment,
         onBack = onBack,
         entryDecorators = entryDecorators,
-        sceneStrategy = sceneStrategy,
+        sceneStrategies = sceneStrategies,
+        sceneDecoratorStrategies = sceneDecoratorStrategies,
+        sharedTransitionScope = sharedTransitionScope,
         sizeTransform = sizeTransform,
         transitionSpec = transitionSpec,
         popTransitionSpec = popTransitionSpec,
