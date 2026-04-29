@@ -36,6 +36,7 @@ import zone.ien.utils.pref.PrefsScreen
 import zone.ien.utils.pref.item.SwitchPref
 import zone.ien.utils.pref.item.TextFieldPref
 import zone.ien.utils.pref.item.TextPref
+import zone.ien.utils.utils.sendEmail
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -85,7 +86,7 @@ fun SettingsScreen(
                     TextPref(
                         title = "Title OnClick",
                         summary = "summary!!",
-                        onClick = {},
+                        onClick = { sendEmail("my@ien.zone", "Hello", "World") },
                         adaptation = {
                             cupertino {
 //                                isCaption = false
