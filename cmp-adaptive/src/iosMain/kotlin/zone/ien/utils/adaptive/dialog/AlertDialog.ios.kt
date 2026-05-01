@@ -67,15 +67,17 @@ actual fun AlertDialog(
         title = title,
         message = message
     ) { alertController ->
-        val dismissAction = UIAlertAction.actionWithTitle(
-            title = textDismiss,
-            style = styleDismiss.toStyle(),
-            handler = {
-                onDismiss?.invoke()
-            }
-        )
+        onDismiss?.let { callback ->
+            val dismissAction = UIAlertAction.actionWithTitle(
+                title = textDismiss,
+                style = styleDismiss.toStyle(),
+                handler = {
+                    callback()
+                }
+            )
+            alertController.addAction(dismissAction)
+        }
 
-        alertController.addAction(dismissAction)
     }
 }
 
