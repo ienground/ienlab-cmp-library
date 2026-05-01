@@ -53,7 +53,7 @@ fun M3AlertDialog(
     title: String?,
     message: String? = null,
     textDismiss: String = stringResource(Res.string.close),
-    onDismiss: () -> Unit,
+    onDismiss: (() -> Unit)?,
 ) {
     M3BaseAlertDialog(
         modifier = modifier,
@@ -61,13 +61,15 @@ fun M3AlertDialog(
         icon = icon,
         title = title,
         message = message,
-        onDismiss = onDismiss,
+        onDismiss = onDismiss ?: {},
         buttons = {
             Spacer(modifier = Modifier.weight(1f))
 
-            TextButton(
-                onClick = onDismiss,
-            ) { Text(text = textDismiss) }
+            onDismiss?.let {
+                TextButton(
+                    onClick = it,
+                ) { Text(text = textDismiss) }
+            }
         }
     )
 }

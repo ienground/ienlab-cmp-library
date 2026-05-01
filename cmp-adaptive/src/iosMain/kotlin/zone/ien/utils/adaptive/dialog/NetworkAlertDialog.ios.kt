@@ -13,8 +13,7 @@ import zone.ien.utils.cmp_ui.generated.resources.retry
 actual fun NetworkAlertDialog(
     modifier: Modifier,
     visible: Boolean,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onDismiss: (() -> Unit)?,
 ) {
     AlertDialog(
         modifier = modifier,
@@ -24,7 +23,5 @@ actual fun NetworkAlertDialog(
         message = stringResource(Res.string.network_dialog_content),
         textDismiss = stringResource(Res.string.close),
         onDismiss = onDismiss,
-        textConfirm = stringResource(Res.string.retry),
-        onConfirm = onConfirm
     )
 }

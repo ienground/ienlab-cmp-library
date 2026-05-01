@@ -60,22 +60,24 @@ actual fun AlertDialog(
     message: String?,
     textDismiss: String,
     styleDismiss: UIAlertActionStyle,
-    onDismiss: () -> Unit
+    onDismiss: (() -> Unit)?
 ) {
     HigBaseAlertDialog(
         visible = visible,
         title = title,
         message = message
     ) { alertController ->
-        val dismissAction = UIAlertAction.actionWithTitle(
-            title = textDismiss,
-            style = styleDismiss.toStyle(),
-            handler = {
-                onDismiss()
-            }
-        )
+        onDismiss?.let { callback ->
+            val dismissAction = UIAlertAction.actionWithTitle(
+                title = textDismiss,
+                style = styleDismiss.toStyle(),
+                handler = {
+                    callback()
+                }
+            )
+            alertController.addAction(dismissAction)
+        }
 
-        alertController.addAction(dismissAction)
     }
 }
 

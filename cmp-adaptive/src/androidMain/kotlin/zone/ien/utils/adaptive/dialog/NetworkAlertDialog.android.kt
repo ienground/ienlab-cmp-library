@@ -8,13 +8,11 @@ import zone.ien.utils.ui.dialog.M3NetworkAlertDialog
 actual fun NetworkAlertDialog(
     modifier: Modifier,
     visible: Boolean,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onDismiss: (() -> Unit)?,
 ) {
     M3NetworkAlertDialog(
         modifier = modifier,
         visible = visible,
         onDismiss = onDismiss,
-        onConfirm = onConfirm
     )
 }

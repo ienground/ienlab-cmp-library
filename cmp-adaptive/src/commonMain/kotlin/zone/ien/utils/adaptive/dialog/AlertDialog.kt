@@ -21,7 +21,7 @@ expect fun AlertDialog(
     message: String? = null,
     textDismiss: String = stringResource(Res.string.close),
     styleDismiss: UIAlertActionStyle = UIAlertActionStyle.Cancel,
-    onDismiss: () -> Unit,
+    onDismiss: (() -> Unit)?,
 )
 
 @Composable

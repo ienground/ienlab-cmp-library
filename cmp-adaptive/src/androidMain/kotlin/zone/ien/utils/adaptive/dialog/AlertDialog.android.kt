@@ -13,7 +13,7 @@ actual fun AlertDialog(
     message: String?,
     textDismiss: String,
     styleDismiss: UIAlertActionStyle,
-    onDismiss: () -> Unit
+    onDismiss: (() -> Unit)?
 ) {
     M3AlertDialog(
         modifier = modifier,
