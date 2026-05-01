@@ -52,13 +52,15 @@ import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.screen.TopBarSize
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.navigation.result.ResultStore
 import zone.ien.utils.ui.utils.conditional
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    backStack: NavBackStack<RootRoute>
+    backStack: NavBackStack<RootRoute>,
+    resultStore: ResultStore,
 ) {
     var isMaterialTheme by rememberSaveable { mutableStateOf(true) }
     var isDropdownMenu by remember { mutableStateOf(true) }
@@ -266,6 +268,9 @@ fun HomeScreen(
                         onCheckedChange = { isDropdownMenu = it }
                     )
                 }
+                Text(
+                    text = "result: ${resultStore.getResult<String>("text")}"
+                )
                 AnimatedVisibility(
                     visible = !isDropdownMenu,
                 ) {

@@ -17,6 +17,7 @@ import zone.ien.utils.example.ui.screens.settings.SettingsScreen
 import zone.ien.utils.navigation.BaseNavDisplay
 import zone.ien.utils.navigation.getConfig
 import zone.ien.utils.navigation.navigateBack
+import zone.ien.utils.navigation.result.rememberResultStore
 
 @Serializable
 sealed interface RootRoute: NavKey {
@@ -32,13 +33,16 @@ fun RootNavigationGraph(
     modifier: Modifier = Modifier,
     backStack: NavBackStack<RootRoute>
 ) {
+    val resultStore = rememberResultStore()
+
     BaseNavDisplay(
         backStack = backStack,
         modifier = modifier,
         entryProvider = entryProvider {
             entry<RootRoute.Home> {
                 HomeScreen(
-                    backStack = backStack
+                    backStack = backStack,
+                    resultStore = resultStore
                 )
             }
             entry<RootRoute.Settings> {
@@ -53,7 +57,8 @@ fun RootNavigationGraph(
             }
             entry<RootRoute.Section> {
                 SectionScreen(
-                    navigateBack = { backStack.navigateBack() }
+                    navigateBack = { backStack.navigateBack() },
+                    resultStore = resultStore
                 )
             }
             entry<RootRoute.LazySection> {
