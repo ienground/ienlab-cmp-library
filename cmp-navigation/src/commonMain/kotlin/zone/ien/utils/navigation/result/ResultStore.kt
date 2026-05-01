@@ -10,7 +10,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 
 @Stable
 class ResultStore {
-    val results = mutableStateMapOf<String, Any?>() // MutableState 래핑 제거
+    @PublishedApi
+    internal val results = mutableStateMapOf<String, Any?>()
 
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T> getResult(resultKey: String = T::class.toString()): T? {
