@@ -60,7 +60,7 @@ actual fun AlertDialog(
     message: String?,
     textDismiss: String,
     styleDismiss: UIAlertActionStyle,
-    onDismiss: () -> Unit
+    onDismiss: (() -> Unit)?
 ) {
     HigBaseAlertDialog(
         visible = visible,
@@ -71,7 +71,7 @@ actual fun AlertDialog(
             title = textDismiss,
             style = styleDismiss.toStyle(),
             handler = {
-                onDismiss()
+                onDismiss?.invoke()
             }
         )
 

@@ -15,8 +15,7 @@ import zone.ien.utils.icon.material.M3SystemIcons
 fun M3NetworkAlertDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
+    onDismiss: (() -> Unit)?,
 ) {
     M3AlertDialog(
         modifier = modifier,
@@ -26,7 +25,5 @@ fun M3NetworkAlertDialog(
         message = stringResource(Res.string.network_dialog_content),
         textDismiss = stringResource(Res.string.close),
         onDismiss = onDismiss,
-        textConfirm = stringResource(Res.string.retry),
-        onConfirm = onConfirm
     )
 }

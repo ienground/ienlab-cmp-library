@@ -7,6 +7,5 @@ import androidx.compose.ui.Modifier
 expect fun NetworkAlertDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
+    onDismiss: (() -> Unit)?,
 )
