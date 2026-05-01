@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,10 +32,13 @@ import zone.ien.utils.adaptive.section.AdaptiveSection
 import zone.ien.utils.adaptive.section.AdaptiveSectionItem
 import zone.ien.utils.adaptive.section.AdaptiveSectionLink
 import zone.ien.utils.adaptive.section.AdaptiveSectionSwitchItem
+import zone.ien.utils.adaptive.section.AdaptiveSectionTextField
 import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
 import zone.ien.utils.example.Android
 import zone.ien.utils.example.isIos
 import zone.ien.utils.icon.IconData
+import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.navigation.result.ResultStore
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.section.M3ProvideSectionStyle
 
@@ -41,7 +46,8 @@ import zone.ien.utils.ui.section.M3ProvideSectionStyle
 @Composable
 fun SectionScreen(
     modifier: Modifier = Modifier,
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    resultStore: ResultStore
 ) {
     val backdrop = rememberDefaultBackdrop()
     val scrollState = rememberScrollState()
@@ -110,6 +116,21 @@ fun SectionScreen(
                     AdaptiveSectionItem {
                         Text(text = "Section2")
                     }
+                    var text by remember { mutableStateOf("") }
+                    AdaptiveSectionTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        trailingIcon = {
+                            IconButton(
+                                onClick = { resultStore.setResult("text", text) }
+                            ) {
+                                Icon(
+                                    imageVector = M3SystemIcons.Save,
+                                    contentDescription = null
+                                )
+                            }
+                        }
+                    )
                     AdaptiveSectionLink(
                         onClick = {}
                     ) {
