@@ -136,7 +136,7 @@ fun CustomNavigationBar(
                         .fillMaxSize()
                         .padding(horizontal = 8.dp, vertical = 8.dp)
                 ) {
-                    val itemWidth = maxWidth / itemCount
+                    val itemWidth = if (itemCount > 0) maxWidth / itemCount else 0.dp
                     val indicatorOffset by animateDpAsState(
                         targetValue = itemWidth * selectedIndex,
                         animationSpec = spring(
