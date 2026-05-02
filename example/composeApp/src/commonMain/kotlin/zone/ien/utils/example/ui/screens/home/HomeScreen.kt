@@ -345,6 +345,15 @@ fun HomeScreen(
                 ) {
                     Text(text = "Playground")
                 }
+                Box(
+                    modifier = Modifier
+                        .clickable { backStack.add(RootRoute.Navigation) }
+                        .fillMaxWidth()
+                        .height(400.dp)
+                        .background(Color.Yellow)
+                ) {
+                    Text(text = "Navigation")
+                }
                 TextField(
                     state = rememberTextFieldState(),
                     modifier = Modifier.fillMaxWidth()
