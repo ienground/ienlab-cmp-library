@@ -54,38 +54,6 @@ fun NavigationScreen(
             adaptation = getSurfaceTopAppBarAdaptation(backdrop),
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop, onClick = navigateBack) },
             bottomBar = {
-//                CupertinoNavigationBar(
-//                    backdrop = backdrop,
-//                    selectedTabIndex = { if (selected) 0 else 1 },
-//                    onTabSelected = { selected = it == 0 },
-//                    tabsCount = 2
-//                ) {
-//                    CupertinoNavigationBarItem(
-//                        onClick = { selected = true },
-//                        icon = {
-//                            Icon(
-//                                imageVector = M3SystemIcons.Delete,
-//                                contentDescription = null,
-//                            )
-//                        },
-//                        label = { Text("Delete") }
-//                    )
-//                    CupertinoNavigationBarItem(
-//                        onClick = { selected = false },
-//                        icon = {
-//                            Icon(
-//                                imageVector = M3SystemIcons.Save,
-//                                contentDescription = null
-//                            )
-//                        },
-//                        label = {
-//                            Text(
-//                                text = "Save",
-//                            )
-//                        }
-//                    )
-//                }
-//                /*
                 AdaptiveNavigationBar(
                     selectedTabIndex = { if (selected) 0 else 1 },
                     onTabSelected = { selected = it == 0 },
@@ -112,8 +80,6 @@ fun NavigationScreen(
                         )
                     ),
                 )
-
-//                 */
             },
             modifier = modifier
         ) { pv, title ->
