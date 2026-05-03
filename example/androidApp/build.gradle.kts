@@ -46,5 +46,8 @@ kotlin {
         implementation(libs.compose.ui.tooling)
 
         implementation(libs.koin.android)
+
+
+        implementation(projects.cmpUtils)
     }
 }

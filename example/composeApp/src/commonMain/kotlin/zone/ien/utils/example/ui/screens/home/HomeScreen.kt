@@ -16,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -54,6 +55,7 @@ import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.navigation.result.ResultStore
 import zone.ien.utils.ui.utils.conditional
+import zone.ien.utils.utils.moveToBackground
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -271,6 +273,9 @@ fun HomeScreen(
                 Text(
                     text = "result: ${resultStore.getResult<String>("text")}"
                 )
+                Button(
+                    onClick = { moveToBackground() }
+                ) { Text(text = "move to background") }
                 AnimatedVisibility(
                     visible = !isDropdownMenu,
                 ) {
