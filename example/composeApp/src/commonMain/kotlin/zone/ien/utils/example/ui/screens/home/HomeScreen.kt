@@ -60,7 +60,7 @@ import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.navigation.result.ResultStore
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.utils.moveToBackground
-import zone.ien.utils.utils.ui.rememberRepeatClickState
+import zone.ien.utils.utils.ui.rememberRepeatClick
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -282,7 +282,7 @@ fun HomeScreen(
                 Text(
                     text = "result: ${resultStore.getResult<String>("text")}"
                 )
-                val onBackPressed = rememberRepeatClickState(
+                val onBackPressed = rememberRepeatClick(
                     onClick = {
                         coroutineScope.launch {
                             snackbarState.showSnackbar("한번더")

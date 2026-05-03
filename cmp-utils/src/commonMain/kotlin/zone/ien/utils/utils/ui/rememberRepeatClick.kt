@@ -5,31 +5,36 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import kotlin.time.Clock
 
 @Composable
-fun rememberRepeatClickState(
+fun rememberRepeatClick(
     n: Int = 2,
     intervalMs: Long = 2000L,
     onClick: () -> Unit = {},
     onNthClick: () -> Unit,
 ): () -> Unit {
+    val currentOnClick by rememberUpdatedState(onClick)
+    val currentOnNthClick by rememberUpdatedState(onNthClick)
+
     var lastClickTime by remember { mutableLongStateOf(0L) }
     var clickCount by remember { mutableIntStateOf(0) }
 
-    return remember(n, intervalMs, onClick, onNthClick) {
+    return remember(n, intervalMs) {
         {
             val now = Clock.System.now().toEpochMilliseconds()
             if (now - lastClickTime > intervalMs) {
-                // 간격 초과 → 첫 번째 클릭으로 리셋
                 clickCount = 1
-                onClick()
+                currentOnClick()
             } else {
                 clickCount++
                 if (clickCount >= n) {
-                    onNthClick()
+                    currentOnNthClick()
                     clickCount = 0
+                } else {
+                    currentOnClick()
                 }
             }
             lastClickTime = now
