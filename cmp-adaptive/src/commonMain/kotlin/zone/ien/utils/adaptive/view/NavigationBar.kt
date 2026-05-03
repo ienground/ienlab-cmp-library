@@ -68,29 +68,6 @@ fun AdaptiveNavigationBar(
     items: List<NavigationBarItem>
 ) {
     if (isNative) {
-        AdaptiveNavigationBar(
-            modifier = modifier,
-            selectedTabIndex = selectedTabIndex,
-            onTabSelected = onTabSelected,
-            tabsCount = items.size,
-            adaptation = adaptation,
-        ) {
-            items.forEachIndexed { index, item ->
-                val selected = selectedTabIndex() == index
-
-                AdaptiveNavigationBarItem(
-                    index = index,
-                    onClick = item.onClick,
-                    icon = {
-                        ComplexIcon(
-                            icon = if (selected && currentTheme == Theme.Material3 && item.selectedIcon != null) item.selectedIcon else item.icon
-                        )
-                    },
-                    label = { Text(text = item.label) }
-                )
-            }
-        }
-    } else {
         AdaptiveNavigationBarNative(
             modifier = modifier,
             selectedTabIndex = selectedTabIndex,
@@ -113,6 +90,29 @@ fun AdaptiveNavigationBar(
                 )
             }
         )
+    } else {
+        AdaptiveNavigationBar(
+            modifier = modifier,
+            selectedTabIndex = selectedTabIndex,
+            onTabSelected = onTabSelected,
+            tabsCount = items.size,
+            adaptation = adaptation,
+        ) {
+            items.forEachIndexed { index, item ->
+                val selected = selectedTabIndex() == index
+
+                AdaptiveNavigationBarItem(
+                    index = index,
+                    onClick = item.onClick,
+                    icon = {
+                        ComplexIcon(
+                            icon = if (selected && currentTheme == Theme.Material3 && item.selectedIcon != null) item.selectedIcon else item.icon
+                        )
+                    },
+                    label = { Text(text = item.label) }
+                )
+            }
+        }
     }
 }
 
