@@ -19,6 +19,8 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
@@ -26,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastMapIndexed
 import androidx.navigation3.runtime.NavBackStack
 import com.kyant.backdrop.backdrops.layerBackdrop
+import kotlinx.coroutines.launch
 import zone.ien.hig.adaptive.AdaptiveSwitch
 import zone.ien.hig.adaptive.AdaptiveTextButton
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
@@ -56,6 +60,7 @@ import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.navigation.result.ResultStore
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.utils.moveToBackground
+import zone.ien.utils.utils.ui.rememberRepeatClick
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -71,11 +76,15 @@ fun HomeScreen(
     val backdrop = rememberDefaultBackdrop()
     var childExpanded by remember { mutableStateOf(false) }
     val children = listOf("Hi", "Hello")
+    val snackbarState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
 
     GeneratedAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
         AdaptiveTopAppBarScaffold(
+            snackbarHost = { SnackbarHost(snackbarState) },
             actions = if (isDropdownMenu) listOf(
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
                     title = "Text",
@@ -273,8 +282,19 @@ fun HomeScreen(
                 Text(
                     text = "result: ${resultStore.getResult<String>("text")}"
                 )
+                val onBackPressed = rememberRepeatClick(
+                    onClick = {
+                        coroutineScope.launch {
+                            snackbarState.showSnackbar("한번더")
+                        }
+                    },
+                    onNthClick = {
+                        moveToBackground()
+                    }
+                )
+
                 Button(
-                    onClick = { moveToBackground() }
+                    onClick = onBackPressed
                 ) { Text(text = "move to background") }
                 AnimatedVisibility(
                     visible = !isDropdownMenu,
