@@ -60,6 +60,7 @@ import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.navigation.result.ResultStore
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.utils.moveToBackground
+import zone.ien.utils.utils.shareText
 import zone.ien.utils.utils.ui.rememberRepeatClick
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
@@ -296,6 +297,13 @@ fun HomeScreen(
                 Button(
                     onClick = onBackPressed
                 ) { Text(text = "move to background") }
+                Button(
+                    onClick = {
+                        shareText("text share")
+                    }
+                ) {
+                    Text(text = "Text Share")
+                }
                 AnimatedVisibility(
                     visible = !isDropdownMenu,
                 ) {

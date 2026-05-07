@@ -4,6 +4,7 @@ import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIApplication
 import platform.UIKit.UIWindow
 import platform.UIKit.UIWindowScene
+import platform.UIKit.popoverPresentationController
 
 actual fun shareText(text: String) {
     val activityViewController = UIActivityViewController(
@@ -11,14 +12,19 @@ actual fun shareText(text: String) {
         applicationActivities = null
     )
 
-    val rootViewController = UIApplication.sharedApplication
-        .connectedScenes
+    val windowScene = UIApplication.sharedApplication.connectedScenes
         .filterIsInstance<UIWindowScene>()
-        .firstOrNull()
-        ?.windows
+        .firstOrNull { it.activationState == platform.UIKit.UISceneActivationStateForegroundActive }
+        ?: UIApplication.sharedApplication.connectedScenes
+            .filterIsInstance<UIWindowScene>()
+            .firstOrNull()
+
+    val rootViewController = windowScene?.windows
         ?.filterIsInstance<UIWindow>()
         ?.firstOrNull { it.isKeyWindow() }
         ?.rootViewController
+
+    activityViewController.popoverPresentationController?.sourceView = rootViewController?.view
 
     rootViewController?.presentViewController(
         activityViewController,
