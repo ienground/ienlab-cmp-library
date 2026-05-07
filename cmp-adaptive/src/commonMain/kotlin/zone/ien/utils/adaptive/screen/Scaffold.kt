@@ -321,13 +321,13 @@ fun AdaptiveTopAppBarScaffold(
                     }
                 }
 
-                val isVisible = remember(actions) { actions.any { it.visible } }
                 val alpha by animateFloatAsState(
-                    targetValue = if (isVisible) 1f else 0f,
+                    targetValue = if (actions.any { it.visible }) 1f else 0f,
                     animationSpec = spring(1.2f)
                 )
+                val isVisible by remember(alpha) { derivedStateOf { alpha > 0f } }
 
-                if (alpha != 0f) {
+                if (isVisible) {
                     HigActionsMenu(
                         items = actions,
                         isOpen = menuExpanded,
