@@ -171,8 +171,11 @@ fun AdaptiveTopAppBarScaffold(
                                 actions = {
                                     Row(
                                         horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
                                         content = actions,
-                                        modifier = Modifier.animateContentSizeWithoutClipping()
+                                        modifier = Modifier
+                                            .animateContentSizeWithoutClipping()
+                                            .height(48.dp)
                                     )
                                 },
                                 windowInsets = it.topBarWindowInsets,
@@ -317,7 +320,12 @@ fun AdaptiveTopAppBarScaffold(
                     }
                 }
 
-                if (actions.isNotEmpty()) {
+                val alpha by animateFloatAsState(
+                    targetValue = if (actions.any { it.visible }) 1f else 0f,
+                    animationSpec = spring(1.2f)
+                )
+
+                if (alpha != 0f) {
                     HigActionsMenu(
                         items = actions,
                         isOpen = menuExpanded,
@@ -331,6 +339,9 @@ fun AdaptiveTopAppBarScaffold(
                             isIconButton = actions.count { it.visible } == 1 && actions.first { it.visible }.let { it is ActionMenuItem.IconMenuItem && it.icon != null },
                             backdrop = it.backdrop,
                             isBackgroundAdaptive = it.isBackgroundAdaptive,
+                            modifier = Modifier.graphicsLayer {
+                                this.alpha = alpha
+                            }
                         ) {
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(24.dp),
