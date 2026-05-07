@@ -43,7 +43,7 @@ serialization = "1.11.0"
 runner = "1.7.0"
 coreVersion = "1.7.0"
 junit = "1.3.0"
-android-ui-graphics = "1.11.0"
+android-ui-graphics = "1.11.1"
 androidx-core = "1.18.0"
 
 [libraries]
