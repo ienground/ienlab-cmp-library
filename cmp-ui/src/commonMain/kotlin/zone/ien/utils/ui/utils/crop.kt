@@ -20,4 +20,3 @@ fun Modifier.crop(
         placeable.placeRelative(-horizontalPx, -verticalPx)
     }
 }
-}
