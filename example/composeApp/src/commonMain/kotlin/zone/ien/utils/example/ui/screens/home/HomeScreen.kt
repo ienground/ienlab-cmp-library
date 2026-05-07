@@ -74,6 +74,7 @@ fun HomeScreen(
     var isDropdownMenu by remember { mutableStateOf(true) }
     var showVisible by remember { mutableStateOf(true) }
     var showSingle by remember { mutableStateOf(false) }
+    var allInvisible by remember { mutableStateOf(false) }
     val backdrop = rememberDefaultBackdrop()
     var childExpanded by remember { mutableStateOf(false) }
     val children = listOf("Hi", "Hello")
@@ -146,6 +147,14 @@ fun HomeScreen(
                     badge = 1,
                     icon = IconData.Vector(Android)
                 ),
+            ) else if (allInvisible) listOf(
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "Text",
+                    onClick = {},
+                    badge = 1,
+                    icon = IconData.Vector(Android),
+                    visible = false
+                )
             ) else listOf(
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
                     title = "Text",
@@ -341,6 +350,22 @@ fun HomeScreen(
                             onCheckedChange = { showSingle = it }
                         )
                     }
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = "all invisible",
+                        modifier = Modifier.weight(1f)
+                    )
+                    AdaptiveSwitch(
+                        checked = allInvisible,
+                        onCheckedChange = { allInvisible = it }
+                    )
                 }
                 Box(
                     modifier = Modifier
