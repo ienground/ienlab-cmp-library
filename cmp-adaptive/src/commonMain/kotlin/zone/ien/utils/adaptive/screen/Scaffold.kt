@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
@@ -175,7 +176,7 @@ fun AdaptiveTopAppBarScaffold(
                                         content = actions,
                                         modifier = Modifier
                                             .animateContentSizeWithoutClipping()
-                                            .height(48.dp)
+                                            .heightIn(min = 48.dp)
                                     )
                                 },
                                 windowInsets = it.topBarWindowInsets,
@@ -320,8 +321,9 @@ fun AdaptiveTopAppBarScaffold(
                     }
                 }
 
+                val isVisible = remember(actions) { actions.any { it.visible } }
                 val alpha by animateFloatAsState(
-                    targetValue = if (actions.any { it.visible }) 1f else 0f,
+                    targetValue = if (isVisible) 1f else 0f,
                     animationSpec = spring(1.2f)
                 )
 
