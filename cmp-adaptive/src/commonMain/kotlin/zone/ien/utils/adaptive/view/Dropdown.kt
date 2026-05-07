@@ -50,6 +50,7 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
+import zone.ien.utils.ui.menu.M3DropdownMenu
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -111,7 +112,7 @@ fun AdaptiveDropdownMenu(
         adaptation = remember { DropdownMenuAdaptation() },
         adaptationScope = adaptation,
         material = {
-            DropdownMenu(
+            M3DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = onDismissRequest,
                 modifier = modifier,
@@ -182,7 +183,7 @@ fun AdaptiveDropdownMenuNative(
         adaptation = remember { DropdownMenuAdaptation() },
         adaptationScope = adaptation,
         material = {
-            DropdownMenu(
+            M3DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = onDismissRequest,
                 modifier = modifier,

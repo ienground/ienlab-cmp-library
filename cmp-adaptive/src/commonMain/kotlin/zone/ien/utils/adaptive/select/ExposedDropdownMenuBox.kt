@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.icon.IconData
+import zone.ien.utils.ui.menu.M3DropdownMenuItem
 import zone.ien.utils.ui.view.textfield.M3TextFieldIconButton
 
 /**
@@ -60,7 +61,7 @@ expect fun <T> ExposedDropdownMenuBox(
         onClick: () -> Unit,
         checked: Boolean
     ) -> Unit = { text, onClick, checked ->
-        DropdownMenuItem(
+        M3DropdownMenuItem(
             text = text,
             onClick = onClick,
             leadingIcon = if (checked) { { Icon(imageVector = M3SystemIcons.Check, contentDescription = null) } } else null

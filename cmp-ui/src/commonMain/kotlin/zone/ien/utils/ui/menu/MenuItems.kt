@@ -119,46 +119,38 @@ fun M3ActionsMenu(
                         contentDescription = stringResource(Res.string.more_options),
                     )
                 }
-                DropdownMenu(
+                M3DropdownMenu(
                     expanded = isOpen,
-                    onDismissRequest = onToggleOverflow,
-                    modifier = Modifier
-                        .crop(vertical = 8.dp),
-                    shape = RoundedCornerShape(16.dp)
+                    onDismissRequest = onToggleOverflow
                 ) {
-                    Column(
-                        modifier = Modifier.padding(4.dp)
-                    ) {
-                        menuItems.overflowItems.forEach { item ->
-                            if (item.visible) {
-                                DropdownMenuItem(
-                                    text = { Text(text = item.title) },
-                                    leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
-                                        item.icon?.let {
-                                            {
-                                                ComplexIcon(
-                                                    icon = it,
-                                                    contentDescription = item.title
-                                                )
-                                            }
-                                        }
-                                    } else null,
-                                    trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
+                    menuItems.overflowItems.forEach { item ->
+                        if (item.visible) {
+                            M3DropdownMenuItem(
+                                text = { Text(text = item.title) },
+                                leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
+                                    item.icon?.let {
                                         {
-                                            if (item.badge != 0) {
-                                                Badge(
-                                                    content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null
-                                                )
-                                            }
+                                            ComplexIcon(
+                                                icon = it,
+                                                contentDescription = item.title
+                                            )
                                         }
-                                    } else null,
-                                    onClick = {
-                                        closeDropdown()
-                                        item.onClick()
-                                    },
-                                    modifier = Modifier.clip(RoundedCornerShape(12.dp))
-                                )
-                            }
+                                    }
+                                } else null,
+                                trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
+                                    {
+                                        if (item.badge != 0) {
+                                            Badge(
+                                                content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null
+                                            )
+                                        }
+                                    }
+                                } else null,
+                                onClick = {
+                                    closeDropdown()
+                                    item.onClick()
+                                }
+                            )
                         }
                     }
                 }
