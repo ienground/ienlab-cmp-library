@@ -14,15 +14,23 @@ actual fun setStatusBarStyle(isDarkTheme: Boolean): Boolean {
     val context = LocalContext.current
     val systemDarkTheme = isSystemInDarkTheme()
 
-    DisposableEffect(Unit) {
-        (context as ComponentActivity).enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT, detectDarkMode = { isDarkTheme }),
+    DisposableEffect(isDarkTheme) {
+        val activity = context as? ComponentActivity
+        activity?.enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(
+                Color.TRANSPARENT,
+                Color.TRANSPARENT,
+                detectDarkMode = { isDarkTheme }
+            )
         )
 
         onDispose {
-            context.enableEdgeToEdge(
-                statusBarStyle = systemDarkTheme.let { isDarkTheme -> SystemBarStyle.auto(
-                    Color.TRANSPARENT, Color.TRANSPARENT, detectDarkMode = { isDarkTheme }) },
+            activity?.enableEdgeToEdge(
+                statusBarStyle = SystemBarStyle.auto(
+                    Color.TRANSPARENT,
+                    Color.TRANSPARENT,
+                    detectDarkMode = { systemDarkTheme }
+                )
             )
         }
     }
