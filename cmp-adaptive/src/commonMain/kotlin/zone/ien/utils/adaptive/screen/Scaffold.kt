@@ -325,7 +325,7 @@ fun AdaptiveTopAppBarScaffold(
                     targetValue = if (actions.any { it.visible }) 1f else 0f,
                     animationSpec = spring(1.2f)
                 )
-                val isVisible by remember(alpha) { derivedStateOf { alpha > 0f } }
+                val isVisible by remember { derivedStateOf { alpha > 0f } }
 
                 if (isVisible) {
                     HigActionsMenu(
