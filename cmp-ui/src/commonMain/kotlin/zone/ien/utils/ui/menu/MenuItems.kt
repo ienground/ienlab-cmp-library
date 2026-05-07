@@ -9,8 +9,11 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DropdownMenu
@@ -25,12 +28,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.ui.utils.crop
 import zone.ien.utils.ui.view.M3TooltipBox
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -117,35 +122,43 @@ fun M3ActionsMenu(
                 DropdownMenu(
                     expanded = isOpen,
                     onDismissRequest = onToggleOverflow,
+                    modifier = Modifier
+                        .crop(vertical = 8.dp),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
-                    menuItems.overflowItems.forEach { item ->
-                        if (item.visible) {
-                            DropdownMenuItem(
-                                text = { Text(text = item.title) },
-                                leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
-                                    item.icon?.let {
+                    Column(
+                        modifier = Modifier.padding(4.dp)
+                    ) {
+                        menuItems.overflowItems.forEach { item ->
+                            if (item.visible) {
+                                DropdownMenuItem(
+                                    text = { Text(text = item.title) },
+                                    leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
+                                        item.icon?.let {
+                                            {
+                                                ComplexIcon(
+                                                    icon = it,
+                                                    contentDescription = item.title
+                                                )
+                                            }
+                                        }
+                                    } else null,
+                                    trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
                                         {
-                                            ComplexIcon(
-                                                icon = it,
-                                                contentDescription = item.title
-                                            )
+                                            if (item.badge != 0) {
+                                                Badge(
+                                                    content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null
+                                                )
+                                            }
                                         }
-                                    }
-                                } else null,
-                                trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
-                                    {
-                                        if (item.badge != 0) {
-                                            Badge(
-                                                content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null
-                                            )
-                                        }
-                                    }
-                                } else null,
-                                onClick = {
-                                    closeDropdown()
-                                    item.onClick()
-                                }
-                            )
+                                    } else null,
+                                    onClick = {
+                                        closeDropdown()
+                                        item.onClick()
+                                    },
+                                    modifier = Modifier.clip(RoundedCornerShape(12.dp))
+                                )
+                            }
                         }
                     }
                 }
