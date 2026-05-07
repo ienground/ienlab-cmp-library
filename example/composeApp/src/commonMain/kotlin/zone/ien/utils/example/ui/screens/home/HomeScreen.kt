@@ -60,6 +60,7 @@ import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.navigation.result.ResultStore
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.utils.moveToBackground
+import zone.ien.utils.utils.shareText
 import zone.ien.utils.utils.ui.rememberRepeatClick
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
@@ -73,6 +74,7 @@ fun HomeScreen(
     var isDropdownMenu by remember { mutableStateOf(true) }
     var showVisible by remember { mutableStateOf(true) }
     var showSingle by remember { mutableStateOf(false) }
+    var allInvisible by remember { mutableStateOf(false) }
     val backdrop = rememberDefaultBackdrop()
     var childExpanded by remember { mutableStateOf(false) }
     val children = listOf("Hi", "Hello")
@@ -145,6 +147,14 @@ fun HomeScreen(
                     badge = 1,
                     icon = IconData.Vector(Android)
                 ),
+            ) else if (allInvisible) listOf(
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "Text",
+                    onClick = {},
+                    badge = 1,
+                    icon = IconData.Vector(Android),
+                    visible = false
+                )
             ) else listOf(
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
                     title = "Text",
@@ -296,6 +306,13 @@ fun HomeScreen(
                 Button(
                     onClick = onBackPressed
                 ) { Text(text = "move to background") }
+                Button(
+                    onClick = {
+                        shareText("text share")
+                    }
+                ) {
+                    Text(text = "Text Share")
+                }
                 AnimatedVisibility(
                     visible = !isDropdownMenu,
                 ) {
@@ -333,6 +350,22 @@ fun HomeScreen(
                             onCheckedChange = { showSingle = it }
                         )
                     }
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = "all invisible",
+                        modifier = Modifier.weight(1f)
+                    )
+                    AdaptiveSwitch(
+                        checked = allInvisible,
+                        onCheckedChange = { allInvisible = it }
+                    )
                 }
                 Box(
                     modifier = Modifier
