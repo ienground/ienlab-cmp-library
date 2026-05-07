@@ -81,7 +81,7 @@ fun M3DropdownMenuItem(
     DropdownMenuItem(
         text = text,
         onClick = onClick,
-        modifier = modifier.conditional(shape != null) { clip(shape!!) },
+        modifier = modifier.conditional(shape != null) { shape?.let { clip(it) } ?: this },
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
         enabled = enabled,
