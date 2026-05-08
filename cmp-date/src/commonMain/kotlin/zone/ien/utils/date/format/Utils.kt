@@ -20,9 +20,12 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.date.atTime
 import zone.ien.utils.date.from
 
+/** KZonedDateTime 인스턴스를 지정된 형식으로 포맷화합니다 */
 fun KDateTimeFormat.format(time: KZonedDateTime) = format(time.toKZonedInstant())
+/** KDate 인스턴스를 지정된 형식으로 포맷화합니다 */
 fun KDateTimeFormat.format(date: KDate) = format(date.atTime(KDuration.from(0, 0)).toKZonedInstant())
 
+/** 요일 이름들을 반환합니다 */
 val weekdayNames
     @Composable get() = listOf(
         stringResource(Res.string.sun),
@@ -34,6 +37,7 @@ val weekdayNames
         stringResource(Res.string.sat)
     )
 
+/** 요일 이름들을 비동기적으로 가져옵니다 */
 suspend fun getWeekdayNames() = listOf(
     getString(Res.string.sun),
     getString(Res.string.mon),
@@ -45,10 +49,12 @@ suspend fun getWeekdayNames() = listOf(
 )
 
 @Composable
+/** Composable 환경에서 AM/PM 이름을 설정합니다 */
 internal fun KDateTimeFormat.setComposableAmPm() {
     setAmPmNames(stringResource(Res.string.time_am), stringResource(Res.string.time_pm))
 }
 
+/** 비동기 환경에서 AM/PM 이름을 설정합니다 */
 internal suspend fun KDateTimeFormat.setAmPm() {
     setAmPmNames(getString(Res.string.time_am), getString(Res.string.time_pm))
 }
