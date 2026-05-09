@@ -1,5 +1,10 @@
 package zone.ien.utils.firebase.auth
 
+/**
+ * 인증 에러 코드를 처리하여 적절한 FbAuthCode 오브젝트를 반환하는 함수
+ * @param message Firebase에서 반환한 에러 메시지
+ * @return 매칭된 FbAuthCode (성공 또는 에러)
+ */
 fun processAuthErrorCode(
     message: String
 ): FbAuthCode {
