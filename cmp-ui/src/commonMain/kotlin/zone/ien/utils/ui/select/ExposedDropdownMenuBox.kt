@@ -18,6 +18,17 @@ import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.ui.menu.M3DropdownMenuItem
 import zone.ien.utils.ui.view.textfield.M3TextFieldIconButton
 
+/**
+ * M3ExposedDropdownMenuBox은 노출된 드롭다운 메뉴 박스를 표시하기 위한 컴포저블입니다.
+ *
+ * @param modifier 적용할 Modifier
+ * @param itemsWithLabels 아이템과 라벨의 매핑
+ * @param currentItem 현재 선택된 아이템
+ * @param onItemSelected 아이템 선택 시 호출되는 콜백 함수
+ * @param trailingIconButton trailing 아이콘
+ * @param dropdownMenuItem 드롭다운 메뉴 항목
+ * @param textField 텍스트 필드
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> M3ExposedDropdownMenuBox(
@@ -67,6 +78,17 @@ fun <T> M3ExposedDropdownMenuBox(
     }
 }
 
+/**
+ * M3ExposedDropdownMenuBox은 다중 선택 가능한 노출된 드롭다운 메뉴 박스를 표시하기 위한 컴포저블입니다.
+ *
+ * @param modifier 적용할 Modifier
+ * @param itemsWithLabels 아이템과 라벨의 매핑
+ * @param currentItems 현재 선택된 아이템 목록
+ * @param onItemsSelected 아이템 선택 시 호출되는 콜백 함수
+ * @param trailingIconButton trailing 아이콘
+ * @param dropdownMenuItem 드롭다운 메뉴 항목
+ * @param textField 텍스트 필드
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> M3ExposedDropdownMenuBox(
