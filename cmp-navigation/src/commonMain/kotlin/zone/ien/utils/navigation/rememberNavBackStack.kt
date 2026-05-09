@@ -9,6 +9,11 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import androidx.savedstate.serialization.SavedStateConfiguration.Companion
 import kotlinx.serialization.PolymorphicSerializer
 
+/**
+ * 네비게이션 백스택을 기억하는 Composable 함수
+ * @param elements 초기 백스택 요소들
+ * @return 기억된 NavBackStack
+ */
 @Composable
 inline fun <reified T: NavKey> rememberNavBackStack(
 //    configuration: SavedStateConfiguration,

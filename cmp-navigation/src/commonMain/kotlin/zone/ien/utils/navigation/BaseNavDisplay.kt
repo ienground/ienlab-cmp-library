@@ -6,7 +6,6 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.SizeTransform
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
@@ -23,6 +22,22 @@ import androidx.navigation3.ui.defaultTransitionSpec
 import androidx.navigationevent.NavigationEvent
 import zone.ien.utils.navigation.transition.fadeInOutPopTransitionSpec
 
+/**
+ * 네비게이션 디스플레이를 생성하는 기본 Composable 함수
+ * @param backStack 네비게이션 백스택
+ * @param modifier Modifier
+ * @param contentAlignment 콘텐츠 정렬
+ * @param onBack 뒤로가기 처리 함수
+ * @param entryDecorators NavEntry 데코레이터 리스트
+ * @param sceneStrategies Scene 전략 리스트
+ * @param sceneDecoratorStrategies Scene 데코레이터 전략 리스트
+ * @param sharedTransitionScope 공유 전환 범위
+ * @param sizeTransform 크기 변환
+ * @param transitionSpec 전환 스펙
+ * @param popTransitionSpec pop 전환 스펙
+ * @param predictivePopTransitionSpec 예측 pop 전환 스펙
+ * @param entryProvider NavEntry 제공자
+ */
 @Composable
 fun <T : NavKey> BaseNavDisplay(
     backStack: NavBackStack<T>,
