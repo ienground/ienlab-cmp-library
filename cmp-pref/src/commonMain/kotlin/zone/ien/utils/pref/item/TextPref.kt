@@ -19,6 +19,24 @@ import zone.ien.utils.adaptive.section.M3SectionItemAdaptation
 import zone.ien.utils.adaptive.section.M3SectionLinkAdaptation
 
 
+/**
+ * A Composable function that creates a text preference item with a clickable link.
+ * 
+ * This preference item displays a title and optional summary text. When clicked,
+ * it triggers the onClick callback, making it useful for opening dialogs or navigation.
+ * 
+ * @param onClick Callback function that is triggered when the item is clicked
+ * @param modifier Modifier to be applied to the layout
+ * @param enabled Whether the preference is enabled or disabled
+ * @param leadingIcon Optional icon to display before the title
+ * @param onClickLabel Optional accessibility label for the click action
+ * @param indication Optional visual indication for the interaction
+ * @param interactionSource Optional source for interaction tracking
+ * @param summary Optional summary text to display
+ * @param chevron Composable that displays a chevron icon at the end
+ * @param adaptation Adaptation configuration for different platforms (iOS/Android)
+ * @param title The title text for this preference item
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun SectionScope.TextPref(
@@ -54,6 +72,19 @@ fun SectionScope.TextPref(
     )
 }
 
+/**
+ * A Composable function that creates a text preference item with custom content.
+ * 
+ * This variant is used to display simple text items without interaction. It's useful
+ * for displaying static information or group headers within preferences.
+ * 
+ * @param modifier Modifier to be applied to the layout
+ * @param leadingContent Optional content to display before the title
+ * @param trailingContent Optional content to display after the title
+ * @param summary Optional summary text to display
+ * @param adaptation Adaptation configuration for different platforms (iOS/Android)
+ * @param title The title text for this preference item
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun SectionScope.TextPref(

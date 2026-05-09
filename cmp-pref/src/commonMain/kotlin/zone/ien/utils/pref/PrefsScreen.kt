@@ -20,8 +20,22 @@ import zone.ien.hig.section.SectionStyle
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.section.AdaptiveProvideSectionStyle
 
-lateinit var LocalPrefsDataStore: ProvidableCompositionLocal<DataStore<Preferences>>
-
+/**
+ * A Composable function that creates a complete preferences screen with data store support.
+ * 
+ * This function sets up the preferences screen with a proper data store context, 
+ * scroll state, and styling. It provides a foundation for building preference screens
+ * that persist user settings using DataStore.
+ * 
+ * @param dataStore The DataStore instance used for storing preferences
+ * @param title Composable that displays the screen title
+ * @param modifier Modifier to be applied to the layout
+ * @param fullHeight Whether the screen should take full height
+ * @param scrollState The scroll state to be used for scrolling
+ * @param shape The shape of the screen's container
+ * @param backdrop The backdrop configuration for the screen
+ * @param content Composable content block that contains the preference items
+ */
 @Composable
 fun PrefsScreen(
     dataStore: DataStore<Preferences>,
@@ -51,3 +65,9 @@ fun PrefsScreen(
         )
     }
 }
+
+/**
+ * CompositionLocal for providing DataStore to preference components.
+ * This is used to access the DataStore instance without passing it down manually.
+ */
+lateinit var LocalPrefsDataStore: ProvidableCompositionLocal<DataStore<Preferences>>

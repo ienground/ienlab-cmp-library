@@ -27,6 +27,21 @@ import zone.ien.utils.pref.LocalPrefsDataStore
 import zone.ien.utils.ui.utils.TextFieldDialogData
 import zone.ien.utils.utils.checkDecimal
 
+/**
+ * A Composable function that creates a text field preference item with a dialog.
+ * 
+ * This preference item displays a text value that, when clicked, opens a dialog
+ * where users can enter or modify text. It handles both string and integer values.
+ * 
+ * @param modifier Modifier to be applied to the layout
+ * @param title The title text for the text preference
+ * @param summary Composable function that displays the current value as a summary
+ * @param key The Preferences.Key used to identify this preference in the DataStore
+ * @param defaultValue The default value for the text field
+ * @param enabled Whether the preference is enabled or disabled
+ * @param leadingIcon Optional icon to display before the title
+ * @param showIcon Whether to show the leading icon
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun SectionScope.TextFieldPref(
@@ -92,6 +107,21 @@ fun SectionScope.TextFieldPref(
     )
 }
 
+/**
+ * A Composable function that creates a text field preference item with a conditional enable.
+ * 
+ * This variant provides the ability to enable/disable the preference based on the
+ * value of another boolean preference.
+ * 
+ * @param modifier Modifier to be applied to the layout
+ * @param title The title text for the text preference
+ * @param summary Composable function that displays the current value as a summary
+ * @param key The Preferences.Key used to identify this preference in the DataStore
+ * @param defaultValue The default value for the text field
+ * @param enabled Pair of Preferences.Key and default boolean value to enable/disable this preference
+ * @param leadingIcon Optional icon to display before the title
+ * @param showIcon Whether to show the leading icon
+ */
 @Composable
 fun SectionScope.TextFieldPref(
     modifier: Modifier = Modifier,
@@ -121,6 +151,22 @@ fun SectionScope.TextFieldPref(
     )
 }
 
+/**
+ * A Composable function that creates an integer text field preference item.
+ * 
+ * This preference item displays an integer value and allows editing it in a dialog.
+ * It supports validation to ensure only decimal numbers can be entered.
+ * 
+ * @param modifier Modifier to be applied to the layout
+ * @param title The title text for the integer preference
+ * @param summary Composable function that displays the current integer value as a summary
+ * @param key The Preferences.Key used to identify this preference in the DataStore
+ * @param defaultValue The default integer value
+ * @param onlyDecimal Whether to only allow decimal inputs
+ * @param enabled Whether the preference is enabled or disabled
+ * @param leadingIcon Optional icon to display before the title
+ * @param showIcon Whether to show the leading icon
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun SectionScope.TextFieldPref(
@@ -198,6 +244,22 @@ fun SectionScope.TextFieldPref(
 
 }
 
+/**
+ * A Composable function that creates an integer text field preference item with a conditional enable.
+ * 
+ * This variant provides the ability to enable/disable the preference based on the
+ * value of another boolean preference.
+ * 
+ * @param modifier Modifier to be applied to the layout
+ * @param title The title text for the integer preference
+ * @param summary Composable function that displays the current integer value as a summary
+ * @param key The Preferences.Key used to identify this preference in the DataStore
+ * @param defaultValue The default integer value
+ * @param onlyDecimal Whether to only allow decimal inputs
+ * @param enabled Pair of Preferences.Key and default boolean value to enable/disable this preference
+ * @param leadingIcon Optional icon to display before the title
+ * @param showIcon Whether to show the leading icon
+ */
 @Composable
 fun SectionScope.TextFieldPref(
     modifier: Modifier = Modifier,

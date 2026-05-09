@@ -15,6 +15,23 @@ import zone.ien.hig.section.SectionScope
 import zone.ien.utils.adaptive.section.AdaptiveSectionSwitchItem
 import zone.ien.utils.pref.LocalPrefsDataStore
 
+/**
+ * A Composable function that creates a switch preference item.
+ * 
+ * This preference item displays a switch control that allows users to toggle
+ * boolean values. It integrates with the DataStore to persist the switch state
+ * and updates the UI when the value changes.
+ * 
+ * @param modifier Modifier to be applied to the layout
+ * @param title The title text for the switch preference
+ * @param summaryOn Optional summary text displayed when the switch is on
+ * @param summaryOff Optional summary text displayed when the switch is off
+ * @param key The Preferences.Key used to identify this preference in the DataStore
+ * @param defaultValue The default value for the switch
+ * @param onCheckedChange Optional callback that is triggered when the switch state changes
+ * @param enabled Whether the switch is enabled or disabled
+ * @param leadingIcon Optional icon to display before the title
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun SectionScope.SwitchPref(
