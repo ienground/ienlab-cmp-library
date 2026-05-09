@@ -29,6 +29,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.icon.material.M3SystemIcons
 
+/**
+ * Empty는 비어 있는 상태를 표시하기 위한 컴포저블입니다.
+ *
+ * @param modifier 적용할 Modifier
+ * @param icon 아이콘
+ * @param title 제목
+ * @param content 내용
+ * @param buttons 버튼들
+ */
 @Composable
 fun Empty(
     modifier: Modifier = Modifier,

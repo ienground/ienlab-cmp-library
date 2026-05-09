@@ -28,6 +28,23 @@ import zone.ien.utils.ui.utils.crop
 
 internal val DefaultMenuProperties = PopupProperties(focusable = true)
 
+/**
+ * M3DropdownMenu는 드롭다운 메뉴를 표시하기 위한 컴포저블입니다.
+ *
+ * @param expanded 드롭다운이 열려 있는지 여부
+ * @param onDismissRequest 드롭다운을 닫기 위한 콜백 함수
+ * @param modifier 적용할 Modifier
+ * @param offset 오프셋
+ * @param scrollState 스크롤 상태
+ * @param properties 다이얼로그 속성
+ * @param shape 모양
+ * @param containerColor 컨테이너 색상
+ * @param tonalElevation 톤탈 침강
+ * @param shadowElevation 그림자 침강
+ * @param border 테두리
+ * @param innerPadding 내부 패딩
+ * @param content 메뉴 내용
+ */
 @Composable
 fun M3DropdownMenu(
     expanded: Boolean,
@@ -65,6 +82,20 @@ fun M3DropdownMenu(
     )
 }
 
+/**
+ * M3DropdownMenuItem은 드롭다운 메뉴 항목을 표시하기 위한 컴포저블입니다.
+ *
+ * @param text 항목 텍스트
+ * @param onClick 항목 클릭 시 호출되는 콜백 함수
+ * @param modifier 적용할 Modifier
+ * @param leadingIcon leading 아이콘
+ * @param trailingIcon trailing 아이콘
+ * @param enabled 활성화 여부
+ * @param colors 항목 색상
+ * @param contentPadding 내용 패딩
+ * @param shape 모양
+ * @param interactionSource 상호작용 소스
+ */
 @Composable
 fun M3DropdownMenuItem(
     text: @Composable () -> Unit,

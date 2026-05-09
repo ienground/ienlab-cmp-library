@@ -12,6 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 
+/**
+ * M3AsteriskTextWrapper는 별표(*)를 표시하는 텍스트 래퍼 컴포저블입니다.
+ *
+ * @param modifier 적용할 Modifier
+ * @param style 텍스트 스타일
+ * @param content 내용
+ */
 @Composable
 fun M3AsteriskTextWrapper(
     modifier: Modifier = Modifier,

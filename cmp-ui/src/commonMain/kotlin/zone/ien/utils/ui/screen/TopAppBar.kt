@@ -14,6 +14,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
+/**
+ * M3TopAppBar은 상단 앱 바를 표시하기 위한 컴포저블입니다.
+ *
+ * @param title 제목
+ * @param subtitle 부제목
+ * @param modifier 적용할 Modifier
+ * @param navigationIcon 네비게이션 아이콘
+ * @param actions 액션 버튼들
+ * @param windowInsets 윈도우 인셋
+ * @param scrollBehavior 스크롤 동작
+ * @param isScrollTint 스크롤 tint 여부
+ * @param isCenterAligned 중앙 정렬 여부
+ * @param colors 색상
+ * @param size 크기
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun M3TopAppBar(

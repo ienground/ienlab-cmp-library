@@ -29,6 +29,18 @@ import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
 
+/**
+ * M3TextFieldIconButton은 텍스트 필드의 아이콘 버튼을 표시하기 위한 컴포저블입니다.
+ *
+ * @param modifier 적용할 Modifier
+ * @param onClick 클릭 시 호출되는 콜백 함수
+ * @param onLongClick 긴 클릭 시 호출되는 콜백 함수
+ * @param loading 로딩 상태
+ * @param enabled 활성화 여부
+ * @param interactionSource 상호작용 소스
+ * @param icon 표시할 아이콘
+ * @param contentDescription 콘텐츠 설명
+ */
 @Composable
 fun M3TextFieldIconButton(
     modifier: Modifier = Modifier,
@@ -88,6 +100,12 @@ fun M3TextFieldIconButton(
     }
 }
 
+/**
+ * M3TextFieldClearButton은 텍스트 필드의 클리어 버튼을 표시하기 위한 컴포저블입니다.
+ *
+ * @param visible 표시 여부
+ * @param onClick 버튼 클릭 시 호출되는 콜백 함수
+ */
 @Composable
 fun M3TextFieldClearButton(
     visible: Boolean,

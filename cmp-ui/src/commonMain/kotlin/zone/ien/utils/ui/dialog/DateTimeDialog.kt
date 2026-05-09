@@ -55,6 +55,20 @@ import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.ui.utils.rememberMyDatePickerState
 import kotlin.math.max
 
+/**
+ * M3DatePickerDialog은 날짜 선택 다이얼로그를 제공하는 컴포저블입니다.
+ *
+ * @param modifier 다이얼로그에 적용할 Modifier
+ * @param visible 다이얼로그의 표시 여부
+ * @param initialSelectedDateMillis 초기 선택된 날짜 (밀리초 단위)
+ * @param initialDisplayedMonthMillis 초기에 표시되는 달 (밀리초 단위)
+ * @param yearRange 선택 가능한 연도 범위
+ * @param initialDisplayMode 초기 표시 모드 (Picker 또는 List)
+ * @param selectableDates 선택 가능한 날짜 범위
+ * @param title 다이얼로그의 제목
+ * @param onDismiss 다이얼로그를 닫기 위한 콜백 함수
+ * @param onConfirm 날짜 선택을 완료했을 때 호출되는 콜백 함수
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun M3DatePickerDialog(
@@ -148,6 +162,18 @@ fun M3DatePickerDialog(
     }
 }
 
+/**
+ * M3TimePickerDialog은 시간 선택 다이얼로그를 제공하는 컴포저블입니다.
+ *
+ * @param modifier 다이얼로그에 적용할 Modifier
+ * @param visible 다이얼로그의 표시 여부
+ * @param initialHour 초기 선택된 시간 (24시간 제)
+ * @param initialMinute 초기 선택된 분
+ * @param is24Hour 24시간 제 여부
+ * @param title 다이얼로그의 제목
+ * @param onDismiss 다이얼로그를 닫기 위한 콜백 함수
+ * @param onConfirm 시간 선택을 완료했을 때 호출되는 콜백 함수
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun M3TimePickerDialog(
@@ -214,6 +240,13 @@ fun M3TimePickerDialog(
 }
 
 
+/**
+ * AlertDialogFlowRow은 AlertDialog 내부의 버튼들을 정렬하는 내부 컴포저블입니다.
+ *
+ * @param mainAxisSpacing 메인 축 간격
+ * @param crossAxisSpacing 크로스 축 간격
+ * @param content 버튼들로 구성된 내용
+ */
 @Composable
 internal fun AlertDialogFlowRow(
     mainAxisSpacing: Dp,

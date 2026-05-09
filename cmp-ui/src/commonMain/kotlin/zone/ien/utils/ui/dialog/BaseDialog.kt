@@ -24,6 +24,16 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
+/**
+ * BaseDialog은 AlertDialog의 기본 구성 요소로, 기본적인 다이얼로그 레이아웃을 제공합니다.
+ *
+ * @param modifier 다이얼로그에 적용할 Modifier
+ * @param icon 다이얼로그의 아이콘을 나타내는 Composable
+ * @param title 다이얼로그의 제목
+ * @param content 다이얼로그의 내용을 나타내는 Composable
+ * @param onCancel 다이얼로그를 닫기 위한 콜백 함수
+ * @param buttons 다이얼로그의 버튼을 나타내는 Composable
+ */
 @Composable
 fun BaseDialog(
     modifier: Modifier = Modifier,
@@ -91,7 +101,7 @@ fun BaseDialog(
                     Box(
                         Modifier.weight(weight = 1f, fill = false)
                             .padding(horizontal = 16.dp)
-                            .padding(bottom = 24.dp)
+                            .padding(bottom = 224.dp)
                             .align(Alignment.Start)
                     ) {
                         content?.invoke()

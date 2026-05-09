@@ -21,6 +21,14 @@ import zone.ien.utils.icon.LocalButtonProviderDefault
 import zone.ien.utils.icon.LocalCloseButtonIcon
 import zone.ien.utils.ui.view.M3TooltipBox
 
+/**
+ * M3BackButton은 뒤로 가기 버튼을 표시하기 위한 컴포저블입니다.
+ *
+ * @param modifier 적용할 Modifier
+ * @param icon 표시할 아이콘
+ * @param enabled 활성화 여부
+ * @param onClick 버튼 클릭 시 호출되는 콜백 함수
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun M3BackButton(
@@ -46,6 +54,14 @@ fun M3BackButton(
     }
 }
 
+/**
+ * M3CloseButton은 닫기 버튼을 표시하기 위한 컴포저블입니다.
+ *
+ * @param modifier 적용할 Modifier
+ * @param icon 표시할 아이콘
+ * @param enabled 활성화 여부
+ * @param onClick 버튼 클릭 시 호출되는 콜백 함수
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun M3CloseButton(
