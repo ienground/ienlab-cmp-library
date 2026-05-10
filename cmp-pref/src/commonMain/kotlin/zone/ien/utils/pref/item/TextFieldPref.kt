@@ -28,19 +28,19 @@ import zone.ien.utils.ui.utils.TextFieldDialogData
 import zone.ien.utils.utils.checkDecimal
 
 /**
- * A Composable function that creates a text field preference item with a dialog.
+ * 다이얼로그를 통해 텍스트를 입력받는 설정 항목을 생성하는 Composable 함수입니다.
  * 
- * This preference item displays a text value that, when clicked, opens a dialog
- * where users can enter or modify text. It handles both string and integer values.
+ * 이 설정 항목은 현재 텍스트 값을 표시하며, 클릭 시 사용자가 텍스트를 수정할 수 있는 다이얼로그를 엽니다.
+ * 문자열 및 정수 값을 모두 처리할 수 있습니다.
  * 
- * @param modifier Modifier to be applied to the layout
- * @param title The title text for the text preference
- * @param summary Composable function that displays the current value as a summary
- * @param key The Preferences.Key used to identify this preference in the DataStore
- * @param defaultValue The default value for the text field
- * @param enabled Whether the preference is enabled or disabled
- * @param leadingIcon Optional icon to display before the title
- * @param showIcon Whether to show the leading icon
+ * @param modifier 레이아웃에 적용할 Modifier
+ * @param title 텍스트 설정의 제목 텍스트
+ * @param summary 현재 값을 요약으로 표시하는 Composable 함수
+ * @param key DataStore에서 이 설정을 식별하는 데 사용되는 Preferences.Key
+ * @param defaultValue 텍스트 필드의 기본값
+ * @param enabled 설정의 활성화 여부
+ * @param leadingIcon 제목 앞에 표시할 선택적 아이콘
+ * @param showIcon 선행 아이콘을 표시할지 여부
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
