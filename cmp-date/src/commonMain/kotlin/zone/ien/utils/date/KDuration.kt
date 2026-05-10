@@ -58,8 +58,8 @@ fun KDuration.format(): String {
     return result.joinToString(":")
 }
 
-@Composable
 /** Duration 차이를 사람이 읽기 쉬운 문자열로 변환합니다 */
+@Composable
 fun KDuration.timeDiffToString(target: KDuration): String {
     val diff = target.minus(this)
     val hour = diff.hourPart()
