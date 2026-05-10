@@ -2,6 +2,18 @@ package zone.ien.utils.utils
 
 import kotlin.math.pow
 
+/**
+ * 바이트 단위의 파일 크기를 적절한 단위로 표현하는 문자열로 변환합니다.
+ * 
+ * 이 함수는 바이트 단위의 파일 크기를 이진 (IEC) 단위(1024기반)로 변환하여 사용자 친화적인 형식으로 출력합니다.
+ * 지정된 소수점 자리수로 출력됩니다.
+ * 
+ * @param bytes 파일 크기 (바이트 단위).
+ * @param decimalPlaces 표시할 소수점 자리수 (기본값: 2).
+ * @return 적절한 단위를 가진 파일 크기 문자열.
+ * 
+ * @see DoubleFormat
+ */
 fun formatFileSize(bytes: Long, decimalPlaces: Int = 2): String {
     val doubleFormat = DoubleFormat(decimalPlaces)
     // 0 바이트 처리

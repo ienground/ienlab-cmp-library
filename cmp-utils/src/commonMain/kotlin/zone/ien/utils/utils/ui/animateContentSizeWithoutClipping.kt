@@ -27,6 +27,17 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.constrain
 import kotlinx.coroutines.launch
 
+/**
+ * 크기 변경 애니메이션을 적용하면서 클리핑을 방지하는 Modifier.
+ * 
+ * 이 Modifier는 레이아웃 크기가 변경될 때 애니메이션을 적용하면서도
+ * 자식 컴포넌트의 클리핑을 방지합니다. 일반적인 크기 변경 애니메이션은
+ * 컴포넌트가 특정 크기로 변경될 때 자식이 크기 변경에 따라 클리핑되는 문제를 해결합니다.
+ * 
+ * @param animationSpec 애니메이션 설정 (기본값: Spring 애니메이션)
+ * @param finishedListener 애니메이션이 완료될 때 호출되는 콜백 (기본값: null)
+ * @return 크기 변경 애니메이션을 적용한 Modifier
+ */
 fun Modifier.animateContentSizeWithoutClipping(
     animationSpec: FiniteAnimationSpec<IntSize> = spring(
         stiffness = Spring.StiffnessMediumLow,
@@ -35,6 +46,15 @@ fun Modifier.animateContentSizeWithoutClipping(
     finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null
 ): Modifier = this then SizeAnimationModifierElement(animationSpec, Alignment.TopStart, finishedListener)
 
+/**
+ * 크기 변경 애니메이션을 관리하는 Modifier 노드 엘리먼트.
+ * 
+ * 이 클래스는 애니메이션을 처리하고 수정자 노드의 업데이트를 관리합니다.
+ * 
+ * @param animationSpec 애니메이션 설정
+ * @param alignment 정렬 방식
+ * @param finishedListener 애니메이션이 완료될 때 호출되는 콜백
+ */
 private data class SizeAnimationModifierElement(
     val animationSpec: FiniteAnimationSpec<IntSize>,
     val alignment: Alignment,
@@ -57,10 +77,31 @@ private data class SizeAnimationModifierElement(
     }
 }
 
+/**
+ * 유효하지 않은 크기 값을 나타내는 상수.
+ * 
+ * 이 상수는 유효하지 않은 크기 데이터를 식별하는 데 사용됩니다.
+ */
 internal val InvalidSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
+
+/**
+ * IntSize가 유효한지 확인하는 확장 프로퍼티.
+ * 
+ * @return 크기가 유효한 경우 true, 그렇지 않은 경우 false
+ */
 internal val IntSize.isValid: Boolean
     get() = this != InvalidSize
 
+/**
+ * 크기 변경 애니메이션을 처리하는 레이아웃 수정자 노드.
+ * 
+ * 이 클래스는 레이아웃 크기 변경을 추적하고 애니메이션을 적용합니다.
+ * lookahead를 통해 부하를 줄이고 더 효율적인 레이아웃을 제공합니다.
+ * 
+ * @param animationSpec 애니메이션 설정
+ * @param alignment 정렬 방식
+ * @param listener 애니메이션이 완료될 때 호출되는 콜백
+ */
 private class SizeAnimationModifierNode(
     var animationSpec: AnimationSpec<IntSize>,
     var alignment: Alignment = Alignment.TopStart,
@@ -81,6 +122,12 @@ private class SizeAnimationModifierNode(
             default
         }
 
+    /**
+     * 애니메이션 데이터를 저장하는 데이터 클래스.
+     * 
+     * @param anim 애니메이션 동작
+     * @param startSize 애니메이션 시작 크기
+     */
     data class AnimData(
         val anim: Animatable<IntSize, AnimationVector2D>,
         var startSize: IntSize
@@ -90,13 +137,13 @@ private class SizeAnimationModifierNode(
 
     override fun onReset() {
         super.onReset()
-        // Reset is an indication that the node may be re-used, in such case, animData becomes stale
+        // Reset은 노드가 재사용될 가능성을 나타냅니다. 이 경우 animData가 오래되었습니다.
         animData = null
     }
 
     override fun onAttach() {
         super.onAttach()
-        // When re-attached, we may be attached to a tree without lookahead scope.
+        // 재연결 시 lookahead scope가 없는 트리에 연결될 수 있습니다.
         lookaheadSize = InvalidSize
         lookaheadConstraintsAvailable = false
     }
@@ -109,8 +156,7 @@ private class SizeAnimationModifierNode(
             lookaheadConstraints = constraints
             measurable.measure(constraints)
         } else {
-            // Measure with lookahead constraints when available, to avoid unnecessary relayout
-            // in child during the lookahead animation.
+            // lookahead 제약 조건이 사용 가능한 경우 측정하여 불필요한 재배치를 방지합니다.
             measurable.measure(targetConstraints(constraints))
         }
         val measuredSize = IntSize(placeable.width, placeable.height)
@@ -119,8 +165,7 @@ private class SizeAnimationModifierNode(
             measuredSize
         } else {
             animateTo(if (lookaheadSize.isValid) lookaheadSize else measuredSize).let {
-                // Constrain the measure result to incoming constraints, so that parent doesn't
-                // force center this layout.
+                // 측정 결과를 입력 제약 조건으로 제한하여 부모가 이 레이아웃을 중앙으로 강제하지 않도록 합니다.
                 constraints.constrain(it)
             }
         }
@@ -134,10 +179,16 @@ private class SizeAnimationModifierNode(
         }
     }
 
+    /**
+     * 지정된 크기로 애니메이션을 실행합니다.
+     * 
+     * @param targetSize 애니메이션의 대상 크기
+     * @return 애니메이션의 최종 크기
+     */
     fun animateTo(targetSize: IntSize): IntSize {
         val data = animData?.apply {
-            // TODO(b/322878517): Figure out a way to seamlessly continue the animation after
-            //  re-attach. Note that in some cases restarting the animation is the correct behavior.
+            // TODO(b/322878517): 다시 연결 후 애니메이션을 매끄럽게 계속하는 방법을 찾으세요.
+            // 재시작이 올바른 동작인 경우도 있습니다.
             val wasInterrupted = (targetSize != anim.value && !anim.isRunning)
 
             if (targetSize != anim.targetValue || wasInterrupted) {
@@ -161,6 +212,11 @@ private class SizeAnimationModifierNode(
     }
 }
 
+/**
+ * 패스스루 인트린식을 포함하는 레이아웃 수정자 노드의 추상 클래스.
+ * 
+ * 이 클래스는 인트린식 측정 메소드를 구현하여 크기 계산을 전달합니다.
+ */
 internal abstract class LayoutModifierNodeWithPassThroughIntrinsics :
     LayoutModifierNode, Modifier.Node() {
     override fun IntrinsicMeasureScope.minIntrinsicWidth(

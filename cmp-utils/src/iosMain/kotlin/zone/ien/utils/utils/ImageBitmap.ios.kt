@@ -104,6 +104,14 @@ private fun ImageBitmap.toUIImage(): UIImage {
     }
 }
 
+/**
+ * iOS용 이미지 비트맵을 바이트 배열로 인코딩.
+ *
+ * 이 함수는 iOS 플랫폼에서 이미지 비트맵을 JPEG 포맷으로 인코딩하여 바이트 배열로 반환합니다.
+ *
+ * @param quality 이미지 품질 (0-100)
+ * @return 인코딩된 이미지 바이트 배열
+ */
 @OptIn(ExperimentalForeignApi::class)
 actual fun ImageBitmap.encodeToByteArray(quality: Int): ByteArray {
     // 1. ImageBitmap을 UIImage로 변환
