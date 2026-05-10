@@ -7,7 +7,7 @@ import androidx.compose.ui.text.input.KeyboardType
  * 텍스트 필드 다이얼로그 설정을 나타내는 데이터 클래스
  *
  * 이 클래스는 텍스트 필드 다이얼로그 컴포넌트의 설정 옵션을 제공합니다.
- * 초기 값, 값 변경 처리, 유효성 검사, 그리고 텍스트 필드의 various UI 관련 설정을 포함합니다.
+ * 초기 값, 값 변경 처리, 유효성 검사, 그리고 텍스트 필드의 다양한 UI 관련 설정을 포함합니다.
  *
  * @property initialValue 텍스트 필드의 초기 값
  * @property onValueChange 텍스트 필드 값 변경을 처리하는 함수
