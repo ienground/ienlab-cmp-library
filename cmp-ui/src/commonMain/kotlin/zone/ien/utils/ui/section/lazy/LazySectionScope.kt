@@ -92,7 +92,7 @@ fun LazySectionScope.link(
  * @param modifier 적용할 Modifier
  * @param key 항목의 고유 키
  * @param enabled 활성화 상태
- * @param dividerPadding 항목间的 구분선 패딩
+ * @param dividerPadding 항목 사이의 구분선 패딩
  * @param interactionSource 상호작용 소스
  * @param thumbContent 스위치의 썸네일 콘텐츠
  * @param supportingContent 지원 콘텐츠
