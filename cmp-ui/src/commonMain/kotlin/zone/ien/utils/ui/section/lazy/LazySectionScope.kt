@@ -31,7 +31,7 @@ sealed interface LazySectionScope {
      *
      * @param key 항목의 고유 키
      * @param contentType 항목의 타입
-     * @param dividerPadding 항목间的 구분선 패딩
+     * @param dividerPadding 항목 사이의 구분선 패딩
      * @param content 항목의 콘텐츠를 표시하는 컴포저블 블록
      */
     fun item(
