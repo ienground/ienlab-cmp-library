@@ -66,8 +66,8 @@ fun Pair<KZonedDateTime?, KZonedDateTime?>.isOverlap(target: Pair<KZonedDateTime
     return first!!.isBefore(target.second!!, inclusive = false) && target.first!!.isBefore(second!!, inclusive = false)
 }
 
-@Composable
 /** KZonedDateTime 인스턴스를 포맷화하여 문자열로 반환합니다 */
+@Composable
 fun KZonedDateTime.format(): String {
     val today = KZonedDateTime.now()
     return if (today.datePart().isEqual(datePart())) {
