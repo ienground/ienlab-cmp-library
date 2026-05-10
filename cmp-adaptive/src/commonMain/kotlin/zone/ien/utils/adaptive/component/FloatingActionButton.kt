@@ -29,6 +29,14 @@ import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 
+/**
+ * 적응형 소형 플로팅 액션 버튼 컴포저블
+ *
+ * @param onClick 버튼 클릭 시 실행할 함수
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param adaptation 적응 스타일 설정 함수
+ * @param content 버튼 내부에 표시할 콘텐츠
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveSmallFloatingActionButton(
@@ -67,6 +75,14 @@ fun AdaptiveSmallFloatingActionButton(
     )
 }
 
+/**
+ * 적응형 중형 플로팅 액션 버튼 컴포저블
+ *
+ * @param onClick 버튼 클릭 시 실행할 함수
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param adaptation 적응 스타일 설정 함수
+ * @param content 버튼 내부에 표시할 콘텐츠
+ */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AdaptiveMediumFloatingActionButton(
@@ -105,6 +121,14 @@ fun AdaptiveMediumFloatingActionButton(
     )
 }
 
+/**
+ * 적응형 대형 플로팅 액션 버튼 컴포저블
+ *
+ * @param onClick 버튼 클릭 시 실행할 함수
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param adaptation 적응 스타일 설정 함수
+ * @param content 버튼 내부에 표시할 콘텐츠
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveLargeFloatingActionButton(
@@ -143,6 +167,15 @@ fun AdaptiveLargeFloatingActionButton(
     )
 }
 
+/**
+ * M3 플로팅 액션 버튼 적응 데이터 클래스
+ *
+ * @param shape 모양
+ * @param containerColor 컨테이너 색상
+ * @param contentColor 콘텐츠 색상
+ * @param elevation 높이
+ * @param interactionSource 상호작용 소스
+ */
 class M3FloatingActionButtonAdaptation internal constructor(
     shape: Shape,
     containerColor: Color,
@@ -157,6 +190,15 @@ class M3FloatingActionButtonAdaptation internal constructor(
     var interactionSource: MutableInteractionSource? by mutableStateOf(interactionSource)
 }
 
+/**
+ * HIG 플로팅 액션 버튼 적응 데이터 클래스
+ *
+ * @param colors 버튼 색상
+ * @param shape 모양
+ * @param interactionSource 상호작용 소스
+ * @param backdrop Backdrop 컴포넌트
+ * @param isBackgroundAdaptive 배경 적응 여부
+ */
 class HigFloatingActionButtonAdaptation internal constructor(
     colors: CupertinoLiquidButtonColors,
     shape: Shape,
@@ -171,6 +213,9 @@ class HigFloatingActionButtonAdaptation internal constructor(
     var isBackgroundAdaptive: Boolean by mutableStateOf(isBackgroundAdaptive)
 }
 
+/**
+ * 소형 플로팅 액션 버튼 적응 클래스
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 private class SmallFloatingActionButtonAdaptation: Adaptation<HigFloatingActionButtonAdaptation, M3FloatingActionButtonAdaptation>() {
     @Composable
@@ -212,6 +257,9 @@ private class SmallFloatingActionButtonAdaptation: Adaptation<HigFloatingActionB
     }
 }
 
+/**
+ * 중형 플로팅 액션 버튼 적응 클래스
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 private class MediumFloatingActionButtonAdaptation: Adaptation<HigFloatingActionButtonAdaptation, M3FloatingActionButtonAdaptation>() {
     @Composable
@@ -254,6 +302,9 @@ private class MediumFloatingActionButtonAdaptation: Adaptation<HigFloatingAction
     }
 }
 
+/**
+ * 대형 플로팅 액션 버튼 적응 클래스
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 private class LargeFloatingActionButtonAdaptation: Adaptation<HigFloatingActionButtonAdaptation, M3FloatingActionButtonAdaptation>() {
     @Composable

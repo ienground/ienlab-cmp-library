@@ -12,6 +12,14 @@ import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.icon.IconData
 
+/**
+ * 삭제 메뉴 버튼 컴포저블
+ *
+ * @param visible 메뉴 버튼 표시 여부
+ * @param enabled 메뉴 버튼 활성화 여부
+ * @param onClick 버튼 클릭 시 실행할 함수
+ * @return ActionMenuItem - 삭제 메뉴 아이템
+ */
 @Composable
 fun adaptiveDeleteButton(
     visible: Boolean = true,
@@ -30,6 +38,14 @@ fun adaptiveDeleteButton(
     enabled = enabled
 )
 
+/**
+ * 저장 메뉴 버튼 컴포저블
+ *
+ * @param visible 메뉴 버튼 표시 여부
+ * @param enabled 메뉴 버튼 활성화 여부
+ * @param onClick 버튼 클릭 시 실행할 함수
+ * @return ActionMenuItem - 저장 메뉴 아이템
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun adaptiveSaveButton(
@@ -49,6 +65,14 @@ fun adaptiveSaveButton(
     enabled = enabled
 )
 
+/**
+ * 편집 메뉴 버튼 컴포저블
+ *
+ * @param visible 메뉴 버튼 표시 여부
+ * @param enabled 메뉴 버튼 활성화 여부
+ * @param onClick 버튼 클릭 시 실행할 함수
+ * @return ActionMenuItem - 편집 메뉴 아이템
+ */
 @Composable
 fun adaptiveEditButton(
     visible: Boolean = true,

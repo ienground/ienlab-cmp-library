@@ -39,6 +39,12 @@ import zone.ien.utils.ui.section.M3Section
 import zone.ien.utils.ui.section.m3SectionBackground
 import zone.ien.utils.ui.utils.conditional
 
+/**
+ * 섹션 배경 설정 확장 함수
+ *
+ * @param sectionStyle 섹션 스타일
+ * @return Modifier - 배경 설정 적용된 Modifier
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun Modifier.sectionBackground(
@@ -49,6 +55,18 @@ fun Modifier.sectionBackground(
         .conditional(currentTheme == Theme.Cupertino) { sectionContainerBackground(sectionStyle) }
 }
 
+/**
+ * 적응형 섹션 스타일 제공 컴포저블
+ *
+ * @param style 섹션 스타일
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param fullHeight 전체 높이 여부
+ * @param scrollState 스크롤 상태
+ * @param shape 모양
+ * @param title 섹션 제목
+ * @param backdrop Backdrop 컴포넌트
+ * @param content 섹션 내부에 표시할 콘텐츠
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveProvideSectionStyle(
@@ -94,6 +112,22 @@ fun AdaptiveProvideSectionStyle(
     )
 }
 
+/**
+ * 적응형 섹션 컴포저블
+ *
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param style 섹션 스타일
+ * @param state 섹션 상태
+ * @param enterTransition 진입 전환 효과
+ * @param exitTransition 퇴장 전환 효과
+ * @param shape 모양
+ * @param color 색상
+ * @param dividerPadding 구분선 패딩
+ * @param contentPadding 콘텐츠 패딩
+ * @param title 섹션 제목
+ * @param caption 섹션 캡션
+ * @param content 섹션 내부에 표시할 콘텐츠
+ */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun AdaptiveSection(
