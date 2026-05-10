@@ -77,8 +77,8 @@ fun KZonedDateTime.format(): String {
     }
 }
 
-@Composable
 /** 시간 차이를 사람이 읽기 쉬운 문자열로 변환합니다 */
+@Composable
 fun KZonedDateTime.timeDiffToString(target: KZonedDateTime = KZonedDateTime.now()): String {
     val diff = target.minus(this)
     val week = diff.toTimeUnitValue(KFixedTimeUnit.Week).toInt()
