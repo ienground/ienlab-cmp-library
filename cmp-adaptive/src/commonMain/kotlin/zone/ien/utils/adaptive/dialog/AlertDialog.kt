@@ -14,6 +14,7 @@ import org.jetbrains.compose.resources.stringResource
  * @property Default 기본 스타일
  * @property Cancel 취소 스타일
  * @property Destructive 파괴적 스타일 (예: 삭제 등의 위험한 작업)
+ * @return 알림 다이얼로그 버튼 스타일 상수
  */
 enum class UIAlertActionStyle {
     Default, Cancel, Destructive
@@ -30,6 +31,7 @@ enum class UIAlertActionStyle {
  * @param textDismiss 닫기 버튼 텍스트
  * @param styleDismiss 닫기 버튼 스타일
  * @param onDismiss 닫기 버튼 클릭 시 실행할 함수
+ * @return 단일 버튼 알림 다이얼로그 컴포저블
  */
 @Composable
 expect fun AlertDialog(
@@ -58,6 +60,7 @@ expect fun AlertDialog(
  * @param styleConfirm 확인 버튼 스타일
  * @param onConfirm 확인 버튼 클릭 시 실행할 함수
  * @param enabledConfirm 확인 버튼 활성화 여부
+ * @return 확인/취소 버튼 알림 다이얼로그 컴포저블
  */
 @Composable
 expect fun AlertDialog(
@@ -94,6 +97,7 @@ expect fun AlertDialog(
  * @param stylePositive 긍정 버튼 스타일
  * @param onPositive 긍정 버튼 클릭 시 실행할 함수
  * @param enabledPositive 긍정 버튼 활성화 여부
+ * @return 긍정/부정/중립 버튼 알림 다이얼로그 컴포저블
  */
 @Composable
 expect fun AlertDialog(

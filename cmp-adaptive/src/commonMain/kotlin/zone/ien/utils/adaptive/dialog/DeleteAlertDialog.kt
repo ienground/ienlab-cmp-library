@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
  * @param onDismiss 취소 버튼 클릭 시 실행할 함수
  * @param onConfirm 확인 버튼 클릭 시 실행할 함수
  * @param enabledConfirm 확인 버튼 활성화 여부
+ * @return 삭제 다이얼로그 컴포저블
  */
 @Composable
 expect fun DeleteAlertDialog(
