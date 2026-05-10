@@ -5,6 +5,20 @@ import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 
+/**
+ * PhoneVisualTransformation은 전화번호를 위한 VisualTransformation 구현체입니다.
+ * 
+ * 이 클래스는 전화번호를 입력할 때 자동으로 하이픈(-)을 삽입하여 
+ * 사용자에게 친숙한 전화번호 형식을 제공합니다.
+ * 다음과 같은 형식으로 전화번호를 표시합니다:
+ * - 3자리: 010
+ * - 4-6자리: 010-123 
+ * - 7자리: 010-123-4
+ * - 8-10자리: 010-123-4567
+ * - 11자리: 010-1234-5678
+ * 
+ * 입력된 전화번호는 숫자 이외의 문자는 무시됩니다.
+ */
 class PhoneVisualTransformation : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         val raw = text.text.filter { it.isDigit() }

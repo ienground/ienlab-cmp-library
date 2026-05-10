@@ -10,7 +10,10 @@ import androidx.compose.runtime.remember
 
 /**
  * InfScrollDetector은 무한 스크롤 감지를 위한 함수입니다.
- *
+ * 
+ * 이 함수는 LazyList 또는 LazyGrid에서 스크롤이 끝에 도달했을 때 
+ * 다음 데이터를 로드하는 콜백 함수를 호출합니다.
+ * 
  * @param listState 빈 리스트 상태
  * @param isLoading 로딩 중 여부
  * @param hasMore 더 있음 여부
@@ -44,7 +47,10 @@ fun InfScrollDetector(
 
 /**
  * InfScrollDetector은 무한 스크롤 감지를 위한 함수입니다.
- *
+ * 
+ * 이 함수는 LazyList 또는 LazyGrid에서 스크롤이 끝에 도달했을 때 
+ * 다음 데이터를 로드하는 콜백 함수를 호출합니다.
+ * 
  * @param listState 그리드 리스트 상태
  * @param isLoading 로딩 중 여부
  * @param hasMore 더 있음 여부

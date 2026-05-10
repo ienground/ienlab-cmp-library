@@ -23,6 +23,17 @@ import zone.ien.utils.ui.section.M3SectionColors
 import zone.ien.utils.ui.section.M3SectionLinkDefault
 
 sealed interface LazySectionScope {
+    /**
+     * Lazy 섹션 스코프 인터페이스
+     *
+     * 이 인터페이스는 Lazy 리스트 섹션의 컨텍스트를 제공하여,
+     * 섹션 내부에 항목을 추가할 수 있도록 합니다.
+     *
+     * @param key 항목의 고유 키
+     * @param contentType 항목의 타입
+     * @param dividerPadding 항목间的 구분선 패딩
+     * @param content 항목의 콘텐츠를 표시하는 컴포저블 블록
+     */
     fun item(
         key: Any? = null,
         contentType: Any? = null,
@@ -31,6 +42,22 @@ sealed interface LazySectionScope {
     )
 }
 
+/**
+ * 링크 항목을 추가하는 함수
+ * 
+ * 이 함수는 클릭 가능한 링크 형태의 항목을 추가합니다.
+ * 
+ * @param onClick 클릭 시 호출되는 함수
+ * @param key 항목의 고유 키
+ * @param enabled 활성화 상태
+ * @param leadingContent 앞쪽 콘텐츠
+ * @param dividerPadding 항목间的 구분선 패딩
+ * @param onClickLabel 클릭에 대한 설명 텍스트
+ * @param interactionSource 상호작용 소스
+ * @param supportingContent 지원 콘텐츠
+ * @param trailingContent 뒤쪽 콘텐츠
+ * @param title 제목
+ */
 fun LazySectionScope.link(
     onClick: () -> Unit,
     key: Any? = null,
@@ -55,6 +82,22 @@ fun LazySectionScope.link(
     title = title,
 )
 
+/**
+ * 스위치 항목을 추가하는 함수
+ * 
+ * 이 함수는 스위치 형태의 항목을 추가합니다.
+ * 
+ * @param checked 스위치의 현재 상태
+ * @param onCheckedChange 스위치 상태가 변경될 때 호출되는 함수
+ * @param modifier 적용할 Modifier
+ * @param key 항목의 고유 키
+ * @param enabled 활성화 상태
+ * @param dividerPadding 항목间的 구분선 패딩
+ * @param interactionSource 상호작용 소스
+ * @param thumbContent 스위치의 썸네일 콘텐츠
+ * @param supportingContent 지원 콘텐츠
+ * @param title 제목
+ */
 fun LazySectionScope.switch(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -84,6 +127,15 @@ fun LazySectionScope.switch(
     },
 )
 
+/**
+ * 비어있는 항목을 추가하는 함수
+ * 
+ * 이 함수는 빈 항목(공백)을 추가합니다.
+ * 
+ * @param modifier 적용할 Modifier
+ * @param key 항목의 고유 키
+ * @param content 항목의 콘텐츠
+ */
 fun LazySectionScope.empty(
     modifier: Modifier = Modifier,
     key: Any? = null,

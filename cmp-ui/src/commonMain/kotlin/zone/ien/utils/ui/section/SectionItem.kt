@@ -67,6 +67,20 @@ import zone.ien.utils.ui.view.textfield.M3TextFieldClearButton
 import zone.ien.utils.ui.view.textfield.PlaceholderBasicSecureTextField
 import zone.ien.utils.ui.view.textfield.PlaceholderBasicTextField
 
+/**
+ * 섹션 항목 컴포저블
+ * 
+ * 이 컴포저블은 섹션 내부에 표시되는 항목을 정의합니다.
+ * 제목, 지원 콘텐츠, 앞쪽/뒤쪽 콘텐츠를 포함할 수 있습니다.
+ * 
+ * @param modifier 적용할 Modifier
+ * @param enabled 활성화 상태
+ * @param leadingContent 앞쪽 콘텐츠
+ * @param trailingContent 뒤쪽 콘텐츠
+ * @param supportingContent 지원 콘텐츠
+ * @param colors 항목의 색상
+ * @param title 제목
+ */
 @Composable
 fun SectionScope.M3SectionItem(
     modifier: Modifier = Modifier,
@@ -89,6 +103,20 @@ fun SectionScope.M3SectionItem(
     )
 }
 
+/**
+ * 섹션 스위치 항목 컴포저블
+ * 
+ * 이 컴포저블은 스위치 형태의 섹션 항목을 표시합니다.
+ * 스위치의 상태를 변경할 수 있으며, 클릭 시 스위치 상태를 토글합니다.
+ * 
+ * @param modifier 적용할 Modifier
+ * @param leadingContent 앞쪽 콘텐츠
+ * @param checked 스위치의 현재 상태 (켜짐/꺼짐)
+ * @param onCheckedChange 스위치 상태가 변경될 때 호출되는 함수
+ * @param enabled 활성화 상태
+ * @param supportingContent 지원 콘텐츠
+ * @param title 제목
+ */
 @Composable
 fun SectionScope.M3SectionSwitchItem(
     modifier: Modifier = Modifier,
@@ -114,6 +142,19 @@ fun SectionScope.M3SectionSwitchItem(
     )
 }
 
+/**
+ * 섹션 체크박스 항목 컴포저블
+ * 
+ * 이 컴포저블은 체크박스 형태의 섹션 항목을 표시합니다.
+ * 체크박스의 상태를 변경할 수 있으며, 클릭 시 체크박스 상태를 토글합니다.
+ * 
+ * @param modifier 적용할 Modifier
+ * @param leadingContent 앞쪽 콘텐츠
+ * @param checked 체크박스의 현재 상태 (선택됨/해제됨)
+ * @param onCheckedChange 체크박스 상태가 변경될 때 호출되는 함수
+ * @param supportingContent 지원 콘텐츠
+ * @param title 제목
+ */
 @Composable
 fun SectionScope.M3SectionCheckboxItem(
     modifier: Modifier = Modifier,
@@ -137,6 +178,32 @@ fun SectionScope.M3SectionCheckboxItem(
     )
 }
 
+/**
+ * 섹션 텍스트 필드 컴포저블 (String 타입 버전)
+ * 
+ * 이 컴포저블은 섹션 내부에 표시되는 텍스트 필드를 제공합니다.
+ * 필수 입력 여부, 아이콘 표시, 오류 상태 등을 지원합니다.
+ * 
+ * @param value 텍스트 필드의 현재 값
+ * @param onValueChange 텍스트 값이 변경될 때 호출되는 함수
+ * @param modifier 적용할 Modifier
+ * @param enabled 활성화 상태
+ * @param readOnly 읽기 전용 상태
+ * @param textStyle 텍스트 스타일
+ * @param placeholder PlaceHolder 텍스트
+ * @param isRequired 필수 입력 여부
+ * @param leadingIcon 좌측 아이콘
+ * @param trailingIcon 우측 아이콘 (InteractionSource를 인자로 받음)
+ * @param isError 오류 상태
+ * @param visualTransformation 입력 텍스트의 시각적 변환
+ * @param keyboardOptions 키보드 설정
+ * @param keyboardActions 키보드 액션
+ * @param singleLine 단일 라인 입력 여부
+ * @param maxLines 최대 라인 수
+ * @param minLines 최소 라인 수
+ * @param interactionSource 상호작용 소스
+ * @param colors 텍스트 필드 색상
+ */
 @Composable
 fun SectionScope.M3SectionTextField(
     value: String,
@@ -217,6 +284,30 @@ fun SectionScope.M3SectionTextField(
     }
 }
 
+/**
+ * 섹션 텍스트 필드 컴포저블 (TextFieldValue 타입 버전)
+ * 
+ * 이 컴포저블은 TextFieldValue 타입을 사용하는 버전의 섹션 텍스트 필드입니다.
+ * 
+ * @param value 텍스트 필드의 현재 값 (TextFieldValue 타입)
+ * @param onValueChange 텍스트 값이 변경될 때 호출되는 함수
+ * @param modifier 적용할 Modifier
+ * @param enabled 활성화 상태
+ * @param readOnly 읽기 전용 상태
+ * @param textStyle 텍스트 스타일
+ * @param placeholder PlaceHolder 텍스트
+ * @param isRequired 필수 입력 여부
+ * @param trailingIcon 우측 아이콘 (InteractionSource를 인자로 받음)
+ * @param isError 오류 상태
+ * @param visualTransformation 입력 텍스트의 시각적 변환
+ * @param keyboardOptions 키보드 설정
+ * @param keyboardActions 키보드 액션
+ * @param singleLine 단일 라인 입력 여부
+ * @param maxLines 최대 라인 수
+ * @param minLines 최소 라인 수
+ * @param interactionSource 상호작용 소스
+ * @param colors 텍스트 필드 색상
+ */
 @Composable
 fun SectionScope.M3SectionTextField(
     value: TextFieldValue,
@@ -294,6 +385,28 @@ fun SectionScope.M3SectionTextField(
     }
 }
 
+/**
+ * 섹션 보안 텍스트 필드 컴포저블
+ * 
+ * 이 컴포저블은 보안 텍스트 필드(예: 비밀번호)를 섹션 내부에 표시합니다.
+ * 텍스트가 마스킹 처리되어 보안이 필요한 입력에 사용됩니다.
+ * 
+ * @param state 텍스트 필드의 상태
+ * @param modifier 적용할 Modifier
+ * @param enabled 활성화 상태
+ * @param readOnly 읽기 전용 상태
+ * @param textStyle 텍스트 스타일
+ * @param placeholder PlaceHolder 텍스트
+ * @param isRequired 필수 입력 여부
+ * @param leadingIcon 좌측 아이콘
+ * @param trailingIcon 우측 아이콘 (InteractionSource를 인자로 받음)
+ * @param isError 오류 상태
+ * @param keyboardOptions 키보드 설정
+ * @param interactionSource 상호작용 소스
+ * @param colors 텍스트 필드 색상
+ * @param textObfuscationMode 텍스트 가려짐 모드
+ * @param textObfuscationCharacter 가려질 때 사용할 문자
+ */
 @Composable
 fun SectionScope.M3SectionSecureTextField(
     state: TextFieldState,
@@ -362,6 +475,24 @@ fun SectionScope.M3SectionSecureTextField(
     }
 }
 
+/**
+ * 섹션 링크 컴포저블
+ * 
+ * 이 컴포저블은 클릭 가능한 링크 형태의 섹션 항목을 표시합니다.
+ * 클릭 시 지정된 콜백 함수가 호출됩니다.
+ * 
+ * @param onClick 클릭 시 호출되는 콜백 함수
+ * @param modifier 적용할 Modifier
+ * @param enabled 활성화 상태
+ * @param leadingIcon 좌측 아이콘
+ * @param trailingContent 우측 콘텐츠
+ * @param onClickLabel 클릭에 대한 설명 텍스트
+ * @param indication 상호작용 시 표시할 인디케이션
+ * @param interactionSource 상호작용 소스
+ * @param colors 항목 색상
+ * @param caption 캡션 텍스트
+ * @param title 제목
+ */
 @Composable
 fun SectionScope.M3SectionLink(
     onClick: () -> Unit,

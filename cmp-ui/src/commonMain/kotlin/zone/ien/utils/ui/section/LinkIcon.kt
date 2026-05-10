@@ -23,6 +23,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Material3 링크 아이콘 컴포저블
+ * 
+ * 이 컴포저블은 섹션 내에서 링크 아이콘을 표시하기 위한 컴포저블입니다.
+ * 다양한 형태의 아이콘을 표시할 수 있으며, 컨테이너 색상과 틴트 색상을 설정할 수 있습니다.
+ * 
+ * @param painter 아이콘을 표시하기 위한 painter
+ * @param modifier 적용할 Modifier
+ * @param containerColor 컨테이너의 색상
+ * @param tint 아이콘의 틴트 색상
+ * @param shape 아이콘의 모양
+ * @param contentDescription 콘텐츠 설명
+ */
 @Composable
 fun M3LinkIcon(
     painter: Painter,
@@ -43,6 +56,18 @@ fun M3LinkIcon(
             .size(20.dp)
 )
 
+/**
+ * Material3 링크 아이콘 컴포저블 (ImageVector 버전)
+ * 
+ * 이 컴포저블은 ImageVector를 사용하는 버전의 링크 아이콘입니다.
+ * 
+ * @param imageVector 표시할 아이콘의 ImageVector
+ * @param modifier 적용할 Modifier
+ * @param containerColor 컨테이너의 색상
+ * @param tint 아이콘의 틴트 색상
+ * @param shape 아이콘의 모양
+ * @param contentDescription 콘텐츠 설명
+ */
 @Composable
 fun M3LinkIcon(
     imageVector: ImageVector,
@@ -60,6 +85,17 @@ fun M3LinkIcon(
     contentDescription = contentDescription,
 )
 
+/**
+ * Material3 링크 아이콘 텍스트 컴포저블
+ * 
+ * 이 컴포저블은 텍스트로 된 링크 아이콘을 표시합니다. 주로 섹션 내에서 텍스트 기반 링크를 표시할 때 사용됩니다.
+ * 
+ * @param text 표시할 텍스트
+ * @param modifier 적용할 Modifier
+ * @param containerColor 컨테이너의 색상
+ * @param tint 텍스트의 색상
+ * @param shape 아이콘의 모양
+ */
 @Composable
 fun M3LinkIconText(
     text: String,
