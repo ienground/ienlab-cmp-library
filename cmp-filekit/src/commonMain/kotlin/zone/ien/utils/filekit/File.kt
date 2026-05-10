@@ -8,7 +8,7 @@ import io.github.vinceglb.filekit.compressImage
 import io.github.vinceglb.filekit.readBytes
 
 /**
- * PlatformFile을 파일로 변환하는 예상 함수
+ * PlatformFile을 파일 객체로 변환하는 Expect 함수입니다.
  * @return 변환된 File 객체 또는 null
  */
 expect fun PlatformFile.toFile(): File?
