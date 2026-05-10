@@ -2,7 +2,7 @@
 
 # Multiplatform library template
 
-## What is it?
+## What is it? 
 
 This repository contains a simple library project, intended to demonstrate a [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html) library that is deployable to [Maven Central](https://central.sonatype.com/).
 
