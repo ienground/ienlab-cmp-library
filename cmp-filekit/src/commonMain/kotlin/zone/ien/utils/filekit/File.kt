@@ -7,14 +7,34 @@ import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.compressImage
 import io.github.vinceglb.filekit.readBytes
 
+/**
+ * PlatformFile을 파일 객체로 변환하는 Expect 함수입니다.
+ * @return 변환된 File 객체 또는 null
+ */
 expect fun PlatformFile.toFile(): File?
+
+/**
+ * 파일 경로를 사용하여 파일 객체를 얻는 예상 함수
+ * @param path 파일 경로
+ * @return 파일 객체
+ */
 expect fun getFile(path: String): File
+
+/**
+ * File을 파일 경로로 변환하는 예상 함수
+ * @return 파일 경로 문자열
+ */
 expect fun File.toPath(): String
 
 
+/**
+ * 이미지(PlatformFile)를 지정된 크기 이하로 압축하는 함수입니다.
+ * @param targetSize 압축 후 목표로 하는 최대 크기 (Byte 단위)
+ * @return 압축된 바이트 배열 또는 파일 읽기 실패 시 null
+ */
 private const val QUALITY_STEP = 5
 suspend fun PlatformFile.compressFile(targetSize: Long): ByteArray? {
-// 1. 원본 이미지 데이터 읽기
+    // 1. 원본 이미지 데이터 읽기
     val originalBytes = try {
         readBytes()
     } catch (e: Exception) {
