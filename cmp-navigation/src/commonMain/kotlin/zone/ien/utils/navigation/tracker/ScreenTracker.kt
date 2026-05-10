@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.update
  * @property currentPath 현재 경로
  */
 data class ScreenTracker(
-    var currentRoute: NavKey? = null,
-    var currentPath: String? = null
+    val currentRoute: NavKey? = null,
+    val currentPath: String? = null
 )
 
 /**

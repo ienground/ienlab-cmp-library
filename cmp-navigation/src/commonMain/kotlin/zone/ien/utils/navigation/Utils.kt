@@ -38,7 +38,8 @@ fun <T: NavKey> NavBackStack<T>.onBackPressed(
 fun <T: NavKey> NavBackStack<T>.popUpTo(route: T, inclusive: Boolean = false) {
     val bIndex = indexOfFirst { it == route }
     if (bIndex != -1) {
-        repeat(size - bIndex) { navigateBack() }
+        val popCount = if (inclusive) size - bIndex else size - bIndex - 1
+        repeat(popCount) { navigateBack() }
     }
 }
 
