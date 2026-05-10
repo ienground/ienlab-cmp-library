@@ -28,9 +28,9 @@ expect fun File.toPath(): String
 
 
 /**
- * PlatformFile을 지정된 크기로 압축하는 함수
- * @param targetSize 압축 후 목표 크기 (bytes)
- * @return 압축된 바이트 배열 또는 null (압축 실패 시)
+ * 이미지(PlatformFile)를 지정된 크기 이하로 압축하는 함수입니다.
+ * @param targetSize 압축 후 목표로 하는 최대 크기 (Byte 단위)
+ * @return 압축된 바이트 배열 또는 파일 읽기 실패 시 null
  */
 private const val QUALITY_STEP = 5
 suspend fun PlatformFile.compressFile(targetSize: Long): ByteArray? {
