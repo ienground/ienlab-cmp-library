@@ -1,55 +1,53 @@
 package zone.ien.utils.utils
 
 /**
- * Cross-platform decimal formatting utility.
+ * 교차 플랫폼 소수점 형식화 유틸리티.
  * 
- * This class provides formatting capabilities for decimal numbers across
- * different platforms. It uses platform-specific implementations to ensure
- * consistent formatting behavior on each platform.
+ * 이 클래스는 교차 플랫폼 방식으로 소수점 숫자를 형식화하는 기능을 제공하며,
+ * Android와 iOS 각각에 맞춘 구현을 포함합니다.
  * 
- * @property DecimalFormat Represents a class for formatting decimal numbers.
- * @property DoubleFormat Represents a formatter that allows specifying the number of decimal places.
+ * @property DecimalFormat 소수점 숫자를 형식화하는 클래스입니다.
+ * @property DoubleFormat 지정된 소수점 자릿수로 숫자를 형식화하는 클래스입니다.
  * 
  * @see DecimalFormat
  * @see DoubleFormat
  */
 expect class DecimalFormat() {
     /**
-     * Formats a double number into a string representation.
+     * 소수점 숫자를 문자열로 형식화합니다.
      * 
-     * @param number The double number to format.
-     * @return The formatted string representation of the number.
+     * @param number 형식화할 소수점 숫자
+     * @return 형식화된 문자열 표현
      */
     fun format(number: Double): String
     
     /**
-     * Formats an integer number into a string representation.
+     * 정수 숫자를 문자열로 형식화합니다.
      * 
-     * @param number The integer number to format.
-     * @return The formatted string representation of the number.
+     * @param number 형식화할 정수 숫자
+     * @return 형식화된 문자열 표현
      */
     fun format(number: Int): String
 }
 
 /**
- * Cross-platform decimal format with customizable precision.
+ * 교차 플랫폼 소수점 형식화 유틸리티 (정밀도 조정 가능).
  * 
- * This class provides formatting capabilities for decimal numbers with 
- * a specified number of decimal places.
+ * 이 클래스는 지정된 소수점 자릿수를 기준으로 소수점 숫자를 형식화하는 기능을 제공합니다.
  * 
- * @param decimalPlaces The number of decimal places to display.
+ * @param decimalPlaces 표시할 소수점 자릿수
  * 
- * @property decimalPlaces The number of decimal places to display.
+ * @property decimalPlaces 표시할 소수점 자릿수
  * 
  * @see DecimalFormat
  */
 expect class DoubleFormat(decimalPlaces: Int) {
     // 💡 수정됨: 소수점 이하 자릿수를 인자로 받음
     /**
-     * Formats a double number into a string representation with specified decimal places.
+     * 지정된 소수점 자릿수로 소수점 숫자를 문자열로 형식화합니다.
      * 
-     * @param number The double number to format.
-     * @return The formatted string representation of the number with the specified decimal places.
+     * @param number 형식화할 소수점 숫자
+     * @return 지정된 소수점 자릿수로 형식화된 문자열 표현
      */
     fun format(number: Double): String
 }
