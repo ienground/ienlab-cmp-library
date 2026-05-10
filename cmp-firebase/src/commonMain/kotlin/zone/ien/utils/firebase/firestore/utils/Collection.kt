@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.filter
 /**
  * CollectionReference에서 스냅샷을 구독하는 함수
  * @param cache 캐시 사용 여부 (기본값은 true)
- * @return DocumentSnapshot의 Flow
+ * @return QuerySnapshot의 Flow
  */
 fun CollectionReference.getSnapshots(cache: Boolean = true) =
     snapshots(includeMetadataChanges = !cache)
