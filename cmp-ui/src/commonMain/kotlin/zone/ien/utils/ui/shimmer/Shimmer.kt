@@ -27,6 +27,20 @@ import com.revenuecat.placeholder.PlaceholderDefaults
 import com.revenuecat.placeholder.PlaceholderHighlight
 import com.revenuecat.placeholder.placeholder
 
+/**
+ * Material3 스타일의 PlaceHolder를 적용하는 Modifier
+ * 
+ * 이 Modifier는 컴포저블 요소에 쉐이머(-placeholder) 효과를 적용합니다.
+ * 일반적으로 로딩 상태나 데이터가 아직 준비되지 않은 경우 표시됩니다.
+ * 
+ * @param enabled PlaceHolder를 활성화할지 여부
+ * @param color PlaceHolder의 색상
+ * @param shape PlaceHolder의 모양
+ * @param highlight PlaceHolder의 하이라이트 효과
+ * @param placeholderFadeTransitionSpec PlaceHolder의 페이스 전환 애니메이션 스펙
+ * @param contentFadeTransitionSpec 컴포저블 내용의 페이스 전환 애니메이션 스펙
+ * @return PlaceHolder가 적용된 Modifier
+ */
 @Composable
 fun Modifier.m3Placeholder(
     enabled: Boolean = true,
@@ -44,6 +58,31 @@ fun Modifier.m3Placeholder(
     contentFadeTransitionSpec = contentFadeTransitionSpec
 )
 
+/**
+ * Material3 스타일의 쉐이머 텍스트 컴포저블
+ * 
+ * 이 컴포저블은 텍스트에 쉐이머 효과를 적용하여 로딩 상태를 표시합니다.
+ * 실제 텍스트는 공백으로 표시되며, PlaceHolder가 적용되어 사용자에게 로딩 상태를 보여줍니다.
+ * 
+ * @param modifier 텍스트에 적용할 Modifier
+ * @param enabled 쉐이머 효과를 활성화할지 여부
+ * @param fontSize 텍스트의 글꼴 크기
+ * @param fontStyle 텍스트의 스타일 (Italic 등)
+ * @param fontWeight 텍스트의 두께
+ * @param fontFamily 텍스트의 글꼴
+ * @param letterSpacing 글자 간격
+ * @param textDecoration 텍스트 장식 (밑줄 등)
+ * @param textAlign 텍스트 정렬
+ * @param lineHeight 줄 높이
+ * @param overflow 텍스트가 넘칠 경우 처리 방식
+ * @param softWrap 줄 바꿈 여부
+ * @param style 텍스트 스타일
+ * @param color 텍스트 색상
+ * @param shape 쉐이머 효과의 모양
+ * @param highlight 쉐이머 효과의 하이라이트 효과
+ * @param placeholderFadeTransitionSpec PlaceHolder의 페이스 전환 애니메이션 스펙
+ * @param contentFadeTransitionSpec 컴포저블 내용의 페이스 전환 애니메이션 스펙
+ */
 @Composable
 fun M3TextShimmer(
     modifier: Modifier = Modifier,
