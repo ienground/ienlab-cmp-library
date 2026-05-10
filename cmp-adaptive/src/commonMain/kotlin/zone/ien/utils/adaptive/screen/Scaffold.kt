@@ -87,6 +87,24 @@ import zone.ien.utils.ui.screen.M3TopAppBarScaffold
 import zone.ien.utils.ui.screen.TopBarSize
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
+/**
+ * 적응형 상단바 스크라프트 컴포저블
+ *
+ * @param modifier 레이아웃 수정자
+ * @param topBarModifier 상단바 수정자
+ * @param title 제목
+ * @param subtitle 부제목
+ * @param showTopBar 상단바 표시 여부. 기본값은 true
+ * @param navigationIcon 뒤로가기 아이콘
+ * @param actions 액션 버튼들
+ * @param bottomBar 하단 바
+ * @param snackbarHost 스낵바 호스트
+ * @param floatingActionButton 플로팅 액션 버튼
+ * @param fabPosition 플로팅 액션 버튼 위치
+ * @param higFabPosition HIG 플로팅 액션 버튼 위치
+ * @param adaptation 어댑테이션 설정
+ * @param content 콘텐츠
+ */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class,
     ExperimentalCupertinoApi::class
 )
@@ -225,6 +243,25 @@ fun AdaptiveTopAppBarScaffold(
     )
 }
 
+/**
+ * 적응형 상단바 스크라프트 컴포저블 (액션 버전)
+ *
+ * @param modifier 레이아웃 수정자
+ * @param topBarModifier 상단바 수정자
+ * @param title 제목
+ * @param subtitle 부제목
+ * @param showTopBar 상단바 표시 여부. 기본값은 true
+ * @param navigationIcon 뒤로가기 아이콘
+ * @param actions 액션 버튼들 (ActionMenuItem 리스트)
+ * @param primaryAction 주요 액션 버튼
+ * @param bottomBar 하단 바
+ * @param snackbarHost 스낵바 호스트
+ * @param floatingActionButton 플로팅 액션 버튼
+ * @param fabPosition 플로팅 액션 버튼 위치
+ * @param higFabPosition HIG 플로팅 액션 버튼 위치
+ * @param adaptation 어댑테이션 설정
+ * @param content 콘텐츠
+ */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AdaptiveTopAppBarScaffold(
@@ -391,6 +428,19 @@ fun AdaptiveTopAppBarScaffold(
     )
 }
 
+/**
+ * M3 상단바 스크라프트 어댑테이션 클래스
+ *
+ * @param topBarWindowInsets 상단바 윈도우 인셋
+ * @param contentWindowInsets 콘텐츠 윈도우 인셋
+ * @param isScrollTint 스크롤 틴트 여부
+ * @param colors 상단바 색상
+ * @param isCenterAligned 중앙 정렬 여부
+ * @param scaffoldContainerColor 스크라프트 컨테이너 색상
+ * @param scaffoldContentColor 스크라프트 콘텐츠 색상
+ * @param size 상단바 크기
+ * @param scrollBehavior 스크롤 행동
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 class M3TopAppBarScaffoldAdaptation internal constructor(
     topBarWindowInsets: WindowInsets,
@@ -414,6 +464,22 @@ class M3TopAppBarScaffoldAdaptation internal constructor(
     var scrollBehavior by mutableStateOf(scrollBehavior)
 }
 
+/**
+ * HIG 상단바 스크라프트 어댑테이션 클래스
+ *
+ * @param topBarWindowInsets 상단바 윈도우 인셋
+ * @param contentWindowInsets 콘텐츠 윈도우 인셋
+ * @param isCenterAligned 중앙 정렬 여부
+ * @param isBackgroundAdaptive 배경 어댑티브 여부. 기본값은 true
+ * @param isBackgroundGradient 배경 그라디언트 여부. 기본값은 false
+ * @param backdrop 뒷배경
+ * @param isDropdownNative 드롭다운 네이티브 여부
+ * @param colors 상단바 색상
+ * @param scaffoldContainerColor 스크라프트 컨테이너 색상
+ * @param scaffoldContentColor 스크라프트 콘텐츠 색상
+ * @param scrollableState 스크롤 가능한 상태
+ * @param showNavTitle 네비게이션 타이틀 표시 여부
+ */
 class HigTopAppBarScaffoldAdaptation internal constructor(
     topBarWindowInsets: WindowInsets,
     contentWindowInsets: WindowInsets,
