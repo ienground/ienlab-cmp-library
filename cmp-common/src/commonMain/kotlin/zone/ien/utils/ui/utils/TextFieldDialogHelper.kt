@@ -10,7 +10,7 @@ import androidx.compose.ui.text.input.KeyboardType
  * 초기 값, 값 변경 처리, 유효성 검사, 그리고 텍스트 필드의 다양한 UI 관련 설정을 포함합니다.
  *
  * @property initialValue 텍스트 필드의 초기 값
- * @property onValueChange 텍스트 필드 값 변경을 처리하는 함수
+ * @property onValueChange 텍스트 필드 값 변경을 처리하는 함수 (null을 반환하면 변경 사항이 무시됨)
  * @property valid 텍스트 필드 값 유효성 검사 함수
  * @property placeholder 텍스트 필드의 placeholder 텍스트
  * @property prefix 텍스트 필드 앞에 표시할 접두사
