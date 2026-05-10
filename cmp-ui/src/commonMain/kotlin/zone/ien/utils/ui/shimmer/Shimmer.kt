@@ -80,10 +80,8 @@ fun Modifier.m3Placeholder(
  * @param color 텍스트 색상
  * @param shape 쉐이머 효과의 모양
  * @param highlight 쉐이머 효과의 하이라이트 효과
- * @param placeholderFadeTransitionSpec PlaceHolder의 페이스 전환 애니메이션 스펙
- * @param contentFadeTransitionSpec 컴포저블 내용의 페이스 전환 애니메이션 스펙
- * @param placeholderFadeTransitionSpec PlaceHolder의 페이스 전환 애니메이션 스펙
- * @param contentFadeTransitionSpec 컴포저블 내용의 페이스 전환 애니메이션 스펙
+ * @param placeholderFadeTransitionSpec PlaceHolder의 페이드 전환 애니메이션 스펙
+ * @param contentFadeTransitionSpec 컴포저블 내용의 페이드 전환 애니메이션 스펙
  */
 @Composable
 fun M3TextShimmer(
