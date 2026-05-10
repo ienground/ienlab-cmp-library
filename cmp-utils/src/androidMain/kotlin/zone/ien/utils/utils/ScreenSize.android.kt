@@ -7,12 +7,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Android implementation of getScreenWidth.
- *
- * This function retrieves the screen width on Android platform using the LocalConfiguration.
- * The result is returned in Dp (density-independent pixels) units.
- *
- * @return The screen width as a Dp value
+ * Android용 화면 너비 가져오기.
+ * 
+ * 이 함수는 Android 플랫폼에서 화면 너비를 가져옵니다.
+ * 결과는 Dp (density-independent pixels) 단위로 반환됩니다.
+ * 
+ * @return 화면 너비 (Dp 단위)
  */
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable

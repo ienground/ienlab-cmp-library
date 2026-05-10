@@ -7,12 +7,12 @@ import androidx.compose.ui.unit.dp
 import platform.UIKit.UIScreen
 
 /**
- * iOS implementation of getScreenWidth.
- *
- * This function retrieves the screen width on iOS platform using the window information.
- * The result is returned in Dp (density-independent pixels) units.
- *
- * @return The screen width as a Dp value
+ * iOS용 화면 너비 가져오기.
+ * 
+ * 이 함수는 iOS 플랫폼에서 화면 너비를 가져옵니다.
+ * 결과는 Dp (density-independent pixels) 단위로 반환됩니다.
+ * 
+ * @return 화면 너비 (Dp 단위)
  */
 @Composable
 actual fun getScreenWidth(): Dp = LocalWindowInfo.current.containerSize.width.pxToPoint().dp

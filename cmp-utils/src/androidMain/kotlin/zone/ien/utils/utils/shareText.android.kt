@@ -3,12 +3,12 @@ package zone.ien.utils.utils
 import android.content.Intent
 
 /**
- * Android implementation of shareText function.
- *
- * This function creates an intent to share text using Android's native sharing system.
- * It uses Intent.ACTION_SEND with text/plain type and displays the share chooser dialog.
- *
- * @param text Text to be shared via the system's sharing mechanism
+ * Android용 텍스트 공유 기능 구현.
+ * 
+ * 이 함수는 Android 네이티브 공유 시스템을 사용하여 텍스트를 공유하는 인텐트를 생성합니다.
+ * Intent.ACTION_SEND와 text/plain 타입을 사용하며 공유 선택 다이얼로그를 표시합니다.
+ * 
+ * @param text 시스템 공유 메커니즘을 통해 공유할 텍스트
  */
 actual fun shareText(text: String) {
     val intent = Intent(Intent.ACTION_SEND).apply {

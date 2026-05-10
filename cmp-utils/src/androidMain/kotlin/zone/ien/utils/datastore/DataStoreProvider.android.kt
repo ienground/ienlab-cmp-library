@@ -6,12 +6,12 @@ import androidx.datastore.preferences.core.Preferences
 import zone.ien.utils.utils.applicationContext
 
 /**
- * Android implementation of DefaultDataStoreProvider.
- *
- * This class provides Android-specific implementation for DataStore access.
- * It uses the application context's files directory to store preferences data.
- *
- * @param name The name of the data store file
+ * DefaultDataStoreProvider의 Android 구현.
+ * 
+ * 이 클래스는 Android 플랫폼에서 DataStore에 접근하는 플랫폼별 구현을 제공합니다.
+ * 애플리케이션 컨텍스트의 files 디렉토리를 사용하여 환경설정 데이터를 저장합니다.
+ * 
+ * @param name 데이터 저장소 파일 이름
  */
 actual class DefaultDataStoreProvider actual constructor(name: String) {
     private val context = applicationContext
@@ -20,9 +20,9 @@ actual class DefaultDataStoreProvider actual constructor(name: String) {
     }
 
     /**
-     * Returns the DataStore instance for Android platform.
-     *
-     * @return The configured DataStore<Preferences> instance
+     * Android 플랫폼용 DataStore 인스턴스를 반환합니다.
+     * 
+     * @return 구성된 DataStore<Preferences> 인스턴스
      */
     actual fun getDataStore(): DataStore<Preferences> = dataStore
 }

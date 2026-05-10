@@ -7,12 +7,11 @@ import platform.UIKit.UIWindowScene
 import platform.UIKit.popoverPresentationController
 
 /**
- * iOS implementation of shareText function.
- *
- * This function creates and presents the iOS native activity view controller
- * to share text content using the system's sharing mechanisms.
- *
- * @param text Text to be shared via the system's sharing mechanism
+ * iOS용 텍스트 공유 기능 구현.
+ * 
+ * 이 함수는 시스템 공유 메커니즘을 사용하여 텍스트 콘텐츠를 공유하는 iOS 네이티브 활동 뷰 컨트롤러를 생성하고 표시합니다.
+ * 
+ * @param text 시스템 공유 메커니즘을 통해 공유할 텍스트
  */
 actual fun shareText(text: String) {
     val activityViewController = UIActivityViewController(
