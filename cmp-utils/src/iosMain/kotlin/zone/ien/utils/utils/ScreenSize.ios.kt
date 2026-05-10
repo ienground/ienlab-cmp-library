@@ -29,10 +29,10 @@ actual fun getScreenWidth(): Dp = LocalWindowInfo.current.containerSize.width.px
 actual fun getScreenHeight(): Dp = LocalWindowInfo.current.containerSize.height.pxToPoint().dp
 
 /**
- * Converts pixels to points for iOS platform.
+ * iOS 플랫폼을 위해 픽셀을 포인트로 변환합니다.
  *
- * This helper function converts pixel values to points using the screen's scale factor.
+ * 이 헬퍼 함수는 화면의 스케일 팩터를 사용하여 픽셀 값을 포인트로 변환합니다.
  *
- * @return The converted value in points
+ * @return 포인트로 변환된 값
  */
 fun Int.pxToPoint(): Double = this.toDouble() / UIScreen.mainScreen.scale
