@@ -41,6 +41,7 @@ import zone.ien.utils.ui.screen.M3BackButton
  * @param backdrop Backdrop 컴포넌트 (iOS에서 사용함)
  * @param isBackgroundAdaptive 배경 적응 여부 (iOS에서 사용함)
  * @param onClick 버튼 클릭 시 실행할 함수
+ * @return 뒤로가기 버튼 컴포저블
  */
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
