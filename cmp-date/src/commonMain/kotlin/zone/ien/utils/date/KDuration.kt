@@ -10,7 +10,14 @@ import zone.ien.utils.cmp_date.generated.resources.minute_format
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
-/** 시간, 분, 초를 기준으로 KDuration 인스턴스를 생성합니다 */
+/**
+ * 시간, 분, 초를 기준으로 KDuration 인스턴스를 생성합니다
+ *
+ * @param hourOfDay 시간 (0-23)
+ * @param minute 분 (0-59)
+ * @param second 초 (0-59)
+ * @return 생성된 KDuration 객체
+ */
 fun KDuration.Companion.from(hourOfDay: Int = 0, minute: Int = 0, second: Int = 0) = of(hourOfDay * 3600 + minute * 60 + second, KFixedTimeUnit.Second)
 /** 현재 시간을 기준으로 KDuration 인스턴스를 생성합니다 */
 fun KDuration.Companion.now() = KZonedDateTime.now().let { KDuration.from(it.hour, it.minute, it.second) }
