@@ -89,11 +89,11 @@ fun KDate.minusDay(day: Int) = addDays(-day)
  */
 fun KDate.plusMonth(month: Int): KDate {
     val totalMonths = (this.year * 12 + this.month - 1) + month
-    val newYear = totalMonths / 12
-    val newMonth = (totalMonths % 12) + 1
+    val newYear = if (totalMonths >= 0) totalMonths / 12 else (totalMonths - 11) / 12
+    val newMonth = (totalMonths % 12 + 12) % 12 + 1
 
     val daysInMonth = when (newMonth) {
-        2 -> if (KGregorianCalendar.isLeapYear(year)) 29 else 28
+        2 -> if (KGregorianCalendar.isLeapYear(newYear)) 29 else 28
         4, 6, 9, 11 -> 30
         else -> 31
     }
