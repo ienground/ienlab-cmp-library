@@ -25,7 +25,7 @@ actual fun getFile(path: String): File {
 }
 
 /**
- * File을 파일 경로 문자열로 변환합니다.
- * @return 파일 경로 문자열
+ * File 객체를 URI 문자열로 변환합니다.
+ * @return 파일의 URI 문자열
  */
 actual fun File.toPath(): String = uri.toString()
