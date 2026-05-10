@@ -100,8 +100,8 @@ sealed class FbAuthCode {
     }
 
     /**
-     * Composable 함수를 사용하여 에러/성공에 대한 라벨 리소스를 반환
-     * @return 에러/성공에 대한 문자열 리소스
+     * Composable 함수를 사용하여 에러/성공에 대한 문자열을 반환
+     * @return 에러/성공에 대한 문자열
      */
     @Composable
     fun labelResource(): String {
