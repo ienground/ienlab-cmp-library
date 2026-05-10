@@ -48,7 +48,7 @@ sealed interface IconData {
  * @param icon 표시할 아이콘 데이터
  * @param contentDescription 접근성을 위한 콘텐츠 설명
  * @param modifier 아이콘에 적용할 수정자
- * @param tint 아이콘에 적용할 틴트 색상
+ * @param tint 아이콘에 적용할 틴트 색상 (기본값: LocalContentColor.current)
  */
 @Composable
 fun ComplexIcon(
