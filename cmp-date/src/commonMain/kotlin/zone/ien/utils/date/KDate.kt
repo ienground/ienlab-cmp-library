@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import com.sunnychung.lib.multiplatform.kdatetime.KDate
 import com.sunnychung.lib.multiplatform.kdatetime.KDuration
 import com.sunnychung.lib.multiplatform.kdatetime.KFixedTimeUnit
+import com.sunnychung.lib.multiplatform.kdatetime.KGregorianCalendar
 import com.sunnychung.lib.multiplatform.kdatetime.KGregorianCalendar.addDays
 import com.sunnychung.lib.multiplatform.kdatetime.KInstant
 import com.sunnychung.lib.multiplatform.kdatetime.KZoneOffset
@@ -87,12 +88,17 @@ fun KDate.minusDay(day: Int) = addDays(-day)
  * @return 계산된 날짜 객체
  */
 fun KDate.plusMonth(month: Int): KDate {
-    // 현재 연도와 월 계산
     val totalMonths = (this.year * 12 + this.month - 1) + month
     val newYear = totalMonths / 12
-    val newMonth = totalMonths % 12 + 1 // 1~12 사이로 조정
+    val newMonth = (totalMonths % 12) + 1
 
-    return copy(year = newYear, month = newMonth)
+    val daysInMonth = when (newMonth) {
+        2 -> if (KGregorianCalendar.isLeapYear(year)) 29 else 28
+        4, 6, 9, 11 -> 30
+        else -> 31
+    }
+
+    return copy(year = newYear, month = newMonth, day = minOf(this.day, daysInMonth))
 }
 
 /**
