@@ -51,7 +51,7 @@ sealed interface LazySectionScope {
  * @param key 항목의 고유 키
  * @param enabled 활성화 상태
  * @param leadingContent 앞쪽 콘텐츠
- * @param dividerPadding 항목间的 구분선 패딩
+ * @param dividerPadding 항목 사이의 구분선 패딩
  * @param onClickLabel 클릭에 대한 설명 텍스트
  * @param interactionSource 상호작용 소스
  * @param supportingContent 지원 콘텐츠
