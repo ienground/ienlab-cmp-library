@@ -18,12 +18,12 @@ import platform.UIKit.UIScreen
 actual fun getScreenWidth(): Dp = LocalWindowInfo.current.containerSize.width.pxToPoint().dp
 
 /**
- * iOS implementation of getScreenHeight.
+ * iOS용 화면 높이 가져오기.
  *
- * This function retrieves the screen height on iOS platform using the window information.
- * The result is returned in Dp (density-independent pixels) units.
+ * 이 함수는 창 정보를 사용하여 iOS 플랫폼에서 화면 높이를 가져옵니다.
+ * 결과는 Dp (density-independent pixels) 단위로 반환됩니다.
  *
- * @return The screen height as a Dp value
+ * @return 화면 높이 (Dp 단위)
  */
 @Composable
 actual fun getScreenHeight(): Dp = LocalWindowInfo.current.containerSize.height.pxToPoint().dp
