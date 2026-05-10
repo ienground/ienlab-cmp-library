@@ -34,6 +34,11 @@ import zone.ien.utils.icon.hig.Ellipsis
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.icon.IconData
 
+/**
+ * HIG 액션 메뉴 컴포저블
+ *
+ * @param item ActionMenuItem.IconMenuItem - 메뉴 항목 정보
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HigActionMenu(
@@ -97,6 +102,17 @@ fun HigActionMenu(
     }
 }
 
+/**
+ * HIG 액션 메뉴 컴포저블
+ *
+ * @param items 메뉴 항목 리스트
+ * @param isOpen 메뉴 열림 상태
+ * @param closeDropdown 메뉴 닫기 함수
+ * @param onToggleOverflow 메뉴 토글 함수
+ * @param maxVisibleItems 최대 표시 가능한 메뉴 항목 수
+ * @param isNative 네이티브 메뉴 사용 여부. 기본값은 false
+ * @param trigger 트리거 컴포저블
+ */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalCupertinoApi::class)
 @Composable
 fun HigActionsMenu(
@@ -203,6 +219,13 @@ private data class MenuItems(
     val overflowItems: List<ActionMenuItem>,
 )
 
+/**
+ * 메뉴 항목을 분리하여 항상 표시 및 오버플로 항목으로 구분
+ *
+ * @param items 메뉴 항목 리스트
+ * @param maxVisibleItems 최대 표시 가능한 항목 수
+ * @return MenuItems - 항상 표시 항목과 오버플로 항목이 포함된 데이터 클래스
+ */
 private fun splitMenuItems(
     items: List<ActionMenuItem>,
     maxVisibleItems: Int,
