@@ -78,7 +78,7 @@ fun SectionScope.TextPref(
  * 이 변체는 상호작용이 없는 단순한 텍스트 항목을 표시하는 데 사용됩니다.
  * 정적인 정보를 표시하거나 설정 내의 그룹 헤더로 유용합니다.
  *
- * @param modifier 레이아웃에 적용할 Modifier
+ * @param modifier 레이아웃에 적용할 [Modifier]
  * @param leadingContent 제목 앞에 표시할 선택적 콘텐츠
  * @param trailingContent 제목 뒤에 표시할 선택적 콘텐츠
  * @param summary 표시할 선택적 요약 텍스트
