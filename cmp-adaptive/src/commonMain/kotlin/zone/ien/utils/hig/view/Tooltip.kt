@@ -13,6 +13,18 @@ import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.utils.ui.view.BaseTooltipBox
 
 
+/**
+ * HIG 토스트 박스 컴포저블
+ * 
+ * 사용자 정의 토스트 박스 레이아웃을 제공합니다.
+ * 
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param positioning 토스트 박스의 위치 지정 (위, 아래 등)
+ * @param isPersistent 토스트 박스가 항상 표시되는지 여부
+ * @param label 토스트 박스에 표시되는 텍스트
+ * @param content 토스트 박스가 적용될 내용
+ * @return 사용자 정의 토스트 박스 컴포저블
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HigTooltipBox(
@@ -37,6 +49,15 @@ fun HigTooltipBox(
     )
 }
 
+/**
+ * HIG 토스트 텍스트 컴포저블
+ * 
+ * 토스트 박스에 표시되는 텍스트를 렌더링합니다.
+ * 
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param label 토스트 박스에 표시되는 텍스트
+ * @return 토스트 박스 텍스트 컴포저블
+ */
 @Composable
 fun HigTooltipText(
     modifier: Modifier = Modifier,
