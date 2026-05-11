@@ -39,6 +39,17 @@ import zone.ien.hig.adaptive.adaptiveComponent
 import zone.ien.hig.adaptive.currentTheme
 import zone.ien.utils.ui.shimmer.LocalM3ShimmerShape
 
+/**
+ * 플랫폼에 따라 다른 Placeholder 구현을 제공하는 확장 함수
+ *
+ * @param enabled Placeholder가 활성화되어 있는지 여부
+ * @param color Placeholder 색상
+ * @param highlight 하이라이트 효과
+ * @param placeholderFadeTransitionSpec Placeholder 페이드 전환 애니메이션 스펙
+ * @param contentFadeTransitionSpec 콘텐츠 페이드 전환 애니메이션 스펙
+ * @param adaptation 플랫폼별 어댑테이션 설정
+ * @return Modifier
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun Modifier.adaptivePlaceholder(
@@ -49,17 +60,6 @@ fun Modifier.adaptivePlaceholder(
     contentFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() },
     adaptation: AdaptationScope<PlatformPlaceholderAdaptation, PlatformPlaceholderAdaptation>.() -> Unit = {{}}
 ): Modifier {
-    /**
-     * 플랫폼에 따라 다른 Placeholder 구현을 제공하는 확장 함수
-     * 
-     * @param enabled Placeholder가 활성화되어 있는지 여부
-     * @param color Placeholder 색상
-     * @param highlight 하이라이트 효과
-     * @param placeholderFadeTransitionSpec Placeholder 페이드 전환 애니메이션 스펙
-     * @param contentFadeTransitionSpec 콘텐츠 페이드 전환 애니메이션 스펙
-     * @param adaptation 플랫폼별 어댑테이션 설정
-     * @return Modifier
-     */
     return adaptiveComponent(
         adaptation = remember { PlaceholderAdaptation() },
         adaptationScope = adaptation,
@@ -86,6 +86,28 @@ fun Modifier.adaptivePlaceholder(
     )
 }
 
+/**
+ * 플랫폼별로 shimmer 효과를 적용한 텍스트 컴포저블
+ *
+ * @param modifier 적용할 Modifier
+ * @param enabled shimmer가 활성화되어 있는지 여부
+ * @param fontSize 텍스트 폰트 크기
+ * @param fontStyle 텍스트 스타일
+ * @param fontWeight 텍스트 두께
+ * @param fontFamily 텍스트 폰트 패밀리
+ * @param letterSpacing 글자 간격
+ * @param textDecoration 텍스트 장식
+ * @param textAlign 텍스트 정렬
+ * @param lineHeight 줄 높이
+ * @param overflow 텍스트 오버플로우 처리 방식
+ * @param softWrap 소프트 워프 설정
+ * @param style 텍스트 스타일
+ * @param color 텍스트 색상
+ * @param highlight 하이라이트 효과
+ * @param placeholderFadeTransitionSpec Placeholder 페이드 전환 애니메이션 스펙
+ * @param contentFadeTransitionSpec 콘텐츠 페이드 전환 애니메이션 스펙
+ * @param adaptation 플랫폼별 어댑테이션 설정
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun TextShimmer(
@@ -108,28 +130,6 @@ fun TextShimmer(
     contentFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() },
     adaptation: AdaptationScope<PlatformPlaceholderAdaptation, PlatformPlaceholderAdaptation>.() -> Unit = {}
 ) {
-    /**
-     * 플랫폼별로 shimmer 효과를 적용한 텍스트 컴포저블
-     * 
-     * @param modifier 적용할 Modifier
-     * @param enabled shimmer가 활성화되어 있는지 여부
-     * @param fontSize 텍스트 폰트 크기
-     * @param fontStyle 텍스트 스타일
-     * @param fontWeight 텍스트 두께
-     * @param fontFamily 텍스트 폰트 패밀리
-     * @param letterSpacing 글자 간격
-     * @param textDecoration 텍스트 장식
-     * @param textAlign 텍스트 정렬
-     * @param lineHeight 줄 높이
-     * @param overflow 텍스트 오버플로우 처리 방식
-     * @param softWrap 소프트 워프 설정
-     * @param style 텍스트 스타일
-     * @param color 텍스트 색상
-     * @param highlight 하이라이트 효과
-     * @param placeholderFadeTransitionSpec Placeholder 페이드 전환 애니메이션 스펙
-     * @param contentFadeTransitionSpec 콘텐츠 페이드 전환 애니메이션 스펙
-     * @param adaptation 플랫폼별 어댑테이션 설정
-     */
     Box(
         modifier = modifier
             .width(IntrinsicSize.Min)
@@ -165,24 +165,19 @@ fun TextShimmer(
     }
 }
 
+/**
+ * 플랫폼별 Placeholder 어댑테이션 구현 클래스
+ *
+ * @param shape Placeholder에 적용할 모양
+ */
 class PlatformPlaceholderAdaptation internal constructor(
     shape: Shape
 ) {
-    /**
-     * 플랫폼별 Placeholder 어댑테이션 구현 클래스
-     * 
-     * @param shape Placeholder에 적용할 모양
-     */
     var shape by mutableStateOf(shape)
 }
 
 @OptIn(ExperimentalAdaptiveApi::class)
 private class PlaceholderAdaptation: Adaptation<PlatformPlaceholderAdaptation, PlatformPlaceholderAdaptation>() {
-    /**
-     * Cupertino 플랫폼용 Placeholder 어댑테이션 생성
-     * 
-     * @return PlatformPlaceholderAdaptation 인스턴스
-     */
     @Composable
     override fun rememberCupertinoAdaptation(): PlatformPlaceholderAdaptation {
         val shape = LocalHigShimmerShape.current
