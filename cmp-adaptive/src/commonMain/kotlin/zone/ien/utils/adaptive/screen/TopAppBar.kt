@@ -30,6 +30,15 @@ import zone.ien.utils.ui.screen.LocalM3TopBarSize
 import zone.ien.utils.ui.screen.M3TopAppBar
 import zone.ien.utils.ui.screen.TopBarSize
 
+/**
+ * 적응형 상단바 컴포저블
+ *
+ * @param title 제목
+ * @param modifier 레이아웃 수정자
+ * @param navigationIcon 뒤로가기 아이콘
+ * @param actions 액션 버튼들
+ * @param adaptation 어댑테이션 설정
+ */
 @OptIn(
     ExperimentalAdaptiveApi::class,
     ExperimentalMaterial3Api::class,
@@ -77,6 +86,16 @@ fun AdaptiveTopAppBar(
     )
 }
 
+/**
+ * M3 상단바 어댑테이션 클래스
+ *
+ * @param windowInsets 윈도우 인셋
+ * @param scrollBehavior 스크롤 행동
+ * @param isScrollTint 스크롤 틴트 여부
+ * @param colors 상단바 색상
+ * @param isCenterAligned 중앙 정렬 여부
+ * @param size 상단바 크기
+ */
 @Stable
 @OptIn(ExperimentalMaterial3Api::class)
 class M3TopAppBarAdaptation internal constructor(
@@ -95,6 +114,16 @@ class M3TopAppBarAdaptation internal constructor(
     var size by mutableStateOf(size)
 }
 
+/**
+ * HIG 상단바 어댑테이션 클래스
+ *
+ * @param windowInsets 윈도우 인셋
+ * @param isCenterAligned 중앙 정렬 여부
+ * @param isBackgroundAdaptive 배경 어댑티브 여부. 기본값은 true
+ * @param isBackgroundGradient 배경 그라디언트 여부. 기본값은 false
+ * @param backdrop 뒷배경
+ * @param colors 상단바 색상
+ */
 @Stable
 class HigTopAppBarAdaptation internal constructor(
     windowInsets: WindowInsets,

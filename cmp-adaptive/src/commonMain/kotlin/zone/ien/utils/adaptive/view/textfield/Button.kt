@@ -19,6 +19,20 @@ import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.view.textfield.M3TextFieldIconButton
 
+/**
+ * 적응형 텍스트 필드 아이콘 버튼 컴포저블
+ * 
+ * Material 및 Cupertino 플랫폼에 따라 다르게 동작하는 텍스트 필드 아이콘 버튼을 제공합니다.
+ * 
+ * @param modifier 버튼에 적용할 수정자
+ * @param onClick 버튼 클릭 시 호출되는 콜백
+ * @param onLongClick 길게 클릭 시 호출되는 콜백 (기본값: 빈 함수)
+ * @param loading 버튼이 로딩 상태인지 여부
+ * @param enabled 버튼이 활성화되어 있는지 여부
+ * @param interactionSource 상호작용 소스
+ * @param icon 버튼에 사용할 아이콘
+ * @param contentDescription 아이콘의 콘텐츠 설명
+ */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun AdaptiveTextFieldIconButton(

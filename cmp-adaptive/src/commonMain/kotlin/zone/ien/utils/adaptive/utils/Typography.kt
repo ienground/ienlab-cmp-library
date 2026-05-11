@@ -5,6 +5,14 @@ import androidx.compose.ui.text.font.FontFamily
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.Typography
 
+/**
+ * Cupertino 테마의 타이포그래피를 반환하는 함수
+ * 
+ * 주어진 폰트 패밀리에 따라 Cupertino 테마의 타이포그래피 설정을 제공합니다.
+ * 
+ * @param fontFamily 적용할 폰트 패밀리 (선택 사항)
+ * @return Cupertino 테마의 타이포그래피 설정
+ */
 @Composable
 fun getHigTypography(fontFamily: FontFamily? = null): Typography =
     CupertinoTheme.typography.let {

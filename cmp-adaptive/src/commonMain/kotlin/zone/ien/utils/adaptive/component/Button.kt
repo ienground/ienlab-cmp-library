@@ -31,6 +31,18 @@ import zone.ien.utils.icon.LocalBackButtonIcon
 import zone.ien.utils.icon.LocalButtonProviderDefault
 import zone.ien.utils.ui.screen.M3BackButton
 
+/**
+ * 적응형 뒤로가기 버튼 컴포저블
+ *
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param icon 뒤로가기 아이콘 데이터
+ * @param enabled 버튼 활성화 여부
+ * @param visible 버튼 가시성 여부
+ * @param backdrop Backdrop 컴포넌트 (iOS에서 사용함)
+ * @param isBackgroundAdaptive 배경 적응 여부 (iOS에서 사용함)
+ * @param onClick 버튼 클릭 시 실행할 함수
+ * @return 뒤로가기 버튼 컴포저블
+ */
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveBackButton(

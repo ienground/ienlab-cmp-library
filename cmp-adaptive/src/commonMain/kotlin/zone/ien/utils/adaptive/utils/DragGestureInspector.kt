@@ -12,6 +12,17 @@ import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.util.fastFirstOrNull
 
+/**
+ * 포인터 드래그 제스처를 검사하는 코루틴 함수
+ * 
+ * 이 함수는 포인터의 드래그 제스처를 다중 선택 처리하며, 
+ * 드래그 시작/종료/취소 및 진행 중인 드래그 모두를 처리합니다.
+ * 
+ * @param onDragStart 드래그 시작 시 호출되는 콜백 함수
+ * @param onDragEnd 드래그 종료 시 호출되는 콜백 함수
+ * @param onDragCancel 드래그 취소 시 호출되는 콜백 함수
+ * @param onDrag 드래그 진행 시 호출되는 콜백 함수
+ */
 suspend fun PointerInputScope.inspectDragGestures(
     onDragStart: (down: PointerInputChange) -> Unit = {},
     onDragEnd: (change: PointerInputChange) -> Unit = {},
@@ -39,6 +50,13 @@ suspend fun PointerInputScope.inspectDragGestures(
     }
 }
 
+/**
+ * 포인터 드래그를 처리하는 내부 함수
+ * 
+ * @param pointerId 드래그되는 포인터 ID
+ * @param onDrag 드래그 진행 시 호출되는 콜백 함수
+ * @return PointerInputChange 또는 null
+ */
 private suspend inline fun AwaitPointerEventScope.drag(
     pointerId: PointerId,
     onDrag: (PointerInputChange) -> Unit
@@ -61,6 +79,12 @@ private suspend inline fun AwaitPointerEventScope.drag(
     }
 }
 
+/**
+ * 드래그 또는 업 이벤트를 기다리는 내부 함수
+ * 
+ * @param pointerId 포인터 ID
+ * @return PointerInputChange 또는 null
+ */
 private suspend inline fun AwaitPointerEventScope.awaitDragOrUp(
     pointerId: PointerId
 ): PointerInputChange? {

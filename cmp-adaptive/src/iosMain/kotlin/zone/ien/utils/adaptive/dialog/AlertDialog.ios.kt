@@ -15,12 +15,27 @@ import platform.UIKit.UIAlertActionStyleDestructive
 import platform.UIKit.UIAlertController
 import platform.UIKit.UIAlertControllerStyleAlert
 
+/**
+ * 알림 다이얼로그 버튼 스타일을 UIKit 스타일로 변환하는 함수
+ *
+ * @param this UIAlertActionStyle
+ * @return UIKit 버튼 스타일
+ */
 internal fun UIAlertActionStyle.toStyle() = when (this) {
     UIAlertActionStyle.Cancel -> UIAlertActionStyleCancel
     UIAlertActionStyle.Default -> UIAlertActionStyleDefault
     UIAlertActionStyle.Destructive -> UIAlertActionStyleDestructive
 }
 
+/**
+ * 알림 다이얼로그의 기본 기반 컴포저블 (iOS 플랫폼 구현)
+ *
+ * @param visible 다이얼로그 표시 여부
+ * @param title 다이얼로그 제목
+ * @param message 다이얼로그 메시지
+ * @param buttons 버튼 설정 함수
+ * @return 알림 다이얼로그 기본 기반 컴포저블 (iOS)
+ */
 @Composable
 fun HigBaseAlertDialog(
     visible: Boolean,
@@ -51,6 +66,19 @@ fun HigBaseAlertDialog(
 
 }
 
+/**
+ * 알림 다이얼로그 컴포저블 (iOS 플랫폼 구현 - 단일 버튼)
+ *
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param visible 다이얼로그 표시 여부
+ * @param icon 다이얼로그에 표시될 아이콘
+ * @param title 다이얼로그 제목
+ * @param message 다이얼로그 메시지
+ * @param textDismiss 닫기 버튼 텍스트
+ * @param styleDismiss 닫기 버튼 스타일
+ * @param onDismiss 닫기 버튼 클릭 시 실행할 함수
+ * @return 알림 다이얼로그 컴포저블 (iOS)
+ */
 @Composable
 actual fun AlertDialog(
     modifier: Modifier,
@@ -81,6 +109,23 @@ actual fun AlertDialog(
     }
 }
 
+/**
+ * 알림 다이얼로그 컴포저블 (iOS 플랫폼 구현 - 확인/취소 버튼)
+ *
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param visible 다이얼로그 표시 여부
+ * @param icon 다이얼로그에 표시될 아이콘
+ * @param title 다이얼로그 제목
+ * @param message 다이얼로그 메시지
+ * @param textDismiss 취소 버튼 텍스트
+ * @param styleDismiss 취소 버튼 스타일
+ * @param onDismiss 취소 버튼 클릭 시 실행할 함수
+ * @param textConfirm 확인 버튼 텍스트
+ * @param styleConfirm 확인 버튼 스타일
+ * @param onConfirm 확인 버튼 클릭 시 실행할 함수
+ * @param enabledConfirm 확인 버튼 활성화 여부
+ * @return 알림 다이얼로그 컴포저블 (iOS)
+ */
 @Composable
 actual fun AlertDialog(
     modifier: Modifier,
@@ -125,6 +170,27 @@ actual fun AlertDialog(
     }
 }
 
+/**
+ * 알림 다이얼로그 컴포저블 (iOS 플랫폼 구현 - 긍정/부정/중립 버튼)
+ *
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param visible 다이얼로그 표시 여부
+ * @param icon 다이얼로그에 표시될 아이콘
+ * @param title 다이얼로그 제목
+ * @param message 다이얼로그 메시지
+ * @param textNeutral 중립 버튼 텍스트
+ * @param styleNeutral 중립 버튼 스타일
+ * @param onNeutral 중립 버튼 클릭 시 실행할 함수
+ * @param enabledNeutral 중립 버튼 활성화 여부
+ * @param textNegative 부정 버튼 텍스트
+ * @param styleNegative 부정 버튼 스타일
+ * @param onNegative 부정 버튼 클릭 시 실행할 함수
+ * @param textPositive 긍정 버튼 텍스트
+ * @param stylePositive 긍정 버튼 스타일
+ * @param onPositive 긍정 버튼 클릭 시 실행할 함수
+ * @param enabledPositive 긍정 버튼 활성화 여부
+ * @return 알림 다이얼로그 컴포저블 (iOS)
+ */
 @Composable
 actual fun AlertDialog(
     modifier: Modifier,

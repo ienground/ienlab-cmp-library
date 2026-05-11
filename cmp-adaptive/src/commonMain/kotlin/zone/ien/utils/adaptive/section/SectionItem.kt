@@ -78,6 +78,17 @@ import zone.ien.utils.ui.section.M3SectionSlider
 import zone.ien.utils.ui.section.M3SectionSwitchItem
 import zone.ien.utils.ui.section.M3SectionTextField
 
+/**
+ * 적응형 섹션 항목 컴포저블
+ *
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param enabled 항목 활성화 여부
+ * @param leadingContent 항목 앞에 표시할 콘텐츠
+ * @param trailingContent 항목 뒤에 표시할 콘텐츠
+ * @param supportingContent 보조 콘텐츠
+ * @param adaptation 적응형 스타일 설정을 위한 범위
+ * @param title 항목 제목
+ */
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
 fun SectionScope.AdaptiveSectionItem(
@@ -130,11 +141,24 @@ fun SectionScope.AdaptiveSectionItem(
     )
 }
 
+/**
+ * Material3 섹션 항목 적응성 클래스
+ *
+ * @param colors Material3 색상
+ */
 class M3SectionItemAdaptation internal constructor(
     colors: M3SectionColors
 ) {
     var colors by mutableStateOf(colors)
 }
+
+/**
+ * HIG 섹션 항목 적응성 클래스
+ *
+ * @param showLeadingContent 앞 콘텐츠 표시 여부
+ * @param showSupportingContent 보조 콘텐츠 표시 여부
+ * @param paddingValues 패딩 값
+ */
 class HigSectionItemAdaptation internal constructor(
     showLeadingContent: Boolean = false,
     showSupportingContent: Boolean = false,
@@ -144,8 +168,17 @@ class HigSectionItemAdaptation internal constructor(
     var showSupportingContent by mutableStateOf(showSupportingContent)
     var paddingValues by mutableStateOf(paddingValues)
 }
+
+/**
+ * 섹션 항목 적응성 클래스
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 internal class SectionItemAdaptation: Adaptation<HigSectionItemAdaptation, M3SectionItemAdaptation>() {
+    /**
+     * Cupertino 적응성 설정 메서드
+     *
+     * @return HIG 섹션 항목 적응성 객체
+     */
     @Composable
     override fun rememberCupertinoAdaptation(): HigSectionItemAdaptation {
         val showLeadingContent = false
@@ -161,6 +194,11 @@ internal class SectionItemAdaptation: Adaptation<HigSectionItemAdaptation, M3Sec
         }
     }
 
+    /**
+     * Material 적응성 설정 메서드
+     *
+     * @return Material3 섹션 항목 적응성 객체
+     */
     @Composable
     override fun rememberMaterialAdaptation(): M3SectionItemAdaptation {
         val colors = M3SectionLinkDefault.colors()
@@ -170,6 +208,18 @@ internal class SectionItemAdaptation: Adaptation<HigSectionItemAdaptation, M3Sec
     }
 }
 
+/**
+ * 적응형 섹션 스위치 항목 컴포저블
+ *
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param leadingContent 항목 앞에 표시할 콘텐츠
+ * @param checked 스위치 체크 여부
+ * @param onCheckedChange 체크 상태 변경 콜백
+ * @param enabled 항목 활성화 여부
+ * @param supportingContent 보조 콘텐츠
+ * @param adaptation 적응형 스타일 설정을 위한 범위
+ * @param title 항목 제목
+ */
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
 fun SectionScope.AdaptiveSectionSwitchItem(
@@ -229,6 +279,17 @@ fun SectionScope.AdaptiveSectionSwitchItem(
     )
 }
 
+/**
+ * 적응형 섹션 체크박스 항목 컴포저블
+ *
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param leadingContent 항목 앞에 표시할 콘텐츠
+ * @param checked 체크 여부
+ * @param onCheckedChange 체크 상태 변경 콜백
+ * @param supportingContent 보조 콘텐츠
+ * @param adaptation 적응형 스타일 설정을 위한 범위
+ * @param title 항목 제목
+ */
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
 fun SectionScope.AdaptiveSectionCheckboxItem(
@@ -281,6 +342,29 @@ fun SectionScope.AdaptiveSectionCheckboxItem(
     )
 }
 
+/**
+ * 적응형 섹션 텍스트 필드 컴포저블
+ *
+ * @param value 텍스트 필드의 현재 값
+ * @param onValueChange 값 변경 콜백
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param enabled 항목 활성화 여부
+ * @param readOnly 읽기 전용 여부
+ * @param textStyle 텍스트 스타일
+ * @param placeholder 플레이스홀더 텍스트
+ * @param isRequired 필수 입력 여부
+ * @param leadingIcon 앞에 표시할 아이콘
+ * @param trailingIcon 뒤에 표시할 아이콘
+ * @param isError 에러 상태 여부
+ * @param visualTransformation 시각적 변환
+ * @param keyboardOptions 키보드 옵션
+ * @param keyboardActions 키보드 액션
+ * @param singleLine 단일 줄 입력 여부
+ * @param maxLines 최대 줄 수
+ * @param minLines 최소 줄 수
+ * @param interactionSource 상호작용 소스
+ * @param adaptation 적응형 스타일 설정을 위한 범위
+ */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun SectionScope.AdaptiveSectionTextField(
@@ -371,6 +455,25 @@ fun SectionScope.AdaptiveSectionTextField(
     )
 }
 
+/**
+ * 적응형 섹션 보안 텍스트 필드 컴포저블
+ *
+ * @param state 텍스트 필드 상태
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param enabled 항목 활성화 여부
+ * @param readOnly 읽기 전용 여부
+ * @param textStyle 텍스트 스타일
+ * @param placeholder 플레이스홀더 텍스트
+ * @param isRequired 필수 입력 여부
+ * @param leadingIcon 앞에 표시할 아이콘
+ * @param trailingIcon 뒤에 표시할 아이콘
+ * @param isError 에러 상태 여부
+ * @param keyboardOptions 키보드 옵션
+ * @param interactionSource 상호작용 소스
+ * @param textObfuscationMode 텍스트 가려짐 모드
+ * @param textObfuscationCharacter 텍스트 가려짐 문자
+ * @param adaptation 적응형 스타일 설정을 위한 범위
+ */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun SectionScope.AdaptiveSectionSecureTextField(
@@ -448,6 +551,28 @@ fun SectionScope.AdaptiveSectionSecureTextField(
     )
 }
 
+/**
+ * 적응형 섹션 텍스트 필드 컴포저블 (TextFieldValue 버전)
+ *
+ * @param value 텍스트 필드의 현재 값
+ * @param onValueChange 값 변경 콜백
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param enabled 항목 활성화 여부
+ * @param readOnly 읽기 전용 여부
+ * @param textStyle 텍스트 스타일
+ * @param placeholder 플레이스홀더 텍스트
+ * @param isRequired 필수 입력 여부
+ * @param trailingIcon 뒤에 표시할 아이콘
+ * @param isError 에러 상태 여부
+ * @param visualTransformation 시각적 변환
+ * @param keyboardOptions 키보드 옵션
+ * @param keyboardActions 키보드 액션
+ * @param singleLine 단일 줄 입력 여부
+ * @param maxLines 최대 줄 수
+ * @param minLines 최소 줄 수
+ * @param interactionSource 상호작용 소스
+ * @param adaptation 적응형 스타일 설정을 위한 범위
+ */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun SectionScope.AdaptiveSectionTextField(
@@ -536,18 +661,38 @@ fun SectionScope.AdaptiveSectionTextField(
     )
 }
 
+/**
+ * Material3 섹션 텍스트 필드 적응성 클래스
+ *
+ * @param colors 텍스트 필드 색상
+ */
 class M3SectionTextFieldAdaptation internal constructor(
     colors: TextFieldColors
 ) {
     var colors by mutableStateOf(colors)
 }
+
+/**
+ * HIG 섹션 텍스트 필드 적응성 클래스
+ *
+ * @param colors 텍스트 필드 색상
+ */
 class HigSectionTextFieldAdaptation internal constructor(
     colors: CupertinoTextFieldColors
 ) {
     var colors by mutableStateOf(colors)
 }
+
+/**
+ * 섹션 텍스트 필드 적응성 클래스
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 internal class SectionTextFieldAdaptation: Adaptation<HigSectionTextFieldAdaptation, M3SectionTextFieldAdaptation>() {
+    /**
+     * Cupertino 적응성 설정 메서드
+     *
+     * @return HIG 섹션 텍스트 필드 적응성 객체
+     */
     @Composable
     override fun rememberCupertinoAdaptation(): HigSectionTextFieldAdaptation {
         val colors = CupertinoTextFieldDefaults.colors()
@@ -555,6 +700,11 @@ internal class SectionTextFieldAdaptation: Adaptation<HigSectionTextFieldAdaptat
         return remember(colors) { HigSectionTextFieldAdaptation(colors = colors) }
     }
 
+    /**
+     * Material 적응성 설정 메서드
+     *
+     * @return Material3 섹션 텍스트 필드 적응성 객체
+     */
     @Composable
     override fun rememberMaterialAdaptation(): M3SectionTextFieldAdaptation {
         val colors = TextFieldDefaults.colors()
@@ -563,6 +713,21 @@ internal class SectionTextFieldAdaptation: Adaptation<HigSectionTextFieldAdaptat
     }
 }
 
+/**
+ * 적응형 섹션 링크 컴포저블
+ *
+ * @param onClick 클릭 콜백
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param enabled 항목 활성화 여부
+ * @param leadingIcon 앞에 표시할 아이콘
+ * @param onClickLabel 클릭 시 접근성 레이블
+ * @param indication 표시 방법
+ * @param interactionSource 상호작용 소스
+ * @param caption 캡션
+ * @param trailingContent 뒤에 표시할 콘텐츠
+ * @param adaptation 적응형 스타일 설정을 위한 범위
+ * @param title 항목 제목
+ */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun SectionScope.AdaptiveSectionLink(
@@ -624,11 +789,23 @@ fun SectionScope.AdaptiveSectionLink(
     )
 }
 
+/**
+ * Material3 섹션 링크 적응성 클래스
+ *
+ * @param colors 링크 색상
+ */
 class M3SectionLinkAdaptation internal constructor(
     colors: M3SectionColors
 ) {
     var colors by mutableStateOf(colors)
 }
+
+/**
+ * HIG 섹션 링크 적응성 클래스
+ *
+ * @param isCaption 캡션 여부
+ * @param showSupportingContent 보조 콘텐츠 표시 여부
+ */
 class HigSectionLinkAdaptation internal constructor(
     isCaption: Boolean = true,
     showSupportingContent: Boolean = false
@@ -636,8 +813,17 @@ class HigSectionLinkAdaptation internal constructor(
     var isCaption by mutableStateOf(isCaption)
     var showSupportingContent by mutableStateOf(showSupportingContent)
 }
+
+/**
+ * 섹션 링크 적응성 클래스
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 internal class SectionLinkAdaptation: Adaptation<HigSectionLinkAdaptation, M3SectionLinkAdaptation>() {
+    /**
+     * Cupertino 적응성 설정 메서드
+     *
+     * @return HIG 섹션 링크 적응성 객체
+     */
     @Composable
     override fun rememberCupertinoAdaptation(): HigSectionLinkAdaptation {
         val isCaption = false
@@ -650,6 +836,11 @@ internal class SectionLinkAdaptation: Adaptation<HigSectionLinkAdaptation, M3Sec
         }
     }
 
+    /**
+     * Material 적응성 설정 메서드
+     *
+     * @return Material3 섹션 링크 적응성 객체
+     */
     @Composable
     override fun rememberMaterialAdaptation(): M3SectionLinkAdaptation {
         val colors = M3SectionLinkDefault.colors()
@@ -657,6 +848,15 @@ internal class SectionLinkAdaptation: Adaptation<HigSectionLinkAdaptation, M3Sec
     }
 }
 
+/**
+ * 적응형 섹션 버튼 컴포저블
+ *
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param onClick 클릭 콜백
+ * @param enabled 항목 활성화 여부
+ * @param label 버튼 라벨
+ * @param adaptation 적응형 스타일 설정을 위한 범위
+ */
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class,)
 @Composable
 fun SectionScope.AdaptiveSectionButton(
@@ -703,6 +903,12 @@ fun SectionScope.AdaptiveSectionButton(
     )
 }
 
+/**
+ * Material3 섹션 버튼 적응성 클래스
+ *
+ * @param icon 아이콘
+ * @param colors 버튼 색상
+ */
 class M3SectionButtonAdaptation internal constructor(
     icon: @Composable (() -> Unit)? = null,
     colors: ButtonColors
@@ -710,14 +916,32 @@ class M3SectionButtonAdaptation internal constructor(
     var icon by mutableStateOf(icon)
     var colors by mutableStateOf(colors)
 }
+
+/**
+ * HIG 섹션 버튼 적응성 클래스
+ */
 class HigSectionButtonAdaptation internal constructor()
+    
+/**
+ * 섹션 버튼 적응성 클래스
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 internal class SectionButtonAdaptation: Adaptation<HigSectionButtonAdaptation, M3SectionButtonAdaptation>() {
+    /**
+     * Cupertino 적응성 설정 메서드
+     *
+     * @return HIG 섹션 버튼 적응성 객체
+     */
     @Composable
     override fun rememberCupertinoAdaptation(): HigSectionButtonAdaptation {
         return remember { HigSectionButtonAdaptation() }
     }
 
+    /**
+     * Material 적응성 설정 메서드
+     *
+     * @return Material3 섹션 버튼 적응성 객체
+     */
     @Composable
     override fun rememberMaterialAdaptation(): M3SectionButtonAdaptation {
         val icon: @Composable (() -> Unit)? = null
@@ -732,6 +956,18 @@ internal class SectionButtonAdaptation: Adaptation<HigSectionButtonAdaptation, M
     }
 }
 
+
+/**
+ * 적응형 섹션 슬라이더 컴포저블
+ *
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param value 슬라이더 현재 값
+ * @param onValueChange 값 변경 콜백
+ * @param enabled 항목 활성화 여부
+ * @param valueRange 값 범위
+ * @param steps 스텝 수
+ * @param adaptation 적응형 스타일 설정을 위한 범위
+ */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun SectionScope.AdaptiveSectionSlider(
@@ -822,6 +1058,12 @@ private fun SectionScope.AdaptiveSectionProgressBar(
     )
 }
 
+/**
+ * HIG 섹션 슬라이더 적응성 클래스
+ *
+ * @param startIcon 시작 아이콘
+ * @param endIcon 끝 아이콘
+ */
 class HigSectionSliderAdaptation(
     startIcon: ImageVector?,
     endIcon: ImageVector?,
@@ -829,6 +1071,13 @@ class HigSectionSliderAdaptation(
     var startIcon: ImageVector? by mutableStateOf(startIcon)
     var endIcon: ImageVector? by mutableStateOf(endIcon)
 }
+
+/**
+ * Material3 섹션 슬라이더 적응성 클래스
+ *
+ * @param title 제목
+ * @param icon 아이콘
+ */
 class M3SectionSliderAdaptation(
     title: String? = null,
     icon: ImageVector?
@@ -836,9 +1085,18 @@ class M3SectionSliderAdaptation(
     var title: String? by mutableStateOf(title)
     var icon: ImageVector? by mutableStateOf(icon)
 }
+
+/**
+ * 섹션 슬라이더 적응성 클래스
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
 private class SectionSliderAdaptation: Adaptation<HigSectionSliderAdaptation, M3SectionSliderAdaptation>() {
+    /**
+     * Cupertino 적응성 설정 메서드
+     *
+     * @return HIG 섹션 슬라이더 적응성 객체
+     */
     @Composable
     override fun rememberCupertinoAdaptation(): HigSectionSliderAdaptation {
         val startIcon: ImageVector? = null
@@ -851,6 +1109,11 @@ private class SectionSliderAdaptation: Adaptation<HigSectionSliderAdaptation, M3
         }
     }
 
+    /**
+     * Material 적응성 설정 메서드
+     *
+     * @return Material3 섹션 슬라이더 적응성 객체
+     */
     @Composable
     override fun rememberMaterialAdaptation(): M3SectionSliderAdaptation {
         val title: String? = null

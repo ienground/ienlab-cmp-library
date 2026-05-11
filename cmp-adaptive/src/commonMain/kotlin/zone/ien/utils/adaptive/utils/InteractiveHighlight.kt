@@ -14,6 +14,14 @@ import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+/**
+ * 상호작용 하이라이트 클래스
+ * 
+ * 사용자의 입력(터치/드래그)에 반응하여 하이라이트 효과를 제공하는 컴포저블입니다.
+ * 
+ * @param animationScope 애니메이션을 실행할 CoroutineScope
+ * @param position 터치 위치를 계산하는 함수
+ */
 class InteractiveHighlight(
     val animationScope: CoroutineScope,
     val position: (size: Size, offset: Offset) -> Offset = { _, offset -> offset }

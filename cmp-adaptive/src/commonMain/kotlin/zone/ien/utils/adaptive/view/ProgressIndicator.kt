@@ -37,6 +37,13 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.Gray
 
+/**
+ * 적응형 원형 진행 표시기 컴포저블
+ * 
+ * Material 및 Cupertino 플랫폼에 따라 다르게 동작하는 원형 진행 표시기를 제공합니다.
+ * 
+ * @param adaptation 플랫폼별 적응형 설정을 위한 블록
+ */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun AdaptiveCircularProgressIndicator(
@@ -70,6 +77,13 @@ fun AdaptiveCircularProgressIndicator(
     )
 }
 
+/**
+ * 적응형 파형 원형 진행 표시기 컴포저블
+ * 
+ * Material 및 Cupertino 플랫폼에 따라 다르게 동작하는 파형 원형 진행 표시기를 제공합니다.
+ * 
+ * @param adaptation 플랫폼별 적응형 설정을 위한 블록
+ */
 @OptIn(
     ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class,
     ExperimentalMaterial3ExpressiveApi::class
@@ -109,6 +123,13 @@ fun AdaptiveCircularWavyProgressIndicator(
     )
 }
 
+/**
+ * 적응형 로딩 표시기 컴포저블
+ * 
+ * Material 및 Cupertino 플랫폼에 따라 다르게 동작하는 로딩 표시기를 제공합니다.
+ * 
+ * @param adaptation 플랫폼별 적응형 설정을 위한 블록
+ */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3ExpressiveApi::class,
     ExperimentalCupertinoApi::class
 )
@@ -141,6 +162,14 @@ fun AdaptiveLoadingIndicator(
     )
 }
 
+/**
+ * 적응형 파형 원형 진행 표시기 (확정적)
+ * 
+ * Material 및 Cupertino 플랫폼에 따라 다르게 동작하는 파형 원형 진행 표시기를 제공합니다.
+ * 
+ * @param progress 진행률을 반환하는 함수
+ * @param adaptation 플랫폼별 적응형 설정을 위한 블록
+ */
 @OptIn(
     ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class,
     ExperimentalMaterial3ExpressiveApi::class

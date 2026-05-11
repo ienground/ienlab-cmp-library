@@ -5,6 +5,16 @@ import androidx.compose.ui.Modifier
 import zone.ien.utils.ui.dialog.M3AlertDialog
 import zone.ien.utils.ui.dialog.M3DeleteAlertDialog
 
+/**
+ * 삭제 다이얼로그 컴포저블 (안드로이드 플랫폼 구현)
+ *
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param visible 다이얼로그 표시 여부
+ * @param onDismiss 취소 버튼 클릭 시 실행할 함수
+ * @param onConfirm 확인 버튼 클릭 시 실행할 함수
+ * @param enabledConfirm 확인 버튼 활성화 여부
+ * @return 삭제 다이얼로그 컴포저블 (안드로이드)
+ */
 @Composable
 actual fun DeleteAlertDialog(
     modifier: Modifier,

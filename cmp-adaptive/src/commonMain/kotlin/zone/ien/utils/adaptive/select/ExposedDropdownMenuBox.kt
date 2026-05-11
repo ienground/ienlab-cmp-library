@@ -10,8 +10,20 @@ import zone.ien.utils.ui.menu.M3DropdownMenuItem
 import zone.ien.utils.ui.view.textfield.M3TextFieldIconButton
 
 /**
- * @param title is not used at Android.
- * @param dropdownMenuItem is not used at iOS.
+ * iOS와 Android 플랫폼 간에 서로 다른 구현을 제공하는 드롭다운 메뉴 박스 컴포저블.
+ * 
+ * 이 컴포저블은 Android와 iOS의 서로 다른 UI 디자인을 따르도록 구현되어 있습니다.
+ * - Android: M3 (Material 3) 드롭다운 메뉴 구현
+ * - iOS: 커스텀 선택 UI 구현
+ * 
+ * @param modifier 드롭다운 메뉴 박스에 적용할 수 있는 Modifier
+ * @param title 드롭다운 메뉴의 제목 (Android에서는 사용되지 않음)
+ * @param itemsWithLabels 선택할 수 있는 항목들과 관련된 라벨 매핑
+ * @param currentItem 현재 선택된 항목 (단일 선택 모드)
+ * @param onItemSelected 선택된 항목 변경 시 호출되는 콜백 함수
+ * @param trailingIconButton 드롭다운 메뉴에 사용되는 trailing icon 버튼
+ * @param dropdownMenuItem 드롭다운 메뉴 아이템 컴포저블 (iOS에서는 사용되지 않음)
+ * @param textField 드롭다운 메뉴에 사용되는 텍스트 필드 컴포저블
  */
 @Composable
 expect fun <T> ExposedDropdownMenuBox(
@@ -37,8 +49,20 @@ expect fun <T> ExposedDropdownMenuBox(
 )
 
 /**
- * @param title is not used at Android.
- * @param dropdownMenuItem is not used at iOS.
+ * iOS와 Android 플랫폼 간에 서로 다른 구현을 제공하는 다중 선택 드롭다운 메뉴 박스 컴포저블.
+ * 
+ * 이 컴포저블은 Android와 iOS의 서로 다른 UI 디자인을 따르도록 구현되어 있습니다.
+ * - Android: M3 (Material 3) 다중 선택 드롭다운 메뉴 구현
+ * - iOS: 커스텀 다중 선택 UI 구현
+ * 
+ * @param modifier 드롭다운 메뉴 박스에 적용할 수 있는 Modifier
+ * @param title 드롭다운 메뉴의 제목 (Android에서는 사용되지 않음)
+ * @param itemsWithLabels 선택할 수 있는 항목들과 관련된 라벨 매핑
+ * @param currentItems 현재 선택된 항목들 (다중 선택 모드)
+ * @param onItemsSelected 선택된 항목 변경 시 호출되는 콜백 함수
+ * @param trailingIconButton 드롭다운 메뉴에 사용되는 trailing icon 버튼
+ * @param dropdownMenuItem 드롭다운 메뉴 아이템 컴포저블 (iOS에서는 사용되지 않음)
+ * @param textField 드롭다운 메뉴에 사용되는 텍스트 필드 컴포저블
  */
 @Composable
 expect fun <T> ExposedDropdownMenuBox(

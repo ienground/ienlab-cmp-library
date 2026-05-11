@@ -34,6 +34,14 @@ import zone.ien.utils.ui.section.M3LinkIcon
 import zone.ien.utils.ui.section.M3LinkIconText
 import zone.ien.utils.ui.section.MaterialLabelIconDefaults
 
+/**
+ * 적응형 링크 아이콘 컴포저블
+ *
+ * @param icon 아이콘 데이터
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param adaptation 적응형 스타일 설정을 위한 범위
+ * @param contentDescription 접근성 설명
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveLinkIcon(
@@ -62,6 +70,14 @@ fun AdaptiveLinkIcon(
     }
 }
 
+/**
+ * 적응형 링크 아이콘 컴포저블 (ImageVector 버전)
+ *
+ * @param imageVector 이미지 벡터
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param adaptation 적응형 스타일 설정을 위한 범위
+ * @param contentDescription 접근성 설명
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveLinkIcon(
@@ -96,6 +112,13 @@ fun AdaptiveLinkIcon(
     )
 }
 
+/**
+ * 적응형 링크 아이콘 텍스트 컴포저블
+ *
+ * @param text 텍스트
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param adaptation 적응형 스타일 설정을 위한 범위
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveLinkIconText(
@@ -161,6 +184,13 @@ fun AdaptiveLinkIcon(
     )
 }
 
+/**
+ * Cupertino 링크 아이콘 적응성 클래스
+ *
+ * @param containerColor 컨테이너 색상
+ * @param tint 틴트 색상
+ * @param shape 모양
+ */
 class CupertinoLinkIconAdaptation(
     containerColor: Color,
     tint: Color,
@@ -171,6 +201,13 @@ class CupertinoLinkIconAdaptation(
     var shape: Shape by mutableStateOf(shape)
 }
 
+/**
+ * Material 링크 아이콘 적응성 클래스
+ *
+ * @param containerColor 컨테이너 색상
+ * @param tint 틴트 색상
+ * @param shape 모양
+ */
 class MaterialLinkIconAdaptation(
     containerColor: Color,
     tint: Color,
@@ -181,9 +218,17 @@ class MaterialLinkIconAdaptation(
     var shape: Shape by mutableStateOf(shape)
 }
 
+/**
+ * 링크 아이콘 적응성 클래스
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
 private class LinkIconAdaptation: Adaptation<CupertinoLinkIconAdaptation, MaterialLinkIconAdaptation>() {
+    /**
+     * Cupertino 적응성 설정 메서드
+     *
+     * @return Cupertino 링크 아이콘 적응성 객체
+     */
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoLinkIconAdaptation {
         val containerColor = CupertinoLabelIconDefaults.ContainerColor
@@ -197,6 +242,11 @@ private class LinkIconAdaptation: Adaptation<CupertinoLinkIconAdaptation, Materi
         }
     }
 
+    /**
+     * Material 적응성 설정 메서드
+     *
+     * @return Material 링크 아이콘 적응성 객체
+     */
     @Composable
     override fun rememberMaterialAdaptation(): MaterialLinkIconAdaptation {
         val containerColor = MaterialLabelIconDefaults.ContainerColor
@@ -211,6 +261,15 @@ private class LinkIconAdaptation: Adaptation<CupertinoLinkIconAdaptation, Materi
     }
 }
 
+/**
+ * Cupertino 링크 아이콘 텍스트 컴포저블
+ *
+ * @param text 텍스트
+ * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
+ * @param containerColor 컨테이너 색상
+ * @param tint 틴트 색상
+ * @param shape 모양
+ */
 @Composable
 fun CupertinoLinkIconText(
     text: String,
