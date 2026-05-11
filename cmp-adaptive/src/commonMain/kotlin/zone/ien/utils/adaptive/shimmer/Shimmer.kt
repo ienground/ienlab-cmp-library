@@ -92,7 +92,7 @@ fun Modifier.adaptivePlaceholder(
  * @param modifier 적용할 Modifier
  * @param enabled shimmer가 활성화되어 있는지 여부
  * @param fontSize 텍스트 폰트 크기
- * @param fontStyle 텍스트 스타일
+ * @param fontStyle 텍스트 글꼴 스타일 (Normal, Italic 등)
  * @param fontWeight 텍스트 두께
  * @param fontFamily 텍스트 폰트 패밀리
  * @param letterSpacing 글자 간격
@@ -100,9 +100,9 @@ fun Modifier.adaptivePlaceholder(
  * @param textAlign 텍스트 정렬
  * @param lineHeight 줄 높이
  * @param overflow 텍스트 오버플로우 처리 방식
- * @param softWrap 소프트 워프 설정
- * @param style 텍스트 스타일
- * @param color 텍스트 색상
+ * @param softWrap 소프트 랩 설정
+ * @param style 텍스트의 전반적인 스타일 설정
+ * @param color Placeholder 색상
  * @param highlight 하이라이트 효과
  * @param placeholderFadeTransitionSpec Placeholder 페이드 전환 애니메이션 스펙
  * @param contentFadeTransitionSpec 콘텐츠 페이드 전환 애니메이션 스펙
