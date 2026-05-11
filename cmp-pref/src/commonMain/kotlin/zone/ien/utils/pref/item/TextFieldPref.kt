@@ -108,19 +108,18 @@ fun SectionScope.TextFieldPref(
 }
 
 /**
- * A Composable function that creates a text field preference item with a conditional enable.
- * 
- * This variant provides the ability to enable/disable the preference based on the
- * value of another boolean preference.
- * 
- * @param modifier Modifier to be applied to the layout
- * @param title The title text for the text preference
- * @param summary Composable function that displays the current value as a summary
- * @param key The Preferences.Key used to identify this preference in the DataStore
- * @param defaultValue The default value for the text field
- * @param enabled Pair of Preferences.Key and default boolean value to enable/disable this preference
- * @param leadingIcon Optional icon to display before the title
- * @param showIcon Whether to show the leading icon
+ * 조건부 활성화 기능이 포함된 텍스트 필드 설정 항목을 생성하는 Composable 함수입니다.
+ *
+ * 이 변체는 다른 불리언 설정 값에 따라 이 설정을 활성화 또는 비활성화할 수 있는 기능을 제공합니다.
+ *
+ * @param modifier 레이아웃에 적용할 Modifier
+ * @param title 텍스트 설정의 제목 텍스트
+ * @param summary 현재 값을 요약으로 표시하는 Composable 함수
+ * @param key DataStore에서 이 설정을 식별하는 데 사용되는 Preferences.Key
+ * @param defaultValue 텍스트 필드의 기본값
+ * @param enabled 이 설정을 활성화/비활성화하기 위한 Preferences.Key와 기본 불리언 값의 쌍
+ * @param leadingIcon 제목 앞에 표시할 선택적 아이콘
+ * @param showIcon 선행 아이콘을 표시할지 여부
  */
 @Composable
 fun SectionScope.TextFieldPref(
@@ -245,20 +244,19 @@ fun SectionScope.TextFieldPref(
 }
 
 /**
- * A Composable function that creates an integer text field preference item with a conditional enable.
- * 
- * This variant provides the ability to enable/disable the preference based on the
- * value of another boolean preference.
- * 
- * @param modifier Modifier to be applied to the layout
- * @param title The title text for the integer preference
- * @param summary Composable function that displays the current integer value as a summary
- * @param key The Preferences.Key used to identify this preference in the DataStore
- * @param defaultValue The default integer value
- * @param onlyDecimal Whether to only allow decimal inputs
- * @param enabled Pair of Preferences.Key and default boolean value to enable/disable this preference
- * @param leadingIcon Optional icon to display before the title
- * @param showIcon Whether to show the leading icon
+ * 조건부 활성화 기능이 포함된 정수형 텍스트 필드 설정 항목을 생성하는 Composable 함수입니다.
+ *
+ * 이 변체는 다른 불리언 설정 값에 따라 이 설정을 활성화 또는 비활성화할 수 있는 기능을 제공합니다.
+ *
+ * @param modifier 레이아웃에 적용할 Modifier
+ * @param title 정수 설정의 제목 텍스트
+ * @param summary 현재 정수 값을 요약으로 표시하는 Composable 함수
+ * @param key DataStore에서 이 설정을 식별하는 데 사용되는 Preferences.Key
+ * @param defaultValue 기본 정수 값
+ * @param onlyDecimal 십진수 입력만 허용할지 여부
+ * @param enabled 이 설정을 활성화/비활성화하기 위한 Preferences.Key와 기본 불리언 값의 쌍
+ * @param leadingIcon 제목 앞에 표시할 선택적 아이콘
+ * @param showIcon 선행 아이콘을 표시할지 여부
  */
 @Composable
 fun SectionScope.TextFieldPref(
