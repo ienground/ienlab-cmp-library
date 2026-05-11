@@ -11,7 +11,7 @@ import zone.ien.hig.adaptive.icons.AdaptiveIcons
  *
  * @param material Material 디자인 스타일의 아이콘
  * @param cupertino Cupertino 디자인 스타일의 아이콘
- * @return 아이콘 데이터의 페인트 객체
+ * @return 적응형 아이콘 데이터 객체
  */
 @Composable
 fun IconData.Companion.Adaptive(
