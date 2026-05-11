@@ -73,17 +73,17 @@ fun SectionScope.TextPref(
 }
 
 /**
- * A Composable function that creates a text preference item with custom content.
- * 
- * This variant is used to display simple text items without interaction. It's useful
- * for displaying static information or group headers within preferences.
- * 
- * @param modifier Modifier to be applied to the layout
- * @param leadingContent Optional content to display before the title
- * @param trailingContent Optional content to display after the title
- * @param summary Optional summary text to display
- * @param adaptation Adaptation configuration for different platforms (iOS/Android)
- * @param title The title text for this preference item
+ * 사용자 정의 콘텐츠가 포함된 텍스트 설정 항목을 생성하는 Composable 함수입니다.
+ *
+ * 이 변체는 상호작용이 없는 단순한 텍스트 항목을 표시하는 데 사용됩니다.
+ * 정적인 정보를 표시하거나 설정 내의 그룹 헤더로 유용합니다.
+ *
+ * @param modifier 레이아웃에 적용할 [Modifier]
+ * @param leadingContent 제목 앞에 표시할 선택적 콘텐츠
+ * @param trailingContent 제목 뒤에 표시할 선택적 콘텐츠
+ * @param summary 표시할 선택적 요약 텍스트
+ * @param adaptation 플랫폼별(iOS/Android) 적응형 구성
+ * @param title 이 설정 항목의 제목 텍스트
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
