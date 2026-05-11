@@ -57,6 +57,18 @@ import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.ui.utils.dragToKeyboardClose
 import zone.ien.utils.ui.utils.keyboardAsState
 
+/**
+ * 루트 래퍼 컴포저블
+ * 
+ * 앱의 루트 레이아웃에 대한 적응형 래퍼 컴포저블입니다.
+ * 키보드 처리 및 레이아웃 조정을 제공합니다.
+ * 
+ * @param modifier 래퍼에 적용할 수정자
+ * @param showKeyboardDirection 키보드 방향 표시 여부
+ * @param enableImePadding 키보드 입력 패딩 사용 여부
+ * @param notification 알림 콘텐츠 컴포저블
+ * @param content 메인 콘텐츠 컴포저블
+ */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun RootWrapper(

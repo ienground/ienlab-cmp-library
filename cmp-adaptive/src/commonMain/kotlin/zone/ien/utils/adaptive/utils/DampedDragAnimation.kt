@@ -19,6 +19,21 @@ import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.time.ExperimentalTime
 
+/**
+ * 감쇠된 드래그 애니메이션 클래스
+ * 
+ * 드래그 제스처에 따라 감쇠된 애니메이션 효과를 제공하며, 다양한 드래그 이벤트를 처리합니다.
+ * 
+ * @param animationScope 애니메이션을 실행할 CoroutineScope
+ * @param initialValue 초기 값
+ * @param valueRange 값의 범위
+ * @param visibilityThreshold 표시 임계값
+ * @param initialScale 초기 스케일
+ * @param pressedScale 누르고 있을 때의 스케일
+ * @param onDragStarted 드래그 시작 시 호출되는 콜백
+ * @param onDragStopped 드래그 종료 시 호출되는 콜백
+ * @param onDrag 드래그 중 호출되는 콜백
+ */
 class DampedDragAnimation(
     private val animationScope: CoroutineScope,
     val initialValue: Float,

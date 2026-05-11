@@ -57,6 +57,18 @@ internal data class NavigationBarState(
 )
 internal val LocalNavigationBarState = compositionLocalOf<NavigationBarState?> { null }
 
+/**
+ * 적응형 네비게이션 바 컴포저블
+ * 
+ * Material 및 Cupertino 플랫폼에 따라 다르게 동작하는 네비게이션 바를 제공합니다.
+ * 
+ * @param modifier 네비게이션 바에 적용할 수정자
+ * @param selectedTabIndex 현재 선택된 탭 인덱스를 반환하는 함수
+ * @param onTabSelected 탭이 선택되었을 때 호출되는 콜백
+ * @param adaptation 플랫폼별 적응형 설정을 위한 블록
+ * @param isNative 네이티브 방식 사용 여부 (기본값: true)
+ * @param items 네비게이션 바에 표시할 아이템 목록
+ */
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveNavigationBar(

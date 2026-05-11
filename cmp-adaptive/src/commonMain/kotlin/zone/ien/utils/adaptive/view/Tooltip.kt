@@ -18,6 +18,17 @@ import zone.ien.utils.ui.view.BaseTooltipBox
 import zone.ien.utils.ui.view.M3TooltipBox
 import zone.ien.utils.ui.view.M3TooltipText
 
+/**
+ * 적응형 툴팁 박스 컴포저블
+ * 
+ * Material 및 Cupertino 플랫폼에 따라 다르게 동작하는 툴팁 박스를 제공합니다.
+ * 
+ * @param modifier 툴팁에 적용할 수정자
+ * @param positioning 툴팁의 위치 지정 방식
+ * @param isPersistent 툴팁이 지속적으로 표시될지 여부
+ * @param label 툴팁에 표시할 라벨 텍스트
+ * @param content 툴팁이 적용될 콘텐츠 컴포저블
+ */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveTooltipBox(

@@ -52,6 +52,16 @@ import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.menu.M3DropdownMenu
 
+/**
+ * 적응형 드롭다운 박스 컴포저블
+ * 
+ * 이 컴포저블은 Material 및 Cupertino 플랫폼에 따라 다르게 동작하는 드롭다운 박스를 제공합니다.
+ * 
+ * @param modifier 드롭다운 박스에 적용할 수정자
+ * @param expanded 드롭다운이 열려 있는지의 여부
+ * @param trigger 드롭다운 트리거 렌더링을 위한 컴포저블
+ * @param dropdown 드롭다운 콘텐츠 렌더링을 위한 컴포저블
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveDropdownBox(
@@ -95,6 +105,21 @@ fun AdaptiveDropdownBox(
     )
 }
 
+/**
+ * 적응형 드롭다운 메뉴 컴포저블
+ * 
+ * 이 컴포저블은 Material 및 Cupertino 플랫폼에 따라 다르게 동작하는 드롭다운 메뉴를 제공합니다.
+ * 
+ * @param expanded 드롭다운 메뉴가 열려 있는지의 여부
+ * @param onDismissRequest 드롭다운 메뉴를 닫기 위한 콜백
+ * @param modifier 드롭다운 메뉴에 적용할 수정자
+ * @param offset 드롭다운 메뉴의 위치 오프셋
+ * @param scrollState 드롭다운 메뉴 스크롤 상태
+ * @param properties 드롭다운 메뉴 팝업 속성
+ * @param adaptation 플랫폼별 적응형 설정을 위한 블록
+ * @param items 드롭다운 메뉴에 표시할 아이템 목록 (기본 아이템)
+ * @param sections 드롭다운 메뉴에 표시할 섹션 목록
+ */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun AdaptiveDropdownMenu(
@@ -166,6 +191,22 @@ fun AdaptiveDropdownMenu(
     )
 }
 
+/**
+ * 적응형 드롭다운 메뉴 (Native 버전) 컴포저블
+ * 
+ * 이 컴포저블은 Material 및 Cupertino 플랫폼에 따라 다르게 동작하는 드롭다운 메뉴를 제공합니다.
+ * Native 버전은 더 직접적인 네이티브 구현을 제공합니다.
+ * 
+ * @param expanded 드롭다운 메뉴가 열려 있는지의 여부
+ * @param onDismissRequest 드롭다운 메뉴를 닫기 위한 콜백
+ * @param modifier 드롭다운 메뉴에 적용할 수정자
+ * @param offset 드롭다운 메뉴의 위치 오프셋
+ * @param scrollState 드롭다운 메뉴 스크롤 상태
+ * @param properties 드롭다운 메뉴 팝업 속성
+ * @param adaptation 플랫폼별 적응형 설정을 위한 블록
+ * @param items 드롭다운 메뉴에 표시할 아이템 목록 (기본 아이템)
+ * @param sections 드롭다운 메뉴에 표시할 섹션 목록
+ */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun AdaptiveDropdownMenuNative(
