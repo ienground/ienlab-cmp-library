@@ -152,20 +152,20 @@ fun SectionScope.TextFieldPref(
 }
 
 /**
- * A Composable function that creates an integer text field preference item.
+ * 정수형 텍스트 필드 설정 항목을 생성하는 Composable 함수입니다.
  * 
- * This preference item displays an integer value and allows editing it in a dialog.
- * It supports validation to ensure only decimal numbers can be entered.
+ * 이 설정 항목은 정수 값을 표시하며 다이얼로그에서 편집할 수 있도록 합니다.
+ * 십진수만 입력할 수 있도록 유효성 검사를 지원합니다.
  * 
- * @param modifier Modifier to be applied to the layout
- * @param title The title text for the integer preference
- * @param summary Composable function that displays the current integer value as a summary
- * @param key The Preferences.Key used to identify this preference in the DataStore
- * @param defaultValue The default integer value
- * @param onlyDecimal Whether to only allow decimal inputs
- * @param enabled Whether the preference is enabled or disabled
- * @param leadingIcon Optional icon to display before the title
- * @param showIcon Whether to show the leading icon
+ * @param modifier 레이아웃에 적용할 Modifier
+ * @param title 정수 설정의 제목 텍스트
+ * @param summary 현재 정수 값을 요약으로 표시하는 Composable 함수
+ * @param key DataStore에서 이 설정을 식별하는 데 사용되는 Preferences.Key
+ * @param defaultValue 기본 정수 값
+ * @param onlyDecimal 십진수 입력만 허용할지 여부
+ * @param enabled 설정의 활성화 여부
+ * @param leadingIcon 제목 앞에 표시할 선택적 아이콘
+ * @param showIcon 선행 아이콘을 표시할지 여부
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
