@@ -101,7 +101,7 @@ fun BaseDialog(
                     Box(
                         Modifier.weight(weight = 1f, fill = false)
                             .padding(horizontal = 16.dp)
-                            .padding(bottom = 224.dp)
+                            .padding(bottom = 24.dp)
                             .align(Alignment.Start)
                     ) {
                         content?.invoke()
