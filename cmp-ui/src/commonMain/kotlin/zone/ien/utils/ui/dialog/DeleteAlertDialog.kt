@@ -9,6 +9,15 @@ import zone.ien.utils.cmp_ui.generated.resources.delete_dialog_title
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.icon.material.M3SystemIcons
 
+/**
+ * M3DeleteAlertDialog은 항목 삭제 확인을 위한 다이얼로그 컴포저블입니다.
+ *
+ * @param modifier 다이얼로그에 적용할 Modifier
+ * @param visible 다이얼로그의 표시 여부
+ * @param onDismiss 다이얼로그를 닫기 위한 콜백 함수
+ * @param onConfirm 삭제 확인 시 호출되는 콜백 함수
+ * @param enabledConfirm 확인 버튼의 활성화 여부
+ */
 @Composable
 fun M3DeleteAlertDialog(
     modifier: Modifier = Modifier,

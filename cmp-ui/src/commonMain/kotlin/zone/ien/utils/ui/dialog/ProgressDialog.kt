@@ -19,6 +19,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
+/**
+ * M3ProgressDialog은 진행 상태를 표시하는 다이얼로그를 제공하는 컴포저블입니다.
+ *
+ * @param modifier 다이얼로그에 적용할 Modifier
+ * @param visible 다이얼로그의 표시 여부
+ * @param isLoadingIndicator 로딩 인디케이터 표시 여부
+ * @param isWavyIndicator 파도 모양 인디케이터 여부
+ */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun M3ProgressDialog(

@@ -12,6 +12,17 @@ import zone.ien.utils.cmp_ui.generated.resources.save_dialog_title
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.icon.material.M3SystemIcons
 
+/**
+ * M3SaveAlertDialog은 데이터 저장 확인을 위한 다이얼로그 컴포저블입니다.
+ *
+ * @param modifier 다이얼로그에 적용할 Modifier
+ * @param visible 다이얼로그의 표시 여부
+ * @param onCancel 다이얼로그를 취소할 때 호출되는 콜백 함수
+ * @param onUnsave 저장하지 않고 닫을 때 호출되는 콜백 함수
+ * @param enabledUnsave 저장하지 않고 닫기 버튼의 활성화 여부
+ * @param onSave 저장 버튼을 누를 때 호출되는 콜백 함수
+ * @param enabledSave 저장 버튼의 활성화 여부
+ */
 @Composable
 fun M3SaveAlertDialog(
     modifier: Modifier = Modifier,

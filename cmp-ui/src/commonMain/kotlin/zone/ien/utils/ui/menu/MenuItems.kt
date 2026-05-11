@@ -38,6 +38,15 @@ import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.ui.utils.crop
 import zone.ien.utils.ui.view.M3TooltipBox
 
+/**
+ * M3ActionsMenu는 액션 메뉴를 표시하기 위한 컴포저블입니다.
+ *
+ * @param items 메뉴 항목 리스트
+ * @param isOpen 드롭다운이 열려 있는지 여부
+ * @param closeDropdown 드롭다운을 닫는 콜백 함수
+ * @param onToggleOverflow 드롭다운 토글 콜백 함수
+ * @param maxVisibleItems 최대 표시 가능한 항목 수
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun M3ActionsMenu(

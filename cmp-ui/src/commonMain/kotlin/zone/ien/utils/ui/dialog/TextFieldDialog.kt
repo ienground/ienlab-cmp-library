@@ -29,6 +29,18 @@ import zone.ien.utils.cmp_ui.generated.resources.ok
 import zone.ien.utils.ui.utils.TextFieldDialogData
 import zone.ien.utils.utils.Dlog
 
+/**
+ * M3BaseTextFieldDialog은 텍스트 필드 다이얼로그의 기본 구조를 정의하는 컴포저블입니다.
+ *
+ * @param modifier 다이얼로그에 적용할 Modifier
+ * @param visible 다이얼로그의 표시 여부
+ * @param icon 다이얼로그의 아이콘을 나타내는 Composable
+ * @param title 다이얼로그의 제목
+ * @param message 다이얼로그의 내용
+ * @param onDismiss 다이얼로그를 닫기 위한 콜백 함수
+ * @param textFields 다이얼로그에 표시할 텍스트 필드들을 나타내는 Composable
+ * @param buttons 다이얼로그의 버튼을 나타내는 Composable
+ */
 @Composable
 fun M3BaseTextFieldDialog(
     modifier: Modifier = Modifier,
@@ -67,6 +79,20 @@ fun M3BaseTextFieldDialog(
     }
 }
 
+/**
+ * M3TextFieldDialog은 사용자 입력을 받기 위한 텍스트 필드 다이얼로그 컴포저블입니다.
+ *
+ * @param modifier 다이얼로그에 적용할 Modifier
+ * @param visible 다이얼로그의 표시 여부
+ * @param icon 다이얼로그의 아이콘을 나타내는 Composable
+ * @param title 다이얼로그의 제목
+ * @param message 다이얼로그의 내용
+ * @param textFields 입력 필드들의 데이터 정의
+ * @param textDismiss 취소 버튼의 텍스트
+ * @param onDismiss 다이얼로그를 닫기 위한 콜백 함수
+ * @param textConfirm 확인 버튼의 텍스트
+ * @param onConfirm 입력 데이터를 처리하기 위한 콜백 함수
+ */
 @Composable
 fun M3TextFieldDialog(
     modifier: Modifier = Modifier,

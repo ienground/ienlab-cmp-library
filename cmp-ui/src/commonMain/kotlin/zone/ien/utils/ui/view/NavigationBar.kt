@@ -101,6 +101,16 @@ object CustomNavigationBarDefaults {
 
 // ─── CustomNavigationBar ─────────────────────────────────────────────────────
 
+/**
+ * CustomNavigationBar는 사용자 정의 네비게이션 바를 표시하기 위한 컴포저블입니다.
+ *
+ * @param selectedIndex 선택된 항목 인덱스
+ * @param itemCount 항목 개수
+ * @param modifier 적용할 Modifier
+ * @param colors 색상
+ * @param windowInsets 윈도우 인셋
+ * @param content 항목 내용
+ */
 @Composable
 fun CustomNavigationBar(
     selectedIndex: Int,
@@ -172,6 +182,17 @@ fun CustomNavigationBar(
 
 // ─── CustomNavigationBarItem ─────────────────────────────────────────────────
 
+/**
+ * CustomNavigationBarItem는 네비게이션 바 항목을 표시하기 위한 컴포저블입니다.
+ *
+ * @param index 항목 인덱스
+ * @param onClick 클릭 시 호출되는 콜백 함수
+ * @param icon 아이콘
+ * @param label 라벨
+ * @param alwaysShowLabel 항상 라벨 표시 여부
+ * @param enabled 활성화 여부
+ * @param modifier 적용할 Modifier
+ */
 @Composable
 fun RowScope.CustomNavigationBarItem(
     index: Int,

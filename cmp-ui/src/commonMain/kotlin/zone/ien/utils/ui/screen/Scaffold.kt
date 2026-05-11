@@ -40,6 +40,31 @@ import androidx.compose.ui.unit.dp
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.menu.M3ActionsMenu
 
+/**
+ * M3TopAppBarScaffold는 상단 앱 바를 가진 스크래프트를 표시하기 위한 컴포저블입니다.
+ *
+ * @param modifier 적용할 Modifier
+ * @param topBarModifier 상단 바에 적용할 Modifier
+ * @param title 제목
+ * @param subtitle 부제목
+ * @param showTopBar 상단 바 표시 여부
+ * @param navigationIcon 네비게이션 아이콘
+ * @param actions 액션 버튼들
+ * @param topBarWindowInsets 상단 바 윈도우 인셋
+ * @param bottomBar 하단 바
+ * @param snackbarHost 스낵바 호스트
+ * @param floatingActionButton 플로팅 액션 버튼
+ * @param floatingActionButtonPosition 플로팅 액션 버튼 위치
+ * @param topAppBarColors 상단 바 색상
+ * @param isCenterAligned 중앙 정렬 여부
+ * @param scaffoldContainerColor 스크래프트 컨테이너 색상
+ * @param scaffoldContentColor 스크래프트 내용 색상
+ * @param contentWindowInsets 내용 윈도우 인셋
+ * @param isScrollTint 스크롤 tint 여부
+ * @param size 크기
+ * @param scrollBehavior 스크롤 동작
+ * @param content 내용
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun M3TopAppBarScaffold(

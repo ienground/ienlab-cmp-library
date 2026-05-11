@@ -6,6 +6,14 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import zone.ien.utils.utils.DecimalFormat
 
+/**
+ * MoneyCommaVisualTransformation은 금액에 콤마를 추가하여 표시하는 VisualTransformation입니다.
+ * 
+ * 이 클래스는 숫자 값을 입력 받아 천 단위로 콤마를 추가하고, 원(₩) 기호를 추가하여 
+ * 금액을 표시할 때 사용됩니다.
+ * 
+ * @param symbol 표시할 통화 기호 (기본값은 "₩")
+ */
 open class MoneyCommaVisualTransformation(private val symbol: String) : VisualTransformation {
     private val decimalFormat = DecimalFormat()
 
@@ -23,8 +31,22 @@ open class MoneyCommaVisualTransformation(private val symbol: String) : VisualTr
     }
 }
 
+/**
+ * WonCommaVisualTransformation은 원(₩) 기호가 포함된 금액 표시를 위한 VisualTransformation입니다.
+ * 
+ * 이 클래스는 MoneyCommaVisualTransformation의 구체적 구현으로,
+ * 기본적으로 원(₩) 기호를 사용하여 금액을 표시합니다.
+ */
 class WonCommaVisualTransformation: MoneyCommaVisualTransformation("₩")
 
+/**
+ * MoneyCommaOffsetMapping은 입력과 출력 간의 위치 매핑을 처리하는 클래스입니다.
+ * 
+ * 이 클래스는 콤마가 추가된 텍스트에서 원래 숫자로의 위치 매핑을 처리합니다.
+ * 
+ * @param originalLength 원본 문자열의 길이
+ * @param transformedLength 변형된 문자열의 길이
+ */
 private class MoneyCommaOffsetMapping(
     private val originalLength: Int,
     private val transformedLength: Int

@@ -14,6 +14,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+/**
+ * BaseTooltipBox는 툴팁 박스를 표시하기 위한 내부 컴포저블입니다.
+ *
+ * @param modifier 적용할 Modifier
+ * @param positioning 위치 지정
+ * @param isPersistent 지속 여부
+ * @param label 라벨
+ * @param tooltipText 툴팁 텍스트
+ * @param content 내용
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BaseTooltipBox(
