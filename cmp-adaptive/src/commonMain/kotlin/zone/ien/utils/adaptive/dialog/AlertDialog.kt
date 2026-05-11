@@ -14,7 +14,6 @@ import org.jetbrains.compose.resources.stringResource
  * @property Default 기본 스타일
  * @property Cancel 취소 스타일
  * @property Destructive 파괴적 스타일 (예: 삭제 등의 위험한 작업)
- * @return 알림 다이얼로그 버튼 스타일 상수
  */
 enum class UIAlertActionStyle {
     Default, Cancel, Destructive
