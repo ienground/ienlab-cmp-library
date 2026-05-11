@@ -67,7 +67,9 @@ fun PrefsScreen(
 }
 
 /**
- * CompositionLocal for providing DataStore to preference components.
- * This is used to access the DataStore instance without passing it down manually.
+ * 설정 컴포넌트에 DataStore를 제공하기 위한 CompositionLocal입니다.
+ * 이를 통해 DataStore 인스턴스를 직접 전달하지 않고도 접근할 수 있습니다.
  */
-lateinit var LocalPrefsDataStore: ProvidableCompositionLocal<DataStore<Preferences>>
+val LocalPrefsDataStore = staticCompositionLocalOf<DataStore<Preferences>> {
+    error("No DataStore provided. Ensure content is wrapped in PrefsScreen.")
+}
