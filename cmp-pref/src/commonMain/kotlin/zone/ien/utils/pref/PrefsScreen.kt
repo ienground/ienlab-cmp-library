@@ -21,20 +21,19 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.section.AdaptiveProvideSectionStyle
 
 /**
- * A Composable function that creates a complete preferences screen with data store support.
- * 
- * This function sets up the preferences screen with a proper data store context, 
- * scroll state, and styling. It provides a foundation for building preference screens
- * that persist user settings using DataStore.
- * 
- * @param dataStore The DataStore instance used for storing preferences
- * @param title Composable that displays the screen title
- * @param modifier Modifier to be applied to the layout
- * @param fullHeight Whether the screen should take full height
- * @param scrollState The scroll state to be used for scrolling
- * @param shape The shape of the screen's container
- * @param backdrop The backdrop configuration for the screen
- * @param content Composable content block that contains the preference items
+ * DataStore 지원을 포함한 전체 설정 화면을 생성하는 Composable 함수입니다.
+ *
+ * 이 함수는 적절한 DataStore 컨텍스트, 스크롤 상태 및 스타일을 갖춘 설정 화면을 구성합니다.
+ * DataStore를 사용하여 사용자 설정을 유지하는 설정 화면을 구축하기 위한 기초를 제공합니다.
+ *
+ * @param dataStore 설정을 저장하는 데 사용되는 DataStore 인스턴스
+ * @param title 화면 제목을 표시하는 Composable
+ * @param modifier 레이아웃에 적용할 Modifier
+ * @param fullHeight 화면이 전체 높이를 차지해야 하는지 여부
+ * @param scrollState 스크롤에 사용될 스크롤 상태
+ * @param shape 화면 컨테이너의 모양
+ * @param backdrop 화면의 백드롭 구성
+ * @param content 설정 항목을 포함하는 Composable 컨텐츠 블록
  */
 @Composable
 fun PrefsScreen(
@@ -47,8 +46,6 @@ fun PrefsScreen(
     backdrop: LayerBackdrop = rememberDefaultBackdrop(),
     content: @Composable (ColumnScope.() -> Unit)
 ) {
-    LocalPrefsDataStore = staticCompositionLocalOf { dataStore }
-
     CompositionLocalProvider(LocalPrefsDataStore provides dataStore) {
         AdaptiveProvideSectionStyle(
             style = SectionStyle.InsetGrouped,
