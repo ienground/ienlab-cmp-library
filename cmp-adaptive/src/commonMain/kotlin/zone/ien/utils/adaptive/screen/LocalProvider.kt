@@ -18,9 +18,9 @@ val LocalTopBarAdaptation: ProvidableCompositionLocal<AdaptationScope<HigTopAppB
     } }
 
 /**
- * 현재 상단바 스크라프트 어댑테이션 설정을 제공하는 CompositionLocal
+ * 현재 상단바 스캐폴드 어댑테이션 설정을 제공하는 CompositionLocal
  *
- * @return ProvidableCompositionLocal - 상단바 스크라프트 어댑테이션 설정
+ * @return ProvidableCompositionLocal - 상단바 스캐폴드 어댑테이션 설정
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 val LocalTopBarScaffoldAdaptation: ProvidableCompositionLocal<AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit> = staticCompositionLocalOf { {
