@@ -88,7 +88,7 @@ import zone.ien.utils.ui.screen.TopBarSize
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
 /**
- * 적응형 상단바 스크라프트 컴포저블
+ * 적응형 상단바 스캐폴드 컴포저블
  *
  * @param modifier 레이아웃 수정자
  * @param topBarModifier 상단바 수정자
