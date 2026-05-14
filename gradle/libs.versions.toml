@@ -4,7 +4,7 @@ kotlin = "2.3.21"
 android-minSdk = "29"
 android-compileSdk = "36"
 android-targetSdk = "36"
-lib-version-name = "2.7.2"
+lib-version-name = "2.8.0"
 
 # plugin
 compose-plugin = "1.11.0-rc01"
@@ -31,7 +31,7 @@ kdatetime = "1.1.2"
 kotlin-coroutine = "1.11.0"
 startup-runtime = "1.2.0"
 kotlinx-io-core = "0.9.0"
-filekit = "0.13.0"
+filekit = "0.14.1"
 
 # backend
 vanniktechMavenPublish = "0.36.0"
