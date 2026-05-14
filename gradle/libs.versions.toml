@@ -4,10 +4,10 @@ kotlin = "2.3.21"
 android-minSdk = "29"
 android-compileSdk = "36"
 android-targetSdk = "36"
-lib-version-name = "2.8.0"
+lib-version-name = "2.9.0"
 
 # plugin
-compose-plugin = "1.11.0-rc01"
+compose-plugin = "1.11.0"
 compose-plugin-experimental = "1.11.0-alpha07"
 compose-navigation3 = "1.1.1"
 
@@ -19,7 +19,7 @@ firebase-common = "22.0.1"
 
 # ui
 activity-compose = "1.13.0"
-lifecycle = "2.10.0"
+lifecycle = "2.11.0-beta01"
 backdrop = "2.0.0-alpha06"
 haze = "1.7.2"
 hig = "1.1.0-alpha04"

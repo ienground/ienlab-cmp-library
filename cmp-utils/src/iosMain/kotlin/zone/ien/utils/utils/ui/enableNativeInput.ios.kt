@@ -1,0 +1,8 @@
+package zone.ien.utils.utils.ui
+
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.text.input.PlatformImeOptions
+
+@OptIn(ExperimentalComposeUiApi::class)
+actual fun KeyboardOptions.enableNativeInput() = copy(platformImeOptions = PlatformImeOptions { usingNativeTextInput(true) })
