@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomAppBar
@@ -61,6 +65,7 @@ import zone.ien.utils.navigation.result.ResultStore
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.utils.moveToBackground
 import zone.ien.utils.utils.shareText
+import zone.ien.utils.utils.ui.enableNativeInput
 import zone.ien.utils.utils.ui.rememberRepeatClick
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
@@ -414,8 +419,37 @@ fun HomeScreen(
                 }
                 TextField(
                     state = rememberTextFieldState(),
+                    keyboardOptions = KeyboardOptions.Default.enableNativeInput(),
                     modifier = Modifier.fillMaxWidth()
                 )
+                TextField(
+                    state = rememberTextFieldState(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                BasicTextField(
+                    state = rememberTextFieldState(),
+                    keyboardOptions = KeyboardOptions.Default.enableNativeInput(),
+                    decorator = TextFieldDecorator { innerTextField ->
+                        Box(
+                            modifier = Modifier.background(Color.Yellow)
+                        ) {
+                            innerTextField()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                BasicTextField(
+                    state = rememberTextFieldState(),
+                    decorator = TextFieldDecorator { innerTextField ->
+                        Box(
+                            modifier = Modifier.background(Color.Yellow)
+                        ) {
+                            innerTextField()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(96.dp))
             }
         }
     }
