@@ -1,4 +1,4 @@
-package zone.ien.utils.utils
+package zone.ien.utils
 
 import android.content.Context
 import androidx.startup.Initializer
