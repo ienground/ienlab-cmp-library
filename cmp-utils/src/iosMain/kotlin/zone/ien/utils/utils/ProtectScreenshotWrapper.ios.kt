@@ -75,7 +75,7 @@ private fun disableScreenshot(state: MutableState<ScreenshotProtectionState?>) {
         )
 
     } catch (e: Exception) {
-        error("disableScreenshot error: ${e.message}")
+        println("disableScreenshot error: ${e.message}")
     }
 }
 
