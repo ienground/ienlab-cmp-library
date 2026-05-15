@@ -39,12 +39,17 @@ actual class HEICImageDecoder actual constructor(
     private val options: Options,
 ) : Decoder {
     actual override suspend fun decode(): DecodeResult? {
-        val heicBytes = try {
-            source.source().use { it.readByteArray() }
+        val uiImage = try {
+            val file = source.fileOrNull()
+            if (file != null) {
+                UIImage(contentsOfFile = file.toString())
+            } else {
+                val bytes = source.source().use { it.readByteArray() }
+                UIImage(data = bytes.toNSData())
+            }
         } catch (_: Throwable) {
-            return null
-        }
-        val uiImage = UIImage(data = heicBytes.toNSData()) ?: return null
+            null
+        } ?: return null
         val jpegBytes = UIImageJPEGRepresentation(uiImage, 0.9)?.toByteArray() ?: return null
         val skiaImage = try {
             Image.makeFromEncoded(jpegBytes)

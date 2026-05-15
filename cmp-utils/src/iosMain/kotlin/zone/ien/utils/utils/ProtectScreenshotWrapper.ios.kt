@@ -15,6 +15,7 @@ import platform.UIKit.UITextField
 import platform.UIKit.UITextFieldViewMode
 import platform.UIKit.UIView
 import platform.UIKit.UIWindow
+import zone.ien.utils.TAG
 
 @Composable
 actual fun ProtectScreenshotWrapper(
@@ -42,7 +43,12 @@ data class ScreenshotProtectionState(
 private fun disableScreenshot(state: MutableState<ScreenshotProtectionState?>) {
     try {
         if (state.value != null) return
-        val window = UIApplication.sharedApplication.windows.filterIsInstance<UIWindow>().firstOrNull { it.isKeyWindow() } ?: return
+        val window = UIApplication.sharedApplication.connectedScenes
+            .filterIsInstance<platform.UIKit.UIWindowScene>()
+            .firstOrNull { it.activationState == platform.UIKit.UISceneActivationStateForegroundActive }
+            ?.windows
+            ?.filterIsInstance<UIWindow>()
+            ?.firstOrNull { it.isKeyWindow() } ?: return
 
         // superlayer를 이동 전에 저장
         val superlayer = window.layer.superlayer ?: return
@@ -90,6 +96,6 @@ private fun enableScreenshot(state: MutableState<ScreenshotProtectionState?>) {
         state.value = null
 
     } catch (e: Exception) {
-        println("enableScreenshot error: ${e.message}")
+        Dlog.e(TAG, "enableScreenshot error: ${e.message}")
     }
 }
