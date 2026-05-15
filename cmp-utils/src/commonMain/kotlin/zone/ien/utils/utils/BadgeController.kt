@@ -1,6 +1,6 @@
 package zone.ien.utils.utils
 
-expect class BadgeController() {
+expect object BadgeController {
     /**
      * @param badges 설정할 배지 수
      */
