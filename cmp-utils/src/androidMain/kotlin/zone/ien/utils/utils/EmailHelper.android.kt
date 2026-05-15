@@ -1,7 +1,7 @@
 package zone.ien.utils.utils
 
-import android.content.Context
 import android.content.Intent
+import zone.ien.utils.applicationContext
 
 /**
  * Android용 이메일 전송 기능 구현.

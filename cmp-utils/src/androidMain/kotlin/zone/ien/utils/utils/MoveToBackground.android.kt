@@ -2,6 +2,7 @@ package zone.ien.utils.utils
 
 import android.app.ActivityManager
 import android.content.Context
+import zone.ien.utils.applicationContext
 
 /**
  * Android에서의 moveToBackground 함수 구현.
