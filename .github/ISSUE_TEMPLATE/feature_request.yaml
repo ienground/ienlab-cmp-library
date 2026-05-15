@@ -52,4 +52,5 @@ body:
         - label: "DateTime"
         - label: "FileKit"
         - label: "Icons"
+        - label: "Coil"
         - label: "Example"

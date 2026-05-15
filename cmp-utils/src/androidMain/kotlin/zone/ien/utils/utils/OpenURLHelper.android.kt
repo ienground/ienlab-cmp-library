@@ -1,9 +1,9 @@
 package zone.ien.utils.utils
 
-import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import androidx.core.net.toUri
+import zone.ien.utils.applicationContext
 
 /**
  * Android용 URL 열기 기능 구현.

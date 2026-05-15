@@ -1,6 +1,7 @@
 package zone.ien.utils.utils
 
 import android.content.Intent
+import zone.ien.utils.applicationContext
 
 /**
  * Android용 텍스트 공유 기능 구현.

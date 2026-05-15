@@ -1,9 +1,8 @@
 package zone.ien.utils.datastore
 
-import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import zone.ien.utils.utils.applicationContext
+import zone.ien.utils.applicationContext
 
 /**
  * DefaultDataStoreProvider의 Android 구현.

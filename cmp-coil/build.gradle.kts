@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.android.lint)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.vanniktech.mavenPublish)
@@ -9,7 +9,7 @@ plugins {
 
 kotlin {
     androidLibrary {
-        namespace = "zone.ien.utils.utils"
+        namespace = "zone.ien.utils.coil"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
         androidResources {
@@ -31,9 +31,10 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.compose.material3)
+            implementation(libs.compose.preview)
             implementation(libs.compose.resources)
-            implementation(libs.kotlinx.io.core)
-            implementation(libs.datastore.pref)
+
+            implementation(libs.coil.compose)
             implementation(projects.cmpCommon)
         }
 
@@ -42,9 +43,6 @@ kotlin {
         }
 
         androidMain.dependencies {
-            implementation(libs.android.ui.graphics)
-            implementation(libs.androidx.core)
-            implementation(libs.activity.compose)
         }
 
         getByName("androidDeviceTest").dependencies {
@@ -61,3 +59,5 @@ kotlin {
 dependencies {
     androidRuntimeClasspath(libs.compose.ui.tooling)
 }
+
+
