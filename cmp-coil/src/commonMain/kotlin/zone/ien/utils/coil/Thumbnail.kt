@@ -32,7 +32,7 @@ fun rememberThumbnailImageLoader(): ImageLoader {
                         DiskCache.Builder()
                             .fileSystem(FileSystem.SYSTEM)
                             .directory(path)
-                            .maxSizeBytes(20L * 1024 * 1024)
+                            .maxSizeBytes(100L * 1024 * 1024)
                             .build()
                     }
                 } else it
