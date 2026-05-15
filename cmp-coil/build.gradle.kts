@@ -35,7 +35,7 @@ kotlin {
             implementation(libs.compose.resources)
 
             implementation(libs.coil.compose)
-            implementation(projects.cmpUtils)
+            implementation(projects.cmpCommon)
         }
 
         commonTest.dependencies {

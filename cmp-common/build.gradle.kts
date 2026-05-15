@@ -41,7 +41,6 @@ kotlin {
 
         androidMain.dependencies {
             implementation(libs.startup.runtime)
-//            implementation(libs.androidx.core)
         }
 
         getByName("androidDeviceTest").dependencies {
