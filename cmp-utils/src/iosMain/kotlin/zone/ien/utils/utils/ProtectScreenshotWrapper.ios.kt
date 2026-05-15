@@ -94,6 +94,6 @@ private fun enableScreenshot(state: MutableState<ScreenshotProtectionState?>) {
         state.value = null
 
     } catch (e: Exception) {
-        error("enableScreenshot error: ${e.message}")
+        println("enableScreenshot error: ${e.message}")
     }
 }
