@@ -2,8 +2,6 @@ package zone.ien.utils.utils
 
 import android.view.Window
 import android.view.WindowManager
-import org.realsoup.lovehero.TAG
-import zone.ien.utils.utils.Dlog
 import java.util.concurrent.atomic.AtomicInteger
 
 object SecureWindowManager {

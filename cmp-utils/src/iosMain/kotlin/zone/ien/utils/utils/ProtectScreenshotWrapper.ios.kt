@@ -42,7 +42,7 @@ data class ScreenshotProtectionState(
 private fun disableScreenshot(state: MutableState<ScreenshotProtectionState?>) {
     try {
         if (state.value != null) return
-        val window: UIWindow = UIApplication.sharedApplication.keyWindow ?: return
+        val window = UIApplication.sharedApplication.windows.filterIsInstance<UIWindow>().firstOrNull { it.isKeyWindow() } ?: return
 
         // superlayer를 이동 전에 저장
         val superlayer = window.layer.superlayer ?: return
@@ -63,11 +63,7 @@ private fun disableScreenshot(state: MutableState<ScreenshotProtectionState?>) {
 
         superlayer.addSublayer(textField.layer)
 
-        val sublayers = textField.layer.sublayers
-        if (sublayers != null && sublayers.count() > 0) {
-            val lastLayer = sublayers[sublayers.count() - 1] as? CALayer
-            lastLayer?.addSublayer(window.layer)
-        }
+        (textField.layer.sublayers?.lastOrNull() as? CALayer)?.addSublayer(window.layer)
 
         state.value = ScreenshotProtectionState(
             textField = textField,
