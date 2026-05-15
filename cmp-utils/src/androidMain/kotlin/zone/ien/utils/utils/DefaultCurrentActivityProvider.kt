@@ -9,6 +9,7 @@ class DefaultCurrentActivityProvider(
     application: Application,
 ) : CurrentActivityProvider, Application.ActivityLifecycleCallbacks {
 
+    @Volatile
     private var current: WeakReference<Activity>? = null
 
     init {
@@ -22,12 +23,18 @@ class DefaultCurrentActivityProvider(
     }
 
     override fun onActivityDestroyed(activity: Activity) {
-        if (current?.get() === activity) current = null
+        if (current?.get() === activity || current?.get() == null) {
+            current = null
+        }
     }
 
     override fun onActivityPaused(activity: Activity) = Unit
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
     override fun onActivityStarted(activity: Activity) = Unit
-    override fun onActivityStopped(activity: Activity) = Unit
+    override fun onActivityStopped(activity: Activity) {
+        if (current?.get() === activity) {
+            current = null
+        }
+    }
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
 }
