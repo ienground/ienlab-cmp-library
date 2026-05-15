@@ -7,7 +7,7 @@ import java.lang.ref.WeakReference
 
 class DefaultCurrentActivityProvider(
     application: Application,
-) : CurrentActivityProvider, Application.ActivityLifecycleCallbacks {
+): CurrentActivityProvider, Application.ActivityLifecycleCallbacks {
 
     @Volatile
     private var current: WeakReference<Activity>? = null
