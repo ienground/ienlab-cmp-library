@@ -8,13 +8,12 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import zone.ien.utils.firebase.firestore.model.FirestoreItem
+import zone.ien.utils.firebase.firestore.model.BaseFirestoreItem
 
-suspend fun <T : FirestoreItem> fetchItems(
+suspend fun <T : BaseFirestoreItem> fetchItems(
     collection: CollectionReference,
     transform: DocumentSnapshot.() -> T,
     cache: MutableMap<String, T>,
@@ -48,7 +47,7 @@ suspend fun <T : FirestoreItem> fetchItems(
     return cached + fetched
 }
 
-fun <T : FirestoreItem> fetchItemsAsFlow(
+fun <T : BaseFirestoreItem> fetchItemsAsFlow(
     collection: CollectionReference,
     transform: DocumentSnapshot.() -> T,
     ids: List<String>

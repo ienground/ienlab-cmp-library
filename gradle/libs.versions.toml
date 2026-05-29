@@ -4,7 +4,7 @@ kotlin = "2.3.21"
 android-minSdk = "29"
 android-compileSdk = "36"
 android-targetSdk = "36"
-lib-version-name = "2.11.0"
+lib-version-name = "2.12.0-alpha01"
 
 # plugin
 compose-plugin = "1.11.0"
@@ -22,7 +22,7 @@ activity-compose = "1.13.0"
 lifecycle = "2.11.0-beta01"
 backdrop = "2.0.0-alpha06"
 haze = "1.7.2"
-hig = "1.1.0-alpha04"
+hig = "1.1.0"
 capsule = "1.2.0"
 placeholder = "1.0.3"
 

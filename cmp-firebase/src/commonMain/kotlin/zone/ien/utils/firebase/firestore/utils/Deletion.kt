@@ -22,9 +22,45 @@ suspend fun DocumentReference.undel() {
 /**
  * 삭제 상태로 설정할 데이터 맵
  * @property updateAt 서버 타임스탬프
- * @property delete 삭제 상태 (true)
+ * @property deleteAt 삭제 서버 타임스탬프
  */
 private val DeleteHashMap = hashMapOf(
+    "updateAt" to FieldValue.serverTimestamp,
+    "delete" to FieldValue.serverTimestamp
+)
+
+/**
+ * 삭제 상태를 되돌릴 데이터 맵
+ * @property updateAt 서버 타임스탬프
+ * @property deleteAt 삭제 일시 (null)
+ */
+private val UndeleteHashMap = hashMapOf(
+    "updateAt" to FieldValue.serverTimestamp,
+    "delete" to null
+)
+
+/**
+ * 문서를 삭제 상태로 변경하는 함수
+ * delete 필드를 true로 설정하고 updateAt을 서버 타임스탬프로 업데이트
+ */
+suspend fun DocumentReference.delLegacy() {
+    update(DeleteHashMap)
+}
+
+/**
+ * 문서의 삭제 상태를 되돌리는 함수
+ * delete 필드를 false로 설정하고 updateAt을 서버 타임스탬프로 업데이트
+ */
+suspend fun DocumentReference.undelLegacy() {
+    update(UndeleteHashMap)
+}
+
+/**
+ * 삭제 상태로 설정할 데이터 맵
+ * @property updateAt 서버 타임스탬프
+ * @property delete 삭제 상태 (true)
+ */
+private val LegacyDeleteHashMap = hashMapOf(
     "updateAt" to FieldValue.serverTimestamp,
     "delete" to true
 )
@@ -34,7 +70,7 @@ private val DeleteHashMap = hashMapOf(
  * @property updateAt 서버 타임스탬프
  * @property delete 삭제 상태 (false)
  */
-private val UndeleteHashMap = hashMapOf(
+private val LegacyUndeleteHashMap = hashMapOf(
     "updateAt" to FieldValue.serverTimestamp,
     "delete" to false
 )
