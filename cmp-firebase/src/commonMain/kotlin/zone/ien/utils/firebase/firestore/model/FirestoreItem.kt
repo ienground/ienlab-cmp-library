@@ -33,7 +33,7 @@ interface FirestoreItem: BaseFirestoreItem {
     /**
      * 문서 삭제 시간
      */
-    val deleteAt: KZonedDateTime?
+    val deletedAt: KZonedDateTime?
 }
 
 /**
