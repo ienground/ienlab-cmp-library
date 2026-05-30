@@ -21,5 +21,7 @@ actual fun sendEmail(address: String, subject: String, body: String) {
         putExtra(Intent.EXTRA_TEXT, body)
         type = "message/rfc822"
     }
-    context.startActivity(Intent.createChooser(intent, null))
+    context.startActivity(Intent.createChooser(intent, null).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    })
 }
