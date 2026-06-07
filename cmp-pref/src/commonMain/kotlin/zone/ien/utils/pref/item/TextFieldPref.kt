@@ -96,7 +96,9 @@ fun SectionScope.TextFieldPref(
         icon = leadingIcon,
         title = title,
         textFields = mapOf(
-            "value" to TextFieldDialogData()
+            "value" to TextFieldDialogData(
+                initialValue = textValue
+            )
         ),
         onDismiss = { showDialog = false },
         onConfirm = {
