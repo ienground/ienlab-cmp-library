@@ -82,7 +82,13 @@ fun SectionScope.TimeSelectPref(
         enabled = enabled,
         summary = summary(value),
         leadingIcon = if (showIcon) leadingIcon else null,
-        chevron = {}
+        chevron = {},
+        adaptation = {
+            cupertino {
+                this.showSupportingContent = true
+                this.isCaption = false
+            }
+        },
     )
 
     TimePickerDialog(

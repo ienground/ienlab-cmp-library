@@ -88,6 +88,12 @@ fun SectionScope.TextFieldPref(
         enabled = enabled,
         summary = summary(value),
         leadingIcon = if (showIcon) leadingIcon else null,
+        adaptation = {
+            cupertino {
+                this.showSupportingContent = true
+                this.isCaption = false
+            }
+        },
         chevron = {}
     )
 
