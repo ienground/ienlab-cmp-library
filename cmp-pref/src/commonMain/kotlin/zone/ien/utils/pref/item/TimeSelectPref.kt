@@ -49,17 +49,6 @@ fun SectionScope.TimeSelectPref(
     val dataStore = LocalPrefsDataStore.current
     val prefs by remember { dataStore.data }.collectAsState(initial = null)
     val value = prefs?.get(key) ?: defaultValue
-    var numberValue by remember(showDialog) { mutableStateOf(value) }
-
-    fun edit() {
-        coroutineScope.launch {
-            try {
-                dataStore.edit { it[key] = numberValue }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
 
     TextPref(
         onClick = { if (enabled) showDialog = !showDialog },
@@ -79,13 +68,18 @@ fun SectionScope.TimeSelectPref(
 
     TimePickerDialog(
         visible = showDialog,
-        initialHour = numberValue / 60,
-        initialMinute = numberValue % 60,
+        initialHour = value / 60,
+        initialMinute = value % 60,
         title = title,
         onDismiss = { showDialog = false },
         onConfirm = { hour, minute ->
-            numberValue = hour * 60 + minute
-            edit()
+            coroutineScope.launch {
+                try {
+                    dataStore.edit { it[key] = hour * 60 + minute }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
             showDialog = false
         }
     )
