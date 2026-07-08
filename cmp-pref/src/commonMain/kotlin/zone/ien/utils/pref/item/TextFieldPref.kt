@@ -58,20 +58,10 @@ fun SectionScope.TextFieldPref(
     var showDialog by rememberSaveable { mutableStateOf(false) }
     val dataStore = LocalPrefsDataStore.current
     val prefs by remember { dataStore.data }.collectAsState(initial = null)
-
-    var value by remember { mutableStateOf(defaultValue) }
+    val value = prefs?.get(key) ?: defaultValue
     var textValue by remember(showDialog) { mutableStateOf(value) }
 
-    LaunchedEffect(Unit) {
-        prefs?.get(key)?.also { value = it }
-    }
-
-    LaunchedEffect(dataStore.data) {
-        dataStore.data.collectLatest { it[key]?.also { value = it } }
-    }
-
-
-    fun edit() = run {
+    fun edit() {
         coroutineScope.launch {
             try {
                 dataStore.edit { it[key] = textValue }
@@ -204,7 +194,7 @@ fun SectionScope.TextFieldPref(
     }
 
 
-    fun edit() = run {
+    fun edit() {
         coroutineScope.launch {
             try {
                 dataStore.edit { it[key] = textValue.toInt() }

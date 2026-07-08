@@ -1,7 +1,6 @@
 package zone.ien.utils.pref.item
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,14 +11,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.section.SectionScope
-import zone.ien.utils.adaptive.dialog.TextFieldDialog
 import zone.ien.utils.adaptive.dialog.TimePickerDialog
 import zone.ien.utils.pref.LocalPrefsDataStore
-import zone.ien.utils.ui.utils.TextFieldDialogData
 
 /**
  * TimePicker 다이얼로그를 통해 시간을 선택하는 설정 항목을 생성하는 Composable 함수입니다.
@@ -52,20 +48,10 @@ fun SectionScope.TimeSelectPref(
     var showDialog by rememberSaveable { mutableStateOf(false) }
     val dataStore = LocalPrefsDataStore.current
     val prefs by remember { dataStore.data }.collectAsState(initial = null)
-
-    var value by remember { mutableStateOf(defaultValue) }
+    val value = prefs?.get(key) ?: defaultValue
     var numberValue by remember(showDialog) { mutableStateOf(value) }
 
-    LaunchedEffect(Unit) {
-        prefs?.get(key)?.also { value = it }
-    }
-
-    LaunchedEffect(dataStore.data) {
-        dataStore.data.collectLatest { it[key]?.also { value = it } }
-    }
-
-
-    fun edit() = run {
+    fun edit() {
         coroutineScope.launch {
             try {
                 dataStore.edit { it[key] = numberValue }
@@ -132,9 +118,7 @@ fun SectionScope.TimeSelectPref(
 ) {
     val dataStore = LocalPrefsDataStore.current
     val prefs by remember { dataStore.data }.collectAsState(initial = null)
-
-    var checked = enabled.second
-    prefs?.get(enabled.first)?.also { checked = it }
+    val checked = prefs?.get(enabled.first) ?: enabled.second
 
     TimeSelectPref(
         modifier = modifier,
