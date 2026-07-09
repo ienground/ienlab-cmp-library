@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -86,6 +87,8 @@ import zone.ien.utils.ui.components.interactive.IenButtonSize
 import zone.ien.utils.ui.components.interactive.IenButtonState
 import zone.ien.utils.ui.components.interactive.IenButtonVariant
 import zone.ien.utils.ui.components.interactive.IenCheckbox
+import zone.ien.utils.ui.components.interactive.IenCircleCheckbox
+import zone.ien.utils.ui.components.interactive.IenLineCheckbox
 import zone.ien.utils.ui.components.interactive.IenIconButton
 import zone.ien.utils.ui.components.interactive.IenAlphabetKeyboard
 import zone.ien.utils.ui.components.interactive.IenFullSecureKeyboard
@@ -271,7 +274,23 @@ fun DesignSystemScreen(
 
                 var checked by remember { mutableStateOf(true) }
                 ComponentSection(title = "Checkbox") {
-                    IenCheckbox(checked = checked, onCheckedChange = { checked = it }, label = "약관에 동의합니다")
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        IenText("Circle Checkbox", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            IenCircleCheckbox(checked = checked, onCheckedChange = { checked = it }, label = "동의 (제어)")
+                            IenCircleCheckbox(defaultChecked = true, label = "비제어(초기참)")
+                            IenCircleCheckbox(checked = true, label = "비활성(선택-흔들림)", enabled = false)
+                            IenCircleCheckbox(checked = false, label = "비활성(해제-흔들림)", enabled = false)
+                        }
+                        IenBorder()
+                        IenText("Line Checkbox", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            IenLineCheckbox(checked = checked, onCheckedChange = { checked = it }, label = "동의 (제어)")
+                            IenLineCheckbox(defaultChecked = true, label = "비제어(초기참)")
+                            IenLineCheckbox(checked = true, label = "비활성(선택-흔들림)", enabled = false)
+                            IenLineCheckbox(checked = false, label = "비활성(해제-흔들림)", enabled = false)
+                        }
+                    }
                 }
 
                 ComponentSection(title = "GridList") {
