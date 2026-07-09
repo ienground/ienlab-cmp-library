@@ -6,23 +6,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.ui.components.foundation.IenSemanticTone
 import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.interactive.toneColor
-import zone.ien.utils.ui.components.interactive.toneWeakColor
-import zone.ien.utils.ui.components.primitives.IenSurface
-import zone.ien.utils.ui.components.primitives.IenText
 
 sealed interface IenBorderVariant {
     data object Full : IenBorderVariant
@@ -62,33 +56,57 @@ fun IenBorder(
     }
 }
 
+sealed interface IenBottomGradient {
+    data object None : IenBottomGradient
+    data object Default : IenBottomGradient
+    data class Custom(val fromColor: Color, val toColor: Color = Color.Transparent) : IenBottomGradient
+}
+
 @Composable
 fun IenBottomInfo(
-    text: String,
     modifier: Modifier = Modifier,
-    tone: IenSemanticTone = IenSemanticTone.Neutral,
-    icon: (@Composable () -> Unit)? = null,
-    action: (@Composable RowScope.() -> Unit)? = null,
+    bottomGradient: IenBottomGradient = IenBottomGradient.Default,
+    backgroundColor: Color = IenTheme.colors.surfaceWeak,
+    contentPadding: PaddingValues = PaddingValues(
+        start = 24.dp,
+        end = 24.dp,
+        top = 24.dp,
+        bottom = 16.dp
+    ),
+    content: @Composable () -> Unit,
 ) {
-    IenSurface(
-        modifier = modifier.fillMaxWidth(),
-        color = toneWeakColor(tone),
-        contentColor = toneColor(tone),
-        shape = RoundedCornerShape(IenTheme.radius.default),
+    val resolvedGradient = when (bottomGradient) {
+        IenBottomGradient.None -> null
+        IenBottomGradient.Default -> IenBottomGradient.Custom(
+            fromColor = backgroundColor,
+            toColor = Color.Transparent
+        )
+        is IenBottomGradient.Custom -> bottomGradient
+    }
+
+    Column(
+        modifier = modifier.fillMaxWidth()
     ) {
-        Row(
-            modifier = Modifier.padding(IenTheme.spacing.md),
-            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
-            verticalAlignment = Alignment.CenterVertically,
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(backgroundColor)
+                .padding(contentPadding)
         ) {
-            icon?.invoke()
-            IenText(
-                text = text,
-                modifier = Modifier.weight(1f),
-                style = IenTheme.typography.body2,
-                color = toneColor(tone),
+            content()
+        }
+
+        if (resolvedGradient != null) {
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(resolvedGradient.fromColor, resolvedGradient.toColor)
+                        )
+                    )
             )
-            action?.invoke(this)
         }
     }
 }

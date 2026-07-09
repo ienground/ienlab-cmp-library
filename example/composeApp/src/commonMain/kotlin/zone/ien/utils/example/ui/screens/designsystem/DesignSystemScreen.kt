@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,6 +40,8 @@ import zone.ien.utils.ui.components.composite.IenAlertDialog
 import zone.ien.utils.ui.components.composite.IenBottomCTA
 import zone.ien.utils.ui.components.composite.IenBottomInfo
 import zone.ien.utils.ui.components.composite.IenBottomSheet
+import zone.ien.utils.ui.components.composite.IenBottomSheetOption
+import zone.ien.utils.ui.components.composite.IenBottomSheetSelect
 import zone.ien.utils.ui.components.composite.IenBubble
 import zone.ien.utils.ui.components.composite.IenBubbleTail
 import zone.ien.utils.ui.components.composite.IenConfirmDialog
@@ -128,6 +131,8 @@ fun DesignSystemScreen(
 ) {
     IenTheme {
         val sheetState = rememberIenBottomSheetState()
+        val selectSheetState = rememberIenBottomSheetState()
+        var selectedPet by remember { mutableStateOf<String?>("강아지") }
         val toastHostState = rememberIenToastHostState()
         var showModal by remember { mutableStateOf(false) }
         var showAlert by remember { mutableStateOf(false) }
@@ -156,82 +161,7 @@ fun DesignSystemScreen(
                 IenBottomCTA(text = "샘플 하단 CTA", onClick = {})
             },
             floating = {
-                IenBottomSheet(
-                    state = sheetState,
-                    title = { IenText("바텀시트", style = IenTheme.typography.title3) },
-                    actions = {
-                        IenButton(
-                            text = "닫기",
-                            onClick = { sheetState.hide() },
-                            modifier = Modifier.weight(1f),
-                            variant = IenButtonVariant.Weak,
-                        )
-                        IenButton(
-                            text = "확인",
-                            onClick = { sheetState.hide() },
-                            modifier = Modifier.weight(1f),
-                        )
-                    },
-                ) {
-                    IenText(
-                        text = "공통 API는 유지하면서 Android와 iOS의 시트 감각 차이는 내부 구현에서 흡수합니다.",
-                        color = IenTheme.colors.textSecondary,
-                    )
-                    IenBottomInfo(
-                        text = "스크림을 누르면 닫히도록 설정되어 있습니다.",
-                        tone = IenSemanticTone.Brand,
-                    )
-                }
 
-                IenModal(
-                    visible = showModal,
-                    onDismissRequest = { showModal = false },
-                    title = "모달",
-                    description = "Modal은 화면 맥락을 잠시 멈추고 중요한 선택이나 정보를 전달합니다.",
-                    primaryActionText = "확인",
-                    onPrimaryActionClick = { showModal = false },
-                    secondaryActionText = "취소",
-                    onSecondaryActionClick = { showModal = false },
-                ) {
-                    IenBottomInfo(
-                        text = "Dialog보다 자유로운 콘텐츠 슬롯을 가진 오버레이입니다.",
-                        tone = IenSemanticTone.Info,
-                    )
-                }
-
-                IenAlertDialog(
-                    visible = showAlert,
-                    title = "알림",
-                    message = "AlertDialog는 단일 확인 액션이 필요한 정보 전달에 사용합니다.",
-                    onDismissRequest = { showAlert = false },
-                    onConfirmClick = { showAlert = false },
-                )
-
-                IenConfirmDialog(
-                    visible = showConfirm,
-                    title = "삭제할까요?",
-                    message = "ConfirmDialog는 사용자의 명시적인 결정을 받아야 하는 상황에 사용합니다.",
-                    onDismissRequest = { showConfirm = false },
-                    onConfirmClick = { showConfirm = false },
-                    destructive = true,
-                )
-
-                IenDialog(
-                    visible = showGenericDialog,
-                    onDismissRequest = { showGenericDialog = false },
-                    title = "기본 Dialog",
-                    message = "IenDialog는 가장 단순한 확인/취소 구조를 제공합니다.",
-                    confirm = IenDialogAction(
-                        text = "확인",
-                        onClick = { showGenericDialog = false },
-                    ),
-                    dismiss = IenDialogAction(
-                        text = "취소",
-                        onClick = { showGenericDialog = false },
-                    ),
-                )
-
-                IenToastHost(state = toastHostState)
             },
         ) { contentPadding ->
             Column(
@@ -276,17 +206,27 @@ fun DesignSystemScreen(
                 }
 
                 ComponentSection(title = "BottomInfo") {
-                    IenBottomInfo(
-                        text = "하단 안내는 결제, 확인, 폼 화면에서 보조 정보를 안정적으로 보여줍니다.",
-                        tone = IenSemanticTone.Info,
-                    )
+                    IenBottomInfo {
+                        IenText(
+                            text = "하단 안내는 결제, 확인, 폼 화면에서 보조 정보를 안정적으로 보여줍니다.",
+                            style = IenTheme.typography.caption,
+                            color = IenTheme.colors.textSecondary
+                        )
+                    }
                 }
 
                 ComponentSection(title = "BottomSheet") {
                     IenButton(
-                        text = "바텀시트 열기",
+                        text = "일반 바텀시트 열기",
                         onClick = { sheetState.show(IenSheetDetent.Content) },
                         fullWidth = true,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    IenButton(
+                        text = "선택형 바텀시트 열기 (선택: $selectedPet)",
+                        onClick = { selectSheetState.show(IenSheetDetent.Content) },
+                        fullWidth = true,
+                        variant = IenButtonVariant.Line,
                     )
                 }
 
@@ -757,6 +697,117 @@ fun DesignSystemScreen(
                 Spacer(Modifier.height(IenTheme.spacing.md))
             }
         }
+
+        IenBottomSheet(
+            state = sheetState,
+            header = { IenText("바텀시트", style = IenTheme.typography.title3) },
+            cta = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)
+                ) {
+                    IenButton(
+                        text = "닫기",
+                        onClick = { sheetState.hide() },
+                        modifier = Modifier.weight(1f),
+                        variant = IenButtonVariant.Weak,
+                    )
+                    IenButton(
+                        text = "확인",
+                        onClick = { sheetState.hide() },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            },
+        ) {
+            IenText(
+                text = "공통 API는 유지하면서 Android와 iOS의 시트 감각 차이는 내부 구현에서 흡수합니다.",
+                color = IenTheme.colors.textSecondary,
+            )
+            IenBottomInfo(
+                backgroundColor = IenTheme.colors.brandWeak
+            ) {
+                IenText(
+                    text = "스크림을 누르면 닫히도록 설정되어 있습니다.",
+                    style = IenTheme.typography.caption,
+                    color = IenTheme.colors.brand
+                )
+            }
+        }
+
+        IenBottomSheet(
+            state = selectSheetState,
+            header = { IenText("좋아하는 동물을 선택해주세요.", style = IenTheme.typography.title3) },
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            IenBottomSheetSelect(
+                options = listOf(
+                    IenBottomSheetOption("강아지", "강아지"),
+                    IenBottomSheetOption("고양이", "고양이"),
+                    IenBottomSheetOption("토끼", "토끼")
+                ),
+                value = selectedPet,
+                onChange = {
+                    selectedPet = it
+                    selectSheetState.hide()
+                }
+            )
+        }
+
+        IenModal(
+            visible = showModal,
+            onDismissRequest = { showModal = false },
+            title = "모달",
+            description = "Modal은 화면 맥락을 잠시 멈추고 중요한 선택이나 정보를 전달합니다.",
+            primaryActionText = "확인",
+            onPrimaryActionClick = { showModal = false },
+            secondaryActionText = "취소",
+            onSecondaryActionClick = { showModal = false },
+        ) {
+            IenBottomInfo(
+                backgroundColor = IenTheme.colors.infoWeak
+            ) {
+                IenText(
+                    text = "Dialog보다 자유로운 콘텐츠 슬롯을 가진 오버레이입니다.",
+                    style = IenTheme.typography.caption,
+                    color = IenTheme.colors.info
+                )
+            }
+        }
+
+        IenAlertDialog(
+            visible = showAlert,
+            title = "알림",
+            message = "AlertDialog는 단일 확인 액션이 필요한 정보 전달에 사용합니다.",
+            onDismissRequest = { showAlert = false },
+            onConfirmClick = { showAlert = false },
+        )
+
+        IenConfirmDialog(
+            visible = showConfirm,
+            title = "삭제할까요?",
+            message = "ConfirmDialog는 사용자의 명시적인 결정을 받아야 하는 상황에 사용합니다.",
+            onDismissRequest = { showConfirm = false },
+            onConfirmClick = { showConfirm = false },
+            destructive = true,
+        )
+
+        IenDialog(
+            visible = showGenericDialog,
+            onDismissRequest = { showGenericDialog = false },
+            title = "기본 Dialog",
+            message = "IenDialog는 가장 단순한 확인/취소 구조를 제공합니다.",
+            confirm = IenDialogAction(
+                text = "확인",
+                onClick = { showGenericDialog = false },
+            ),
+            dismiss = IenDialogAction(
+                text = "취소",
+                onClick = { showGenericDialog = false },
+            ),
+        )
+
+        IenToastHost(state = toastHostState)
     }
 }
 

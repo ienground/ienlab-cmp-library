@@ -8,6 +8,8 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,10 +23,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -32,6 +37,11 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.offset
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -40,7 +50,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
@@ -48,8 +64,11 @@ import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.material.filled.Check
 import zone.ien.utils.ui.components.foundation.IenSemanticTone
 import zone.ien.utils.ui.components.foundation.IenTheme
+import zone.ien.utils.ui.components.primitives.IenIcon
 import zone.ien.utils.ui.components.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.components.primitives.IenText
@@ -88,19 +107,70 @@ fun IenBottomSheet(
     modifier: Modifier = Modifier,
     dismissOnScrimClick: Boolean = true,
     showDragHandle: Boolean = true,
-    title: (@Composable () -> Unit)? = null,
-    actions: (@Composable RowScope.() -> Unit)? = null,
+    disableDimmer: Boolean = false,
+    disableFocusLock: Boolean = false,
+    header: (@Composable () -> Unit)? = null,
+    headerDescription: (@Composable () -> Unit)? = null,
+    cta: (@Composable () -> Unit)? = null,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val dragOffsetY = remember { Animatable(0f) }
+    val density = LocalDensity.current
+    val thresholdPx = with(density) { 150.dp.toPx() }
+
+    val motion = IenTheme.motion
+    val normalMillis = motion.normalMillis
+    val standardEasing = motion.standardEasing
+
+    LaunchedEffect(state.visible) {
+        if (state.visible) {
+            dragOffsetY.snapTo(0f)
+        }
+    }
+
+    val dragModifier = Modifier.pointerInput(Unit) {
+        detectVerticalDragGestures(
+            onDragEnd = {
+                coroutineScope.launch {
+                    val sheetHeight = size.height.toFloat()
+                    if (dragOffsetY.value > thresholdPx) {
+                        launch {
+                            dragOffsetY.animateTo(
+                                targetValue = sheetHeight,
+                                animationSpec = tween(normalMillis, easing = standardEasing)
+                            )
+                        }
+                        state.hide()
+                    } else {
+                        dragOffsetY.animateTo(0f)
+                    }
+                }
+            },
+            onDragCancel = {
+                coroutineScope.launch { dragOffsetY.animateTo(0f) }
+            },
+            onVerticalDrag = { change, dragAmount ->
+                change.consume()
+                coroutineScope.launch {
+                    dragOffsetY.snapTo((dragOffsetY.value + dragAmount).coerceAtLeast(0f))
+                }
+            }
+        )
+    }
+
     AnimatedVisibility(
         visible = state.visible,
         enter = fadeIn(tween(IenTheme.motion.fastMillis)),
         exit = fadeOut(tween(IenTheme.motion.fastMillis)),
     ) {
+        val overlayColor = if (disableDimmer) Color.Transparent else IenTheme.colors.overlay
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .background(IenTheme.colors.overlay)
+                .background(overlayColor)
+                .then(if (dismissOnScrimClick) dragModifier else Modifier)
                 .clickable(
                     enabled = dismissOnScrimClick,
                     indication = null,
@@ -108,48 +178,132 @@ fun IenBottomSheet(
                 ) { state.hide() },
             contentAlignment = Alignment.BottomCenter,
         ) {
-            IenSurface(
+            AnimatedVisibility(
+                visible = state.visible,
+                enter = slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing)
+                ) + fadeIn(tween(IenTheme.motion.fastMillis)),
+                exit = slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing)
+                ) + fadeOut(tween(IenTheme.motion.fastMillis)),
                 modifier = Modifier
+                    .widthIn(max = 520.dp)
                     .fillMaxWidth()
-                    .then(
-                        when (state.detent) {
-                            IenSheetDetent.Content -> Modifier
-                            IenSheetDetent.Medium -> Modifier.fillMaxHeight(0.55f)
-                            IenSheetDetent.Full -> Modifier.fillMaxHeight(0.92f)
-                        },
-                    )
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                    ) { },
-                color = IenTheme.colors.surfaceRaised,
-                shape = RoundedCornerShape(topStart = IenTheme.radius.xl, topEnd = IenTheme.radius.xl),
+                    .offset { IntOffset(0, dragOffsetY.value.roundToInt()) }
             ) {
-                Column(
-                    modifier = Modifier.padding(IenTheme.spacing.lg),
-                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+                IenSurface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                        ) { },
+                    color = IenTheme.colors.surfaceRaised,
+                    shape = RoundedCornerShape(topStart = IenTheme.radius.lg, topEnd = IenTheme.radius.lg),
                 ) {
-                    if (showDragHandle) {
-                        Box(
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(0.dp),
+                    ) {
+                        Column(
+                            modifier = dragModifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            if (showDragHandle) {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(vertical = 12.dp)
+                                        .width(36.dp)
+                                        .height(4.dp)
+                                        .clip(RoundedCornerShape(IenTheme.radius.full))
+                                        .background(IenTheme.colors.borderStrong),
+                                )
+                            } else {
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+
+                            if (header != null || headerDescription != null) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 24.dp, vertical = 8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    header?.invoke()
+                                    headerDescription?.invoke()
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                        }
+
+                        Column(
                             modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .width(36.dp)
-                                .height(4.dp)
-                                .clip(RoundedCornerShape(IenTheme.radius.full))
-                                .background(IenTheme.colors.borderStrong),
-                        )
-                    }
-                    title?.invoke()
-                    content()
-                    if (actions != null) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-                            content = actions,
-                        )
+                                .fillMaxWidth()
+                                .weight(1f, fill = false)
+                                .padding(contentPadding)
+                        ) {
+                            content()
+                        }
+
+                        if (cta != null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .navigationBarsPadding()
+                                    .padding(horizontal = 24.dp)
+                                    .padding(bottom = 16.dp)
+                            ) {
+                                cta()
+                            }
+                        } else {
+                            Spacer(
+                                modifier = Modifier
+                                    .navigationBarsPadding()
+                                    .height(16.dp)
+                            )
+                        }
                     }
                 }
             }
+        }
+    }
+}
+
+data class IenBottomSheetOption(
+    val name: String,
+    val value: String,
+)
+
+@Composable
+fun IenBottomSheetSelect(
+    options: List<IenBottomSheetOption>,
+    value: String?,
+    onChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(0.dp)
+    ) {
+        options.forEach { option ->
+            val isSelected = option.value == value
+            IenListRow(
+                title = option.name,
+                selected = isSelected,
+                onClick = { onChange(option.value) },
+                trailing = {
+                    if (isSelected) {
+                        IenIcon(
+                            imageVector = M3SystemIcons.Filled.Check,
+                            contentDescription = "선택됨",
+                            tint = IenTheme.colors.brand
+                        )
+                    }
+                }
+            )
         }
     }
 }
