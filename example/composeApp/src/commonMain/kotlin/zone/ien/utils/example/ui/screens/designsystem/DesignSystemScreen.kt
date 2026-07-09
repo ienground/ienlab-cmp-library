@@ -119,7 +119,13 @@ import zone.ien.utils.ui.components.interactive.IenSegmentedControlSize
 import zone.ien.utils.ui.components.interactive.IenSlider
 import zone.ien.utils.ui.components.interactive.IenSplitTextField
 import zone.ien.utils.ui.components.interactive.IenStepper
-import zone.ien.utils.ui.components.interactive.IenStepperRange
+import zone.ien.utils.ui.components.interactive.IenStepperAssetFrame
+import zone.ien.utils.ui.components.interactive.IenStepperAssetFrameShape
+import zone.ien.utils.ui.components.interactive.IenStepperNumberIcon
+import zone.ien.utils.ui.components.interactive.IenStepperRightArrow
+import zone.ien.utils.ui.components.interactive.IenStepperRightButton
+import zone.ien.utils.ui.components.interactive.IenStepperTexts
+import zone.ien.utils.ui.components.interactive.IenStepperTextsType
 import zone.ien.utils.ui.components.interactive.IenSwitch
 import zone.ien.utils.ui.components.interactive.IenTab
 import zone.ien.utils.ui.components.interactive.IenTabItem
@@ -1013,14 +1019,57 @@ fun SliderSection() {
 @Composable
 fun StepperSection() {
     IenTheme {
-        var stepperValue by remember { mutableIntStateOf(1) }
         ComponentSection(title = "Stepper") {
             IenStepper(
-                value = stepperValue,
-                onValueChange = { stepperValue = it },
-                range = IenStepperRange(min = 0, max = 5),
-                label = "단계",
-            )
+                modifier = Modifier.fillMaxWidth(),
+                staggerDelay = 0.12f,
+            ) {
+                Row(
+                    left = { IenStepperNumberIcon(number = 1) },
+                    center = {
+                        IenStepperTexts(
+                            type = IenStepperTextsType.A,
+                            title = "주문 접수",
+                            description = "결제와 배송 정보를 확인했어요.",
+                        )
+                    },
+                    right = { IenStepperRightArrow() },
+                )
+                Row(
+                    left = {
+                        IenStepperAssetFrame(
+                            shape = IenStepperAssetFrameShape.CircleMedium,
+                            backgroundColor = IenTheme.colors.brandWeak,
+                        ) {
+                            IenText("✓", color = IenTheme.colors.brand, style = IenTheme.typography.label2)
+                        }
+                    },
+                    center = {
+                        IenStepperTexts(
+                            type = IenStepperTextsType.B,
+                            title = "상품 준비 중",
+                            description = "판매자가 상품을 포장하고 있어요.",
+                        )
+                    },
+                    right = {
+                        IenStepperRightButton(
+                            text = "보기",
+                            onClick = {},
+                        )
+                    },
+                )
+                Row(
+                    left = { IenStepperNumberIcon(number = 3) },
+                    center = {
+                        IenStepperTexts(
+                            type = IenStepperTextsType.C,
+                            title = "배송 시작 예정",
+                            description = "운송장이 등록되면 알림을 보내드릴게요.",
+                        )
+                    },
+                    hideLine = true,
+                )
+            }
         }
     }
 }
