@@ -32,8 +32,7 @@ import zone.ien.utils.ui.components.composite.IenAssetFrameShape
 import zone.ien.utils.ui.components.composite.IenAssetFrameSize
 import zone.ien.utils.ui.components.composite.IenBoardRow
 import zone.ien.utils.ui.components.composite.IenBorder
-import zone.ien.utils.ui.components.composite.IenBorderSide
-import zone.ien.utils.ui.components.composite.IenBorderSpec
+import zone.ien.utils.ui.components.composite.IenBorderVariant
 import zone.ien.utils.ui.components.composite.IenAgreementItemV4
 import zone.ien.utils.ui.components.composite.IenAgreementV4
 import zone.ien.utils.ui.components.composite.IenAlertDialog
@@ -268,16 +267,12 @@ fun DesignSystemScreen(
                 }
 
                 ComponentSection(title = "Border") {
-                    IenBorder(
-                        spec = IenBorderSpec(side = IenBorderSide.All),
-                    ) {
-                        IenText("Border는 테두리 방향과 굵기를 토큰으로 제어합니다.", color = IenTheme.colors.textSecondary)
-                    }
-                    IenBorder(
-                        spec = IenBorderSpec(side = IenBorderSide.Start, color = IenTheme.colors.brand, width = IenTheme.stroke.thick),
-                    ) {
-                        IenText("Start border", style = IenTheme.typography.label1)
-                    }
+                    IenText("Full", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                    IenBorder()
+                    IenText("Padding24", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                    IenBorder(variant = IenBorderVariant.Padding24)
+                    IenText("Height16", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                    IenBorder(variant = IenBorderVariant.Height())
                 }
 
                 ComponentSection(title = "BottomInfo") {
