@@ -27,12 +27,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.icon.material.filled.Check
 import zone.ien.utils.icon.material.filled.Close
 import zone.ien.utils.ui.components.composite.IenListFooterBorder
+import zone.ien.utils.ui.components.composite.IenListHeaderDescriptionPosition
 import zone.ien.utils.ui.components.composite.IenAgreementItemV4
 import zone.ien.utils.ui.components.composite.IenAgreementV4
 import zone.ien.utils.ui.components.composite.IenAlertDialog
@@ -559,9 +561,19 @@ fun ListHeaderSection() {
         ComponentSection(title = "ListHeader") {
             IenListHeader(
                 title = "최근 거래",
-                description = "섹션 제목, 설명, 액션을 한 줄 구조로 정리합니다.",
-                actionText = "전체",
-                onActionClick = {},
+                description = "타이틀 위에 보조 설명이 배치됩니다.",
+                descriptionPosition = IenListHeaderDescriptionPosition.Top,
+                right = {
+                    IenTextButton(text = "전체보기", onClick = {})
+                }
+            )
+            IenListHeader(
+                title = "자주 쓰는 계좌",
+                description = "타이틀 아래에 보조 설명이 배치됩니다.",
+                descriptionPosition = IenListHeaderDescriptionPosition.Bottom,
+                right = {
+                    IenTextButton(text = "편집", onClick = {})
+                }
             )
         }
     }

@@ -1,5 +1,7 @@
 package zone.ien.utils.ui.components.composite
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,7 +16,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,8 +26,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -33,44 +39,99 @@ import zone.ien.utils.ui.components.interactive.IenTextButton
 import zone.ien.utils.ui.components.primitives.IenText
 import zone.ien.utils.ui.utils.instantPress
 
+enum class IenListHeaderDescriptionPosition {
+    Top, Bottom
+}
+
+object IenListHeaderDefaults {
+    @Composable
+    fun Title(
+        text: String,
+        modifier: Modifier = Modifier,
+        color: Color = IenTheme.colors.textPrimary,
+        fontWeight: FontWeight = FontWeight.Bold
+    ) {
+        IenText(
+            text = text,
+            modifier = modifier,
+            style = IenTheme.typography.title3.copy(fontWeight = fontWeight),
+            color = color
+        )
+    }
+
+    @Composable
+    fun Description(
+        text: String,
+        modifier: Modifier = Modifier,
+        color: Color = IenTheme.colors.textSecondary,
+    ) {
+        IenText(
+            text = text,
+            modifier = modifier,
+            style = IenTheme.typography.caption,
+            color = color
+        )
+    }
+}
+
 @Composable
 fun IenListHeader(
-    title: String,
+    title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    description: String? = null,
-    actionText: String? = null,
-    onActionClick: (() -> Unit)? = null,
-    trailing: (@Composable RowScope.() -> Unit)? = null,
+    description: (@Composable () -> Unit)? = null,
+    descriptionPosition: IenListHeaderDescriptionPosition = IenListHeaderDescriptionPosition.Top,
+    right: (@Composable RowScope.() -> Unit)? = null,
+    rightAlignment: Alignment.Vertical = Alignment.CenterVertically,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
         horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = rightAlignment,
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            IenText(
-                text = title,
-                style = IenTheme.typography.title3,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            if (description != null) {
-                IenText(
-                    text = description,
-                    style = IenTheme.typography.caption,
-                    color = IenTheme.colors.textSecondary,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
+            if (description != null && descriptionPosition == IenListHeaderDescriptionPosition.Top) {
+                description()
+                Box(modifier = Modifier.padding(bottom = 2.dp))
+            }
+            title()
+            if (description != null && descriptionPosition == IenListHeaderDescriptionPosition.Bottom) {
+                Box(modifier = Modifier.padding(top = 2.dp))
+                description()
             }
         }
-        if (actionText != null && onActionClick != null) {
-            IenTextButton(text = actionText, onClick = onActionClick)
+        if (right != null) {
+            Row(
+                verticalAlignment = rightAlignment,
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs)
+            ) {
+                right()
+            }
         }
-        trailing?.invoke(this)
     }
+}
+
+/**
+ * 텍스트 문자열만을 받는 편의성 오버로딩 ListHeader
+ */
+@Composable
+fun IenListHeader(
+    title: String,
+    modifier: Modifier = Modifier,
+    description: String? = null,
+    descriptionPosition: IenListHeaderDescriptionPosition = IenListHeaderDescriptionPosition.Top,
+    right: (@Composable RowScope.() -> Unit)? = null,
+    rightAlignment: Alignment.Vertical = Alignment.CenterVertically,
+) {
+    IenListHeader(
+        title = { IenListHeaderDefaults.Title(text = title) },
+        modifier = modifier,
+        description = description?.let { { IenListHeaderDefaults.Description(text = it) } },
+        descriptionPosition = descriptionPosition,
+        right = right,
+        rightAlignment = rightAlignment
+    )
 }
 
 enum class IenListFooterBorder {
@@ -116,11 +177,18 @@ object IenListFooterDefaults {
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .background(
-                    brush = androidx.compose.ui.graphics.Brush.radialGradient(
-                        colors = listOf(color, Color.Transparent)
+                .drawBehind {
+                    val radius = maxOf(size.width, size.height)
+                    drawCircle(
+                        brush = androidx.compose.ui.graphics.Brush.radialGradient(
+                            colors = listOf(color, Color.Transparent),
+                            center = center,
+                            radius = radius
+                        ),
+                        radius = radius,
+                        center = center
                     )
-                )
+                }
         )
     }
 }
@@ -159,6 +227,10 @@ fun IenListFooter(
         }
 
         var isPressed by remember { mutableStateOf(false) }
+        val shadowAlpha by animateFloatAsState(
+            targetValue = if (isPressed) 1f else 0f,
+            animationSpec = tween(durationMillis = 200)
+        )
         val interactionSource = remember { MutableInteractionSource() }
 
         // 2. 본체 콘텐츠 (중앙 정렬)
@@ -175,11 +247,17 @@ fun IenListFooter(
                 )
         ) {
             // shadow 커스텀 슬롯 렌더링 (눌림 상태일 때 노출)
-            if (isPressed && onClick != null) {
-                if (shadow != null) {
-                    shadow()
-                } else {
-                    IenListFooterDefaults.Shadow()
+            if (shadowAlpha > 0f && onClick != null) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .graphicsLayer(alpha = shadowAlpha)
+                ) {
+                    if (shadow != null) {
+                        shadow()
+                    } else {
+                        IenListFooterDefaults.Shadow()
+                    }
                 }
             }
 
@@ -191,10 +269,14 @@ fun IenListFooter(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                content()
+                CompositionLocalProvider(LocalContentColor provides textColor) {
+                    content()
+                }
                 if (icon != null) {
                     Box(modifier = Modifier.padding(start = 4.dp))
-                    icon()
+                    CompositionLocalProvider(LocalContentColor provides iconColor) {
+                        icon()
+                    }
                 }
             }
         }
