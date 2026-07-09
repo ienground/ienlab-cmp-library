@@ -32,7 +32,7 @@ expect val isIos: Boolean
 fun App() {
     Dlog.init(isDebug = true)
 
-    val backStack = zone.ien.utils.navigation.rememberNavBackStack<RootRoute>(RootRoute.Home)
+    val backStack = zone.ien.utils.navigation.rememberNavBackStack<RootRoute>(RootRoute.DesignSystem)
 //    val backStack = rememberNavBackStack(getConfig<RootRoute>(), RootRoute.Home)
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
 

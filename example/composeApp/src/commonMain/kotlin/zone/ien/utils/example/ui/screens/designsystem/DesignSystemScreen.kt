@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.ui.components.composite.IenAssetFrame
@@ -124,6 +125,7 @@ import zone.ien.utils.icon.material.filled.Check
 fun DesignSystemScreen(
     modifier: Modifier = Modifier,
     navigateBack: () -> Unit = {},
+    navigateToColor: () -> Unit = {}
 ) {
     IenTheme {
         val sheetState = rememberIenBottomSheetState()
@@ -139,7 +141,16 @@ fun DesignSystemScreen(
                     title = "Ien CMP UI",
                     subtitle = "토큰 기반 모바일 디자인 시스템",
                     navigationIcon = { IenTextButton(text = "닫기", onClick = navigateBack) },
-                    actions = { IenBadge("샘플", size = IenBadgeSize.Small) },
+                    actions = { 
+                        IenIconButton(
+                            onClick = navigateToColor
+                        ) {
+                            IenIcon(
+                                imageVector = M3SystemIcons.Keyboard,
+                                contentDescription = null
+                            )
+                        }
+                    },
                 )
             },
             bottomBar = {
@@ -242,9 +253,10 @@ fun DesignSystemScreen(
 
                 ComponentSection(title = "BoardRow") {
                     IenBoardRow(
-                        title = "배송 정보 자세히 보기",
+//                        opened = true,
+//                        onOpenedChange = {},
+                        title = { IenText("배송 정보 자세히 보기", style = IenTheme.typography.label1) },
                         prefix = { IenBadge("배송", size = IenBadgeSize.Small) },
-                        icon = { opened -> IenBadge(if (opened) "열림" else "닫힘", size = IenBadgeSize.Small) },
                     ) {
                         IenText("제한된 영역에서 상세 정보를 접고 펼치는 아코디언형 정보 구조입니다.", color = IenTheme.colors.textSecondary)
                     }

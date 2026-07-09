@@ -383,6 +383,15 @@ fun HomeScreen(
                 }
                 Box(
                     modifier = Modifier
+                        .clickable { backStack.add(RootRoute.ColorTokens) }
+                        .fillMaxWidth()
+                        .height(400.dp)
+                        .background(Color(0xFF3182F6))
+                ) {
+                    Text(text = "Color Tokens")
+                }
+                Box(
+                    modifier = Modifier
                         .clickable { backStack.add(RootRoute.Section) }
                         .fillMaxWidth()
                         .height(400.dp)

@@ -9,6 +9,7 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
+import zone.ien.utils.example.ui.screens.designsystem.ColorTokenScreen
 import zone.ien.utils.example.ui.screens.home.HomeScreen
 import zone.ien.utils.example.ui.screens.designsystem.DesignSystemScreen
 import zone.ien.utils.example.ui.screens.lazy.LazySectionScreen
@@ -30,6 +31,7 @@ sealed interface RootRoute: NavKey {
     @Serializable data object LazySection: RootRoute
     @Serializable data object Navigation: RootRoute
     @Serializable data object DesignSystem: RootRoute
+    @Serializable data object ColorTokens: RootRoute
 }
 
 @Composable
@@ -77,6 +79,12 @@ fun RootNavigationGraph(
             }
             entry<RootRoute.DesignSystem> {
                 DesignSystemScreen(
+                    navigateBack = { backStack.navigateBack() },
+                    navigateToColor = { backStack.add(RootRoute.ColorTokens) }
+                )
+            }
+            entry<RootRoute.ColorTokens> {
+                ColorTokenScreen(
                     navigateBack = { backStack.navigateBack() }
                 )
             }
