@@ -232,7 +232,7 @@ fun IenToast(
         },
         color = container,
         contentColor = IenTheme.colors.surface,
-        shape = RoundedCornerShape(IenTheme.radius.md),
+        shape = RoundedCornerShape(IenTheme.radius.default),
     ) {
         IenText(
             text = message,

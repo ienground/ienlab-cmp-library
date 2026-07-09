@@ -118,7 +118,7 @@ fun IenFullSecureKeyboard(
         IenSurface(
             modifier = Modifier.fillMaxWidth(),
             color = IenTheme.colors.surfaceWeak,
-            shape = RoundedCornerShape(IenTheme.radius.md),
+            shape = RoundedCornerShape(IenTheme.radius.default),
             border = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border),
         ) {
             Row(

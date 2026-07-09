@@ -86,7 +86,7 @@ fun IenSegmentedControl(
     IenSurface(
         modifier = modifier,
         color = IenTheme.colors.surfaceWeak,
-        shape = RoundedCornerShape(IenTheme.radius.md),
+        shape = RoundedCornerShape(IenTheme.radius.default),
         border = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border),
     ) {
         Row(

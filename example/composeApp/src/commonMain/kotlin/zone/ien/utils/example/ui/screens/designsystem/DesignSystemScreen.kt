@@ -229,7 +229,7 @@ fun DesignSystemScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
                     .padding(contentPadding)
-                    .padding(IenTheme.spacing.md),
+                ,
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
             ) {
                 ComponentSection(title = "Badge") {
@@ -242,8 +242,9 @@ fun DesignSystemScreen(
 
                 ComponentSection(title = "BoardRow") {
                     IenBoardRow(
-                        title = { IenText("배송 정보 자세히 보기", style = IenTheme.typography.label1) },
-                        trailing = { opened -> IenBadge(if (opened) "열림" else "닫힘", size = IenBadgeSize.Small) },
+                        title = "배송 정보 자세히 보기",
+                        prefix = { IenBadge("배송", size = IenBadgeSize.Small) },
+                        icon = { opened -> IenBadge(if (opened) "열림" else "닫힘", size = IenBadgeSize.Small) },
                     ) {
                         IenText("제한된 영역에서 상세 정보를 접고 펼치는 아코디언형 정보 구조입니다.", color = IenTheme.colors.textSecondary)
                     }

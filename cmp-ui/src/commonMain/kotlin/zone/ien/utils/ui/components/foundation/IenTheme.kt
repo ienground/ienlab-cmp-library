@@ -70,6 +70,7 @@ data class IenRadius(
     val none: Dp = 0.dp,
     val xs: Dp = 4.dp,
     val sm: Dp = 8.dp,
+    val default: Dp = 12.dp,
     val md: Dp = 12.dp,
     val lg: Dp = 16.dp,
     val xl: Dp = 24.dp,
@@ -158,10 +159,11 @@ object IenTheme {
 @Composable
 fun IenTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    tokens: IenTokens? = null,
     content: @Composable () -> Unit,
 ) {
     androidx.compose.runtime.CompositionLocalProvider(
-        LocalIenTokens provides if (darkTheme) darkIenTokens() else lightIenTokens(),
+        LocalIenTokens provides (tokens ?: if (darkTheme) darkIenTokens() else lightIenTokens()),
         content = content,
     )
 }

@@ -46,7 +46,7 @@ data class IenBorderSpec(
 fun IenBorder(
     modifier: Modifier = Modifier,
     spec: IenBorderSpec = IenBorderSpec(),
-    shape: RoundedCornerShape = RoundedCornerShape(IenTheme.radius.md),
+    shape: RoundedCornerShape = RoundedCornerShape(IenTheme.radius.default),
     padding: PaddingValues = PaddingValues(IenTheme.spacing.md),
     content: @Composable () -> Unit,
 ) {
@@ -95,7 +95,7 @@ fun IenBottomInfo(
         modifier = modifier.fillMaxWidth(),
         color = toneWeakColor(tone),
         contentColor = toneColor(tone),
-        shape = RoundedCornerShape(IenTheme.radius.md),
+        shape = RoundedCornerShape(IenTheme.radius.default),
     ) {
         Row(
             modifier = Modifier.padding(IenTheme.spacing.md),

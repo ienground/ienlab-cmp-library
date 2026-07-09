@@ -60,7 +60,7 @@ fun IenButton(
     iconPlacement: IenIconPlacement = IenIconPlacement.Start,
 ) {
     val colors = ienButtonColors(variant, tone, state.enabled)
-    val shape = RoundedCornerShape(IenTheme.radius.md)
+    val shape = RoundedCornerShape(IenTheme.radius.default)
     val height = size.buttonHeight()
     val contentPadding = size.buttonPadding()
     val buttonModifier = modifier

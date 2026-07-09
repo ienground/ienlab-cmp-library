@@ -40,7 +40,7 @@ fun IenSurface(
     modifier: Modifier = Modifier,
     color: Color = IenTheme.colors.surface,
     contentColor: Color = IenTheme.colors.textPrimary,
-    shape: Shape = RoundedCornerShape(IenTheme.radius.md),
+    shape: Shape = RoundedCornerShape(IenTheme.radius.default),
     border: BorderStroke? = null,
     tonalElevation: Dp = IenTheme.elevation.none,
     content: @Composable () -> Unit,
@@ -121,7 +121,7 @@ fun IenDivider(
 @Composable
 fun IenBorderBox(
     modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(IenTheme.radius.md),
+    shape: Shape = RoundedCornerShape(IenTheme.radius.default),
     color: Color = IenTheme.colors.border,
     width: Dp = IenTheme.stroke.thin,
     padding: PaddingValues = PaddingValues(IenTheme.spacing.md),
