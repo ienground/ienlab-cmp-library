@@ -10,6 +10,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import zone.ien.utils.example.ui.screens.home.HomeScreen
+import zone.ien.utils.example.ui.screens.designsystem.DesignSystemScreen
 import zone.ien.utils.example.ui.screens.lazy.LazySectionScreen
 import zone.ien.utils.example.ui.screens.navigation.NavigationScreen
 import zone.ien.utils.example.ui.screens.playground.PlaygroundScreen
@@ -28,6 +29,7 @@ sealed interface RootRoute: NavKey {
     @Serializable data object Section: RootRoute
     @Serializable data object LazySection: RootRoute
     @Serializable data object Navigation: RootRoute
+    @Serializable data object DesignSystem: RootRoute
 }
 
 @Composable
@@ -70,6 +72,11 @@ fun RootNavigationGraph(
             }
             entry<RootRoute.Navigation> {
                 NavigationScreen(
+                    navigateBack = { backStack.navigateBack() }
+                )
+            }
+            entry<RootRoute.DesignSystem> {
+                DesignSystemScreen(
                     navigateBack = { backStack.navigateBack() }
                 )
             }

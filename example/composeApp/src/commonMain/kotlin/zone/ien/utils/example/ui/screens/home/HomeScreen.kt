@@ -374,6 +374,15 @@ fun HomeScreen(
                 }
                 Box(
                     modifier = Modifier
+                        .clickable { backStack.add(RootRoute.DesignSystem) }
+                        .fillMaxWidth()
+                        .height(400.dp)
+                        .background(Color.Magenta)
+                ) {
+                    Text(text = "Design System")
+                }
+                Box(
+                    modifier = Modifier
                         .clickable { backStack.add(RootRoute.Section) }
                         .fillMaxWidth()
                         .height(400.dp)
