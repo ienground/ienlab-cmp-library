@@ -13,6 +13,7 @@ import zone.ien.utils.ui.components.foundation.IenSemanticTone
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.interactive.IenButton
 import zone.ien.utils.ui.components.interactive.IenButtonSize
+import zone.ien.utils.ui.components.interactive.IenButtonDisplay
 import zone.ien.utils.ui.components.interactive.IenButtonVariant
 import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.components.primitives.IenText
@@ -45,7 +46,7 @@ fun IenAlertDialog(
                 IenButton(
                     text = confirmText,
                     onClick = onConfirmClick,
-                    fullWidth = true,
+                    display = IenButtonDisplay.Block,
                     size = IenButtonSize.Medium,
                     tone = tone,
                 )

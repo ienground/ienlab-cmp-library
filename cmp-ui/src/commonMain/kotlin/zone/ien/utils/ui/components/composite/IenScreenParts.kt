@@ -30,6 +30,7 @@ import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.interactive.IenButton
 import zone.ien.utils.ui.components.interactive.IenButtonSize
 import zone.ien.utils.ui.components.interactive.IenButtonVariant
+import zone.ien.utils.ui.components.interactive.IenButtonDisplay
 import zone.ien.utils.ui.components.interactive.IenCheckbox
 import zone.ien.utils.ui.components.primitives.IenDivider
 import zone.ien.utils.ui.components.primitives.IenSurface
@@ -246,7 +247,7 @@ fun IenBottomCTA(
             text = text,
             onClick = onClick,
             modifier = Modifier.padding(IenTheme.spacing.md),
-            fullWidth = true,
+            display = IenButtonDisplay.Block,
             state = zone.ien.utils.ui.components.interactive.IenButtonState(enabled = enabled),
             variant = variant,
         )
@@ -306,7 +307,7 @@ fun BoxScope.IenFixedBottomCTA(
             text = text,
             onClick = onClick,
             modifier = Modifier.padding(contentPadding),
-            fullWidth = true,
+            display = IenButtonDisplay.Block,
             state = zone.ien.utils.ui.components.interactive.IenButtonState(enabled = enabled),
         )
     }

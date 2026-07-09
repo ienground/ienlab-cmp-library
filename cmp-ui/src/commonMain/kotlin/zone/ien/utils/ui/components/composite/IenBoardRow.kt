@@ -93,7 +93,7 @@ fun IenBoardRow(
                 label = "IenBoardRowPressedBackground",
             )
             val pressedScale by animateFloatAsState(
-                targetValue = if (pressed) 0.95f else 1f,
+                targetValue = if (pressed) 0.975f else 1f,
                 animationSpec = spring(
                     dampingRatio = Spring.DampingRatioMediumBouncy,
                     stiffness = Spring.StiffnessMediumLow,

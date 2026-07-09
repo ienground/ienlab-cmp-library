@@ -120,6 +120,7 @@ import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.components.primitives.IenText
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.icon.material.filled.Check
+import zone.ien.utils.ui.components.interactive.IenButtonDisplay
 
 @Preview
 @Composable
@@ -218,13 +219,13 @@ fun DesignSystemScreen(
                     IenButton(
                         text = "일반 바텀시트 열기",
                         onClick = { sheetState.show(IenSheetDetent.Content) },
-                        fullWidth = true,
+                        display = IenButtonDisplay.Block,
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     IenButton(
                         text = "선택형 바텀시트 열기 (선택: $selectedPet)",
                         onClick = { selectSheetState.show(IenSheetDetent.Content) },
-                        fullWidth = true,
+                        display = IenButtonDisplay.Block,
                         variant = IenButtonVariant.Line,
                     )
                 }
@@ -255,8 +256,16 @@ fun DesignSystemScreen(
                 }
 
                 ComponentSection(title = "Button") {
-                    IenButton(text = "주요 액션", onClick = {}, fullWidth = true)
-                    IenButton(text = "보조 액션", onClick = {}, fullWidth = true, variant = IenButtonVariant.Weak)
+                    IenButton(text = "주요 액션", onClick = {}, display = IenButtonDisplay.Block, size = IenButtonSize.Small)
+                    IenButton(text = "주요 액션2", onClick = {}, display = IenButtonDisplay.Block, size = IenButtonSize.Medium)
+                    IenButton(text = "주요 액션3", onClick = {}, display = IenButtonDisplay.Block, size = IenButtonSize.Large)
+                    IenButton(text = "Full", onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Full)
+                    IenButton(text = "Block", onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Block)
+                    IenButton(text = "Inline", onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Inline)
+                    IenButton(text = "주요 액션", onClick = {}, display = IenButtonDisplay.Block, state = IenButtonState(enabled = false))
+                    IenButton(text = "주요 액션", onClick = {}, display = IenButtonDisplay.Block, state = IenButtonState(loading = true))
+                    IenButton(text = "보조 액션", onClick = {}, display = IenButtonDisplay.Block, variant = IenButtonVariant.Weak)
+                    IenButton(text = "보조 액션", onClick = {}, display = IenButtonDisplay.Block, variant = IenButtonVariant.Line)
                     IenButton(text = "로딩", onClick = {}, size = IenButtonSize.Medium, state = IenButtonState(loading = true))
                 }
 
@@ -341,7 +350,7 @@ fun DesignSystemScreen(
                     IenButton(
                         text = "모달 열기",
                         onClick = { showModal = true },
-                        fullWidth = true,
+                        display = IenButtonDisplay.Block,
                         variant = IenButtonVariant.Line,
                     )
                 }
@@ -507,7 +516,7 @@ fun DesignSystemScreen(
                     IenButton(
                         text = "토스트 호스트에 추가",
                         onClick = { toastHostState.show("호스트 토스트입니다.", IenSemanticTone.Info) },
-                        fullWidth = true,
+                        display = IenButtonDisplay.Block,
                         variant = IenButtonVariant.Weak,
                     )
                 }
@@ -588,20 +597,20 @@ fun DesignSystemScreen(
                     IenButton(
                         text = "알림 열기",
                         onClick = { showAlert = true },
-                        fullWidth = true,
+                        display = IenButtonDisplay.Block,
                         variant = IenButtonVariant.Weak,
                     )
                     IenButton(
                         text = "확인 다이얼로그 열기",
                         onClick = { showConfirm = true },
-                        fullWidth = true,
+                        display = IenButtonDisplay.Block,
                         variant = IenButtonVariant.Line,
                         tone = IenSemanticTone.Danger,
                     )
                     IenButton(
                         text = "기본 Dialog 열기",
                         onClick = { showGenericDialog = true },
-                        fullWidth = true,
+                        display = IenButtonDisplay.Block,
                         variant = IenButtonVariant.Ghost,
                     )
                 }
