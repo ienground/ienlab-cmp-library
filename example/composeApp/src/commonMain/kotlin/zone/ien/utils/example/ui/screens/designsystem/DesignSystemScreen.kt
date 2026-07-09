@@ -25,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.ui.components.composite.IenAssetFrame
@@ -43,7 +42,7 @@ import zone.ien.utils.ui.components.composite.IenBottomSheet
 import zone.ien.utils.ui.components.composite.IenBottomSheetOption
 import zone.ien.utils.ui.components.composite.IenBottomSheetSelect
 import zone.ien.utils.ui.components.composite.IenBubble
-import zone.ien.utils.ui.components.composite.IenBubbleTail
+import zone.ien.utils.ui.components.composite.IenBubbleBackground
 import zone.ien.utils.ui.components.composite.IenConfirmDialog
 import zone.ien.utils.ui.components.composite.IenDialog
 import zone.ien.utils.ui.components.composite.IenDialogAction
@@ -231,11 +230,28 @@ fun DesignSystemScreen(
                 }
 
                 ComponentSection(title = "Bubble") {
-                    IenBubble(
-                        text = "Bubble은 짧은 안내와 말풍선형 피드백에 사용합니다.",
-                        tone = IenSemanticTone.Brand,
-                        tail = IenBubbleTail.Start,
-                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
+                            IenBubble(background = IenBubbleBackground.Grey, withTail = false) {
+                                IenText("꼬리가 없는 회색 버블입니다.", style = IenTheme.typography.body2)
+                            }
+                        }
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
+                            IenBubble(background = IenBubbleBackground.Grey, withTail = true) {
+                                IenText("안녕하세요! 상대방이 보내는 회색 버블(grey)입니다.", style = IenTheme.typography.body2)
+                            }
+                        }
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                            IenBubble(background = IenBubbleBackground.Brand, withTail = false) {
+                                IenText("꼬리가 없는 파란색 버블입니다.", style = IenTheme.typography.body2)
+                            }
+                        }
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                            IenBubble(background = IenBubbleBackground.Brand, withTail = true) {
+                                IenText("반가워요! 제가 보내는 파란색 버블(blue)입니다.", style = IenTheme.typography.body2)
+                            }
+                        }
+                    }
                 }
 
                 ComponentSection(title = "Button") {

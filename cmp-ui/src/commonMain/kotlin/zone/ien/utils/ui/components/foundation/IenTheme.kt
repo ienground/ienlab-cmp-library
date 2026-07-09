@@ -36,6 +36,7 @@ data class IenColorScheme(
     val info: Color,
     val infoWeak: Color,
     val overlay: Color,
+    val surfaceVariant: Color,
 )
 
 @Immutable
@@ -191,6 +192,7 @@ fun lightIenTokens() = IenTokens(
         info = Color(0xFF18A5A5),
         infoWeak = Color(0xFFEDF8F8),
         overlay = Color(0x99000000),
+        surfaceVariant = Color(0xFFF2F4F6),
     ),
     typography = defaultIenTypography(),
 )
@@ -218,6 +220,7 @@ fun darkIenTokens() = IenTokens(
         info = Color(0xFF58C7C7),
         infoWeak = Color(0xFF123A3A),
         overlay = Color(0xB3000000),
+        surfaceVariant = Color(0xFF202632),
     ),
     typography = defaultIenTypography(),
 )
