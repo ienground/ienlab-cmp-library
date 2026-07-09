@@ -28,15 +28,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.material.filled.Check
+import zone.ien.utils.ui.components.composite.IenAgreementItemV4
+import zone.ien.utils.ui.components.composite.IenAgreementV4
+import zone.ien.utils.ui.components.composite.IenAlertDialog
 import zone.ien.utils.ui.components.composite.IenAssetFrame
 import zone.ien.utils.ui.components.composite.IenAssetFrameShape
 import zone.ien.utils.ui.components.composite.IenAssetFrameSize
 import zone.ien.utils.ui.components.composite.IenBoardRow
 import zone.ien.utils.ui.components.composite.IenBorder
 import zone.ien.utils.ui.components.composite.IenBorderVariant
-import zone.ien.utils.ui.components.composite.IenAgreementItemV4
-import zone.ien.utils.ui.components.composite.IenAgreementV4
-import zone.ien.utils.ui.components.composite.IenAlertDialog
 import zone.ien.utils.ui.components.composite.IenBottomCTA
 import zone.ien.utils.ui.components.composite.IenBottomInfo
 import zone.ien.utils.ui.components.composite.IenBottomSheet
@@ -49,7 +51,6 @@ import zone.ien.utils.ui.components.composite.IenDialog
 import zone.ien.utils.ui.components.composite.IenDialogAction
 import zone.ien.utils.ui.components.composite.IenDoubleBottomCTA
 import zone.ien.utils.ui.components.composite.IenFixedBottomCTA
-import zone.ien.utils.ui.components.composite.IenGridList
 import zone.ien.utils.ui.components.composite.IenHighlightText
 import zone.ien.utils.ui.components.composite.IenListFooter
 import zone.ien.utils.ui.components.composite.IenListHeader
@@ -79,20 +80,21 @@ import zone.ien.utils.ui.components.composite.rememberIenBottomSheetState
 import zone.ien.utils.ui.components.composite.rememberIenToastHostState
 import zone.ien.utils.ui.components.foundation.IenSemanticTone
 import zone.ien.utils.ui.components.foundation.IenTheme
+import zone.ien.utils.ui.components.interactive.IenAlphabetKeyboard
 import zone.ien.utils.ui.components.interactive.IenBadge
 import zone.ien.utils.ui.components.interactive.IenBadgeSize
 import zone.ien.utils.ui.components.interactive.IenBadgeVariant
 import zone.ien.utils.ui.components.interactive.IenButton
+import zone.ien.utils.ui.components.interactive.IenButtonDisplay
 import zone.ien.utils.ui.components.interactive.IenButtonSize
 import zone.ien.utils.ui.components.interactive.IenButtonState
 import zone.ien.utils.ui.components.interactive.IenButtonVariant
-import zone.ien.utils.ui.components.interactive.IenCheckbox
 import zone.ien.utils.ui.components.interactive.IenCircleCheckbox
-import zone.ien.utils.ui.components.interactive.IenLineCheckbox
-import zone.ien.utils.ui.components.interactive.IenIconButton
-import zone.ien.utils.ui.components.interactive.IenAlphabetKeyboard
+import zone.ien.utils.ui.components.interactive.IenFieldStatus
 import zone.ien.utils.ui.components.interactive.IenFullSecureKeyboard
+import zone.ien.utils.ui.components.interactive.IenIconButton
 import zone.ien.utils.ui.components.interactive.IenKeyboardAction
+import zone.ien.utils.ui.components.interactive.IenLineCheckbox
 import zone.ien.utils.ui.components.interactive.IenNumberKeypad
 import zone.ien.utils.ui.components.interactive.IenNumericSpinner
 import zone.ien.utils.ui.components.interactive.IenNumericSpinnerRange
@@ -111,7 +113,6 @@ import zone.ien.utils.ui.components.interactive.IenTabItem
 import zone.ien.utils.ui.components.interactive.IenTextArea
 import zone.ien.utils.ui.components.interactive.IenTextButton
 import zone.ien.utils.ui.components.interactive.IenTextField
-import zone.ien.utils.ui.components.interactive.IenFieldStatus
 import zone.ien.utils.ui.components.interactive.IenTextFieldState
 import zone.ien.utils.ui.components.primitives.IenBorderBox
 import zone.ien.utils.ui.components.primitives.IenClickable
@@ -121,9 +122,6 @@ import zone.ien.utils.ui.components.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.components.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.components.primitives.IenText
-import zone.ien.utils.icon.material.M3SystemIcons
-import zone.ien.utils.icon.material.filled.Check
-import zone.ien.utils.ui.components.interactive.IenButtonDisplay
 
 @Preview
 @Composable
@@ -150,7 +148,8 @@ fun DesignSystemScreen(
                     navigationIcon = { IenTextButton(text = "닫기", onClick = navigateBack) },
                     actions = { 
                         IenIconButton(
-                            onClick = navigateToColor
+                            onClick = navigateToColor,
+                            variant = IenButtonVariant.Ghost
                         ) {
                             IenIcon(
                                 imageVector = M3SystemIcons.Keyboard,
@@ -293,23 +292,6 @@ fun DesignSystemScreen(
                     }
                 }
 
-                ComponentSection(title = "GridList") {
-                    IenGridList(
-                        items = listOf("Badge", "Button", "TextField", "BoardRow", "Bubble", "BottomInfo"),
-                        columns = 2,
-                    ) { item, index ->
-                        IenSurface(
-                            color = if (index % 2 == 0) IenTheme.colors.surfaceWeak else IenTheme.colors.brandWeak,
-                        ) {
-                            IenText(
-                                text = item,
-                                modifier = Modifier.padding(IenTheme.spacing.md),
-                                style = IenTheme.typography.label1,
-                            )
-                        }
-                    }
-                }
-
                 ComponentSection(title = "Highlight") {
                     IenHighlightText(
                         text = "Highlight는 검색 결과나 본문 안의 중요한 텍스트를 토큰 색상으로 강조합니다.",
@@ -318,15 +300,47 @@ fun DesignSystemScreen(
                 }
 
                 ComponentSection(title = "IconButton") {
-                    Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
-                        IenIconButton(onClick = {}, variant = IenButtonVariant.Weak) {
-                            IenIcon(
-                                imageVector = M3SystemIcons.Filled.Check,
-                                contentDescription = "확인",
-                            )
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        IenText("Sizes (Large, Medium, Small)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IenIconButton(onClick = {}, size = IenButtonSize.Large, variant = IenButtonVariant.Fill) {
+                                IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                            }
+                            IenIconButton(onClick = {}, size = IenButtonSize.Medium, variant = IenButtonVariant.Fill) {
+                                IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                            }
+                            IenIconButton(onClick = {}, size = IenButtonSize.Small, variant = IenButtonVariant.Fill) {
+                                IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                            }
                         }
-                        IenIconButton(onClick = {}, variant = IenButtonVariant.Line) {
-                            IenText("✓", style = IenTheme.typography.title3)
+                        IenBorder()
+                        IenText("Variants (Fill, Weak, Line, Ghost)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                        Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
+                            IenIconButton(onClick = {}, variant = IenButtonVariant.Fill) {
+                                IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                            }
+                            IenIconButton(onClick = {}, variant = IenButtonVariant.Weak) {
+                                IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                            }
+                            IenIconButton(onClick = {}, variant = IenButtonVariant.Line) {
+                                IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                            }
+                            IenIconButton(onClick = {}, variant = IenButtonVariant.Ghost) {
+                                IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                            }
+                        }
+                        IenBorder()
+                        IenText("States (Loading, Disabled)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                        Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
+                            IenIconButton(onClick = {}, state = IenButtonState(loading = true), variant = IenButtonVariant.Fill) {
+                                IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                            }
+                            IenIconButton(onClick = {}, state = IenButtonState(enabled = false), variant = IenButtonVariant.Fill) {
+                                IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                            }
                         }
                     }
                 }

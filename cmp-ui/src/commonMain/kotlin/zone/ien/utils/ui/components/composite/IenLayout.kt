@@ -110,36 +110,3 @@ fun IenBottomInfo(
         }
     }
 }
-
-@Composable
-fun <T> IenGridList(
-    items: List<T>,
-    columns: Int,
-    modifier: Modifier = Modifier,
-    horizontalSpacing: Dp = IenTheme.spacing.sm,
-    verticalSpacing: Dp = IenTheme.spacing.sm,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    itemContent: @Composable (item: T, index: Int) -> Unit,
-) {
-    val safeColumns = columns.coerceAtLeast(1)
-    Column(
-        modifier = modifier.padding(contentPadding),
-        verticalArrangement = Arrangement.spacedBy(verticalSpacing),
-    ) {
-        items.chunked(safeColumns).forEachIndexed { rowIndex, rowItems ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(horizontalSpacing),
-            ) {
-                rowItems.forEachIndexed { columnIndex, item ->
-                    Box(Modifier.weight(1f)) {
-                        itemContent(item, rowIndex * safeColumns + columnIndex)
-                    }
-                }
-                repeat(safeColumns - rowItems.size) {
-                    Box(Modifier.weight(1f))
-                }
-            }
-        }
-    }
-}

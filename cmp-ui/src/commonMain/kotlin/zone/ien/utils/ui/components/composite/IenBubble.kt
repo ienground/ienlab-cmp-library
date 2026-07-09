@@ -4,8 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.ui.components.foundation.IenTheme
 
@@ -26,6 +29,12 @@ fun IenBubble(
         IenTheme.colors.surfaceVariant
     }
 
+    val contentColor = if (background == IenBubbleBackground.Brand) {
+        Color.White
+    } else {
+        IenTheme.colors.textPrimary
+    }
+
     val isLeft = (background == IenBubbleBackground.Grey)
 
     Box(
@@ -41,6 +50,8 @@ fun IenBubble(
             )
             .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
-        children()
+        CompositionLocalProvider(LocalContentColor provides contentColor) {
+            children()
+        }
     }
 }

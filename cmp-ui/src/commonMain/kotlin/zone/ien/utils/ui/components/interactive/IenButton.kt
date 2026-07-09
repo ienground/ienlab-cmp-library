@@ -2,12 +2,14 @@ package zone.ien.utils.ui.components.interactive
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -74,26 +76,10 @@ fun IenButton(
     display: IenButtonDisplay = IenButtonDisplay.Inline,
     colors: ButtonColors? = null,
 ) {
-    val ienColors = ienButtonColors(variant, tone, state.enabled)
     val height = size.buttonHeight()
-    
-    val isPressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.975f else 1.0f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioNoBouncy,
-            stiffness = Spring.StiffnessMedium
-        )
-    )
-
     val buttonModifier = modifier
         .then(if (display == IenButtonDisplay.Block || display == IenButtonDisplay.Full) Modifier.fillMaxWidth() else Modifier)
         .heightIn(min = height)
-        .graphicsLayer {
-            scaleX = scale
-            scaleY = scale
-        }
-        .semantics { role = Role.Button }
 
     val resolvedShape = if (display == IenButtonDisplay.Full) {
         RoundedCornerShape(0.dp)
@@ -101,14 +87,18 @@ fun IenButton(
         shape
     }
 
-    val resolvedColors = colors ?: ButtonDefaults.buttonColors(
-        containerColor = ienColors.container,
-        contentColor = ienColors.content,
-        disabledContainerColor = ienColors.container.copy(alpha = IenTheme.state.disabledAlpha),
-        disabledContentColor = ienColors.content.copy(alpha = IenTheme.state.disabledAlpha),
-    )
-
-    val content: @Composable () -> Unit = {
+    IenButtonContainer(
+        onClick = onClick,
+        modifier = buttonModifier,
+        variant = variant,
+        tone = tone,
+        state = state,
+        shape = resolvedShape,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource,
+        scalePressed = 0.975f,
+        colors = colors,
+    ) {
         IenButtonContent(
             text = text,
             loading = state.loading,
@@ -117,69 +107,61 @@ fun IenButton(
             iconPlacement = iconPlacement,
         )
     }
-
-    val handleOnClick: () -> Unit = {
-        if (state.enabled && !state.loading) {
-            onClick()
-        }
-    }
-
-    when (variant) {
-        IenButtonVariant.Fill, IenButtonVariant.Weak -> Button(
-            onClick = handleOnClick,
-            modifier = buttonModifier,
-            enabled = state.enabled,
-            shape = resolvedShape,
-            colors = resolvedColors,
-            contentPadding = contentPadding,
-            interactionSource = interactionSource,
-            content = { content() },
-        )
-
-        IenButtonVariant.Line -> OutlinedButton(
-            onClick = handleOnClick,
-            modifier = buttonModifier,
-            enabled = state.enabled,
-            shape = resolvedShape,
-            border = BorderStroke(IenTheme.stroke.thin, ienColors.border),
-            colors = resolvedColors,
-            contentPadding = contentPadding,
-            interactionSource = interactionSource,
-            content = { content() },
-        )
-
-        IenButtonVariant.Ghost -> TextButton(
-            onClick = handleOnClick,
-            modifier = buttonModifier,
-            enabled = state.enabled,
-            shape = resolvedShape,
-            colors = resolvedColors,
-            contentPadding = contentPadding,
-            interactionSource = interactionSource,
-            content = { content() },
-        )
-    }
 }
 
 @Composable
 fun IenIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    size: IenButtonSize = IenButtonSize.Medium,
-    variant: IenButtonVariant = IenButtonVariant.Ghost,
-    tone: IenSemanticTone = IenSemanticTone.Neutral,
+    size: IenButtonSize = IenButtonSize.Large,
+    variant: IenButtonVariant = IenButtonVariant.Fill,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(),
+    shape: Shape = RoundedCornerShape(IenTheme.radius.default),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    colors: ButtonColors? = null,
     content: @Composable () -> Unit,
 ) {
-    IenButton(
-        text = "",
+    val buttonSize = when (size) {
+        IenButtonSize.Small -> 36.dp
+        IenButtonSize.Medium -> 44.dp
+        IenButtonSize.Large -> 52.dp
+    }
+
+    val buttonModifier = modifier.size(buttonSize)
+
+    val innerContent: @Composable () -> Unit = {
+        val iconSize = when (size) {
+            IenButtonSize.Small -> 18.dp
+            IenButtonSize.Medium -> 24.dp
+            IenButtonSize.Large -> 28.dp
+        }
+        IenProvideTextStyle(IenTheme.typography.body1, LocalContentColor.current) {
+            Box(
+                modifier = Modifier.size(iconSize),
+                contentAlignment = Alignment.Center
+            ) {
+                if (state.loading) {
+                    IenLoaderPrimitive(color = LocalContentColor.current)
+                } else {
+                    content()
+                }
+            }
+        }
+    }
+
+    IenButtonContainer(
         onClick = onClick,
-        modifier = modifier.defaultMinSize(minWidth = size.buttonHeight()),
-        size = size,
+        modifier = buttonModifier,
         variant = variant,
         tone = tone,
         state = state,
-        icon = content,
+        shape = shape,
+        contentPadding = PaddingValues(0.dp),
+        interactionSource = interactionSource,
+        scalePressed = 0.95f,
+        colors = colors,
+        content = innerContent,
     )
 }
 
@@ -288,4 +270,96 @@ private fun IenButtonSize.buttonPadding(): PaddingValues = when (this) {
     IenButtonSize.Small -> PaddingValues(horizontal = 12.dp, vertical = 8.dp)
     IenButtonSize.Medium -> PaddingValues(horizontal = 16.dp, vertical = 10.dp)
     IenButtonSize.Large -> PaddingValues(horizontal = 20.dp, vertical = 14.dp)
+}
+
+@Composable
+internal fun IenButtonContainer(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    variant: IenButtonVariant = IenButtonVariant.Fill,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
+    state: IenButtonState = IenButtonState(),
+    shape: Shape = RoundedCornerShape(IenTheme.radius.default),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    scalePressed: Float = 0.975f,
+    colors: ButtonColors? = null,
+    border: BorderStroke? = null,
+    content: @Composable () -> Unit,
+) {
+    val ienColors = ienButtonColors(variant, tone, state.enabled)
+    val interactiveEnabled = state.enabled && !state.loading
+
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed && interactiveEnabled) scalePressed else 1.0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium
+        )
+    )
+
+    val buttonModifier = modifier
+        .graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+        }
+        .semantics { role = Role.Button }
+
+    val resolvedColors = colors ?: ButtonDefaults.buttonColors(
+        containerColor = ienColors.container,
+        contentColor = ienColors.content,
+        disabledContainerColor = if (state.loading && state.enabled) {
+            ienColors.container
+        } else {
+            ienColors.container.copy(alpha = IenTheme.state.disabledAlpha)
+        },
+        disabledContentColor = if (state.loading && state.enabled) {
+            ienColors.content
+        } else {
+            ienColors.content.copy(alpha = IenTheme.state.disabledAlpha)
+        },
+    )
+
+    val handleOnClick: () -> Unit = {
+        if (state.enabled && !state.loading) {
+            onClick()
+        }
+    }
+
+    when (variant) {
+        IenButtonVariant.Fill, IenButtonVariant.Weak -> Button(
+            onClick = handleOnClick,
+            modifier = buttonModifier,
+            enabled = interactiveEnabled,
+            shape = shape,
+            colors = resolvedColors,
+            contentPadding = contentPadding,
+            interactionSource = interactionSource,
+            content = { content() },
+        )
+
+        IenButtonVariant.Line -> OutlinedButton(
+            onClick = handleOnClick,
+            modifier = buttonModifier,
+            enabled = interactiveEnabled,
+            shape = shape,
+            border = border ?: BorderStroke(IenTheme.stroke.thin, ienColors.border),
+            colors = resolvedColors,
+            contentPadding = contentPadding,
+            interactionSource = interactionSource,
+            content = { content() },
+        )
+
+        IenButtonVariant.Ghost -> TextButton(
+            onClick = handleOnClick,
+            modifier = buttonModifier,
+            enabled = interactiveEnabled,
+            shape = shape,
+            colors = resolvedColors,
+            contentPadding = contentPadding,
+            interactionSource = interactionSource,
+            content = { content() },
+        )
+    }
 }
