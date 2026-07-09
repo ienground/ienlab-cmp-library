@@ -117,18 +117,32 @@ fun ColorTokenScreen(
                 )
 
                 ColorTokenGroup(
-                    title = "Brand / Status",
+                    title = "Brand / Status / On Semantic",
                     tokens = listOf(
                         ColorToken("brand", IenTheme.colors.brand),
+                        ColorToken("onBrand", IenTheme.colors.onBrand),
                         ColorToken("brandWeak", IenTheme.colors.brandWeak),
+                        ColorToken("onBrandWeak", IenTheme.colors.onBrandWeak),
+
                         ColorToken("success", IenTheme.colors.success),
+                        ColorToken("onSuccess", IenTheme.colors.onSuccess),
                         ColorToken("successWeak", IenTheme.colors.successWeak),
+                        ColorToken("onSuccessWeak", IenTheme.colors.onSuccessWeak),
+
                         ColorToken("warning", IenTheme.colors.warning),
+                        ColorToken("onWarning", IenTheme.colors.onWarning),
                         ColorToken("warningWeak", IenTheme.colors.warningWeak),
+                        ColorToken("onWarningWeak", IenTheme.colors.onWarningWeak),
+
                         ColorToken("danger", IenTheme.colors.danger),
+                        ColorToken("onDanger", IenTheme.colors.onDanger),
                         ColorToken("dangerWeak", IenTheme.colors.dangerWeak),
+                        ColorToken("onDangerWeak", IenTheme.colors.onDangerWeak),
+
                         ColorToken("info", IenTheme.colors.info),
+                        ColorToken("onInfo", IenTheme.colors.onInfo),
                         ColorToken("infoWeak", IenTheme.colors.infoWeak),
+                        ColorToken("onInfoWeak", IenTheme.colors.onInfoWeak),
                     ),
                 )
 

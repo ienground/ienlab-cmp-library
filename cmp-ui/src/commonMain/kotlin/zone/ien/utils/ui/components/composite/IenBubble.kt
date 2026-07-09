@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -30,7 +31,7 @@ fun IenBubble(
     }
 
     val contentColor = if (background == IenBubbleBackground.Brand) {
-        Color.White
+        IenTheme.colors.onBrand
     } else {
         IenTheme.colors.textPrimary
     }

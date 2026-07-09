@@ -61,7 +61,7 @@ fun IenText(
     text: String,
     modifier: Modifier = Modifier,
     style: TextStyle = IenTheme.typography.body1,
-    color: Color = IenTheme.colors.textPrimary,
+    color: Color = Color.Unspecified,
     maxLines: Int = Int.MAX_VALUE,
     overflow: TextOverflow = TextOverflow.Clip,
     textAlign: TextAlign? = null,
