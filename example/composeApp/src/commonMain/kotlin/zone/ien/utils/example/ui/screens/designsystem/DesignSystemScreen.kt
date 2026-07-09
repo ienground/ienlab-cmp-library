@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,14 +26,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.icon.material.filled.Check
 import zone.ien.utils.icon.material.filled.Close
-import zone.ien.utils.ui.components.composite.IenListFooterBorder
-import zone.ien.utils.ui.components.composite.IenListHeaderDescriptionPosition
 import zone.ien.utils.ui.components.composite.IenAgreementItemV4
 import zone.ien.utils.ui.components.composite.IenAgreementV4
 import zone.ien.utils.ui.components.composite.IenAlertDialog
@@ -58,12 +55,13 @@ import zone.ien.utils.ui.components.composite.IenDoubleBottomCTA
 import zone.ien.utils.ui.components.composite.IenFixedBottomCTA
 import zone.ien.utils.ui.components.composite.IenHighlightText
 import zone.ien.utils.ui.components.composite.IenListFooter
+import zone.ien.utils.ui.components.composite.IenListFooterBorder
 import zone.ien.utils.ui.components.composite.IenListFooterDefaults
 import zone.ien.utils.ui.components.composite.IenListHeader
+import zone.ien.utils.ui.components.composite.IenListHeaderDescriptionPosition
 import zone.ien.utils.ui.components.composite.IenListRow
 import zone.ien.utils.ui.components.composite.IenLoader
 import zone.ien.utils.ui.components.composite.IenMenu
-import zone.ien.utils.ui.components.composite.IenMenuItem
 import zone.ien.utils.ui.components.composite.IenModal
 import zone.ien.utils.ui.components.composite.IenParagraph
 import zone.ien.utils.ui.components.composite.IenPost
@@ -593,17 +591,68 @@ fun LoaderSection() {
 @Preview
 @Composable
 fun MenuSection() {
+    var menuOpen by remember { mutableStateOf(false) }
+    var checkedMenu by remember { mutableIntStateOf(1) }
+
     IenTheme {
         ComponentSection(title = "Menu") {
-            IenMenu(
-                items = listOf(
-                    IenMenuItem(title = "수정", description = "현재 항목을 편집합니다.", onClick = {}),
-                    IenMenuItem(title = "삭제", tone = IenSemanticTone.Danger, onClick = {}),
-                ),
-                header = {
-                    IenText("작업 메뉴", style = IenTheme.typography.label1)
-                },
-            )
+            IenMenu.Trigger(
+                open = menuOpen,
+                onOpen = { menuOpen = true },
+                onClose = { menuOpen = false },
+                placement = IenMenu.Placement.BottomStart,
+                offset = DpOffset(0.dp, 8.dp),
+                dropdown = {
+                    IenMenu.Dropdown(
+                        onDismissRequest = { menuOpen = false },
+                        header = { IenMenu.Header(text = "작업 선택") },
+                    ) {
+                        IenMenu.DropdownItem(
+                            text = "수정",
+                            onClick = {
+                                menuOpen = false
+                            },
+                            right = {
+                                IenMenu.DropdownIcon(
+                                    imageVector = M3SystemIcons.Filled.Close,
+                                    tint = IenTheme.colors.textTertiary,
+                                )
+                            },
+                        )
+                        IenMenu.DropdownItem(
+                            text = "공유",
+                            onClick = {
+                                menuOpen = false
+                            },
+                        )
+                        IenMenu.DropdownCheckItem(
+                            checked = checkedMenu == 1,
+                            onCheckedChange = { if (it) checkedMenu = 1 },
+                            text = "첫 번째 보기",
+                        )
+                        IenMenu.DropdownCheckItem(
+                            checked = checkedMenu == 2,
+                            onCheckedChange = { if (it) checkedMenu = 2 },
+                            text = "두 번째 보기",
+                        )
+                        IenMenu.DropdownItem(
+                            text = "삭제",
+                            onClick = { menuOpen = false },
+                            right = {
+                                IenMenu.DropdownIcon(
+                                    imageVector = M3SystemIcons.Filled.Close,
+                                    tint = IenTheme.colors.danger,
+                                )
+                            },
+                        )
+                    }
+                }
+            ) {
+                IenButton(
+                    text = "메뉴 열기",
+                    onClick = { menuOpen = true },
+                )
+            }
         }
     }
 }

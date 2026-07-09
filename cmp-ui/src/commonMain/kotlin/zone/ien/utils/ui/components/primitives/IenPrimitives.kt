@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -62,6 +63,7 @@ fun IenText(
     modifier: Modifier = Modifier,
     style: TextStyle = IenTheme.typography.body1,
     color: Color = Color.Unspecified,
+    fontWeight: FontWeight? = null,
     maxLines: Int = Int.MAX_VALUE,
     overflow: TextOverflow = TextOverflow.Clip,
     textAlign: TextAlign? = null,
@@ -71,6 +73,7 @@ fun IenText(
         modifier = modifier,
         style = style,
         color = color,
+        fontWeight = fontWeight,
         maxLines = maxLines,
         overflow = overflow,
         textAlign = textAlign,
