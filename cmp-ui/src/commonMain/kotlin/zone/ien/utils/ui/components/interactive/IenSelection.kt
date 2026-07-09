@@ -1,6 +1,5 @@
 package zone.ien.utils.ui.components.interactive
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -13,14 +12,21 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -37,6 +43,9 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.ui.graphics.graphicsLayer
 import zone.ien.utils.ui.utils.instantPress
 import androidx.compose.runtime.remember
@@ -48,7 +57,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.style.TextAlign
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.primitives.IenSurface
@@ -110,6 +121,208 @@ fun IenSwitch(
     )
 }
 
+enum class IenSegmentedControlSize {
+    Small,
+    Large,
+}
+
+enum class IenSegmentedControlAlignment {
+    Fixed,
+    Fluid,
+}
+
+data class IenSegmentedControlItem(
+    val value: String,
+    val label: String,
+    val enabled: Boolean = true,
+    val size: IenSegmentedControlSize? = null,
+)
+
+@Composable
+fun IenSegmentedControl(
+    items: List<IenSegmentedControlItem>,
+    modifier: Modifier = Modifier,
+    value: String? = null,
+    defaultValue: String? = null,
+    onChange: (String) -> Unit = {},
+    size: IenSegmentedControlSize = IenSegmentedControlSize.Small,
+    alignment: IenSegmentedControlAlignment = IenSegmentedControlAlignment.Fixed,
+    enabled: Boolean = true,
+) {
+    var localValue by remember(items, defaultValue) {
+        mutableStateOf(defaultValue ?: items.firstOrNull { it.enabled }?.value ?: items.firstOrNull()?.value.orEmpty())
+    }
+    val selectedValue = value ?: localValue
+
+    val height = when (size) {
+        IenSegmentedControlSize.Small -> 40.dp
+        IenSegmentedControlSize.Large -> 48.dp
+    }
+    val selectedIndex = items.indexOfFirst { it.value == selectedValue }.coerceAtLeast(0)
+
+    IenSurface(
+        modifier = modifier,
+        color = IenTheme.colors.surfaceVariant,
+        shape = RoundedCornerShape(IenTheme.radius.full),
+    ) {
+        Row(
+            modifier = Modifier
+                .then(if (alignment == IenSegmentedControlAlignment.Fixed) Modifier.fillMaxWidth() else Modifier.horizontalScroll(rememberScrollState()))
+                .height(height)
+                .padding(IenTheme.spacing.xxs)
+                .selectableGroup(),
+            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            items.forEachIndexed { index, item ->
+                val itemSize = item.size ?: size
+                val currentItemMinWidth = when (itemSize) {
+                    IenSegmentedControlSize.Small -> 64.dp
+                    IenSegmentedControlSize.Large -> 80.dp
+                }
+                val currentItemHorizontalPadding = when (itemSize) {
+                    IenSegmentedControlSize.Small -> IenTheme.spacing.sm
+                    IenSegmentedControlSize.Large -> IenTheme.spacing.md
+                }
+                val currentTextStyle = when (itemSize) {
+                    IenSegmentedControlSize.Small -> IenTheme.typography.label2
+                    IenSegmentedControlSize.Large -> IenTheme.typography.label1
+                }
+                val itemEnabled = enabled && item.enabled
+                val selected = item.value == selectedValue
+                val distanceFromSelected = abs(index - selectedIndex)
+                val rippleDelay = (distanceFromSelected * 34).coerceAtMost(136)
+                val targetScale = when {
+                    selected -> 1.0f
+                    distanceFromSelected == 1 -> 0.975f
+                    else -> 0.955f
+                }
+                val targetAlpha = when {
+                    !itemEnabled -> IenTheme.state.disabledAlpha
+                    selected -> 1.0f
+                    distanceFromSelected == 1 -> 0.88f
+                    else -> 0.78f
+                }
+                val targetBlur = when {
+                    selected -> 0f
+                    distanceFromSelected == 1 -> 0.18f
+                    else -> 0.32f
+                }
+                val targetTranslationY = when {
+                    selected -> -1.5f
+                    distanceFromSelected == 1 -> 0.5f
+                    else -> 0f
+                }
+                val morphScale by animateFloatAsState(
+                    targetValue = targetScale,
+                    animationSpec = tween(
+                        durationMillis = 260,
+                        delayMillis = rippleDelay,
+                        easing = IenTheme.motion.standardEasing,
+                    ),
+                    label = "ienSegmentedControlScale",
+                )
+                val morphAlpha by animateFloatAsState(
+                    targetValue = targetAlpha,
+                    animationSpec = tween(
+                        durationMillis = 220,
+                        delayMillis = rippleDelay,
+                        easing = IenTheme.motion.standardEasing,
+                    ),
+                    label = "ienSegmentedControlAlpha",
+                )
+                val morphBlur by animateFloatAsState(
+                    targetValue = targetBlur,
+                    animationSpec = tween(
+                        durationMillis = 220,
+                        delayMillis = rippleDelay,
+                        easing = IenTheme.motion.standardEasing,
+                    ),
+                    label = "ienSegmentedControlBlur",
+                )
+                val morphTranslationY by animateFloatAsState(
+                    targetValue = targetTranslationY,
+                    animationSpec = tween(
+                        durationMillis = 260,
+                        delayMillis = rippleDelay,
+                        easing = IenTheme.motion.standardEasing,
+                    ),
+                    label = "ienSegmentedControlTranslationY",
+                )
+                val backgroundColor by animateColorAsState(
+                    targetValue = if (selected) IenTheme.colors.surface else Color.Transparent,
+                    animationSpec = tween(
+                        durationMillis = 220,
+                        delayMillis = rippleDelay,
+                        easing = IenTheme.motion.standardEasing,
+                    ),
+                )
+                val textColor by animateColorAsState(
+                    targetValue = when {
+                        !itemEnabled -> IenTheme.colors.textDisabled
+                        selected -> IenTheme.colors.textPrimary
+                        else -> IenTheme.colors.textSecondary
+                    },
+                    animationSpec = tween(
+                        durationMillis = 180,
+                        delayMillis = rippleDelay,
+                        easing = IenTheme.motion.standardEasing,
+                    ),
+                )
+                val itemModifier = Modifier
+                    .then(
+                        if (alignment == IenSegmentedControlAlignment.Fixed) {
+                            Modifier.weight(1f)
+                        } else {
+                            Modifier.widthIn(min = currentItemMinWidth)
+                        }
+                    )
+                    .height(height - IenTheme.spacing.xxs * 2)
+                    .graphicsLayer {
+                        alpha = morphAlpha
+                        scaleX = morphScale
+                        scaleY = morphScale
+                        translationY = morphTranslationY
+                        transformOrigin = TransformOrigin.Center
+                    }
+                    .blur(morphBlur.dp)
+                    .selectable(
+                        selected = selected,
+                        enabled = itemEnabled,
+                        role = Role.RadioButton,
+                    ) {
+                        if (value == null) {
+                            localValue = item.value
+                        }
+                        onChange(item.value)
+                    }
+
+                IenSurface(
+                    modifier = itemModifier,
+                    color = backgroundColor,
+                    contentColor = textColor,
+                    shape = RoundedCornerShape(IenTheme.radius.full),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(height - IenTheme.spacing.xxs * 2)
+                            .padding(horizontal = currentItemHorizontalPadding),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        IenText(
+                            text = item.label,
+                            style = currentTextStyle,
+                            color = textColor,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Composable
 fun IenSegmentedControl(
     items: List<String>,
@@ -118,37 +331,18 @@ fun IenSegmentedControl(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
-    IenSurface(
+    IenSegmentedControl(
+        items = items.mapIndexed { index, label ->
+            IenSegmentedControlItem(
+                value = index.toString(),
+                label = label,
+            )
+        },
         modifier = modifier,
-        color = IenTheme.colors.surfaceWeak,
-        shape = RoundedCornerShape(IenTheme.radius.default),
-        border = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border),
-    ) {
-        Row(
-            modifier = Modifier.padding(IenTheme.spacing.xxs),
-            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
-        ) {
-            items.forEachIndexed { index, label ->
-                val selected = index == selectedIndex
-                IenSurface(
-                    modifier = Modifier
-                        .weight(1f)
-                        .defaultMinSize(minHeight = IenTheme.state.minimumTouchTarget)
-                        .clickable(enabled = enabled) { onSelectedIndexChange(index) },
-                    color = if (selected) IenTheme.colors.surface else IenTheme.colors.surfaceWeak,
-                    contentColor = if (selected) IenTheme.colors.textPrimary else IenTheme.colors.textSecondary,
-                    shape = RoundedCornerShape(IenTheme.radius.sm),
-                ) {
-                    IenText(
-                        text = label,
-                        modifier = Modifier.padding(horizontal = IenTheme.spacing.sm, vertical = IenTheme.spacing.xs),
-                        style = IenTheme.typography.label2,
-                        color = if (selected) IenTheme.colors.textPrimary else IenTheme.colors.textSecondary,
-                    )
-                }
-            }
-        }
-    }
+        value = selectedIndex.toString(),
+        onChange = { value -> onSelectedIndexChange(value.toInt()) },
+        enabled = enabled,
+    )
 }
 
 @Composable

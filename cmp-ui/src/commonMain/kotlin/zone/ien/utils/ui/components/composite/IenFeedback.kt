@@ -56,6 +56,8 @@ import androidx.compose.ui.unit.IntOffset
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
@@ -422,24 +424,324 @@ fun IenToastHost(
 @Composable
 fun IenSkeleton(
     modifier: Modifier = Modifier,
-    height: Dp = 16.dp,
+    height: Dp? = null,
     radius: Dp = IenTheme.radius.sm,
+    pattern: IenSkeletonPattern = IenSkeletonPattern.TopList,
+    custom: List<IenSkeletonElement>? = null,
+    repeatLastItemCount: IenSkeletonRepeat = IenSkeletonRepeat.Count(3),
+    play: IenSkeletonPlay = IenSkeletonPlay.Show,
+    background: IenSkeletonBackground = IenSkeletonBackground.Grey,
 ) {
+    if (play == IenSkeletonPlay.Hide) {
+        return
+    }
+
     val transition = rememberInfiniteTransition(label = "ienSkeleton")
-    val alpha by transition.animateFloat(
-        initialValue = 0.35f,
-        targetValue = 0.75f,
+    val waveOffset by transition.animateFloat(
+        initialValue = -960f,
+        targetValue = 960f,
         animationSpec = infiniteRepeatable(
-            animation = tween(IenTheme.motion.slowMillis),
+            animation = tween(durationMillis = 1800, easing = IenTheme.motion.standardEasing),
+        ),
+        label = "ienSkeletonWave",
+    )
+    val waveSpread by transition.animateFloat(
+        initialValue = 0.94f,
+        targetValue = 1.08f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = IenTheme.motion.standardEasing),
             repeatMode = RepeatMode.Reverse,
         ),
-        label = "ienSkeletonAlpha",
+        label = "ienSkeletonFluidSpread",
     )
+    val colors = skeletonColors(background)
+    val brush = Brush.linearGradient(
+        0.00f to colors.base,
+        0.34f to colors.base,
+        0.46f to colors.softWave,
+        0.54f to colors.wave,
+        0.66f to colors.softWave,
+        1.00f to colors.base,
+        start = Offset(waveOffset, 0f),
+        end = Offset(waveOffset + 760f * waveSpread, 260f * waveSpread),
+    )
+
+    if (height != null) {
+        IenSkeletonBlock(
+            modifier = modifier,
+            height = height,
+            radius = radius,
+            brush = brush,
+        )
+        return
+    }
+
+    val elements = (custom ?: pattern.elements()).withRepeatedLast(repeatLastItemCount)
+
+    Column(
+        modifier = modifier.semantics {
+            contentDescription = "로딩 중"
+            liveRegion = LiveRegionMode.Polite
+        },
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+    ) {
+        elements.forEachIndexed { index, element ->
+            IenSkeletonElementView(
+                element = element,
+                index = index,
+                radius = radius,
+                brush = brush,
+            )
+        }
+    }
+}
+
+enum class IenSkeletonPattern {
+    TopList,
+    TopListWithIcon,
+    AmountTopList,
+    AmountTopListWithIcon,
+    SubtitleList,
+    SubtitleListWithIcon,
+    ListOnly,
+    ListWithIconOnly,
+    CardOnly,
+}
+
+enum class IenSkeletonPlay {
+    Show,
+    Hide,
+}
+
+enum class IenSkeletonBackground {
+    White,
+    Grey,
+    GreyOpacity100,
+}
+
+sealed interface IenSkeletonRepeat {
+    data class Count(val value: Int) : IenSkeletonRepeat
+    data object Infinite : IenSkeletonRepeat
+}
+
+sealed interface IenSkeletonElement {
+    data object Title : IenSkeletonElement
+    data object Subtitle : IenSkeletonElement
+    data object List : IenSkeletonElement
+    data object ListWithIcon : IenSkeletonElement
+    data object Card : IenSkeletonElement
+    data class Spacer(val height: Dp) : IenSkeletonElement
+}
+
+private data class IenSkeletonColors(
+    val base: Color,
+    val softWave: Color,
+    val wave: Color,
+)
+
+private fun IenSkeletonPattern.elements(): List<IenSkeletonElement> = when (this) {
+    IenSkeletonPattern.TopList -> listOf(
+        IenSkeletonElement.Title,
+        IenSkeletonElement.Spacer(4.dp),
+        IenSkeletonElement.List,
+    )
+
+    IenSkeletonPattern.TopListWithIcon -> listOf(
+        IenSkeletonElement.Title,
+        IenSkeletonElement.Spacer(4.dp),
+        IenSkeletonElement.ListWithIcon,
+    )
+
+    IenSkeletonPattern.AmountTopList -> listOf(
+        IenSkeletonElement.Title,
+        IenSkeletonElement.Subtitle,
+        IenSkeletonElement.Spacer(8.dp),
+        IenSkeletonElement.List,
+    )
+
+    IenSkeletonPattern.AmountTopListWithIcon -> listOf(
+        IenSkeletonElement.Title,
+        IenSkeletonElement.Subtitle,
+        IenSkeletonElement.Spacer(8.dp),
+        IenSkeletonElement.ListWithIcon,
+    )
+
+    IenSkeletonPattern.SubtitleList -> listOf(
+        IenSkeletonElement.Subtitle,
+        IenSkeletonElement.Spacer(4.dp),
+        IenSkeletonElement.List,
+    )
+
+    IenSkeletonPattern.SubtitleListWithIcon -> listOf(
+        IenSkeletonElement.Subtitle,
+        IenSkeletonElement.Spacer(4.dp),
+        IenSkeletonElement.ListWithIcon,
+    )
+
+    IenSkeletonPattern.ListOnly -> listOf(IenSkeletonElement.List)
+    IenSkeletonPattern.ListWithIconOnly -> listOf(IenSkeletonElement.ListWithIcon)
+    IenSkeletonPattern.CardOnly -> listOf(IenSkeletonElement.Card)
+}
+
+private fun List<IenSkeletonElement>.withRepeatedLast(repeat: IenSkeletonRepeat): List<IenSkeletonElement> {
+    if (isEmpty()) {
+        return this
+    }
+    val repeatCount = when (repeat) {
+        is IenSkeletonRepeat.Count -> repeat.value.coerceAtLeast(1)
+        IenSkeletonRepeat.Infinite -> 30
+    }
+    return dropLast(1) + List(repeatCount) { last() }
+}
+
+@Composable
+private fun skeletonColors(background: IenSkeletonBackground): IenSkeletonColors = when (background) {
+    IenSkeletonBackground.White -> IenSkeletonColors(
+        base = IenTheme.colors.surface.copy(alpha = 0.70f),
+        softWave = IenTheme.colors.surface.copy(alpha = 0.84f),
+        wave = IenTheme.colors.surface.copy(alpha = 0.96f),
+    )
+
+    IenSkeletonBackground.Grey -> IenSkeletonColors(
+        base = IenTheme.colors.surfaceVariant,
+        softWave = IenTheme.colors.surfaceWeak.copy(alpha = 0.72f),
+        wave = IenTheme.colors.surface.copy(alpha = 0.88f),
+    )
+
+    IenSkeletonBackground.GreyOpacity100 -> IenSkeletonColors(
+        base = IenTheme.colors.border.copy(alpha = 0.60f),
+        softWave = IenTheme.colors.border.copy(alpha = 0.40f),
+        wave = IenTheme.colors.border.copy(alpha = 0.24f),
+    )
+}
+
+@Composable
+private fun ColumnScope.IenSkeletonElementView(
+    element: IenSkeletonElement,
+    index: Int,
+    radius: Dp,
+    brush: Brush,
+) {
+    when (element) {
+        IenSkeletonElement.Title -> IenSkeletonBlock(
+            modifier = Modifier.fillMaxWidth(0.48f),
+            height = 24.dp,
+            radius = radius,
+            brush = brush,
+        )
+
+        IenSkeletonElement.Subtitle -> IenSkeletonBlock(
+            modifier = Modifier.fillMaxWidth(0.34f),
+            height = 16.dp,
+            radius = radius,
+            brush = brush,
+        )
+
+        IenSkeletonElement.List -> IenSkeletonListRow(
+            index = index,
+            radius = radius,
+            brush = brush,
+        )
+
+        IenSkeletonElement.ListWithIcon -> IenSkeletonListRowWithIcon(
+            index = index,
+            radius = radius,
+            brush = brush,
+        )
+
+        IenSkeletonElement.Card -> IenSkeletonBlock(
+            modifier = Modifier.fillMaxWidth(),
+            height = 132.dp,
+            radius = IenTheme.radius.default,
+            brush = brush,
+        )
+
+        is IenSkeletonElement.Spacer -> Spacer(modifier = Modifier.height(element.height))
+    }
+}
+
+@Composable
+private fun IenSkeletonListRow(
+    index: Int,
+    radius: Dp,
+    brush: Brush,
+) {
+    val widthFraction = when (index % 3) {
+        0 -> 0.92f
+        1 -> 0.78f
+        else -> 0.86f
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp),
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        IenSkeletonBlock(
+            modifier = Modifier.fillMaxWidth(widthFraction),
+            height = 18.dp,
+            radius = radius,
+            brush = brush,
+        )
+    }
+}
+
+@Composable
+private fun IenSkeletonListRowWithIcon(
+    index: Int,
+    radius: Dp,
+    brush: Brush,
+) {
+    val primaryWidthFraction = when (index % 3) {
+        0 -> 0.70f
+        1 -> 0.56f
+        else -> 0.64f
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp),
+        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(brush),
+        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+        ) {
+            IenSkeletonBlock(
+                modifier = Modifier.fillMaxWidth(primaryWidthFraction),
+                height = 18.dp,
+                radius = radius,
+                brush = brush,
+            )
+            IenSkeletonBlock(
+                modifier = Modifier.fillMaxWidth(0.38f),
+                height = 14.dp,
+                radius = radius,
+                brush = brush,
+            )
+        }
+    }
+}
+
+@Composable
+private fun IenSkeletonBlock(
+    modifier: Modifier,
+    height: Dp,
+    radius: Dp,
+    brush: Brush,
+) {
     Box(
         modifier = modifier
             .height(height)
             .clip(RoundedCornerShape(radius))
-            .background(IenTheme.colors.border.copy(alpha = alpha)),
+            .background(brush),
     )
 }
 

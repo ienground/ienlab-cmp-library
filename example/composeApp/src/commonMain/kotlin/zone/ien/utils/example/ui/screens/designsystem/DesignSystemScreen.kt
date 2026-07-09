@@ -76,6 +76,10 @@ import zone.ien.utils.ui.components.composite.IenResultTone
 import zone.ien.utils.ui.components.composite.IenScaffold
 import zone.ien.utils.ui.components.composite.IenSheetDetent
 import zone.ien.utils.ui.components.composite.IenSkeleton
+import zone.ien.utils.ui.components.composite.IenSkeletonBackground
+import zone.ien.utils.ui.components.composite.IenSkeletonElement
+import zone.ien.utils.ui.components.composite.IenSkeletonPattern
+import zone.ien.utils.ui.components.composite.IenSkeletonRepeat
 import zone.ien.utils.ui.components.composite.IenTableRow
 import zone.ien.utils.ui.components.composite.IenToast
 import zone.ien.utils.ui.components.composite.IenToastHost
@@ -109,6 +113,9 @@ import zone.ien.utils.ui.components.interactive.IenSearchField
 import zone.ien.utils.ui.components.interactive.IenSecureKeyboardLanguage
 import zone.ien.utils.ui.components.interactive.IenSecureKeyboardState
 import zone.ien.utils.ui.components.interactive.IenSegmentedControl
+import zone.ien.utils.ui.components.interactive.IenSegmentedControlAlignment
+import zone.ien.utils.ui.components.interactive.IenSegmentedControlItem
+import zone.ien.utils.ui.components.interactive.IenSegmentedControlSize
 import zone.ien.utils.ui.components.interactive.IenSlider
 import zone.ien.utils.ui.components.interactive.IenSplitTextField
 import zone.ien.utils.ui.components.interactive.IenStepper
@@ -920,13 +927,32 @@ fun SearchFieldSection() {
 @Composable
 fun SegmentedControlSection() {
     IenTheme {
-        var selected by remember { mutableIntStateOf(0) }
+        var selected by remember { mutableStateOf("all") }
         ComponentSection(title = "SegmentedControl") {
             IenSegmentedControl(
-                items = listOf("전체", "진행", "완료"),
-                selectedIndex = selected,
-                onSelectedIndexChange = { selected = it },
+                items = listOf(
+                    IenSegmentedControlItem(value = "all", label = "전체"),
+                    IenSegmentedControlItem(value = "progress", label = "진행"),
+                    IenSegmentedControlItem(value = "done", label = "완료"),
+                ),
+                value = selected,
+                onChange = { selected = it },
                 modifier = Modifier.fillMaxWidth(),
+                size = IenSegmentedControlSize.Small,
+                alignment = IenSegmentedControlAlignment.Fixed,
+            )
+            IenSegmentedControl(
+                items = listOf(
+                    IenSegmentedControlItem(value = "today", label = "오늘"),
+                    IenSegmentedControlItem(value = "week", label = "이번 주"),
+                    IenSegmentedControlItem(value = "month", label = "이번 달"),
+                    IenSegmentedControlItem(value = "quarter", label = "분기"),
+                    IenSegmentedControlItem(value = "year", label = "올해"),
+                ),
+                defaultValue = "today",
+                modifier = Modifier.fillMaxWidth(),
+                size = IenSegmentedControlSize.Large,
+                alignment = IenSegmentedControlAlignment.Fluid,
             )
         }
     }
@@ -937,8 +963,32 @@ fun SegmentedControlSection() {
 fun SkeletonSection() {
     IenTheme {
         ComponentSection(title = "Skeleton") {
-            IenSkeleton(modifier = Modifier.fillMaxWidth(), height = 20.dp)
-            IenSkeleton(modifier = Modifier.fillMaxWidth(0.65f), height = 20.dp)
+            IenSkeleton(
+                modifier = Modifier.fillMaxWidth(),
+                pattern = IenSkeletonPattern.TopListWithIcon,
+                repeatLastItemCount = IenSkeletonRepeat.Count(3),
+            )
+            IenSkeleton(
+                modifier = Modifier.fillMaxWidth(),
+                pattern = IenSkeletonPattern.CardOnly,
+                background = IenSkeletonBackground.GreyOpacity100,
+            )
+            IenSkeleton(
+                modifier = Modifier.fillMaxWidth(),
+                custom = listOf(
+                    IenSkeletonElement.Title,
+                    IenSkeletonElement.Subtitle,
+                    IenSkeletonElement.Spacer(12.dp),
+                    IenSkeletonElement.Card,
+                    IenSkeletonElement.Spacer(8.dp),
+                    IenSkeletonElement.ListWithIcon,
+                ),
+                repeatLastItemCount = IenSkeletonRepeat.Count(2),
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
+                IenSkeleton(modifier = Modifier.weight(1f), height = 20.dp)
+                IenSkeleton(modifier = Modifier.weight(0.65f), height = 20.dp)
+            }
         }
     }
 }
