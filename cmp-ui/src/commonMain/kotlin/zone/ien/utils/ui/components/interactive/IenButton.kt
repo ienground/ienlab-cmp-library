@@ -26,6 +26,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import zone.ien.utils.ui.utils.instantPress
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -290,7 +293,7 @@ internal fun IenButtonContainer(
     val ienColors = ienButtonColors(variant, tone, state.enabled)
     val interactiveEnabled = state.enabled && !state.loading
 
-    val isPressed by interactionSource.collectIsPressedAsState()
+    var isPressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (isPressed && interactiveEnabled) scalePressed else 1.0f,
         animationSpec = spring(
@@ -305,6 +308,7 @@ internal fun IenButtonContainer(
             scaleY = scale
         }
         .semantics { role = Role.Button }
+        .instantPress(interactiveEnabled) { isPressed = it }
 
     val resolvedColors = colors ?: ButtonDefaults.buttonColors(
         containerColor = ienColors.container,

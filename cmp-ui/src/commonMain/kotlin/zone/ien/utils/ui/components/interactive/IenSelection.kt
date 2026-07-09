@@ -38,6 +38,7 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.graphics.graphicsLayer
+import zone.ien.utils.ui.utils.instantPress
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.animation.core.Animatable
@@ -196,7 +197,7 @@ fun IenCircleCheckbox(
     }
 
     val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
+    var isPressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (isPressed && enabled) 0.95f else 1.0f,
         animationSpec = spring(
@@ -250,6 +251,7 @@ fun IenCircleCheckbox(
     Row(
         modifier = modifier
             .defaultMinSize(minHeight = IenTheme.state.minimumTouchTarget)
+            .instantPress(enabled) { isPressed = it }
             .clickable(
                 enabled = true,
                 interactionSource = interactionSource,
@@ -325,7 +327,7 @@ fun IenLineCheckbox(
     )
 
     val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
+    var isPressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (isPressed && enabled) 0.95f else 1.0f,
         animationSpec = spring(
@@ -362,6 +364,7 @@ fun IenLineCheckbox(
     Row(
         modifier = modifier
             .defaultMinSize(minHeight = IenTheme.state.minimumTouchTarget)
+            .instantPress(enabled) { isPressed = it }
             .clickable(
                 enabled = true,
                 interactionSource = interactionSource,
