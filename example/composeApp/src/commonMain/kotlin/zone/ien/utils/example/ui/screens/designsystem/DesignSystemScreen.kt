@@ -253,9 +253,14 @@ fun DesignSystemScreen(
 
                 ComponentSection(title = "BoardRow") {
                     IenBoardRow(
-//                        opened = true,
-//                        onOpenedChange = {},
                         title = { IenText("배송 정보 자세히 보기", style = IenTheme.typography.label1) },
+                        initialOpened = true,
+                        prefix = { IenBadge("배송", size = IenBadgeSize.Small) },
+                    ) {
+                        IenText("제한된 영역에서 상세 정보를 접고 펼치는 아코디언형 정보 구조입니다.", color = IenTheme.colors.textSecondary)
+                    }
+                    IenBoardRow(
+                        title = { IenText("배송 정보 자세히 보기2", style = IenTheme.typography.label1) },
                         prefix = { IenBadge("배송", size = IenBadgeSize.Small) },
                     ) {
                         IenText("제한된 영역에서 상세 정보를 접고 펼치는 아코디언형 정보 구조입니다.", color = IenTheme.colors.textSecondary)

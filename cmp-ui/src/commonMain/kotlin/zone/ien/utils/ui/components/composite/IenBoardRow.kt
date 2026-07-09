@@ -70,7 +70,8 @@ fun rememberIenBoardRowState(
 fun IenBoardRow(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    state: IenBoardRowState = rememberIenBoardRowState(),
+    initialOpened: Boolean = false,
+    state: IenBoardRowState = rememberIenBoardRowState(initialOpened),
     prefix: (@Composable () -> Unit)? = null,
     icon: (@Composable (opened: Boolean) -> Unit)? = { IenBoardRowIcon(opened = it) },
     children: @Composable ColumnScope.() -> Unit,
