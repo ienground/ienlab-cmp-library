@@ -66,14 +66,16 @@ import zone.ien.utils.ui.components.composite.IenModal
 import zone.ien.utils.ui.components.composite.IenParagraph
 import zone.ien.utils.ui.components.composite.IenPost
 import zone.ien.utils.ui.components.composite.IenProgressBar
+import zone.ien.utils.ui.components.composite.IenProgressBarSize
 import zone.ien.utils.ui.components.composite.IenProgressStep
 import zone.ien.utils.ui.components.composite.IenProgressStepper
+import zone.ien.utils.ui.components.composite.IenProgressStepperPaddingTop
+import zone.ien.utils.ui.components.composite.IenProgressStepperVariant
 import zone.ien.utils.ui.components.composite.IenResult
 import zone.ien.utils.ui.components.composite.IenResultTone
 import zone.ien.utils.ui.components.composite.IenScaffold
 import zone.ien.utils.ui.components.composite.IenSheetDetent
 import zone.ien.utils.ui.components.composite.IenSkeleton
-import zone.ien.utils.ui.components.composite.IenStepStatus
 import zone.ien.utils.ui.components.composite.IenTableRow
 import zone.ien.utils.ui.components.composite.IenToast
 import zone.ien.utils.ui.components.composite.IenToastHost
@@ -766,11 +768,36 @@ fun PostSection() {
 @Composable
 fun ProgressBarSection() {
     IenTheme {
+        var animatedProgress by remember { mutableStateOf(0f) }
         ComponentSection(title = "ProgressBar") {
             IenProgressBar(
                 progress = 0.64f,
+                size = IenProgressBarSize.Light,
+                color = IenTheme.colors.brand,
+                contentDescription = "얇은 진행률",
+            )
+            IenProgressBar(
+                progress = 0.64f,
+                size = IenProgressBarSize.Normal,
+                color = IenTheme.colors.success,
+                contentDescription = "기본 진행률",
+            )
+            IenProgressBar(
+                progress = 0.64f,
+                size = IenProgressBarSize.Bold,
+                color = IenTheme.colors.danger,
                 showLabel = true,
-                contentDescription = "업로드 진행률",
+                contentDescription = "굵은 업로드 진행률",
+            )
+            IenProgressBar(
+                progress = animatedProgress,
+                size = IenProgressBarSize.Bold,
+                animate = true,
+                contentDescription = "애니메이션 진행률",
+            )
+            IenButton(
+                text = if (animatedProgress == 0f) "애니메이션 시작" else "애니메이션 리셋",
+                onClick = { animatedProgress = if (animatedProgress == 0f) 1f else 0f },
             )
         }
     }
@@ -783,10 +810,53 @@ fun ProgressStepperSection() {
         ComponentSection(title = "ProgressStepper") {
             IenProgressStepper(
                 steps = listOf(
-                    IenProgressStep("입력", IenStepStatus.Done),
-                    IenProgressStep("확인", IenStepStatus.Current),
-                    IenProgressStep("완료", IenStepStatus.Pending),
+                    IenProgressStep(title = "유심 신청"),
+                    IenProgressStep(title = "배송 완료"),
+                    IenProgressStep(title = "개통 완료"),
                 ),
+                variant = IenProgressStepperVariant.Compact,
+                activeStepIndex = 1,
+            )
+            IenProgressStepper(
+                steps = listOf(
+                    IenProgressStep(title = "첫 번째"),
+                    IenProgressStep(title = "두 번째"),
+                    IenProgressStep(title = "세 번째"),
+                    IenProgressStep(title = "마지막"),
+                ),
+                variant = IenProgressStepperVariant.Icon,
+                paddingTop = IenProgressStepperPaddingTop.Wide,
+                activeStepIndex = 2,
+                checkForFinish = true,
+            )
+            IenProgressStepper(
+                steps = listOf(
+                    IenProgressStep(),
+                    IenProgressStep(),
+                    IenProgressStep(),
+                    IenProgressStep(),
+                ),
+                variant = IenProgressStepperVariant.Compact,
+                activeStepIndex = 1,
+            )
+            IenProgressStepper(
+                steps = listOf(
+                    IenProgressStep(
+                        title = "아이콘",
+                        icon = {
+                            IenIcon(
+                                imageVector = M3SystemIcons.Filled.Check,
+                                contentDescription = null,
+                                tint = IenTheme.colors.onBrand,
+                                size = IenTheme.icon.sm,
+                            )
+                        },
+                    ),
+                    IenProgressStep(title = "진행"),
+                    IenProgressStep(title = "완료"),
+                ),
+                variant = IenProgressStepperVariant.Icon,
+                activeStepIndex = 1,
             )
         }
     }

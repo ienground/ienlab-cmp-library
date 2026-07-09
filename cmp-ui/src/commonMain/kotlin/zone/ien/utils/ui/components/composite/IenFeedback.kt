@@ -3,6 +3,7 @@ package zone.ien.utils.ui.components.composite
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -33,7 +34,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -447,10 +447,27 @@ fun IenSkeleton(
 fun IenProgressBar(
     progress: Float,
     modifier: Modifier = Modifier,
+    size: IenProgressBarSize = IenProgressBarSize.Normal,
+    color: Color = IenTheme.colors.brand,
+    animate: Boolean = false,
     contentDescription: String? = null,
     showLabel: Boolean = false,
 ) {
     val safeProgress = progress.coerceIn(0f, 1f)
+    val displayedProgress by animateFloatAsState(
+        targetValue = safeProgress,
+        animationSpec = tween(
+            durationMillis = if (animate) IenTheme.motion.normalMillis else 0,
+            easing = IenTheme.motion.standardEasing,
+        ),
+        label = "ienProgressBar",
+    )
+    val barHeight = when (size) {
+        IenProgressBarSize.Light -> 2.dp
+        IenProgressBarSize.Normal -> 4.dp
+        IenProgressBarSize.Bold -> 8.dp
+    }
+
     Column(
         modifier = modifier.semantics {
             if (contentDescription != null) this.contentDescription = contentDescription
@@ -458,12 +475,21 @@ fun IenProgressBar(
         },
         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
     ) {
-        LinearProgressIndicator(
-            progress = { safeProgress },
-            modifier = Modifier.fillMaxWidth(),
-            color = IenTheme.colors.brand,
-            trackColor = IenTheme.colors.brandWeak,
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(barHeight)
+                .clip(RoundedCornerShape(IenTheme.radius.full))
+                .background(color.copy(alpha = 0.16f)),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(displayedProgress)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(IenTheme.radius.full))
+                    .background(color),
+            )
+        }
         if (showLabel) {
             IenText(
                 text = "${(safeProgress * 100).toInt()}%",
@@ -472,6 +498,12 @@ fun IenProgressBar(
             )
         }
     }
+}
+
+enum class IenProgressBarSize {
+    Light,
+    Normal,
+    Bold,
 }
 
 enum class IenLoaderSize { Small, Medium, Large }
@@ -508,61 +540,167 @@ fun IenLoader(
 
 enum class IenStepStatus { Pending, Current, Done, Error }
 
-@Immutable
+enum class IenProgressStepperVariant {
+    Compact,
+    Icon,
+}
+
+enum class IenProgressStepperPaddingTop {
+    Default,
+    Wide,
+}
+
 data class IenProgressStep(
-    val label: String,
-    val status: IenStepStatus,
-)
+    val title: String? = null,
+    val status: IenStepStatus? = null,
+    val icon: (@Composable () -> Unit)? = null,
+) {
+    constructor(label: String, status: IenStepStatus) : this(
+        title = label,
+        status = status,
+        icon = null,
+    )
+}
 
 @Composable
 fun IenProgressStepper(
     steps: List<IenProgressStep>,
     modifier: Modifier = Modifier,
+    variant: IenProgressStepperVariant = IenProgressStepperVariant.Compact,
+    paddingTop: IenProgressStepperPaddingTop = IenProgressStepperPaddingTop.Default,
+    activeStepIndex: Int = 0,
+    checkForFinish: Boolean = false,
 ) {
+    val safeActiveStepIndex = activeStepIndex.coerceIn(0, (steps.size - 1).coerceAtLeast(0))
+    val topPadding = when (paddingTop) {
+        IenProgressStepperPaddingTop.Default -> IenTheme.spacing.md
+        IenProgressStepperPaddingTop.Wide -> IenTheme.spacing.xl
+    }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .padding(top = topPadding)
             .semantics {
-                contentDescription = "진행 단계 ${steps.count { it.status == IenStepStatus.Done }} / ${steps.size}"
+                contentDescription = "진행 단계 ${safeActiveStepIndex + 1} / ${steps.size}"
             },
-        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.none),
         verticalAlignment = Alignment.Top,
     ) {
         steps.forEachIndexed { index, step ->
+            val status = step.status ?: when {
+                index < safeActiveStepIndex -> IenStepStatus.Done
+                index == safeActiveStepIndex -> IenStepStatus.Current
+                else -> IenStepStatus.Pending
+            }
+            val color = when (status) {
+                IenStepStatus.Pending -> IenTheme.colors.borderStrong
+                IenStepStatus.Current -> IenTheme.colors.brand
+                IenStepStatus.Done -> IenTheme.colors.brand
+                IenStepStatus.Error -> IenTheme.colors.danger
+            }
+            val titleColor = when (status) {
+                IenStepStatus.Pending -> IenTheme.colors.textTertiary
+                IenStepStatus.Current -> IenTheme.colors.textPrimary
+                IenStepStatus.Done -> IenTheme.colors.textSecondary
+                IenStepStatus.Error -> IenTheme.colors.danger
+            }
+
             Column(
                 modifier = Modifier.weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                val color = when (step.status) {
-                    IenStepStatus.Pending -> IenTheme.colors.borderStrong
-                    IenStepStatus.Current -> IenTheme.colors.brand
-                    IenStepStatus.Done -> IenTheme.colors.success
-                    IenStepStatus.Error -> IenTheme.colors.danger
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .clip(CircleShape)
-                            .background(color),
-                    )
-                    if (index != steps.lastIndex) {
-                        Spacer(
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(progressStepMarkerSize(variant)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (index > 0) {
+                        Box(
                             modifier = Modifier
+                                .align(Alignment.CenterStart)
+                                .fillMaxWidth(0.5f)
                                 .height(IenTheme.stroke.thin)
-                                .weight(1f)
-                                .background(IenTheme.colors.border),
+                                .background(if (index <= safeActiveStepIndex) IenTheme.colors.brand else IenTheme.colors.border),
                         )
                     }
+                    if (index < steps.lastIndex) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .fillMaxWidth(0.5f)
+                                .height(IenTheme.stroke.thin)
+                                .background(if (index < safeActiveStepIndex) IenTheme.colors.brand else IenTheme.colors.border),
+                        )
+                    }
+                    ProgressStepMarker(
+                        variant = variant,
+                        status = status,
+                        color = color,
+                        icon = step.icon,
+                        showFinishedCheck = variant == IenProgressStepperVariant.Icon &&
+                            checkForFinish &&
+                            index < safeActiveStepIndex,
+                    )
                 }
-                Spacer(Modifier.height(IenTheme.spacing.xs))
-                IenText(
-                    text = step.label,
-                    style = IenTheme.typography.caption,
-                    color = color,
-                    maxLines = 2,
-                )
+                if (step.title != null) {
+                    Spacer(Modifier.height(IenTheme.spacing.xs))
+                    IenText(
+                        text = step.title,
+                        style = IenTheme.typography.caption,
+                        color = titleColor,
+                        maxLines = 2,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    )
+                }
             }
+        }
+    }
+}
+
+private fun progressStepMarkerSize(variant: IenProgressStepperVariant): Dp =
+    when (variant) {
+        IenProgressStepperVariant.Compact -> 10.dp
+        IenProgressStepperVariant.Icon -> 28.dp
+    }
+
+@Composable
+private fun ProgressStepMarker(
+    variant: IenProgressStepperVariant,
+    status: IenStepStatus,
+    color: Color,
+    icon: (@Composable () -> Unit)?,
+    showFinishedCheck: Boolean,
+) {
+    val markerSize = progressStepMarkerSize(variant)
+    val backgroundColor = when {
+        status == IenStepStatus.Pending -> IenTheme.colors.surfaceVariant
+        variant == IenProgressStepperVariant.Icon -> color
+        else -> color
+    }
+
+    Box(
+        modifier = Modifier
+            .size(markerSize)
+            .clip(CircleShape)
+            .background(backgroundColor),
+        contentAlignment = Alignment.Center,
+    ) {
+        when {
+            showFinishedCheck -> IenIcon(
+                imageVector = M3SystemIcons.Filled.Check,
+                contentDescription = null,
+                tint = IenTheme.colors.onBrand,
+                size = IenTheme.icon.sm,
+            )
+            variant == IenProgressStepperVariant.Icon && icon != null -> icon()
+            variant == IenProgressStepperVariant.Icon && status == IenStepStatus.Current -> Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(IenTheme.colors.onBrand),
+            )
         }
     }
 }
