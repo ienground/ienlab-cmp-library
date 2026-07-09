@@ -101,7 +101,7 @@ import zone.ien.utils.ui.components.interactive.IenKeyboardAction
 import zone.ien.utils.ui.components.interactive.IenLineCheckbox
 import zone.ien.utils.ui.components.interactive.IenNumberKeypad
 import zone.ien.utils.ui.components.interactive.IenNumericSpinner
-import zone.ien.utils.ui.components.interactive.IenNumericSpinnerRange
+import zone.ien.utils.ui.components.interactive.IenNumericSpinnerSize
 import zone.ien.utils.ui.components.interactive.IenRating
 import zone.ien.utils.ui.components.interactive.IenSearchField
 import zone.ien.utils.ui.components.interactive.IenSecureKeyboardLanguage
@@ -673,22 +673,28 @@ fun ModalSection() {
         }
 
         IenModal(
-            visible = showModal,
-            onDismissRequest = { showModal = false },
-            title = "모달",
-            description = "Modal은 화면 맥락을 잠시 멈추고 중요한 선택이나 정보를 전달합니다.",
-            primaryActionText = "확인",
-            onPrimaryActionClick = { showModal = false },
-            secondaryActionText = "취소",
-            onSecondaryActionClick = { showModal = false },
+            open = showModal,
+            onOpenChange = { showModal = it },
         ) {
-            IenBottomInfo(
-                backgroundColor = IenTheme.colors.infoWeak
+            IenModal.Overlay(onClick = { showModal = false })
+            IenModal.Content(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(horizontal = IenTheme.spacing.lg),
             ) {
                 IenText(
-                    text = "Dialog보다 자유로운 콘텐츠 슬롯을 가진 오버레이입니다.",
-                    style = IenTheme.typography.caption,
-                    color = IenTheme.colors.info
+                    text = "모달",
+                    style = IenTheme.typography.title2,
+                )
+                IenText(
+                    text = "Modal은 Overlay와 Content를 조합해서 중요한 콘텐츠를 표시합니다.",
+                    style = IenTheme.typography.body2,
+                    color = IenTheme.colors.textSecondary,
+                )
+                IenButton(
+                    text = "확인",
+                    onClick = { showModal = false },
+                    display = IenButtonDisplay.Block,
                 )
             }
         }
@@ -700,12 +706,25 @@ fun ModalSection() {
 fun NumericSpinnerSection() {
     IenTheme {
         var spinnerValue by remember { mutableIntStateOf(2) }
+        var tinySpinnerValue by remember { mutableIntStateOf(0) }
         ComponentSection(title = "NumericSpinner") {
             IenNumericSpinner(
-                value = spinnerValue,
-                onValueChange = { spinnerValue = it },
-                range = IenNumericSpinnerRange(min = 1, max = 9),
-                label = "수량",
+                number = spinnerValue,
+                onNumberChange = { spinnerValue = it },
+                minNumber = 1,
+                maxNumber = 9,
+                size = IenNumericSpinnerSize.Large,
+                decreaseAriaLabel = "수량 줄이기",
+                increaseAriaLabel = "수량 늘리기",
+            )
+            IenNumericSpinner(
+                number = tinySpinnerValue,
+                onNumberChange = { tinySpinnerValue = it },
+                minNumber = 0,
+                maxNumber = 3,
+                size = IenNumericSpinnerSize.Tiny,
+                decreaseAriaLabel = "작은 값 줄이기",
+                increaseAriaLabel = "작은 값 늘리기",
             )
         }
     }

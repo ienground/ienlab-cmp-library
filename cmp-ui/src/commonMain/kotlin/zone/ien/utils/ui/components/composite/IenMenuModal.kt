@@ -3,12 +3,12 @@ package zone.ien.utils.ui.components.composite
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,14 +16,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import zone.ien.utils.ui.components.foundation.IenSemanticTone
 import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.interactive.IenButton
-import zone.ien.utils.ui.components.interactive.IenButtonSize
-import zone.ien.utils.ui.components.interactive.IenButtonVariant
-import zone.ien.utils.ui.components.interactive.IenTextButton
 import zone.ien.utils.ui.components.interactive.toneColor
 import zone.ien.utils.ui.components.primitives.IenDivider
 import zone.ien.utils.ui.components.primitives.IenSurface
@@ -100,59 +98,69 @@ private fun IenMenuItemRow(item: IenMenuItem) {
 
 @Composable
 fun IenModal(
-    visible: Boolean,
-    onDismissRequest: () -> Unit,
-    title: String,
+    open: Boolean,
+    onOpenChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    description: String? = null,
-    primaryActionText: String? = null,
-    onPrimaryActionClick: (() -> Unit)? = null,
-    secondaryActionText: String? = null,
-    onSecondaryActionClick: (() -> Unit)? = null,
-    closeActionText: String = "닫기",
-    content: (@Composable ColumnScope.() -> Unit)? = null,
+    onExited: (() -> Unit)? = null,
+    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    content: @Composable BoxScope.() -> Unit,
 ) {
-    if (!visible) return
-    Dialog(onDismissRequest = onDismissRequest) {
+    if (!open) {
+        onExited?.invoke()
+        return
+    }
+    Dialog(
+        onDismissRequest = { onOpenChange(false) },
+        properties = properties,
+    ) {
+        Box(
+            modifier = modifier.fillMaxSize(),
+            content = content,
+        )
+    }
+}
+
+object IenModal {
+    @Composable
+    fun Overlay(
+        modifier: Modifier = Modifier,
+        color: Color = Color.Black.copy(alpha = 0.42f),
+        onClick: (() -> Unit)? = null,
+    ) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .clickable(
+                    enabled = onClick != null,
+                    role = Role.Button,
+                    onClick = { onClick?.invoke() },
+                ),
+        ) {
+            IenSurface(
+                modifier = Modifier.fillMaxSize(),
+                color = color,
+                contentColor = color,
+            ) {}
+        }
+    }
+
+    @Composable
+    fun Content(
+        modifier: Modifier = Modifier,
+        shape: RoundedCornerShape = RoundedCornerShape(IenTheme.radius.xl),
+        content: @Composable ColumnScope.() -> Unit,
+    ) {
         IenSurface(
             modifier = modifier.fillMaxWidth(),
             color = IenTheme.colors.surfaceRaised,
-            shape = RoundedCornerShape(IenTheme.radius.xl),
+            shape = shape,
             tonalElevation = IenTheme.elevation.overlay,
         ) {
             Column(
                 modifier = Modifier.padding(IenTheme.spacing.lg),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
-            ) {
-                IenText(title, style = IenTheme.typography.title2)
-                if (description != null) {
-                    IenText(description, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
-                }
-                content?.invoke(this)
-                Spacer(Modifier.height(IenTheme.spacing.xs))
-                Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                    if (secondaryActionText != null && onSecondaryActionClick != null) {
-                        IenButton(
-                            text = secondaryActionText,
-                            onClick = onSecondaryActionClick,
-                            modifier = Modifier.weight(1f),
-                            size = IenButtonSize.Medium,
-                            variant = IenButtonVariant.Weak,
-                        )
-                    }
-                    if (primaryActionText != null && onPrimaryActionClick != null) {
-                        IenButton(
-                            text = primaryActionText,
-                            onClick = onPrimaryActionClick,
-                            modifier = Modifier.weight(1f),
-                            size = IenButtonSize.Medium,
-                        )
-                    }
-                }
-                Box(Modifier.align(Alignment.End)) {
-                    IenTextButton(text = closeActionText, onClick = onDismissRequest)
-                }
-            }
+                content = content,
+            )
         }
     }
 }
