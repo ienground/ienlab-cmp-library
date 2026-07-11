@@ -251,12 +251,18 @@ fun IenTextField(
                     interactionSource = interactionSource,
                     cursorBrush = SolidColor(IenTheme.colors.brand),
                     decorationBox = { innerTextField ->
-                        Box(contentAlignment = Alignment.CenterStart) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .defaultMinSize(minHeight = fieldContentMinHeight(variant)),
+                            contentAlignment = if (singleLine) Alignment.CenterStart else Alignment.TopStart,
+                        ) {
                             if (formattedValue.isEmpty() && placeholder != null) {
                                 IenText(
                                     text = placeholder,
                                     style = fieldTextStyle,
                                     color = IenTheme.colors.textTertiary,
+                                    maxLines = if (singleLine) 1 else maxLines,
                                 )
                             }
                             innerTextField()
@@ -482,6 +488,15 @@ private fun fieldTopPadding(variant: IenTextFieldVariant, paddingTop: Dp?): Dp {
 
 private fun fieldBottomPadding(variant: IenTextFieldVariant, paddingBottom: Dp?): Dp {
     return paddingBottom ?: fieldDefaultVerticalPadding(variant)
+}
+
+private fun fieldContentMinHeight(variant: IenTextFieldVariant): Dp {
+    return when (variant) {
+        IenTextFieldVariant.Box,
+        IenTextFieldVariant.Line -> 24.dp
+        IenTextFieldVariant.Big -> 28.dp
+        IenTextFieldVariant.Hero -> 38.dp
+    }
 }
 
 @Composable
@@ -728,7 +743,7 @@ private fun IenSearchFieldInput(
                 onValueChange = onValueChange,
                 modifier = Modifier
                     .weight(1f)
-                    .height(24.dp)
+                    .defaultMinSize(minHeight = 24.dp)
                     .padding(horizontal = IenTheme.spacing.xs),
                 enabled = state.enabled,
                 readOnly = state.readOnly,
@@ -741,7 +756,7 @@ private fun IenSearchFieldInput(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(24.dp),
+                            .defaultMinSize(minHeight = 24.dp),
                         contentAlignment = Alignment.CenterStart,
                     ) {
                         if (value.isEmpty()) {
