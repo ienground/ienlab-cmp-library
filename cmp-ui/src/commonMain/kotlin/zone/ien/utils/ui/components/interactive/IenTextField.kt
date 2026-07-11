@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,10 +38,13 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.animation.core.Animatable
@@ -126,6 +130,12 @@ fun IenTextField(
         else -> state.status
     }
     val formattedValue = format?.transform?.invoke(value) ?: value
+    var fieldValue by remember { mutableStateOf(TextFieldValue(formattedValue)) }
+    SyncTextFieldValue(
+        text = formattedValue,
+        fieldValue = fieldValue,
+        onFieldValueChange = { fieldValue = it },
+    )
     val showLabel = label != null && (labelOption == IenTextFieldLabelOption.Sustain || value.isNotEmpty() || focused)
 
     val labelAlpha by animateFloatAsState(
@@ -151,7 +161,7 @@ fun IenTextField(
         IenTextFieldVariant.Line -> IenTheme.typography.body1
         IenTextFieldVariant.Big -> IenTheme.typography.title2
         IenTextFieldVariant.Hero -> IenTheme.typography.display
-    }
+    }.fieldInputTextStyle()
     val borderColor = when (effectiveStatus) {
         is IenFieldStatus.Error -> IenTheme.colors.danger
         is IenFieldStatus.Success -> IenTheme.colors.success
@@ -211,9 +221,10 @@ fun IenTextField(
                     Spacer(Modifier.width(IenTheme.spacing.xs))
                 }
                 BasicTextField(
-                    value = formattedValue,
+                    value = fieldValue,
                     onValueChange = { next ->
-                        onValueChange(format?.reset?.invoke(next) ?: next)
+                        fieldValue = next
+                        onValueChange(format?.reset?.invoke(next.text) ?: next.text)
                     },
                     modifier = Modifier
                         .weight(1f)
@@ -254,10 +265,16 @@ fun IenTextField(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .defaultMinSize(minHeight = fieldContentMinHeight(variant)),
+                                .then(
+                                    if (singleLine) {
+                                        Modifier.height(fieldContentMinHeight(variant))
+                                    } else {
+                                        Modifier.defaultMinSize(minHeight = fieldContentMinHeight(variant))
+                                    },
+                                ),
                             contentAlignment = if (singleLine) Alignment.CenterStart else Alignment.TopStart,
                         ) {
-                            if (formattedValue.isEmpty() && placeholder != null) {
+                            if (fieldValue.text.isEmpty() && placeholder != null) {
                                 IenText(
                                     text = placeholder,
                                     style = fieldTextStyle,
@@ -499,6 +516,40 @@ private fun fieldContentMinHeight(variant: IenTextFieldVariant): Dp {
     }
 }
 
+private fun TextStyle.fieldInputTextStyle(): TextStyle {
+    return copy(
+        lineHeightStyle = LineHeightStyle(
+            alignment = LineHeightStyle.Alignment.Center,
+            trim = LineHeightStyle.Trim.Both,
+        ),
+    )
+}
+
+@Composable
+private fun SyncTextFieldValue(
+    text: String,
+    fieldValue: TextFieldValue,
+    onFieldValueChange: (TextFieldValue) -> Unit,
+) {
+    LaunchedEffect(text) {
+        if (text != fieldValue.text && fieldValue.composition == null) {
+            onFieldValueChange(
+                fieldValue.copy(
+                    text = text,
+                    selection = fieldValue.selection.constrainToText(text),
+                    composition = null,
+                ),
+            )
+        }
+    }
+}
+
+private fun androidx.compose.ui.text.TextRange.constrainToText(text: String): androidx.compose.ui.text.TextRange {
+    val start = start.coerceIn(0, text.length)
+    val end = end.coerceIn(0, text.length)
+    return androidx.compose.ui.text.TextRange(start, end)
+}
+
 @Composable
 private fun IenTextFieldClearButton(
     onClick: () -> Unit,
@@ -722,9 +773,15 @@ private fun IenSearchFieldInput(
     keyboardOptions: KeyboardOptions,
     keyboardActions: KeyboardActions,
 ) {
-    val textStyle = IenTheme.typography.body2
+    val textStyle = IenTheme.typography.body2.fieldInputTextStyle()
     val textColor = if (state.enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled
     val placeholderColor = if (state.enabled) IenTheme.colors.textTertiary else IenTheme.colors.textDisabled
+    var fieldValue by remember { mutableStateOf(TextFieldValue(value)) }
+    SyncTextFieldValue(
+        text = value,
+        fieldValue = fieldValue,
+        onFieldValueChange = { fieldValue = it },
+    )
 
     IenSurface(
         modifier = modifier
@@ -739,8 +796,11 @@ private fun IenSearchFieldInput(
         ) {
             leading?.invoke()
             BasicTextField(
-                value = value,
-                onValueChange = onValueChange,
+                value = fieldValue,
+                onValueChange = { next ->
+                    fieldValue = next
+                    onValueChange(next.text)
+                },
                 modifier = Modifier
                     .weight(1f)
                     .defaultMinSize(minHeight = 24.dp)
@@ -759,7 +819,7 @@ private fun IenSearchFieldInput(
                             .defaultMinSize(minHeight = 24.dp),
                         contentAlignment = Alignment.CenterStart,
                     ) {
-                        if (value.isEmpty()) {
+                        if (fieldValue.text.isEmpty()) {
                             IenText(
                                 text = placeholder,
                                 style = textStyle,
