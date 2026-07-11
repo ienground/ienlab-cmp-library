@@ -7,17 +7,27 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.components.primitives.IenText
+import kotlin.random.Random
 
 sealed interface IenKeyboardAction {
     data class Input(val text: String) : IenKeyboardAction
@@ -38,6 +48,308 @@ data class IenSecureKeyboardState(
     val language: IenSecureKeyboardLanguage = IenSecureKeyboardLanguage.English,
     val maskValue: Boolean = true,
 )
+
+@Immutable
+data class IenFullSecureKey(
+    val value: String,
+    val label: String = value,
+    val secondaryLabel: String? = null,
+)
+
+@Stable
+class IenFullSecureKeypadState internal constructor(
+    private val initialSeed: Int,
+) {
+    private var seed by mutableStateOf(initialSeed)
+
+    fun reorderEmptyCells() {
+        seed = Random.nextInt()
+    }
+
+    internal fun emptyCellIndexes(
+        rowId: String,
+        totalCells: Int,
+        keyCount: Int,
+    ): Set<Int> {
+        val emptyCount = (totalCells - keyCount).coerceAtLeast(0)
+        if (emptyCount == 0) return emptySet()
+        return (0 until totalCells)
+            .shuffled(Random(seed xor rowId.hashCode()))
+            .take(emptyCount)
+            .toSet()
+    }
+}
+
+@Composable
+fun rememberIenFullSecureKeypadState(): IenFullSecureKeypadState = remember {
+    IenFullSecureKeypadState(Random.nextInt())
+}
+
+object IenAlphabetKeypadDefaults {
+    val Alphabets: List<String> = ('A'..'Z').map { it.toString() }
+}
+
+object IenNumberKeypadDefaults {
+    val Numbers: List<Int> = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
+}
+
+object IenFullSecureKeypadDefaults {
+    val NumberKeys: List<IenFullSecureKey> = (1..9).map { IenFullSecureKey(it.toString()) } +
+        IenFullSecureKey("0")
+    val FirstAlphabetRow: List<IenFullSecureKey> = listOf(
+        IenFullSecureKey("q", secondaryLabel = "ㅂ"),
+        IenFullSecureKey("w", secondaryLabel = "ㅈ"),
+        IenFullSecureKey("e", secondaryLabel = "ㄷ"),
+        IenFullSecureKey("r", secondaryLabel = "ㄱ"),
+        IenFullSecureKey("t", secondaryLabel = "ㅅ"),
+        IenFullSecureKey("y", secondaryLabel = "ㅛ"),
+        IenFullSecureKey("u", secondaryLabel = "ㅕ"),
+        IenFullSecureKey("i", secondaryLabel = "ㅑ"),
+        IenFullSecureKey("o", secondaryLabel = "ㅐ"),
+        IenFullSecureKey("p", secondaryLabel = "ㅔ"),
+    )
+    val SecondAlphabetRow: List<IenFullSecureKey> = listOf(
+        IenFullSecureKey("a", secondaryLabel = "ㅁ"),
+        IenFullSecureKey("s", secondaryLabel = "ㄴ"),
+        IenFullSecureKey("d", secondaryLabel = "ㅇ"),
+        IenFullSecureKey("f", secondaryLabel = "ㄹ"),
+        IenFullSecureKey("g", secondaryLabel = "ㅎ"),
+        IenFullSecureKey("h", secondaryLabel = "ㅗ"),
+        IenFullSecureKey("j", secondaryLabel = "ㅓ"),
+        IenFullSecureKey("k", secondaryLabel = "ㅏ"),
+        IenFullSecureKey("l", secondaryLabel = "ㅣ"),
+    )
+    val ThirdAlphabetRow: List<IenFullSecureKey> = listOf(
+        IenFullSecureKey("z", secondaryLabel = "ㅋ"),
+        IenFullSecureKey("x", secondaryLabel = "ㅌ"),
+        IenFullSecureKey("c", secondaryLabel = "ㅊ"),
+        IenFullSecureKey("v", secondaryLabel = "ㅍ"),
+        IenFullSecureKey("b", secondaryLabel = "ㅠ"),
+        IenFullSecureKey("n", secondaryLabel = "ㅜ"),
+        IenFullSecureKey("m", secondaryLabel = "ㅡ"),
+    )
+}
+
+@Composable
+fun IenAlphabetKeypad(
+    onKeyClick: (value: String) -> Unit,
+    onBackspaceClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    alphabets: List<String> = IenAlphabetKeypadDefaults.Alphabets,
+    enabled: Boolean = true,
+    columns: Int = 3,
+    keyHeight: Dp = 56.dp,
+) {
+    val safeColumns = columns.coerceAtLeast(1)
+    val rows = remember(alphabets, safeColumns) {
+        alphabets.filter { it.isNotBlank() }.chunked(safeColumns)
+    }
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+    ) {
+        rows.forEach { row ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+            ) {
+                repeat(safeColumns) { index ->
+                    val value = row.getOrNull(index)
+                    if (value == null) {
+                        Box(modifier = Modifier.weight(1f))
+                    } else {
+                        IenKeypadKey(
+                            label = value,
+                            onClick = { onKeyClick(value) },
+                            modifier = Modifier.weight(1f),
+                            enabled = enabled,
+                            height = keyHeight,
+                        )
+                    }
+                }
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+        ) {
+            repeat(safeColumns - 1) {
+                Box(modifier = Modifier.weight(1f))
+            }
+            IenKeypadKey(
+                label = "⌫",
+                onClick = onBackspaceClick,
+                modifier = Modifier.weight(1f),
+                enabled = enabled,
+                height = keyHeight,
+            )
+        }
+    }
+}
+
+@Composable
+fun IenNumberKeypad(
+    onKeyClick: (value: String) -> Unit,
+    onBackspaceClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    numbers: List<Int> = IenNumberKeypadDefaults.Numbers,
+    secure: Boolean = false,
+    enabled: Boolean = true,
+    keyHeight: Dp = 64.dp,
+    onSecureNoiseKeyClick: (value: String) -> Unit = {},
+) {
+    val safeNumbers = remember(numbers) {
+        numbers.filter { it in 0..9 }.ifEmpty { IenNumberKeypadDefaults.Numbers }
+    }
+    val rows = remember(safeNumbers) {
+        buildNumberKeypadRows(safeNumbers)
+    }
+    IenSurface(
+        modifier = modifier.fillMaxWidth(),
+        color = IenTheme.colors.surfaceWeak,
+        shape = RoundedCornerShape(IenTheme.radius.default),
+    ) {
+        Column(
+            modifier = Modifier.padding(IenTheme.spacing.xs),
+            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+        ) {
+            rows.forEach { row ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                ) {
+                    row.forEach { cell ->
+                        when {
+                            cell == null -> Box(modifier = Modifier.weight(1f))
+                            cell.isBackspace -> IenNumberKeypadActionKey(
+                                label = "⌫",
+                                onClick = onBackspaceClick,
+                                modifier = Modifier.weight(1f),
+                                enabled = enabled,
+                                height = keyHeight,
+                            )
+                            cell.number != null -> IenNumberKeypadDigitKey(
+                                number = cell.number,
+                                onClick = {
+                                    onKeyClick(cell.number.toString())
+                                    if (secure) {
+                                        findSecureNoiseNumbers(
+                                            number = cell.number,
+                                            rows = rows,
+                                        ).forEach { noise ->
+                                            onSecureNoiseKeyClick(noise.toString())
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.weight(1f),
+                                enabled = enabled,
+                                height = keyHeight,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun IenFullSecureKeypad(
+    onKeyClick: (value: String) -> Unit,
+    onBackspaceClick: () -> Unit,
+    onSpaceClick: () -> Unit,
+    onSubmit: () -> Unit,
+    modifier: Modifier = Modifier,
+    state: IenFullSecureKeypadState = rememberIenFullSecureKeypadState(),
+    submitDisabled: Boolean = false,
+    submitButtonText: String = "입력 완료",
+    enabled: Boolean = true,
+    onSpecialClick: (() -> Unit)? = null,
+    keyHeight: Dp = 44.dp,
+) {
+    val totalCells = 10
+    IenSurface(
+        modifier = modifier.fillMaxWidth(),
+        color = IenTheme.colors.surfaceWeak,
+        shape = RoundedCornerShape(IenTheme.radius.default),
+    ) {
+        Column(
+            modifier = Modifier.padding(IenTheme.spacing.xs),
+            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+        ) {
+            IenFullSecureKeypadRow(
+                keys = IenFullSecureKeypadDefaults.NumberKeys,
+                rowId = "numbers",
+                totalCells = totalCells,
+                state = state,
+                enabled = enabled,
+                keyHeight = keyHeight,
+                onKeyClick = onKeyClick,
+            )
+            IenFullSecureKeypadRow(
+                keys = IenFullSecureKeypadDefaults.FirstAlphabetRow,
+                rowId = "firstAlphabet",
+                totalCells = totalCells,
+                state = state,
+                enabled = enabled,
+                keyHeight = keyHeight,
+                onKeyClick = onKeyClick,
+            )
+            IenFullSecureKeypadRow(
+                keys = IenFullSecureKeypadDefaults.SecondAlphabetRow,
+                rowId = "secondAlphabet",
+                totalCells = totalCells,
+                state = state,
+                enabled = enabled,
+                keyHeight = keyHeight,
+                onKeyClick = onKeyClick,
+            )
+            IenFullSecureKeypadRow(
+                keys = IenFullSecureKeypadDefaults.ThirdAlphabetRow,
+                rowId = "thirdAlphabet",
+                totalCells = totalCells,
+                state = state,
+                enabled = enabled,
+                keyHeight = keyHeight,
+                onKeyClick = onKeyClick,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+            ) {
+                IenFullSecureActionKey(
+                    label = "특수",
+                    onClick = { onSpecialClick?.invoke() },
+                    modifier = Modifier.weight(1.2f),
+                    enabled = enabled && onSpecialClick != null,
+                    height = keyHeight,
+                )
+                IenFullSecureActionKey(
+                    label = "Space",
+                    onClick = onSpaceClick,
+                    modifier = Modifier.weight(2.4f),
+                    enabled = enabled,
+                    height = keyHeight,
+                )
+                IenFullSecureActionKey(
+                    label = "⌫",
+                    onClick = onBackspaceClick,
+                    modifier = Modifier.weight(1.2f),
+                    enabled = enabled,
+                    height = keyHeight,
+                )
+                IenFullSecureActionKey(
+                    label = submitButtonText,
+                    onClick = onSubmit,
+                    modifier = Modifier.weight(2.4f),
+                    enabled = enabled && !submitDisabled,
+                    height = keyHeight,
+                    filled = true,
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun IenAlphabetKeyboard(
@@ -227,6 +539,244 @@ private fun IenKeyboardRows(
     }
 }
 
+private data class IenNumberKeypadCell(
+    val number: Int? = null,
+    val isBackspace: Boolean = false,
+)
+
+private fun buildNumberKeypadRows(numbers: List<Int>): List<List<IenNumberKeypadCell?>> {
+    val rows = numbers.map { IenNumberKeypadCell(number = it) }.chunked(3).map { row ->
+        row.map<IenNumberKeypadCell, IenNumberKeypadCell?> { it }
+    }.toMutableList()
+    val lastRow = rows.removeLastOrNull()
+    if (lastRow == null) {
+        rows += listOf(null, null, IenNumberKeypadCell(isBackspace = true))
+        return rows
+    }
+    if (lastRow.size == 3) {
+        rows += lastRow
+        rows += listOf(null, null, IenNumberKeypadCell(isBackspace = true))
+        return rows
+    }
+    val paddedLastRow = when (lastRow.size) {
+        1 -> listOf(null, lastRow.first(), IenNumberKeypadCell(isBackspace = true))
+        2 -> listOf(lastRow[0], lastRow[1], IenNumberKeypadCell(isBackspace = true))
+        else -> lastRow
+    }
+    rows += paddedLastRow
+    return rows
+}
+
+private fun findSecureNoiseNumbers(
+    number: Int,
+    rows: List<List<IenNumberKeypadCell?>>,
+): List<Int> {
+    val positions = rows.flatMapIndexed { rowIndex, row ->
+        row.mapIndexedNotNull { columnIndex, cell ->
+            cell?.number?.let { value ->
+                value to (rowIndex to columnIndex)
+            }
+        }
+    }.toMap()
+    val selectedPosition = positions[number] ?: return emptyList()
+    val blockedPositions = setOf(
+        selectedPosition,
+        selectedPosition.first - 1 to selectedPosition.second,
+        selectedPosition.first + 1 to selectedPosition.second,
+        selectedPosition.first to selectedPosition.second - 1,
+        selectedPosition.first to selectedPosition.second + 1,
+    )
+    return positions
+        .filterValues { it !in blockedPositions }
+        .keys
+        .shuffled()
+        .take(2)
+}
+
+@Composable
+private fun IenNumberKeypadDigitKey(
+    number: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    height: Dp = 64.dp,
+) {
+    IenSurface(
+        modifier = modifier,
+        color = if (enabled) IenTheme.colors.surfaceRaised else IenTheme.colors.surface,
+        contentColor = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
+        shape = RoundedCornerShape(IenTheme.radius.default),
+        tonalElevation = if (enabled) IenTheme.elevation.raised else IenTheme.elevation.none,
+    ) {
+        Box(
+            modifier = Modifier
+                .height(height)
+                .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            IenText(
+                text = number.toString(),
+                style = IenTheme.typography.title2,
+                color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
+            )
+        }
+    }
+}
+
+@Composable
+private fun IenNumberKeypadActionKey(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    height: Dp = 64.dp,
+) {
+    IenSurface(
+        modifier = modifier,
+        color = if (enabled) IenTheme.colors.surfaceRaised else IenTheme.colors.surface,
+        contentColor = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
+        shape = RoundedCornerShape(IenTheme.radius.default),
+        tonalElevation = if (enabled) IenTheme.elevation.raised else IenTheme.elevation.none,
+    ) {
+        Box(
+            modifier = Modifier
+                .height(height)
+                .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            IenText(
+                text = label,
+                style = IenTheme.typography.title3,
+                color = if (enabled) IenTheme.colors.textSecondary else IenTheme.colors.textDisabled,
+            )
+        }
+    }
+}
+
+@Composable
+private fun IenFullSecureKeypadRow(
+    keys: List<IenFullSecureKey>,
+    rowId: String,
+    totalCells: Int,
+    state: IenFullSecureKeypadState,
+    enabled: Boolean,
+    keyHeight: Dp,
+    onKeyClick: (String) -> Unit,
+) {
+    val emptyIndexes = remember(keys, rowId, totalCells, state.emptyCellIndexes(rowId, totalCells, keys.size)) {
+        state.emptyCellIndexes(rowId, totalCells, keys.size)
+    }
+    var keyIndex = 0
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+    ) {
+        repeat(totalCells) { cellIndex ->
+            val key = if (cellIndex in emptyIndexes) {
+                null
+            } else {
+                keys.getOrNull(keyIndex).also {
+                    if (it != null) keyIndex += 1
+                }
+            }
+            if (key == null) {
+                Box(modifier = Modifier.weight(1f))
+            } else {
+                IenFullSecureInputKey(
+                    key = key,
+                    onClick = { onKeyClick(key.value) },
+                    modifier = Modifier.weight(1f),
+                    enabled = enabled,
+                    height = keyHeight,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun IenFullSecureInputKey(
+    key: IenFullSecureKey,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    height: Dp = 44.dp,
+) {
+    IenSurface(
+        modifier = modifier,
+        color = if (enabled) IenTheme.colors.surfaceRaised else IenTheme.colors.surface,
+        contentColor = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
+        shape = RoundedCornerShape(IenTheme.radius.sm),
+        tonalElevation = if (enabled) IenTheme.elevation.raised else IenTheme.elevation.none,
+    ) {
+        Box(
+            modifier = Modifier
+                .height(height)
+                .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxxs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IenText(
+                    text = key.label,
+                    style = IenTheme.typography.label1,
+                    color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
+                )
+                key.secondaryLabel?.let {
+                    IenText(
+                        text = it,
+                        style = IenTheme.typography.caption,
+                        color = if (enabled) IenTheme.colors.textTertiary else IenTheme.colors.textDisabled,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun IenFullSecureActionKey(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    height: Dp = 44.dp,
+    filled: Boolean = false,
+) {
+    val background: Color = when {
+        filled && enabled -> IenTheme.colors.brand
+        enabled -> IenTheme.colors.surfaceRaised
+        else -> IenTheme.colors.surface
+    }
+    val content: Color = when {
+        filled && enabled -> IenTheme.colors.onBrand
+        enabled -> IenTheme.colors.textPrimary
+        else -> IenTheme.colors.textDisabled
+    }
+    IenSurface(
+        modifier = modifier,
+        color = background,
+        contentColor = content,
+        shape = RoundedCornerShape(IenTheme.radius.sm),
+        tonalElevation = if (enabled) IenTheme.elevation.raised else IenTheme.elevation.none,
+    ) {
+        Box(
+            modifier = Modifier
+                .height(height)
+                .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            IenText(
+                text = label,
+                style = IenTheme.typography.label1.copy(fontWeight = FontWeight.Bold),
+                color = content,
+            )
+        }
+    }
+}
+
 @Composable
 private fun KeyboardKey(
     label: String,
@@ -250,6 +800,36 @@ private fun KeyboardKey(
             IenText(
                 text = label,
                 style = IenTheme.typography.label1,
+                color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
+            )
+        }
+    }
+}
+
+@Composable
+private fun IenKeypadKey(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    height: Dp = 56.dp,
+) {
+    IenSurface(
+        modifier = modifier,
+        color = if (enabled) IenTheme.colors.surfaceRaised else IenTheme.colors.surfaceWeak,
+        contentColor = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
+        shape = RoundedCornerShape(IenTheme.radius.default),
+        tonalElevation = if (enabled) IenTheme.elevation.raised else IenTheme.elevation.none,
+    ) {
+        Box(
+            modifier = Modifier
+                .height(height)
+                .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            IenText(
+                text = label,
+                style = IenTheme.typography.title3,
                 color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
             )
         }

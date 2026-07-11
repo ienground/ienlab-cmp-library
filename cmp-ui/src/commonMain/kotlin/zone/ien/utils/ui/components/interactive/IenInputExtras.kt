@@ -7,28 +7,38 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -36,11 +46,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -49,19 +64,25 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.components.primitives.IenText
 import zone.ien.utils.ui.utils.instantPress
+import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.milliseconds
 
 enum class IenNumericSpinnerSize {
     Tiny,
@@ -402,36 +423,362 @@ private data class NumericSpinnerSpec(
     val buttonTextStyle: TextStyle,
 )
 
+enum class IenRatingSize {
+    Tiny,
+    Small,
+    Medium,
+    Large,
+    Big,
+}
+
+enum class IenRatingVariant {
+    Full,
+    Compact,
+    IconOnly,
+}
+
 @Composable
 fun IenRating(
     value: Float,
     onValueChange: ((Float) -> Unit)? = null,
     modifier: Modifier = Modifier,
     max: Int = 5,
+    readOnly: Boolean = onValueChange == null,
+    size: IenRatingSize = IenRatingSize.Medium,
+    variant: IenRatingVariant = IenRatingVariant.Full,
+    disabled: Boolean = false,
     enabled: Boolean = true,
+    ariaLabel: String = if (readOnly) "현재 별점 현황" else "별점 평가",
+    valueText: String? = null,
 ) {
+    val itemCount = max.coerceAtLeast(1)
+    val resolvedValue = value.coerceIn(0f, itemCount.toFloat())
+    val latestResolvedValue = rememberUpdatedState(resolvedValue)
+    val isDisabled = disabled || !enabled
+    val valueChange = onValueChange
+    val interactive = !readOnly && !isDisabled
+    val displayVariant = if (readOnly) variant else IenRatingVariant.Full
+    val hapticFeedback = LocalHapticFeedback.current
+    var animationTrigger by remember { mutableIntStateOf(0) }
+    var clickedIndex by remember { mutableIntStateOf(resolvedValue.roundToInt().coerceIn(1, itemCount) - 1) }
+    var ratingPressed by remember { mutableStateOf(false) }
+    var rowSize by remember { mutableStateOf(IntSize.Zero) }
+    val selectedIndex = resolvedValue.roundToInt().coerceIn(1, itemCount) - 1
+    val resolvedValueText = valueText ?: "${itemCount}점 만점 중 ${resolvedValue.toRatingText()}점"
+    val itemSpacing = size.ratingItemSpacing()
+
     Row(
-        modifier = modifier.semantics {
-            contentDescription = "평점 ${value.coerceIn(0f, max.toFloat())} / $max"
-        },
-        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
+        modifier = modifier
+            .onSizeChanged { rowSize = it }
+            .ratingGesture(
+                enabled = interactive && valueChange != null,
+                itemCount = itemCount,
+                rowSize = rowSize,
+                currentValue = latestResolvedValue,
+                hapticFeedback = hapticFeedback,
+                onValueChange = valueChange,
+                onPressedChange = { ratingPressed = it },
+                onClickedIndexChange = { clickedIndex = it },
+                onRelease = { animationTrigger += 1 },
+            )
+            .selectableGroup()
+            .semantics {
+                contentDescription = ariaLabel
+                stateDescription = resolvedValueText
+                if (isDisabled) disabled()
+            },
+        horizontalArrangement = Arrangement.spacedBy(itemSpacing),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        repeat(max.coerceAtLeast(1)) { index ->
-            val selected = value >= index + 1
-            Canvas(
-                modifier = Modifier
-                    .defaultMinSize(minWidth = IenTheme.state.minimumTouchTarget, minHeight = IenTheme.state.minimumTouchTarget)
-                    .clickable(enabled = enabled && onValueChange != null) { onValueChange?.invoke((index + 1).toFloat()) },
-            ) {
-                drawStar(selected = selected)
+        when (displayVariant) {
+            IenRatingVariant.Full -> {
+                repeat(itemCount) { index ->
+                    IenRatingStar(
+                        index = index,
+                        value = resolvedValue,
+                        size = size,
+                        isDisabled = isDisabled,
+                        pressed = ratingPressed,
+                        animationTrigger = animationTrigger,
+                        clickedIndex = clickedIndex,
+                    )
+                }
+            }
+            IenRatingVariant.Compact -> {
+                IenRatingStar(
+                    index = selectedIndex.coerceAtLeast(0),
+                    value = 1f,
+                    size = size,
+                    isDisabled = isDisabled,
+                    pressed = false,
+                    animationTrigger = animationTrigger,
+                    clickedIndex = 0,
+                )
+                IenText(
+                    text = "${resolvedValue.toRatingText()}",
+                    style = size.ratingLabelStyle(),
+                    color = if (isDisabled) IenTheme.colors.textDisabled else IenTheme.colors.textSecondary,
+                )
+            }
+            IenRatingVariant.IconOnly -> {
+                IenRatingStar(
+                    index = selectedIndex.coerceAtLeast(0),
+                    value = 1f,
+                    size = size,
+                    isDisabled = isDisabled,
+                    pressed = false,
+                    animationTrigger = animationTrigger,
+                    clickedIndex = 0,
+                )
             }
         }
     }
 }
 
-private fun DrawScope.drawStar(selected: Boolean) {
+private fun Modifier.ratingGesture(
+    enabled: Boolean,
+    itemCount: Int,
+    rowSize: IntSize,
+    currentValue: State<Float>,
+    hapticFeedback: HapticFeedback,
+    onValueChange: ((Float) -> Unit)?,
+    onPressedChange: (Boolean) -> Unit,
+    onClickedIndexChange: (Int) -> Unit,
+    onRelease: () -> Unit,
+): Modifier {
+    if (!enabled || onValueChange == null) return this
+
+    fun ratingFromX(x: Float): Int? {
+        val width = rowSize.width.takeIf { it > 0 } ?: return null
+        val progress = x.coerceIn(0f, width.toFloat()) / width.toFloat()
+        return ((progress * itemCount).toInt() + 1).coerceIn(1, itemCount)
+    }
+
+    fun updateRatingFromX(x: Float, lastRating: Int, forceEffect: Boolean): Int {
+        val nextRating = ratingFromX(x) ?: return lastRating
+        onClickedIndexChange(nextRating - 1)
+        if (nextRating != lastRating) {
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            onValueChange(nextRating.toFloat())
+            return nextRating
+        }
+        if (forceEffect) {
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        }
+        return lastRating
+    }
+
+    return pointerInput(itemCount, rowSize) {
+        awaitEachGesture {
+            try {
+                val down = awaitFirstDown(requireUnconsumed = false)
+                var lastRating = currentValue.value.roundToInt().coerceIn(1, itemCount)
+                onPressedChange(true)
+                lastRating = updateRatingFromX(down.position.x, lastRating, forceEffect = true)
+
+                while (true) {
+                    val event = awaitPointerEvent()
+                    val change = event.changes.firstOrNull { it.id == down.id } ?: event.changes.firstOrNull()
+                    if (change == null || !change.pressed) break
+                    lastRating = updateRatingFromX(change.position.x, lastRating, forceEffect = false)
+                    change.consume()
+                }
+            } finally {
+                onPressedChange(false)
+                onRelease()
+            }
+        }
+    }
+}
+
+private const val RatingGlowLayerScale = 5.0f
+private const val RatingPressedScale = 0.86f
+private const val RatingSelectedBaseScale = 1f
+private const val RatingEmptyBaseScale = 0.92f
+
+@Composable
+private fun IenRatingStar(
+    index: Int,
+    value: Float,
+    size: IenRatingSize,
+    isDisabled: Boolean,
+    pressed: Boolean,
+    animationTrigger: Int,
+    clickedIndex: Int,
+) {
+    val iconSize = size.ratingIconSize()
+    val motionEasing = IenTheme.motion.standardEasing
+    val fillFraction = (value - index).coerceIn(0f, 1f)
+    val isFilled = fillFraction > 0f
+    val baseScale = if (isFilled) RatingSelectedBaseScale else RatingEmptyBaseScale
+    val starScale = remember { Animatable(baseScale) }
+    val glowAlpha = remember { Animatable(0f) }
+    val pressScale by animateFloatAsState(
+        targetValue = if (pressed && isFilled) RatingPressedScale else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessHigh, dampingRatio = Spring.DampingRatioMediumBouncy),
+    )
+    val pressGlow by animateFloatAsState(
+        targetValue = if (pressed && isFilled) 1f else 0f,
+        animationSpec = spring(stiffness = Spring.StiffnessMedium, dampingRatio = Spring.DampingRatioNoBouncy),
+    )
+    val glowValue = (glowAlpha.value + pressGlow).coerceIn(0f, 1.2f)
+    val starAlpha by animateFloatAsState(
+        targetValue = when {
+            isDisabled -> 0.42f
+            isFilled -> 1f
+            else -> 0.72f
+        },
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = Spring.DampingRatioNoBouncy),
+    )
+
+    LaunchedEffect(baseScale) {
+        if (animationTrigger == 0) {
+            starScale.snapTo(baseScale)
+        }
+    }
+
+    LaunchedEffect(animationTrigger, isFilled) {
+        if (animationTrigger == 0) {
+            glowAlpha.snapTo(0f)
+            starScale.snapTo(baseScale)
+            return@LaunchedEffect
+        }
+
+        if (isFilled && !isDisabled) {
+            val delayMillis = (abs(index - clickedIndex) * 12L).coerceAtMost(48L)
+            val popScale = if (index == clickedIndex) 1.26f else 1.2f
+            delay(delayMillis.milliseconds)
+            starScale.snapTo(0.9f)
+            glowAlpha.snapTo(1.15f)
+            launch {
+                glowAlpha.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(durationMillis = 260, easing = motionEasing),
+                )
+            }
+            starScale.animateTo(
+                targetValue = popScale,
+                animationSpec = spring(stiffness = Spring.StiffnessMedium, dampingRatio = Spring.DampingRatioMediumBouncy),
+            )
+            starScale.animateTo(
+                targetValue = baseScale,
+                animationSpec = spring(stiffness = Spring.StiffnessMedium, dampingRatio = Spring.DampingRatioMediumBouncy),
+            )
+        } else {
+            glowAlpha.snapTo(0f)
+            starScale.animateTo(
+                targetValue = 0.92f,
+                animationSpec = tween(durationMillis = 90, easing = motionEasing),
+            )
+        }
+    }
+
+    val itemModifier = Modifier
+        .size(iconSize)
+        .semantics {
+            contentDescription = "${index + 1}점"
+            selected = fillFraction > 0f
+            if (isDisabled) disabled()
+        }
+
+    Box(
+        modifier = itemModifier,
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(
+            modifier = Modifier
+                .size(iconSize * RatingGlowLayerScale)
+                .graphicsLayer {
+                    val glowScale = 0.78f + glowValue * 0.42f
+                    scaleX = glowScale
+                    scaleY = glowScale
+                    alpha = glowValue.coerceAtMost(1f)
+                },
+        ) {
+            drawRatingGlow(
+                alpha = glowValue,
+                fillFraction = fillFraction,
+                isDisabled = isDisabled,
+            )
+        }
+        Canvas(
+            modifier = Modifier
+                .size(iconSize)
+                .graphicsLayer {
+                    val scale = starScale.value * pressScale
+                    scaleX = scale
+                    scaleY = scale
+                    alpha = starAlpha
+                },
+        ) {
+            drawStar(fillFraction = fillFraction, isDisabled = isDisabled)
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ScreenPreview() {
+    IenTheme {
+        Scaffold {
+            Box(
+                modifier = Modifier.padding(it)
+            ) {
+                IenRating(
+                    value = 3f,
+                    onValueChange = {},
+                    size = IenRatingSize.Medium,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    }
+}
+
+private fun IenRatingSize.ratingIconSize(): Dp {
+    return when (this) {
+        IenRatingSize.Tiny -> 18.dp
+        IenRatingSize.Small -> 24.dp
+        IenRatingSize.Medium -> 34.dp
+        IenRatingSize.Large -> 44.dp
+        IenRatingSize.Big -> 56.dp
+    }
+}
+
+@Composable
+private fun IenRatingSize.ratingItemSpacing(): Dp {
+    return when (this) {
+        IenRatingSize.Tiny,
+        IenRatingSize.Small -> 2.dp
+        IenRatingSize.Medium -> IenTheme.spacing.xxs
+        IenRatingSize.Large,
+        IenRatingSize.Big -> IenTheme.spacing.xs
+    }
+}
+
+@Composable
+private fun IenRatingSize.ratingLabelStyle(): TextStyle {
+    return when (this) {
+        IenRatingSize.Tiny,
+        IenRatingSize.Small -> IenTheme.typography.caption
+        IenRatingSize.Medium -> IenTheme.typography.label2
+        IenRatingSize.Large,
+        IenRatingSize.Big -> IenTheme.typography.label1
+    }
+}
+
+private fun Float.toRatingText(): String {
+    return if (this % 1f == 0f) {
+        roundToInt().toString()
+    } else {
+        val rounded = (this * 10f).roundToInt() / 10f
+        rounded.toString()
+    }
+}
+
+private fun DrawScope.drawStar(fillFraction: Float, isDisabled: Boolean) {
     val center = Offset(size.width / 2f, size.height / 2f)
-    val outer = size.minDimension * 0.34f
+    val outer = size.minDimension * 0.46f
     val inner = outer * 0.46f
     val path = Path()
     repeat(10) { index ->
@@ -444,8 +791,53 @@ private fun DrawScope.drawStar(selected: Boolean) {
         if (index == 0) path.moveTo(point.x, point.y) else path.lineTo(point.x, point.y)
     }
     path.close()
+    val emptyColor = if (isDisabled) Color(0xFFD1D6DB) else Color(0xFFE5E8EB)
+    val selectedColor = if (isDisabled) Color(0xFFB0B8C1) else Color(0xFFFFC84D)
     drawPath(
         path = path,
-        color = if (selected) androidx.compose.ui.graphics.Color(0xFFFFB020) else androidx.compose.ui.graphics.Color(0xFFD1D6DB),
+        color = emptyColor,
+    )
+    if (fillFraction > 0f) {
+        clipRect(right = size.width * fillFraction.coerceIn(0f, 1f)) {
+            drawPath(path = path, color = selectedColor)
+        }
+    }
+}
+
+private fun DrawScope.drawRatingGlow(
+    alpha: Float,
+    fillFraction: Float,
+    isDisabled: Boolean,
+) {
+    if (alpha <= 0f || fillFraction <= 0f || isDisabled) return
+    val center = Offset(size.width / 2f, size.height / 2f)
+    val radius = size.minDimension * 0.3f
+    drawCircle(
+        brush = Brush.radialGradient(
+            colors = listOf(
+                Color(0xFFFFA800).copy(alpha = alpha * 0.30f),
+                Color(0xFFFFC400).copy(alpha = alpha * 0.20f),
+                Color(0xFFFFE08A).copy(alpha = alpha * 0.10f),
+                Color.Transparent,
+            ),
+            center = center,
+            radius = radius * 1.55f,
+        ),
+        radius = radius * 1.55f,
+        center = center,
+    )
+    drawCircle(
+        brush = Brush.radialGradient(
+            colors = listOf(
+                Color(0xFFFF9800).copy(alpha = alpha * 0.78f),
+                Color(0xFFFFBD2E).copy(alpha = alpha * 0.56f),
+                Color(0xFFFFDC73).copy(alpha = alpha * 0.34f),
+                Color.Transparent,
+            ),
+            center = center,
+            radius = radius,
+        ),
+        radius = radius,
+        center = center,
     )
 }

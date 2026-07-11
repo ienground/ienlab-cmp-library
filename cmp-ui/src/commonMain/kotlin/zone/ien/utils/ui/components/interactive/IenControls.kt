@@ -1,12 +1,14 @@
 package zone.ien.utils.ui.components.interactive
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +23,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -40,7 +46,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -433,7 +441,15 @@ private fun StepperAction(
 data class IenTabItem(
     val text: String,
     val enabled: Boolean = true,
+    val key: Any? = null,
+    val redBean: Boolean = false,
+    val ariaLabel: String? = null,
 )
+
+enum class IenTabSize {
+    Small,
+    Large,
+}
 
 @Composable
 fun IenTab(
@@ -441,29 +457,103 @@ fun IenTab(
     selectedIndex: Int,
     onSelectedIndexChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    size: IenTabSize = IenTabSize.Large,
+    fluid: Boolean = false,
+    itemGap: Dp? = null,
+    ariaLabel: String? = null,
+    onChange: ((index: Int, key: Any?) -> Unit)? = null,
 ) {
+    val tabHeight = when (size) {
+        IenTabSize.Small -> 40.dp
+        IenTabSize.Large -> 48.dp
+    }
+    val textStyle = when (size) {
+        IenTabSize.Small -> IenTheme.typography.label2
+        IenTabSize.Large -> IenTheme.typography.label1
+    }
+    val minItemWidth = when (size) {
+        IenTabSize.Small -> 48.dp
+        IenTabSize.Large -> 56.dp
+    }
+    val gap = itemGap ?: if (fluid) IenTheme.spacing.xl else 0.dp
+
     Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+        modifier = modifier
+            .then(if (fluid) Modifier.horizontalScroll(rememberScrollState()) else Modifier.fillMaxWidth())
+            .height(tabHeight)
+            .selectableGroup()
+            .semantics {
+                contentDescription = ariaLabel ?: "탭 목록"
+            },
+        horizontalArrangement = Arrangement.spacedBy(gap),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         items.forEachIndexed { index, item ->
             val selected = index == selectedIndex
-            Box(
+            val textColor by animateColorAsState(
+                targetValue = when {
+                    !item.enabled -> IenTheme.colors.textDisabled
+                    selected -> IenTheme.colors.textPrimary
+                    else -> IenTheme.colors.textSecondary
+                },
+                animationSpec = tween(durationMillis = IenTheme.motion.fastMillis, easing = IenTheme.motion.standardEasing),
+                label = "ienTabTextColor",
+            )
+            val indicatorColor by animateColorAsState(
+                targetValue = if (selected) IenTheme.colors.textPrimary else Color.Transparent,
+                animationSpec = tween(durationMillis = IenTheme.motion.fastMillis, easing = IenTheme.motion.standardEasing),
+                label = "ienTabIndicatorColor",
+            )
+            Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .defaultMinSize(minHeight = IenTheme.state.minimumTouchTarget)
-                    .clickable(enabled = item.enabled, role = Role.Tab) { onSelectedIndexChange(index) }
-                    .padding(vertical = IenTheme.spacing.xs),
-                contentAlignment = Alignment.Center,
+                    .then(if (fluid) Modifier.widthIn(min = minItemWidth) else Modifier.weight(1f))
+                    .height(tabHeight)
+                    .clickable(enabled = item.enabled, role = Role.Tab) {
+                        onSelectedIndexChange(index)
+                        onChange?.invoke(index, item.key)
+                    }
+                    .semantics {
+                        this.selected = selected
+                        contentDescription = item.ariaLabel ?: if (item.redBean) "${item.text}, 업데이트 있음" else item.text
+                    }
+                    .padding(horizontal = if (fluid) IenTheme.spacing.xs else 0.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Bottom,
             ) {
-                IenText(
-                    text = item.text,
-                    style = IenTheme.typography.label1,
-                    color = when {
-                        !item.enabled -> IenTheme.colors.textDisabled
-                        selected -> IenTheme.colors.brand
-                        else -> IenTheme.colors.textSecondary
-                    },
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Box(contentAlignment = Alignment.TopEnd) {
+                        IenText(
+                            text = item.text,
+                            style = textStyle,
+                            color = textColor,
+                            textAlign = TextAlign.Center,
+                        )
+                        if (item.redBean) {
+                            Box(
+                                modifier = Modifier
+                                    .size(5.dp)
+                                    .align(Alignment.TopEnd)
+                                    .graphicsLayer {
+                                        translationX = 7.dp.toPx()
+                                        translationY = (-1).dp.toPx()
+                                    }
+                                    .clip(CircleShape)
+                                    .background(IenTheme.colors.danger),
+                            )
+                        }
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .width(20.dp)
+                        .height(2.dp)
+                        .clip(RoundedCornerShape(IenTheme.radius.full))
+                        .background(indicatorColor),
                 )
             }
         }

@@ -1,6 +1,7 @@
 package zone.ien.utils.ui.components.interactive
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,11 +33,15 @@ import zone.ien.utils.ui.utils.instantPress
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.ui.components.foundation.IenSemanticTone
@@ -48,6 +53,8 @@ import zone.ien.utils.ui.components.primitives.IenText
 enum class IenButtonSize { Small, Medium, Large }
 enum class IenIconPlacement { Start, End }
 enum class IenButtonDisplay { Inline, Block, Full }
+enum class IenTextButtonSize { XSmall, Small, Medium, Large, XLarge, XXLarge }
+enum class IenTextButtonVariant { Clear, Arrow, Underline }
 
 sealed interface IenButtonVariant {
     data object Fill : IenButtonVariant
@@ -173,18 +180,61 @@ fun IenTextButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    size: IenTextButtonSize = IenTextButtonSize.Medium,
+    variant: IenTextButtonVariant = IenTextButtonVariant.Clear,
+    disabled: Boolean = false,
     tone: IenSemanticTone = IenSemanticTone.Brand,
-    state: IenButtonState = IenButtonState(),
+    state: IenButtonState = IenButtonState(enabled = !disabled),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
-    IenButton(
-        text = text,
+    val enabled = state.enabled && !disabled
+    val contentColor = if (enabled) {
+        toneColor(tone)
+    } else {
+        toneColor(tone).copy(alpha = IenTheme.state.disabledAlpha)
+    }
+    val textStyle = size.textStyle().let {
+        if (variant == IenTextButtonVariant.Underline) {
+            it.copy(textDecoration = TextDecoration.Underline)
+        } else {
+            it
+        }
+    }
+
+    IenButtonContainer(
         onClick = onClick,
-        modifier = modifier,
-        size = IenButtonSize.Medium,
+        modifier = modifier.defaultMinSize(minHeight = size.minHeight()),
         variant = IenButtonVariant.Ghost,
         tone = tone,
-        state = state,
-    )
+        state = state.copy(enabled = enabled),
+        shape = RoundedCornerShape(IenTheme.radius.sm),
+        contentPadding = size.contentPadding(),
+        interactionSource = interactionSource,
+        scalePressed = 0.97f,
+        colors = ButtonDefaults.textButtonColors(
+            contentColor = contentColor,
+            disabledContentColor = contentColor,
+        ),
+    ) {
+        IenProvideTextStyle(textStyle, contentColor) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(size.iconGap()),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IenText(
+                    text = text,
+                    color = LocalContentColor.current,
+                    style = textStyle,
+                )
+                if (variant == IenTextButtonVariant.Arrow) {
+                    IenTextButtonChevron(
+                        size = size.chevronSize(),
+                        color = LocalContentColor.current,
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -273,6 +323,82 @@ private fun IenButtonSize.buttonPadding(): PaddingValues = when (this) {
     IenButtonSize.Small -> PaddingValues(horizontal = 12.dp, vertical = 8.dp)
     IenButtonSize.Medium -> PaddingValues(horizontal = 16.dp, vertical = 10.dp)
     IenButtonSize.Large -> PaddingValues(horizontal = 20.dp, vertical = 14.dp)
+}
+
+@Composable
+private fun IenTextButtonSize.textStyle(): TextStyle = when (this) {
+    IenTextButtonSize.XSmall -> IenTheme.typography.caption
+    IenTextButtonSize.Small -> IenTheme.typography.label2
+    IenTextButtonSize.Medium -> IenTheme.typography.label1
+    IenTextButtonSize.Large -> IenTheme.typography.body2
+    IenTextButtonSize.XLarge -> IenTheme.typography.body1
+    IenTextButtonSize.XXLarge -> IenTheme.typography.title3
+}
+
+private fun IenTextButtonSize.minHeight(): Dp = when (this) {
+    IenTextButtonSize.XSmall -> 28.dp
+    IenTextButtonSize.Small -> 32.dp
+    IenTextButtonSize.Medium -> 36.dp
+    IenTextButtonSize.Large -> 40.dp
+    IenTextButtonSize.XLarge -> 44.dp
+    IenTextButtonSize.XXLarge -> 48.dp
+}
+
+private fun IenTextButtonSize.contentPadding(): PaddingValues = when (this) {
+    IenTextButtonSize.XSmall -> PaddingValues(horizontal = 4.dp, vertical = 4.dp)
+    IenTextButtonSize.Small -> PaddingValues(horizontal = 5.dp, vertical = 5.dp)
+    IenTextButtonSize.Medium -> PaddingValues(horizontal = 6.dp, vertical = 6.dp)
+    IenTextButtonSize.Large -> PaddingValues(horizontal = 7.dp, vertical = 7.dp)
+    IenTextButtonSize.XLarge -> PaddingValues(horizontal = 8.dp, vertical = 8.dp)
+    IenTextButtonSize.XXLarge -> PaddingValues(horizontal = 8.dp, vertical = 8.dp)
+}
+
+private fun IenTextButtonSize.iconGap(): Dp = when (this) {
+    IenTextButtonSize.XSmall,
+    IenTextButtonSize.Small,
+    IenTextButtonSize.Medium -> 2.dp
+    IenTextButtonSize.Large,
+    IenTextButtonSize.XLarge,
+    IenTextButtonSize.XXLarge -> 3.dp
+}
+
+private fun IenTextButtonSize.chevronSize(): Dp = when (this) {
+    IenTextButtonSize.XSmall -> 10.dp
+    IenTextButtonSize.Small -> 12.dp
+    IenTextButtonSize.Medium -> 14.dp
+    IenTextButtonSize.Large -> 16.dp
+    IenTextButtonSize.XLarge -> 18.dp
+    IenTextButtonSize.XXLarge -> 20.dp
+}
+
+@Composable
+private fun IenTextButtonChevron(
+    size: Dp,
+    color: Color,
+) {
+    Canvas(modifier = Modifier.size(size)) {
+        val strokeWidth = size.toPx() * 0.13f
+        val startX = size.toPx() * 0.36f
+        val endX = size.toPx() * 0.64f
+        val topY = size.toPx() * 0.28f
+        val centerY = size.toPx() * 0.50f
+        val bottomY = size.toPx() * 0.72f
+
+        drawLine(
+            color = color,
+            start = Offset(startX, topY),
+            end = Offset(endX, centerY),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round,
+        )
+        drawLine(
+            color = color,
+            start = Offset(endX, centerY),
+            end = Offset(startX, bottomY),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round,
+        )
+    }
 }
 
 @Composable

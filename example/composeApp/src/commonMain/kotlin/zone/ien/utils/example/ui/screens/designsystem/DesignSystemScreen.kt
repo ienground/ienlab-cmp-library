@@ -34,6 +34,10 @@ import zone.ien.utils.icon.material.filled.Check
 import zone.ien.utils.icon.material.filled.Close
 import zone.ien.utils.ui.components.composite.IenAgreementItemV4
 import zone.ien.utils.ui.components.composite.IenAgreementV4
+import zone.ien.utils.ui.components.composite.IenAgreementV4RightButton
+import zone.ien.utils.ui.components.composite.IenAgreementV4RightVerticalAlign
+import zone.ien.utils.ui.components.composite.IenAgreementV4Text
+import zone.ien.utils.ui.components.composite.IenAgreementV4Variant
 import zone.ien.utils.ui.components.composite.IenAlertDialog
 import zone.ien.utils.ui.components.composite.IenAssetFrame
 import zone.ien.utils.ui.components.composite.IenAssetFrameShape
@@ -42,17 +46,30 @@ import zone.ien.utils.ui.components.composite.IenBoardRow
 import zone.ien.utils.ui.components.composite.IenBorder
 import zone.ien.utils.ui.components.composite.IenBorderVariant
 import zone.ien.utils.ui.components.composite.IenBottomCTA
+import zone.ien.utils.ui.components.composite.IenBottomCTAAnimation
+import zone.ien.utils.ui.components.composite.IenBottomCTABackground
+import zone.ien.utils.ui.components.composite.IenBottomCTAButton
+import zone.ien.utils.ui.components.composite.IenBottomCTAShowAfterDelay
 import zone.ien.utils.ui.components.composite.IenBottomInfo
 import zone.ien.utils.ui.components.composite.IenBottomSheet
 import zone.ien.utils.ui.components.composite.IenBottomSheetOption
 import zone.ien.utils.ui.components.composite.IenBottomSheetSelect
 import zone.ien.utils.ui.components.composite.IenBubble
 import zone.ien.utils.ui.components.composite.IenBubbleBackground
+import zone.ien.utils.ui.components.composite.IenAlertDialogAlertButton
+import zone.ien.utils.ui.components.composite.IenAlertDialogDescription
+import zone.ien.utils.ui.components.composite.IenAlertDialogTitle
 import zone.ien.utils.ui.components.composite.IenConfirmDialog
+import zone.ien.utils.ui.components.composite.IenConfirmDialogCancelButton
+import zone.ien.utils.ui.components.composite.IenConfirmDialogConfirmButton
+import zone.ien.utils.ui.components.composite.IenConfirmDialogDescription
+import zone.ien.utils.ui.components.composite.IenConfirmDialogTitle
+import zone.ien.utils.ui.components.composite.IenDialogButtonLayout
 import zone.ien.utils.ui.components.composite.IenDialog
 import zone.ien.utils.ui.components.composite.IenDialogAction
 import zone.ien.utils.ui.components.composite.IenDoubleBottomCTA
 import zone.ien.utils.ui.components.composite.IenFixedBottomCTA
+import zone.ien.utils.ui.components.composite.IenFixedDoubleBottomCTA
 import zone.ien.utils.ui.components.composite.IenHighlightText
 import zone.ien.utils.ui.components.composite.IenListFooter
 import zone.ien.utils.ui.components.composite.IenListFooterBorder
@@ -60,6 +77,16 @@ import zone.ien.utils.ui.components.composite.IenListFooterDefaults
 import zone.ien.utils.ui.components.composite.IenListHeader
 import zone.ien.utils.ui.components.composite.IenListHeaderDescriptionPosition
 import zone.ien.utils.ui.components.composite.IenListRow
+import zone.ien.utils.ui.components.composite.IenListRowAlignment
+import zone.ien.utils.ui.components.composite.IenListRowAssetShape
+import zone.ien.utils.ui.components.composite.IenListRowAssetText
+import zone.ien.utils.ui.components.composite.IenListRowBorder
+import zone.ien.utils.ui.components.composite.IenListRowDisabledStyle
+import zone.ien.utils.ui.components.composite.IenListRowLoader
+import zone.ien.utils.ui.components.composite.IenListRowLoaderType
+import zone.ien.utils.ui.components.composite.IenListRowPadding
+import zone.ien.utils.ui.components.composite.IenListRowTexts
+import zone.ien.utils.ui.components.composite.IenListRowTextsType
 import zone.ien.utils.ui.components.composite.IenLoader
 import zone.ien.utils.ui.components.composite.IenMenu
 import zone.ien.utils.ui.components.composite.IenModal
@@ -81,16 +108,44 @@ import zone.ien.utils.ui.components.composite.IenSkeletonElement
 import zone.ien.utils.ui.components.composite.IenSkeletonPattern
 import zone.ien.utils.ui.components.composite.IenSkeletonRepeat
 import zone.ien.utils.ui.components.composite.IenTableRow
+import zone.ien.utils.ui.components.composite.IenTableRowAlign
 import zone.ien.utils.ui.components.composite.IenToast
+import zone.ien.utils.ui.components.composite.IenToastAction
 import zone.ien.utils.ui.components.composite.IenToastHost
+import zone.ien.utils.ui.components.composite.IenToastIcon
+import zone.ien.utils.ui.components.composite.IenToastPosition
 import zone.ien.utils.ui.components.composite.IenTooltip
+import zone.ien.utils.ui.components.composite.IenTooltipClipToEnd
+import zone.ien.utils.ui.components.composite.IenTooltipMessageAlign
+import zone.ien.utils.ui.components.composite.IenTooltipMotionVariant
+import zone.ien.utils.ui.components.composite.IenTooltipPlacement
+import zone.ien.utils.ui.components.composite.IenTooltipSize
 import zone.ien.utils.ui.components.composite.IenTop
 import zone.ien.utils.ui.components.composite.IenTopBar
+import zone.ien.utils.ui.components.composite.IenTopLowerButton
+import zone.ien.utils.ui.components.composite.IenTopLowerCTA
+import zone.ien.utils.ui.components.composite.IenTopLowerCTAButton
+import zone.ien.utils.ui.components.composite.IenTopRightAssetContent
+import zone.ien.utils.ui.components.composite.IenTopRightButton
+import zone.ien.utils.ui.components.composite.IenTopRightVerticalAlign
+import zone.ien.utils.ui.components.composite.IenTopSelectorType
+import zone.ien.utils.ui.components.composite.IenTopSubtitleBadge
+import zone.ien.utils.ui.components.composite.IenTopSubtitleBadges
+import zone.ien.utils.ui.components.composite.IenTopSubtitleParagraph
+import zone.ien.utils.ui.components.composite.IenTopSubtitleSelector
+import zone.ien.utils.ui.components.composite.IenTopSubtitleSize
+import zone.ien.utils.ui.components.composite.IenTopSubtitleTextButton
+import zone.ien.utils.ui.components.composite.IenTopTitleParagraph
+import zone.ien.utils.ui.components.composite.IenTopTitleSelector
+import zone.ien.utils.ui.components.composite.IenTopTitleSize
+import zone.ien.utils.ui.components.composite.IenTopTitleTextButton
+import zone.ien.utils.ui.components.composite.IenTopUpperAssetContent
 import zone.ien.utils.ui.components.composite.rememberIenBottomSheetState
 import zone.ien.utils.ui.components.composite.rememberIenToastHostState
 import zone.ien.utils.ui.components.foundation.IenSemanticTone
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.interactive.IenAlphabetKeyboard
+import zone.ien.utils.ui.components.interactive.IenAlphabetKeypad
 import zone.ien.utils.ui.components.interactive.IenBadge
 import zone.ien.utils.ui.components.interactive.IenBadgeSize
 import zone.ien.utils.ui.components.interactive.IenBadgeVariant
@@ -100,8 +155,10 @@ import zone.ien.utils.ui.components.interactive.IenButtonSize
 import zone.ien.utils.ui.components.interactive.IenButtonState
 import zone.ien.utils.ui.components.interactive.IenButtonVariant
 import zone.ien.utils.ui.components.interactive.IenCircleCheckbox
+import zone.ien.utils.ui.components.interactive.IenClearableTextField
 import zone.ien.utils.ui.components.interactive.IenFieldStatus
 import zone.ien.utils.ui.components.interactive.IenFullSecureKeyboard
+import zone.ien.utils.ui.components.interactive.IenFullSecureKeypad
 import zone.ien.utils.ui.components.interactive.IenIconButton
 import zone.ien.utils.ui.components.interactive.IenKeyboardAction
 import zone.ien.utils.ui.components.interactive.IenLineCheckbox
@@ -109,6 +166,8 @@ import zone.ien.utils.ui.components.interactive.IenNumberKeypad
 import zone.ien.utils.ui.components.interactive.IenNumericSpinner
 import zone.ien.utils.ui.components.interactive.IenNumericSpinnerSize
 import zone.ien.utils.ui.components.interactive.IenRating
+import zone.ien.utils.ui.components.interactive.IenRatingSize
+import zone.ien.utils.ui.components.interactive.IenRatingVariant
 import zone.ien.utils.ui.components.interactive.IenSearchField
 import zone.ien.utils.ui.components.interactive.IenSecureKeyboardLanguage
 import zone.ien.utils.ui.components.interactive.IenSecureKeyboardState
@@ -129,10 +188,19 @@ import zone.ien.utils.ui.components.interactive.IenStepperTextsType
 import zone.ien.utils.ui.components.interactive.IenSwitch
 import zone.ien.utils.ui.components.interactive.IenTab
 import zone.ien.utils.ui.components.interactive.IenTabItem
+import zone.ien.utils.ui.components.interactive.IenTabSize
 import zone.ien.utils.ui.components.interactive.IenTextArea
 import zone.ien.utils.ui.components.interactive.IenTextButton
+import zone.ien.utils.ui.components.interactive.IenTextButtonSize
+import zone.ien.utils.ui.components.interactive.IenTextButtonVariant
 import zone.ien.utils.ui.components.interactive.IenTextField
+import zone.ien.utils.ui.components.interactive.IenTextFieldButton
+import zone.ien.utils.ui.components.interactive.IenTextFieldFormat
+import zone.ien.utils.ui.components.interactive.IenTextFieldLabelOption
 import zone.ien.utils.ui.components.interactive.IenTextFieldState
+import zone.ien.utils.ui.components.interactive.IenTextFieldVariant
+import zone.ien.utils.ui.components.interactive.IenPasswordTextField
+import zone.ien.utils.ui.components.interactive.rememberIenFullSecureKeypadState
 import zone.ien.utils.ui.components.primitives.IenBorderBox
 import zone.ien.utils.ui.components.primitives.IenClickable
 import zone.ien.utils.ui.components.primitives.IenDivider
@@ -879,11 +947,78 @@ fun ProgressStepperSection() {
 @Composable
 fun RatingSection() {
     IenTheme {
-        var ratingValue by remember { mutableStateOf(3f) }
+        var mediumRating by remember { mutableStateOf(3f) }
+        var largeRating by remember { mutableStateOf(4f) }
+        var bigRating by remember { mutableStateOf(5f) }
         ComponentSection(title = "Rating") {
+            IenText(
+                text = "Editable",
+                style = IenTheme.typography.label1,
+                color = IenTheme.colors.textSecondary,
+            )
             IenRating(
-                value = ratingValue,
-                onValueChange = { ratingValue = it },
+                value = mediumRating,
+                onValueChange = { mediumRating = it },
+                size = IenRatingSize.Medium,
+                ariaLabel = "중간 별점 평가",
+            )
+            IenRating(
+                value = largeRating,
+                onValueChange = { largeRating = it },
+                size = IenRatingSize.Large,
+                ariaLabel = "큰 별점 평가",
+            )
+            IenRating(
+                value = bigRating,
+                onValueChange = { bigRating = it },
+                size = IenRatingSize.Big,
+                ariaLabel = "아주 큰 별점 평가",
+            )
+            IenText(
+                text = "ReadOnly variants",
+                style = IenTheme.typography.label1,
+                color = IenTheme.colors.textSecondary,
+            )
+            IenRating(
+                readOnly = true,
+                value = 4.5f,
+                size = IenRatingSize.Tiny,
+                variant = IenRatingVariant.Full,
+            )
+            IenRating(
+                readOnly = true,
+                value = 4.5f,
+                size = IenRatingSize.Small,
+                variant = IenRatingVariant.Full,
+            )
+            IenRating(
+                readOnly = true,
+                value = 4.5f,
+                size = IenRatingSize.Medium,
+                variant = IenRatingVariant.Full,
+            )
+            IenRating(
+                readOnly = true,
+                value = 4.5f,
+                size = IenRatingSize.Large,
+                variant = IenRatingVariant.Compact,
+            )
+            IenRating(
+                readOnly = true,
+                value = 4.5f,
+                size = IenRatingSize.Big,
+                variant = IenRatingVariant.IconOnly,
+            )
+            IenText(
+                text = "Disabled",
+                style = IenTheme.typography.label1,
+                color = IenTheme.colors.textSecondary,
+            )
+            IenRating(
+                value = 3f,
+                onValueChange = {},
+                size = IenRatingSize.Medium,
+                disabled = true,
             )
         }
     }
@@ -919,11 +1054,54 @@ fun ResultSection() {
 fun SearchFieldSection() {
     IenTheme {
         var search by remember { mutableStateOf("") }
+        var deletableSearch by remember { mutableStateOf("샘플 검색어") }
+        var fixedSearch by remember { mutableStateOf("") }
+        var disabledSearch by remember { mutableStateOf("수정할 수 없는 검색어") }
+        var deleteCount by remember { mutableIntStateOf(0) }
         ComponentSection(title = "SearchField") {
             IenSearchField(
                 value = search,
                 onValueChange = { search = it },
                 placeholder = "컴포넌트 검색",
+            )
+            IenSearchField(
+                value = deletableSearch,
+                onValueChange = { deletableSearch = it },
+                placeholder = "검색어를 입력하고 삭제 버튼을 눌러보세요",
+                onDeleteClick = { deleteCount += 1 },
+            )
+            IenText(
+                text = "삭제 버튼 클릭 ${deleteCount}회",
+                style = IenTheme.typography.caption,
+                color = IenTheme.colors.textTertiary,
+            )
+            IenSurface(
+                color = IenTheme.colors.surfaceWeak,
+            ) {
+                Column(
+                    modifier = Modifier.padding(vertical = IenTheme.spacing.sm),
+                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                ) {
+                    IenSearchField(
+                        value = fixedSearch,
+                        onValueChange = { fixedSearch = it },
+                        placeholder = "상단 고정 검색",
+                        fixed = true,
+                        takeSpace = true,
+                    )
+                    IenText(
+                        text = "fixed=true, takeSpace=true 예시입니다. 실제 화면에서는 Scaffold topBar 같은 고정 영역에 배치합니다.",
+                        modifier = Modifier.padding(horizontal = IenTheme.spacing.md),
+                        style = IenTheme.typography.caption,
+                        color = IenTheme.colors.textTertiary,
+                    )
+                }
+            }
+            IenSearchField(
+                value = disabledSearch,
+                onValueChange = { disabledSearch = it },
+                placeholder = "비활성 검색",
+                state = IenTextFieldState(enabled = false),
             )
         }
     }
@@ -1093,11 +1271,40 @@ fun SwitchSection() {
 fun TabSection() {
     IenTheme {
         var tabSelected by remember { mutableIntStateOf(0) }
+        var smallTabSelected by remember { mutableIntStateOf(0) }
+        var fluidTabSelected by remember { mutableIntStateOf(0) }
         ComponentSection(title = "Tab") {
             IenTab(
-                items = listOf(IenTabItem("요약"), IenTabItem("상세"), IenTabItem("내역")),
+                items = listOf(
+                    IenTabItem("요약", key = "summary"),
+                    IenTabItem("상세", key = "detail", redBean = true),
+                    IenTabItem("내역", key = "history"),
+                ),
                 selectedIndex = tabSelected,
                 onSelectedIndexChange = { tabSelected = it },
+                size = IenTabSize.Large,
+                ariaLabel = "주문 정보 탭",
+            )
+            IenTab(
+                items = listOf(IenTabItem("작게"), IenTabItem("선택됨"), IenTabItem("비활성", enabled = false)),
+                selectedIndex = smallTabSelected,
+                onSelectedIndexChange = { smallTabSelected = it },
+                size = IenTabSize.Small,
+                itemGap = 8.dp,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            IenTab(
+                items = List(12) { index ->
+                    IenTabItem(
+                        text = if (index == 0) "탭1" else "긴텍스트",
+                        key = index,
+                        redBean = index == 3,
+                    )
+                },
+                selectedIndex = fluidTabSelected,
+                onSelectedIndexChange = { fluidTabSelected = it },
+                fluid = true,
+                itemGap = 36.dp,
             )
         }
     }
@@ -1108,6 +1315,22 @@ fun TabSection() {
 fun TableRowSection() {
     IenTheme {
         ComponentSection(title = "TableRow") {
+            IenTableRow(
+                left = "김토스",
+                right = "받는 분",
+                align = IenTableRowAlign.SpaceBetween,
+            )
+            IenTableRow(
+                left = "강토스",
+                right = "받는 분 통장표시",
+                align = IenTableRowAlign.Left,
+            )
+            IenTableRow(
+                left = "이체 1일 전",
+                right = "미리알림",
+                align = IenTableRowAlign.Left,
+                leftRatio = 30,
+            )
             IenTableRow(
                 label = "상품 금액",
                 value = "32,000원",
@@ -1127,9 +1350,35 @@ fun TableRowSection() {
 fun TextButtonSection() {
     IenTheme {
         ComponentSection(title = "TextButton") {
+            Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
+                IenTextButton(text = "텍스트 버튼", size = IenTextButtonSize.XSmall, onClick = {})
+                IenTextButton(text = "텍스트 버튼", size = IenTextButtonSize.Small, onClick = {})
+                IenTextButton(text = "텍스트 버튼", size = IenTextButtonSize.Medium, onClick = {})
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
+                IenTextButton(text = "텍스트 버튼", size = IenTextButtonSize.Large, onClick = {})
+                IenTextButton(text = "텍스트 버튼", size = IenTextButtonSize.XLarge, onClick = {})
+                IenTextButton(text = "텍스트 버튼", size = IenTextButtonSize.XXLarge, onClick = {})
+            }
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
-                IenTextButton(text = "텍스트 버튼", onClick = {})
-                IenTextButton(text = "닫기", onClick = {})
+                IenTextButton(
+                    text = "화살표",
+                    size = IenTextButtonSize.Medium,
+                    variant = IenTextButtonVariant.Arrow,
+                    onClick = {},
+                )
+                IenTextButton(
+                    text = "밑줄",
+                    size = IenTextButtonSize.XLarge,
+                    variant = IenTextButtonVariant.Underline,
+                    onClick = {},
+                )
+                IenTextButton(
+                    text = "비활성",
+                    size = IenTextButtonSize.XXLarge,
+                    disabled = true,
+                    onClick = {},
+                )
             }
         }
     }
@@ -1140,16 +1389,89 @@ fun TextButtonSection() {
 fun ToastSection() {
     IenTheme {
         val toastHostState = rememberIenToastHostState()
+        var showTopToast by remember { mutableStateOf(false) }
+        var showBottomToast by remember { mutableStateOf(false) }
+        var showIconToast by remember { mutableStateOf(false) }
+        var showActionToast by remember { mutableStateOf(false) }
+        var showCtaToast by remember { mutableStateOf(false) }
         ComponentSection(title = "Toast") {
             IenToast(message = "변경사항이 저장되었습니다.", tone = IenSemanticTone.Success)
+            Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
+                IenButton(
+                    text = "상단",
+                    onClick = { showTopToast = true },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                )
+                IenButton(
+                    text = "하단",
+                    onClick = { showBottomToast = true },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                )
+                IenButton(
+                    text = "아이콘",
+                    onClick = { showIconToast = true },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
+                IenButton(
+                    text = "버튼",
+                    onClick = { showActionToast = true },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                )
+                IenButton(
+                    text = "CTA 위",
+                    onClick = { showCtaToast = true },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                )
+            }
             IenButton(
                 text = "토스트 호스트에 추가",
-                onClick = { toastHostState.show("호스트 토스트입니다.", IenSemanticTone.Info) },
+                onClick = { toastHostState.show("호스트 토스트입니다.", IenSemanticTone.Info, higherThanCTA = true) },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Weak,
             )
         }
         IenToastHost(state = toastHostState)
+        IenToast(
+            open = showTopToast,
+            position = IenToastPosition.Top,
+            text = "상단 토스트 메시지예요",
+            onClose = { showTopToast = false },
+        )
+        IenToast(
+            open = showBottomToast,
+            position = IenToastPosition.Bottom,
+            text = "하단 토스트 메시지예요",
+            onClose = { showBottomToast = false },
+        )
+        IenToast(
+            open = showIconToast,
+            position = IenToastPosition.Top,
+            text = "아이콘이 포함된 토스트예요",
+            leftAddon = { IenToastIcon(tone = IenSemanticTone.Success) },
+            onClose = { showIconToast = false },
+            tone = IenSemanticTone.Success,
+        )
+        IenToast(
+            open = showActionToast,
+            position = IenToastPosition.Bottom,
+            text = "버튼이 포함된 토스트예요",
+            button = IenToastAction("확인") { showActionToast = false },
+            onClose = { showActionToast = false },
+        )
+        IenToast(
+            open = showCtaToast,
+            position = IenToastPosition.Bottom,
+            text = "CTA 버튼 위에 표시되는 토스트예요",
+            higherThanCTA = true,
+            onClose = { showCtaToast = false },
+        )
     }
 }
 
@@ -1157,11 +1479,53 @@ fun ToastSection() {
 @Composable
 fun TooltipSection() {
     IenTheme {
+        var controlledTooltipOpen by remember { mutableStateOf(false) }
         ComponentSection(title = "Tooltip") {
             IenTooltip(
                 text = "툴팁은 짧은 보조 설명에 사용합니다.",
+                defaultOpen = true,
                 anchor = { IenBadge("도움말", variant = IenBadgeVariant.Line) },
             )
+            Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
+                IenTooltip(
+                    text = "작은 툴팁",
+                    size = IenTooltipSize.Small,
+                    defaultOpen = true,
+                    placement = IenTooltipPlacement.Top,
+                    anchor = { IenButton(text = "Small", size = IenButtonSize.Small, onClick = {}) },
+                )
+                IenTooltip(
+                    text = "큰 툴팁은 메시지를 조금 더 넓게 보여줍니다.",
+                    size = IenTooltipSize.Large,
+                    defaultOpen = true,
+                    messageAlign = IenTooltipMessageAlign.Center,
+                    width = 180.dp,
+                    anchor = { IenButton(text = "Large", size = IenButtonSize.Small, onClick = {}) },
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
+                IenTooltip(
+                    text = "화살표 위치 0.15",
+                    defaultOpen = true,
+                    anchorPositionByRatio = 0.15f,
+                    clipToEnd = IenTooltipClipToEnd.Left,
+                    anchor = { IenBadge("Left", variant = IenBadgeVariant.Weak) },
+                )
+                IenTooltip(
+                    text = "강한 모션",
+                    open = controlledTooltipOpen,
+                    onOpenChange = { controlledTooltipOpen = it },
+                    motionVariant = IenTooltipMotionVariant.Strong,
+                    dismissible = true,
+                    anchor = {
+                        IenButton(
+                            text = "Toggle",
+                            size = IenButtonSize.Small,
+                            onClick = { controlledTooltipOpen = !controlledTooltipOpen },
+                        )
+                    },
+                )
+            }
         }
     }
 }
@@ -1177,6 +1541,136 @@ fun TopSection() {
                 navigation = { IenTextButton(text = "뒤로", onClick = {}) },
                 actions = { IenBadge("v4", size = IenBadgeSize.Small) },
             )
+            IenTop(
+                upperGap = IenTheme.spacing.md,
+                lowerGap = IenTheme.spacing.md,
+                upper = {
+                    IenTopUpperAssetContent {
+                        IenAssetFrame(
+                            size = IenAssetFrameSize.Large,
+                            tone = IenSemanticTone.Brand,
+                            shape = IenAssetFrameShape.Circle,
+                            contentDescription = "결제 자산",
+                        ) {
+                            IenText("₩")
+                        }
+                    }
+                },
+                subtitleTop = {
+                    IenTopSubtitleBadges(
+                        badges = listOf(
+                            IenTopSubtitleBadge("안전결제", tone = IenSemanticTone.Success),
+                            IenTopSubtitleBadge("오늘", tone = IenSemanticTone.Neutral),
+                        ),
+                    )
+                },
+                title = {
+                    IenTopTitleSelector(
+                        text = "토스페이 결제",
+                        onClick = {},
+                    )
+                },
+                subtitleBottom = {
+                    IenTopSubtitleParagraph(
+                        text = "결제 수단과 혜택을 확인해 주세요.",
+                        size = IenTopSubtitleSize.Medium,
+                    )
+                },
+                right = {
+                    IenTopRightAssetContent {
+                        IenAssetFrame(
+                            size = IenAssetFrameSize.Medium,
+                            tone = IenSemanticTone.Info,
+                            bordered = true,
+                            contentDescription = "혜택",
+                        ) {
+                            IenText("%")
+                        }
+                    }
+                },
+                rightVerticalAlign = IenTopRightVerticalAlign.Center,
+                lower = {
+                    IenTopLowerButton(
+                        text = "혜택 보기",
+                        onClick = {},
+                    )
+                },
+            )
+            IenTop(
+                upperGap = IenTheme.spacing.md,
+                lowerGap = IenTheme.spacing.md,
+                subtitleTop = {
+                    IenTopSubtitleSelector(
+                        text = "계좌 선택",
+                        onClick = {},
+                        type = IenTopSelectorType.Arrow,
+                        size = IenTopSubtitleSize.Small,
+                    )
+                },
+                title = {
+                    IenTopTitleParagraph(
+                        text = "어디로 보낼까요?",
+                        size = IenTopTitleSize.Large,
+                    )
+                },
+                subtitleBottom = {
+                    IenTopSubtitleTextButton(
+                        text = "최근 보낸 사람 불러오기",
+                        onClick = {},
+                    )
+                },
+                right = {
+                    IenTopRightButton(
+                        text = "관리",
+                        onClick = {},
+                        size = IenButtonSize.Small,
+                        variant = IenButtonVariant.Weak,
+                    )
+                },
+                rightVerticalAlign = IenTopRightVerticalAlign.End,
+                lower = {
+                    IenTopLowerCTA(
+                        leftButton = {
+                            IenTopLowerCTAButton(
+                                text = "취소",
+                                onClick = {},
+                                variant = IenButtonVariant.Weak,
+                                tone = IenSemanticTone.Neutral,
+                            )
+                        },
+                        rightButton = {
+                            IenTopLowerCTAButton(
+                                text = "다음",
+                                onClick = {},
+                            )
+                        },
+                    )
+                },
+            )
+            IenTop(
+                upperGap = IenTheme.spacing.sm,
+                lowerGap = IenTheme.spacing.sm,
+                title = {
+                    IenTopTitleTextButton(
+                        text = "선택 가능한 타이틀",
+                        onClick = {},
+                        variant = IenTextButtonVariant.Arrow,
+                    )
+                },
+                subtitleBottom = {
+                    IenTopSubtitleParagraph(
+                        text = "title 자체가 버튼인 케이스",
+                        size = IenTopSubtitleSize.Small,
+                    )
+                },
+                right = {
+                    IenBadge(
+                        text = "New",
+                        size = IenBadgeSize.Small,
+                        variant = IenBadgeVariant.Fill,
+                    )
+                },
+            )
         }
     }
 }
@@ -1190,15 +1684,70 @@ fun AgreementSection() {
                 listOf(
                     IenAgreementItemV4(id = "service", title = "서비스 이용약관", checked = true, required = true),
                     IenAgreementItemV4(id = "privacy", title = "개인정보 처리방침", checked = false, required = true),
-                    IenAgreementItemV4(id = "marketing", title = "마케팅 정보 수신", checked = false, required = false, description = "혜택과 이벤트 소식을 받을 수 있습니다."),
+                    IenAgreementItemV4(
+                        id = "marketing",
+                        title = "마케팅 정보 수신",
+                        checked = false,
+                        required = false,
+                        description = "혜택과 이벤트 소식을 받을 수 있습니다.",
+                        indent = true,
+                    ),
+                    IenAgreementItemV4(
+                        id = "disabled",
+                        title = "만료된 약관",
+                        checked = false,
+                        required = false,
+                        description = "지금은 선택할 수 없습니다.",
+                        enabled = false,
+                    ),
                 ),
             )
         }
+        var singleChecked by remember { mutableStateOf(false) }
+        var boxedChecked by remember { mutableStateOf(true) }
         ComponentSection(title = "Agreement") {
+            IenAgreementV4(
+                checked = singleChecked,
+                onCheckedChange = { singleChecked = it },
+                onPressEnd = {},
+                middle = {
+                    IenAgreementV4Text(
+                        title = "개인정보 수집 및 이용 동의",
+                        description = "서비스 제공을 위해 필요한 항목만 수집합니다.",
+                        required = true,
+                    )
+                },
+                right = {
+                    IenAgreementV4RightButton(text = "보기", onClick = {})
+                },
+            )
+            IenAgreementV4(
+                checked = boxedChecked,
+                onCheckedChange = { boxedChecked = it },
+                variant = IenAgreementV4Variant.Box,
+                rightVerticalAlign = IenAgreementV4RightVerticalAlign.Top,
+                middle = {
+                    IenAgreementV4Text(
+                        title = "혜택 알림 받기",
+                        description = "쿠폰, 이벤트, 추천 혜택을 앱 알림으로 받을 수 있습니다.",
+                        required = false,
+                    )
+                },
+                right = {
+                    IenAgreementV4RightButton(text = "설정", onClick = {})
+                },
+            )
             IenAgreementV4(
                 items = agreements,
                 onItemCheckedChange = { id, checked ->
                     agreements = agreements.map { if (it.id == id) it.copy(checked = checked) else it }
+                },
+                itemRight = { item ->
+                    IenAgreementV4RightButton(
+                        text = "보기",
+                        onClick = {},
+                        enabled = item.enabled,
+                    )
                 },
             )
         }
@@ -1236,20 +1785,141 @@ fun AssetSection() {
 @Composable
 fun BottomCTASection() {
     IenTheme {
+        var showAnimatedCTA by remember { mutableStateOf(true) }
         ComponentSection(title = "BottomCTA") {
-            IenBottomCTA(text = "단일 CTA", onClick = {})
+            IenBottomCTA(
+                text = "단일 CTA",
+                onClick = {},
+                topAccessory = {
+                    IenText(
+                        text = "상단 액세서리: 결제 전 안내 문구",
+                        style = IenTheme.typography.caption,
+                        color = IenTheme.colors.textSecondary,
+                    )
+                },
+                bottomAccessory = {
+                    IenText(
+                        text = "하단 액세서리: 약관 및 수수료 안내",
+                        style = IenTheme.typography.caption,
+                        color = IenTheme.colors.textTertiary,
+                    )
+                },
+            )
+            IenBottomCTA(
+                text = "배경 없는 CTA",
+                onClick = {},
+                background = IenBottomCTABackground.None,
+                hasSafeAreaPadding = false,
+                hasPaddingBottom = false,
+                variant = IenButtonVariant.Weak,
+            )
+            IenButton(
+                text = if (showAnimatedCTA) "애니메이션 CTA 숨기기" else "애니메이션 CTA 보이기",
+                onClick = { showAnimatedCTA = !showAnimatedCTA },
+                size = IenButtonSize.Small,
+                variant = IenButtonVariant.Weak,
+            )
+            IenBottomCTA(
+                text = "지연 등장 CTA",
+                onClick = {},
+                show = showAnimatedCTA,
+                showAfterDelay = IenBottomCTAShowAfterDelay(
+                    animation = IenBottomCTAAnimation.Scale,
+                    delayMillis = 300,
+                ),
+                hideOnScroll = true,
+                scrollDelta = if (showAnimatedCTA) 0f else 4f,
+            )
             IenDoubleBottomCTA(
                 primaryText = "확인",
                 onPrimaryClick = {},
                 secondaryText = "취소",
                 onSecondaryClick = {},
+                topAccessory = {
+                    IenText(
+                        text = "Double은 좌우 버튼 슬롯을 함께 제공합니다.",
+                        style = IenTheme.typography.caption,
+                        color = IenTheme.colors.textSecondary,
+                    )
+                },
+            )
+            IenDoubleBottomCTA(
+                background = IenBottomCTABackground.None,
+                hasPaddingBottom = false,
+                leftButton = {
+                    IenBottomCTAButton(
+                        text = "삭제",
+                        onClick = {},
+                        variant = IenButtonVariant.Weak,
+                        tone = IenSemanticTone.Danger,
+                    )
+                },
+                rightButton = {
+                    IenBottomCTAButton(
+                        text = "저장",
+                        onClick = {},
+                    )
+                },
             )
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(88.dp),
+                    .height(176.dp)
+                    .background(IenTheme.colors.surfaceWeak),
             ) {
-                IenFixedBottomCTA(text = "고정 CTA", onClick = {})
+                IenText(
+                    text = "FixedBottomCTA.Single",
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(IenTheme.spacing.md),
+                    style = IenTheme.typography.caption,
+                    color = IenTheme.colors.textSecondary,
+                )
+                IenFixedBottomCTA(
+                    text = "고정 CTA",
+                    onClick = {},
+                    topAccessory = {
+                        IenText(
+                            text = "fixedAboveKeyboard=true",
+                            style = IenTheme.typography.caption,
+                            color = IenTheme.colors.textSecondary,
+                        )
+                    },
+                    fixedAboveKeyboard = true,
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(176.dp)
+                    .background(IenTheme.colors.surfaceWeak),
+            ) {
+                IenText(
+                    text = "FixedBottomCTA.Double",
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(IenTheme.spacing.md),
+                    style = IenTheme.typography.caption,
+                    color = IenTheme.colors.textSecondary,
+                )
+                IenFixedDoubleBottomCTA(
+                    hideOnScroll = true,
+                    scrollDelta = 0f,
+                    leftButton = {
+                        IenBottomCTAButton(
+                            text = "취소",
+                            onClick = {},
+                            variant = IenButtonVariant.Weak,
+                            tone = IenSemanticTone.Neutral,
+                        )
+                    },
+                    rightButton = {
+                        IenBottomCTAButton(
+                            text = "확인",
+                            onClick = {},
+                        )
+                    },
+                )
             }
         }
     }
@@ -1260,22 +1930,51 @@ fun BottomCTASection() {
 fun DialogSection() {
     IenTheme {
         var showAlert by remember { mutableStateOf(false) }
+        var showAlertWiggle by remember { mutableStateOf(false) }
+        var showAlertLong by remember { mutableStateOf(false) }
         var showConfirm by remember { mutableStateOf(false) }
+        var showConfirmLong by remember { mutableStateOf(false) }
+        var showConfirmNoDescription by remember { mutableStateOf(false) }
         var showGenericDialog by remember { mutableStateOf(false) }
+        var dialogEventText by remember { mutableStateOf("대기 중") }
 
         ComponentSection(title = "Dialog") {
             IenButton(
-                text = "알림 열기",
+                text = "AlertDialog 기본",
                 onClick = { showAlert = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Weak,
             )
             IenButton(
-                text = "확인 다이얼로그 열기",
+                text = "AlertDialog 딤 클릭 방지",
+                onClick = { showAlertWiggle = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Weak,
+            )
+            IenButton(
+                text = "AlertDialog 긴 콘텐츠",
+                onClick = { showAlertLong = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Line,
+            )
+            IenButton(
+                text = "ConfirmDialog 기본",
                 onClick = { showConfirm = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Line,
                 tone = IenSemanticTone.Danger,
+            )
+            IenButton(
+                text = "ConfirmDialog 긴 버튼",
+                onClick = { showConfirmLong = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Line,
+            )
+            IenButton(
+                text = "ConfirmDialog 설명 없음",
+                onClick = { showConfirmNoDescription = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Ghost,
             )
             IenButton(
                 text = "기본 Dialog 열기",
@@ -1283,14 +1982,49 @@ fun DialogSection() {
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Ghost,
             )
+            IenText(
+                text = "이벤트: $dialogEventText",
+                style = IenTheme.typography.caption,
+                color = IenTheme.colors.textTertiary,
+            )
         }
 
         IenAlertDialog(
             visible = showAlert,
-            title = "알림",
-            message = "AlertDialog는 단일 확인 액션이 필요한 정보 전달에 사용합니다.",
+            title = "김토스님의 의견이\n잘 전달되었어요",
+            message = "소중한 의견을 바탕으로 더 간편한 서비스를 만들게요.",
             onDismissRequest = { showAlert = false },
             onConfirmClick = { showAlert = false },
+            onEntered = { dialogEventText = "AlertDialog 열림" },
+            onExited = { dialogEventText = "AlertDialog 닫힘" },
+        )
+
+        IenAlertDialog(
+            visible = showAlertWiggle,
+            onClose = { showAlertWiggle = false },
+            closeOnDimmerClick = false,
+            closeOnBackEvent = true,
+            title = {
+                IenAlertDialogTitle("외부 영역으로 닫히지 않아요")
+            },
+            description = {
+                IenAlertDialogDescription("확인 버튼이나 뒤로가기 이벤트로만 닫히는 알림입니다.")
+            },
+            alertButton = {
+                IenAlertDialogAlertButton(
+                    text = "확인",
+                    onClick = { showAlertWiggle = false },
+                )
+            },
+        )
+
+        IenAlertDialog(
+            visible = showAlertLong,
+            title = "30글자 이상의 아주 긴 제목도 자연스럽게 줄바꿈되어 표시됩니다",
+            message = List(12) { "소중한 의견을 바탕으로 더 간편한 서비스를 만들게요." }.joinToString("\n"),
+            confirmText = "30글자 이상의 아주 긴 확인 버튼 레이블입니다",
+            onDismissRequest = { showAlertLong = false },
+            onConfirmClick = { showAlertLong = false },
         )
 
         IenConfirmDialog(
@@ -1300,6 +2034,38 @@ fun DialogSection() {
             onDismissRequest = { showConfirm = false },
             onConfirmClick = { showConfirm = false },
             destructive = true,
+        )
+
+        IenConfirmDialog(
+            visible = showConfirmLong,
+            title = "정말 계속할까요?",
+            message = "버튼 레이블이 길어지는 경우 세로 배치를 사용하면 버튼 영역이 안정적으로 유지됩니다.",
+            onDismissRequest = { showConfirmLong = false },
+            onConfirmClick = { showConfirmLong = false },
+            dismissText = "아니오, 취소해주세요",
+            confirmText = "예, 알겠습니다",
+            buttonLayout = IenDialogButtonLayout.Vertical,
+        )
+
+        IenConfirmDialog(
+            visible = showConfirmNoDescription,
+            onClose = { showConfirmNoDescription = false },
+            closeOnDimmerClick = false,
+            title = {
+                IenConfirmDialogTitle("설명 없이 진행할까요?")
+            },
+            cancelButton = {
+                IenConfirmDialogCancelButton(
+                    text = "아니오",
+                    onClick = { showConfirmNoDescription = false },
+                )
+            },
+            confirmButton = {
+                IenConfirmDialogConfirmButton(
+                    text = "예",
+                    onClick = { showConfirmNoDescription = false },
+                )
+            },
         )
 
         IenDialog(
@@ -1324,23 +2090,85 @@ fun DialogSection() {
 fun KeypadSection() {
     IenTheme {
         var alphabetValue by remember { mutableStateOf("") }
+        var customAlphabetValue by remember { mutableStateOf("") }
         var numberValue by remember { mutableStateOf("") }
+        var customNumberValue by remember { mutableStateOf("") }
+        var secureNumberValue by remember { mutableStateOf("") }
+        var secureNoiseValue by remember { mutableStateOf("") }
         var secureValue by remember { mutableStateOf("") }
+        var fullSecureValue by remember { mutableStateOf("") }
         var secureLanguage by remember { mutableStateOf(IenSecureKeyboardLanguage.English) }
+        val fullSecureKeypadState = rememberIenFullSecureKeypadState()
 
         ComponentSection(title = "Keypad") {
-            IenText("알파벳 입력: $alphabetValue", style = IenTheme.typography.body2)
+            IenText("Alphabet Keypad: $alphabetValue", style = IenTheme.typography.body2)
+            IenAlphabetKeypad(
+                onKeyClick = { alphabetValue += it },
+                onBackspaceClick = { alphabetValue = alphabetValue.dropLast(1) },
+            )
+            IenDivider()
+            IenText("커스텀 배열: $customAlphabetValue", style = IenTheme.typography.body2)
+            IenAlphabetKeypad(
+                alphabets = listOf(
+                    "z", "y", "x",
+                    "w", "v", "u",
+                    "t", "s", "r",
+                    "q", "p", "o",
+                    "n", "m", "l",
+                    "k", "j", "i",
+                    "h", "g", "f",
+                    "e", "d", "c",
+                    "b", "a",
+                ),
+                onKeyClick = { customAlphabetValue += it },
+                onBackspaceClick = { customAlphabetValue = customAlphabetValue.dropLast(1) },
+            )
+            IenDivider()
+            IenText("보안 알파벳 키보드: $alphabetValue", style = IenTheme.typography.body2)
             IenAlphabetKeyboard(
                 onAction = { action ->
                     alphabetValue = applyKeyboardAction(alphabetValue, action)
                 },
             )
             IenDivider()
-            IenText("숫자 입력: $numberValue", style = IenTheme.typography.body2)
+            IenText("Number Keypad: $numberValue", style = IenTheme.typography.body2)
             IenNumberKeypad(
-                onAction = { action ->
-                    numberValue = applyKeyboardAction(numberValue, action)
+                onKeyClick = { numberValue += it },
+                onBackspaceClick = { numberValue = numberValue.dropLast(1) },
+            )
+            IenDivider()
+            IenText("커스텀 숫자 배열: $customNumberValue", style = IenTheme.typography.body2)
+            IenNumberKeypad(
+                numbers = listOf(1, 3, 5, 7, 9, 2, 4, 6, 8, 0),
+                onKeyClick = { customNumberValue += it },
+                onBackspaceClick = { customNumberValue = customNumberValue.dropLast(1) },
+            )
+            IenDivider()
+            IenText(
+                text = "보안 숫자 입력: $secureNumberValue / 더미: $secureNoiseValue",
+                style = IenTheme.typography.body2,
+            )
+            IenNumberKeypad(
+                secure = true,
+                onKeyClick = { secureNumberValue += it },
+                onBackspaceClick = {
+                    secureNumberValue = secureNumberValue.dropLast(1)
+                    secureNoiseValue = ""
                 },
+                onSecureNoiseKeyClick = {
+                    secureNoiseValue = (secureNoiseValue + it).takeLast(8)
+                },
+            )
+            IenDivider()
+            IenText("Full Secure Keypad: $fullSecureValue", style = IenTheme.typography.body2)
+            IenFullSecureKeypad(
+                state = fullSecureKeypadState,
+                onKeyClick = { fullSecureValue += it },
+                onBackspaceClick = { fullSecureValue = fullSecureValue.dropLast(1) },
+                onSpaceClick = { fullSecureValue += " " },
+                onSubmit = { fullSecureKeypadState.reorderEmptyCells() },
+                submitButtonText = "공백 옮기기",
+                submitDisabled = fullSecureValue.isEmpty(),
             )
             IenDivider()
             IenFullSecureKeyboard(
@@ -1373,6 +2201,79 @@ fun ListRowSection() {
                 selected = true,
                 trailing = { IenBadge("기본", size = IenBadgeSize.Small) },
             )
+            IenListRow(
+                left = {
+                    IenListRowAssetText(
+                        text = "오늘",
+                        shape = IenListRowAssetShape.Squircle,
+                    )
+                },
+                contents = {
+                    IenListRowTexts(
+                        type = IenListRowTextsType.TwoRowTypeA,
+                        top = "ListRow.Texts",
+                        bottom = "left / contents / right 슬롯 구성",
+                    )
+                },
+                right = {
+                    IenButton(
+                        text = "Button",
+                        onClick = {},
+                        size = IenButtonSize.Small,
+                        variant = IenButtonVariant.Weak,
+                    )
+                },
+                withArrow = true,
+                withTouchEffect = true,
+                onClick = {},
+            )
+            IenListRow(
+                contents = {
+                    IenListRowTexts(
+                        type = IenListRowTextsType.ThreeRowTypeC,
+                        top = "긴 정보가 들어가는 행",
+                        middle = "중간 설명 텍스트",
+                        bottom = "아래 보조 텍스트",
+                    )
+                },
+                right = {
+                    IenListRowTexts(
+                        type = IenListRowTextsType.RightTwoRowTypeA,
+                        top = "28,000원",
+                        bottom = "오늘",
+                    )
+                },
+                leftAlignment = IenListRowAlignment.Top,
+                rightAlignment = IenListRowAlignment.Top,
+                verticalPadding = IenListRowPadding.Large,
+            )
+            IenListRow(
+                contents = {
+                    IenListRowTexts(
+                        type = IenListRowTextsType.OneRowTypeA,
+                        top = "비활성 Type2",
+                    )
+                },
+                right = {
+                    IenBadge("불가", size = IenBadgeSize.Small)
+                },
+                disabled = true,
+                disabledStyle = IenListRowDisabledStyle.Type2,
+                border = IenListRowBorder.Indented,
+            )
+            IenListRow(
+                contents = {
+                    IenListRowTexts(
+                        type = IenListRowTextsType.OneRowTypeA,
+                        top = "작은 좌우 패딩과 border 없음",
+                    )
+                },
+                horizontalPadding = IenListRowPadding.Small,
+                border = IenListRowBorder.None,
+                withArrow = true,
+            )
+            IenListRowLoader(type = IenListRowLoaderType.Circle, verticalPadding = IenListRowPadding.ExtraSmall)
+            IenListRowLoader(type = IenListRowLoaderType.Bar)
         }
     }
 }
@@ -1382,20 +2283,93 @@ fun ListRowSection() {
 fun TextFieldSection() {
     IenTheme {
         var text by remember { mutableStateOf("") }
+        var lineText by remember { mutableStateOf("서울") }
+        var bigText by remember { mutableStateOf("") }
+        var amountText by remember { mutableStateOf("1200000") }
+        var clearText by remember { mutableStateOf("지울 수 있는 값") }
+        var passwordText by remember { mutableStateOf("") }
+        var selectedBank by remember { mutableStateOf("은행 선택") }
+        val numberFormat = IenTextFieldFormat(
+            transform = { value ->
+                value
+                    .filter { it.isDigit() }
+                    .reversed()
+                    .chunked(3)
+                    .joinToString(",")
+                    .reversed()
+            },
+            reset = { formattedValue -> formattedValue.filter { it.isDigit() } },
+        )
         ComponentSection(title = "TextField") {
             IenTextField(
                 value = text,
                 onValueChange = { text = it },
                 label = "이름",
                 placeholder = "이름을 입력하세요",
-                supportingText = "공통 토큰을 사용하는 입력창입니다.",
+                help = "값이 들어오거나 포커스되면 라벨이 나타납니다.",
+            )
+            IenTextField(
+                value = lineText,
+                onValueChange = { lineText = it },
+                label = "주소",
+                labelOption = IenTextFieldLabelOption.Sustain,
+                placeholder = "주소를 입력하세요",
+                variant = IenTextFieldVariant.Line,
+                suffix = "시",
+                help = "line variant + sustain label",
+            )
+            IenTextField(
+                value = bigText,
+                onValueChange = { bigText = it },
+                label = "큰 금액",
+                placeholder = "0",
+                variant = IenTextFieldVariant.Big,
+                prefix = "₩",
+                suffix = "원",
+                format = numberFormat,
+                help = "format.transform/reset으로 표시값과 원본값을 분리합니다.",
+            )
+            IenTextField(
+                value = amountText,
+                onValueChange = { amountText = it },
+                label = "Hero 입력",
+                labelOption = IenTextFieldLabelOption.Sustain,
+                placeholder = "0",
+                variant = IenTextFieldVariant.Hero,
+                suffix = "원",
+                format = numberFormat,
+                paddingTop = 24.dp,
+                paddingBottom = 24.dp,
+            )
+            IenClearableTextField(
+                value = clearText,
+                onValueChange = { clearText = it },
+                onClear = {},
+                label = "Clearable",
+                labelOption = IenTextFieldLabelOption.Sustain,
+                placeholder = "입력 후 지울 수 있어요",
+            )
+            IenPasswordTextField(
+                value = passwordText,
+                onValueChange = { passwordText = it },
+                label = "비밀번호",
+                placeholder = "비밀번호 입력",
+                help = "보기/숨김 토글을 제공합니다.",
+            )
+            IenTextFieldButton(
+                value = selectedBank,
+                onClick = { selectedBank = if (selectedBank == "은행 선택") "아이엔뱅크" else "은행 선택" },
+                label = "계좌",
+                labelOption = IenTextFieldLabelOption.Sustain,
+                help = "읽기 전용 선택 필드입니다.",
             )
             IenTextField(
                 value = "",
                 onValueChange = {},
                 label = "오류 상태",
                 placeholder = "필수 값",
-                state = IenTextFieldState(status = IenFieldStatus.Error("값을 입력해 주세요.")),
+                hasError = true,
+                help = "값을 입력해 주세요.",
             )
         }
     }
