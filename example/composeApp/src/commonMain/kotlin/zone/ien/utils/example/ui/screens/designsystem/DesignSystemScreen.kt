@@ -118,7 +118,6 @@ import zone.ien.utils.ui.components.composite.IenTooltipClipToEnd
 import zone.ien.utils.ui.components.composite.IenTooltipMessageAlign
 import zone.ien.utils.ui.components.composite.IenTooltipMotionVariant
 import zone.ien.utils.ui.components.composite.IenTooltipPlacement
-import zone.ien.utils.ui.components.composite.IenTooltipSize
 import zone.ien.utils.ui.components.composite.IenTop
 import zone.ien.utils.ui.components.composite.IenTopBar
 import zone.ien.utils.ui.components.composite.IenTopLowerButton
@@ -1497,33 +1496,27 @@ fun TooltipSection() {
         ComponentSection(title = "Tooltip") {
             IenTooltip(
                 text = "툴팁은 짧은 보조 설명에 사용합니다.",
-                defaultOpen = true,
-                anchor = { IenBadge("도움말", variant = IenBadgeVariant.Line) },
+                anchor = { toggle -> IenBadge("도움말", variant = IenBadgeVariant.Line) },
             )
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
                 IenTooltip(
-                    text = "작은 툴팁",
-                    size = IenTooltipSize.Small,
-                    defaultOpen = true,
+                    text = "상단에 뜨는 도움말입니다.",
                     placement = IenTooltipPlacement.Top,
-                    anchor = { IenButton(text = "Small", size = IenButtonSize.Small, onClick = {}) },
+                    anchor = { toggle -> IenButton(text = "Top", size = IenButtonSize.Small, onClick = toggle) },
                 )
                 IenTooltip(
-                    text = "큰 툴팁은 메시지를 조금 더 넓게 보여줍니다.",
-                    size = IenTooltipSize.Large,
-                    defaultOpen = true,
+                    text = "중앙 정렬 툴팁은 메시지를 정중앙에 보여줍니다.",
                     messageAlign = IenTooltipMessageAlign.Center,
                     width = 180.dp,
-                    anchor = { IenButton(text = "Large", size = IenButtonSize.Small, onClick = {}) },
+                    anchor = { toggle -> IenButton(text = "Center", size = IenButtonSize.Small, onClick = toggle) },
                 )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
                 IenTooltip(
                     text = "화살표 위치 0.15",
-                    defaultOpen = true,
                     anchorPositionByRatio = 0.15f,
                     clipToEnd = IenTooltipClipToEnd.Left,
-                    anchor = { IenBadge("Left", variant = IenBadgeVariant.Weak) },
+                    anchor = { toggle -> IenBadge("Left", variant = IenBadgeVariant.Weak) },
                 )
                 IenTooltip(
                     text = "강한 모션",
@@ -1531,7 +1524,7 @@ fun TooltipSection() {
                     onOpenChange = { controlledTooltipOpen = it },
                     motionVariant = IenTooltipMotionVariant.Strong,
                     dismissible = true,
-                    anchor = {
+                    anchor = { toggle ->
                         IenButton(
                             text = "Toggle",
                             size = IenButtonSize.Small,

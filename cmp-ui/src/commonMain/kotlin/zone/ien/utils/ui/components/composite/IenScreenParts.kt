@@ -12,6 +12,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -47,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Color
@@ -58,6 +61,22 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalDensity
+import kotlinx.coroutines.delay
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -604,12 +623,104 @@ private fun IenTopSubtitleSize.subtitleWeight(): FontWeight = when (this) {
     IenTopSubtitleSize.Large -> FontWeight.Medium
 }
 
+class IenTooltipPositionProvider(
+    private val placement: IenTooltipPlacement,
+    private val offset: Dp,
+    private val density: Density,
+    private val onArrowRatioCalculated: (Float) -> Unit
+) : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize
+    ): IntOffset {
+        val preferredX = anchorBounds.left + (anchorBounds.width - popupContentSize.width) / 2
+        val offsetPx = with(density) { offset.toPx().toInt() }
+        val paddingPx = with(density) { 32.dp.toPx() }
+        val safeMarginPx = with(density) { 16.dp.toPx() }
+
+        val minX = (-paddingPx + safeMarginPx).toInt()
+        val maxX = (windowSize.width - popupContentSize.width + paddingPx - safeMarginPx).toInt()
+        val x = preferredX.coerceIn(minX, maxX)
+
+        val y = when (placement) {
+            IenTooltipPlacement.Top -> {
+                anchorBounds.top - popupContentSize.height + paddingPx.toInt() - offsetPx
+            }
+            IenTooltipPlacement.Bottom -> {
+                anchorBounds.bottom - paddingPx.toInt() + offsetPx
+            }
+        }
+
+        val anchorCenterX = anchorBounds.left + anchorBounds.width / 2f
+        val relativeAnchorCenterX = anchorCenterX - x
+        val bodyWidth = popupContentSize.width - 2 * paddingPx
+        val arrowOffsetInBody = relativeAnchorCenterX - paddingPx
+
+        val arrowRatio = if (bodyWidth > 0) {
+            (arrowOffsetInBody / bodyWidth).coerceIn(0.12f, 0.88f)
+        } else {
+            0.5f
+        }
+
+        onArrowRatioCalculated(arrowRatio)
+
+        return IntOffset(x, y)
+    }
+}
+
+class IenTooltipShape(
+    private val placement: IenTooltipPlacement,
+    private val arrowRatio: Float,
+    private val arrowSize: Dp,
+    private val cornerRadius: Dp,
+    private val density: Density
+) : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline {
+        val arrowSizePx = with(this.density) { arrowSize.toPx() }
+        val radiusPx = with(this.density) { cornerRadius.toPx() }
+        val w = size.width
+        val h = size.height
+
+        val path = Path().apply {
+            val bodyTop = if (placement == IenTooltipPlacement.Bottom) arrowSizePx / 2f else 0f
+            val bodyBottom = if (placement == IenTooltipPlacement.Top) h - arrowSizePx / 2f else h
+
+            val rect = Rect(0f, bodyTop, w, bodyBottom)
+            addRoundRect(RoundRect(rect, CornerRadius(radiusPx)))
+
+            val arrowWidth = arrowSizePx
+            val arrowHeight = arrowSizePx / 2f
+            val arrowX = w * arrowRatio.coerceIn(0.1f, 0.9f) - (arrowWidth / 2f)
+
+            when (placement) {
+                IenTooltipPlacement.Bottom -> {
+                    moveTo(arrowX, bodyTop)
+                    lineTo(arrowX + arrowWidth / 2f, bodyTop - arrowHeight)
+                    lineTo(arrowX + arrowWidth, bodyTop)
+                }
+                IenTooltipPlacement.Top -> {
+                    moveTo(arrowX, bodyBottom)
+                    lineTo(arrowX + arrowWidth / 2f, bodyBottom + arrowHeight)
+                    lineTo(arrowX + arrowWidth, bodyBottom)
+                }
+            }
+            close()
+        }
+        return Outline.Generic(path)
+    }
+}
+
 @Composable
 fun IenTooltip(
     text: String,
     modifier: Modifier = Modifier,
     tone: IenSemanticTone = IenSemanticTone.Neutral,
-    size: IenTooltipSize = IenTooltipSize.Medium,
     defaultOpen: Boolean = false,
     open: Boolean? = null,
     onOpenChange: ((Boolean) -> Unit)? = null,
@@ -625,7 +736,7 @@ fun IenTooltip(
     strategy: IenTooltipStrategy = IenTooltipStrategy.Absolute,
     clipToEnd: IenTooltipClipToEnd = IenTooltipClipToEnd.None,
     width: Dp? = null,
-    anchor: (@Composable BoxScope.() -> Unit)? = null,
+    anchor: (@Composable BoxScope.(toggle: () -> Unit) -> Unit)? = null,
 ) {
     var internalOpen by remember { mutableStateOf(defaultOpen) }
     val isOpen = open ?: internalOpen
@@ -634,7 +745,7 @@ fun IenTooltip(
     } else {
         placement
     }
-    val resolvedOffset = offset ?: size.offset()
+    val resolvedOffset = offset ?: 8.dp
     val motionScale by animateFloatAsState(
         targetValue = if (isOpen) 1f else motionVariant.hiddenScale(),
         animationSpec = spring(
@@ -650,79 +761,86 @@ fun IenTooltip(
         onOpenChange?.invoke(next)
     }
 
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(resolvedOffset),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        if (resolvedPlacement == IenTooltipPlacement.Top) {
-            IenTooltipPopup(
-                visible = isOpen,
-                text = text,
-                tone = tone,
-                size = size,
-                messageAlign = messageAlign,
-                anchorPositionByRatio = anchorPositionByRatio,
-                clipToEnd = clipToEnd,
-                placement = resolvedPlacement,
-                motionVariant = motionVariant,
-                scale = motionScale,
-                width = width,
-            )
-        }
+    val toggle = { updateOpen(!isOpen) }
 
-        Box(
-            modifier = Modifier
-                .then(
-                    if (dismissible) {
-                        Modifier.clickable(
-                            indication = null,
-                            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                        ) { updateOpen(!isOpen) }
-                    } else {
-                        Modifier
+    var keepInComposition by remember { mutableStateOf(isOpen) }
+    LaunchedEffect(isOpen) {
+        if (isOpen) {
+            keepInComposition = true
+        } else if (keepInComposition) {
+            delay(150L)
+            keepInComposition = false
+        }
+    }
+
+    var dynamicArrowRatio by remember { mutableStateOf(anchorPositionByRatio) }
+    LaunchedEffect(anchorPositionByRatio) {
+        dynamicArrowRatio = anchorPositionByRatio
+    }
+
+    val density = LocalDensity.current
+
+    Box(
+        modifier = modifier
+            .pointerInput(isOpen) {
+                detectTapGestures(
+                    onTap = {
+                        toggle()
                     },
-                )
-                .onFocusChanged { focusState ->
-                    if (openOnFocus) {
-                        updateOpen(focusState.isFocused)
+                    onLongPress = {
+                        updateOpen(true)
                     }
-                }
-                .then(if (openOnFocus) Modifier.focusable() else Modifier)
-                .semantics {
-                    contentDescription = text
-                },
-            contentAlignment = Alignment.Center,
-        ) {
-            anchor?.invoke(this)
-            if (anchor == null) {
-                IenText("?", style = IenTheme.typography.label1, color = IenTheme.colors.brand)
+                )
             }
+            .onFocusChanged { focusState ->
+                if (openOnFocus) {
+                    updateOpen(focusState.isFocused)
+                }
+            }
+            .then(if (openOnFocus) Modifier.focusable() else Modifier)
+            .semantics {
+                contentDescription = text
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        anchor?.invoke(this, toggle)
+        if (anchor == null) {
+            IenText("?", style = IenTheme.typography.label1, color = IenTheme.colors.brand)
         }
 
-        if (resolvedPlacement == IenTooltipPlacement.Bottom) {
-            IenTooltipPopup(
-                visible = isOpen || openOnHover,
-                text = text,
-                tone = tone,
-                size = size,
-                messageAlign = messageAlign,
-                anchorPositionByRatio = anchorPositionByRatio,
-                clipToEnd = clipToEnd,
-                placement = resolvedPlacement,
-                motionVariant = motionVariant,
-                scale = motionScale,
-                width = width,
-            )
+        if (keepInComposition) {
+            Popup(
+                popupPositionProvider = remember(resolvedPlacement, resolvedOffset) {
+                    IenTooltipPositionProvider(resolvedPlacement, resolvedOffset, density) { ratio ->
+                        dynamicArrowRatio = ratio
+                    }
+                },
+                onDismissRequest = { updateOpen(false) },
+                properties = PopupProperties(
+                    focusable = false,
+                    dismissOnClickOutside = true,
+                    dismissOnBackPress = true,
+                    clippingEnabled = false
+                )
+            ) {
+                IenTooltipPopup(
+                    visible = isOpen,
+                    text = text,
+                    tone = tone,
+                    messageAlign = messageAlign,
+                    anchorPositionByRatio = dynamicArrowRatio,
+                    clipToEnd = clipToEnd,
+                    placement = resolvedPlacement,
+                    motionVariant = motionVariant,
+                    scale = motionScale,
+                    width = width,
+                )
+            }
         }
     }
 }
 
-enum class IenTooltipSize {
-    Small,
-    Medium,
-    Large,
-}
+
 
 enum class IenTooltipMessageAlign {
     Left,
@@ -756,7 +874,6 @@ private fun IenTooltipPopup(
     visible: Boolean,
     text: String,
     tone: IenSemanticTone,
-    size: IenTooltipSize,
     messageAlign: IenTooltipMessageAlign,
     anchorPositionByRatio: Float,
     clipToEnd: IenTooltipClipToEnd,
@@ -765,12 +882,18 @@ private fun IenTooltipPopup(
     scale: Float,
     width: Dp?,
 ) {
-    val color = if (tone == IenSemanticTone.Neutral) {
-        IenTheme.colors.textPrimary
+    val isNeutral = tone == IenSemanticTone.Neutral
+    val backgroundColor = if (isNeutral) {
+        Color.White
     } else {
         zone.ien.utils.ui.components.interactive.toneColor(tone)
     }
-    val arrowRatio = anchorPositionByRatio.coerceIn(0f, 1f)
+    val contentColor = if (isNeutral) {
+        IenTheme.colors.textPrimary
+    } else {
+        Color.White
+    }
+    val arrowRatio = anchorPositionByRatio.coerceIn(0.05f, 0.95f)
     val alpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
         animationSpec = tween(
@@ -782,13 +905,25 @@ private fun IenTooltipPopup(
         ),
     )
 
+    val density = LocalDensity.current
+    val tooltipShape = remember(placement, arrowRatio, density) {
+        IenTooltipShape(
+            placement = placement,
+            arrowRatio = arrowRatio,
+            arrowSize = 12.dp,
+            cornerRadius = 12.dp,
+            density = density
+        )
+    }
+
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(tween(IenTheme.motion.fastMillis)),
         exit = fadeOut(tween(IenTheme.motion.fastMillis)),
     ) {
-        Column(
+        Box(
             modifier = Modifier
+                .padding(32.dp)
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
@@ -798,44 +933,41 @@ private fun IenTooltipPopup(
                         IenTooltipPlacement.Bottom -> if (visible) 0f else -4f
                     }
                 }
-                .then(if (width != null) Modifier.width(width) else Modifier.widthIn(max = size.maxWidth())),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .then(if (width != null) Modifier.width(width) else Modifier.widthIn(max = 280.dp)),
+            contentAlignment = Alignment.Center
         ) {
-            if (placement == IenTooltipPlacement.Bottom) {
-                IenTooltipArrowRow(
-                    color = color,
-                    size = size.arrowSize(),
-                    ratio = arrowRatio,
-                    placement = placement,
-                    clipToEnd = clipToEnd,
-                )
-            }
             IenSurface(
-                color = color,
-                contentColor = IenTheme.colors.surface,
-                shape = RoundedCornerShape(size.radius()),
+                modifier = Modifier.shadow(
+                    elevation = 16.dp,
+                    shape = tooltipShape,
+                    clip = false,
+                    ambientColor = Color(0x80001D3A),
+                    spotColor = Color(0x80001D3A)
+                ),
+                color = backgroundColor,
+                contentColor = contentColor,
+                shape = tooltipShape,
             ) {
+                val topPadding = if (placement == IenTooltipPlacement.Bottom) 16.dp else 10.dp
+                val bottomPadding = if (placement == IenTooltipPlacement.Top) 16.dp else 10.dp
+
                 IenText(
                     text = text,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(size.contentPadding()),
-                    style = size.textStyle(),
-                    color = IenTheme.colors.surface,
+                        .padding(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = topPadding,
+                            bottom = bottomPadding
+                        ),
+                    style = IenTheme.typography.label2.copy(fontWeight = FontWeight.Bold),
+                    color = contentColor,
                     textAlign = when (messageAlign) {
                         IenTooltipMessageAlign.Left -> TextAlign.Start
                         IenTooltipMessageAlign.Center -> TextAlign.Center
                         IenTooltipMessageAlign.Right -> TextAlign.End
                     },
-                )
-            }
-            if (placement == IenTooltipPlacement.Top) {
-                IenTooltipArrowRow(
-                    color = color,
-                    size = size.arrowSize(),
-                    ratio = arrowRatio,
-                    placement = placement,
-                    clipToEnd = clipToEnd,
                 )
             }
         }
@@ -890,42 +1022,7 @@ private fun IenTooltipArrow(
     }
 }
 
-private fun IenTooltipSize.offset(): Dp = when (this) {
-    IenTooltipSize.Small -> 6.dp
-    IenTooltipSize.Medium -> 8.dp
-    IenTooltipSize.Large -> 10.dp
-}
 
-private fun IenTooltipSize.arrowSize(): Dp = when (this) {
-    IenTooltipSize.Small -> 12.dp
-    IenTooltipSize.Medium -> 14.dp
-    IenTooltipSize.Large -> 16.dp
-}
-
-private fun IenTooltipSize.radius(): Dp = when (this) {
-    IenTooltipSize.Small -> 6.dp
-    IenTooltipSize.Medium -> 8.dp
-    IenTooltipSize.Large -> 10.dp
-}
-
-private fun IenTooltipSize.maxWidth(): Dp = when (this) {
-    IenTooltipSize.Small -> 180.dp
-    IenTooltipSize.Medium -> 220.dp
-    IenTooltipSize.Large -> 260.dp
-}
-
-private fun IenTooltipSize.contentPadding(): PaddingValues = when (this) {
-    IenTooltipSize.Small -> PaddingValues(horizontal = 8.dp, vertical = 6.dp)
-    IenTooltipSize.Medium -> PaddingValues(horizontal = 10.dp, vertical = 8.dp)
-    IenTooltipSize.Large -> PaddingValues(horizontal = 12.dp, vertical = 10.dp)
-}
-
-@Composable
-private fun IenTooltipSize.textStyle() = when (this) {
-    IenTooltipSize.Small -> IenTheme.typography.caption
-    IenTooltipSize.Medium -> IenTheme.typography.label2
-    IenTooltipSize.Large -> IenTheme.typography.body2
-}
 
 private fun IenTooltipMotionVariant.hiddenScale(): Float = when (this) {
     IenTooltipMotionVariant.Weak -> 0.98f
