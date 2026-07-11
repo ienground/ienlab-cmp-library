@@ -13,6 +13,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,9 +51,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
@@ -1054,6 +1059,11 @@ enum class IenAgreementCheckboxVariant {
     Hidden
 }
 
+enum class IenAgreementCheckboxMotionVariant {
+    Strong,
+    Weak
+}
+
 enum class IenAgreementNecessityVariant {
     Optional,
     Mandatory
@@ -1066,12 +1076,18 @@ enum class IenAgreementDescriptionVariant {
 
 enum class IenAgreementHeaderVariant {
     XLarge,
-    Medium
+    Large,
+    Medium,
+    MediumTitle,
+    Small,
+    SmallLast,
 }
 
 val LocalIenAgreementIndent = staticCompositionLocalOf { 0 }
+val LocalIenAgreementVariant = staticCompositionLocalOf { IenAgreementVariant.Large }
 val LocalIenAgreementCollapsibleState = staticCompositionLocalOf { false }
 val LocalIenAgreementCollapsibleToggle = staticCompositionLocalOf<() -> Unit> { {} }
+val LocalIenAgreementPushableToggle = staticCompositionLocalOf<() -> Unit> { {} }
 
 @Composable
 fun IenAgreement(
@@ -1079,48 +1095,71 @@ fun IenAgreement(
     variant: IenAgreementVariant = IenAgreementVariant.Large,
     indent: Int = 0,
     onClick: (() -> Unit)? = null,
+    onPressEnd: (() -> Unit)? = onClick,
     left: (@Composable RowScope.() -> Unit)? = null,
-    middle: (@Composable ColumnScope.() -> Unit)? = null,
+    middle: (@Composable RowScope.() -> Unit)? = null,
     right: (@Composable RowScope.() -> Unit)? = null,
 ) {
     val currentIndent = LocalIenAgreementIndent.current + indent
-    val horizontalPadding = IenTheme.spacing.md
-    val verticalPadding = when (variant) {
-        IenAgreementVariant.XLarge -> IenTheme.spacing.md
-        IenAgreementVariant.Large -> IenTheme.spacing.sm
-        IenAgreementVariant.Medium, IenAgreementVariant.MediumTitle -> IenTheme.spacing.sm
-        IenAgreementVariant.Small, IenAgreementVariant.SmallLast -> IenTheme.spacing.xs
-    }
+    val minHeight = variant.agreementMinHeight()
+    val verticalPadding = variant.agreementVerticalPadding()
+    val startPadding = IenTheme.spacing.md + currentIndent.agreementIndentPadding()
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val pressAlpha by animateFloatAsState(
+        targetValue = if (pressed && onPressEnd != null) 0.72f else 1f,
+        animationSpec = tween(durationMillis = 120, easing = IenTheme.motion.standardEasing),
+        label = "ienAgreementPressAlpha",
+    )
 
-    val baseModifier = Modifier
-        .fillMaxWidth()
-        .then(
-            if (onClick != null) {
-                Modifier.clickable(onClick = onClick)
-            } else Modifier
-        )
-        .padding(
-            start = (currentIndent * 16).dp + horizontalPadding,
-            top = verticalPadding,
-            end = horizontalPadding,
-            bottom = verticalPadding
-        )
-
-    Row(
-        modifier = modifier.then(baseModifier).defaultMinSize(minHeight = IenTheme.state.minimumTouchTarget),
-        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        left?.invoke(this)
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(vertical = IenTheme.spacing.xxs),
-            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs)
+    CompositionLocalProvider(LocalIenAgreementVariant provides variant) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = minHeight)
+                .then(
+                    if (onPressEnd != null) {
+                        Modifier.clickable(
+                            interactionSource = interactionSource,
+                            indication = null,
+                            role = Role.Button,
+                            onClick = onPressEnd,
+                        )
+                    } else {
+                        Modifier
+                    }
+                )
+                .graphicsLayer { alpha = pressAlpha }
+                .padding(start = startPadding, end = IenTheme.spacing.md)
+                .padding(vertical = verticalPadding),
+            horizontalArrangement = Arrangement.spacedBy(variant.agreementSlotGap()),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            middle?.invoke(this)
+            if (left != null) {
+                Row(
+                    modifier = Modifier.width(24.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    left.invoke(this)
+                }
+            }
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                middle?.invoke(this)
+            }
+            if (right != null) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    right.invoke(this)
+                }
+            }
         }
-        right?.invoke(this)
     }
 }
 
@@ -1130,62 +1169,120 @@ fun IenAgreementCheckbox(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     variant: IenAgreementCheckboxVariant = IenAgreementCheckboxVariant.Checkbox,
+    motionVariant: IenAgreementCheckboxMotionVariant = IenAgreementCheckboxMotionVariant.Weak,
+    transitionDelay: Float = 0f,
     enabled: Boolean = true,
 ) {
+    val delayMillis = ((transitionDelay + 0.1f) * 1000).toInt().coerceAtLeast(0)
+    val scale by animateFloatAsState(
+        targetValue = if (checked) 1f else 0.86f,
+        animationSpec = when (motionVariant) {
+            IenAgreementCheckboxMotionVariant.Strong -> spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMedium,
+            )
+            IenAgreementCheckboxMotionVariant.Weak -> tween(
+                durationMillis = 180,
+                delayMillis = delayMillis,
+                easing = IenTheme.motion.standardEasing,
+            )
+        },
+        label = "ienAgreementCheckboxScale",
+    )
+
     when (variant) {
         IenAgreementCheckboxVariant.Checkbox -> {
-            IenCheckbox(
+            IenAgreementCheckboxCanvas(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
-                modifier = modifier,
-                enabled = enabled
+                enabled = enabled,
+                modifier = modifier.graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                },
+                dot = false,
             )
         }
         IenAgreementCheckboxVariant.Dot -> {
-            val brandColor = IenTheme.colors.brand
-            val borderColor = IenTheme.colors.border
-            val disabledColor = IenTheme.colors.textDisabled
-            Box(
-                modifier = modifier
-                    .size(24.dp)
-                    .toggleable(
-                        value = checked,
-                        enabled = enabled,
-                        role = Role.Checkbox,
-                        onValueChange = onCheckedChange
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Canvas(modifier = Modifier.fillMaxSize()) {
-                    val radius = size.minDimension / 2
-                    val strokeWidth = 2.dp.toPx()
-                    if (checked) {
-                        drawCircle(
-                            color = if (enabled) brandColor else disabledColor,
-                            radius = radius
-                        )
-                        val path = Path().apply {
-                            moveTo(size.width * 0.33f, size.height * 0.48f)
-                            lineTo(size.width * 0.47f, size.height * 0.62f)
-                            lineTo(size.width * 0.68f, size.height * 0.37f)
-                        }
-                        drawPath(
-                            path = path,
-                            color = Color.White,
-                            style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round)
-                        )
-                    } else {
-                        drawCircle(
-                            color = borderColor,
-                            radius = radius - strokeWidth / 2,
-                            style = Stroke(width = strokeWidth)
-                        )
-                    }
-                }
-            }
+            IenAgreementCheckboxCanvas(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                enabled = enabled,
+                modifier = modifier.graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                },
+                dot = true,
+            )
         }
         IenAgreementCheckboxVariant.Hidden -> {
             Spacer(modifier = modifier.size(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun IenAgreementCheckboxCanvas(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean,
+    dot: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val brandColor = IenTheme.colors.brand
+    val borderColor = IenTheme.colors.borderStrong
+    val disabledColor = IenTheme.colors.textDisabled
+    Box(
+        modifier = modifier
+            .size(24.dp)
+            .toggleable(
+                value = checked,
+                enabled = enabled,
+                role = Role.Checkbox,
+                onValueChange = onCheckedChange,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val strokeWidth = 2.dp.toPx()
+            if (dot) {
+                if (checked) {
+                    drawCircle(
+                        color = if (enabled) brandColor else disabledColor,
+                        radius = 5.dp.toPx(),
+                    )
+                } else {
+                    drawCircle(
+                        color = if (enabled) borderColor else disabledColor,
+                        radius = 5.dp.toPx(),
+                        style = Stroke(width = strokeWidth),
+                    )
+                }
+            } else {
+                val radius = 6.dp.toPx()
+                if (checked) {
+                    drawRoundRect(
+                        color = if (enabled) brandColor else disabledColor,
+                        cornerRadius = CornerRadius(radius, radius),
+                    )
+                    val path = Path().apply {
+                        moveTo(size.width * 0.30f, size.height * 0.50f)
+                        lineTo(size.width * 0.45f, size.height * 0.65f)
+                        lineTo(size.width * 0.72f, size.height * 0.34f)
+                    }
+                    drawPath(
+                        path = path,
+                        color = Color.White,
+                        style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round),
+                    )
+                } else {
+                    drawRoundRect(
+                        color = if (enabled) borderColor else disabledColor,
+                        cornerRadius = CornerRadius(radius, radius),
+                        style = Stroke(width = strokeWidth),
+                    )
+                }
+            }
         }
     }
 }
@@ -1198,24 +1295,37 @@ fun IenAgreementText(
     onPressEnd: (() -> Unit)? = null,
     enabled: Boolean = true,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val alpha by animateFloatAsState(
+        targetValue = if (pressed && onPressEnd != null) 0.64f else 1f,
+        animationSpec = tween(durationMillis = 120, easing = IenTheme.motion.standardEasing),
+        label = "ienAgreementTextPressAlpha",
+    )
     Row(
         modifier = modifier
             .then(
                 if (onPressEnd != null) {
-                    Modifier.clickable(onClick = onPressEnd)
+                    Modifier.clickable(
+                        interactionSource = interactionSource,
+                        indication = null,
+                        onClick = onPressEnd,
+                    )
                 } else Modifier
-            ),
+            )
+            .graphicsLayer { this.alpha = alpha },
         horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         necessity?.invoke()
         IenText(
             text = text,
-            modifier = Modifier.weight(1f),
-            style = IenTheme.typography.body2,
+            modifier = Modifier.weight(1f, fill = false),
+            style = LocalIenAgreementVariant.current.agreementTextStyle(),
             color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
+            fontWeight = if (LocalIenAgreementVariant.current == IenAgreementVariant.MediumTitle) FontWeight.Bold else null,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -1227,21 +1337,13 @@ fun IenAgreementNecessity(
     text: String = if (variant == IenAgreementNecessityVariant.Mandatory) "필수" else "선택"
 ) {
     val isMandatory = variant == IenAgreementNecessityVariant.Mandatory
-    val bg = Color(0xFFF2F4F6)
-    val textCol = if (isMandatory) IenTheme.colors.brand else IenTheme.colors.textSecondary
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(4.dp))
-            .background(bg)
-            .padding(horizontal = 6.dp, vertical = 2.dp)
-    ) {
-        IenText(
-            text = text,
-            style = IenTheme.typography.caption,
-            color = textCol,
-            fontWeight = FontWeight.Bold
-        )
-    }
+    IenText(
+        text = text,
+        modifier = modifier,
+        style = IenTheme.typography.caption,
+        color = if (isMandatory) IenTheme.colors.brand else IenTheme.colors.textSecondary,
+        fontWeight = FontWeight.Bold,
+    )
 }
 
 enum class IenAgreementBadgeVariant {
@@ -1257,13 +1359,13 @@ fun IenAgreementBadge(
     bgColor: Color? = null,
     textColor: Color? = null,
 ) {
-    val resolvedBg = if (variant == IenAgreementBadgeVariant.Fill) (bgColor ?: IenTheme.colors.brand.copy(alpha = 0.1f)) else Color.Transparent
+    val resolvedBg = if (variant == IenAgreementBadgeVariant.Fill) (bgColor ?: IenTheme.colors.brandWeak) else Color.Transparent
     val resolvedText = textColor ?: IenTheme.colors.brand
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(4.dp))
+            .clip(RoundedCornerShape(IenTheme.radius.xs))
             .background(resolvedBg)
-            .padding(horizontal = 6.dp, vertical = 2.dp)
+            .padding(horizontal = 6.dp, vertical = 3.dp),
     ) {
         IenText(text = text, style = IenTheme.typography.caption, color = resolvedText)
     }
@@ -1272,25 +1374,27 @@ fun IenAgreementBadge(
 @Composable
 fun IenAgreementRightArrow(
     modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null
+    collapsed: Boolean? = null,
+    onArrowClick: (() -> Unit)? = null,
+    onClick: (() -> Unit)? = onArrowClick,
 ) {
     val clickableModifier = if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
-    val collapsed = LocalIenAgreementCollapsibleState.current
+    val resolvedCollapsed = collapsed ?: LocalIenAgreementCollapsibleState.current
+    val rotation by animateFloatAsState(
+        targetValue = if (resolvedCollapsed) 180f else 0f,
+        animationSpec = tween(durationMillis = IenTheme.motion.fastMillis, easing = IenTheme.motion.standardEasing),
+        label = "ienAgreementRightArrowRotation",
+    )
     Canvas(
         modifier = modifier
             .size(24.dp)
+            .rotate(rotation)
             .then(clickableModifier)
     ) {
         val path = Path().apply {
-            if (collapsed) {
-                moveTo(size.width * 0.3f, size.height * 0.42f)
-                lineTo(size.width * 0.5f, size.height * 0.58f)
-                lineTo(size.width * 0.7f, size.height * 0.42f)
-            } else {
-                moveTo(size.width * 0.3f, size.height * 0.58f)
-                lineTo(size.width * 0.5f, size.height * 0.42f)
-                lineTo(size.width * 0.7f, size.height * 0.58f)
-            }
+            moveTo(size.width * 0.30f, size.height * 0.58f)
+            lineTo(size.width * 0.50f, size.height * 0.42f)
+            lineTo(size.width * 0.70f, size.height * 0.58f)
         }
         drawPath(
             path = path,
@@ -1304,15 +1408,18 @@ fun IenAgreementRightArrow(
 fun IenAgreementDescription(
     text: String,
     modifier: Modifier = Modifier,
-    variant: IenAgreementDescriptionVariant = IenAgreementDescriptionVariant.Normal
+    variant: IenAgreementDescriptionVariant = IenAgreementDescriptionVariant.Normal,
+    indent: Int = 0,
 ) {
+    val startPadding = (LocalIenAgreementIndent.current + indent).agreementIndentPadding() + IenTheme.spacing.md + 32.dp
     if (variant == IenAgreementDescriptionVariant.Box) {
         Box(
             modifier = modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color(0xFFF9FAFB))
-                .padding(IenTheme.spacing.md)
+                .padding(start = startPadding, end = IenTheme.spacing.md, top = IenTheme.spacing.xs, bottom = IenTheme.spacing.xs)
+                .clip(RoundedCornerShape(IenTheme.radius.default))
+                .background(IenTheme.colors.surfaceWeak)
+                .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
         ) {
             IenText(
                 text = text,
@@ -1323,9 +1430,11 @@ fun IenAgreementDescription(
     } else {
         IenText(
             text = text,
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(start = startPadding, end = IenTheme.spacing.md, top = IenTheme.spacing.xxs),
             style = IenTheme.typography.caption,
-            color = IenTheme.colors.textTertiary
+            color = IenTheme.colors.textTertiary,
         )
     }
 }
@@ -1335,17 +1444,33 @@ fun IenAgreementHeader(
     text: String,
     modifier: Modifier = Modifier,
     variant: IenAgreementHeaderVariant = IenAgreementHeaderVariant.Medium,
-    indent: Int = 0
+    indent: Int = 0,
 ) {
     val currentIndent = LocalIenAgreementIndent.current + indent
+    val agreementVariant = variant.toAgreementVariant()
     IenText(
         text = text,
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = (currentIndent * 16).dp + IenTheme.spacing.md, top = IenTheme.spacing.sm, bottom = IenTheme.spacing.xs),
-        style = if (variant == IenAgreementHeaderVariant.XLarge) IenTheme.typography.title3 else IenTheme.typography.body1,
-        color = IenTheme.colors.textPrimary
+            .padding(
+                start = currentIndent.agreementIndentPadding() + IenTheme.spacing.md,
+                top = agreementVariant.agreementVerticalPadding(),
+                end = IenTheme.spacing.md,
+                bottom = IenTheme.spacing.xs,
+            ),
+        style = agreementVariant.agreementTextStyle(),
+        color = IenTheme.colors.textPrimary,
+        fontWeight = if (agreementVariant == IenAgreementVariant.XLarge || agreementVariant == IenAgreementVariant.MediumTitle) FontWeight.Bold else null,
     )
+}
+
+private fun IenAgreementHeaderVariant.toAgreementVariant(): IenAgreementVariant = when (this) {
+    IenAgreementHeaderVariant.XLarge -> IenAgreementVariant.XLarge
+    IenAgreementHeaderVariant.Large -> IenAgreementVariant.Large
+    IenAgreementHeaderVariant.Medium -> IenAgreementVariant.Medium
+    IenAgreementHeaderVariant.MediumTitle -> IenAgreementVariant.MediumTitle
+    IenAgreementHeaderVariant.Small -> IenAgreementVariant.Small
+    IenAgreementHeaderVariant.SmallLast -> IenAgreementVariant.SmallLast
 }
 
 @Composable
@@ -1354,10 +1479,22 @@ fun IenAgreementPressable(
     modifier: Modifier = Modifier,
     content: @Composable RowScope.() -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val alpha by animateFloatAsState(
+        targetValue = if (pressed) 0.72f else 1f,
+        animationSpec = tween(durationMillis = 120, easing = IenTheme.motion.standardEasing),
+        label = "ienAgreementPressableAlpha",
+    )
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onPressEnd),
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onPressEnd,
+            )
+            .graphicsLayer { this.alpha = alpha },
         horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -1371,40 +1508,60 @@ fun IenAgreementGroup(
     showGradient: Boolean = true,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val lineStart = IenTheme.spacing.md + 12.dp
     Column(
         modifier = modifier
             .fillMaxWidth()
             .then(
                 if (showGradient) {
-                    Modifier.background(IenTheme.colors.surface)
+                    Modifier.drawBehind {
+                        val x = lineStart.toPx()
+                        drawLine(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color(0xFFE5E8EB),
+                                    Color(0xFFE5E8EB),
+                                    Color.Transparent,
+                                ),
+                            ),
+                            start = Offset(x, 0f),
+                            end = Offset(x, size.height),
+                            strokeWidth = 2.dp.toPx(),
+                            cap = StrokeCap.Round,
+                        )
+                    }
                 } else Modifier
             ),
-        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)
+        verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
-        if (showGradient) {
-            IenDivider()
-        }
         content()
-        if (showGradient) {
-            IenDivider()
-        }
     }
 }
 
 @Composable
 fun IenAgreementCollapsible(
-    collapsed: Boolean,
-    onCollapsedChange: (Boolean) -> Unit,
+    collapsed: Boolean? = null,
     modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit
+    defaultCollapsed: Boolean = false,
+    onCollapsedChange: ((Boolean) -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
+    var localCollapsed by remember { mutableStateOf(defaultCollapsed) }
+    val resolvedCollapsed = collapsed ?: localCollapsed
+    val changeCollapsed: (Boolean) -> Unit = { next ->
+        if (collapsed == null) {
+            localCollapsed = next
+        }
+        onCollapsedChange?.invoke(next)
+    }
     CompositionLocalProvider(
-        LocalIenAgreementCollapsibleState provides collapsed,
-        LocalIenAgreementCollapsibleToggle provides { onCollapsedChange(!collapsed) }
+        LocalIenAgreementCollapsibleState provides resolvedCollapsed,
+        LocalIenAgreementCollapsibleToggle provides { changeCollapsed(!resolvedCollapsed) }
     ) {
         Column(
             modifier = modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)
+            verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
             content()
         }
@@ -1438,7 +1595,7 @@ fun IenAgreementCollapsibleContent(
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)
+            verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
             content()
         }
@@ -1447,18 +1604,29 @@ fun IenAgreementCollapsibleContent(
 
 @Composable
 fun IenAgreementIndentPushable(
-    pushed: Boolean,
+    pushed: Boolean? = null,
     modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit
+    defaultPushed: Boolean = false,
+    onPushedChange: ((Boolean) -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
+    var localPushed by remember { mutableStateOf(defaultPushed) }
+    val resolvedPushed = pushed ?: localPushed
     val currentIndent = LocalIenAgreementIndent.current
-    val nextIndent = if (pushed) currentIndent + 1 else currentIndent
+    val nextIndent = if (resolvedPushed) currentIndent + 1 else currentIndent
+    val changePushed: (Boolean) -> Unit = { next ->
+        if (pushed == null) {
+            localPushed = next
+        }
+        onPushedChange?.invoke(next)
+    }
     CompositionLocalProvider(
-        LocalIenAgreementIndent provides nextIndent
+        LocalIenAgreementIndent provides nextIndent,
+        LocalIenAgreementPushableToggle provides { changePushed(!resolvedPushed) },
     ) {
         Column(
             modifier = modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)
+            verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
             content()
         }
@@ -1470,8 +1638,15 @@ fun IenAgreementIndentPushableTrigger(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val toggle = LocalIenAgreementPushableToggle.current
     Box(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+                onClick = toggle,
+            )
     ) {
         content()
     }
@@ -1484,11 +1659,50 @@ fun IenAgreementIndentPushableContent(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)
+        verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
         content()
     }
 }
+
+@Composable
+private fun IenAgreementVariant.agreementTextStyle(): TextStyle = when (this) {
+    IenAgreementVariant.XLarge -> IenTheme.typography.title3
+    IenAgreementVariant.Large -> IenTheme.typography.body1
+    IenAgreementVariant.Medium -> IenTheme.typography.body2
+    IenAgreementVariant.MediumTitle -> IenTheme.typography.body1
+    IenAgreementVariant.Small,
+    IenAgreementVariant.SmallLast -> IenTheme.typography.body2
+}
+
+private fun IenAgreementVariant.agreementMinHeight(): Dp = when (this) {
+    IenAgreementVariant.XLarge -> 64.dp
+    IenAgreementVariant.Large -> 56.dp
+    IenAgreementVariant.Medium,
+    IenAgreementVariant.MediumTitle -> 48.dp
+    IenAgreementVariant.Small -> 40.dp
+    IenAgreementVariant.SmallLast -> 36.dp
+}
+
+private fun IenAgreementVariant.agreementVerticalPadding(): Dp = when (this) {
+    IenAgreementVariant.XLarge -> 14.dp
+    IenAgreementVariant.Large -> 10.dp
+    IenAgreementVariant.Medium,
+    IenAgreementVariant.MediumTitle -> 8.dp
+    IenAgreementVariant.Small -> 6.dp
+    IenAgreementVariant.SmallLast -> 4.dp
+}
+
+private fun IenAgreementVariant.agreementSlotGap(): Dp = when (this) {
+    IenAgreementVariant.XLarge,
+    IenAgreementVariant.Large -> 10.dp
+    IenAgreementVariant.Medium,
+    IenAgreementVariant.MediumTitle -> 8.dp
+    IenAgreementVariant.Small,
+    IenAgreementVariant.SmallLast -> 8.dp
+}
+
+private fun Int.agreementIndentPadding(): Dp = (coerceAtLeast(0) * 24).dp
 
 @Immutable
 data class IenAgreementItem(
@@ -1569,18 +1783,23 @@ fun IenAgreement(
                         )
                     },
                     middle = {
-                        IenAgreementText(
-                            text = item.title,
-                            enabled = item.enabled,
-                            necessity = if (item.required) {
-                                { IenAgreementNecessity(IenAgreementNecessityVariant.Mandatory) }
-                            } else null
-                        )
-                        if (item.description != null) {
-                            IenAgreementDescription(
-                                text = item.description,
-                                variant = IenAgreementDescriptionVariant.Normal
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
+                        ) {
+                            IenAgreementText(
+                                text = item.title,
+                                enabled = item.enabled,
+                                necessity = if (item.required) {
+                                    { IenAgreementNecessity(IenAgreementNecessityVariant.Mandatory) }
+                                } else null
                             )
+                            if (item.description != null) {
+                                IenText(
+                                    text = item.description,
+                                    style = IenTheme.typography.caption,
+                                    color = if (item.enabled) IenTheme.colors.textTertiary else IenTheme.colors.textDisabled,
+                                )
+                            }
                         }
                     }
                 )

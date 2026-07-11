@@ -45,6 +45,7 @@ import zone.ien.utils.ui.components.composite.IenAgreementBadgeVariant
 import zone.ien.utils.ui.components.composite.IenAgreementRightArrow
 import zone.ien.utils.ui.components.composite.IenAgreementDescription
 import zone.ien.utils.ui.components.composite.IenAgreementDescriptionVariant
+import zone.ien.utils.ui.components.composite.IenAgreementGroup
 import zone.ien.utils.ui.components.composite.IenAgreementCollapsible
 import zone.ien.utils.ui.components.composite.IenAgreementCollapsibleTrigger
 import zone.ien.utils.ui.components.composite.IenAgreementCollapsibleContent
@@ -188,6 +189,8 @@ import zone.ien.utils.ui.components.interactive.IenSplitTextField
 import zone.ien.utils.ui.components.interactive.IenStepper
 import zone.ien.utils.ui.components.interactive.IenStepperAssetFrame
 import zone.ien.utils.ui.components.interactive.IenStepperAssetFrameShape
+import zone.ien.utils.ui.components.interactive.IenStepperAssetFrameColors
+import zone.ien.utils.ui.components.interactive.IenStepperAssetFrameDefaults
 import zone.ien.utils.ui.components.interactive.IenStepperNumberIcon
 import zone.ien.utils.ui.components.interactive.IenStepperRightArrow
 import zone.ien.utils.ui.components.interactive.IenStepperRightButton
@@ -1278,9 +1281,15 @@ fun StepperSection() {
                     left = {
                         IenStepperAssetFrame(
                             shape = IenStepperAssetFrameShape.CircleMedium,
-                            backgroundColor = IenTheme.colors.brandWeak,
+                            colors = IenStepperAssetFrameDefaults.colors(
+                                backgroundColor = IenTheme.colors.brandWeak,
+                                contentColor = IenTheme.colors.brand
+                            ),
                         ) {
-                            IenText("✓", color = IenTheme.colors.brand, style = IenTheme.typography.label2)
+                            IenIcon(
+                                imageVector = M3SystemIcons.Filled.Check,
+                                contentDescription = null
+                            )
                         }
                     },
                     center = {
@@ -1825,13 +1834,37 @@ fun AgreementSection() {
 
             IenDivider()
 
-            IenText(text = "3. 동적 들여쓰기 동의 (IndentPushable)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            IenText(text = "3. 여러 동의 항목 그룹화 (Group)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+
+            IenAgreementGroup {
+                IenAgreement(
+                    variant = IenAgreementVariant.Large,
+                    left = { IenAgreementCheckbox(checked = false, onCheckedChange = {}, variant = IenAgreementCheckboxVariant.Hidden) },
+                    middle = { IenAgreementText(text = "카드상품 이외의 부수서비스 안내 등을 위한 수집/이용") }
+                )
+                IenAgreement(
+                    variant = IenAgreementVariant.Small,
+                    left = { IenAgreementCheckbox(checked = false, onCheckedChange = {}, variant = IenAgreementCheckboxVariant.Hidden) },
+                    middle = { IenAgreementText(text = "개인(신용)정보 수집/이용") }
+                )
+                IenAgreement(
+                    variant = IenAgreementVariant.SmallLast,
+                    left = { IenAgreementCheckbox(checked = false, onCheckedChange = {}, variant = IenAgreementCheckboxVariant.Hidden) },
+                    middle = { IenAgreementText(text = "전자적 매체를 통한 광고성 정보 수신") }
+                )
+            }
+
+            IenDivider()
+
+            IenText(text = "4. 동적 들여쓰기 동의 (IndentPushable)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
             
-            IenAgreementIndentPushable(pushed = indentPushed) {
+            IenAgreementIndentPushable(
+                pushed = indentPushed,
+                onPushedChange = { indentPushed = it },
+            ) {
                 IenAgreementIndentPushableTrigger {
                     IenAgreement(
                         variant = IenAgreementVariant.Large,
-                        onClick = { indentPushed = !indentPushed },
                         middle = {
                             IenAgreementText(text = "들여쓰기 컨트롤 헤더 (클릭 시 하위 들여쓰기 토글)")
                         },
@@ -1877,7 +1910,7 @@ fun AgreementSection() {
 
             IenDivider()
 
-            IenText(text = "4. 기존 리스트형 어댑터 동의 (하위 호환용)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            IenText(text = "5. 기존 리스트형 어댑터 동의 (하위 호환용)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
             
             IenAgreement(
                 items = agreements,

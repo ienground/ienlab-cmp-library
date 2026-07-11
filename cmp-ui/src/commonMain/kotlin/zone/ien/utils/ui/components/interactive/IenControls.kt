@@ -355,11 +355,28 @@ enum class IenStepperAssetFrameShape {
     CleanW32,
 }
 
+@Immutable
+data class IenStepperAssetFrameColors(
+    val backgroundColor: Color,
+    val contentColor: Color
+)
+
+object IenStepperAssetFrameDefaults {
+    @Composable
+    fun colors(
+        backgroundColor: Color = IenTheme.colors.surfaceWeak,
+        contentColor: Color = IenTheme.colors.textPrimary
+    ): IenStepperAssetFrameColors = IenStepperAssetFrameColors(
+        backgroundColor = backgroundColor,
+        contentColor = contentColor
+    )
+}
+
 @Composable
 fun IenStepperAssetFrame(
     shape: IenStepperAssetFrameShape,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = IenTheme.colors.surfaceWeak,
+    colors: IenStepperAssetFrameColors = IenStepperAssetFrameDefaults.colors(),
     content: @Composable () -> Unit,
 ) {
     val size = when (shape) {
@@ -377,7 +394,8 @@ fun IenStepperAssetFrame(
 
     IenSurface(
         modifier = modifier.size(size),
-        color = backgroundColor,
+        color = colors.backgroundColor,
+        contentColor = colors.contentColor,
         shape = resolvedShape,
     ) {
         Box(
