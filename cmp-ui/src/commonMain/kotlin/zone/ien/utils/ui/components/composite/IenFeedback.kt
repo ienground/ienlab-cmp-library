@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
@@ -65,6 +66,7 @@ import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import kotlinx.coroutines.delay
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.icon.material.filled.Check
@@ -399,6 +401,7 @@ enum class IenToastAriaLive {
 object IenToastDefaults {
     const val DurationMillis: Long = 3000L
     const val ActionDurationMillis: Long = 5000L
+    val MaxWidth: Dp = 420.dp
 }
 
 @Immutable
@@ -443,6 +446,7 @@ fun IenToast(
     val fastMillis = IenTheme.motion.fastMillis
     val normalMillis = IenTheme.motion.normalMillis
     val standardEasing = IenTheme.motion.standardEasing
+    var keepInComposition by remember { mutableStateOf(open) }
 
     LaunchedEffect(open, durationMillis) {
         if (open && durationMillis > 0L) {
@@ -453,88 +457,92 @@ fun IenToast(
 
     LaunchedEffect(open) {
         if (open) {
+            keepInComposition = true
             offsetY.snapTo(0f)
-        } else {
+        } else if (keepInComposition) {
             delay(normalMillis.toLong())
+            keepInComposition = false
             onExited?.invoke()
         }
     }
 
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = when (position) {
-            IenToastPosition.Top -> Alignment.TopCenter
-            IenToastPosition.Bottom -> Alignment.BottomCenter
-        },
-    ) {
-        AnimatedVisibility(
-            visible = open,
-            enter = fadeIn(tween(fastMillis)) + slideInVertically(
-                initialOffsetY = { if (position == IenToastPosition.Top) -it else it / 2 },
-                animationSpec = tween(normalMillis, easing = standardEasing),
-            ),
-            exit = fadeOut(tween(fastMillis)) + slideOutVertically(
-                targetOffsetY = { if (position == IenToastPosition.Top) -it else it / 2 },
-                animationSpec = tween(normalMillis, easing = standardEasing),
-            ),
-            modifier = Modifier
-                .padding(horizontal = IenTheme.spacing.lg)
-                .padding(
-                    top = if (position == IenToastPosition.Top) IenTheme.spacing.xl else 0.dp,
-                    bottom = if (position == IenToastPosition.Bottom) {
-                        if (higherThanCTA) 112.dp else IenTheme.spacing.xl
-                    } else {
-                        0.dp
-                    },
-                )
-                .then(if (position == IenToastPosition.Bottom) Modifier.navigationBarsPadding() else Modifier)
-                .offset { IntOffset(0, offsetY.value.roundToInt()) }
-                .pointerInput(open, position) {
-                    detectVerticalDragGestures(
-                        onDragEnd = {
-                            val shouldClose = when (position) {
-                                IenToastPosition.Top -> offsetY.value < -dismissThreshold
-                                IenToastPosition.Bottom -> offsetY.value > dismissThreshold
-                            }
-                            if (shouldClose) {
-                                onClose()
-                            } else {
-                                coroutineScope.launch {
-                                    offsetY.animateTo(
-                                        targetValue = 0f,
-                                        animationSpec = tween(
-                                            normalMillis,
-                                            easing = standardEasing,
-                                        ),
-                                    )
-                                }
-                            }
-                        },
-                        onDragCancel = {
-                            coroutineScope.launch { offsetY.animateTo(0f) }
-                        },
-                        onVerticalDrag = { change, dragAmount ->
-                            change.consume()
-                            coroutineScope.launch {
-                                val next = offsetY.value + dragAmount
-                                offsetY.snapTo(
-                                    when (position) {
-                                        IenToastPosition.Top -> next.coerceAtMost(0f)
-                                        IenToastPosition.Bottom -> next.coerceAtLeast(0f)
-                                    }
-                                )
-                            }
+    if (keepInComposition) {
+        Popup(
+            alignment = when (position) {
+                IenToastPosition.Top -> Alignment.TopCenter
+                IenToastPosition.Bottom -> Alignment.BottomCenter
+            },
+        ) {
+            AnimatedVisibility(
+                visible = open,
+                enter = fadeIn(tween(fastMillis)) + slideInVertically(
+                    initialOffsetY = { if (position == IenToastPosition.Top) -it else it / 2 },
+                    animationSpec = tween(normalMillis, easing = standardEasing),
+                ),
+                exit = fadeOut(tween(fastMillis)) + slideOutVertically(
+                    targetOffsetY = { if (position == IenToastPosition.Top) -it else it / 2 },
+                    animationSpec = tween(normalMillis, easing = standardEasing),
+                ),
+                modifier = modifier
+                    .padding(horizontal = IenTheme.spacing.lg)
+                    .padding(
+                        top = if (position == IenToastPosition.Top) IenTheme.spacing.xl else 0.dp,
+                        bottom = if (position == IenToastPosition.Bottom) {
+                            if (higherThanCTA) 112.dp else IenTheme.spacing.xl
+                        } else {
+                            0.dp
                         },
                     )
-                },
-        ) {
-            IenToastContent(
-                text = text,
-                tone = tone,
-                leftAddon = leftAddon,
-                button = if (position == IenToastPosition.Bottom) button else null,
-                ariaLive = ariaLive,
-            )
+                    .then(if (position == IenToastPosition.Top) Modifier.statusBarsPadding() else Modifier)
+                    .then(if (position == IenToastPosition.Bottom) Modifier.navigationBarsPadding() else Modifier)
+                    .offset { IntOffset(0, offsetY.value.roundToInt()) }
+                    .pointerInput(open, position) {
+                        detectVerticalDragGestures(
+                            onDragEnd = {
+                                val shouldClose = when (position) {
+                                    IenToastPosition.Top -> offsetY.value < -dismissThreshold
+                                    IenToastPosition.Bottom -> offsetY.value > dismissThreshold
+                                }
+                                if (shouldClose) {
+                                    onClose()
+                                } else {
+                                    coroutineScope.launch {
+                                        offsetY.animateTo(
+                                            targetValue = 0f,
+                                            animationSpec = tween(
+                                                normalMillis,
+                                                easing = standardEasing,
+                                            ),
+                                        )
+                                    }
+                                }
+                            },
+                            onDragCancel = {
+                                coroutineScope.launch { offsetY.animateTo(0f) }
+                            },
+                            onVerticalDrag = { change, dragAmount ->
+                                change.consume()
+                                coroutineScope.launch {
+                                    val next = offsetY.value + dragAmount
+                                    offsetY.snapTo(
+                                        when (position) {
+                                            IenToastPosition.Top -> next.coerceAtMost(0f)
+                                            IenToastPosition.Bottom -> next.coerceAtLeast(0f)
+                                        }
+                                    )
+                                }
+                            },
+                        )
+                    },
+            ) {
+                IenToastContent(
+                    text = text,
+                    tone = tone,
+                    leftAddon = leftAddon,
+                    button = if (position == IenToastPosition.Bottom) button else null,
+                    ariaLive = ariaLive,
+                )
+            }
         }
     }
 }
@@ -549,7 +557,7 @@ private fun IenToastContent(
     ariaLive: IenToastAriaLive = IenToastAriaLive.Polite,
 ) {
     val container = when (tone) {
-        IenSemanticTone.Neutral -> IenTheme.colors.textPrimary
+        IenSemanticTone.Neutral -> Color(0xE51B1F24)
         IenSemanticTone.Brand -> IenTheme.colors.brand
         IenSemanticTone.Success -> IenTheme.colors.success
         IenSemanticTone.Warning -> IenTheme.colors.warning
@@ -557,20 +565,21 @@ private fun IenToastContent(
         IenSemanticTone.Info -> IenTheme.colors.info
     }
     IenSurface(
-        modifier = modifier.semantics {
-            liveRegion = when (ariaLive) {
-                IenToastAriaLive.Polite -> LiveRegionMode.Polite
-                IenToastAriaLive.Assertive -> LiveRegionMode.Assertive
-            }
-            contentDescription = text
-        },
+        modifier = modifier
+            .widthIn(max = IenToastDefaults.MaxWidth)
+            .semantics {
+                liveRegion = when (ariaLive) {
+                    IenToastAriaLive.Polite -> LiveRegionMode.Polite
+                    IenToastAriaLive.Assertive -> LiveRegionMode.Assertive
+                }
+                contentDescription = text
+            },
         color = container,
-        contentColor = IenTheme.colors.surface,
+        contentColor = Color.White,
         shape = RoundedCornerShape(IenTheme.radius.default),
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
                 .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
@@ -578,8 +587,8 @@ private fun IenToastContent(
             leftAddon?.invoke()
             IenText(
                 text = text,
-                modifier = Modifier.weight(1f),
-                color = IenTheme.colors.surface,
+                modifier = Modifier.weight(1f, fill = false),
+                color = Color.White,
                 style = IenTheme.typography.body2,
             )
             if (button != null) {
@@ -601,7 +610,7 @@ fun IenToastButton(
             .clip(RoundedCornerShape(IenTheme.radius.sm))
             .clickable(onClick = onClick)
             .padding(horizontal = IenTheme.spacing.xs, vertical = IenTheme.spacing.xxs),
-        color = IenTheme.colors.surface,
+        color = Color.White,
         style = IenTheme.typography.label1,
     )
 }
@@ -645,44 +654,49 @@ fun IenToastHost(
     modifier: Modifier = Modifier,
 ) {
     val visibleToasts = state.toasts.takeLast(3)
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(IenTheme.spacing.lg),
-    ) {
-        visibleToasts.forEach { toast ->
-            LaunchedEffect(toast) {
-                delay(toast.durationMillis)
-                state.dismiss(toast)
-            }
+    visibleToasts.forEach { toast ->
+        LaunchedEffect(toast) {
+            delay(toast.durationMillis)
+            state.dismiss(toast)
         }
+    }
 
-        Column(
-            modifier = Modifier.align(Alignment.TopCenter),
-            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-        ) {
-            visibleToasts
-                .filter { it.position == IenToastPosition.Top }
-                .forEach { toast ->
+    val topToasts = visibleToasts.filter { it.position == IenToastPosition.Top }
+    val bottomToasts = visibleToasts.filter { it.position == IenToastPosition.Bottom }
+
+    if (topToasts.isNotEmpty()) {
+        Popup(alignment = Alignment.TopCenter) {
+            Column(
+                modifier = modifier
+                    .padding(horizontal = IenTheme.spacing.lg)
+                    .statusBarsPadding()
+                    .padding(top = IenTheme.spacing.xl),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+            ) {
+                topToasts.forEach { toast ->
                     IenToast(message = toast.message, tone = toast.tone)
                 }
+            }
         }
+    }
 
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .navigationBarsPadding(),
-            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-        ) {
-            visibleToasts
-                .filter { it.position == IenToastPosition.Bottom }
-                .forEach { toast ->
+    if (bottomToasts.isNotEmpty()) {
+        Popup(alignment = Alignment.BottomCenter) {
+            Column(
+                modifier = modifier
+                    .padding(horizontal = IenTheme.spacing.lg)
+                    .navigationBarsPadding()
+                    .padding(bottom = IenTheme.spacing.xl),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+            ) {
+                bottomToasts.forEach { toast ->
                     IenToast(
                         message = toast.message,
                         tone = toast.tone,
                         modifier = if (toast.higherThanCTA) Modifier.padding(bottom = 96.dp) else Modifier,
                     )
                 }
+            }
         }
     }
 }

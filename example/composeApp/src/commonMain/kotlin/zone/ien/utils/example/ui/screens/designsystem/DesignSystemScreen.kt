@@ -1395,7 +1395,7 @@ fun ToastSection() {
         var showActionToast by remember { mutableStateOf(false) }
         var showCtaToast by remember { mutableStateOf(false) }
         ComponentSection(title = "Toast") {
-            IenToast(message = "변경사항이 저장되었습니다.", tone = IenSemanticTone.Success)
+            IenToast(message = "기본 토스트 메시지예요")
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
                 IenButton(
                     text = "상단",
@@ -1456,7 +1456,6 @@ fun ToastSection() {
             text = "아이콘이 포함된 토스트예요",
             leftAddon = { IenToastIcon(tone = IenSemanticTone.Success) },
             onClose = { showIconToast = false },
-            tone = IenSemanticTone.Success,
         )
         IenToast(
             open = showActionToast,

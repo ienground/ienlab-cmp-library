@@ -2,6 +2,10 @@ package zone.ien.utils.ui.components.interactive
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
@@ -9,6 +13,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -44,6 +51,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
@@ -52,6 +63,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.primitives.IenSurface
@@ -451,6 +463,11 @@ enum class IenTabSize {
     Large,
 }
 
+private data class IenTabItemBounds(
+    val left: Dp,
+    val width: Dp,
+)
+
 @Composable
 fun IenTab(
     items: List<IenTabItem>,
@@ -476,85 +493,156 @@ fun IenTab(
         IenTabSize.Large -> 56.dp
     }
     val gap = itemGap ?: if (fluid) IenTheme.spacing.xl else 0.dp
+    val density = LocalDensity.current
+    val scrollState = rememberScrollState()
+    var itemBounds by remember(items) { mutableStateOf<Map<Int, IenTabItemBounds>>(emptyMap()) }
+    var viewportWidthPx by remember { mutableStateOf(0) }
+    val selectedBounds = itemBounds[selectedIndex]
+    val indicatorWidthTarget = selectedBounds?.width?.let { (it - 24.dp).coerceAtLeast(20.dp) } ?: 20.dp
+    val indicatorOffsetTarget = selectedBounds?.let { it.left + (it.width - indicatorWidthTarget) / 2 } ?: 0.dp
+    val indicatorOffset by animateDpAsState(
+        targetValue = indicatorOffsetTarget,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMediumLow,
+        ),
+        label = "ienTabIndicatorOffset",
+    )
+    val indicatorWidth by animateDpAsState(
+        targetValue = indicatorWidthTarget,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMediumLow,
+        ),
+        label = "ienTabIndicatorWidth",
+    )
 
-    Row(
+    LaunchedEffect(fluid, selectedIndex, selectedBounds, viewportWidthPx, scrollState.maxValue) {
+        if (!fluid) return@LaunchedEffect
+        val bounds = selectedBounds ?: return@LaunchedEffect
+        if (viewportWidthPx <= 0 || scrollState.maxValue <= 0) return@LaunchedEffect
+
+        val itemCenterPx = with(density) { bounds.left.toPx() + bounds.width.toPx() / 2f }
+        val targetScroll = (itemCenterPx - viewportWidthPx / 2f)
+            .roundToInt()
+            .coerceIn(0, scrollState.maxValue)
+
+        scrollState.animateScrollTo(targetScroll)
+    }
+
+    Box(
         modifier = modifier
-            .then(if (fluid) Modifier.horizontalScroll(rememberScrollState()) else Modifier.fillMaxWidth())
+            .onSizeChanged { viewportWidthPx = it.width }
+            .then(if (fluid) Modifier.horizontalScroll(scrollState) else Modifier.fillMaxWidth())
             .height(tabHeight)
             .selectableGroup()
             .semantics {
                 contentDescription = ariaLabel ?: "탭 목록"
             },
-        horizontalArrangement = Arrangement.spacedBy(gap),
-        verticalAlignment = Alignment.CenterVertically,
     ) {
-        items.forEachIndexed { index, item ->
-            val selected = index == selectedIndex
-            val textColor by animateColorAsState(
-                targetValue = when {
-                    !item.enabled -> IenTheme.colors.textDisabled
-                    selected -> IenTheme.colors.textPrimary
-                    else -> IenTheme.colors.textSecondary
-                },
-                animationSpec = tween(durationMillis = IenTheme.motion.fastMillis, easing = IenTheme.motion.standardEasing),
-                label = "ienTabTextColor",
-            )
-            val indicatorColor by animateColorAsState(
-                targetValue = if (selected) IenTheme.colors.textPrimary else Color.Transparent,
-                animationSpec = tween(durationMillis = IenTheme.motion.fastMillis, easing = IenTheme.motion.standardEasing),
-                label = "ienTabIndicatorColor",
-            )
-            Column(
+        if (selectedBounds != null && indicatorWidth > 0.dp) {
+            Box(
                 modifier = Modifier
-                    .then(if (fluid) Modifier.widthIn(min = minItemWidth) else Modifier.weight(1f))
-                    .height(tabHeight)
-                    .clickable(enabled = item.enabled, role = Role.Tab) {
-                        onSelectedIndexChange(index)
-                        onChange?.invoke(index, item.key)
-                    }
-                    .semantics {
-                        this.selected = selected
-                        contentDescription = item.ariaLabel ?: if (item.redBean) "${item.text}, 업데이트 있음" else item.text
-                    }
-                    .padding(horizontal = if (fluid) IenTheme.spacing.xs else 0.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Bottom,
-            ) {
-                Box(
+                    .align(Alignment.BottomStart)
+                    .offset(x = indicatorOffset)
+                    .size(width = indicatorWidth, height = 2.dp)
+                    .clip(RoundedCornerShape(IenTheme.radius.full))
+                    .background(IenTheme.colors.textPrimary),
+            )
+        }
+        Row(
+            modifier = Modifier
+                .then(if (fluid) Modifier else Modifier.fillMaxWidth())
+                .height(tabHeight),
+            horizontalArrangement = Arrangement.spacedBy(gap),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            items.forEachIndexed { index, item ->
+                val selected = index == selectedIndex
+                val interactionSource = remember { MutableInteractionSource() }
+                val pressed by interactionSource.collectIsPressedAsState()
+                val itemScale by animateFloatAsState(
+                    targetValue = if (pressed && item.enabled) 0.94f else 1f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessHigh,
+                    ),
+                    label = "ienTabItemPressScale",
+                )
+                val textColor by animateColorAsState(
+                    targetValue = when {
+                        !item.enabled -> IenTheme.colors.textDisabled
+                        selected -> IenTheme.colors.textPrimary
+                        else -> IenTheme.colors.textSecondary
+                    },
+                    animationSpec = tween(durationMillis = IenTheme.motion.fastMillis, easing = IenTheme.motion.standardEasing),
+                    label = "ienTabTextColor",
+                )
+                Column(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Box(contentAlignment = Alignment.TopEnd) {
-                        IenText(
-                            text = item.text,
-                            style = textStyle,
-                            color = textColor,
-                            textAlign = TextAlign.Center,
-                        )
-                        if (item.redBean) {
-                            Box(
-                                modifier = Modifier
-                                    .size(5.dp)
-                                    .align(Alignment.TopEnd)
-                                    .graphicsLayer {
-                                        translationX = 7.dp.toPx()
-                                        translationY = (-1).dp.toPx()
-                                    }
-                                    .clip(CircleShape)
-                                    .background(IenTheme.colors.danger),
+                        .then(if (fluid) Modifier.widthIn(min = minItemWidth) else Modifier.weight(1f))
+                        .height(tabHeight)
+                        .onGloballyPositioned { coordinates ->
+                            val bounds = IenTabItemBounds(
+                                left = with(density) { coordinates.positionInParent().x.toDp() },
+                                width = with(density) { coordinates.size.width.toDp() },
                             )
+                            if (itemBounds[index] != bounds) {
+                                itemBounds = itemBounds + (index to bounds)
+                            }
+                        }
+                        .clickable(
+                            enabled = item.enabled,
+                            role = Role.Tab,
+                            interactionSource = interactionSource,
+                            indication = null,
+                        ) {
+                            if (!selected) {
+                                onSelectedIndexChange(index)
+                                onChange?.invoke(index, item.key)
+                            }
+                        }
+                        .semantics {
+                            this.selected = selected
+                            contentDescription = item.ariaLabel ?: if (item.redBean) "${item.text}, 업데이트 있음" else item.text
+                        }
+                        .padding(horizontal = if (fluid) IenTheme.spacing.xs else 0.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Bottom,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .graphicsLayer {
+                                scaleX = itemScale
+                                scaleY = itemScale
+                            },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Box(contentAlignment = Alignment.TopEnd) {
+                            IenText(
+                                text = item.text,
+                                style = textStyle,
+                                color = textColor,
+                                textAlign = TextAlign.Center,
+                            )
+                            if (item.redBean) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(5.dp)
+                                        .align(Alignment.TopEnd)
+                                        .graphicsLayer {
+                                            translationX = 7.dp.toPx()
+                                            translationY = (-1).dp.toPx()
+                                        }
+                                        .clip(CircleShape)
+                                        .background(IenTheme.colors.danger),
+                                )
+                            }
                         }
                     }
                 }
-                Box(
-                    modifier = Modifier
-                        .width(20.dp)
-                        .height(2.dp)
-                        .clip(RoundedCornerShape(IenTheme.radius.full))
-                        .background(indicatorColor),
-                )
             }
         }
     }
