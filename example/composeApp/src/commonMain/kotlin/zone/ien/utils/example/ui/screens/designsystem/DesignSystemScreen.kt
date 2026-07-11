@@ -110,10 +110,7 @@ import zone.ien.utils.ui.components.composite.IenSkeletonRepeat
 import zone.ien.utils.ui.components.composite.IenTableRow
 import zone.ien.utils.ui.components.composite.IenTableRowAlign
 import zone.ien.utils.ui.components.composite.IenToast
-import zone.ien.utils.ui.components.composite.IenToastHostState
-import zone.ien.utils.ui.components.composite.rememberIenToastHostState
 import zone.ien.utils.ui.components.composite.IenToastAction
-import zone.ien.utils.ui.components.composite.IenToastHost
 import zone.ien.utils.ui.components.composite.IenToastIcon
 import zone.ien.utils.ui.components.composite.IenToastPosition
 import zone.ien.utils.ui.components.composite.IenTooltip
@@ -143,7 +140,6 @@ import zone.ien.utils.ui.components.composite.IenTopTitleSize
 import zone.ien.utils.ui.components.composite.IenTopTitleTextButton
 import zone.ien.utils.ui.components.composite.IenTopUpperAssetContent
 import zone.ien.utils.ui.components.composite.rememberIenBottomSheetState
-import zone.ien.utils.ui.components.composite.rememberIenToastHostState
 import zone.ien.utils.ui.components.foundation.IenSemanticTone
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.interactive.IenAlphabetKeyboard
@@ -220,7 +216,6 @@ fun DesignSystemScreen(
     navigateToColor: () -> Unit = {}
 ) {
     IenTheme {
-        val toastHostState = rememberIenToastHostState()
         var showTopToast by remember { mutableStateOf(false) }
         var showBottomToast by remember { mutableStateOf(false) }
         var showIconToast by remember { mutableStateOf(false) }
@@ -291,7 +286,6 @@ fun DesignSystemScreen(
                     TableRowSection()
                     TextButtonSection()
                     ToastSection(
-                        toastHostState = toastHostState,
                         showTopToast = showTopToast,
                         showBottomToast = showBottomToast,
                         showIconToast = showIconToast,
@@ -319,7 +313,6 @@ fun DesignSystemScreen(
                     Spacer(modifier = Modifier.height(IenTheme.spacing.md))
                 }
 
-                IenToastHost(state = toastHostState)
                 IenToast(
                     open = showTopToast,
                     position = IenToastPosition.Top,
@@ -1445,7 +1438,6 @@ fun TextButtonSection() {
 @Preview
 @Composable
 fun ToastSection(
-    toastHostState: IenToastHostState = rememberIenToastHostState(),
     showTopToast: Boolean = false,
     showBottomToast: Boolean = false,
     showIconToast: Boolean = false,
@@ -1493,30 +1485,6 @@ fun ToastSection(
                     variant = IenButtonVariant.Weak,
                 )
             }
-            IenButton(
-                text = "토스트 호스트에 추가 (누적 큐 테스트)",
-                onClick = {
-                    val messages = listOf(
-                        "송금이 완료되었습니다.",
-                        "계좌 등록에 성공했습니다.",
-                        "한도 초과 알림입니다.",
-                        "새로운 메시지가 수신되었습니다."
-                    )
-                    val tones = listOf(IenSemanticTone.Neutral, IenSemanticTone.Success, IenSemanticTone.Info, IenSemanticTone.Danger)
-                    val index = (messages.indices).random()
-                    toastHostState.show(
-                        message = messages[index],
-                        tone = tones[index],
-                        leftAddon = @Composable {
-                            IenToastIcon(tone = tones[index])
-                        },
-                        button = IenToastAction("확인") {},
-                        higherThanCTA = true
-                    )
-                },
-                display = IenButtonDisplay.Block,
-                variant = IenButtonVariant.Weak,
-            )
         }
     }
 }
