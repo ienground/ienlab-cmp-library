@@ -22,6 +22,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.material3.Icon
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -44,6 +45,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import zone.ien.utils.icon.remix.RemixIcons
+import zone.ien.utils.icon.remix.line.ArrowRightS
 import zone.ien.utils.ui.components.foundation.IenSemanticTone
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.primitives.IenLoaderPrimitive
@@ -227,9 +230,11 @@ fun IenTextButton(
                     style = textStyle,
                 )
                 if (variant == IenTextButtonVariant.Arrow) {
-                    IenTextButtonChevron(
-                        size = size.chevronSize(),
-                        color = LocalContentColor.current,
+                    Icon(
+                        imageVector = RemixIcons.Line.ArrowRightS,
+                        contentDescription = null,
+                        tint = LocalContentColor.current,
+                        modifier = Modifier.size(size.chevronSize())
                     )
                 }
             }
@@ -369,36 +374,6 @@ private fun IenTextButtonSize.chevronSize(): Dp = when (this) {
     IenTextButtonSize.Large -> 16.dp
     IenTextButtonSize.XLarge -> 18.dp
     IenTextButtonSize.XXLarge -> 20.dp
-}
-
-@Composable
-private fun IenTextButtonChevron(
-    size: Dp,
-    color: Color,
-) {
-    Canvas(modifier = Modifier.size(size)) {
-        val strokeWidth = size.toPx() * 0.13f
-        val startX = size.toPx() * 0.36f
-        val endX = size.toPx() * 0.64f
-        val topY = size.toPx() * 0.28f
-        val centerY = size.toPx() * 0.50f
-        val bottomY = size.toPx() * 0.72f
-
-        drawLine(
-            color = color,
-            start = Offset(startX, topY),
-            end = Offset(endX, centerY),
-            strokeWidth = strokeWidth,
-            cap = StrokeCap.Round,
-        )
-        drawLine(
-            color = color,
-            start = Offset(endX, centerY),
-            end = Offset(startX, bottomY),
-            strokeWidth = strokeWidth,
-            cap = StrokeCap.Round,
-        )
-    }
 }
 
 @Composable

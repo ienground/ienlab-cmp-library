@@ -54,8 +54,27 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.contentDescription
+import org.jetbrains.compose.resources.stringResource
+import zone.ien.utils.cmp_ui.generated.resources.Res
+import zone.ien.utils.cmp_ui.generated.resources.clear_input
+import zone.ien.utils.cmp_ui.generated.resources.clear_search
+import zone.ien.utils.cmp_ui.generated.resources.hide
+import zone.ien.utils.cmp_ui.generated.resources.hide_password
+import zone.ien.utils.cmp_ui.generated.resources.search
+import zone.ien.utils.cmp_ui.generated.resources.search_input
+import zone.ien.utils.cmp_ui.generated.resources.segmented_input
+import zone.ien.utils.cmp_ui.generated.resources.show
+import zone.ien.utils.cmp_ui.generated.resources.show_password
+import zone.ien.utils.icon.remix.RemixIcons
+import zone.ien.utils.icon.remix.fill.Close
 import zone.ien.utils.ui.components.foundation.IenTheme
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import zone.ien.utils.icon.remix.line.ArrowDownWide
+import zone.ien.utils.icon.remix.line.Search
 import zone.ien.utils.ui.components.primitives.IenDivider
+import zone.ien.utils.ui.components.primitives.IenIcon
 import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.components.primitives.IenText
 
@@ -555,29 +574,20 @@ private fun IenTextFieldClearButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Canvas(
+    val contentDescription = stringResource(Res.string.clear_input)
+    Box(
         modifier = modifier
             .size(28.dp)
             .clickable(role = Role.Button, onClick = onClick)
-            .semantics { contentDescription = "입력값 지우기" },
+            .semantics { this.contentDescription = contentDescription }
+            .background(color = Color(0xFFE5E8EB), shape = CircleShape),
+        contentAlignment = Alignment.Center,
     ) {
-        val color = Color(0xFF8B95A1)
-        val radius = size.minDimension / 2.4f
-        drawCircle(color = Color(0xFFE5E8EB), radius = radius, center = center)
-        val arm = radius * 0.36f
-        drawLine(
-            color = color,
-            start = Offset(center.x - arm, center.y - arm),
-            end = Offset(center.x + arm, center.y + arm),
-            strokeWidth = 2.dp.toPx(),
-            cap = StrokeCap.Round,
-        )
-        drawLine(
-            color = color,
-            start = Offset(center.x + arm, center.y - arm),
-            end = Offset(center.x - arm, center.y + arm),
-            strokeWidth = 2.dp.toPx(),
-            cap = StrokeCap.Round,
+        IenIcon(
+            imageVector = RemixIcons.Fill.Close,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+            tint = Color(0xFF8B95A1),
         )
     }
 }
@@ -588,12 +598,13 @@ private fun IenTextFieldPasswordButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val contentDescription = stringResource(if (visible) Res.string.hide_password else Res.string.show_password)
     IenText(
-        text = if (visible) "숨김" else "보기",
+        text = stringResource(if (visible) Res.string.hide else Res.string.show),
         modifier = modifier
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = IenTheme.spacing.xs, vertical = IenTheme.spacing.xxs)
-            .semantics { contentDescription = if (visible) "비밀번호 숨기기" else "비밀번호 보기" },
+            .semantics { this.contentDescription = contentDescription },
         style = IenTheme.typography.label1,
         color = IenTheme.colors.brand,
     )
@@ -603,24 +614,12 @@ private fun IenTextFieldPasswordButton(
 private fun IenTextFieldArrowDown(
     modifier: Modifier = Modifier,
 ) {
-    Canvas(modifier = modifier.size(24.dp)) {
-        val stroke = 2.dp.toPx()
-        val color = Color(0xFF6B7684)
-        drawLine(
-            color = color,
-            start = Offset(size.width * 0.28f, size.height * 0.42f),
-            end = Offset(size.width * 0.5f, size.height * 0.62f),
-            strokeWidth = stroke,
-            cap = StrokeCap.Round,
-        )
-        drawLine(
-            color = color,
-            start = Offset(size.width * 0.72f, size.height * 0.42f),
-            end = Offset(size.width * 0.5f, size.height * 0.62f),
-            strokeWidth = stroke,
-            cap = StrokeCap.Round,
-        )
-    }
+    IenIcon(
+        imageVector = RemixIcons.Line.ArrowDownWide,
+        contentDescription = null,
+        modifier = modifier.size(24.dp),
+        tint = Color(0xFF6B7684),
+    )
 }
 
 @Composable
@@ -634,13 +633,14 @@ fun IenSplitTextField(
     mask: Boolean = false,
     keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
 ) {
+    val contentDescription = stringResource(Res.string.segmented_input, value.length, length)
     BasicTextField(
         value = value.take(length),
         onValueChange = { next ->
             if (next.length <= length) onValueChange(next)
         },
         modifier = modifier.semantics {
-            contentDescription = "분할 입력 ${value.length} / $length"
+            this.contentDescription = contentDescription
             if (state.status is IenFieldStatus.Error) error(state.status.message)
         },
         enabled = state.enabled,
@@ -706,9 +706,9 @@ fun IenSearchField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = "검색",
+    placeholder: String = stringResource(Res.string.search),
     state: IenTextFieldState = IenTextFieldState(),
-    contentDescription: String = "검색어 입력",
+    contentDescription: String = stringResource(Res.string.search_input),
     fixed: Boolean = false,
     takeSpace: Boolean = true,
     onDeleteClick: (() -> Unit)? = null,
@@ -843,40 +843,21 @@ fun IenSearchFieldSearchIcon(
     size: Dp = 18.dp,
 ) {
     val color = searchFieldIconColor()
-    Canvas(
+    IenIcon(
+        imageVector = RemixIcons.Line.Search,
+        contentDescription = contentDescription,
         modifier = modifier
-            .semantics {
-                if (contentDescription != null) {
-                    this.contentDescription = contentDescription
-                }
-            }
             .width(size)
             .height(size),
-    ) {
-        val strokeWidth = size.toPx() * 0.11f
-        val radius = size.toPx() * 0.30f
-        val center = Offset(size.toPx() * 0.43f, size.toPx() * 0.43f)
-        drawCircle(
-            color = color,
-            radius = radius,
-            center = center,
-            style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth),
-        )
-        drawLine(
-            color = color,
-            start = Offset(size.toPx() * 0.65f, size.toPx() * 0.65f),
-            end = Offset(size.toPx() * 0.86f, size.toPx() * 0.86f),
-            strokeWidth = strokeWidth,
-            cap = StrokeCap.Round,
-        )
-    }
+        tint = color,
+    )
 }
 
 @Composable
 fun IenSearchFieldDeleteButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    contentDescription: String = "검색어 삭제",
+    contentDescription: String = stringResource(Res.string.clear_search),
 ) {
     val backgroundColor = searchFieldDeleteButtonColor()
     val contentColor = searchFieldDeleteIconColor()
@@ -898,23 +879,12 @@ fun IenSearchFieldDeleteButton(
             color = backgroundColor,
             shape = RoundedCornerShape(IenTheme.radius.full),
         ) {
-            Canvas(modifier = Modifier.size(18.dp)) {
-                val strokeWidth = size.minDimension * 0.10f
-                drawLine(
-                    color = contentColor,
-                    start = Offset(size.width * 0.35f, size.height * 0.35f),
-                    end = Offset(size.width * 0.65f, size.height * 0.65f),
-                    strokeWidth = strokeWidth,
-                    cap = StrokeCap.Round,
-                )
-                drawLine(
-                    color = contentColor,
-                    start = Offset(size.width * 0.65f, size.height * 0.35f),
-                    end = Offset(size.width * 0.35f, size.height * 0.65f),
-                    strokeWidth = strokeWidth,
-                    cap = StrokeCap.Round,
-                )
-            }
+            IenIcon(
+                imageVector = RemixIcons.Fill.Close,
+                contentDescription = null,
+                tint = contentColor,
+                modifier = Modifier.size(18.dp)
+            )
         }
     }
 }

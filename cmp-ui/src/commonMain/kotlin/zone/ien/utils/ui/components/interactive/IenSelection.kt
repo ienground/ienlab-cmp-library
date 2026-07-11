@@ -61,8 +61,12 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import kotlinx.coroutines.launch
+import zone.ien.utils.icon.remix.RemixIcons
+import zone.ien.utils.icon.remix.fill.Check
+import zone.ien.utils.icon.remix.fill.Close
 import kotlin.math.roundToInt
 import zone.ien.utils.ui.components.foundation.IenTheme
+import zone.ien.utils.ui.components.primitives.IenIcon
 import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.components.primitives.IenText
 
@@ -391,19 +395,12 @@ private fun IenCheckMark(
     color: Color,
     modifier: Modifier = Modifier,
 ) {
-    Canvas(modifier = modifier) {
-        val strokeWidth = 2.5.dp.toPx()
-        val path = Path().apply {
-            moveTo(size.width * 0.27f, size.height * 0.50f)
-            lineTo(size.width * 0.44f, size.height * 0.67f)
-            lineTo(size.width * 0.73f, size.height * 0.36f)
-        }
-        drawPath(
-            path = path,
-            color = color,
-            style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        )
-    }
+    IenIcon(
+        imageVector = RemixIcons.Fill.Check,
+        contentDescription = null,
+        modifier = modifier,
+        tint = color,
+    )
 }
 
 @Composable
@@ -515,8 +512,10 @@ fun IenCircleCheckbox(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            IenCheckMark(
-                color = checkAnimColor,
+            IenIcon(
+                imageVector = RemixIcons.Fill.Check,
+                contentDescription = null,
+                tint = checkAnimColor,
                 modifier = Modifier.size(size * 0.65f)
             )
         }
@@ -609,8 +608,10 @@ fun IenLineCheckbox(
         horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IenCheckMark(
-            color = checkAnimColor,
+        IenIcon(
+            imageVector = RemixIcons.Fill.Check,
+            contentDescription = null,
+            tint = checkAnimColor,
             modifier = Modifier
                 .offset { IntOffset(x = shakeOffset.value.roundToInt(), y = 0) }
                 .graphicsLayer {

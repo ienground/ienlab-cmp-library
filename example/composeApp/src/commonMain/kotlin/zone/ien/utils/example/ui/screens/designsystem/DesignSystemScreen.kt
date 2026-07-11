@@ -118,6 +118,7 @@ import zone.ien.utils.ui.components.composite.IenSheetDetent
 import zone.ien.utils.ui.components.composite.IenSkeleton
 import zone.ien.utils.ui.components.composite.IenSkeletonBackground
 import zone.ien.utils.ui.components.composite.IenSkeletonElement
+import zone.ien.utils.ui.components.composite.IenSkeletonMotionGroup
 import zone.ien.utils.ui.components.composite.IenSkeletonPattern
 import zone.ien.utils.ui.components.composite.IenSkeletonRepeat
 import zone.ien.utils.ui.components.composite.IenTableRow
@@ -1233,9 +1234,11 @@ fun SkeletonSection() {
                 ),
                 repeatLastItemCount = IenSkeletonRepeat.Count(2),
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
-                IenSkeleton(modifier = Modifier.weight(1f), height = 20.dp)
-                IenSkeleton(modifier = Modifier.weight(0.65f), height = 20.dp)
+            IenSkeletonMotionGroup(modifier = Modifier.fillMaxWidth()) {
+                Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
+                    IenSkeleton(modifier = Modifier.weight(1f), height = 20.dp)
+                    IenSkeleton(modifier = Modifier.weight(0.65f), height = 20.dp)
+                }
             }
         }
     }

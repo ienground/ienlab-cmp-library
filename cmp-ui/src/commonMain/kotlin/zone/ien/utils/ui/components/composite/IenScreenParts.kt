@@ -112,6 +112,14 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Icon
+import org.jetbrains.compose.resources.stringResource
+import zone.ien.utils.cmp_ui.generated.resources.Res
+import zone.ien.utils.cmp_ui.generated.resources.agreement_optional
+import zone.ien.utils.cmp_ui.generated.resources.agreement_required
+import zone.ien.utils.cmp_ui.generated.resources.agreement_terms
+import zone.ien.utils.icon.remix.RemixIcons
+import zone.ien.utils.icon.remix.line.ArrowDownWide
 
 enum class IenTopBarTitleAlignment {
     Start,
@@ -1192,7 +1200,7 @@ fun IenAgreementCheckbox(
 
     when (variant) {
         IenAgreementCheckboxVariant.Checkbox -> {
-            IenAgreementCheckboxCanvas(
+            IenCheckbox(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = enabled,
@@ -1200,7 +1208,6 @@ fun IenAgreementCheckbox(
                     scaleX = scale
                     scaleY = scale
                 },
-                dot = false,
             )
         }
         IenAgreementCheckboxVariant.Dot -> {
@@ -1212,7 +1219,6 @@ fun IenAgreementCheckbox(
                     scaleX = scale
                     scaleY = scale
                 },
-                dot = true,
             )
         }
         IenAgreementCheckboxVariant.Hidden -> {
@@ -1226,7 +1232,6 @@ private fun IenAgreementCheckboxCanvas(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     enabled: Boolean,
-    dot: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val brandColor = IenTheme.colors.brand
@@ -1244,44 +1249,29 @@ private fun IenAgreementCheckboxCanvas(
         contentAlignment = Alignment.Center,
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val strokeWidth = 2.dp.toPx()
-            if (dot) {
-                if (checked) {
-                    drawCircle(
-                        color = if (enabled) brandColor else disabledColor,
-                        radius = 5.dp.toPx(),
-                    )
-                } else {
-                    drawCircle(
-                        color = if (enabled) borderColor else disabledColor,
-                        radius = 5.dp.toPx(),
-                        style = Stroke(width = strokeWidth),
-                    )
+            val strokeWidth = 1.6.dp.toPx()
+            val radius = 8.dp.toPx()
+            if (checked) {
+                drawCircle(
+                    color = if (enabled) brandColor else disabledColor,
+                    radius = radius,
+                )
+                val path = Path().apply {
+                    moveTo(size.width * 0.35f, size.height * 0.49f)
+                    lineTo(size.width * 0.47f, size.height * 0.61f)
+                    lineTo(size.width * 0.65f, size.height * 0.39f)
                 }
+                drawPath(
+                    path = path,
+                    color = Color.White,
+                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round),
+                )
             } else {
-                val radius = 6.dp.toPx()
-                if (checked) {
-                    drawRoundRect(
-                        color = if (enabled) brandColor else disabledColor,
-                        cornerRadius = CornerRadius(radius, radius),
-                    )
-                    val path = Path().apply {
-                        moveTo(size.width * 0.30f, size.height * 0.50f)
-                        lineTo(size.width * 0.45f, size.height * 0.65f)
-                        lineTo(size.width * 0.72f, size.height * 0.34f)
-                    }
-                    drawPath(
-                        path = path,
-                        color = Color.White,
-                        style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round),
-                    )
-                } else {
-                    drawRoundRect(
-                        color = if (enabled) borderColor else disabledColor,
-                        cornerRadius = CornerRadius(radius, radius),
-                        style = Stroke(width = strokeWidth),
-                    )
-                }
+                drawCircle(
+                    color = if (enabled) borderColor else disabledColor,
+                    radius = radius - strokeWidth / 2,
+                    style = Stroke(width = strokeWidth),
+                )
             }
         }
     }
@@ -1334,7 +1324,7 @@ fun IenAgreementText(
 fun IenAgreementNecessity(
     variant: IenAgreementNecessityVariant,
     modifier: Modifier = Modifier,
-    text: String = if (variant == IenAgreementNecessityVariant.Mandatory) "필수" else "선택"
+    text: String = if (variant == IenAgreementNecessityVariant.Mandatory) stringResource(Res.string.agreement_required) else stringResource(Res.string.agreement_optional)
 ) {
     val isMandatory = variant == IenAgreementNecessityVariant.Mandatory
     IenText(
@@ -1385,23 +1375,14 @@ fun IenAgreementRightArrow(
         animationSpec = tween(durationMillis = IenTheme.motion.fastMillis, easing = IenTheme.motion.standardEasing),
         label = "ienAgreementRightArrowRotation",
     )
-    Canvas(
+    Icon(
+        imageVector = RemixIcons.Line.ArrowDownWide,
+        contentDescription = null,
+        tint = IenTheme.colors.textDisabled,
         modifier = modifier
-            .size(24.dp)
             .rotate(rotation)
             .then(clickableModifier)
-    ) {
-        val path = Path().apply {
-            moveTo(size.width * 0.30f, size.height * 0.58f)
-            lineTo(size.width * 0.50f, size.height * 0.42f)
-            lineTo(size.width * 0.70f, size.height * 0.58f)
-        }
-        drawPath(
-            path = path,
-            color = Color(0xFFB0B8C1),
-            style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
-        )
-    }
+    )
 }
 
 @Composable
@@ -1720,7 +1701,7 @@ fun IenAgreement(
     items: List<IenAgreementItem>,
     onItemCheckedChange: (id: String, checked: Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    title: String = "약관 동의",
+    title: String = stringResource(Res.string.agreement_terms),
     onAllCheckedChange: ((Boolean) -> Unit)? = null,
     variant: IenAgreementVariant = IenAgreementVariant.Large,
     itemVariant: IenAgreementVariant = IenAgreementVariant.Small,

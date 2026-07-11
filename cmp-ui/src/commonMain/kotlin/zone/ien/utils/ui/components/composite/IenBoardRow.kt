@@ -35,9 +35,14 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.semantics
-import zone.ien.utils.icon.material.M3SystemIcons
+import androidx.compose.ui.semantics.stateDescription
+import org.jetbrains.compose.resources.stringResource
+import zone.ien.utils.cmp_ui.generated.resources.Res
+import zone.ien.utils.cmp_ui.generated.resources.state_collapsed
+import zone.ien.utils.cmp_ui.generated.resources.state_expanded
+import zone.ien.utils.icon.remix.RemixIcons
+import zone.ien.utils.icon.remix.line.ArrowDownS
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.primitives.IenIcon
 import zone.ien.utils.ui.components.primitives.IenSurface
@@ -76,13 +81,15 @@ fun IenBoardRow(
     icon: (@Composable (opened: Boolean) -> Unit)? = { IenBoardRowIcon(opened = it) },
     children: @Composable ColumnScope.() -> Unit,
 ) {
+    val stateDescription = if (state.opened) stringResource(Res.string.state_expanded) else stringResource(Res.string.state_collapsed)
+
     IenSurface(
         shape = RectangleShape,
         modifier = modifier
     ) {
         Column(
             modifier = Modifier.semantics {
-                stateDescription = if (state.opened) "펼쳐짐" else "접힘"
+                this.stateDescription = stateDescription
             },
         ) {
             val interactionSource = remember { MutableInteractionSource() }
@@ -185,7 +192,7 @@ private fun IenBoardRowIcon(
         label = "IenBoardRowIconRotation",
     )
     IenIcon(
-        imageVector = M3SystemIcons.ArrowDropDown,
+        imageVector = RemixIcons.Line.ArrowDownS,
         contentDescription = null,
         modifier = modifier.rotate(rotation),
         tint = IenTheme.colors.textTertiary,

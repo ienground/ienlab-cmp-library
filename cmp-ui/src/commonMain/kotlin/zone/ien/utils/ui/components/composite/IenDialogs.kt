@@ -22,6 +22,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import org.jetbrains.compose.resources.stringResource
+import zone.ien.utils.cmp_ui.generated.resources.Res
+import zone.ien.utils.cmp_ui.generated.resources.cancel
+import zone.ien.utils.cmp_ui.generated.resources.close
+import zone.ien.utils.cmp_ui.generated.resources.ok
 import zone.ien.utils.ui.components.foundation.IenSemanticTone
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.interactive.IenButton
@@ -46,7 +51,7 @@ fun IenAlertDialog(
     message: String? = null,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
-    confirmText: String = "확인",
+    confirmText: String = stringResource(Res.string.close),
     onConfirmClick: () -> Unit = onDismissRequest,
     tone: IenSemanticTone = IenSemanticTone.Brand,
     closeOnDimmerClick: Boolean = true,
@@ -116,8 +121,8 @@ fun IenConfirmDialog(
     onDismissRequest: () -> Unit,
     onConfirmClick: () -> Unit,
     modifier: Modifier = Modifier,
-    confirmText: String = "확인",
-    dismissText: String = "취소",
+    confirmText: String = stringResource(Res.string.ok),
+    dismissText: String = stringResource(Res.string.cancel),
     destructive: Boolean = false,
     closeOnDimmerClick: Boolean = true,
     closeOnBackEvent: Boolean = true,

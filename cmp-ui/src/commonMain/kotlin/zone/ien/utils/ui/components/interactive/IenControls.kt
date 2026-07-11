@@ -63,11 +63,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
+import zone.ien.utils.cmp_ui.generated.resources.Res
+import zone.ien.utils.cmp_ui.generated.resources.next
+import zone.ien.utils.cmp_ui.generated.resources.stepper_step_list
+import zone.ien.utils.cmp_ui.generated.resources.tab_list
+import zone.ien.utils.cmp_ui.generated.resources.tab_update_indicator_desc
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 import zone.ien.utils.ui.components.foundation.IenTheme
+import zone.ien.utils.ui.components.primitives.IenIcon
+import zone.ien.utils.icon.remix.RemixIcons
+import zone.ien.utils.icon.remix.line.ArrowRightS
 import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.components.primitives.IenText
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun IenSlider(
@@ -154,6 +164,8 @@ fun IenStepper(
     content: @Composable IenStepperScope.() -> Unit,
 ) {
     val scope = remember { IenStepperScope() }
+    val contentDescription = stringResource(Res.string.stepper_step_list)
+
     scope.play = play
     scope.delayMillis = (delay * 1000).roundToLong()
     scope.staggerDelayMillis = (staggerDelay * 1000).roundToLong()
@@ -161,7 +173,7 @@ fun IenStepper(
 
     Column(
         modifier = modifier.semantics {
-            contentDescription = "단계 목록"
+            this.contentDescription = contentDescription
         },
         verticalArrangement = Arrangement.spacedBy(0.dp),
     ) {
@@ -211,7 +223,7 @@ fun IenStepperRow(
 
     LaunchedEffect(play) {
         if (play && !visible) {
-            delay(delayMillis.coerceAtLeast(0L))
+            delay(delayMillis.coerceAtLeast(0L).milliseconds)
             visible = true
         }
     }
@@ -413,16 +425,18 @@ fun IenStepperRightArrow(
     color: Color = IenTheme.colors.textTertiary,
     frameSize: Dp = 24.dp,
 ) {
+    val contentDescription = stringResource(Res.string.next)
     Box(
         modifier = modifier
             .size(frameSize)
-            .semantics { contentDescription = "다음" },
+            .semantics { this.contentDescription = contentDescription },
         contentAlignment = Alignment.Center,
     ) {
-        IenText(
-            text = ">",
-            style = IenTheme.typography.title3,
-            color = color,
+        IenIcon(
+            imageVector = RemixIcons.Line.ArrowRightS,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+            tint = color,
         )
     }
 }
@@ -548,6 +562,7 @@ fun IenTab(
         scrollState.animateScrollTo(targetScroll)
     }
 
+    val contentDescription = stringResource(Res.string.tab_list)
     Box(
         modifier = modifier
             .onSizeChanged { viewportWidthPx = it.width }
@@ -555,7 +570,7 @@ fun IenTab(
             .height(tabHeight)
             .selectableGroup()
             .semantics {
-                contentDescription = ariaLabel ?: "탭 목록"
+                this.contentDescription = ariaLabel ?: contentDescription
             },
     ) {
         if (selectedBounds != null && indicatorWidth > 0.dp) {
@@ -596,6 +611,7 @@ fun IenTab(
                     animationSpec = tween(durationMillis = IenTheme.motion.fastMillis, easing = IenTheme.motion.standardEasing),
                     label = "ienTabTextColor",
                 )
+                val contentDescription = stringResource(Res.string.tab_update_indicator_desc, item.text)
                 Column(
                     modifier = Modifier
                         .then(if (fluid) Modifier.widthIn(min = minItemWidth) else Modifier.weight(1f))
@@ -622,7 +638,7 @@ fun IenTab(
                         }
                         .semantics {
                             this.selected = selected
-                            contentDescription = item.ariaLabel ?: if (item.redBean) "${item.text}, 업데이트 있음" else item.text
+                            this.contentDescription = item.ariaLabel ?: if (item.redBean) contentDescription else item.text
                         }
                         .padding(horizontal = if (fluid) IenTheme.spacing.xs else 0.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,

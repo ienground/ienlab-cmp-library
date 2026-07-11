@@ -18,7 +18,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -76,10 +75,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import zone.ien.utils.cmp_ui.generated.resources.Res
+import zone.ien.utils.cmp_ui.generated.resources.current_rating_status
+import zone.ien.utils.cmp_ui.generated.resources.current_value
+import zone.ien.utils.cmp_ui.generated.resources.decrease
+import zone.ien.utils.cmp_ui.generated.resources.increase
+import zone.ien.utils.cmp_ui.generated.resources.number_spinner
+import zone.ien.utils.cmp_ui.generated.resources.rate_stars
+import zone.ien.utils.cmp_ui.generated.resources.rating_score
+import zone.ien.utils.cmp_ui.generated.resources.rating_value
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.components.primitives.IenText
 import zone.ien.utils.ui.utils.instantPress
+import zone.ien.utils.ui.components.primitives.IenIcon
+import zone.ien.utils.icon.remix.RemixIcons
+import zone.ien.utils.icon.remix.fill.Star
+import zone.ien.utils.icon.remix.fill.StarHalf
+import zone.ien.utils.icon.remix.line.Star
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
@@ -100,8 +114,8 @@ fun IenNumericSpinner(
     minNumber: Int = 0,
     maxNumber: Int = 999,
     disable: Boolean = false,
-    decreaseAriaLabel: String = "빼기",
-    increaseAriaLabel: String = "더하기",
+    decreaseAriaLabel: String = stringResource(Res.string.decrease),
+    increaseAriaLabel: String = stringResource(Res.string.increase),
     onNumberChange: (Int) -> Unit = {},
 ) {
     val min = minOf(minNumber, maxNumber)
@@ -194,6 +208,7 @@ fun IenNumericSpinner(
         swipingNumber = false
     }
 
+    val surfaceContentDescription = stringResource(Res.string.number_spinner)
     IenSurface(
         modifier = modifier
             .graphicsLayer {
@@ -204,7 +219,7 @@ fun IenNumericSpinner(
             .height(spec.height)
             .widthIn(min = spec.minWidth)
             .semantics(mergeDescendants = true) {
-                contentDescription = "숫자 스피너"
+                this.contentDescription = surfaceContentDescription
                 stateDescription = currentNumber.toString()
                 liveRegion = LiveRegionMode.Polite
                 if (disable) disabled()
@@ -218,6 +233,7 @@ fun IenNumericSpinner(
             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.none),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            val contentDescription = stringResource(Res.string.current_value, currentNumber)
             SpinnerButton(
                 text = "-",
                 available = canDecrease,
@@ -270,7 +286,7 @@ fun IenNumericSpinner(
                             },
                         )
                     }
-                    .semantics { contentDescription = "현재 값 $currentNumber" },
+                    .semantics { this.contentDescription = contentDescription },
                 contentAlignment = Alignment.Center,
             ) {
                 IenText(
@@ -448,7 +464,7 @@ fun IenRating(
     variant: IenRatingVariant = IenRatingVariant.Full,
     disabled: Boolean = false,
     enabled: Boolean = true,
-    ariaLabel: String = if (readOnly) "현재 별점 현황" else "별점 평가",
+    ariaLabel: String = stringResource(if (readOnly) Res.string.current_rating_status else Res.string.rate_stars),
     valueText: String? = null,
 ) {
     val itemCount = max.coerceAtLeast(1)
@@ -464,7 +480,7 @@ fun IenRating(
     var ratingPressed by remember { mutableStateOf(false) }
     var rowSize by remember { mutableStateOf(IntSize.Zero) }
     val selectedIndex = resolvedValue.roundToInt().coerceIn(1, itemCount) - 1
-    val resolvedValueText = valueText ?: "${itemCount}점 만점 중 ${resolvedValue.toRatingText()}점"
+    val resolvedValueText = valueText ?: stringResource(Res.string.rating_value, itemCount, resolvedValue.toRatingText())
     val itemSpacing = size.ratingItemSpacing()
 
     Row(
@@ -515,7 +531,7 @@ fun IenRating(
                     clickedIndex = 0,
                 )
                 IenText(
-                    text = "${resolvedValue.toRatingText()}",
+                    text = resolvedValue.toRatingText(),
                     style = size.ratingLabelStyle(),
                     color = if (isDisabled) IenTheme.colors.textDisabled else IenTheme.colors.textSecondary,
                 )
@@ -673,35 +689,43 @@ private fun IenRatingStar(
         }
     }
 
+    val contentDescription = stringResource(Res.string.rating_score, index + 1)
     val itemModifier = Modifier
         .size(iconSize)
         .semantics {
-            contentDescription = "${index + 1}점"
+            this.contentDescription = contentDescription
             selected = fillFraction > 0f
             if (isDisabled) disabled()
         }
+
+    val ratingIcon = when {
+        fillFraction >= 0.75f -> RemixIcons.Fill.Star
+        fillFraction >= 0.25f -> RemixIcons.Fill.StarHalf
+        else -> RemixIcons.Line.Star
+    }
 
     Box(
         modifier = itemModifier,
         contentAlignment = Alignment.Center,
     ) {
-        Canvas(
-            modifier = Modifier
-                .size(iconSize * RatingGlowLayerScale)
-                .graphicsLayer {
-                    val glowScale = 0.78f + glowValue * 0.42f
-                    scaleX = glowScale
-                    scaleY = glowScale
-                    alpha = glowValue.coerceAtMost(1f)
-                },
-        ) {
-            drawRatingGlow(
-                alpha = glowValue,
-                fillFraction = fillFraction,
-                isDisabled = isDisabled,
+        if (glowValue > 0f && isFilled && !isDisabled) {
+            IenIcon(
+                imageVector = RemixIcons.Fill.Star,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(iconSize)
+                    .graphicsLayer {
+                        val glowScale = (0.78f + glowValue * 0.42f) * pressScale
+                        scaleX = glowScale
+                        scaleY = glowScale
+                        alpha = glowValue.coerceAtMost(1f) * 0.4f
+                    },
+                tint = IenTheme.colors.brand.copy(alpha = 0.5f)
             )
         }
-        Canvas(
+        IenIcon(
+            imageVector = ratingIcon,
+            contentDescription = null,
             modifier = Modifier
                 .size(iconSize)
                 .graphicsLayer {
@@ -710,9 +734,8 @@ private fun IenRatingStar(
                     scaleY = scale
                     alpha = starAlpha
                 },
-        ) {
-            drawStar(fillFraction = fillFraction, isDisabled = isDisabled)
-        }
+            tint = if (isFilled) IenTheme.colors.brand else IenTheme.colors.borderStrong,
+        )
     }
 }
 
@@ -776,68 +799,4 @@ private fun Float.toRatingText(): String {
     }
 }
 
-private fun DrawScope.drawStar(fillFraction: Float, isDisabled: Boolean) {
-    val center = Offset(size.width / 2f, size.height / 2f)
-    val outer = size.minDimension * 0.46f
-    val inner = outer * 0.46f
-    val path = Path()
-    repeat(10) { index ->
-        val angle = ((index * 36.0) - 90.0) * kotlin.math.PI / 180.0
-        val radius = if (index % 2 == 0) outer else inner
-        val point = Offset(
-            x = center.x + kotlin.math.cos(angle).toFloat() * radius,
-            y = center.y + kotlin.math.sin(angle).toFloat() * radius,
-        )
-        if (index == 0) path.moveTo(point.x, point.y) else path.lineTo(point.x, point.y)
-    }
-    path.close()
-    val emptyColor = if (isDisabled) Color(0xFFD1D6DB) else Color(0xFFE5E8EB)
-    val selectedColor = if (isDisabled) Color(0xFFB0B8C1) else Color(0xFFFFC84D)
-    drawPath(
-        path = path,
-        color = emptyColor,
-    )
-    if (fillFraction > 0f) {
-        clipRect(right = size.width * fillFraction.coerceIn(0f, 1f)) {
-            drawPath(path = path, color = selectedColor)
-        }
-    }
-}
 
-private fun DrawScope.drawRatingGlow(
-    alpha: Float,
-    fillFraction: Float,
-    isDisabled: Boolean,
-) {
-    if (alpha <= 0f || fillFraction <= 0f || isDisabled) return
-    val center = Offset(size.width / 2f, size.height / 2f)
-    val radius = size.minDimension * 0.3f
-    drawCircle(
-        brush = Brush.radialGradient(
-            colors = listOf(
-                Color(0xFFFFA800).copy(alpha = alpha * 0.30f),
-                Color(0xFFFFC400).copy(alpha = alpha * 0.20f),
-                Color(0xFFFFE08A).copy(alpha = alpha * 0.10f),
-                Color.Transparent,
-            ),
-            center = center,
-            radius = radius * 1.55f,
-        ),
-        radius = radius * 1.55f,
-        center = center,
-    )
-    drawCircle(
-        brush = Brush.radialGradient(
-            colors = listOf(
-                Color(0xFFFF9800).copy(alpha = alpha * 0.78f),
-                Color(0xFFFFBD2E).copy(alpha = alpha * 0.56f),
-                Color(0xFFFFDC73).copy(alpha = alpha * 0.34f),
-                Color.Transparent,
-            ),
-            center = center,
-            radius = radius,
-        ),
-        radius = radius,
-        center = center,
-    )
-}

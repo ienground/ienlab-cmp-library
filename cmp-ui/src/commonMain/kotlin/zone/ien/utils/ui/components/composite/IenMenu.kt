@@ -54,6 +54,8 @@ import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.primitives.IenIcon
+import zone.ien.utils.icon.remix.RemixIcons
+import zone.ien.utils.icon.remix.fill.Check
 import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.components.primitives.IenText
 import zone.ien.utils.ui.utils.instantPress
@@ -466,11 +468,11 @@ object IenMenu {
             contentAlignment = Alignment.Center,
         ) {
             if (checked) {
-                IenText(
-                    text = "✓",
-                    style = IenTheme.typography.label1,
-                    color = if (enabled) IenTheme.colors.brand else IenTheme.colors.textDisabled,
-                    fontWeight = FontWeight.SemiBold,
+                IenIcon(
+                    imageVector = RemixIcons.Fill.Check,
+                    contentDescription = "선택됨",
+                    modifier = Modifier.size(16.dp),
+                    tint = if (enabled) IenTheme.colors.brand else IenTheme.colors.textDisabled,
                 )
             }
         }

@@ -24,6 +24,15 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.stringResource
+import zone.ien.utils.cmp_ui.generated.resources.Res
+import zone.ien.utils.cmp_ui.generated.resources.clear
+import zone.ien.utils.cmp_ui.generated.resources.done
+import zone.ien.utils.cmp_ui.generated.resources.english
+import zone.ien.utils.cmp_ui.generated.resources.korean
+import zone.ien.utils.cmp_ui.generated.resources.space
+import zone.ien.utils.cmp_ui.generated.resources.special
+import zone.ien.utils.cmp_ui.generated.resources.submit
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.components.primitives.IenText
@@ -262,7 +271,7 @@ fun IenFullSecureKeypad(
     modifier: Modifier = Modifier,
     state: IenFullSecureKeypadState = rememberIenFullSecureKeypadState(),
     submitDisabled: Boolean = false,
-    submitButtonText: String = "입력 완료",
+    submitButtonText: String = stringResource(Res.string.submit),
     enabled: Boolean = true,
     onSpecialClick: (() -> Unit)? = null,
     keyHeight: Dp = 44.dp,
@@ -318,7 +327,7 @@ fun IenFullSecureKeypad(
                 horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
             ) {
                 IenFullSecureActionKey(
-                    label = "특수",
+                    label = stringResource(Res.string.special),
                     onClick = { onSpecialClick?.invoke() },
                     modifier = Modifier.weight(1.2f),
                     enabled = enabled && onSpecialClick != null,
@@ -445,7 +454,7 @@ fun IenFullSecureKeyboard(
                     color = IenTheme.colors.textPrimary,
                 )
                 IenTextButton(
-                    text = if (state.language == IenSecureKeyboardLanguage.English) "한글" else "EN",
+                    text = stringResource(if (state.language == IenSecureKeyboardLanguage.English) Res.string.korean else Res.string.english),
                     onClick = {
                         onLanguageChange(
                             if (state.language == IenSecureKeyboardLanguage.English) {
@@ -836,10 +845,11 @@ private fun IenKeypadKey(
     }
 }
 
+@Composable
 private fun String.label(): String = when (this) {
-    "space" -> "공백"
+    "space" -> stringResource(Res.string.space)
     "backspace" -> "⌫"
-    "clear" -> "초기화"
-    "done" -> "완료"
+    "clear" -> stringResource(Res.string.clear)
+    "done" -> stringResource(Res.string.done)
     else -> this
 }
