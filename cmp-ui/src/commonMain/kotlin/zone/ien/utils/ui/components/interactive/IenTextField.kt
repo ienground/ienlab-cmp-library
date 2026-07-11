@@ -43,6 +43,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.ui.graphics.graphicsLayer
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.primitives.IenDivider
 import zone.ien.utils.ui.components.primitives.IenSurface
@@ -120,6 +127,25 @@ fun IenTextField(
     }
     val formattedValue = format?.transform?.invoke(value) ?: value
     val showLabel = label != null && (labelOption == IenTextFieldLabelOption.Sustain || value.isNotEmpty() || focused)
+
+    val labelAlpha by animateFloatAsState(
+        targetValue = if (showLabel) 1f else 0f,
+        animationSpec = tween(durationMillis = 150)
+    )
+
+    val shakeOffset = remember { Animatable(0f) }
+    androidx.compose.runtime.LaunchedEffect(effectiveStatus) {
+        if (effectiveStatus is IenFieldStatus.Error) {
+            val shakeSequence = listOf(-8f, 8f, -6f, 6f, -3f, 3f, 0f)
+            shakeSequence.forEach { target ->
+                shakeOffset.animateTo(
+                    targetValue = target,
+                    animationSpec = tween(durationMillis = 40, easing = LinearEasing)
+                )
+            }
+        }
+    }
+
     val fieldTextStyle = when (variant) {
         IenTextFieldVariant.Box,
         IenTextFieldVariant.Line -> IenTheme.typography.body1
@@ -146,21 +172,30 @@ fun IenTextField(
     Column(modifier = modifier.semantics {
         if (effectiveStatus is IenFieldStatus.Error) error(effectiveStatus.message)
     }) {
-        if (showLabel) {
-            IenText(text = label, style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+        if (label != null) {
+            IenText(
+                text = label,
+                modifier = Modifier.graphicsLayer { alpha = labelAlpha },
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.textSecondary
+            )
             Spacer(Modifier.height(IenTheme.spacing.xxs))
         }
         IenTextFieldContainer(
             variant = variant,
             enabled = state.enabled,
             borderColor = borderColor,
+            modifier = Modifier.offset(x = shakeOffset.value.dp)
         ) {
             Row(
-                modifier = Modifier.padding(
-                    PaddingValues(
-                        start = if (variant == IenTextFieldVariant.Line) 0.dp else 14.dp,
-                        top = fieldTopPadding(variant, paddingTop),
-                        end = if (variant == IenTextFieldVariant.Line) 0.dp else 14.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 28.dp)
+                    .padding(
+                        PaddingValues(
+                            start = if (variant == IenTextFieldVariant.Line) 0.dp else 14.dp,
+                            top = fieldTopPadding(variant, paddingTop),
+                            end = if (variant == IenTextFieldVariant.Line) 0.dp else 14.dp,
                         bottom = fieldBottomPadding(variant, paddingBottom),
                     ),
                 ),
@@ -216,14 +251,16 @@ fun IenTextField(
                     interactionSource = interactionSource,
                     cursorBrush = SolidColor(IenTheme.colors.brand),
                     decorationBox = { innerTextField ->
-                        if (formattedValue.isEmpty() && placeholder != null) {
-                            IenText(
-                                text = placeholder,
-                                style = fieldTextStyle,
-                                color = IenTheme.colors.textTertiary,
-                            )
+                        Box(contentAlignment = Alignment.CenterStart) {
+                            if (formattedValue.isEmpty() && placeholder != null) {
+                                IenText(
+                                    text = placeholder,
+                                    style = fieldTextStyle,
+                                    color = IenTheme.colors.textTertiary,
+                                )
+                            }
+                            innerTextField()
                         }
-                        innerTextField()
                     },
                 )
                 suffix?.let {
@@ -406,6 +443,7 @@ private fun IenTextFieldContainer(
     variant: IenTextFieldVariant,
     enabled: Boolean,
     borderColor: Color,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     when (variant) {
@@ -413,7 +451,7 @@ private fun IenTextFieldContainer(
         IenTextFieldVariant.Big,
         IenTextFieldVariant.Hero -> {
             IenSurface(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = modifier.fillMaxWidth(),
                 color = if (enabled) IenTheme.colors.surface else IenTheme.colors.surfaceWeak,
                 border = BorderStroke(IenTheme.stroke.thin, borderColor),
             ) {
@@ -421,7 +459,7 @@ private fun IenTextFieldContainer(
             }
         }
         IenTextFieldVariant.Line -> {
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = modifier.fillMaxWidth()) {
                 content()
                 IenDivider(color = borderColor, thickness = IenTheme.stroke.thin)
             }

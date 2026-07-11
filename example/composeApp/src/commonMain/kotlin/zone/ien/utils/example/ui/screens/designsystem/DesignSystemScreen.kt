@@ -32,12 +32,25 @@ import androidx.compose.ui.unit.dp
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.icon.material.filled.Check
 import zone.ien.utils.icon.material.filled.Close
-import zone.ien.utils.ui.components.composite.IenAgreementItemV4
-import zone.ien.utils.ui.components.composite.IenAgreementV4
-import zone.ien.utils.ui.components.composite.IenAgreementV4RightButton
-import zone.ien.utils.ui.components.composite.IenAgreementV4RightVerticalAlign
-import zone.ien.utils.ui.components.composite.IenAgreementV4Text
-import zone.ien.utils.ui.components.composite.IenAgreementV4Variant
+import zone.ien.utils.ui.components.composite.IenAgreementItem
+import zone.ien.utils.ui.components.composite.IenAgreement
+import zone.ien.utils.ui.components.composite.IenAgreementVariant
+import zone.ien.utils.ui.components.composite.IenAgreementText
+import zone.ien.utils.ui.components.composite.IenAgreementCheckbox
+import zone.ien.utils.ui.components.composite.IenAgreementCheckboxVariant
+import zone.ien.utils.ui.components.composite.IenAgreementNecessity
+import zone.ien.utils.ui.components.composite.IenAgreementNecessityVariant
+import zone.ien.utils.ui.components.composite.IenAgreementBadge
+import zone.ien.utils.ui.components.composite.IenAgreementBadgeVariant
+import zone.ien.utils.ui.components.composite.IenAgreementRightArrow
+import zone.ien.utils.ui.components.composite.IenAgreementDescription
+import zone.ien.utils.ui.components.composite.IenAgreementDescriptionVariant
+import zone.ien.utils.ui.components.composite.IenAgreementCollapsible
+import zone.ien.utils.ui.components.composite.IenAgreementCollapsibleTrigger
+import zone.ien.utils.ui.components.composite.IenAgreementCollapsibleContent
+import zone.ien.utils.ui.components.composite.IenAgreementIndentPushable
+import zone.ien.utils.ui.components.composite.IenAgreementIndentPushableTrigger
+import zone.ien.utils.ui.components.composite.IenAgreementIndentPushableContent
 import zone.ien.utils.ui.components.composite.IenAlertDialog
 import zone.ien.utils.ui.components.composite.IenAssetFrame
 import zone.ien.utils.ui.components.composite.IenAssetFrameShape
@@ -62,7 +75,6 @@ import zone.ien.utils.ui.components.composite.IenAlertDialogTitle
 import zone.ien.utils.ui.components.composite.IenConfirmDialog
 import zone.ien.utils.ui.components.composite.IenConfirmDialogCancelButton
 import zone.ien.utils.ui.components.composite.IenConfirmDialogConfirmButton
-import zone.ien.utils.ui.components.composite.IenConfirmDialogDescription
 import zone.ien.utils.ui.components.composite.IenConfirmDialogTitle
 import zone.ien.utils.ui.components.composite.IenDialogButtonLayout
 import zone.ien.utils.ui.components.composite.IenDialog
@@ -153,7 +165,6 @@ import zone.ien.utils.ui.components.interactive.IenButtonState
 import zone.ien.utils.ui.components.interactive.IenButtonVariant
 import zone.ien.utils.ui.components.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.components.interactive.IenClearableTextField
-import zone.ien.utils.ui.components.interactive.IenFieldStatus
 import zone.ien.utils.ui.components.interactive.IenFullSecureKeyboard
 import zone.ien.utils.ui.components.interactive.IenFullSecureKeypad
 import zone.ien.utils.ui.components.interactive.IenIconButton
@@ -1689,9 +1700,9 @@ fun AgreementSection() {
         var agreements by remember {
             mutableStateOf(
                 listOf(
-                    IenAgreementItemV4(id = "service", title = "서비스 이용약관", checked = true, required = true),
-                    IenAgreementItemV4(id = "privacy", title = "개인정보 처리방침", checked = false, required = true),
-                    IenAgreementItemV4(
+                    IenAgreementItem(id = "service", title = "서비스 이용약관", checked = true, required = true),
+                    IenAgreementItem(id = "privacy", title = "개인정보 처리방침", checked = false, required = true),
+                    IenAgreementItem(
                         id = "marketing",
                         title = "마케팅 정보 수신",
                         checked = false,
@@ -1699,7 +1710,7 @@ fun AgreementSection() {
                         description = "혜택과 이벤트 소식을 받을 수 있습니다.",
                         indent = true,
                     ),
-                    IenAgreementItemV4(
+                    IenAgreementItem(
                         id = "disabled",
                         title = "만료된 약관",
                         checked = false,
@@ -1711,51 +1722,168 @@ fun AgreementSection() {
             )
         }
         var singleChecked by remember { mutableStateOf(false) }
-        var boxedChecked by remember { mutableStateOf(true) }
-        ComponentSection(title = "Agreement") {
-            IenAgreementV4(
-                checked = singleChecked,
-                onCheckedChange = { singleChecked = it },
-                onPressEnd = {},
+        var dotChecked by remember { mutableStateOf(true) }
+        
+        var accordionOpen by remember { mutableStateOf(false) }
+        var collapsibleChecked1 by remember { mutableStateOf(false) }
+        var collapsibleChecked2 by remember { mutableStateOf(false) }
+
+        var indentPushed by remember { mutableStateOf(true) }
+        var indentChecked1 by remember { mutableStateOf(false) }
+        var indentChecked2 by remember { mutableStateOf(false) }
+
+        ComponentSection(title = "Agreement (TDS v4 Spec)") {
+            IenText(text = "1. 단일 동의 항목 (체크박스 / 도트 / 히든)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            
+            IenAgreement(
+                variant = IenAgreementVariant.Large,
+                onClick = { singleChecked = !singleChecked },
+                left = {
+                    IenAgreementCheckbox(
+                        checked = singleChecked,
+                        onCheckedChange = { singleChecked = it }
+                    )
+                },
                 middle = {
-                    IenAgreementV4Text(
-                        title = "개인정보 수집 및 이용 동의",
-                        description = "서비스 제공을 위해 필요한 항목만 수집합니다.",
-                        required = true,
+                    IenAgreementText(
+                        text = "서비스 필수 이용약관 동의",
+                        necessity = { IenAgreementNecessity(IenAgreementNecessityVariant.Mandatory) }
                     )
                 },
                 right = {
-                    IenAgreementV4RightButton(text = "보기", onClick = {})
-                },
+                    IenAgreementBadge(text = "안심", variant = IenAgreementBadgeVariant.Clear)
+                }
             )
-            IenAgreementV4(
-                checked = boxedChecked,
-                onCheckedChange = { boxedChecked = it },
-                variant = IenAgreementV4Variant.Box,
-                rightVerticalAlign = IenAgreementV4RightVerticalAlign.Top,
+
+            IenAgreement(
+                variant = IenAgreementVariant.Medium,
+                onClick = { dotChecked = !dotChecked },
+                left = {
+                    IenAgreementCheckbox(
+                        checked = dotChecked,
+                        onCheckedChange = { dotChecked = it },
+                        variant = IenAgreementCheckboxVariant.Dot
+                    )
+                },
                 middle = {
-                    IenAgreementV4Text(
-                        title = "혜택 알림 받기",
-                        description = "쿠폰, 이벤트, 추천 혜택을 앱 알림으로 받을 수 있습니다.",
-                        required = false,
+                    IenAgreementText(
+                        text = "이벤트 혜택 알림 및 수신 동의 (도트형)",
+                        necessity = { IenAgreementNecessity(IenAgreementNecessityVariant.Optional) }
                     )
                 },
                 right = {
-                    IenAgreementV4RightButton(text = "설정", onClick = {})
-                },
+                    IenAgreementRightArrow(onClick = {})
+                }
             )
-            IenAgreementV4(
+
+            IenDivider()
+
+            IenText(text = "2. 접었다 펼치는 아코디언 동의 (Collapsible)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            
+            IenAgreementCollapsible(
+                collapsed = !accordionOpen,
+                onCollapsedChange = { accordionOpen = !it }
+            ) {
+                IenAgreementCollapsibleTrigger {
+                    IenAgreement(
+                        variant = IenAgreementVariant.Large,
+                        middle = {
+                            IenAgreementText(text = "개인정보 수집 동의 (오른쪽 화살표 클릭)")
+                        },
+                        right = {
+                            IenAgreementRightArrow()
+                        }
+                    )
+                }
+                IenAgreementCollapsibleContent {
+                    IenAgreement(
+                        variant = IenAgreementVariant.Small,
+                        onClick = { collapsibleChecked1 = !collapsibleChecked1 },
+                        left = {
+                            IenAgreementCheckbox(checked = collapsibleChecked1, onCheckedChange = { collapsibleChecked1 = it })
+                        },
+                        middle = {
+                            IenAgreementText(text = "이름, 전화번호 수집 동의")
+                        }
+                    )
+                    IenAgreement(
+                        variant = IenAgreementVariant.Small,
+                        onClick = { collapsibleChecked2 = !collapsibleChecked2 },
+                        left = {
+                            IenAgreementCheckbox(checked = collapsibleChecked2, onCheckedChange = { collapsibleChecked2 = it })
+                        },
+                        middle = {
+                            IenAgreementText(text = "이메일, 배송지 주소 수집 동의")
+                        }
+                    )
+                    IenAgreementDescription(
+                        text = "수집된 개인정보는 서비스 배송 목적으로만 활용되며, 탈퇴 시 즉시 파기됩니다.",
+                        variant = IenAgreementDescriptionVariant.Box
+                    )
+                }
+            }
+
+            IenDivider()
+
+            IenText(text = "3. 동적 들여쓰기 동의 (IndentPushable)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            
+            IenAgreementIndentPushable(pushed = indentPushed) {
+                IenAgreementIndentPushableTrigger {
+                    IenAgreement(
+                        variant = IenAgreementVariant.Large,
+                        onClick = { indentPushed = !indentPushed },
+                        middle = {
+                            IenAgreementText(text = "들여쓰기 컨트롤 헤더 (클릭 시 하위 들여쓰기 토글)")
+                        },
+                        right = {
+                            IenAgreementBadge(
+                                text = if (indentPushed) "들여쓰기 켬" else "들여쓰기 끔",
+                                variant = IenAgreementBadgeVariant.Fill
+                            )
+                        }
+                    )
+                }
+                IenAgreementIndentPushableContent {
+                    IenAgreement(
+                        variant = IenAgreementVariant.Small,
+                        onClick = { indentChecked1 = !indentChecked1 },
+                        left = {
+                            IenAgreementCheckbox(
+                                checked = indentChecked1,
+                                onCheckedChange = { indentChecked1 = it },
+                                variant = IenAgreementCheckboxVariant.Dot
+                            )
+                        },
+                        middle = {
+                            IenAgreementText(text = "고유식별정보 수집/이용 동의")
+                        }
+                    )
+                    IenAgreement(
+                        variant = IenAgreementVariant.Small,
+                        onClick = { indentChecked2 = !indentChecked2 },
+                        left = {
+                            IenAgreementCheckbox(
+                                checked = indentChecked2,
+                                onCheckedChange = { indentChecked2 = it },
+                                variant = IenAgreementCheckboxVariant.Dot
+                            )
+                        },
+                        middle = {
+                            IenAgreementText(text = "개인(신용)정보 수집/이용 동의")
+                        }
+                    )
+                }
+            }
+
+            IenDivider()
+
+            IenText(text = "4. 기존 리스트형 어댑터 동의 (하위 호환용)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            
+            IenAgreement(
                 items = agreements,
                 onItemCheckedChange = { id, checked ->
                     agreements = agreements.map { if (it.id == id) it.copy(checked = checked) else it }
-                },
-                itemRight = { item ->
-                    IenAgreementV4RightButton(
-                        text = "보기",
-                        onClick = {},
-                        enabled = item.enabled,
-                    )
-                },
+                }
             )
         }
     }
@@ -2313,7 +2441,8 @@ fun TextFieldSection() {
                 onValueChange = { text = it },
                 label = "이름",
                 placeholder = "이름을 입력하세요",
-                help = "값이 들어오거나 포커스되면 라벨이 나타납니다.",
+                hasError = text.length >= 4,
+                help = if (text.length >= 4) "이름은 3글자 이하로 입력해주세요." else "값이 들어오거나 포커스되면 라벨이 나타납니다.",
             )
             IenTextField(
                 value = lineText,
