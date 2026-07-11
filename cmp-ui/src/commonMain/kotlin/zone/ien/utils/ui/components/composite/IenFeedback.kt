@@ -1,7 +1,7 @@
 package zone.ien.utils.ui.components.composite
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
@@ -56,9 +56,8 @@ import androidx.compose.ui.unit.IntOffset
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
@@ -75,6 +74,8 @@ import zone.ien.utils.ui.components.primitives.IenIcon
 import zone.ien.utils.ui.components.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.components.primitives.IenText
+import kotlin.math.PI
+import kotlin.math.sin
 
 enum class IenSheetDetent { Content, Medium, Full }
 
@@ -701,41 +702,24 @@ fun IenSkeleton(
     }
 
     val transition = rememberInfiniteTransition(label = "ienSkeleton")
-    val waveOffset by transition.animateFloat(
-        initialValue = -960f,
-        targetValue = 960f,
+    val phase by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = (PI * 2.0).toFloat(),
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1800, easing = IenTheme.motion.standardEasing),
+            animation = tween(durationMillis = 1200, easing = LinearEasing),
         ),
-        label = "ienSkeletonWave",
-    )
-    val waveSpread by transition.animateFloat(
-        initialValue = 0.94f,
-        targetValue = 1.08f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 900, easing = IenTheme.motion.standardEasing),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "ienSkeletonFluidSpread",
+        label = "ienSkeletonOpacityScale",
     )
     val colors = skeletonColors(background)
-    val brush = Brush.linearGradient(
-        0.00f to colors.base,
-        0.34f to colors.base,
-        0.46f to colors.softWave,
-        0.54f to colors.wave,
-        0.66f to colors.softWave,
-        1.00f to colors.base,
-        start = Offset(waveOffset, 0f),
-        end = Offset(waveOffset + 760f * waveSpread, 260f * waveSpread),
-    )
 
     if (height != null) {
         IenSkeletonBlock(
-            modifier = modifier,
+            modifier = modifier.fillMaxWidth(),
             height = height,
             radius = radius,
-            brush = brush,
+            color = colors.base,
+            phase = phase,
+            animationIndex = 0,
         )
         return
     }
@@ -754,7 +738,8 @@ fun IenSkeleton(
                 element = element,
                 index = index,
                 radius = radius,
-                brush = brush,
+                color = colors.base,
+                phase = phase,
             )
         }
     }
@@ -799,8 +784,6 @@ sealed interface IenSkeletonElement {
 
 private data class IenSkeletonColors(
     val base: Color,
-    val softWave: Color,
-    val wave: Color,
 )
 
 private fun IenSkeletonPattern.elements(): List<IenSkeletonElement> = when (this) {
@@ -861,21 +844,15 @@ private fun List<IenSkeletonElement>.withRepeatedLast(repeat: IenSkeletonRepeat)
 @Composable
 private fun skeletonColors(background: IenSkeletonBackground): IenSkeletonColors = when (background) {
     IenSkeletonBackground.White -> IenSkeletonColors(
-        base = IenTheme.colors.surface.copy(alpha = 0.70f),
-        softWave = IenTheme.colors.surface.copy(alpha = 0.84f),
-        wave = IenTheme.colors.surface.copy(alpha = 0.96f),
+        base = Color.White,
     )
 
     IenSkeletonBackground.Grey -> IenSkeletonColors(
-        base = IenTheme.colors.surfaceVariant,
-        softWave = IenTheme.colors.surfaceWeak.copy(alpha = 0.72f),
-        wave = IenTheme.colors.surface.copy(alpha = 0.88f),
+        base = Color(0xFFF2F4F6),
     )
 
     IenSkeletonBackground.GreyOpacity100 -> IenSkeletonColors(
-        base = IenTheme.colors.border.copy(alpha = 0.60f),
-        softWave = IenTheme.colors.border.copy(alpha = 0.40f),
-        wave = IenTheme.colors.border.copy(alpha = 0.24f),
+        base = Color(0x0D022047),
     )
 }
 
@@ -884,40 +861,49 @@ private fun ColumnScope.IenSkeletonElementView(
     element: IenSkeletonElement,
     index: Int,
     radius: Dp,
-    brush: Brush,
+    color: Color,
+    phase: Float,
 ) {
     when (element) {
         IenSkeletonElement.Title -> IenSkeletonBlock(
-            modifier = Modifier.fillMaxWidth(0.48f),
+            modifier = Modifier.fillMaxWidth(0.42f),
             height = 24.dp,
             radius = radius,
-            brush = brush,
+            color = color,
+            phase = phase,
+            animationIndex = index,
         )
 
         IenSkeletonElement.Subtitle -> IenSkeletonBlock(
             modifier = Modifier.fillMaxWidth(0.34f),
             height = 16.dp,
             radius = radius,
-            brush = brush,
+            color = color,
+            phase = phase,
+            animationIndex = index,
         )
 
         IenSkeletonElement.List -> IenSkeletonListRow(
             index = index,
             radius = radius,
-            brush = brush,
+            color = color,
+            phase = phase,
         )
 
         IenSkeletonElement.ListWithIcon -> IenSkeletonListRowWithIcon(
             index = index,
             radius = radius,
-            brush = brush,
+            color = color,
+            phase = phase,
         )
 
         IenSkeletonElement.Card -> IenSkeletonBlock(
             modifier = Modifier.fillMaxWidth(),
             height = 132.dp,
             radius = IenTheme.radius.default,
-            brush = brush,
+            color = color,
+            phase = phase,
+            animationIndex = index,
         )
 
         is IenSkeletonElement.Spacer -> Spacer(modifier = Modifier.height(element.height))
@@ -928,7 +914,8 @@ private fun ColumnScope.IenSkeletonElementView(
 private fun IenSkeletonListRow(
     index: Int,
     radius: Dp,
-    brush: Brush,
+    color: Color,
+    phase: Float,
 ) {
     val widthFraction = when (index % 3) {
         0 -> 0.92f
@@ -945,7 +932,9 @@ private fun IenSkeletonListRow(
             modifier = Modifier.fillMaxWidth(widthFraction),
             height = 18.dp,
             radius = radius,
-            brush = brush,
+            color = color,
+            phase = phase,
+            animationIndex = index,
         )
     }
 }
@@ -954,16 +943,23 @@ private fun IenSkeletonListRow(
 private fun IenSkeletonListRowWithIcon(
     index: Int,
     radius: Dp,
-    brush: Brush,
+    color: Color,
+    phase: Float,
 ) {
     val primaryWidthFraction = when (index % 3) {
         0 -> 0.70f
         1 -> 0.56f
         else -> 0.64f
     }
+    val secondaryWidthFraction = when (index % 3) {
+        0 -> 0.38f
+        1 -> 0.44f
+        else -> 0.32f
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .ienSkeletonMotion(phase = phase, animationIndex = index)
             .height(56.dp),
         horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
         verticalAlignment = Alignment.CenterVertically,
@@ -972,7 +968,7 @@ private fun IenSkeletonListRowWithIcon(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(brush),
+                .background(color),
         )
         Column(
             modifier = Modifier.weight(1f),
@@ -982,13 +978,19 @@ private fun IenSkeletonListRowWithIcon(
                 modifier = Modifier.fillMaxWidth(primaryWidthFraction),
                 height = 18.dp,
                 radius = radius,
-                brush = brush,
+                color = color,
+                phase = phase,
+                animationIndex = index,
+                animate = false,
             )
             IenSkeletonBlock(
-                modifier = Modifier.fillMaxWidth(0.38f),
+                modifier = Modifier.fillMaxWidth(secondaryWidthFraction),
                 height = 14.dp,
                 radius = radius,
-                brush = brush,
+                color = color,
+                phase = phase,
+                animationIndex = index,
+                animate = false,
             )
         }
     }
@@ -999,14 +1001,40 @@ private fun IenSkeletonBlock(
     modifier: Modifier,
     height: Dp,
     radius: Dp,
-    brush: Brush,
+    color: Color,
+    phase: Float,
+    animationIndex: Int,
+    animate: Boolean = true,
 ) {
+    val motionModifier = if (animate) {
+        Modifier.ienSkeletonMotion(phase = phase, animationIndex = animationIndex)
+    } else {
+        Modifier
+    }
+
     Box(
         modifier = modifier
+            .then(motionModifier)
             .height(height)
             .clip(RoundedCornerShape(radius))
-            .background(brush),
+            .background(color),
     )
+}
+
+private fun Modifier.ienSkeletonMotion(
+    phase: Float,
+    animationIndex: Int,
+): Modifier {
+    val delayedPhase = phase - animationIndex * 0.78f
+    val wave = ((sin(delayedPhase) + 1f) / 2f).coerceIn(0f, 1f)
+    val alpha = 0.2f + 0.8f * wave
+    val scale = 0.96f + 0.04f * wave
+
+    return graphicsLayer {
+        this.alpha = alpha
+        scaleX = scale
+        scaleY = scale
+    }
 }
 
 @Composable

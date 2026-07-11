@@ -11,6 +11,7 @@ import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -23,10 +24,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -36,13 +35,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.keyframes
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -57,9 +55,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 import kotlin.math.roundToInt
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.primitives.IenSurface
@@ -138,6 +139,11 @@ data class IenSegmentedControlItem(
     val size: IenSegmentedControlSize? = null,
 )
 
+private data class IenSegmentedControlItemBounds(
+    val left: Dp,
+    val width: Dp,
+)
+
 @Composable
 fun IenSegmentedControl(
     items: List<IenSegmentedControlItem>,
@@ -153,166 +159,151 @@ fun IenSegmentedControl(
         mutableStateOf(defaultValue ?: items.firstOrNull { it.enabled }?.value ?: items.firstOrNull()?.value.orEmpty())
     }
     val selectedValue = value ?: localValue
+    val density = LocalDensity.current
+    val scrollState = rememberScrollState()
+    var pressedValue by remember { mutableStateOf<String?>(null) }
+    var itemBounds by remember(items) { mutableStateOf<Map<String, IenSegmentedControlItemBounds>>(emptyMap()) }
+    var viewportWidthPx by remember { mutableStateOf(0) }
+    val height = size.segmentedControlHeight()
+    val itemHeight = height - IenTheme.spacing.xxs * 2
+    val selectedBounds = itemBounds[selectedValue]
+    val indicatorOffset by animateDpAsState(
+        targetValue = selectedBounds?.left ?: 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMediumLow,
+        ),
+        label = "ienSegmentedControlIndicatorOffset",
+    )
+    val indicatorWidth by animateDpAsState(
+        targetValue = selectedBounds?.width ?: 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMediumLow,
+        ),
+        label = "ienSegmentedControlIndicatorWidth",
+    )
 
-    val height = when (size) {
-        IenSegmentedControlSize.Small -> 40.dp
-        IenSegmentedControlSize.Large -> 48.dp
+    LaunchedEffect(alignment, selectedValue, selectedBounds, viewportWidthPx, scrollState.maxValue) {
+        if (alignment != IenSegmentedControlAlignment.Fluid) return@LaunchedEffect
+        val bounds = selectedBounds ?: return@LaunchedEffect
+        if (viewportWidthPx <= 0 || scrollState.maxValue <= 0) return@LaunchedEffect
+
+        val itemCenterPx = with(density) { bounds.left.toPx() + bounds.width.toPx() / 2f }
+        val targetScroll = (itemCenterPx - viewportWidthPx / 2f)
+            .roundToInt()
+            .coerceIn(0, scrollState.maxValue)
+
+        scrollState.animateScrollTo(targetScroll)
     }
-    val selectedIndex = items.indexOfFirst { it.value == selectedValue }.coerceAtLeast(0)
 
     IenSurface(
-        modifier = modifier,
-        color = IenTheme.colors.surfaceVariant,
+        modifier = modifier.then(if (alignment == IenSegmentedControlAlignment.Fixed) Modifier.fillMaxWidth() else Modifier),
+        color = segmentedControlContainerColor(),
         shape = RoundedCornerShape(IenTheme.radius.full),
     ) {
-        Row(
+        Box(
             modifier = Modifier
-                .then(if (alignment == IenSegmentedControlAlignment.Fixed) Modifier.fillMaxWidth() else Modifier.horizontalScroll(rememberScrollState()))
+                .onSizeChanged { viewportWidthPx = it.width }
+                .then(if (alignment == IenSegmentedControlAlignment.Fixed) Modifier.fillMaxWidth() else Modifier.horizontalScroll(scrollState))
                 .height(height)
                 .padding(IenTheme.spacing.xxs)
                 .selectableGroup(),
-            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
-            verticalAlignment = Alignment.CenterVertically,
         ) {
-            items.forEachIndexed { index, item ->
-                val itemSize = item.size ?: size
-                val currentItemMinWidth = when (itemSize) {
-                    IenSegmentedControlSize.Small -> 64.dp
-                    IenSegmentedControlSize.Large -> 80.dp
-                }
-                val currentItemHorizontalPadding = when (itemSize) {
-                    IenSegmentedControlSize.Small -> IenTheme.spacing.sm
-                    IenSegmentedControlSize.Large -> IenTheme.spacing.md
-                }
-                val currentTextStyle = when (itemSize) {
-                    IenSegmentedControlSize.Small -> IenTheme.typography.label2
-                    IenSegmentedControlSize.Large -> IenTheme.typography.label1
-                }
-                val itemEnabled = enabled && item.enabled
-                val selected = item.value == selectedValue
-                val distanceFromSelected = abs(index - selectedIndex)
-                val rippleDelay = (distanceFromSelected * 34).coerceAtMost(136)
-                val targetScale = when {
-                    selected -> 1.0f
-                    distanceFromSelected == 1 -> 0.975f
-                    else -> 0.955f
-                }
-                val targetAlpha = when {
-                    !itemEnabled -> IenTheme.state.disabledAlpha
-                    selected -> 1.0f
-                    distanceFromSelected == 1 -> 0.88f
-                    else -> 0.78f
-                }
-                val targetBlur = when {
-                    selected -> 0f
-                    distanceFromSelected == 1 -> 0.18f
-                    else -> 0.32f
-                }
-                val targetTranslationY = when {
-                    selected -> -1.5f
-                    distanceFromSelected == 1 -> 0.5f
-                    else -> 0f
-                }
-                val morphScale by animateFloatAsState(
-                    targetValue = targetScale,
-                    animationSpec = tween(
-                        durationMillis = 260,
-                        delayMillis = rippleDelay,
-                        easing = IenTheme.motion.standardEasing,
-                    ),
-                    label = "ienSegmentedControlScale",
+            if (selectedBounds != null && indicatorWidth > 0.dp) {
+                Box(
+                    modifier = Modifier
+                        .offset(x = indicatorOffset)
+                        .height(itemHeight)
+                        .widthIn(min = 0.dp)
+                        .size(width = indicatorWidth, height = itemHeight)
+                        .background(
+                            color = segmentedControlIndicatorColor(),
+                            shape = RoundedCornerShape(IenTheme.radius.full),
+                        ),
                 )
-                val morphAlpha by animateFloatAsState(
-                    targetValue = targetAlpha,
-                    animationSpec = tween(
-                        durationMillis = 220,
-                        delayMillis = rippleDelay,
-                        easing = IenTheme.motion.standardEasing,
-                    ),
-                    label = "ienSegmentedControlAlpha",
-                )
-                val morphBlur by animateFloatAsState(
-                    targetValue = targetBlur,
-                    animationSpec = tween(
-                        durationMillis = 220,
-                        delayMillis = rippleDelay,
-                        easing = IenTheme.motion.standardEasing,
-                    ),
-                    label = "ienSegmentedControlBlur",
-                )
-                val morphTranslationY by animateFloatAsState(
-                    targetValue = targetTranslationY,
-                    animationSpec = tween(
-                        durationMillis = 260,
-                        delayMillis = rippleDelay,
-                        easing = IenTheme.motion.standardEasing,
-                    ),
-                    label = "ienSegmentedControlTranslationY",
-                )
-                val backgroundColor by animateColorAsState(
-                    targetValue = if (selected) IenTheme.colors.surface else Color.Transparent,
-                    animationSpec = tween(
-                        durationMillis = 220,
-                        delayMillis = rippleDelay,
-                        easing = IenTheme.motion.standardEasing,
-                    ),
-                )
-                val textColor by animateColorAsState(
-                    targetValue = when {
-                        !itemEnabled -> IenTheme.colors.textDisabled
-                        selected -> IenTheme.colors.textPrimary
-                        else -> IenTheme.colors.textSecondary
-                    },
-                    animationSpec = tween(
-                        durationMillis = 180,
-                        delayMillis = rippleDelay,
-                        easing = IenTheme.motion.standardEasing,
-                    ),
-                )
-                val itemModifier = Modifier
-                    .then(
-                        if (alignment == IenSegmentedControlAlignment.Fixed) {
-                            Modifier.weight(1f)
-                        } else {
-                            Modifier.widthIn(min = currentItemMinWidth)
-                        }
+            }
+            Row(
+                modifier = Modifier
+                    .then(if (alignment == IenSegmentedControlAlignment.Fixed) Modifier.fillMaxWidth() else Modifier)
+                    .height(itemHeight),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                items.forEach { item ->
+                    val itemSize = item.size ?: size
+                    val itemEnabled = enabled && item.enabled
+                    val selected = item.value == selectedValue
+                    val itemPressed = pressedValue == item.value
+                    val itemScale by animateFloatAsState(
+                        targetValue = if (itemPressed && itemEnabled) 0.92f else 1f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessHigh,
+                        ),
+                        label = "ienSegmentedControlItemPressScale",
                     )
-                    .height(height - IenTheme.spacing.xxs * 2)
-                    .graphicsLayer {
-                        alpha = morphAlpha
-                        scaleX = morphScale
-                        scaleY = morphScale
-                        translationY = morphTranslationY
-                        transformOrigin = TransformOrigin.Center
-                    }
-                    .blur(morphBlur.dp)
-                    .selectable(
-                        selected = selected,
-                        enabled = itemEnabled,
-                        role = Role.RadioButton,
-                    ) {
-                        if (value == null) {
-                            localValue = item.value
-                        }
-                        onChange(item.value)
-                    }
+                    val itemAlpha by animateFloatAsState(
+                        targetValue = if (itemEnabled) 1f else IenTheme.state.disabledAlpha,
+                        animationSpec = tween(durationMillis = 150, easing = IenTheme.motion.standardEasing),
+                        label = "ienSegmentedControlItemAlpha",
+                    )
+                    val textColor by animateColorAsState(
+                        targetValue = when {
+                            !itemEnabled -> IenTheme.colors.textDisabled
+                            selected -> IenTheme.colors.textPrimary
+                            else -> IenTheme.colors.textSecondary
+                        },
+                        animationSpec = tween(durationMillis = 120, easing = IenTheme.motion.standardEasing),
+                    )
 
-                IenSurface(
-                    modifier = itemModifier,
-                    color = backgroundColor,
-                    contentColor = textColor,
-                    shape = RoundedCornerShape(IenTheme.radius.full),
-                ) {
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(height - IenTheme.spacing.xxs * 2)
-                            .padding(horizontal = currentItemHorizontalPadding),
+                            .then(
+                                if (alignment == IenSegmentedControlAlignment.Fixed) {
+                                    Modifier.weight(1f)
+                                } else {
+                                    Modifier.widthIn(min = itemSize.segmentedControlItemMinWidth())
+                                },
+                            )
+                            .height(itemHeight)
+                            .onGloballyPositioned { coordinates ->
+                                val bounds = IenSegmentedControlItemBounds(
+                                    left = with(density) { coordinates.positionInParent().x.toDp() },
+                                    width = with(density) { coordinates.size.width.toDp() },
+                                )
+                                if (itemBounds[item.value] != bounds) {
+                                    itemBounds = itemBounds + (item.value to bounds)
+                                }
+                            }
+                            .instantPress(itemEnabled) { pressed ->
+                                pressedValue = if (pressed) item.value else null
+                            }
+                            .graphicsLayer {
+                                alpha = itemAlpha
+                                scaleX = itemScale
+                                scaleY = itemScale
+                            }
+                            .selectable(
+                                selected = selected,
+                                enabled = itemEnabled,
+                                role = Role.RadioButton,
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                            ) {
+                                if (!selected) {
+                                    if (value == null) {
+                                        localValue = item.value
+                                    }
+                                    onChange(item.value)
+                                }
+                            }
+                            .padding(horizontal = itemSize.segmentedControlItemHorizontalPadding()),
                         contentAlignment = Alignment.Center,
                     ) {
                         IenText(
                             text = item.label,
-                            style = currentTextStyle,
+                            style = itemSize.segmentedControlTextStyle(),
                             color = textColor,
                             textAlign = TextAlign.Center,
                         )
@@ -320,6 +311,56 @@ fun IenSegmentedControl(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun IenSegmentedControlSize.segmentedControlHeight(): Dp {
+    return when (this) {
+        IenSegmentedControlSize.Small -> 40.dp
+        IenSegmentedControlSize.Large -> 48.dp
+    }
+}
+
+@Composable
+private fun IenSegmentedControlSize.segmentedControlItemMinWidth(): Dp {
+    return when (this) {
+        IenSegmentedControlSize.Small -> 64.dp
+        IenSegmentedControlSize.Large -> 80.dp
+    }
+}
+
+@Composable
+private fun IenSegmentedControlSize.segmentedControlItemHorizontalPadding(): Dp {
+    return when (this) {
+        IenSegmentedControlSize.Small -> IenTheme.spacing.sm
+        IenSegmentedControlSize.Large -> IenTheme.spacing.md
+    }
+}
+
+@Composable
+private fun IenSegmentedControlSize.segmentedControlTextStyle(): TextStyle {
+    return when (this) {
+        IenSegmentedControlSize.Small -> IenTheme.typography.label2
+        IenSegmentedControlSize.Large -> IenTheme.typography.label1
+    }
+}
+
+@Composable
+private fun segmentedControlContainerColor(): Color {
+    return if (IenTheme.colors.background == Color(0xFFFFFFFF)) {
+        Color(0xFFF2F4F6)
+    } else {
+        Color(0xFF20252B)
+    }
+}
+
+@Composable
+private fun segmentedControlIndicatorColor(): Color {
+    return if (IenTheme.colors.background == Color(0xFFFFFFFF)) {
+        Color(0xFFFFFFFF)
+    } else {
+        Color(0xFF343A42)
     }
 }
 
