@@ -110,6 +110,8 @@ import zone.ien.utils.ui.components.composite.IenSkeletonRepeat
 import zone.ien.utils.ui.components.composite.IenTableRow
 import zone.ien.utils.ui.components.composite.IenTableRowAlign
 import zone.ien.utils.ui.components.composite.IenToast
+import zone.ien.utils.ui.components.composite.IenToastHostState
+import zone.ien.utils.ui.components.composite.rememberIenToastHostState
 import zone.ien.utils.ui.components.composite.IenToastAction
 import zone.ien.utils.ui.components.composite.IenToastHost
 import zone.ien.utils.ui.components.composite.IenToastIcon
@@ -218,6 +220,13 @@ fun DesignSystemScreen(
     navigateToColor: () -> Unit = {}
 ) {
     IenTheme {
+        val toastHostState = rememberIenToastHostState()
+        var showTopToast by remember { mutableStateOf(false) }
+        var showBottomToast by remember { mutableStateOf(false) }
+        var showIconToast by remember { mutableStateOf(false) }
+        var showActionToast by remember { mutableStateOf(false) }
+        var showCtaToast by remember { mutableStateOf(false) }
+
         IenScaffold(
             modifier = modifier,
             topBar = {
@@ -242,59 +251,108 @@ fun DesignSystemScreen(
                 IenBottomCTA(text = "샘플 하단 CTA", onClick = {})
             },
         ) { contentPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(contentPadding),
-                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
-            ) {
-                BadgeSection()
-                BoardRowSection()
-                BorderSection()
-                BottomInfoSection()
-                BottomSheetSection()
-                BubbleSection()
-                ButtonSection()
-                CheckboxSection()
-                HighlightSection()
-                IconButtonSection()
-                ListFooterSection()
-                ListHeaderSection()
-                LoaderSection()
-                MenuSection()
-                ModalSection()
-                NumericSpinnerSection()
-                ParagraphSection()
-                PostSection()
-                ProgressBarSection()
-                ProgressStepperSection()
-                RatingSection()
-                ResultSection()
-                SearchFieldSection()
-                SegmentedControlSection()
-                SkeletonSection()
-                SliderSection()
-                StepperSection()
-                SwitchSection()
-                TabSection()
-                TableRowSection()
-                TextButtonSection()
-                ToastSection()
-                TooltipSection()
-                TopSection()
-                AgreementSection()
-                AssetSection()
-                BottomCTASection()
-                DialogSection()
-                KeypadSection()
-                ListRowSection()
-                TextFieldSection()
-                SplitTextFieldSection()
-                TextAreaSection()
-                PrimitivesSection()
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(contentPadding),
+                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+                ) {
+                    BadgeSection()
+                    BoardRowSection()
+                    BorderSection()
+                    BottomInfoSection()
+                    BottomSheetSection()
+                    BubbleSection()
+                    ButtonSection()
+                    CheckboxSection()
+                    HighlightSection()
+                    IconButtonSection()
+                    ListFooterSection()
+                    ListHeaderSection()
+                    LoaderSection()
+                    MenuSection()
+                    ModalSection()
+                    NumericSpinnerSection()
+                    ParagraphSection()
+                    PostSection()
+                    ProgressBarSection()
+                    ProgressStepperSection()
+                    RatingSection()
+                    ResultSection()
+                    SearchFieldSection()
+                    SegmentedControlSection()
+                    SkeletonSection()
+                    SliderSection()
+                    StepperSection()
+                    SwitchSection()
+                    TabSection()
+                    TableRowSection()
+                    TextButtonSection()
+                    ToastSection(
+                        toastHostState = toastHostState,
+                        showTopToast = showTopToast,
+                        showBottomToast = showBottomToast,
+                        showIconToast = showIconToast,
+                        showActionToast = showActionToast,
+                        showCtaToast = showCtaToast,
+                        onShowTopToastChange = { showTopToast = it },
+                        onShowBottomToastChange = { showBottomToast = it },
+                        onShowIconToastChange = { showIconToast = it },
+                        onShowActionToastChange = { showActionToast = it },
+                        onShowCtaToastChange = { showCtaToast = it },
+                    )
+                    TooltipSection()
+                    TopSection()
+                    AgreementSection()
+                    AssetSection()
+                    BottomCTASection()
+                    DialogSection()
+                    KeypadSection()
+                    ListRowSection()
+                    TextFieldSection()
+                    SplitTextFieldSection()
+                    TextAreaSection()
+                    PrimitivesSection()
 
-                Spacer(modifier = Modifier.height(IenTheme.spacing.md))
+                    Spacer(modifier = Modifier.height(IenTheme.spacing.md))
+                }
+
+                IenToastHost(state = toastHostState)
+                IenToast(
+                    open = showTopToast,
+                    position = IenToastPosition.Top,
+                    text = "상단 토스트 메시지예요",
+                    onClose = { showTopToast = false },
+                )
+                IenToast(
+                    open = showBottomToast,
+                    position = IenToastPosition.Bottom,
+                    text = "하단 토스트 메시지예요",
+                    onClose = { showBottomToast = false },
+                )
+                IenToast(
+                    open = showIconToast,
+                    position = IenToastPosition.Top,
+                    text = "아이콘이 포함된 토스트예요",
+                    leftAddon = { IenToastIcon(tone = IenSemanticTone.Success) },
+                    onClose = { showIconToast = false },
+                )
+                IenToast(
+                    open = showActionToast,
+                    position = IenToastPosition.Bottom,
+                    text = "버튼이 포함된 토스트예요",
+                    button = IenToastAction("확인") { showActionToast = false },
+                    onClose = { showActionToast = false },
+                )
+                IenToast(
+                    open = showCtaToast,
+                    position = IenToastPosition.Bottom,
+                    text = "CTA 버튼 위에 표시되는 토스트예요",
+                    higherThanCTA = true,
+                    onClose = { showCtaToast = false },
+                )
             }
         }
     }
@@ -1386,32 +1444,37 @@ fun TextButtonSection() {
 
 @Preview
 @Composable
-fun ToastSection() {
+fun ToastSection(
+    toastHostState: IenToastHostState = rememberIenToastHostState(),
+    showTopToast: Boolean = false,
+    showBottomToast: Boolean = false,
+    showIconToast: Boolean = false,
+    showActionToast: Boolean = false,
+    showCtaToast: Boolean = false,
+    onShowTopToastChange: (Boolean) -> Unit = {},
+    onShowBottomToastChange: (Boolean) -> Unit = {},
+    onShowIconToastChange: (Boolean) -> Unit = {},
+    onShowActionToastChange: (Boolean) -> Unit = {},
+    onShowCtaToastChange: (Boolean) -> Unit = {},
+) {
     IenTheme {
-        val toastHostState = rememberIenToastHostState()
-        var showTopToast by remember { mutableStateOf(false) }
-        var showBottomToast by remember { mutableStateOf(false) }
-        var showIconToast by remember { mutableStateOf(false) }
-        var showActionToast by remember { mutableStateOf(false) }
-        var showCtaToast by remember { mutableStateOf(false) }
         ComponentSection(title = "Toast") {
-            IenToast(message = "기본 토스트 메시지예요")
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
                 IenButton(
                     text = "상단",
-                    onClick = { showTopToast = true },
+                    onClick = { onShowTopToastChange(true) },
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
                 )
                 IenButton(
                     text = "하단",
-                    onClick = { showBottomToast = true },
+                    onClick = { onShowBottomToastChange(true) },
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
                 )
                 IenButton(
                     text = "아이콘",
-                    onClick = { showIconToast = true },
+                    onClick = { onShowIconToastChange(true) },
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
                 )
@@ -1419,58 +1482,42 @@ fun ToastSection() {
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
                 IenButton(
                     text = "버튼",
-                    onClick = { showActionToast = true },
+                    onClick = { onShowActionToastChange(true) },
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
                 )
                 IenButton(
                     text = "CTA 위",
-                    onClick = { showCtaToast = true },
+                    onClick = { onShowCtaToastChange(true) },
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
                 )
             }
             IenButton(
-                text = "토스트 호스트에 추가",
-                onClick = { toastHostState.show("호스트 토스트입니다.", IenSemanticTone.Info, higherThanCTA = true) },
+                text = "토스트 호스트에 추가 (누적 큐 테스트)",
+                onClick = {
+                    val messages = listOf(
+                        "송금이 완료되었습니다.",
+                        "계좌 등록에 성공했습니다.",
+                        "한도 초과 알림입니다.",
+                        "새로운 메시지가 수신되었습니다."
+                    )
+                    val tones = listOf(IenSemanticTone.Neutral, IenSemanticTone.Success, IenSemanticTone.Info, IenSemanticTone.Danger)
+                    val index = (messages.indices).random()
+                    toastHostState.show(
+                        message = messages[index],
+                        tone = tones[index],
+                        leftAddon = @Composable {
+                            IenToastIcon(tone = tones[index])
+                        },
+                        button = IenToastAction("확인") {},
+                        higherThanCTA = true
+                    )
+                },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Weak,
             )
         }
-        IenToastHost(state = toastHostState)
-        IenToast(
-            open = showTopToast,
-            position = IenToastPosition.Top,
-            text = "상단 토스트 메시지예요",
-            onClose = { showTopToast = false },
-        )
-        IenToast(
-            open = showBottomToast,
-            position = IenToastPosition.Bottom,
-            text = "하단 토스트 메시지예요",
-            onClose = { showBottomToast = false },
-        )
-        IenToast(
-            open = showIconToast,
-            position = IenToastPosition.Top,
-            text = "아이콘이 포함된 토스트예요",
-            leftAddon = { IenToastIcon(tone = IenSemanticTone.Success) },
-            onClose = { showIconToast = false },
-        )
-        IenToast(
-            open = showActionToast,
-            position = IenToastPosition.Bottom,
-            text = "버튼이 포함된 토스트예요",
-            button = IenToastAction("확인") { showActionToast = false },
-            onClose = { showActionToast = false },
-        )
-        IenToast(
-            open = showCtaToast,
-            position = IenToastPosition.Bottom,
-            text = "CTA 버튼 위에 표시되는 토스트예요",
-            higherThanCTA = true,
-            onClose = { showCtaToast = false },
-        )
     }
 }
 

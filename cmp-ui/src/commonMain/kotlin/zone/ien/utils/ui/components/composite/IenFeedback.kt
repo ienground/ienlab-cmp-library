@@ -1,9 +1,12 @@
 package zone.ien.utils.ui.components.composite
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.ui.unit.Density
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -57,6 +60,7 @@ import androidx.compose.ui.unit.IntOffset
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -67,10 +71,20 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import kotlinx.coroutines.delay
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.icon.material.filled.Check
+import zone.ien.utils.icon.material.filled.Close
 import zone.ien.utils.ui.components.foundation.IenSemanticTone
+import androidx.compose.runtime.key
+import androidx.compose.ui.draw.shadow
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.primitives.IenIcon
 import zone.ien.utils.ui.components.primitives.IenLoaderPrimitive
@@ -360,16 +374,27 @@ class IenToastHostState {
         message: String,
         tone: IenSemanticTone = IenSemanticTone.Neutral,
         position: IenToastPosition = IenToastPosition.Bottom,
-        durationMillis: Long = IenToastDefaults.DurationMillis,
+        durationMillis: Long? = null,
         higherThanCTA: Boolean = false,
+        leftAddon: (@Composable () -> Unit)? = null,
+        button: IenToastAction? = null,
+        onClose: (() -> Unit)? = null,
+        onExited: (() -> Unit)? = null,
     ) {
+        val resolvedDuration = durationMillis ?: if (button == null) IenToastDefaults.DurationMillis else IenToastDefaults.ActionDurationMillis
+        val uniqueId = (0..5).map { ('a'..'z').random() }.joinToString("") + "-" + (0..100000).random()
         toasts.add(
             IenToastData(
+                id = uniqueId,
                 message = message,
                 tone = tone,
                 position = position,
-                durationMillis = durationMillis,
+                durationMillis = resolvedDuration,
                 higherThanCTA = higherThanCTA,
+                leftAddon = leftAddon,
+                button = button,
+                onClose = onClose,
+                onExited = onExited,
             )
         )
     }
@@ -381,11 +406,16 @@ class IenToastHostState {
 
 @Immutable
 data class IenToastData(
+    val id: String,
     val message: String,
     val tone: IenSemanticTone,
     val position: IenToastPosition = IenToastPosition.Bottom,
     val durationMillis: Long = IenToastDefaults.DurationMillis,
     val higherThanCTA: Boolean = false,
+    val leftAddon: (@Composable () -> Unit)? = null,
+    val button: IenToastAction? = null,
+    val onClose: (() -> Unit)? = null,
+    val onExited: (() -> Unit)? = null,
 )
 
 enum class IenToastPosition {
@@ -404,6 +434,32 @@ object IenToastDefaults {
     val MaxWidth: Dp = 420.dp
 }
 
+class IenToastPositionProvider(
+    private val position: IenToastPosition,
+    private val density: Density,
+    private val higherThanCTA: Boolean = false
+) : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize
+    ): IntOffset {
+        val x = (windowSize.width - popupContentSize.width) / 2
+        val y = when (position) {
+            IenToastPosition.Top -> {
+                with(density) { 16.dp.toPx().toInt() }
+            }
+            IenToastPosition.Bottom -> {
+                val baseOffset = with(density) { 32.dp.toPx().toInt() }
+                val ctaOffset = if (higherThanCTA) with(density) { 88.dp.toPx().toInt() } else 0
+                windowSize.height - popupContentSize.height - baseOffset - ctaOffset
+            }
+        }
+        return IntOffset(x - anchorBounds.left, y - anchorBounds.top)
+    }
+}
+
 @Immutable
 data class IenToastAction(
     val text: String,
@@ -415,11 +471,15 @@ fun IenToast(
     message: String,
     modifier: Modifier = Modifier,
     tone: IenSemanticTone = IenSemanticTone.Neutral,
+    leftAddon: (@Composable () -> Unit)? = null,
+    button: IenToastAction? = null,
 ) {
     IenToastContent(
         text = message,
         modifier = modifier,
         tone = tone,
+        leftAddon = leftAddon,
+        button = button,
         ariaLive = IenToastAriaLive.Polite,
     )
 }
@@ -440,12 +500,12 @@ fun IenToast(
     tone: IenSemanticTone = IenSemanticTone.Neutral,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val offsetY = remember { Animatable(0f) }
     val density = LocalDensity.current
+    val initialOffset = with(density) { if (position == IenToastPosition.Top) -80.dp.toPx() else 80.dp.toPx() }
+    val targetOffset = with(density) { if (position == IenToastPosition.Top) -120.dp.toPx() else 120.dp.toPx() }
+    val offsetY = remember { Animatable(initialOffset) }
     val dismissThreshold = with(density) { 48.dp.toPx() }
-    val fastMillis = IenTheme.motion.fastMillis
     val normalMillis = IenTheme.motion.normalMillis
-    val standardEasing = IenTheme.motion.standardEasing
     var keepInComposition by remember { mutableStateOf(open) }
 
     LaunchedEffect(open, durationMillis) {
@@ -458,8 +518,23 @@ fun IenToast(
     LaunchedEffect(open) {
         if (open) {
             keepInComposition = true
-            offsetY.snapTo(0f)
+            offsetY.animateTo(
+                targetValue = 0f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessMediumLow
+                )
+            )
         } else if (keepInComposition) {
+            coroutineScope.launch {
+                offsetY.animateTo(
+                    targetValue = targetOffset,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMedium
+                    )
+                )
+            }
             delay(normalMillis.toLong())
             keepInComposition = false
             onExited?.invoke()
@@ -468,33 +543,17 @@ fun IenToast(
 
     if (keepInComposition) {
         Popup(
-            alignment = when (position) {
-                IenToastPosition.Top -> Alignment.TopCenter
-                IenToastPosition.Bottom -> Alignment.BottomCenter
+            popupPositionProvider = remember(position, higherThanCTA) {
+                IenToastPositionProvider(position, density, higherThanCTA)
             },
+            properties = PopupProperties(focusable = false)
         ) {
             AnimatedVisibility(
                 visible = open,
-                enter = fadeIn(tween(fastMillis)) + slideInVertically(
-                    initialOffsetY = { if (position == IenToastPosition.Top) -it else it / 2 },
-                    animationSpec = tween(normalMillis, easing = standardEasing),
-                ),
-                exit = fadeOut(tween(fastMillis)) + slideOutVertically(
-                    targetOffsetY = { if (position == IenToastPosition.Top) -it else it / 2 },
-                    animationSpec = tween(normalMillis, easing = standardEasing),
-                ),
+                enter = fadeIn(spring(stiffness = Spring.StiffnessMediumLow)),
+                exit = fadeOut(spring(stiffness = Spring.StiffnessMediumLow)),
                 modifier = modifier
                     .padding(horizontal = IenTheme.spacing.lg)
-                    .padding(
-                        top = if (position == IenToastPosition.Top) IenTheme.spacing.xl else 0.dp,
-                        bottom = if (position == IenToastPosition.Bottom) {
-                            if (higherThanCTA) 112.dp else IenTheme.spacing.xl
-                        } else {
-                            0.dp
-                        },
-                    )
-                    .then(if (position == IenToastPosition.Top) Modifier.statusBarsPadding() else Modifier)
-                    .then(if (position == IenToastPosition.Bottom) Modifier.navigationBarsPadding() else Modifier)
                     .offset { IntOffset(0, offsetY.value.roundToInt()) }
                     .pointerInput(open, position) {
                         detectVerticalDragGestures(
@@ -509,9 +568,9 @@ fun IenToast(
                                     coroutineScope.launch {
                                         offsetY.animateTo(
                                             targetValue = 0f,
-                                            animationSpec = tween(
-                                                normalMillis,
-                                                easing = standardEasing,
+                                            animationSpec = spring(
+                                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                                stiffness = Spring.StiffnessMedium
                                             ),
                                         )
                                     }
@@ -556,16 +615,10 @@ private fun IenToastContent(
     button: IenToastAction? = null,
     ariaLive: IenToastAriaLive = IenToastAriaLive.Polite,
 ) {
-    val container = when (tone) {
-        IenSemanticTone.Neutral -> Color(0xE51B1F24)
-        IenSemanticTone.Brand -> IenTheme.colors.brand
-        IenSemanticTone.Success -> IenTheme.colors.success
-        IenSemanticTone.Warning -> IenTheme.colors.warning
-        IenSemanticTone.Danger -> IenTheme.colors.danger
-        IenSemanticTone.Info -> IenTheme.colors.info
-    }
+    val container = Color(0xFF191F28) // TDS grey900 오리지널 다크 그레이 고정!
     IenSurface(
         modifier = modifier
+            .shadow(elevation = 6.dp, shape = RoundedCornerShape(22.dp), clip = false)
             .widthIn(max = IenToastDefaults.MaxWidth)
             .semantics {
                 liveRegion = when (ariaLive) {
@@ -576,12 +629,12 @@ private fun IenToastContent(
             },
         color = container,
         contentColor = Color.White,
-        shape = RoundedCornerShape(IenTheme.radius.default),
+        shape = RoundedCornerShape(22.dp),
     ) {
         Row(
             modifier = Modifier
-                .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
-            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                .padding(horizontal = IenTheme.spacing.lg, vertical = IenTheme.spacing.md),
+            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             leftAddon?.invoke()
@@ -609,9 +662,9 @@ fun IenToastButton(
         modifier = modifier
             .clip(RoundedCornerShape(IenTheme.radius.sm))
             .clickable(onClick = onClick)
-            .padding(horizontal = IenTheme.spacing.xs, vertical = IenTheme.spacing.xxs),
-        color = Color.White,
-        style = IenTheme.typography.label1,
+            .padding(horizontal = IenTheme.spacing.sm, vertical = IenTheme.spacing.xs),
+        color = Color(0xFF3182F6),
+        style = IenTheme.typography.label1.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
     )
 }
 
@@ -619,28 +672,33 @@ fun IenToastButton(
 fun IenToastIcon(
     modifier: Modifier = Modifier,
     tone: IenSemanticTone = IenSemanticTone.Success,
-    size: Dp = 24.dp,
+    size: Dp = 20.dp,
 ) {
     val color = when (tone) {
         IenSemanticTone.Neutral -> IenTheme.colors.surface
-        IenSemanticTone.Brand -> IenTheme.colors.brandWeak
-        IenSemanticTone.Success -> IenTheme.colors.successWeak
-        IenSemanticTone.Warning -> IenTheme.colors.warningWeak
-        IenSemanticTone.Danger -> IenTheme.colors.dangerWeak
-        IenSemanticTone.Info -> IenTheme.colors.infoWeak
+        IenSemanticTone.Brand -> IenTheme.colors.brand
+        IenSemanticTone.Success -> IenTheme.colors.success
+        IenSemanticTone.Warning -> IenTheme.colors.warning
+        IenSemanticTone.Danger -> IenTheme.colors.danger
+        IenSemanticTone.Info -> IenTheme.colors.info
+    }
+    val iconVector = when (tone) {
+        IenSemanticTone.Success -> M3SystemIcons.Filled.Check
+        IenSemanticTone.Danger -> M3SystemIcons.Filled.Close
+        else -> M3SystemIcons.Filled.Check
     }
     Box(
         modifier = modifier
             .size(size)
             .clip(CircleShape)
-            .background(color),
+            .background(color.copy(alpha = 0.15f)),
         contentAlignment = Alignment.Center,
     ) {
-        Box(
-            modifier = Modifier
-                .size(size * 0.38f)
-                .clip(CircleShape)
-                .background(IenTheme.colors.surface),
+        IenIcon(
+            imageVector = iconVector,
+            contentDescription = null,
+            modifier = Modifier.size(size * 0.7f),
+            tint = color,
         )
     }
 }
@@ -649,52 +707,236 @@ fun IenToastIcon(
 fun rememberIenToastHostState() = remember { IenToastHostState() }
 
 @Composable
+private fun IenToastHostItem(
+    open: Boolean,
+    position: IenToastPosition,
+    text: String,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier,
+    leftAddon: (@Composable () -> Unit)? = null,
+    button: IenToastAction? = null,
+    durationMillis: Long = if (button == null) IenToastDefaults.DurationMillis else IenToastDefaults.ActionDurationMillis,
+    onExited: (() -> Unit)? = null,
+    higherThanCTA: Boolean = false,
+    ariaLive: IenToastAriaLive = IenToastAriaLive.Polite,
+    tone: IenSemanticTone = IenSemanticTone.Neutral,
+    index: Int = 0,
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val density = LocalDensity.current
+    val initialOffset = with(density) { if (position == IenToastPosition.Top) -80.dp.toPx() else 80.dp.toPx() }
+    val targetOffset = with(density) { if (position == IenToastPosition.Top) -120.dp.toPx() else 120.dp.toPx() }
+    val offsetY = remember { Animatable(initialOffset) }
+    val dismissThreshold = with(density) { 48.dp.toPx() }
+    val normalMillis = IenTheme.motion.normalMillis
+    var keepInComposition by remember { mutableStateOf(open) }
+
+    val targetScale = (1f - index * 0.05f).coerceAtLeast(0.85f)
+    val targetAlpha = if (index >= 3) 0f else (1f - index * 0.15f).coerceAtLeast(0f)
+    val targetTranslationY = if (position == IenToastPosition.Top) {
+        12.dp * (-index)
+    } else {
+        12.dp * index
+    }
+
+    val animatedScale by animateFloatAsState(
+        targetValue = targetScale,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+    )
+    val animatedAlpha by animateFloatAsState(
+        targetValue = targetAlpha,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+    )
+    val animatedTranslationY by animateDpAsState(
+        targetValue = targetTranslationY,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+    )
+
+    LaunchedEffect(open, durationMillis) {
+        if (open && durationMillis > 0L) {
+            delay(durationMillis)
+            onClose()
+        }
+    }
+
+    LaunchedEffect(open) {
+        if (open) {
+            keepInComposition = true
+            offsetY.animateTo(
+                targetValue = 0f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessMediumLow
+                )
+            )
+        } else if (keepInComposition) {
+            coroutineScope.launch {
+                offsetY.animateTo(
+                    targetValue = targetOffset,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMedium
+                    )
+                )
+            }
+            delay(normalMillis.toLong())
+            keepInComposition = false
+            onExited?.invoke()
+        }
+    }
+
+    if (keepInComposition) {
+        AnimatedVisibility(
+            visible = open,
+            enter = fadeIn(spring(stiffness = Spring.StiffnessMediumLow)),
+            exit = fadeOut(spring(stiffness = Spring.StiffnessMediumLow)),
+            modifier = modifier
+                .padding(horizontal = IenTheme.spacing.lg)
+                .graphicsLayer {
+                    scaleX = animatedScale
+                    scaleY = animatedScale
+                    alpha = animatedAlpha * (if (open) 1f else 0f)
+                    translationY = with(density) { animatedTranslationY.toPx() }
+                }
+                .zIndex((10 - index).toFloat().coerceAtLeast(0f))
+                .offset { IntOffset(0, offsetY.value.roundToInt()) }
+                .pointerInput(open, position) {
+                    detectVerticalDragGestures(
+                        onDragEnd = {
+                            val shouldClose = when (position) {
+                                IenToastPosition.Top -> offsetY.value < -dismissThreshold
+                                IenToastPosition.Bottom -> offsetY.value > dismissThreshold
+                            }
+                            if (shouldClose) {
+                                onClose()
+                            } else {
+                                coroutineScope.launch {
+                                    offsetY.animateTo(
+                                        targetValue = 0f,
+                                        animationSpec = spring(
+                                            dampingRatio = Spring.DampingRatioNoBouncy,
+                                            stiffness = Spring.StiffnessMedium
+                                        ),
+                                    )
+                                }
+                            }
+                        },
+                        onDragCancel = {
+                            coroutineScope.launch { offsetY.animateTo(0f) }
+                        },
+                        onVerticalDrag = { change, dragAmount ->
+                            change.consume()
+                            coroutineScope.launch {
+                                val next = offsetY.value + dragAmount
+                                offsetY.snapTo(
+                                    when (position) {
+                                        IenToastPosition.Top -> next.coerceAtMost(0f)
+                                        IenToastPosition.Bottom -> next.coerceAtLeast(0f)
+                                    }
+                                )
+                            }
+                        },
+                    )
+                },
+        ) {
+            IenToastContent(
+                text = text,
+                tone = tone,
+                leftAddon = leftAddon,
+                button = if (position == IenToastPosition.Bottom) button else null,
+                ariaLive = ariaLive,
+            )
+        }
+    }
+}
+
+@Composable
 fun IenToastHost(
     state: IenToastHostState,
     modifier: Modifier = Modifier,
 ) {
-    val visibleToasts = state.toasts.takeLast(3)
-    visibleToasts.forEach { toast ->
-        LaunchedEffect(toast) {
-            delay(toast.durationMillis)
-            state.dismiss(toast)
-        }
-    }
-
-    val topToasts = visibleToasts.filter { it.position == IenToastPosition.Top }
-    val bottomToasts = visibleToasts.filter { it.position == IenToastPosition.Bottom }
+    val topToasts = state.toasts.filter { it.position == IenToastPosition.Top }
+    val bottomToasts = state.toasts.filter { it.position == IenToastPosition.Bottom }
+    val density = LocalDensity.current
 
     if (topToasts.isNotEmpty()) {
-        Popup(alignment = Alignment.TopCenter) {
-            Column(
+        Popup(
+            popupPositionProvider = remember { IenToastPositionProvider(IenToastPosition.Top, density) },
+            properties = PopupProperties(focusable = false)
+        ) {
+            Box(
                 modifier = modifier
                     .padding(horizontal = IenTheme.spacing.lg)
-                    .statusBarsPadding()
-                    .padding(top = IenTheme.spacing.xl),
-                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                    .widthIn(max = IenToastDefaults.MaxWidth),
+                contentAlignment = Alignment.TopCenter
             ) {
-                topToasts.forEach { toast ->
-                    IenToast(message = toast.message, tone = toast.tone)
+                val reversedTop = topToasts.reversed()
+                reversedTop.forEachIndexed { index, toast ->
+                    key(toast.id) {
+                        var open by remember { mutableStateOf(true) }
+                        IenToastHostItem(
+                            open = open,
+                            position = toast.position,
+                            text = toast.message,
+                            leftAddon = toast.leftAddon,
+                            button = toast.button,
+                            durationMillis = toast.durationMillis,
+                            higherThanCTA = toast.higherThanCTA,
+                            tone = toast.tone,
+                            index = index,
+                            onClose = {
+                                open = false
+                                toast.onClose?.invoke()
+                            },
+                            onExited = {
+                                state.dismiss(toast)
+                                toast.onExited?.invoke()
+                            }
+                        )
+                    }
                 }
             }
         }
     }
 
     if (bottomToasts.isNotEmpty()) {
-        Popup(alignment = Alignment.BottomCenter) {
-            Column(
+        val hasHigherThanCTA = bottomToasts.any { it.higherThanCTA }
+        Popup(
+            popupPositionProvider = remember(hasHigherThanCTA) {
+                IenToastPositionProvider(IenToastPosition.Bottom, density, hasHigherThanCTA)
+            },
+            properties = PopupProperties(focusable = false)
+        ) {
+            Box(
                 modifier = modifier
                     .padding(horizontal = IenTheme.spacing.lg)
-                    .navigationBarsPadding()
-                    .padding(bottom = IenTheme.spacing.xl),
-                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                    .widthIn(max = IenToastDefaults.MaxWidth),
+                contentAlignment = Alignment.BottomCenter
             ) {
-                bottomToasts.forEach { toast ->
-                    IenToast(
-                        message = toast.message,
-                        tone = toast.tone,
-                        modifier = if (toast.higherThanCTA) Modifier.padding(bottom = 96.dp) else Modifier,
-                    )
+                val reversedBottom = bottomToasts.reversed()
+                reversedBottom.forEachIndexed { index, toast ->
+                    key(toast.id) {
+                        var open by remember { mutableStateOf(true) }
+                        IenToastHostItem(
+                            open = open,
+                            position = toast.position,
+                            text = toast.message,
+                            leftAddon = toast.leftAddon,
+                            button = toast.button,
+                            durationMillis = toast.durationMillis,
+                            higherThanCTA = toast.higherThanCTA,
+                            tone = toast.tone,
+                            index = index,
+                            onClose = {
+                                open = false
+                                toast.onClose?.invoke()
+                            },
+                            onExited = {
+                                state.dismiss(toast)
+                                toast.onExited?.invoke()
+                            }
+                        )
+                    }
                 }
             }
         }
