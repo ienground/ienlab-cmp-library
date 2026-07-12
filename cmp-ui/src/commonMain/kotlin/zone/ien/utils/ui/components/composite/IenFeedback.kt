@@ -70,6 +70,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -134,6 +136,7 @@ fun IenBottomSheet(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val dragOffsetY = remember { Animatable(0f) }
+    var mounted by remember { mutableStateOf(state.visible) }
     val density = LocalDensity.current
     val thresholdPx = with(density) { 150.dp.toPx() }
 
@@ -143,9 +146,15 @@ fun IenBottomSheet(
 
     LaunchedEffect(state.visible) {
         if (state.visible) {
+            mounted = true
             dragOffsetY.snapTo(0f)
+        } else if (mounted) {
+            delay(normalMillis.toLong())
+            mounted = false
         }
     }
+
+    if (!mounted) return
 
     val dragModifier = Modifier.pointerInput(Unit) {
         detectVerticalDragGestures(
@@ -177,116 +186,131 @@ fun IenBottomSheet(
         )
     }
 
-    AnimatedVisibility(
-        visible = state.visible,
-        enter = fadeIn(tween(IenTheme.motion.fastMillis)),
-        exit = fadeOut(tween(IenTheme.motion.fastMillis)),
+    Dialog(
+        onDismissRequest = { state.hide() },
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false,
+        ),
     ) {
-        val overlayColor = if (disableDimmer) Color.Transparent else IenTheme.colors.overlay
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .background(overlayColor)
-                .then(if (dismissOnScrimClick) dragModifier else Modifier)
-                .clickable(
-                    enabled = dismissOnScrimClick,
-                    indication = null,
-                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                ) { state.hide() },
-            contentAlignment = Alignment.BottomCenter,
+        AnimatedVisibility(
+            visible = state.visible,
+            enter = fadeIn(tween(IenTheme.motion.fastMillis)),
+            exit = fadeOut(tween(IenTheme.motion.fastMillis)),
         ) {
-            AnimatedVisibility(
-                visible = state.visible,
-                enter = slideInVertically(
-                    initialOffsetY = { it },
-                    animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing)
-                ) + fadeIn(tween(IenTheme.motion.fastMillis)),
-                exit = slideOutVertically(
-                    targetOffsetY = { it },
-                    animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing)
-                ) + fadeOut(tween(IenTheme.motion.fastMillis)),
-                modifier = Modifier
-                    .widthIn(max = 520.dp)
-                    .fillMaxWidth()
-                    .offset { IntOffset(0, dragOffsetY.value.roundToInt()) }
+            val overlayColor = if (disableDimmer) Color.Transparent else IenTheme.colors.overlay
+            Box(
+                modifier = modifier
+                    .fillMaxSize()
+                    .background(overlayColor)
+                    .clickable(
+                        enabled = dismissOnScrimClick,
+                        indication = null,
+                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                    ) { state.hide() },
+                contentAlignment = Alignment.BottomCenter,
             ) {
-                IenSurface(
+                AnimatedVisibility(
+                    visible = state.visible,
+                    enter = slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing)
+                    ) + fadeIn(tween(IenTheme.motion.fastMillis)),
+                    exit = slideOutVertically(
+                        targetOffsetY = { it },
+                        animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing)
+                    ) + fadeOut(tween(IenTheme.motion.fastMillis)),
                     modifier = Modifier
+                        .widthIn(max = 520.dp)
                         .fillMaxWidth()
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                        ) { },
-                    color = IenTheme.colors.surfaceRaised,
-                    shape = RoundedCornerShape(topStart = IenTheme.radius.lg, topEnd = IenTheme.radius.lg),
+                        .offset { IntOffset(0, dragOffsetY.value.roundToInt()) }
                 ) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(0.dp),
+                    IenSurface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .then(state.detent.sheetHeightModifier())
+                            .clickable(
+                                indication = null,
+                                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                            ) { },
+                        color = IenTheme.colors.surfaceRaised,
+                        shape = RoundedCornerShape(topStart = IenTheme.radius.lg, topEnd = IenTheme.radius.lg),
                     ) {
                         Column(
-                            modifier = dragModifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(0.dp),
                         ) {
-                            if (showDragHandle) {
-                                Box(
-                                    modifier = Modifier
-                                        .padding(vertical = 12.dp)
-                                        .width(36.dp)
-                                        .height(4.dp)
-                                        .clip(RoundedCornerShape(IenTheme.radius.full))
-                                        .background(IenTheme.colors.borderStrong),
-                                )
-                            } else {
-                                Spacer(modifier = Modifier.height(16.dp))
-                            }
-
-                            if (header != null || headerDescription != null) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 24.dp, vertical = 8.dp),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    header?.invoke()
-                                    headerDescription?.invoke()
+                            Column(
+                                modifier = dragModifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                if (showDragHandle) {
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(vertical = 12.dp)
+                                            .width(36.dp)
+                                            .height(4.dp)
+                                            .clip(RoundedCornerShape(IenTheme.radius.full))
+                                            .background(IenTheme.colors.borderStrong),
+                                    )
+                                } else {
+                                    Spacer(modifier = Modifier.height(16.dp))
                                 }
-                                Spacer(modifier = Modifier.height(8.dp))
+
+                                if (header != null || headerDescription != null) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 24.dp, vertical = 8.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        header?.invoke()
+                                        headerDescription?.invoke()
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
                             }
-                        }
 
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f, fill = false)
-                                .padding(contentPadding)
-                        ) {
-                            content()
-                        }
-
-                        if (cta != null) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Box(
+                            Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .navigationBarsPadding()
-                                    .padding(horizontal = 24.dp)
-                                    .padding(bottom = 16.dp)
+                                    .weight(1f, fill = false)
+                                    .padding(contentPadding)
                             ) {
-                                cta()
+                                content()
                             }
-                        } else {
-                            Spacer(
-                                modifier = Modifier
-                                    .navigationBarsPadding()
-                                    .height(16.dp)
-                            )
+
+                            if (cta != null) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .navigationBarsPadding()
+                                        .padding(horizontal = 24.dp)
+                                        .padding(bottom = 16.dp)
+                                ) {
+                                    cta()
+                                }
+                            } else {
+                                Spacer(
+                                    modifier = Modifier
+                                        .navigationBarsPadding()
+                                        .height(16.dp)
+                                )
+                            }
                         }
                     }
                 }
             }
         }
     }
+}
+
+private fun IenSheetDetent.sheetHeightModifier(): Modifier = when (this) {
+    IenSheetDetent.Content -> Modifier
+    IenSheetDetent.Medium -> Modifier.fillMaxHeight(0.5f)
+    IenSheetDetent.Full -> Modifier.fillMaxHeight(0.92f)
 }
 
 data class IenBottomSheetOption(
