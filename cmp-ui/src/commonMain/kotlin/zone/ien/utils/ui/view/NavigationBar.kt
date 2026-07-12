@@ -3,18 +3,18 @@ package zone.ien.utils.ui.view
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.expandVertically
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.icon.material.M3SystemIcons
@@ -53,6 +53,7 @@ import zone.ien.utils.icon.material.filled.Delete
 import zone.ien.utils.icon.material.filled.Edit
 import zone.ien.utils.icon.material.filled.Save
 import zone.ien.utils.icon.material.filled.Schedule
+import zone.ien.utils.ui.components.foundation.IenTheme
 
 // ─── CompositionLocals ───────────────────────────────────────────────────────
 
@@ -83,12 +84,12 @@ data class CustomNavigationBarColors(
 object CustomNavigationBarDefaults {
     @Composable
     fun colors(
-        containerColor: Color = MaterialTheme.colorScheme.surfaceContainerLowest,
-        selectedItemBackgroundColor: Color = MaterialTheme.colorScheme.primary,
-        selectedIconColor: Color = MaterialTheme.colorScheme.onPrimary,
-        selectedTextColor: Color = MaterialTheme.colorScheme.onPrimary,
-        unselectedIconColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-        unselectedTextColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+        containerColor: Color = IenTheme.colors.brand,
+        selectedItemBackgroundColor: Color = MaterialTheme.colorScheme.surface,
+        selectedIconColor: Color = IenTheme.colors.brand,
+        selectedTextColor: Color = IenTheme.colors.brand,
+        unselectedIconColor: Color = Color.White.copy(alpha = 0.72f),
+        unselectedTextColor: Color = Color.White.copy(alpha = 0.72f),
     ) = CustomNavigationBarColors(
         containerColor = containerColor,
         selectedItemBackgroundColor = selectedItemBackgroundColor,
@@ -133,47 +134,22 @@ fun CustomNavigationBar(
         ) {
             Surface(
                 color = colors.containerColor,
-                shape = RoundedCornerShape(36.dp),
-                tonalElevation = 2.dp,
-                shadowElevation = 4.dp,
+                shape = RoundedCornerShape(999.dp),
+                tonalElevation = 0.dp,
+                shadowElevation = 18.dp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .height(72.dp)
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                    .height(78.dp)
             ) {
-                BoxWithConstraints(
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 8.dp, vertical = 8.dp)
+                        .padding(horizontal = 8.dp, vertical = 8.dp),
                 ) {
-                    val itemWidth = if (itemCount > 0) maxWidth / itemCount else 0.dp
-                    val indicatorOffset by animateDpAsState(
-                        targetValue = itemWidth * selectedIndex,
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessMedium
-                        ),
-                        label = "indicatorOffset"
-                    )
-
-                    // 슬라이딩 배경
-                    Surface(
-                        color = colors.selectedItemBackgroundColor,
-                        shape = RoundedCornerShape(28.dp),
-                        modifier = Modifier
-                            .offset(x = indicatorOffset)
-                            .width(itemWidth)
-                            .fillMaxHeight()
-                    ) {}
-
-                    // 아이템들
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        content()
-                    }
+                    content()
                 }
             }
         }
@@ -199,13 +175,15 @@ fun RowScope.CustomNavigationBarItem(
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
     label: @Composable () -> Unit,
-    alwaysShowLabel: Boolean = true,
+    alwaysShowLabel: Boolean = false,
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     val selectedIndex = LocalNavigationBarSelectedIndex.current
     val colors = LocalNavigationBarColors.current
     val selected = index == selectedIndex
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
 
     val iconColor by animateColorAsState(
         targetValue = when {
@@ -224,35 +202,71 @@ fun RowScope.CustomNavigationBarItem(
         label = "textColor"
     )
 
+    val weight by animateFloatAsState(
+        targetValue = if (selected) 2.4f else 0.72f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "itemWeight"
+    )
+    val pressScale by animateFloatAsState(
+        targetValue = if (pressed && enabled) 0.975f else 1.0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessHigh,
+        ),
+        label = "itemPressScale",
+    )
+
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .weight(1f)
+            .weight(weight)
             .fillMaxHeight()
+            .graphicsLayer {
+                scaleX = pressScale
+                scaleY = pressScale
+            }
             .clickable(
                 enabled = enabled,
                 indication = null,
-                interactionSource = remember { MutableInteractionSource() },
+                interactionSource = interactionSource,
                 onClick = onClick
             )
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        val pillBgColor by animateColorAsState(
+            targetValue = if (selected) colors.selectedItemBackgroundColor else Color.Transparent,
+            label = "pillBgColor"
+        )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .background(
+                    color = pillBgColor,
+                    shape = RoundedCornerShape(999.dp)
+                )
+                .fillMaxSize()
         ) {
             CompositionLocalProvider(LocalContentColor provides iconColor) {
                 icon()
             }
-            Spacer(Modifier.height(2.dp))
+
             AnimatedVisibility(
                 visible = alwaysShowLabel || selected,
-                enter = fadeIn(spring(1.2f)) + expandVertically(spring(1.2f)),
-                exit = fadeOut(spring(1.2f)) + shrinkVertically(spring(1.2f))
+                enter = fadeIn() + expandHorizontally(),
+                exit = fadeOut() + shrinkHorizontally()
             ) {
-                ProvideTextStyle(
-                    MaterialTheme.typography.labelSmall.copy(color = textColor)
-                ) {
-                    label()
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    ProvideTextStyle(
+                        MaterialTheme.typography.labelMedium.copy(color = textColor)
+                    ) {
+                        label()
+                    }
                 }
             }
         }
