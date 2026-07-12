@@ -94,8 +94,11 @@ import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.fill.Star
 import zone.ien.utils.icon.remix.fill.StarHalf
 import zone.ien.utils.icon.remix.line.Star
+import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.cos
 import kotlin.math.roundToInt
+import kotlin.math.sin
 import kotlin.time.Duration.Companion.milliseconds
 
 enum class IenNumericSpinnerSize {
@@ -607,7 +610,7 @@ private fun Modifier.ratingGesture(
     }
 }
 
-private const val RatingGlowLayerScale = 5.0f
+private const val RatingGlowLayerScale = 1.9f
 private const val RatingPressedScale = 0.86f
 private const val RatingSelectedBaseScale = 1f
 private const val RatingEmptyBaseScale = 0.92f
@@ -703,25 +706,28 @@ private fun IenRatingStar(
         fillFraction >= 0.25f -> RemixIcons.Fill.StarHalf
         else -> RemixIcons.Line.Star
     }
+    val glowColor = IenTheme.colors.brand
 
     Box(
         modifier = itemModifier,
         contentAlignment = Alignment.Center,
     ) {
         if (glowValue > 0f && isFilled && !isDisabled) {
-            IenIcon(
-                imageVector = RemixIcons.Fill.Star,
-                contentDescription = null,
+            Canvas(
                 modifier = Modifier
-                    .size(iconSize)
+                    .size(iconSize * RatingGlowLayerScale)
                     .graphicsLayer {
-                        val glowScale = (0.78f + glowValue * 0.42f) * pressScale
-                        scaleX = glowScale
-                        scaleY = glowScale
+                        val layerScale = (0.82f + glowValue * 0.18f) * pressScale
+                        scaleX = layerScale
+                        scaleY = layerScale
                         alpha = glowValue.coerceAtMost(1f) * 0.4f
-                    },
-                tint = IenTheme.colors.brand.copy(alpha = 0.5f)
-            )
+                    }
+            ) {
+                drawRatingStarGlow(
+                    color = glowColor,
+                    progress = glowValue.coerceIn(0f, 1f),
+                )
+            }
         }
         IenIcon(
             imageVector = ratingIcon,
@@ -737,6 +743,48 @@ private fun IenRatingStar(
             tint = if (isFilled) IenTheme.colors.brand else IenTheme.colors.borderStrong,
         )
     }
+}
+
+private fun DrawScope.drawRatingStarGlow(
+    color: Color,
+    progress: Float,
+) {
+    drawRatingStarPath(
+        color = color.copy(alpha = 0.14f * progress),
+        scale = 0.98f,
+    )
+    drawRatingStarPath(
+        color = color.copy(alpha = 0.18f * progress),
+        scale = 0.78f,
+    )
+    drawRatingStarPath(
+        color = Color.White.copy(alpha = 0.16f * progress),
+        scale = 0.54f,
+    )
+}
+
+private fun DrawScope.drawRatingStarPath(
+    color: Color,
+    scale: Float,
+) {
+    val path = Path()
+    val center = Offset(size.width / 2f, size.height / 2f)
+    val outerRadius = minOf(size.width, size.height) * 0.5f * scale
+    val innerRadius = outerRadius * 0.48f
+
+    repeat(10) { point ->
+        val radius = if (point % 2 == 0) outerRadius else innerRadius
+        val angle = -PI / 2.0 + point * PI / 5.0
+        val x = center.x + radius * cos(angle).toFloat()
+        val y = center.y + radius * sin(angle).toFloat()
+        if (point == 0) {
+            path.moveTo(x, y)
+        } else {
+            path.lineTo(x, y)
+        }
+    }
+    path.close()
+    drawPath(path = path, color = color)
 }
 
 @Preview(showBackground = true)
@@ -798,5 +846,3 @@ private fun Float.toRatingText(): String {
         rounded.toString()
     }
 }
-
-

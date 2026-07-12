@@ -231,6 +231,7 @@ import zone.ien.utils.ui.components.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.components.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.components.primitives.IenText
+import zone.ien.utils.ui.dialog.M3AlertDialog
 
 @Preview
 @Composable
@@ -2130,6 +2131,12 @@ fun DialogSection() {
         var showConfirmLong by remember { mutableStateOf(false) }
         var showConfirmNoDescription by remember { mutableStateOf(false) }
         var showGenericDialog by remember { mutableStateOf(false) }
+        var showM3OneButton by remember { mutableStateOf(false) }
+        var showM3OneButtonDestructive by remember { mutableStateOf(false) }
+        var showM3TwoButtonHorizontal by remember { mutableStateOf(false) }
+        var showM3TwoButtonVerticalDestructive by remember { mutableStateOf(false) }
+        var showM3ThreeButtonHorizontal by remember { mutableStateOf(false) }
+        var showM3ThreeButtonVerticalDestructive by remember { mutableStateOf(false) }
         var dialogEventText by remember { mutableStateOf("대기 중") }
 
         ComponentSection(title = "Dialog") {
@@ -2175,6 +2182,50 @@ fun DialogSection() {
                 onClick = { showGenericDialog = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Ghost,
+            )
+            IenText(
+                text = "M3AlertDialog 호환 API",
+                style = IenTheme.typography.label1,
+                color = IenTheme.colors.textSecondary,
+            )
+            IenButton(
+                text = "M3 1버튼 기본",
+                onClick = { showM3OneButton = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Weak,
+            )
+            IenButton(
+                text = "M3 1버튼 destructive",
+                onClick = { showM3OneButtonDestructive = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Weak,
+                tone = IenSemanticTone.Danger,
+            )
+            IenButton(
+                text = "M3 2버튼 Horizontal",
+                onClick = { showM3TwoButtonHorizontal = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Line,
+            )
+            IenButton(
+                text = "M3 2버튼 Vertical destructive",
+                onClick = { showM3TwoButtonVerticalDestructive = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Line,
+                tone = IenSemanticTone.Danger,
+            )
+            IenButton(
+                text = "M3 3버튼 Horizontal",
+                onClick = { showM3ThreeButtonHorizontal = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Ghost,
+            )
+            IenButton(
+                text = "M3 3버튼 Vertical destructive",
+                onClick = { showM3ThreeButtonVerticalDestructive = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Ghost,
+                tone = IenSemanticTone.Danger,
             )
             IenText(
                 text = "이벤트: $dialogEventText",
@@ -2275,6 +2326,74 @@ fun DialogSection() {
                 text = "취소",
                 onClick = { showGenericDialog = false },
             ),
+        )
+
+        M3AlertDialog(
+            visible = showM3OneButton,
+            title = "1버튼 알림",
+            message = "기존 M3AlertDialog 단일 버튼 API가 IEN AlertDialog 디자인으로 표시됩니다.",
+            textDismiss = "확인",
+            onDismiss = { showM3OneButton = false },
+            tone = IenSemanticTone.Brand,
+        )
+
+        M3AlertDialog(
+            visible = showM3OneButtonDestructive,
+            title = "위험 알림",
+            message = "isDestructive를 켜면 아이콘과 액션 톤이 Danger로 표시됩니다.",
+            textDismiss = "삭제 확인",
+            onDismiss = { showM3OneButtonDestructive = false },
+            isDestructive = true,
+        )
+
+        M3AlertDialog(
+            visible = showM3TwoButtonHorizontal,
+            title = "2버튼 가로 배치",
+            message = "buttonLayout 기본값은 Horizontal입니다.",
+            textDismiss = "취소",
+            onDismiss = { showM3TwoButtonHorizontal = false },
+            textConfirm = "확인",
+            onConfirm = { showM3TwoButtonHorizontal = false },
+            buttonLayout = IenDialogButtonLayout.Horizontal,
+        )
+
+        M3AlertDialog(
+            visible = showM3TwoButtonVerticalDestructive,
+            title = "2버튼 세로 배치",
+            message = "긴 버튼이나 위험 액션은 Vertical과 destructive 조합으로 확인할 수 있습니다.",
+            textDismiss = "아니오, 취소할게요",
+            onDismiss = { showM3TwoButtonVerticalDestructive = false },
+            textConfirm = "예, 삭제할게요",
+            onConfirm = { showM3TwoButtonVerticalDestructive = false },
+            isDestructive = true,
+            buttonLayout = IenDialogButtonLayout.Vertical,
+        )
+
+        M3AlertDialog(
+            visible = showM3ThreeButtonHorizontal,
+            title = "3버튼 가로 배치",
+            message = "중립 버튼과 부정/긍정 버튼을 함께 사용하는 형태입니다.",
+            textNeutral = "나중에",
+            onNeutral = { showM3ThreeButtonHorizontal = false },
+            textNegative = "취소",
+            onNegative = { showM3ThreeButtonHorizontal = false },
+            textPositive = "저장",
+            onPositive = { showM3ThreeButtonHorizontal = false },
+            buttonLayout = IenDialogButtonLayout.Horizontal,
+        )
+
+        M3AlertDialog(
+            visible = showM3ThreeButtonVerticalDestructive,
+            title = "3버튼 세로 배치",
+            message = "중립 버튼은 상단 텍스트 버튼으로 두고, 긍정/부정 버튼은 세로 배치됩니다.",
+            textNeutral = "자세히 보기",
+            onNeutral = { showM3ThreeButtonVerticalDestructive = false },
+            textNegative = "취소",
+            onNegative = { showM3ThreeButtonVerticalDestructive = false },
+            textPositive = "초기화",
+            onPositive = { showM3ThreeButtonVerticalDestructive = false },
+            isDestructive = true,
+            buttonLayout = IenDialogButtonLayout.Vertical,
         )
     }
 }
