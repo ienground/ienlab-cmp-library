@@ -34,6 +34,7 @@ fun M3DeleteAlertDialog(
         message = stringResource(Res.string.delete_dialog_content),
         onDismiss = onDismiss,
         onConfirm = onConfirm,
-        enabledConfirm = enabledConfirm
+        enabledConfirm = enabledConfirm,
+        isDestructive = true
     )
 }

@@ -20,9 +20,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -35,6 +33,12 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.ui.components.foundation.IenSemanticTone
+import zone.ien.utils.ui.components.interactive.IenButtonSize
+import zone.ien.utils.ui.components.interactive.IenButtonState
+import zone.ien.utils.ui.components.interactive.IenButtonVariant
+import zone.ien.utils.ui.components.interactive.IenIconButton
+import zone.ien.utils.ui.components.interactive.IenTextButton
 import zone.ien.utils.ui.utils.crop
 import zone.ien.utils.ui.view.M3TooltipBox
 
@@ -84,10 +88,13 @@ fun M3ActionsMenu(
                             }
                         }
                     ) {
-                        IconButton(
-                            enabled = item.enabled,
+                        IenIconButton(
                             onClick = item.onClick,
                             modifier = Modifier.size(LocalMenuIconButtonSize.current.first),
+                            size = IenButtonSize.Medium,
+                            variant = IenButtonVariant.Ghost,
+                            tone = IenSemanticTone.Neutral,
+                            state = IenButtonState(enabled = item.enabled),
                         ) {
                             AnimatedContent(
                                 targetState = item.icon,
@@ -105,12 +112,12 @@ fun M3ActionsMenu(
                     }
                 }
             } ?: run {
-                TextButton(
-                    enabled = item.enabled,
-                    onClick = item.onClick
-                ) {
-                    Text(text = item.title)
-                }
+                IenTextButton(
+                    text = item.title,
+                    onClick = item.onClick,
+                    tone = IenSemanticTone.Neutral,
+                    state = IenButtonState(enabled = item.enabled),
+                )
             }
         }
     }
@@ -120,8 +127,11 @@ fun M3ActionsMenu(
             label = stringResource(Res.string.more_options),
         ) {
             Box {
-                IconButton(
+                IenIconButton(
                     onClick = onToggleOverflow,
+                    size = IenButtonSize.Medium,
+                    variant = IenButtonVariant.Ghost,
+                    tone = IenSemanticTone.Neutral,
                 ) {
                     Icon(
                         imageVector = M3SystemIcons.MoreVert,

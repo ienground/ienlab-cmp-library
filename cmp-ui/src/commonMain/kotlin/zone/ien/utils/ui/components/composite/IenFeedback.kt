@@ -33,8 +33,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -366,25 +364,44 @@ fun IenDialog(
     modifier: Modifier = Modifier,
     dismiss: IenDialogAction? = null,
 ) {
-    if (!visible) return
-    AlertDialog(
-        modifier = modifier,
-        onDismissRequest = onDismissRequest,
-        title = { IenText(title, style = IenTheme.typography.title3) },
-        text = { IenText(message, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary) },
-        confirmButton = {
-            TextButton(onClick = confirm.onClick) {
-                IenText(confirm.text, style = IenTheme.typography.label1, color = IenTheme.colors.brand)
-            }
-        },
-        dismissButton = dismiss?.let { action ->
-            {
-                TextButton(onClick = action.onClick) {
-                    IenText(action.text, style = IenTheme.typography.label1, color = IenTheme.colors.textSecondary)
-                }
-            }
-        },
-    )
+    if (dismiss == null) {
+        IenAlertDialog(
+            visible = visible,
+            title = title,
+            message = message,
+            onDismissRequest = onDismissRequest,
+            modifier = modifier,
+            confirmText = confirm.text,
+            onConfirmClick = confirm.onClick,
+            tone = confirm.tone,
+        )
+    } else {
+        IenConfirmDialog(
+            visible = visible,
+            onClose = onDismissRequest,
+            modifier = modifier,
+            title = {
+                IenConfirmDialogTitle(text = title)
+            },
+            description = {
+                IenConfirmDialogDescription(text = message)
+            },
+            cancelButton = {
+                IenConfirmDialogCancelButton(
+                    text = dismiss.text,
+                    onClick = dismiss.onClick,
+                    tone = dismiss.tone,
+                )
+            },
+            confirmButton = {
+                IenConfirmDialogConfirmButton(
+                    text = confirm.text,
+                    onClick = confirm.onClick,
+                    tone = confirm.tone,
+                )
+            },
+        )
+    }
 }
 
 

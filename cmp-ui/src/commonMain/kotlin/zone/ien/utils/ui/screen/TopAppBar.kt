@@ -1,18 +1,17 @@
 package zone.ien.utils.ui.screen
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.LargeFlexibleTopAppBar
-import androidx.compose.material3.MediumFlexibleTopAppBar
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import zone.ien.utils.ui.components.composite.IenTopBar
+import zone.ien.utils.ui.components.composite.IenTopBarTitleAlignment
 
 /**
  * M3TopAppBar은 상단 앱 바를 표시하기 위한 컴포저블입니다.
@@ -44,73 +43,23 @@ fun M3TopAppBar(
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     size: TopBarSize = TopBarSize.Small
 ) {
-    TopAppBarImpl(
+    IenTopBar(
         title = title,
         subtitle = subtitle,
-        isCenterAligned = isCenterAligned,
-        colors = colors.let { if (isScrollTint) it else it.copy(scrolledContainerColor = it.containerColor) },
         modifier = modifier,
         navigationIcon = navigationIcon,
         actions = actions,
         windowInsets = windowInsets,
-        scrollBehavior = scrollBehavior,
-        size = size
+        titleAlignment = if (isCenterAligned) IenTopBarTitleAlignment.Center else IenTopBarTitleAlignment.Start,
+        contentPadding = when (size) {
+            TopBarSize.Small,
+            TopBarSize.Medium,
+            TopBarSize.Large -> PaddingValues(horizontal = 16.dp)
+        },
+        contentHeight = when (size) {
+            TopBarSize.Small -> 64.dp
+            TopBarSize.Medium -> 80.dp
+            TopBarSize.Large -> 96.dp
+        },
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun TopAppBarImpl(
-    title: @Composable () -> Unit,
-    subtitle: @Composable (() -> Unit)?,
-    isCenterAligned: Boolean,
-    colors: TopAppBarColors,
-    modifier: Modifier,
-    navigationIcon: @Composable () -> Unit,
-    actions: @Composable (RowScope.() -> Unit),
-    windowInsets: WindowInsets,
-    scrollBehavior: TopAppBarScrollBehavior?,
-    size: TopBarSize
-) {
-    when (size) {
-        TopBarSize.Small -> {
-            TopAppBar(
-                title = title,
-                modifier = modifier,
-                subtitle = subtitle ?: {},
-                navigationIcon = navigationIcon,
-                actions = actions,
-                titleHorizontalAlignment = if (isCenterAligned) Alignment.CenterHorizontally else Alignment.Start,
-                windowInsets = windowInsets,
-                colors = colors,
-                scrollBehavior = scrollBehavior,
-            )
-        }
-        TopBarSize.Medium -> {
-            MediumFlexibleTopAppBar(
-                title = title,
-                modifier = modifier,
-                subtitle = subtitle,
-                navigationIcon = navigationIcon,
-                actions = actions,
-                titleHorizontalAlignment = if (isCenterAligned) Alignment.CenterHorizontally else Alignment.Start,
-                windowInsets = windowInsets,
-                colors = colors,
-                scrollBehavior = scrollBehavior
-            )
-        }
-        TopBarSize.Large -> {
-            LargeFlexibleTopAppBar(
-                title = title,
-                modifier = modifier,
-                subtitle = subtitle,
-                navigationIcon = navigationIcon,
-                actions = actions,
-                titleHorizontalAlignment = if (isCenterAligned) Alignment.CenterHorizontally else Alignment.Start,
-                windowInsets = windowInsets,
-                colors = colors,
-                scrollBehavior = scrollBehavior
-            )
-        }
-    }
 }

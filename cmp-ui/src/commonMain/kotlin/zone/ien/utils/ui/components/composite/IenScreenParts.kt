@@ -33,10 +33,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Scaffold
@@ -187,18 +189,63 @@ fun IenTopBar(
     showDivider: Boolean = true,
     windowInsets: WindowInsets = WindowInsets.statusBars,
     contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
+    contentHeight: Dp = 56.dp,
+) {
+    IenTopBar(
+        title = {
+            IenText(
+                text = title,
+                style = IenTheme.typography.title3,
+                textAlign = if (titleAlignment == IenTopBarTitleAlignment.Center) TextAlign.Center else null,
+            )
+        },
+        modifier = modifier,
+        subtitle = subtitle?.let {
+            {
+                IenText(
+                    text = it,
+                    style = IenTheme.typography.caption,
+                    color = IenTheme.colors.textSecondary,
+                    textAlign = if (titleAlignment == IenTopBarTitleAlignment.Center) TextAlign.Center else null,
+                )
+            }
+        },
+        navigationIcon = navigationIcon,
+        actions = actions,
+        titleAlignment = titleAlignment,
+        showDivider = showDivider,
+        windowInsets = windowInsets,
+        contentPadding = contentPadding,
+        contentHeight = contentHeight,
+    )
+}
+
+@Composable
+fun IenTopBar(
+    title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    subtitle: (@Composable () -> Unit)? = null,
+    navigationIcon: (@Composable () -> Unit)? = null,
+    actions: (@Composable RowScope.() -> Unit)? = null,
+    titleAlignment: IenTopBarTitleAlignment = IenTopBarTitleAlignment.Start,
+    showDivider: Boolean = true,
+    windowInsets: WindowInsets = WindowInsets.statusBars,
+    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
+    contentHeight: Dp = 56.dp,
 ) {
     val insetPadding = windowInsets.asPaddingValues()
+    val topPadding = insetPadding.calculateTopPadding()
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .requiredHeight(topPadding + contentHeight)
             .background(IenTheme.colors.surface),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = insetPadding.calculateTopPadding())
-                .defaultMinSize(minHeight = 56.dp)
+                .requiredHeight(topPadding + contentHeight)
+                .padding(top = topPadding)
                 .padding(contentPadding),
             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
@@ -208,21 +255,18 @@ fun IenTopBar(
                 modifier = Modifier.weight(1f),
                 horizontalAlignment = if (titleAlignment == IenTopBarTitleAlignment.Center) Alignment.CenterHorizontally else Alignment.Start,
             ) {
-                IenText(
-                    text = title,
-                    style = IenTheme.typography.title3,
-                    textAlign = if (titleAlignment == IenTopBarTitleAlignment.Center) TextAlign.Center else null,
-                )
+                IenProvideTextStyle(IenTheme.typography.title3, IenTheme.colors.textPrimary) {
+                    title()
+                }
                 if (subtitle != null) {
-                    IenText(
-                        text = subtitle,
-                        style = IenTheme.typography.caption,
-                        color = IenTheme.colors.textSecondary,
-                        textAlign = if (titleAlignment == IenTopBarTitleAlignment.Center) TextAlign.Center else null,
-                    )
+                    IenProvideTextStyle(IenTheme.typography.caption, IenTheme.colors.textSecondary) {
+                        subtitle()
+                    }
                 }
             }
-            actions?.invoke(this)
+            CompositionLocalProvider(LocalContentColor provides IenTheme.colors.textPrimary) {
+                actions?.invoke(this@Row)
+            }
         }
         if (showDivider) {
             IenDivider()

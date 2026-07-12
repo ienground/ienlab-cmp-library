@@ -286,8 +286,9 @@ private fun ienButtonColors(
 ): IenButtonResolvedColors {
     val toneColor = toneColor(tone)
     val weakColor = toneWeakColor(tone)
+    val onToneColor = toneOnColor(tone)
     val resolved = when (variant) {
-        IenButtonVariant.Fill -> IenButtonResolvedColors(toneColor, Color.White, toneColor)
+        IenButtonVariant.Fill -> IenButtonResolvedColors(toneColor, onToneColor, toneColor)
         IenButtonVariant.Weak -> IenButtonResolvedColors(weakColor, toneColor, weakColor)
         IenButtonVariant.Line -> IenButtonResolvedColors(Color.Transparent, toneColor, IenTheme.colors.borderStrong)
         IenButtonVariant.Ghost -> IenButtonResolvedColors(Color.Transparent, toneColor, Color.Transparent)
@@ -316,6 +317,16 @@ internal fun toneWeakColor(tone: IenSemanticTone): Color = when (tone) {
     IenSemanticTone.Warning -> IenTheme.colors.warningWeak
     IenSemanticTone.Danger -> IenTheme.colors.dangerWeak
     IenSemanticTone.Info -> IenTheme.colors.infoWeak
+}
+
+@Composable
+internal fun toneOnColor(tone: IenSemanticTone): Color = when (tone) {
+    IenSemanticTone.Neutral -> IenTheme.colors.surfaceRaised
+    IenSemanticTone.Brand -> IenTheme.colors.onBrand
+    IenSemanticTone.Success -> IenTheme.colors.onSuccess
+    IenSemanticTone.Warning -> IenTheme.colors.onWarning
+    IenSemanticTone.Danger -> IenTheme.colors.onDanger
+    IenSemanticTone.Info -> IenTheme.colors.onInfo
 }
 
 private fun IenButtonSize.buttonHeight(): Dp = when (this) {
