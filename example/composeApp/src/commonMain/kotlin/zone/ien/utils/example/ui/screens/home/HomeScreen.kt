@@ -428,6 +428,15 @@ fun HomeScreen(
                 }
                 Box(
                     modifier = Modifier
+                        .clickable { backStack.add(RootRoute.M3Playground) }
+                        .fillMaxWidth()
+                        .height(400.dp)
+                        .background(Color(0xFF8B5CF6))
+                ) {
+                    Text(text = "M3 Playground")
+                }
+                Box(
+                    modifier = Modifier
                         .clickable { backStack.add(RootRoute.Navigation) }
                         .fillMaxWidth()
                         .height(400.dp)
