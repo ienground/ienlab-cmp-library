@@ -2,9 +2,11 @@ package zone.ien.utils.ui.components.interactive
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -48,9 +50,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
@@ -488,6 +492,8 @@ data class IenTabItem(
     val key: Any? = null,
     val redBean: Boolean = false,
     val ariaLabel: String? = null,
+    val icon: ImageVector? = null,
+    val selectedIcon: ImageVector? = null,
 )
 
 enum class IenTabSize {
@@ -676,6 +682,147 @@ fun IenTab(
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun IenFloatingTabBar(
+    items: List<IenTabItem>,
+    selectedIndex: Int,
+    onSelectedIndexChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    ariaLabel: String? = null,
+    onChange: ((index: Int, key: Any?) -> Unit)? = null,
+) {
+    val shape = RoundedCornerShape(IenTheme.radius.full)
+    val contentDescription = stringResource(Res.string.tab_list)
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 18.dp)
+            .semantics {
+                this.contentDescription = ariaLabel ?: contentDescription
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(78.dp)
+                .shadow(elevation = 18.dp, shape = shape, clip = false)
+                .clip(shape)
+                .background(IenTheme.colors.surface)
+                .padding(horizontal = 10.dp)
+                .selectableGroup(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            items.forEachIndexed { index, item ->
+                val selected = index == selectedIndex
+                val itemEnabled = item.enabled
+                val icon = if (selected) item.selectedIcon ?: item.icon else item.icon
+                val interactionSource = remember { MutableInteractionSource() }
+                val pressed by interactionSource.collectIsPressedAsState()
+                val selectedBounce = remember { Animatable(1f) }
+                val itemScale by animateFloatAsState(
+                    targetValue = if (pressed && itemEnabled) 0.94f else 1f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessHigh,
+                    ),
+                    label = "ienFloatingTabItemPressScale",
+                )
+                val contentColor by animateColorAsState(
+                    targetValue = when {
+                        !itemEnabled -> IenTheme.colors.textDisabled
+                        selected -> IenTheme.colors.textPrimary
+                        else -> IenTheme.colors.textSecondary
+                    },
+                    animationSpec = tween(durationMillis = IenTheme.motion.fastMillis, easing = IenTheme.motion.standardEasing),
+                    label = "ienFloatingTabItemColor",
+                )
+                val itemContentDescription = stringResource(Res.string.tab_update_indicator_desc, item.text)
+
+                LaunchedEffect(selected) {
+                    if (!selected) {
+                        selectedBounce.snapTo(1f)
+                        return@LaunchedEffect
+                    }
+
+                    selectedBounce.snapTo(1f)
+                    selectedBounce.animateTo(
+                        targetValue = 1f,
+                        animationSpec = keyframes {
+                            durationMillis = 360
+                            1f at 0
+                            1.16f at 110
+                            0.96f at 230
+                            1f at 360
+                        },
+                    )
+                }
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(66.dp)
+                        .graphicsLayer {
+                            scaleX = itemScale * selectedBounce.value
+                            scaleY = itemScale * selectedBounce.value
+                        }
+                        .clickable(
+                            enabled = itemEnabled,
+                            role = Role.Tab,
+                            interactionSource = interactionSource,
+                            indication = null,
+                        ) {
+                            if (!selected) {
+                                onSelectedIndexChange(index)
+                                onChange?.invoke(index, item.key)
+                            }
+                        }
+                        .semantics {
+                            this.selected = selected
+                            this.contentDescription = item.ariaLabel ?: if (item.redBean) itemContentDescription else item.text
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    if (icon != null) {
+                        Box(contentAlignment = Alignment.TopEnd) {
+                            IenIcon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(30.dp),
+                                tint = contentColor,
+                            )
+                            if (item.redBean) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(5.dp)
+                                        .align(Alignment.TopEnd)
+                                        .graphicsLayer {
+                                            translationX = 6.dp.toPx()
+                                            translationY = (-1).dp.toPx()
+                                        }
+                                        .clip(CircleShape)
+                                        .background(IenTheme.colors.danger),
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(5.dp))
+                    }
+                    IenText(
+                        text = item.text,
+                        style = IenTheme.typography.label2,
+                        color = contentColor,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                    )
                 }
             }
         }

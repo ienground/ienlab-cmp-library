@@ -32,6 +32,15 @@ import androidx.compose.ui.unit.dp
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.icon.material.filled.Check
 import zone.ien.utils.icon.material.filled.Close
+import zone.ien.utils.icon.material.filled.CloudOff as FilledCloudOff
+import zone.ien.utils.icon.material.filled.Keyboard as FilledKeyboard
+import zone.ien.utils.icon.material.filled.MoreVert as FilledMoreVert
+import zone.ien.utils.icon.material.filled.Save as FilledSave
+import zone.ien.utils.icon.material.rounded.Check as RoundedCheck
+import zone.ien.utils.icon.material.rounded.CloudOff as RoundedCloudOff
+import zone.ien.utils.icon.material.rounded.Keyboard as RoundedKeyboard
+import zone.ien.utils.icon.material.rounded.MoreVert as RoundedMoreVert
+import zone.ien.utils.icon.material.rounded.Save as RoundedSave
 import zone.ien.utils.ui.components.composite.IenAgreementItem
 import zone.ien.utils.ui.components.composite.IenAgreement
 import zone.ien.utils.ui.components.composite.IenAgreementVariant
@@ -169,6 +178,7 @@ import zone.ien.utils.ui.components.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.components.interactive.IenClearableTextField
 import zone.ien.utils.ui.components.interactive.IenFullSecureKeyboard
 import zone.ien.utils.ui.components.interactive.IenFullSecureKeypad
+import zone.ien.utils.ui.components.interactive.IenFloatingTabBar
 import zone.ien.utils.ui.components.interactive.IenIconButton
 import zone.ien.utils.ui.components.interactive.IenKeyboardAction
 import zone.ien.utils.ui.components.interactive.IenLineCheckbox
@@ -1346,7 +1356,20 @@ fun TabSection() {
         var tabSelected by remember { mutableIntStateOf(0) }
         var smallTabSelected by remember { mutableIntStateOf(0) }
         var fluidTabSelected by remember { mutableIntStateOf(0) }
+        var floatingTabSelected by remember { mutableIntStateOf(0) }
         ComponentSection(title = "Tab") {
+            IenFloatingTabBar(
+                items = listOf(
+                    IenTabItem("홈", key = "home", icon = M3SystemIcons.Rounded.RoundedKeyboard, selectedIcon = M3SystemIcons.Filled.FilledKeyboard),
+                    IenTabItem("혜택", key = "benefit", icon = M3SystemIcons.Rounded.RoundedCheck, selectedIcon = M3SystemIcons.Filled.Check),
+                    IenTabItem("토스페이", key = "pay", icon = M3SystemIcons.Rounded.RoundedSave, selectedIcon = M3SystemIcons.Filled.FilledSave),
+                    IenTabItem("증권", key = "stock", icon = M3SystemIcons.Rounded.RoundedCloudOff, selectedIcon = M3SystemIcons.Filled.FilledCloudOff),
+                    IenTabItem("전체", key = "all", icon = M3SystemIcons.Rounded.RoundedMoreVert, selectedIcon = M3SystemIcons.Filled.FilledMoreVert),
+                ),
+                selectedIndex = floatingTabSelected,
+                onSelectedIndexChange = { floatingTabSelected = it },
+                ariaLabel = "모바일 하단 탭바",
+            )
             IenTab(
                 items = listOf(
                     IenTabItem("요약", key = "summary"),
