@@ -38,12 +38,14 @@ import zone.ien.utils.ui.view.CustomNavigationBar
 import zone.ien.utils.ui.view.CustomNavigationBarColors
 import zone.ien.utils.ui.view.CustomNavigationBarDefaults
 import zone.ien.utils.ui.view.CustomNavigationBarItem
+import zone.ien.utils.ui.view.CustomNavigationBarItemDirection
 
 data class NavigationBarItem(
     val onClick: () -> Unit,
     val icon: IconData,
     val selectedIcon: IconData? = null,
-    val label: String
+    val label: String,
+    val direction: CustomNavigationBarItemDirection = CustomNavigationBarItemDirection.Horizontal,
 )
 
 internal data class NavigationBarState(
@@ -117,7 +119,8 @@ fun AdaptiveNavigationBar(
                             icon = if (selected && currentTheme == Theme.Material3 && item.selectedIcon != null) item.selectedIcon else item.icon
                         )
                     },
-                    label = { Text(text = item.label) }
+                    label = { Text(text = item.label) },
+                    direction = item.direction,
                 )
             }
         }
@@ -248,6 +251,7 @@ fun RowScope.AdaptiveNavigationBarItem(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     label: @Composable (() -> Unit)? = null,
+    direction: CustomNavigationBarItemDirection = CustomNavigationBarItemDirection.Horizontal,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     adaptation: AdaptationScope<CupertinoNavigationBarItemAdaptation, IenNavigationBarItemAdaptation>.() -> Unit = {},
 ) {
@@ -278,6 +282,7 @@ fun RowScope.AdaptiveNavigationBarItem(
                 onClick = resolvedOnClick,
                 icon = icon,
                 label = label ?: {},
+                direction = direction,
                 alwaysShowLabel = it.alwaysShowLabel,
                 enabled = enabled,
                 modifier = modifier

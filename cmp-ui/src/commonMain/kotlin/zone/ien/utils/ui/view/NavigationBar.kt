@@ -11,6 +11,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -93,6 +94,14 @@ internal data class NavigationBarItemBounds(
  */
 internal val LocalNavigationBarItemBoundsUpdater = compositionLocalOf<(Int, NavigationBarItemBounds) -> Unit> {
     { _, _ -> }
+}
+
+/**
+ * 네비게이션 바 항목의 아이콘과 라벨 배치 방향입니다.
+ */
+enum class CustomNavigationBarItemDirection {
+    Horizontal,
+    Vertical,
 }
 
 // ─── Colors ──────────────────────────────────────────────────────────────────
@@ -253,6 +262,7 @@ fun CustomNavigationBar(
  * @param onClick 클릭 시 호출되는 콜백 함수
  * @param icon 아이콘
  * @param label 라벨
+ * @param direction 아이콘과 라벨 배치 방향
  * @param alwaysShowLabel 항상 라벨 표시 여부
  * @param enabled 활성화 여부
  * @param modifier 적용할 Modifier
@@ -263,6 +273,7 @@ fun RowScope.CustomNavigationBarItem(
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
     label: @Composable () -> Unit,
+    direction: CustomNavigationBarItemDirection = CustomNavigationBarItemDirection.Horizontal,
     alwaysShowLabel: Boolean = false,
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
@@ -328,13 +339,15 @@ fun RowScope.CustomNavigationBarItem(
                 onClick = onClick
             )
     ) {
+        val showLabel = alwaysShowLabel || selected
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
                 .align(Alignment.Center)
                 .then(
-                    if (selected || alwaysShowLabel) {
+                    if (showLabel) {
                         Modifier.padding(horizontal = 24.dp)
                     } else {
                         Modifier.width(48.dp)
@@ -342,20 +355,44 @@ fun RowScope.CustomNavigationBarItem(
                 )
                 .fillMaxHeight()
         ) {
-            CompositionLocalProvider(LocalContentColor provides iconColor) {
-                icon()
-            }
+            when (direction) {
+                CustomNavigationBarItemDirection.Horizontal -> {
+                    CompositionLocalProvider(LocalContentColor provides iconColor) {
+                        icon()
+                    }
 
-            if (alwaysShowLabel || selected) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.width(IntrinsicSize.Min),
-                ) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    ProvideTextStyle(
-                        IenTheme.typography.label2.copy(color = textColor)
+                    if (showLabel) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.width(IntrinsicSize.Min),
+                        ) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            ProvideTextStyle(
+                                IenTheme.typography.label2.copy(color = textColor)
+                            ) {
+                                label()
+                            }
+                        }
+                    }
+                }
+
+                CustomNavigationBarItemDirection.Vertical -> {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
                     ) {
-                        label()
+                        CompositionLocalProvider(LocalContentColor provides iconColor) {
+                            icon()
+                        }
+
+                        if (showLabel) {
+                            Spacer(modifier = Modifier.height(3.dp))
+                            ProvideTextStyle(
+                                IenTheme.typography.label2.copy(color = textColor)
+                            ) {
+                                label()
+                            }
+                        }
                     }
                 }
             }
