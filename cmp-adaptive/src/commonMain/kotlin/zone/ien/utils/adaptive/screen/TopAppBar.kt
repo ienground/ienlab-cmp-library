@@ -48,8 +48,8 @@ import zone.ien.utils.ui.screen.TopBarSize
 fun AdaptiveTopAppBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable (RowScope.() -> Unit) = {},
+    navigationIcon: (@Composable () -> Unit)? = null,
+    actions: (@Composable (RowScope.() -> Unit))? = null,
     adaptation: AdaptationScope<HigTopAppBarAdaptation, M3TopAppBarAdaptation>.() -> Unit = {}
 ) {
     AdaptiveWidget(
@@ -73,8 +73,8 @@ fun AdaptiveTopAppBar(
             CupertinoTopAppBar(
                 title = title,
                 modifier = modifier,
-                navigationIcon = navigationIcon,
-                actions = actions,
+                navigationIcon = { navigationIcon?.invoke() },
+                actions = { actions?.invoke(this) },
                 windowInsets = it.windowInsets,
                 isCenterAligned = it.isCenterAligned,
                 isBackgroundAdaptive = it.isBackgroundAdaptive,
@@ -187,4 +187,3 @@ internal class TopAppBarAdaptation: Adaptation<HigTopAppBarAdaptation, M3TopAppB
         }
     }
 }
-

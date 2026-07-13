@@ -178,6 +178,9 @@ import zone.ien.utils.ui.components.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.components.interactive.IenClearableTextField
 import zone.ien.utils.ui.components.interactive.IenFullSecureKeyboard
 import zone.ien.utils.ui.components.interactive.IenFullSecureKeypad
+import zone.ien.utils.ui.components.interactive.IenExtendedFab
+import zone.ien.utils.ui.components.interactive.IenFab
+import zone.ien.utils.ui.components.interactive.IenFabSize
 import zone.ien.utils.ui.components.interactive.IenFloatingTabBar
 import zone.ien.utils.ui.components.interactive.IenIconButton
 import zone.ien.utils.ui.components.interactive.IenKeyboardAction
@@ -287,6 +290,7 @@ fun DesignSystemScreen(
                     BubbleSection()
                     ButtonSection()
                     CheckboxSection()
+                    FabSection()
                     HighlightSection()
                     IconButtonSection()
                     ListFooterSection()
@@ -571,6 +575,76 @@ fun ButtonSection() {
             IenButton(text = "보조 액션", onClick = {}, display = IenButtonDisplay.Block, variant = IenButtonVariant.Weak)
             IenButton(text = "보조 액션", onClick = {}, display = IenButtonDisplay.Block, variant = IenButtonVariant.Line)
             IenButton(text = "로딩", onClick = {}, size = IenButtonSize.Medium, state = IenButtonState(loading = true))
+        }
+    }
+}
+
+@Preview
+@Composable
+fun FabSection() {
+    IenTheme {
+        ComponentSection(title = "FAB") {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                IenText("Sizes", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IenFab(onClick = {}, size = IenFabSize.Small) {
+                        IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                    }
+                    IenFab(onClick = {}, size = IenFabSize.Regular) {
+                        IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                    }
+                    IenFab(onClick = {}, size = IenFabSize.Large) {
+                        IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                    }
+                }
+                IenBorder()
+                IenText("Variants", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IenFab(onClick = {}, variant = IenButtonVariant.Fill) {
+                        IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                    }
+                    IenFab(onClick = {}, variant = IenButtonVariant.Weak) {
+                        IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                    }
+                    IenFab(onClick = {}, variant = IenButtonVariant.Line) {
+                        IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                    }
+                    IenFab(onClick = {}, variant = IenButtonVariant.Ghost) {
+                        IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                    }
+                }
+                IenBorder()
+                IenText("Extended / States", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                ) {
+                    IenExtendedFab(
+                        text = "작성하기",
+                        onClick = {},
+                        icon = {
+                            IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                        },
+                    )
+                    IenExtendedFab(
+                        text = "로딩",
+                        onClick = {},
+                        state = IenButtonState(loading = true),
+                    )
+                    IenExtendedFab(
+                        text = "비활성",
+                        onClick = {},
+                        state = IenButtonState(enabled = false),
+                        variant = IenButtonVariant.Weak,
+                    )
+                }
+            }
         }
     }
 }

@@ -711,7 +711,6 @@ fun IenFloatingTabBar(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
                 .height(78.dp)
                 .shadow(elevation = 18.dp, shape = shape, clip = false)
                 .clip(shape)
@@ -768,7 +767,13 @@ fun IenFloatingTabBar(
 
                 Column(
                     modifier = Modifier
-                        .weight(1f)
+                        .then(
+                            if (selected) {
+                                Modifier.widthIn(min = 112.dp)
+                            } else {
+                                Modifier.width(54.dp)
+                            }
+                        )
                         .height(66.dp)
                         .graphicsLayer {
                             scaleX = itemScale * selectedBounce.value
@@ -814,15 +819,19 @@ fun IenFloatingTabBar(
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.height(5.dp))
+                        if (selected) {
+                            Spacer(modifier = Modifier.height(5.dp))
+                        }
                     }
-                    IenText(
-                        text = item.text,
-                        style = IenTheme.typography.label2,
-                        color = contentColor,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                    )
+                    if (selected) {
+                        IenText(
+                            text = item.text,
+                            style = IenTheme.typography.label2,
+                            color = contentColor,
+                            textAlign = TextAlign.Center,
+                            maxLines = 1,
+                        )
+                    }
                 }
             }
         }

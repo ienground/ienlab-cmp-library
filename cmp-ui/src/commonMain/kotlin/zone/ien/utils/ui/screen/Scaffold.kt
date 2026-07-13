@@ -9,13 +9,10 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import zone.ien.utils.ui.components.composite.IenScaffold
+import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.menu.M3ActionsMenu
 
@@ -61,8 +60,8 @@ fun M3TopAppBarScaffold(
     title: @Composable () -> Unit = {},
     subtitle: @Composable (() -> Unit)? = null,
     showTopBar: Boolean = true,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable (RowScope.() -> Unit) = {},
+    navigationIcon: (@Composable () -> Unit)? = null,
+    actions: (@Composable (RowScope.() -> Unit))? = null,
     topBarWindowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
     bottomBar: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
@@ -70,15 +69,15 @@ fun M3TopAppBarScaffold(
     floatingActionButtonPosition: FabPosition = FabPosition.Center,
     topAppBarColors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     isCenterAligned: Boolean = LocalIsM3TopBarCenterAligned.current,
-    scaffoldContainerColor: Color = MaterialTheme.colorScheme.background,
-    scaffoldContentColor: Color = contentColorFor(scaffoldContainerColor),
+    scaffoldContainerColor: Color = IenTheme.colors.background,
+    scaffoldContentColor: Color = IenTheme.colors.textPrimary,
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
     isScrollTint: Boolean = LocalIsScrollTint.current,
     size: TopBarSize = LocalM3TopBarSize.current,
     scrollBehavior: TopAppBarScrollBehavior = if (size == TopBarSize.Small) TopAppBarDefaults.pinnedScrollBehavior() else TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
     content: @Composable (PaddingValues) -> Unit
 ) {
-    Scaffold(
+    IenScaffold(
         modifier = modifier,
         topBar = {
             if (showTopBar) {
@@ -101,7 +100,7 @@ fun M3TopAppBarScaffold(
         },
         bottomBar = bottomBar,
         snackbarHost = snackbarHost,
-        floatingActionButton = floatingActionButton,
+        floating = floatingActionButton,
         floatingActionButtonPosition = floatingActionButtonPosition,
         contentWindowInsets = contentWindowInsets,
         containerColor = scaffoldContainerColor,
@@ -118,7 +117,7 @@ fun M3TopAppBarScaffold(
     subtitle: @Composable (() -> Unit)? = null,
     topBarModifier: Modifier = Modifier,
     showTopBar: Boolean = true,
-    navigationIcon: @Composable () -> Unit = {},
+    navigationIcon: (@Composable () -> Unit)? = null,
     actions: List<ActionMenuItem> = listOf(),
     topBarWindowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
     bottomBar: @Composable () -> Unit = {},
@@ -127,8 +126,8 @@ fun M3TopAppBarScaffold(
     floatingActionButtonPosition: FabPosition = FabPosition.Center,
     topAppBarColors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     isCenterAligned: Boolean = LocalIsM3TopBarCenterAligned.current,
-    scaffoldContainerColor: Color = MaterialTheme.colorScheme.background,
-    scaffoldContentColor: Color = contentColorFor(scaffoldContainerColor),
+    scaffoldContainerColor: Color = IenTheme.colors.background,
+    scaffoldContentColor: Color = IenTheme.colors.textPrimary,
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
     isScrollTint: Boolean = LocalIsScrollTint.current,
     size: TopBarSize = LocalM3TopBarSize.current,
@@ -144,18 +143,20 @@ fun M3TopAppBarScaffold(
         topBarModifier = topBarModifier,
         showTopBar = showTopBar,
         navigationIcon = navigationIcon,
-        actions = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                M3ActionsMenu(
-                    items = actions,
-                    isOpen = menuExpanded,
-                    closeDropdown = { menuExpanded = false },
-                    onToggleOverflow = { menuExpanded = !menuExpanded },
-                    maxVisibleItems = 5
-                )
-                Spacer(modifier = Modifier.width(16.dp))
+        actions = actions.takeIf { it.isNotEmpty() }?.let {
+            {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    M3ActionsMenu(
+                        items = it,
+                        isOpen = menuExpanded,
+                        closeDropdown = { menuExpanded = false },
+                        onToggleOverflow = { menuExpanded = !menuExpanded },
+                        maxVisibleItems = 5
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                }
             }
         },
         topBarWindowInsets = topBarWindowInsets,

@@ -115,8 +115,8 @@ fun AdaptiveTopAppBarScaffold(
     title: @Composable () -> Unit = {},
     subtitle: @Composable (() -> Unit)? = null,
     showTopBar: Boolean = true,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable (RowScope.() -> Unit) = {},
+    navigationIcon: (@Composable () -> Unit)? = null,
+    actions: (@Composable (RowScope.() -> Unit))? = null,
     bottomBar: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
@@ -186,12 +186,12 @@ fun AdaptiveTopAppBarScaffold(
                                 title = title,
                                 subtitle = subtitle,
                                 modifier = topBarModifier,
-                                navigationIcon = navigationIcon,
+                                navigationIcon = { navigationIcon?.invoke() },
                                 actions = {
                                     Row(
                                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                                         verticalAlignment = Alignment.CenterVertically,
-                                        content = actions,
+                                        content = { actions?.invoke(this) },
                                         modifier = Modifier
                                             .animateContentSizeWithoutClipping()
                                             .heightIn(min = 48.dp)
@@ -270,7 +270,7 @@ fun AdaptiveTopAppBarScaffold(
     title: @Composable () -> Unit = {},
     subtitle: @Composable (() -> Unit)? = null,
     showTopBar: Boolean = true,
-    navigationIcon: @Composable () -> Unit = {},
+    navigationIcon: (@Composable () -> Unit)? = null,
     actions: List<ActionMenuItem> = listOf(),
     primaryAction: ActionMenuItem.IconMenuItem? = null,
     bottomBar: @Composable () -> Unit = {},
@@ -282,7 +282,7 @@ fun AdaptiveTopAppBarScaffold(
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
-    val scaffold: @Composable (@Composable (RowScope.() -> Unit)) -> Unit = { actions ->
+    val scaffold: @Composable ((@Composable (RowScope.() -> Unit))?) -> Unit = { actions ->
         AdaptiveTopAppBarScaffold(
             modifier = modifier,
             topBarModifier = topBarModifier,
@@ -304,21 +304,24 @@ fun AdaptiveTopAppBarScaffold(
         adaptation = remember { TopAppBarScaffoldAdaptation() },
         adaptationScope = adaptation,
         material = {
-            scaffold {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxHeight()
-                ) {
-                    M3ActionsMenu(
-                        items = primaryAction?.let { actions + it } ?: actions,
-                        isOpen = menuExpanded,
-                        closeDropdown = { menuExpanded = false },
-                        onToggleOverflow = { menuExpanded = !menuExpanded },
-                        maxVisibleItems = 3,
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
+            val menuItems = primaryAction?.let { actions + it } ?: actions
+            scaffold(menuItems.takeIf { it.isNotEmpty() }?.let {
+                {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxHeight()
+                    ) {
+                        M3ActionsMenu(
+                            items = it,
+                            isOpen = menuExpanded,
+                            closeDropdown = { menuExpanded = false },
+                            onToggleOverflow = { menuExpanded = !menuExpanded },
+                            maxVisibleItems = 3,
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                    }
                 }
-            }
+            })
         },
         cupertino = {
             scaffold {

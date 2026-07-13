@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -54,6 +55,7 @@ import zone.ien.utils.ui.components.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.components.primitives.IenText
 
 enum class IenButtonSize { Small, Medium, Large }
+enum class IenFabSize { Small, Regular, Large }
 enum class IenIconPlacement { Start, End }
 enum class IenButtonDisplay { Inline, Block, Full }
 enum class IenTextButtonSize { XSmall, Small, Medium, Large, XLarge, XXLarge }
@@ -176,6 +178,86 @@ fun IenIconButton(
         colors = colors,
         content = innerContent,
     )
+}
+
+@Composable
+fun IenFab(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    size: IenFabSize = IenFabSize.Regular,
+    variant: IenButtonVariant = IenButtonVariant.Fill,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
+    state: IenButtonState = IenButtonState(),
+    shape: Shape = CircleShape,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    colors: ButtonColors? = null,
+    content: @Composable () -> Unit,
+) {
+    val fabSize = size.fabSize()
+    val iconSize = size.fabIconSize()
+
+    IenButtonContainer(
+        onClick = onClick,
+        modifier = modifier.size(fabSize),
+        variant = variant,
+        tone = tone,
+        state = state,
+        shape = shape,
+        contentPadding = PaddingValues(0.dp),
+        interactionSource = interactionSource,
+        scalePressed = 0.95f,
+        colors = colors,
+    ) {
+        IenProvideTextStyle(IenTheme.typography.body1, LocalContentColor.current) {
+            Box(
+                modifier = Modifier.size(iconSize),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (state.loading) {
+                    IenLoaderPrimitive(color = LocalContentColor.current)
+                } else {
+                    content()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun IenExtendedFab(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    variant: IenButtonVariant = IenButtonVariant.Fill,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
+    state: IenButtonState = IenButtonState(),
+    icon: (@Composable () -> Unit)? = null,
+    iconPlacement: IenIconPlacement = IenIconPlacement.Start,
+    shape: Shape = RoundedCornerShape(IenTheme.radius.full),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    colors: ButtonColors? = null,
+) {
+    IenButtonContainer(
+        onClick = onClick,
+        modifier = modifier.heightIn(min = 56.dp),
+        variant = variant,
+        tone = tone,
+        state = state,
+        shape = shape,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource,
+        scalePressed = 0.96f,
+        colors = colors,
+    ) {
+        IenButtonContent(
+            text = text,
+            loading = state.loading,
+            size = IenButtonSize.Large,
+            icon = icon,
+            iconPlacement = iconPlacement,
+        )
+    }
 }
 
 @Composable
@@ -339,6 +421,18 @@ private fun IenButtonSize.buttonPadding(): PaddingValues = when (this) {
     IenButtonSize.Small -> PaddingValues(horizontal = 12.dp, vertical = 8.dp)
     IenButtonSize.Medium -> PaddingValues(horizontal = 16.dp, vertical = 10.dp)
     IenButtonSize.Large -> PaddingValues(horizontal = 20.dp, vertical = 14.dp)
+}
+
+private fun IenFabSize.fabSize(): Dp = when (this) {
+    IenFabSize.Small -> 40.dp
+    IenFabSize.Regular -> 56.dp
+    IenFabSize.Large -> 96.dp
+}
+
+private fun IenFabSize.fabIconSize(): Dp = when (this) {
+    IenFabSize.Small -> 20.dp
+    IenFabSize.Regular -> 24.dp
+    IenFabSize.Large -> 36.dp
 }
 
 @Composable

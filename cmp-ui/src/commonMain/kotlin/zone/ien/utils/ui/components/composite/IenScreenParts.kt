@@ -39,7 +39,9 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
@@ -161,8 +163,11 @@ fun IenScaffold(
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
+    snackbarHost: @Composable () -> Unit = {},
     floating: @Composable () -> Unit = {},
+    floatingActionButtonPosition: FabPosition = FabPosition.Center,
     containerColor: Color = IenTheme.colors.background,
+    contentColor: Color = IenTheme.colors.textPrimary,
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
     content: @Composable (PaddingValues) -> Unit,
 ) {
@@ -170,9 +175,11 @@ fun IenScaffold(
         modifier = modifier,
         topBar = topBar,
         bottomBar = bottomBar,
+        snackbarHost = snackbarHost,
         floatingActionButton = floating,
+        floatingActionButtonPosition = floatingActionButtonPosition,
         containerColor = containerColor,
-        contentColor = IenTheme.colors.textPrimary,
+        contentColor = contentColor,
         contentWindowInsets = contentWindowInsets,
         content = content,
     )
@@ -186,10 +193,12 @@ fun IenTopBar(
     navigationIcon: (@Composable () -> Unit)? = null,
     actions: (@Composable RowScope.() -> Unit)? = null,
     titleAlignment: IenTopBarTitleAlignment = IenTopBarTitleAlignment.Start,
-    showDivider: Boolean = true,
+    showDivider: Boolean = false,
     windowInsets: WindowInsets = WindowInsets.statusBars,
-    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
-    contentHeight: Dp = 56.dp,
+    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.md, vertical = 6.dp),
+    contentHeight: Dp = 64.dp,
+    containerColor: Color = Color.Transparent,
+    floatingSlots: Boolean = true,
 ) {
     IenTopBar(
         title = {
@@ -217,6 +226,8 @@ fun IenTopBar(
         windowInsets = windowInsets,
         contentPadding = contentPadding,
         contentHeight = contentHeight,
+        containerColor = containerColor,
+        floatingSlots = floatingSlots,
     )
 }
 
@@ -228,10 +239,12 @@ fun IenTopBar(
     navigationIcon: (@Composable () -> Unit)? = null,
     actions: (@Composable RowScope.() -> Unit)? = null,
     titleAlignment: IenTopBarTitleAlignment = IenTopBarTitleAlignment.Start,
-    showDivider: Boolean = true,
+    showDivider: Boolean = false,
     windowInsets: WindowInsets = WindowInsets.statusBars,
-    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
-    contentHeight: Dp = 56.dp,
+    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.md, vertical = 6.dp),
+    contentHeight: Dp = 64.dp,
+    containerColor: Color = Color.Transparent,
+    floatingSlots: Boolean = true,
 ) {
     val insetPadding = windowInsets.asPaddingValues()
     val topPadding = insetPadding.calculateTopPadding()
@@ -239,7 +252,7 @@ fun IenTopBar(
         modifier = modifier
             .fillMaxWidth()
             .requiredHeight(topPadding + contentHeight)
-            .background(IenTheme.colors.surface),
+            .background(containerColor),
     ) {
         Row(
             modifier = Modifier
@@ -250,7 +263,11 @@ fun IenTopBar(
             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            navigationIcon?.invoke()
+            if (navigationIcon != null) {
+                IenTopBarFloatingSlot(enabled = floatingSlots) {
+                    navigationIcon()
+                }
+            }
             Column(
                 modifier = Modifier.weight(1f),
                 horizontalAlignment = if (titleAlignment == IenTopBarTitleAlignment.Center) Alignment.CenterHorizontally else Alignment.Start,
@@ -264,13 +281,44 @@ fun IenTopBar(
                     }
                 }
             }
-            CompositionLocalProvider(LocalContentColor provides IenTheme.colors.textPrimary) {
-                actions?.invoke(this@Row)
+            if (actions != null) {
+                IenTopBarFloatingSlot(enabled = floatingSlots) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        CompositionLocalProvider(LocalContentColor provides IenTheme.colors.textPrimary) {
+                            actions.invoke(this)
+                        }
+                    }
+                }
             }
         }
         if (showDivider) {
             IenDivider()
         }
+    }
+}
+
+@Composable
+private fun IenTopBarFloatingSlot(
+    enabled: Boolean,
+    content: @Composable () -> Unit,
+) {
+    if (!enabled) {
+        content()
+        return
+    }
+
+    Box(
+        modifier = Modifier
+            .shadow(elevation = IenTheme.elevation.floating, shape = CircleShape, clip = false)
+            .clip(CircleShape)
+            .background(IenTheme.colors.surface.copy(alpha = 0.92f))
+            .padding(horizontal = IenTheme.spacing.xxs, vertical = IenTheme.spacing.xxs),
+        contentAlignment = Alignment.Center,
+    ) {
+        content()
     }
 }
 
