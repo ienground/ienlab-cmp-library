@@ -20,6 +20,9 @@ import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.view.IenTooltipBox
 
+/**
+ * 네비게이션 버튼의 [IenButtonVariant]를 제공하기 위한 CompositionLocal입니다.
+ */
 internal val LocalIenNavigationButtonVariant = staticCompositionLocalOf<IenButtonVariant?> { null }
 
 /**

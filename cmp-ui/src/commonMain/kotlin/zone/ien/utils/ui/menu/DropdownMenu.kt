@@ -49,6 +49,9 @@ import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
+/**
+ * 드롭다운 메뉴의 기본 팝업 속성입니다.
+ */
 internal val DefaultMenuProperties = PopupProperties(
     focusable = true,
     clippingEnabled = false,
@@ -61,6 +64,7 @@ internal val DefaultMenuProperties = PopupProperties(
  * @param onDismissRequest 드롭다운을 닫기 위한 콜백 함수
  * @param modifier 적용할 Modifier
  * @param offset 오프셋
+ * @param matchAnchorTop 팝업의 상단을 앵커의 상단에 맞출지 여부
  * @param scrollState 스크롤 상태
  * @param properties 다이얼로그 속성
  * @param shape 모양

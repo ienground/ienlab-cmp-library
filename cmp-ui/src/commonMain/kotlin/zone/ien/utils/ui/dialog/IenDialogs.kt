@@ -39,11 +39,32 @@ import zone.ien.utils.ui.interactive.IenTextButtonVariant
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
 
+/**
+ * 다이얼로그 버튼의 배치 방향을 정의하는 열거형 클래스입니다.
+ *
+ * [Horizontal]은 가로 방향 배치, [Vertical]은 세로 방향 배치를 의미합니다.
+ */
 enum class IenDialogButtonLayout {
     Horizontal,
     Vertical,
 }
 
+/**
+ * 간단한 경고/알림을 표시하기 위한 다이얼로그 컴포저블입니다.
+ *
+ * @param visible 다이얼로그의 표시 여부
+ * @param title 다이얼로그의 제목 텍스트
+ * @param message 다이얼로그의 본문 메시지 텍스트
+ * @param onDismissRequest 다이얼로그가 닫힐 때(예: 바깥 화면 클릭) 호출되는 콜백 함수
+ * @param modifier 다이얼로그 프레임에 적용할 Modifier
+ * @param confirmText 확인 버튼에 표시될 텍스트
+ * @param onConfirmClick 확인 버튼 클릭 시 호출되는 콜백 함수
+ * @param tone 다이얼로그 버튼 및 전체적인 테마 톤 (예: Brand, Success, Danger 등)
+ * @param closeOnDimmerClick 바깥 어두운 배경(Dimmer)을 클릭했을 때 다이얼로그를 닫을지 여부
+ * @param closeOnBackEvent 뒤로가기 버튼을 눌렀을 때 다이얼로그를 닫을지 여부
+ * @param onEntered 다이얼로그가 화면에 나타날 때 호출되는 콜백 함수
+ * @param onExited 다이얼로그가 화면에서 사라질 때 호출되는 콜백 함수
+ */
 @Composable
 fun IenAlertDialog(
     visible: Boolean,
@@ -85,6 +106,20 @@ fun IenAlertDialog(
     )
 }
 
+/**
+ * 커스텀 Composable을 사용하여 경고/알림 다이얼로그를 구성하는 컴포저블입니다.
+ *
+ * @param visible 다이얼로그의 표시 여부
+ * @param onClose 다이얼로그를 닫을 때 호출되는 콜백 함수
+ * @param title 제목 영역에 표시될 Composable
+ * @param alertButton 하단 버튼 영역에 표시될 Composable
+ * @param modifier 다이얼로그 프레임에 적용할 Modifier
+ * @param description 본문 내용 영역에 표시될 Composable (선택 사항)
+ * @param closeOnDimmerClick 바깥 어두운 배경(Dimmer)을 클릭했을 때 다이얼로그를 닫을지 여부
+ * @param closeOnBackEvent 뒤로가기 버튼을 눌렀을 때 다이얼로그를 닫을지 여부
+ * @param onEntered 다이얼로그가 화면에 나타날 때 호출되는 콜백 함수
+ * @param onExited 다이얼로그가 화면에서 사라질 때 호출되는 콜백 함수
+ */
 @Composable
 fun IenAlertDialog(
     visible: Boolean,
@@ -113,6 +148,24 @@ fun IenAlertDialog(
     }
 }
 
+/**
+ * 사용자의 동의나 확인을 받기 위해 취소와 확인 버튼을 제공하는 확인 다이얼로그 컴포저블입니다.
+ *
+ * @param visible 다이얼로그의 표시 여부
+ * @param title 다이얼로그의 제목 텍스트
+ * @param message 다이얼로그의 본문 메시지 텍스트
+ * @param onDismissRequest 취소 또는 닫기 요청 시 호출되는 콜백 함수
+ * @param onConfirmClick 확인 버튼 클릭 시 호출되는 콜백 함수
+ * @param modifier 다이얼로그 프레임에 적용할 Modifier
+ * @param confirmText 확인 버튼에 표시될 텍스트
+ * @param dismissText 취소 버튼에 표시될 텍스트
+ * @param destructive 확인 버튼의 동작이 파괴적인 작업(예: 삭제)인지 여부. true일 경우 Danger 톤 적용
+ * @param closeOnDimmerClick 바깥 어두운 배경(Dimmer)을 클릭했을 때 다이얼로그를 닫을지 여부
+ * @param closeOnBackEvent 뒤로가기 버튼을 눌렀을 때 다이얼로그를 닫을지 여부
+ * @param onEntered 다이얼로그가 화면에 나타날 때 호출되는 콜백 함수
+ * @param onExited 다이얼로그가 화면에서 사라질 때 호출되는 콜백 함수
+ * @param buttonLayout 다이얼로그 하단 버튼의 배치 방향 (가로 또는 세로)
+ */
 @Composable
 fun IenConfirmDialog(
     visible: Boolean,
@@ -163,6 +216,22 @@ fun IenConfirmDialog(
     )
 }
 
+/**
+ * 커스텀 Composable을 사용하여 확인 다이얼로그를 구성하는 컴포저블입니다.
+ *
+ * @param visible 다이얼로그의 표시 여부
+ * @param onClose 다이얼로그를 닫을 때 호출되는 콜백 함수
+ * @param title 제목 영역에 표시될 Composable
+ * @param cancelButton 취소 버튼 영역에 표시될 Composable
+ * @param confirmButton 확인 버튼 영역에 표시될 Composable
+ * @param modifier 다이얼로그 프레임에 적용할 Modifier
+ * @param description 본문 내용 영역에 표시될 Composable (선택 사항)
+ * @param closeOnDimmerClick 바깥 어두운 배경(Dimmer)을 클릭했을 때 다이얼로그를 닫을지 여부
+ * @param closeOnBackEvent 뒤로가기 버튼을 눌렀을 때 다이얼로그를 닫을지 여부
+ * @param onEntered 다이얼로그가 화면에 나타날 때 호출되는 콜백 함수
+ * @param onExited 다이얼로그가 화면에서 사라질 때 호출되는 콜백 함수
+ * @param buttonLayout 다이얼로그 하단 버튼의 배치 방향 (가로 또는 세로)
+ */
 @Composable
 fun IenConfirmDialog(
     visible: Boolean,
@@ -212,6 +281,15 @@ fun IenConfirmDialog(
     }
 }
 
+/**
+ * 다이얼로그에서 사용하는 표준 제목 컴포저블입니다.
+ *
+ * @param text 표시할 제목 텍스트
+ * @param modifier 적용할 Modifier
+ * @param color 텍스트 색상
+ * @param style 텍스트 스타일
+ * @param fontWeight 텍스트 굵기
+ */
 @Composable
 fun IenAlertDialogTitle(
     text: String,
@@ -229,6 +307,15 @@ fun IenAlertDialogTitle(
     )
 }
 
+/**
+ * 확인 다이얼로그에서 사용하는 표준 제목 컴포저블입니다.
+ *
+ * @param text 표시할 제목 텍스트
+ * @param modifier 적용할 Modifier
+ * @param color 텍스트 색상
+ * @param style 텍스트 스타일
+ * @param fontWeight 텍스트 굵기
+ */
 @Composable
 fun IenConfirmDialogTitle(
     text: String,
@@ -246,6 +333,15 @@ fun IenConfirmDialogTitle(
     )
 }
 
+/**
+ * 경고 다이얼로그에서 사용하는 본문 설명 텍스트 컴포저블입니다.
+ *
+ * @param text 표시할 설명 텍스트
+ * @param modifier 적용할 Modifier
+ * @param color 텍스트 색상
+ * @param style 텍스트 스타일
+ * @param fontWeight 텍스트 굵기
+ */
 @Composable
 fun IenAlertDialogDescription(
     text: String,
@@ -263,6 +359,15 @@ fun IenAlertDialogDescription(
     )
 }
 
+/**
+ * 확인 다이얼로그에서 사용하는 본문 설명 텍스트 컴포저블입니다.
+ *
+ * @param text 표시할 설명 텍스트
+ * @param modifier 적용할 Modifier
+ * @param color 텍스트 색상
+ * @param style 텍스트 스타일
+ * @param fontWeight 텍스트 굵기
+ */
 @Composable
 fun IenConfirmDialogDescription(
     text: String,
@@ -280,6 +385,16 @@ fun IenConfirmDialogDescription(
     )
 }
 
+/**
+ * 경고 다이얼로그에서 사용하는 표준 하단 경고/확인 버튼 컴포저블입니다.
+ *
+ * @param text 버튼에 표시할 텍스트
+ * @param onClick BUTTON 클릭 시 호출되는 콜백 함수
+ * @param modifier 적용할 Modifier
+ * @param tone 버튼의 의미 색상 톤
+ * @param size 버튼의 크기
+ * @param variant 버튼의 형태 종류 (예: Clear 등)
+ */
 @Composable
 fun IenAlertDialogAlertButton(
     text: String,
@@ -299,6 +414,16 @@ fun IenAlertDialogAlertButton(
     )
 }
 
+/**
+ * 확인 다이얼로그에서 사용하는 표준 취소 버튼 컴포저블입니다.
+ *
+ * @param text 버튼에 표시할 텍스트
+ * @param onClick 버튼 클릭 시 호출되는 콜백 함수
+ * @param modifier 적용할 Modifier
+ * @param tone 버튼의 의미 색상 톤
+ * @param variant 버튼의 형태 종류 (예: Weak 등)
+ * @param size 버튼의 크기
+ */
 @Composable
 fun IenConfirmDialogCancelButton(
     text: String,
@@ -319,6 +444,16 @@ fun IenConfirmDialogCancelButton(
     )
 }
 
+/**
+ * 확인 다이얼로그에서 사용하는 표준 확인 버튼 컴포저블입니다.
+ *
+ * @param text 버튼에 표시할 텍스트
+ * @param onClick 버튼 클릭 시 호출되는 콜백 함수
+ * @param modifier 적용할 Modifier
+ * @param tone 버튼의 의미 색상 톤
+ * @param variant 버튼의 형태 종류 (예: Fill 등)
+ * @param size 버튼의 크기
+ */
 @Composable
 fun IenConfirmDialogConfirmButton(
     text: String,

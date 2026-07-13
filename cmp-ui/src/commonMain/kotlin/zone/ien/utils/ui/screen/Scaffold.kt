@@ -50,6 +50,7 @@ import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
  * @param scaffoldContainerColor 스크래프트 컨테이너 색상
  * @param scaffoldContentColor 스크래프트 내용 색상
  * @param contentWindowInsets 내용 윈도우 인셋
+ * @param contentEdge 콘텐츠 영역의 모서리 스타일 및 블러 진행도를 정의하는 설정
  * @param scrollableState 상단 영역 흐림 진행도 계산에 사용할 스크롤 상태
  * @param isScrollTint 스크롤 tint 여부
  * @param size 크기
@@ -111,6 +112,32 @@ fun IenTopAppBarScaffold(
     )
 }
 
+/**
+ * IenTopAppBarScaffold는 상단 앱 바를 가진 스크래프트를 표시하기 위한 컴포저블입니다.
+ * 액션 목록을 [ActionMenuItem]의 리스트로 받아 오버플로우 메뉴를 자동으로 구성합니다.
+ *
+ * @param modifier 적용할 Modifier
+ * @param title 제목
+ * @param subtitle 부제목
+ * @param topBarModifier 상단 바에 적용할 Modifier
+ * @param showTopBar 상단 바 표시 여부
+ * @param navigationIcon 네비게이션 아이콘
+ * @param actions 액션 메뉴 아이템 목록
+ * @param topBarWindowInsets 상단 바 윈도우 인셋
+ * @param bottomBar 하단 바
+ * @param snackbarHost 스낵바 호스트
+ * @param floatingActionButton 플로팅 액션 버튼
+ * @param floatingActionButtonPosition 플로팅 액션 버튼 위치
+ * @param isCenterAligned 중앙 정렬 여부
+ * @param scaffoldContainerColor 스크래프트 컨테이너 색상
+ * @param scaffoldContentColor 스크래프트 내용 색상
+ * @param contentWindowInsets 내용 윈도우 인셋
+ * @param contentEdge 콘텐츠 영역의 모서리 스타일 및 블러 진행도를 정의하는 설정
+ * @param scrollableState 상단 영역 흐림 진행도 계산에 사용할 스크롤 상태
+ * @param isScrollTint 스크롤 tint 여부
+ * @param size 크기
+ * @param content 내용
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IenTopAppBarScaffold(

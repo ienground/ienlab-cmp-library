@@ -83,6 +83,20 @@ import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
 import kotlin.time.Duration.Companion.milliseconds
 
+/**
+ * 범위를 가지는 슬라이더 컴포저블.
+ *
+ * 사용자는 드래그나 탭 동작을 통해 특정 범위 내의 값을 선택할 수 있습니다.
+ *
+ * @param value 슬라이더의 현재 값.
+ * @param onValueChange 값이 변경될 때 호출되는 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param valueRange 슬라이더의 최소값 및 최대값 범위. 기본값은 0f..1f.
+ * @param steps 슬라이더 트랙 상의 단계 수. 0일 경우 연속적으로 선택 가능합니다.
+ * @param enabled 활성화 여부. false일 경우 상호작용할 수 없습니다.
+ * @param label 슬라이더 좌측에 표시될 이름 또는 라벨 텍스트.
+ * @param valueLabel 슬라이더 우측에 표시될 현재 값 관련 텍스트.
+ */
 @Composable
 fun IenSlider(
     value: Float,
@@ -121,6 +135,13 @@ fun IenSlider(
     }
 }
 
+/**
+ * [IenStepper]의 값 범위를 정의하는 데이터 클래스.
+ *
+ * @property min 최솟값. 기본값은 [Int.MIN_VALUE].
+ * @property max 최댓값. 기본값은 [Int.MAX_VALUE].
+ * @property step 한 번에 변경할 값의 증감 폭. 기본값은 1.
+ */
 @Immutable
 data class IenStepperRange(
     val min: Int = Int.MIN_VALUE,
@@ -128,6 +149,16 @@ data class IenStepperRange(
     val step: Int = 1,
 )
 
+/**
+ * 텍스트와 증감 버튼(-, +)을 이용해 정수 값을 조절하는 컴포저블.
+ *
+ * @param value 현재 정수 값.
+ * @param onValueChange 정수 값이 변경될 때 호출되는 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param range 증감할 범위 및 단계 속성 ([IenStepperRange]).
+ * @param enabled 활성화 여부. false일 경우 상호작용할 수 없습니다.
+ * @param label 컴포저블 좌측에 표시될 라벨 텍스트.
+ */
 @Composable
 fun IenStepper(
     value: Int,
@@ -159,6 +190,15 @@ fun IenStepper(
     }
 }
 
+/**
+ * 진행 단계를 타임라인 형태로 표시해주는 수직 스텝퍼 레이아웃 컴포저블.
+ *
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param play 하위 스텝 행들의 등장 애니메이션 재생 여부. 기본값은 true.
+ * @param delay 애니메이션 시작 전 지연 시간 (초 단위).
+ * @param staggerDelay 각 스텝 행 사이의 애니메이션 시작 간격 시간 (초 단위).
+ * @param content 스텝퍼 내부 스텝 행들을 정의할 스코프 기반 콘텐츠.
+ */
 @Composable
 fun IenStepper(
     modifier: Modifier = Modifier,
@@ -185,6 +225,9 @@ fun IenStepper(
     }
 }
 
+/**
+ * [IenStepper] 레이아웃 컴포저블 내부의 자식 요소들을 정의할 때 사용되는 스코프 클래스.
+ */
 @Stable
 class IenStepperScope internal constructor() {
     internal var rowIndex: Int = 0
@@ -192,6 +235,15 @@ class IenStepperScope internal constructor() {
     internal var delayMillis: Long = 0L
     internal var staggerDelayMillis: Long = 100L
 
+    /**
+     * 스텝퍼의 개별 스텝 행을 생성합니다.
+     *
+     * @param left 스텝 행의 좌측 영역에 들어갈 컴포저블 (예: 스텝 번호나 아이콘).
+     * @param center 스텝 행의 중앙 영역에 들어갈 본문 컴포저블.
+     * @param modifier 컴포저블에 적용할 [Modifier].
+     * @param right 스텝 행의 우측 영역에 들어갈 컴포저블 (생략 가능).
+     * @param hideLine 하위 스텝과의 연결선을 그리지 않을지 여부.
+     */
     @Composable
     fun Row(
         left: @Composable () -> Unit,
@@ -213,6 +265,17 @@ class IenStepperScope internal constructor() {
     }
 }
 
+/**
+ * 타임라인 형태로 시각화되는 스텝퍼의 개별 행 컴포저블.
+ *
+ * @param left 스텝 행의 좌측 영역에 들어갈 컴포저블.
+ * @param center 스텝 행의 중앙 영역에 들어갈 본문 컴포저블.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param right 스텝 행의 우측 영역에 들어갈 컴포저블.
+ * @param hideLine 하위 스텝과의 연결선을 감출지 여부.
+ * @param play 등장 애니메이션 재생 여부.
+ * @param delayMillis 등장 애니메이션의 지연 시간 (밀리초 단위).
+ */
 @Composable
 fun IenStepperRow(
     left: @Composable () -> Unit,
@@ -295,12 +358,26 @@ fun IenStepperRow(
     }
 }
 
+/**
+ * [IenStepperTexts]의 타이포그래피 스타일 형태를 정의하는 열거형 클래스.
+ */
 enum class IenStepperTextsType {
+    /** 굵은 작은 라벨 및 보통 본문 스타일 */
     A,
+    /** 큰 제목 및 보통 본문 스타일 */
     B,
+    /** 보통 크기 라벨 및 캡션 스타일 */
     C,
 }
 
+/**
+ * 스텝퍼 내부에서 주로 사용되는 스텝의 제목과 설명 텍스트 레이아웃 컴포저블.
+ *
+ * @param type 텍스트 스타일 종류 ([IenStepperTextsType]).
+ * @param title 스텝의 주요 제목 텍스트.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param description 스텝의 상세 설명 텍스트 (생략 가능).
+ */
 @Composable
 fun IenStepperTexts(
     type: IenStepperTextsType,
@@ -338,6 +415,12 @@ fun IenStepperTexts(
     }
 }
 
+/**
+ * 스텝퍼의 왼쪽 영역에 스텝 순서를 표시하는 원형 숫자 아이콘 컴포저블.
+ *
+ * @param number 표시할 스텝 번호 (1부터 9까지 지원).
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ */
 @Composable
 fun IenStepperNumberIcon(
     number: Int,
@@ -364,20 +447,39 @@ fun IenStepperNumberIcon(
     }
 }
 
+/**
+ * [IenStepperAssetFrame]의 모양을 정의하는 열거형 클래스.
+ */
 enum class IenStepperAssetFrameShape {
+    /** 원형 프레임 */
     CircleMedium,
+    /** 모서리가 둥근 사각형 프레임 */
     RoundedMedium,
+    /** 24dp 크기의 여백 없는 사각형 프레임 */
     CleanW24,
+    /** 32dp 크기의 여백 없는 사각형 프레임 */
     CleanW32,
 }
 
+/**
+ * [IenStepperAssetFrame]에 사용되는 배경색 및 콘텐츠 색상 정의 데이터 클래스.
+ *
+ * @property backgroundColor 프레임 배경 색상.
+ * @property contentColor 프레임 내부 콘텐츠 색상.
+ */
 @Immutable
 data class IenStepperAssetFrameColors(
     val backgroundColor: Color,
     val contentColor: Color
 )
 
+/**
+ * [IenStepperAssetFrame]의 기본 설정을 제공하는 객체.
+ */
 object IenStepperAssetFrameDefaults {
+    /**
+     * [IenStepperAssetFrameColors]의 기본 인스턴스를 생성하는 팩토리 메서드.
+     */
     @Composable
     fun colors(
         backgroundColor: Color = IenTheme.colors.surfaceWeak,
@@ -388,6 +490,14 @@ object IenStepperAssetFrameDefaults {
     )
 }
 
+/**
+ * 스텝퍼 좌측 영역에서 이미지나 아이콘 등의 애셋을 감싸는 데 사용하는 프레임 컴포저블.
+ *
+ * @param shape 프레임의 크기 및 형상 ([IenStepperAssetFrameShape]).
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param colors 프레임의 배경 및 콘텐츠 색상 ([IenStepperAssetFrameColors]).
+ * @param content 프레임 내부에 그릴 콘텐츠 컴포저블.
+ */
 @Composable
 fun IenStepperAssetFrame(
     shape: IenStepperAssetFrameShape,
@@ -423,6 +533,13 @@ fun IenStepperAssetFrame(
     }
 }
 
+/**
+ * 스텝퍼의 오른쪽 영역에 다음 단계가 있음을 안내하는 오른쪽 화살표 아이콘 컴포저블.
+ *
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param color 화살표 색상. 기본값은 [IenTheme.colors.textTertiary].
+ * @param frameSize 프레임의 전체 크기. 기본값은 24.dp.
+ */
 @Composable
 fun IenStepperRightArrow(
     modifier: Modifier = Modifier,
@@ -445,6 +562,15 @@ fun IenStepperRightArrow(
     }
 }
 
+/**
+ * 스텝퍼의 오른쪽 영역에 조작 버튼을 표시하는 컴포저블.
+ *
+ * @param text 버튼 텍스트.
+ * @param onClick 버튼 클릭 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param size 버튼 크기 ([IenButtonSize]). 기본값은 [IenButtonSize.Small].
+ * @param variant 버튼 스타일 종류 ([IenButtonVariant]). 기본값은 [IenButtonVariant.Weak].
+ */
 @Composable
 fun IenStepperRightButton(
     text: String,
@@ -485,6 +611,17 @@ private fun StepperAction(
     }
 }
 
+/**
+ * [IenTab] 및 [IenFloatingTabBar]에 들어갈 개별 탭 항목의 속성을 정의하는 데이터 클래스.
+ *
+ * @property text 탭에 표시될 라벨 텍스트.
+ * @property enabled 탭 활성화 여부.
+ * @property key 탭을 식별하기 위한 선택적 키 객체.
+ * @property redBean 새로운 알림 등이 있을 때 표시하는 우상단 빨간색 점(배지) 노출 여부.
+ * @property ariaLabel 접근성 스크린 리더용 설명 텍스트.
+ * @property icon 탭에 기본 표시될 아이콘 [ImageVector] (주로 플로팅 탭 바 등에서 사용).
+ * @property selectedIcon 탭이 선택되었을 때 표시할 아이콘 [ImageVector] (주로 플로팅 탭 바 등에서 사용).
+ */
 @Immutable
 data class IenTabItem(
     val text: String,
@@ -496,8 +633,13 @@ data class IenTabItem(
     val selectedIcon: ImageVector? = null,
 )
 
+/**
+ * [IenTab]의 탭 높이 및 텍스트 스타일을 정의하는 열거형 클래스.
+ */
 enum class IenTabSize {
+    /** 작은 탭 크기 */
     Small,
+    /** 큰 탭 크기 */
     Large,
 }
 
@@ -506,6 +648,19 @@ private data class IenTabItemBounds(
     val width: Dp,
 )
 
+/**
+ * 상단 또는 특정 영역에서 뷰를 전환하는 데 사용하는 가로 형태의 탭 표시기 컴포저블.
+ *
+ * @param items 표시할 탭 항목 리스트 ([IenTabItem]).
+ * @param selectedIndex 현재 선택된 탭의 인덱스.
+ * @param onSelectedIndexChange 탭 선택이 바뀔 때 호출되는 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param size 탭의 높이 및 텍스트 크기 ([IenTabSize]). 기본값은 [IenTabSize.Large].
+ * @param fluid 가로 스크롤을 활성화하여 탭 아이템 개수나 텍스트 길이에 맞춰 유동적으로 탭을 배치할지 여부.
+ * @param itemGap 탭 아이템 사이의 간격.
+ * @param ariaLabel 전체 탭 목록에 대한 접근성 설명 텍스트.
+ * @param onChange 탭 인덱스가 변경될 때 키 값과 함께 호출되는 선택적 콜백 함수.
+ */
 @Composable
 fun IenTab(
     items: List<IenTabItem>,
@@ -688,6 +843,18 @@ fun IenTab(
     }
 }
 
+/**
+ * 화면 하단이나 플로팅 상태로 떠 있는 아이콘 중심의 고급 탭 바 컴포저블.
+ *
+ * 선택될 때 바운스 애니메이션과 텍스트 노출 효과가 있습니다.
+ *
+ * @param items 표시할 탭 항목 리스트 ([IenTabItem]).
+ * @param selectedIndex 현재 선택된 탭의 인덱스.
+ * @param onSelectedIndexChange 탭 선택이 바뀔 때 호출되는 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param ariaLabel 전체 탭 바에 대한 접근성 설명 텍스트.
+ * @param onChange 탭 인덱스가 변경될 때 키 값과 함께 호출되는 선택적 콜백 함수.
+ */
 @Composable
 fun IenFloatingTabBar(
     items: List<IenTabItem>,

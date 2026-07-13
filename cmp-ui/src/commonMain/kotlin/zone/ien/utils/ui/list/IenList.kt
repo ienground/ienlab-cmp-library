@@ -39,10 +39,16 @@ import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.instantPress
 
+/**
+ * 리스트 헤더 부제목(Description)의 수직 노출 위치를 정의하는 열거형 클래스입니다.
+ */
 enum class IenListHeaderDescriptionPosition {
     Top, Bottom
 }
 
+/**
+ * 리스트 헤더 컴포넌트의 기본 스타일 및 텍스트 구성을 제공하는 기본 오브젝트입니다.
+ */
 object IenListHeaderDefaults {
     @Composable
     fun Title(
@@ -74,6 +80,16 @@ object IenListHeaderDefaults {
     }
 }
 
+/**
+ * 리스트(List)의 상단 영역에 배치하여 그룹 제목 및 설명을 나타내는 헤더 컴포저블입니다.
+ *
+ * @param title 제목 영역 컴포저블
+ * @param modifier 적용할 Modifier
+ * @param description 설명 영역 컴포저블 (선택사항)
+ * @param descriptionPosition 설명 영역의 노출 위치 ([IenListHeaderDescriptionPosition])
+ * @param right 헤더 우측 영역 컴포저블 슬롯 (예: 더보기 버튼 등)
+ * @param rightAlignment 우측 컴포저블의 수직 정렬 방식
+ */
 @Composable
 fun IenListHeader(
     title: @Composable () -> Unit,
@@ -113,7 +129,14 @@ fun IenListHeader(
 }
 
 /**
- * 텍스트 문자열만을 받는 편의성 오버로딩 ListHeader
+ * 문자열 형식의 제목과 부제목을 받아 리스트 헤더를 간편하게 구성하는 편의성 컴포저블입니다.
+ *
+ * @param title 제목 텍스트
+ * @param modifier 적용할 Modifier
+ * @param description 설명(부제목) 텍스트 (선택사항)
+ * @param descriptionPosition 설명 영역의 노출 위치 ([IenListHeaderDescriptionPosition])
+ * @param right 헤더 우측 영역 컴포저블 슬롯 (예: 더보기 버튼 등)
+ * @param rightAlignment 우측 컴포저블의 수직 정렬 방식
  */
 @Composable
 fun IenListHeader(
@@ -134,10 +157,16 @@ fun IenListHeader(
     )
 }
 
+/**
+ * 리스트 푸터(Footer)의 상단 구분선 스타일을 정의하는 열거형 클래스입니다.
+ */
 enum class IenListFooterBorder {
     Full, Indented, None
 }
 
+/**
+ * 리스트 푸터 컴포넌트의 기본 데코레이션(구분선, 그림자 등)을 제공하는 기본 오브젝트입니다.
+ */
 object IenListFooterDefaults {
     @Composable
     fun Text(
@@ -193,6 +222,20 @@ object IenListFooterDefaults {
     }
 }
 
+/**
+ * 리스트(List)의 하단 영역에 배치하여 더보기, 전체보기 등을 제공하는 클릭 가능한 푸터 컴포저블입니다.
+ *
+ * @param onClick 클릭 이벤트 콜백 (null인 경우 비활성화되고 클릭 피드백이 노출되지 않음)
+ * @param modifier 적용할 Modifier
+ * @param border 푸터 상단 구분선 종류 ([IenListFooterBorder])
+ * @param textColor 텍스트 색상
+ * @param iconColor 우측 배치 아이콘 색상
+ * @param icon 텍스트 우측에 표시할 아이콘 컴포저블 (선택사항)
+ * @param hairline 상단 구분선을 직접 지정할 수 있는 컴포저블 슬롯 (기본 스타일 대신 사용)
+ * @param shadow 눌림 효과 시 표시될 배경 그림자 슬롯 (기본 스타일 대신 사용)
+ * @param shape 터치 영역 피드백의 모서리 모양 ([Shape])
+ * @param content 푸터 본문 컴포저블
+ */
 @Composable
 fun IenListFooter(
     onClick: (() -> Unit)?,
@@ -284,7 +327,15 @@ fun IenListFooter(
 }
 
 /**
- * 텍스트 문자열만을 받는 편의성 오버로딩 ListFooter
+ * 문자열 텍스트를 전달받아 리스트 푸터를 간편하게 구성하는 편의성 컴포저블입니다.
+ *
+ * @param text 푸터 텍스트
+ * @param onClick 클릭 이벤트 콜백
+ * @param modifier 적용할 Modifier
+ * @param border 푸터 상단 구분선 종류 ([IenListFooterBorder])
+ * @param textColor 텍스트 색상
+ * @param icon 우측 배치 아이콘 컴포저블
+ * @param shape 터치 영역 피드백의 모서리 모양 ([Shape])
  */
 @Composable
 fun IenListFooter(

@@ -47,9 +47,13 @@ import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
 
-@Stable
+/**
+ * [IenBoardRow]의 접기/펼치기(열림/닫힘) 상태를 추적하고 제어하기 위한 상태 인터페이스입니다.
+ */
 interface IenBoardRowState {
+    /** 현재 열림 여부 */
     val opened: Boolean
+    /** 열림 상태를 변경하는 함수 */
     fun setOpened(opened: Boolean)
 }
 
@@ -66,11 +70,28 @@ private class DefaultIenBoardRowState(
     }
 }
 
+/**
+ * [IenBoardRowState]의 인스턴스를 생성하고 기억(remember)하는 컴포저블 함수입니다.
+ *
+ * @param initialOpened 초기 열림 상태 설정 (기본값은 false)
+ */
 @Composable
 fun rememberIenBoardRowState(
     initialOpened: Boolean = false,
 ): IenBoardRowState = remember { DefaultIenBoardRowState(initialOpened) }
 
+/**
+ * 제목을 누르면 하위 컴포저블 목록(children)이 아코디언처럼 아래로 펼쳐지는 게시판 형태의 행 컴포저블입니다.
+ * 상태 제어용 [IenBoardRowState]를 직접 받아 동작합니다.
+ *
+ * @param title 제목 영역 컴포저블
+ * @param modifier 적용할 Modifier
+ * @param initialOpened 초기 열림 여부 (상태 객체를 명시적으로 생성하지 않을 때 사용)
+ * @param state 열림 상태를 관리하는 상태 객체
+ * @param prefix 제목 좌측에 표시할 컴포저블 (선택사항)
+ * @param icon 우측 끝에 배치될 상태 지시자 아이콘 (기본값은 열림 상태에 따라 180도 회전하는 화살표)
+ * @param children 펼쳤을 때 하단에 노출될 구성 요소 목록
+ */
 @Composable
 fun IenBoardRow(
     title: @Composable () -> Unit,
@@ -148,6 +169,17 @@ fun IenBoardRow(
     }
 }
 
+/**
+ * 접기/펼치기 상태를 외부에서 제어할 수 있는 게시판 행 컴포저블입니다.
+ *
+ * @param opened 열림 여부
+ * @param onOpenedChange 열림 상태 변경 콜백
+ * @param title 제목 영역 컴포저블
+ * @param modifier 적용할 Modifier
+ * @param prefix 제목 좌측에 표시할 컴포저블 (선택사항)
+ * @param icon 우측 끝에 배치될 상태 지시자 아이콘
+ * @param children 펼쳤을 때 하단에 노출될 구성 요소 목록
+ */
 @Composable
 fun IenBoardRow(
     opened: Boolean,

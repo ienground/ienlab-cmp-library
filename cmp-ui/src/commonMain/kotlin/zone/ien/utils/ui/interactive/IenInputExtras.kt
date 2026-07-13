@@ -101,13 +101,36 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.time.Duration.Companion.milliseconds
 
+/**
+ * [IenNumericSpinner]의 크기를 정의하는 열거형 클래스.
+ */
 enum class IenNumericSpinnerSize {
+    /** 아주 작은 크기 */
     Tiny,
+    /** 작은 크기 */
     Small,
+    /** 중간 크기 */
     Medium,
+    /** 큰 크기 */
     Large,
 }
 
+/**
+ * 숫자를 증가시키거나 감소시킬 수 있는 인터랙티브 스피너 컴포저블.
+ *
+ * 사용자는 좌우 버튼을 탭하거나 중앙의 숫자 영역을 좌우로 드래그하여 값을 조절할 수 있습니다.
+ *
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param size 스피너의 크기 ([IenNumericSpinnerSize]). 기본값은 [IenNumericSpinnerSize.Medium].
+ * @param number 외부 상태로 제어되는 현재 숫자 값. null인 경우 컴포저블 내부 상태를 사용합니다.
+ * @param defaultNumber 내부 상태로 제어될 때의 초기 숫자 값. 기본값은 0.
+ * @param minNumber 스피너가 가질 수 있는 최소 숫자 값. 기본값은 0.
+ * @param maxNumber 스피너가 가질 수 있는 최대 숫자 값. 기본값은 999.
+ * @param disable 비활성화 여부. true일 경우 사용자의 입력을 받지 않습니다.
+ * @param decreaseAriaLabel 감소 버튼의 접근성 설명 텍스트.
+ * @param increaseAriaLabel 증가 버튼의 접근성 설명 텍스트.
+ * @param onNumberChange 숫자가 변경되었을 때 호출되는 콜백 함수.
+ */
 @Composable
 fun IenNumericSpinner(
     modifier: Modifier = Modifier,
@@ -442,20 +465,49 @@ private data class NumericSpinnerSpec(
     val buttonTextStyle: TextStyle,
 )
 
+/**
+ * [IenRating]의 별 아이콘 및 텍스트 크기를 정의하는 열거형 클래스.
+ */
 enum class IenRatingSize {
+    /** 아주 작은 크기 */
     Tiny,
+    /** 작은 크기 */
     Small,
+    /** 중간 크기 */
     Medium,
+    /** 큰 크기 */
     Large,
+    /** 아주 큰 크기 */
     Big,
 }
 
+/**
+ * [IenRating]의 레이아웃 형태를 정의하는 열거형 클래스.
+ */
 enum class IenRatingVariant {
+    /** 전체 별점을 모두 표시하는 형태 */
     Full,
+    /** 대표 별 아이콘 하나와 별점 텍스트 값을 함께 표시하는 형태 */
     Compact,
+    /** 대표 별 아이콘 하나만 표시하는 형태 */
     IconOnly,
 }
 
+/**
+ * 사용자의 평가 점수를 별점 형태로 시각화하고 입력받을 수 있는 인터랙티브 평가 컴포저블.
+ *
+ * @param value 현재 평가 점수 값 (0.0에서 [max] 사이).
+ * @param onValueChange 평가 점수가 변경될 때 호출되는 콜백 함수. null인 경우 읽기 전용 상태가 됩니다.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param max 평가의 최대 점수 (별의 총 개수). 기본값은 5.
+ * @param readOnly 읽기 전용 상태 여부. true일 경우 사용자가 점수를 변경할 수 없으며 기본적으로 [onValueChange]가 null이면 자동으로 읽기 전용이 됩니다.
+ * @param size 평가 컴포저블의 크기 ([IenRatingSize]). 기본값은 [IenRatingSize.Medium].
+ * @param variant 평가 컴포저블의 레이아웃 형태 ([IenRatingVariant]). 기본값은 [IenRatingVariant.Full].
+ * @param disabled 비활성화 여부. true일 경우 인터랙션이 비활성화됩니다.
+ * @param enabled 컴포저블의 활성화 여부.
+ * @param ariaLabel 컴포저블의 접근성 설명 텍스트.
+ * @param valueText 별점을 설명하는 추가 텍스트 (null일 경우 기본 형식의 텍스트가 적용됨).
+ */
 @Composable
 fun IenRating(
     value: Float,

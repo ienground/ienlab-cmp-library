@@ -21,6 +21,23 @@ import androidx.compose.ui.window.DialogProperties
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenSurface
 
+/**
+ * 다이얼로그의 일관된 프레임 레이아웃을 제공하는 내부 컴포저블입니다.
+ *
+ * 배경 영역, 둥근 모서리, 여백 및 너비 설정과 뒤로가기/외부 클릭 시 닫기 동작을 제어합니다.
+ *
+ * @param visible 다이얼로그의 표시 여부
+ * @param onDismiss 다이얼로그를 닫을 때 호출되는 콜백 함수
+ * @param modifier 프레임 레이아웃에 적용할 Modifier
+ * @param maxWidth 다이얼로그의 최대 너비
+ * @param contentPadding 내부 콘텐츠의 패딩 값
+ * @param dismissOnBackPress 뒤로가기 버튼 입력 시 닫기 여부
+ * @param dismissOnClickOutside 다이얼로그 외부 영역 클릭 시 닫기 여부
+ * @param usePlatformDefaultWidth 플랫폼 기본 너비 제약 사용 여부
+ * @param horizontalMargin 다이얼로그 양옆의 최소 마진
+ * @param fixedWidth 고정 너비 값 (지정하지 않을 경우 가로 꽉 차게 혹은 최대 너비 제한)
+ * @param content 다이얼로그 내부에 표시할 콘텐츠 Composable
+ */
 @Composable
 internal fun IenDialogFrame(
     visible: Boolean,

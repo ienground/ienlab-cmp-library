@@ -45,6 +45,15 @@ fun BaseTooltipBox(
     )
 }
 
+/**
+ * IenTooltipBox는 Ien 디자인 시스템 스타일의 툴팁을 요소를 길게 누르거나 올렸을 때 표시하는 컴포저블입니다.
+ *
+ * @param modifier 적용할 Modifier
+ * @param positioning 툴팁이 표시될 위치 기준
+ * @param isPersistent 툴팁의 지속 여부 (true인 경우 탭 외부를 누를 때까지 툴팁이 유지됨)
+ * @param label 툴팁에 표시할 텍스트 내용
+ * @param content 툴팁을 표시할 대상 컴포저블
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IenTooltipBox(
@@ -69,6 +78,12 @@ fun IenTooltipBox(
     )
 }
 
+/**
+ * IenTooltipText는 툴팁 내부에 텍스트와 배경 스타일을 적용하여 렌더링하는 컴포저블입니다.
+ *
+ * @param modifier 적용할 Modifier
+ * @param label 표시할 텍스트
+ */
 @Composable
 fun IenTooltipText(
     modifier: Modifier = Modifier,

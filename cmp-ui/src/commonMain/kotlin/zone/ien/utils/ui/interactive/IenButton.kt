@@ -57,29 +57,89 @@ import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenText
 
+/**
+ * [IenButton]의 크기 규격을 정의하는 열거형 클래스.
+ */
 enum class IenButtonSize { Small, Medium, Large }
+
+/**
+ * 플로팅 액션 버튼([IenFab])의 크기 규격을 정의하는 열거형 클래스.
+ */
 enum class IenFabSize { Small, Regular, Large }
+
+/**
+ * 버튼 내부에서 아이콘이 텍스트의 어느 쪽에 배치될지 정의하는 열거형 클래스.
+ */
 enum class IenIconPlacement { Start, End }
+
+/**
+ * 버튼의 가로 배치 방식을 정의하는 열거형 클래스.
+ */
 enum class IenButtonDisplay { Inline, Block, Full }
+
+/**
+ * 텍스트 버튼([IenTextButton])의 텍스트 및 프레임 크기를 정의하는 열거형 클래스.
+ */
 enum class IenTextButtonSize { XSmall, Small, Medium, Large, XLarge, XXLarge }
+
+/**
+ * 텍스트 버튼([IenTextButton])의 스타일 유형을 정의하는 열거형 클래스.
+ */
 enum class IenTextButtonVariant { Clear, Arrow, Underline }
 
+/**
+ * 버튼 컴포저블이 눌렸을 때의 상태 변경을 상위 컴포넌트에 알리기 위해 사용하는 [staticCompositionLocalOf].
+ */
 internal val LocalIenButtonPressedReporter = staticCompositionLocalOf<((Any, Boolean) -> Unit)?> { null }
+
+/**
+ * 버튼이 눌릴 때의 축소 효과 비율 스케일을 커스텀 오버라이드하기 위해 사용하는 [staticCompositionLocalOf].
+ */
 internal val LocalIenButtonScalePressedOverride = staticCompositionLocalOf<Float?> { null }
 
+/**
+ * 버튼의 비주얼 스타일 변형(배경색 채우기 방식 등)을 정의하는 인터페이스.
+ */
 sealed interface IenButtonVariant {
+    /** 채워진 배경색 버튼 */
     data object Fill : IenButtonVariant
+    /** 옅은 배경색 버튼 */
     data object Weak : IenButtonVariant
+    /** 아웃라인 테두리만 있는 버튼 */
     data object Line : IenButtonVariant
+    /** 배경이나 테두리가 없는 투명 버튼 */
     data object Ghost : IenButtonVariant
 }
 
+/**
+ * 버튼의 활성화 상태 및 로딩 여부를 관리하는 상태 정의 클래스.
+ *
+ * @property enabled 버튼이 활성화되어 사용자와 상호작용할 수 있는지 여부.
+ * @property loading 로딩 아이콘 노출 및 인터랙션 제한 상태 여부.
+ */
 @Immutable
 data class IenButtonState(
     val enabled: Boolean = true,
     val loading: Boolean = false,
 )
 
+/**
+ * IEN 라이브러리의 범용 버튼 컴포저블.
+ *
+ * @param text 버튼 내부에 표시할 문자열.
+ * @param onClick 버튼 클릭 시 실행할 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param size 버튼의 높이 및 내부 패딩 크기 규격 ([IenButtonSize]). 기본값은 [IenButtonSize.Large].
+ * @param variant 버튼의 비주얼 스타일 변형 ([IenButtonVariant]). 기본값은 [IenButtonVariant.Fill].
+ * @param tone 버튼의 시각적 어조 또는 의미적 강조 색상 ([IenSemanticTone]). 기본값은 [IenSemanticTone.Brand].
+ * @param state 버튼의 활성화 및 로딩 진행 상태 ([IenButtonState]).
+ * @param icon 버튼 텍스트와 함께 표시할 아이콘 컴포저블.
+ * @param iconPlacement 아이콘이 배치될 위치 ([IenIconPlacement]). 기본값은 [IenIconPlacement.Start].
+ * @param shape 버튼의 형태 정의 ([Shape]).
+ * @param contentPadding 버튼 내부 콘텐츠의 여백 ([PaddingValues]).
+ * @param interactionSource 버튼 인터랙션 정보를 전달할 [MutableInteractionSource].
+ * @param display 버튼의 가로 확장 모드 ([IenButtonDisplay]). 기본값은 [IenButtonDisplay.Inline].
+ */
 @Composable
 fun IenButton(
     text: String,
@@ -128,6 +188,19 @@ fun IenButton(
     }
 }
 
+/**
+ * 텍스트 없이 단일 아이콘 또는 이미지 등으로 구성되는 아이콘 전용 버튼 컴포저블.
+ *
+ * @param onClick 버튼 클릭 시 실행할 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param size 버튼의 크기 규격 ([IenButtonSize]). 기본값은 [IenButtonSize.Large].
+ * @param variant 버튼의 비주얼 스타일 변형 ([IenButtonVariant]). 기본값은 [IenButtonVariant.Fill].
+ * @param tone 버튼의 시각적 어조 또는 의미적 강조 색상 ([IenSemanticTone]). 기본값은 [IenSemanticTone.Brand].
+ * @param state 버튼의 활성화 및 로딩 진행 상태 ([IenButtonState]).
+ * @param shape 버튼의 형태 정의 ([Shape]).
+ * @param interactionSource 버튼 인터랙션 정보를 전달할 [MutableInteractionSource].
+ * @param content 버튼 중심에 표시할 아이콘 등의 컴포저블 콘텐츠.
+ */
 @Composable
 fun IenIconButton(
     onClick: () -> Unit,
@@ -182,6 +255,19 @@ fun IenIconButton(
     )
 }
 
+/**
+ * 화면 위에 떠 있는 듯한 원형 형태의 플로팅 액션 버튼(FAB) 컴포저블.
+ *
+ * @param onClick 버튼 클릭 시 실행할 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param size 플로팅 버튼의 크기 규격 ([IenFabSize]). 기본값은 [IenFabSize.Regular].
+ * @param variant 버튼의 비주얼 스타일 변형 ([IenButtonVariant]). 기본값은 [IenButtonVariant.Fill].
+ * @param tone 버튼의 시각적 어조 또는 의미적 강조 색상 ([IenSemanticTone]). 기본값은 [IenSemanticTone.Brand].
+ * @param state 버튼의 활성화 및 로딩 진행 상태 ([IenButtonState]).
+ * @param shape 버튼의 형태 정의 ([Shape]). 기본값은 [CircleShape].
+ * @param interactionSource 버튼 인터랙션 정보를 전달할 [MutableInteractionSource].
+ * @param content 플로팅 버튼 내부에 표시할 컴포저블 콘텐츠.
+ */
 @Composable
 fun IenFab(
     onClick: () -> Unit,
@@ -223,6 +309,21 @@ fun IenFab(
     }
 }
 
+/**
+ * 아이콘과 텍스트를 함께 보여주는 둥근 형태의 확장형 플로팅 액션 버튼(Extended FAB) 컴포저블.
+ *
+ * @param text 버튼 내부에 표시할 문자열.
+ * @param onClick 버튼 클릭 시 실행할 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param variant 버튼의 비주얼 스타일 변형 ([IenButtonVariant]). 기본값은 [IenButtonVariant.Fill].
+ * @param tone 버튼의 시각적 어조 또는 의미적 강조 색상 ([IenSemanticTone]). 기본값은 [IenSemanticTone.Brand].
+ * @param state 버튼의 활성화 및 로딩 진행 상태 ([IenButtonState]).
+ * @param icon 버튼 텍스트와 함께 표시할 아이콘 컴포저블.
+ * @param iconPlacement 아이콘이 배치될 위치 ([IenIconPlacement]). 기본값은 [IenIconPlacement.Start].
+ * @param shape 버튼의 형태 정의 ([Shape]). 기본값은 타원형 캡슐 형태인 [IenTheme.radius.full]을 가집니다.
+ * @param contentPadding 버튼 내부 콘텐츠의 여백 ([PaddingValues]).
+ * @param interactionSource 버튼 인터랙션 정보를 전달할 [MutableInteractionSource].
+ */
 @Composable
 fun IenExtendedFab(
     text: String,
@@ -258,6 +359,19 @@ fun IenExtendedFab(
     }
 }
 
+/**
+ * 배경과 아웃라인이 없거나 투명하며 텍스트만으로 구성된 버튼 컴포저블.
+ *
+ * @param text 버튼에 표시할 문자열.
+ * @param onClick 버튼 클릭 시 실행할 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param size 텍스트 버튼의 크기 및 텍스트 스타일 규격 ([IenTextButtonSize]). 기본값은 [IenTextButtonSize.Medium].
+ * @param variant 텍스트 스타일 종류 ([IenTextButtonVariant]). 기본값은 [IenTextButtonVariant.Clear].
+ * @param disabled 비활성화 여부. true일 경우 사용자와 상호작용할 수 없습니다.
+ * @param tone 텍스트 및 아이콘의 시각적 어조 또는 의미적 강조 색상 ([IenSemanticTone]). 기본값은 [IenSemanticTone.Brand].
+ * @param state 버튼의 활성화 상태 정보를 담는 상태 객체.
+ * @param interactionSource 버튼 인터랙션 정보를 전달할 [MutableInteractionSource].
+ */
 @Composable
 fun IenTextButton(
     text: String,
@@ -354,6 +468,9 @@ private fun IenButtonContent(
     }
 }
 
+/**
+ * 버튼이 그려질 때 각 상태별 배경색, 콘텐츠색, 테두리색 정보를 갖고 있는 내부 데이터 클래스.
+ */
 @Immutable
 internal data class IenButtonResolvedColors(
     val container: Color,
@@ -386,6 +503,9 @@ private fun ienButtonColors(
     )
 }
 
+/**
+ * 의미론적 색상 톤에 대입되는 라이브러리 기본 테마 색상을 반환합니다.
+ */
 @Composable
 internal fun toneColor(tone: IenSemanticTone): Color = when (tone) {
     IenSemanticTone.Neutral -> IenTheme.colors.textPrimary
@@ -396,6 +516,9 @@ internal fun toneColor(tone: IenSemanticTone): Color = when (tone) {
     IenSemanticTone.Info -> IenTheme.colors.info
 }
 
+/**
+ * 의미론적 색상 톤에 대입되는 옅은 어조의 라이브러리 테마 색상을 반환합니다.
+ */
 @Composable
 internal fun toneWeakColor(tone: IenSemanticTone): Color = when (tone) {
     IenSemanticTone.Neutral -> IenTheme.colors.surfaceWeak
@@ -406,6 +529,9 @@ internal fun toneWeakColor(tone: IenSemanticTone): Color = when (tone) {
     IenSemanticTone.Info -> IenTheme.colors.infoWeak
 }
 
+/**
+ * 의미론적 색상 톤의 배경 위에 올라갈 텍스트나 아이콘의 라이브러리 테마 색상을 반환합니다.
+ */
 @Composable
 internal fun toneOnColor(tone: IenSemanticTone): Color = when (tone) {
     IenSemanticTone.Neutral -> IenTheme.colors.surfaceRaised
@@ -486,6 +612,9 @@ private fun IenTextButtonSize.chevronSize(): Dp = when (this) {
     IenTextButtonSize.XXLarge -> 20.dp
 }
 
+/**
+ * 다양한 유형의 버튼 컴포저블들의 클릭 제어, 크기 확대/축소 모션 및 실제 렌더링 뼈대를 구성하는 내부 공통 컨테이너 컴포저블.
+ */
 @Composable
 internal fun IenButtonContainer(
     onClick: () -> Unit,

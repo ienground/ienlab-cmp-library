@@ -27,6 +27,17 @@ import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
 
+/**
+ * [IenMenu]에서 사용하는 메뉴 항목의 데이터를 정의하는 불변(Immutable) 데이터 클래스입니다.
+ *
+ * @property title 메뉴 항목에 표시될 제목
+ * @property onClick 메뉴 항목 클릭 시 실행할 콜백 함수
+ * @property description 메뉴 항목 아래에 표시될 부연 설명 (선택 사항)
+ * @property enabled 메뉴 항목의 활성화 여부
+ * @property tone 메뉴 항목의 의미적 색상 톤 (예: Danger, Warning, Neutral 등)
+ * @property leading 메뉴 항목 왼쪽에 배치할 컴포저블 (예: 아이콘)
+ * @property trailing 메뉴 항목 오른쪽에 배치할 컴포저블
+ */
 @Immutable
 data class IenMenuItem(
     val title: String,
@@ -38,6 +49,14 @@ data class IenMenuItem(
     val trailing: (@Composable () -> Unit)? = null,
 )
 
+/**
+ * 여러 개의 [IenMenuItem] 리스트를 받아 세로 목록 형태의 메뉴를 구성하는 컴포저블입니다.
+ *
+ * @param items 메뉴에 표시할 항목 리스트
+ * @param modifier 메뉴 전체 컨테이너에 적용할 Modifier
+ * @param header 메뉴 상단에 추가로 렌더링할 헤더 영역 컴포저블
+ * @param footer 메뉴 하단에 추가로 렌더링할 푸터 영역 컴포저블
+ */
 @Composable
 fun IenMenu(
     items: List<IenMenuItem>,
@@ -96,6 +115,16 @@ private fun IenMenuItemRow(item: IenMenuItem) {
     }
 }
 
+/**
+ * 다이얼로그 형태로 화면 위에 모달 창을 표시하는 컴포저블입니다.
+ *
+ * @param open 모달의 표시 여부
+ * @param onOpenChange 모달의 열림 상태 변경 시 호출되는 콜백 함수
+ * @param modifier 모달의 전체 컨테이너 Box에 적용할 Modifier
+ * @param onExited 모달이 닫히고 사라진 후에 호출되는 콜백 함수
+ * @param properties 다이얼로그의 속성 (기본값: 플랫폼 기본 너비를 사용하지 않도록 설정)
+ * @param content 모달 내부의 레이아웃을 채울 컴포저블
+ */
 @Composable
 fun IenModal(
     open: Boolean,
@@ -120,7 +149,17 @@ fun IenModal(
     }
 }
 
+/**
+ * 모달 창 내부에 사용할 공통적인 서브 컴포저블(Overlay, Content)을 포함하는 오브젝트입니다.
+ */
 object IenModal {
+    /**
+     * 모달 뒷배경을 어둡게 처리하여 모달에 집중할 수 있도록 만드는 오버레이 컴포저블입니다.
+     *
+     * @param modifier 오버레이 컨테이너 Box에 적용할 Modifier
+     * @param color 오버레이 배경 색상 및 알파 값 (기본값: 검은색 42% 불투명도)
+     * @param onClick 배경 터치 시 호출할 콜백 함수 (제공되는 경우 클릭 이벤트 활성화)
+     */
     @Composable
     fun Overlay(
         modifier: Modifier = Modifier,
@@ -144,6 +183,13 @@ object IenModal {
         }
     }
 
+    /**
+     * 모달 내부에 카드 형태로 콘텐츠를 구성할 수 있도록 배경과 패딩을 설정해주는 컴포저블입니다.
+     *
+     * @param modifier 콘텐츠 영역에 적용할 Modifier
+     * @param shape 모서리의 둥글기 모양
+     * @param content 내부에 들어갈 컴포저블 내용
+     */
     @Composable
     fun Content(
         modifier: Modifier = Modifier,

@@ -21,6 +21,9 @@ import zone.ien.utils.ui.interactive.toneWeakColor
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
 
+/**
+ * 자산 프레임([IenAssetFrame])의 크기 유형을 정의하는 Enum 클래스입니다.
+ */
 enum class IenAssetFrameSize {
     Small,
     Medium,
@@ -28,11 +31,28 @@ enum class IenAssetFrameSize {
     ExtraLarge,
 }
 
+/**
+ * 자산 프레임의 배경 형상을 정의하는 봉인된(sealed) 인터페이스입니다.
+ */
 sealed interface IenAssetFrameShape {
+    /** 모서리가 둥글게 처리된 사각형 테두리 형상 */
     data object Rounded : IenAssetFrameShape
+    /** 원형 테두리 형상 */
     data object Circle : IenAssetFrameShape
 }
 
+/**
+ * 특정 아이콘, 로고 또는 텍스트 자산을 강조하여 감싸고 돋보이게 해주는 프레임 영역 컴포저블입니다.
+ *
+ * @param modifier 프레임 레이아웃에 적용할 [Modifier]
+ * @param size 프레임 크기 단계 ([IenAssetFrameSize])
+ * @param tone 프레임 배경에 반영할 테 테마/시맨틱 톤 ([IenSemanticTone])
+ * @param shape 프레임의 형상 ([IenAssetFrameShape])
+ * @param bordered 테두리선을 얇게 표시할지 여부
+ * @param contentDescription 시각장애인 접근성 지원용 설명 텍스트
+ * @param contentAlignment 내부 요소들의 배치 기준 정렬 방식 ([Alignment])
+ * @param content 내부 콘텐츠 컴포저블 블록
+ */
 @Composable
 fun IenAssetFrame(
     modifier: Modifier = Modifier,

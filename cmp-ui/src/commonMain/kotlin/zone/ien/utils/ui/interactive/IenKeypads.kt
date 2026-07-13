@@ -38,19 +38,39 @@ import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
 import kotlin.random.Random
 
+/**
+ * 키패드 및 키보드 입력 시 발생하는 개별 액션을 정의하는 실드 인터페이스.
+ */
 sealed interface IenKeyboardAction {
+    /** 일반 텍스트 입력 액션 */
     data class Input(val text: String) : IenKeyboardAction
+    /** 백스페이스(한 글자 지우기) 액션 */
     data object Backspace : IenKeyboardAction
+    /** 띄어쓰기(공백 추가) 액션 */
     data object Space : IenKeyboardAction
+    /** 입력 텍스트 전체 지우기 액션 */
     data object Clear : IenKeyboardAction
+    /** 입력 완료(확인) 액션 */
     data object Done : IenKeyboardAction
 }
 
+/**
+ * 보안 키보드([IenFullSecureKeyboard])에서 사용되는 입력 언어 종류 열거형 클래스.
+ */
 enum class IenSecureKeyboardLanguage {
+    /** 영문 입력 모드 */
     English,
+    /** 한글 입력 모드 */
     Korean,
 }
 
+/**
+ * 보안 키보드([IenFullSecureKeyboard])의 현재 텍스트 입력 상태를 관리하는 데이터 클래스.
+ *
+ * @property value 현재 입력된 평문 텍스트 문자열.
+ * @property language 현재 선택된 입력 언어 모드.
+ * @property maskValue 텍스트를 마스킹하여 감출지 여부. 기본값은 true.
+ */
 @Immutable
 data class IenSecureKeyboardState(
     val value: String,
@@ -58,6 +78,13 @@ data class IenSecureKeyboardState(
     val maskValue: Boolean = true,
 )
 
+/**
+ * 풀 보안 키패드([IenFullSecureKeypad])의 개별 키 정보를 정의하는 데이터 클래스.
+ *
+ * @property value 키가 눌렸을 때 전달되는 실제 문자 값.
+ * @property label 키 겉면에 기본으로 노출될 텍스트 라벨.
+ * @property secondaryLabel 키 우측 등에 작게 보조로 노출될 추가 텍스트 라벨 (예: 한글/영문 병기).
+ */
 @Immutable
 data class IenFullSecureKey(
     val value: String,
@@ -65,6 +92,9 @@ data class IenFullSecureKey(
     val secondaryLabel: String? = null,
 )
 
+/**
+ * 풀 보안 키패드([IenFullSecureKeypad]) 내 무작위로 섞이는 빈 칸 셀의 상태 정보를 관리하는 상태 클래스.
+ */
 @Stable
 class IenFullSecureKeypadState internal constructor(
     private val initialSeed: Int,
@@ -89,19 +119,31 @@ class IenFullSecureKeypadState internal constructor(
     }
 }
 
+/**
+ * 풀 보안 키패드([IenFullSecureKeypad])의 무작위 셀 섞기 상태 객체인 [IenFullSecureKeypadState]를 기억하고 생성하는 헬퍼 컴포저블.
+ */
 @Composable
 fun rememberIenFullSecureKeypadState(): IenFullSecureKeypadState = remember {
     IenFullSecureKeypadState(Random.nextInt())
 }
 
+/**
+ * [IenAlphabetKeypad]의 기본 값(알파벳 목록)을 제공하는 설정 객체.
+ */
 object IenAlphabetKeypadDefaults {
     val Alphabets: List<String> = ('A'..'Z').map { it.toString() }
 }
 
+/**
+ * [IenNumberKeypad]의 기본 값(숫자 목록)을 제공하는 설정 객체.
+ */
 object IenNumberKeypadDefaults {
     val Numbers: List<Int> = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
 }
 
+/**
+ * [IenFullSecureKeypad]의 기본 키 맵핑 정보들을 제공하는 설정 객체.
+ */
 object IenFullSecureKeypadDefaults {
     val NumberKeys: List<IenFullSecureKey> = (1..9).map { IenFullSecureKey(it.toString()) } +
         IenFullSecureKey("0")
@@ -139,6 +181,17 @@ object IenFullSecureKeypadDefaults {
     )
 }
 
+/**
+ * 영문 알파벳 목록을 격자 형태로 나열하여 입력을 받을 수 있게 해주는 알파벳 키패드 컴포저블.
+ *
+ * @param onKeyClick 키가 눌렸을 때 눌린 글자 값을 전달하는 콜백 함수.
+ * @param onBackspaceClick 백스페이스가 눌렸을 때 호출되는 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param alphabets 키패드에 배치할 알파벳 문자 목록. 기본값은 A부터 Z까지입니다.
+ * @param enabled 활성화 여부.
+ * @param columns 가로 방향 열의 개수. 기본값은 3.
+ * @param keyHeight 개별 키의 높이 규격. 기본값은 56.dp.
+ */
 @Composable
 fun IenAlphabetKeypad(
     onKeyClick: (value: String) -> Unit,
@@ -196,6 +249,18 @@ fun IenAlphabetKeypad(
     }
 }
 
+/**
+ * 숫자를 입력할 수 있는 3x4 격자 형태의 숫자 전용 키패드 컴포저블.
+ *
+ * @param onKeyClick 숫자 키가 눌렸을 때 눌린 숫자 문자 값을 전달하는 콜백 함수.
+ * @param onBackspaceClick 백스페이스가 눌렸을 때 호출되는 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param numbers 키패드에 표시할 숫자 목록.
+ * @param secure 보안 모드 적용 여부. true일 경우 터치 흔적 방지를 위해 가짜 노이즈 키 클릭 콜백을 유발합니다.
+ * @param enabled 활성화 여부.
+ * @param keyHeight 개별 키의 높이 규격. 기본값은 64.dp.
+ * @param onSecureNoiseKeyClick 보안 모드 활성화 시 가짜 클릭 효과를 주기 위해 선택된 임의의 노이즈 키 값들을 전달하는 콜백 함수.
+ */
 @Composable
 fun IenNumberKeypad(
     onKeyClick: (value: String) -> Unit,
@@ -262,6 +327,21 @@ fun IenNumberKeypad(
     }
 }
 
+/**
+ * 입력 순서 해킹 방지 등을 위해 알파벳, 숫자, 빈 칸 셀이 무작위로 배치되는 고보안성 풀 보안 키패드 컴포저블.
+ *
+ * @param onKeyClick 키가 눌렸을 때 해당 키의 문자 값을 전달하는 콜백 함수.
+ * @param onBackspaceClick 백스페이스가 눌렸을 때 호출되는 콜백 함수.
+ * @param onSpaceClick 스페이스바가 눌렸을 때 호출되는 콜백 함수.
+ * @param onSubmit 확인/전송 버튼이 눌렸을 때 호출되는 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param state 키패드의 무작위 셀 배치 및 재생성 시드를 관리하는 상태 객체 ([IenFullSecureKeypadState]).
+ * @param submitDisabled 전송 버튼의 비활성화 여부.
+ * @param submitButtonText 전송 버튼에 표시할 텍스트.
+ * @param enabled 활성화 여부.
+ * @param onSpecialClick 특수 기호 전환 등 커스텀 액션을 유발할 추가 기능 키의 클릭 콜백 함수 (null일 경우 비활성화).
+ * @param keyHeight 개별 키의 높이 규격. 기본값은 44.dp.
+ */
 @Composable
 fun IenFullSecureKeypad(
     onKeyClick: (value: String) -> Unit,
@@ -360,6 +440,14 @@ fun IenFullSecureKeypad(
     }
 }
 
+/**
+ * 알파벳 쿼티 자판 배열 형태로 구성되며, 띄어쓰기 및 백스페이스 처리를 포함하는 통합 키보드 컴포저블.
+ *
+ * @param onAction 키 입력에 따라 유발되는 통합 액션 ([IenKeyboardAction]) 전달 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param randomized 키 배열 순서를 무작위로 섞을지 여부.
+ * @param enabled 활성화 여부.
+ */
 @Composable
 fun IenAlphabetKeyboard(
     onAction: (IenKeyboardAction) -> Unit,
@@ -391,6 +479,14 @@ fun IenAlphabetKeyboard(
     )
 }
 
+/**
+ * 완료(Done) 및 지우기(Clear) 기능을 통합하여 하나의 액션 콜백으로 제어할 수 있는 숫자 키패드 컴포저블.
+ *
+ * @param onAction 키 입력에 따라 유발되는 통합 액션 ([IenKeyboardAction]) 전달 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param randomized 숫자 키 배열 순서를 무작위로 섞을지 여부.
+ * @param enabled 활성화 여부.
+ */
 @Composable
 fun IenNumberKeypad(
     onAction: (IenKeyboardAction) -> Unit,
@@ -423,6 +519,16 @@ fun IenNumberKeypad(
     )
 }
 
+/**
+ * 보안 텍스트 입력을 위해 입력 필드 마스킹, 영/한 언어 전환 및 무작위 숫자 배열 키패드를 한 번에 제공하는 통합 보안 키보드 컴포저블.
+ *
+ * @param state 현재 입력 정보 및 노출 설정을 포함하는 보안 키보드 상태 객체 ([IenSecureKeyboardState]).
+ * @param onAction 키 입력에 따라 유발되는 통합 액션 ([IenKeyboardAction]) 전달 콜백 함수.
+ * @param onLanguageChange 입력 언어가 전환될 때 호출되는 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param randomized 키배열 무작위 셔플 활성화 여부. 기본값은 true.
+ * @param enabled 활성화 여부.
+ */
 @Composable
 fun IenFullSecureKeyboard(
     state: IenSecureKeyboardState,

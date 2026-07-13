@@ -24,12 +24,27 @@ import zone.ien.utils.ui.interactive.toneWeakColor
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
 
+/**
+ * 말풍선(Bubble)의 꼬리 방향을 나타내는 열거형 클래스입니다.
+ */
 enum class IenBubbleTail {
+    /** 꼬리 없음 */
     None,
+    /** 시작 부분(왼쪽)에 꼬리 배치 */
     Start,
+    /** 끝 부분(오른쪽)에 꼬리 배치 */
     End,
 }
 
+/**
+ * 텍스트를 포함하는 말풍선 UI 컴포넌트입니다.
+ *
+ * @param text 말풍선에 표시될 텍스트
+ * @param modifier 레이아웃 및 스타일 수정을 위한 [Modifier]
+ * @param tone 말풍선의 의미적 톤 설정 ([IenSemanticTone])
+ * @param tail 말풍선 꼬리의 위치 및 방향 ([IenBubbleTail])
+ * @param contentPadding 말풍선 내부 텍스트의 패딩 ([PaddingValues])
+ */
 @Composable
 fun IenBubble(
     text: String,
@@ -78,6 +93,15 @@ private fun BubbleTail(color: Color) {
     )
 }
 
+/**
+ * 지정된 텍스트 내에서 특정 하이라이트 키워드들을 강조 표시하는 텍스트 컴포넌트입니다.
+ *
+ * @param text 전체 텍스트
+ * @param highlights 강조 표시할 키워드 목록
+ * @param modifier 레이아웃 및 스타일 수정을 위한 [Modifier]
+ * @param tone 강조 표시 색상에 사용할 의미적 톤 설정 ([IenSemanticTone])
+ * @param ignoreCase 키워드 매칭 시 대소문자를 구분하지 않을지 여부 (기본값: true)
+ */
 @Composable
 fun IenHighlightText(
     text: String,

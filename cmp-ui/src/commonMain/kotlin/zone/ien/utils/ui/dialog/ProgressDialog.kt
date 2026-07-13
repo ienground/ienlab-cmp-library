@@ -52,6 +52,14 @@ fun IenProgressDialog(
     }
 }
 
+/**
+ * 수치적으로 진행률을 표현할 수 있는 진행 상태 다이얼로그를 제공하는 컴포저블입니다.
+ *
+ * @param modifier 다이얼로그에 적용할 Modifier
+ * @param visible 다이얼로그의 표시 여부
+ * @param progress 0.0f에서 1.0f 사이의 진행률을 반환하는 콜백 함수
+ * @param isWavyIndicator 파도 모양 인디케이터 여부
+ */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun IenProgressDialog(

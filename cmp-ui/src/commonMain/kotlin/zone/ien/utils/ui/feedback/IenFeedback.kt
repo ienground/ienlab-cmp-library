@@ -97,8 +97,21 @@ import kotlin.math.PI
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
+/**
+ * 바텀시트가 펼쳐지는 높이의 단계를 정의하는 Enum 클래스입니다.
+ *
+ * - [Content]: 콘텐츠의 본래 높이만큼만 펼쳐집니다.
+ * - [Medium]: 화면 높이의 50%만큼 펼쳐집니다.
+ * - [Full]: 화면 높이의 92%만큼 펼쳐집니다.
+ */
 enum class IenSheetDetent { Content, Medium, Full }
 
+/**
+ * [IenBottomSheet]의 상태(표시 여부 및 높이 단계)를 제어하고 관리하는 상태 객체입니다.
+ *
+ * @property visible 바텀시트의 표시 여부
+ * @property detent 바텀시트가 펼쳐진 높이 단계 ([IenSheetDetent])
+ */
 @Stable
 class IenBottomSheetState internal constructor(
     visible: Boolean,
@@ -109,22 +122,52 @@ class IenBottomSheetState internal constructor(
     var detent by mutableStateOf(detent)
         private set
 
+    /**
+     * 바텀시트를 지정된 높이 단계로 화면에 표시합니다.
+     *
+     * @param detent 바텀시트를 펼칠 높이 단계 ([IenSheetDetent])
+     */
     fun show(detent: IenSheetDetent = IenSheetDetent.Content) {
         this.detent = detent
         visible = true
     }
 
+    /**
+     * 바텀시트를 화면에서 숨깁니다.
+     */
     fun hide() {
         visible = false
     }
 }
 
+/**
+ * [IenBottomSheetState] 인스턴스를 생성하고 기억(remember)하는 헬퍼 컴포저블 함수입니다.
+ *
+ * @param visible 초기 표시 여부
+ * @param detent 초기 높이 단계 ([IenSheetDetent])
+ * @return 생성된 [IenBottomSheetState] 객체
+ */
 @Composable
 fun rememberIenBottomSheetState(
     visible: Boolean = false,
     detent: IenSheetDetent = IenSheetDetent.Content,
 ) = remember { IenBottomSheetState(visible, detent) }
 
+/**
+ * 다양한 모드와 슬라이드 드래그 제스처를 지원하는 바텀시트 컴포저블입니다.
+ *
+ * @param state 바텀시트의 상태 제어 객체 ([IenBottomSheetState])
+ * @param modifier 바텀시트에 적용할 [Modifier]
+ * @param dismissOnScrimClick 바깥 영역(스크림) 클릭 시 바텀시트를 닫을지 여부
+ * @param showDragHandle 바텀시트 상단에 드래그 핸들 바를 표시할지 여부
+ * @param disableDimmer 배경을 어둡게 처리(dimming)할지 여부
+ * @param disableFocusLock 포커스 잠금(Focus Lock)을 해제할지 여부
+ * @param header 바텀시트 상단에 들어갈 헤더 타이틀 컴포저블
+ * @param headerDescription 헤더 아래에 들어갈 설명문 컴포저블
+ * @param cta 바텀시트 하단에 고정되는 작업 버튼(Call To Action) 영역 컴포저블
+ * @param contentPadding 콘텐츠 영역의 내부 여백 ([PaddingValues])
+ * @param content 바텀시트의 내부 콘텐츠 영역을 정의하는 컴포저블 블록
+ */
 @Composable
 fun IenBottomSheet(
     state: IenBottomSheetState,
@@ -318,11 +361,25 @@ private fun IenSheetDetent.sheetHeightModifier(): Modifier = when (this) {
     IenSheetDetent.Full -> Modifier.fillMaxHeight(0.92f)
 }
 
+/**
+ * [IenBottomSheetSelect]에서 사용할 개별 옵션 항목 데이터 모델입니다.
+ *
+ * @property name 화면에 표시될 옵션 이름
+ * @property value 옵션의 실제 식별 값
+ */
 data class IenBottomSheetOption(
     val name: String,
     val value: String,
 )
 
+/**
+ * 바텀시트 내에서 여러 옵션 리스트 중 하나를 선택할 수 있게 해주는 선택 컴포저블입니다.
+ *
+ * @param options 선택 가능한 [IenBottomSheetOption] 목록
+ * @param value 현재 선택된 값의 식별자
+ * @param onChange 새로운 옵션이 선택되었을 때 호출되는 콜백 함수
+ * @param modifier 컴포저블에 적용할 [Modifier]
+ */
 @Composable
 fun IenBottomSheetSelect(
     options: List<IenBottomSheetOption>,
@@ -354,6 +411,13 @@ fun IenBottomSheetSelect(
     }
 }
 
+/**
+ * 다이얼로그([IenDialog]) 내의 버튼 동작을 구성하는 데이터 모델입니다.
+ *
+ * @property text 버튼에 표시할 문구
+ * @property onClick 버튼을 클릭했을 때 실행할 콜백 함수
+ * @property tone 버튼의 시맨틱 톤 설정 ([IenSemanticTone])
+ */
 @Immutable
 data class IenDialogAction(
     val text: String,
@@ -361,6 +425,19 @@ data class IenDialogAction(
     val tone: IenSemanticTone = IenSemanticTone.Brand,
 )
 
+/**
+ * 사용자에게 알림 또는 확인 작업을 수행할 때 표시되는 다이얼로그 컴포저블입니다.
+ *
+ * [dismiss] 액션 여부에 따라 알림창([IenAlertDialog]) 또는 확인창([IenConfirmDialog])으로 렌더링됩니다.
+ *
+ * @param visible 다이얼로그 표시 여부
+ * @param onDismissRequest 다이얼로그 외부 클릭 또는 뒤로 가기 등으로 닫힐 때 호출되는 콜백
+ * @param title 다이얼로그의 제목
+ * @param message 다이얼로그의 본문 메시지
+ * @param confirm 확인/긍정 버튼 액션 ([IenDialogAction])
+ * @param modifier 다이얼로그 레이아웃에 적용할 [Modifier]
+ * @param dismiss 취소/부정 버튼 액션 ([IenDialogAction]). 생략할 경우 단일 버튼 알림 다이얼로그로 동작합니다.
+ */
 @Composable
 fun IenDialog(
     visible: Boolean,
@@ -413,22 +490,38 @@ fun IenDialog(
 
 
 
+/**
+ * 토스트([IenToast]) 메시지가 화면에 노출될 수직 위치를 나타내는 Enum 클래스입니다.
+ */
 enum class IenToastPosition {
     Top,
     Bottom,
 }
 
+/**
+ * 스크린 리더 등 접근성 서비스(Accessibility)에 토스트 메시지의 음성 출력을 안내하는 지연 수준을 지정하는 Enum 클래스입니다.
+ */
 enum class IenToastAriaLive {
     Polite,
     Assertive,
 }
 
+/**
+ * [IenToast] 컴포저블에서 공통으로 적용하는 기본값 정의 객체입니다.
+ */
 object IenToastDefaults {
     const val DurationMillis: Long = 3000L
     const val ActionDurationMillis: Long = 5000L
     val MaxWidth: Dp = 420.dp
 }
 
+/**
+ * 화면 상단 또는 하단에 맞춰 토스트 팝업의 위치를 계산해주는 [PopupPositionProvider] 구현체입니다.
+ *
+ * @param position 토스트를 표시할 위치 ([IenToastPosition])
+ * @param density 화면 픽셀 변환을 위한 [Density] 객체
+ * @param higherThanCTA 하단 CTA 버튼 영역보다 위에 띄울지 여부
+ */
 class IenToastPositionProvider(
     private val position: IenToastPosition,
     private val density: Density,
@@ -455,12 +548,27 @@ class IenToastPositionProvider(
     }
 }
 
+/**
+ * 토스트([IenToast]) 메시지 내에서 제공할 수 있는 우측 버튼 작업의 데이터 모델입니다.
+ *
+ * @property text 버튼에 표시할 문구
+ * @property onClick 버튼을 클릭했을 때 실행할 콜백 함수
+ */
 @Immutable
 data class IenToastAction(
     val text: String,
     val onClick: () -> Unit,
 )
 
+/**
+ * 정적 토스트 카드 형태를 그리는 내부 컴포저블입니다.
+ *
+ * @param message 표시할 메시지 텍스트
+ * @param modifier 컴포저블 레이아웃에 적용할 [Modifier]
+ * @param tone 토스트의 시맨틱 톤 ([IenSemanticTone])
+ * @param leftAddon 메시지 왼쪽에 표시할 아이콘 등 추가 요소 컴포저블
+ * @param button 메시지 오른쪽에 표시할 액션 버튼 ([IenToastAction])
+ */
 @Composable
 fun IenToast(
     message: String,
@@ -479,6 +587,22 @@ fun IenToast(
     )
 }
 
+/**
+ * 화면 상단 또는 하단에 애니메이션 및 스와이프 닫기 제스처가 있는 팝업 형태의 토스트를 띄우는 컴포저블입니다.
+ *
+ * @param open 토스트 표시 활성화 여부
+ * @param position 화면상에 배치될 위치 ([IenToastPosition])
+ * @param text 표시할 본문 메시지 텍스트
+ * @param onClose 토스트 노출 시간이 다 되거나 스와이프로 닫을 때 호출되는 콜백
+ * @param modifier 토스트 레이아웃에 적용할 [Modifier]
+ * @param leftAddon 메시지 왼쪽에 표시할 추가 컴포저블
+ * @param button 메시지 오른쪽에 표시할 버튼 액션 ([IenToastAction])
+ * @param durationMillis 토스트가 화면에 유지되는 시간(밀리초). 기본값은 액션 유무에 따라 상이함
+ * @param onExited 토스트가 완전히 화면 밖으로 사라지는 애니메이션이 완료될 때 실행될 콜백
+ * @param higherThanCTA 하단 표시할 때 CTA 버튼 위로 배치할지 여부
+ * @param ariaLive 접근성 지연 강도 수준 ([IenToastAriaLive])
+ * @param tone 토스트의 시맨틱 톤 ([IenSemanticTone])
+ */
 @Composable
 fun IenToast(
     open: Boolean,
@@ -643,6 +767,13 @@ private fun IenToastContent(
     }
 }
 
+/**
+ * 토스트 메시지 카드 우측에 들어갈 파란색 텍스트 액션 버튼 컴포저블입니다.
+ *
+ * @param text 버튼 텍스트
+ * @param onClick 버튼 클릭 콜백 함수
+ * @param modifier 적용할 [Modifier]
+ */
 @Composable
 fun IenToastButton(
     text: String,
@@ -660,6 +791,13 @@ fun IenToastButton(
     )
 }
 
+/**
+ * 토스트 좌측에 시맨틱 톤에 따른 상태 아이콘을 나타내는 컴포저블입니다.
+ *
+ * @param modifier 적용할 [Modifier]
+ * @param tone 나타낼 상태의 시맨틱 톤 ([IenSemanticTone])
+ * @param size 아이콘 및 배경 서클의 크기
+ */
 @Composable
 fun IenToastIcon(
     modifier: Modifier = Modifier,
@@ -696,6 +834,18 @@ fun IenToastIcon(
 }
 
 
+/**
+ * 데이터를 로딩 중일 때 표시할 수 있는 스켈레톤(스위머) 자리 표시자 컴포저블입니다.
+ *
+ * @param modifier 적용할 [Modifier]
+ * @param height 단일 블록의 스켈레톤을 만들 때 사용하는 높이. null이 아니면 해당 높이의 단일 블록이 렌더링됩니다.
+ * @param radius 둥근 테두리 반경 ([Dp])
+ * @param pattern 사전에 지정된 레이아웃 템플릿 ([IenSkeletonPattern])
+ * @param custom 직접 지정하고자 하는 스켈레톤 요소([IenSkeletonElement]) 목록
+ * @param repeatLastItemCount 마지막 줄 요소를 반복해 뿌릴 횟수 또는 방식 ([IenSkeletonRepeat])
+ * @param play 스켈레톤을 노출할지 감출지 여부 ([IenSkeletonPlay])
+ * @param background 스켈레톤의 배경 컬러 톤 ([IenSkeletonBackground])
+ */
 @Composable
 fun IenSkeleton(
     modifier: Modifier = Modifier,
@@ -747,6 +897,9 @@ fun IenSkeleton(
     }
 }
 
+/**
+ * 스켈레톤 화면 구조를 쉽게 구성할 수 있도록 지원하는 미리 설정된 레이아웃 템플릿 목록입니다.
+ */
 enum class IenSkeletonPattern {
     TopList,
     TopListWithIcon,
@@ -759,17 +912,30 @@ enum class IenSkeletonPattern {
     CardOnly,
 }
 
+/**
+ * 스켈레톤 컴포저블의 애니메이션 및 노출 여부를 조작하는 재생 제어 상태입니다.
+ */
 enum class IenSkeletonPlay {
     Show,
     Hide,
 }
 
+/**
+ * 스켈레톤 블록의 배경에 사용할 색상 세트를 결정하는 Enum 클래스입니다.
+ */
 enum class IenSkeletonBackground {
     White,
     Grey,
     GreyOpacity100,
 }
 
+/**
+ * 자식 스켈레톤 요소를 하나로 묶어 파동형 애니메이션 페이즈를 동기화하기 위해 사용하는 모션 그룹 컴포저블입니다.
+ *
+ * @param modifier 적용할 [Modifier]
+ * @param animationIndex 애니메이션 딜레이 기준 인덱스
+ * @param content 내부 콘텐츠 컴포저블
+ */
 @Composable
 fun IenSkeletonMotionGroup(
     modifier: Modifier = Modifier,
@@ -786,17 +952,35 @@ fun IenSkeletonMotionGroup(
     }
 }
 
+/**
+ * 스켈레톤 리스트 형태에서 마지막 요소를 반복하는 횟수나 방식을 정의하는 봉인된(sealed) 인터페이스입니다.
+ */
 sealed interface IenSkeletonRepeat {
+    /**
+     * 특정 횟수만큼 마지막 요소를 반복합니다.
+     */
     data class Count(val value: Int) : IenSkeletonRepeat
+    /**
+     * 무한(또는 최대 수량)만큼 마지막 요소를 반복합니다.
+     */
     data object Infinite : IenSkeletonRepeat
 }
 
+/**
+ * 스켈레톤 화면 구조를 구성하기 위한 기본 UI 구성 요소 종류를 정의한 봉인된(sealed) 인터페이스입니다.
+ */
 sealed interface IenSkeletonElement {
+    /** 제목 스타일의 얇은 스켈레톤 바 */
     data object Title : IenSkeletonElement
+    /** 부제목 스타일의 더 얇고 짧은 스켈레톤 바 */
     data object Subtitle : IenSkeletonElement
+    /** 리스트 아이템 형태의 스켈레톤 바 */
     data object List : IenSkeletonElement
+    /** 아이콘과 함께 있는 리스트 형태의 스켈레톤 요소 */
     data object ListWithIcon : IenSkeletonElement
+    /** 카드 형태의 커다란 스켈레톤 블록 */
     data object Card : IenSkeletonElement
+    /** 요소들 사이의 여백을 나타내는 여백 스켈레톤 */
     data class Spacer(val height: Dp) : IenSkeletonElement
 }
 
@@ -1074,6 +1258,17 @@ private fun Modifier.ienSkeletonMotion(
     }
 }
 
+/**
+ * 진행율을 가로 바 형식으로 시각화하여 표현해 주는 프로그레스 바 컴포저블입니다.
+ *
+ * @param progress 0.0부터 1.0 사이의 진행율 값
+ * @param modifier 적용할 [Modifier]
+ * @param size 프로그레스 바의 굵기 레벨 ([IenProgressBarSize])
+ * @param color 프로그레스 채우기에 적용할 메인 색상
+ * @param animate 수치 변경 시 게이지가 차오르는 애니메이션을 적용할지 여부
+ * @param contentDescription 접근성을 위한 스크린 리더용 설명문
+ * @param showLabel 프로그레스 바 하단에 백분율(예: 50%)을 텍스트 레이블로 보여줄지 여부
+ */
 @Composable
 fun IenProgressBar(
     progress: Float,
@@ -1131,14 +1326,27 @@ fun IenProgressBar(
     }
 }
 
+/**
+ * 프로그레스 바의 수직 높이(굵기)를 지정하기 위한 Enum 클래스입니다.
+ */
 enum class IenProgressBarSize {
     Light,
     Normal,
     Bold,
 }
 
+/**
+ * 로더([IenLoader]) 원형 회전 인디케이터 크기 단계를 지정하기 위한 Enum 클래스입니다.
+ */
 enum class IenLoaderSize { Small, Medium, Large }
 
+/**
+ * 화면 중앙 등에서 콘텐츠 대기 시에 돌면서 로딩 중임을 시각화하는 원형 로더 컴포저블입니다.
+ *
+ * @param modifier 적용할 [Modifier]
+ * @param size 로더 원형 인디케이터 크기 ([IenLoaderSize])
+ * @param label 인디케이터 밑에 표시할 안내 텍스트. 생략 시 원형 단독으로 렌더링됩니다.
+ */
 @Composable
 fun IenLoader(
     modifier: Modifier = Modifier,
@@ -1170,23 +1378,45 @@ fun IenLoader(
     }
 }
 
+/**
+ * 단계별 진행 바([IenProgressStepper]) 내 개별 단계의 상태값을 표현하는 Enum 클래스입니다.
+ */
 enum class IenStepStatus { Pending, Current, Done, Error }
 
+/**
+ * 단계별 진행 바의 디자인 레이아웃 방식을 지정하는 Enum 클래스입니다.
+ */
 enum class IenProgressStepperVariant {
     Compact,
     Icon,
 }
 
+/**
+ * 단계별 진행 바 내부 상단 여백 수준을 정의하는 Enum 클래스입니다.
+ */
 enum class IenProgressStepperPaddingTop {
     Default,
     Wide,
 }
 
+/**
+ * [IenProgressStepper]에 노출할 단계 데이터를 나타내는 데이터 모델입니다.
+ *
+ * @property title 단계의 명칭/라벨
+ * @property status 단계를 활성화하여 표현할 진행 상태 ([IenStepStatus])
+ * @property icon 커스텀 아이콘을 표시하고 싶을 때 정의하는 컴포저블 블록
+ */
 data class IenProgressStep(
     val title: String? = null,
     val status: IenStepStatus? = null,
     val icon: (@Composable () -> Unit)? = null,
 ) {
+    /**
+     * 간편하게 라벨과 상태만 지정하여 단계를 구성하는 보조 생성자입니다.
+     *
+     * @param label 단계 라벨 텍스트
+     * @param status 단계 진행 상태 ([IenStepStatus])
+     */
     constructor(label: String, status: IenStepStatus) : this(
         title = label,
         status = status,
@@ -1194,6 +1424,16 @@ data class IenProgressStep(
     )
 }
 
+/**
+ * 여러 과정의 단계를 순차적으로 표시하며 현재 진행 단계를 알려주는 스텝 인디케이터 컴포저블입니다.
+ *
+ * @param steps 구성할 단계 목록 ([IenProgressStep])
+ * @param modifier 적용할 [Modifier]
+ * @param variant 스텝 표시 스타일 형태 ([IenProgressStepperVariant])
+ * @param paddingTop 상단 여백 단계 수준 ([IenProgressStepperPaddingTop])
+ * @param activeStepIndex 현재 진행 중인 스텝의 0-based 인덱스
+ * @param checkForFinish 완료된 스텝들을 체크 아이콘으로 변경하여 보여줄지 여부
+ */
 @Composable
 fun IenProgressStepper(
     steps: List<IenProgressStep>,
@@ -1338,8 +1578,22 @@ private fun ProgressStepMarker(
     }
 }
 
+/**
+ * 결과 카드([IenResult])의 결과 유형(성공, 실패 등) 및 테마 톤을 결정하는 Enum 클래스입니다.
+ */
 enum class IenResultTone { Success, Failure, Empty, Info }
 
+/**
+ * 특정 액션 또는 작업의 결과 화면(예: 빈 페이지, 오류 안내, 성공 알림 등)을 레이아웃으로 렌더링하는 범용 결과 표시 컴포저블입니다.
+ *
+ * @param title 결과 화면에 보여줄 메인 제목 문구
+ * @param modifier 적용할 [Modifier]
+ * @param description 메인 제목 하단에 배치할 보조 상세 설명문
+ * @param tone 결과의 상태 유형 테마 ([IenResultTone])
+ * @param icon 상단 서클 내부에 렌더링할 아이콘 등 추가 요소 컴포저블
+ * @param primaryAction 주요 클릭 이벤트/액션 버튼 컴포저블
+ * @param secondaryAction 보조 클릭 이벤트/액션 버튼 컴포저블
+ */
 @Composable
 fun IenResult(
     title: String,

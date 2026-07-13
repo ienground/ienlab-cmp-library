@@ -8,6 +8,12 @@ import androidx.compose.ui.Modifier
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 
+/**
+ * 섹션의 제목을 표시하는 컴포저블
+ *
+ * @param modifier 적용할 Modifier
+ * @param content 제목의 내용을 구성하는 컴포저블 블록
+ */
 @Composable
 internal fun SectionTitle(
     modifier: Modifier = Modifier,
@@ -25,6 +31,11 @@ internal fun SectionTitle(
     }
 }
 
+/**
+ * 섹션의 설명이나 캡션을 표시하는 컴포저블
+ *
+ * @param content 캡션의 내용을 구성하는 컴포저블 블록
+ */
 @Composable
 internal fun SectionCaption(
     content: @Composable () -> Unit,

@@ -116,16 +116,28 @@ fun IenLinkIconText(
             .wrapContentHeight(align = Alignment.CenterVertically, unbounded = true)
 )
 
+/**
+ * 링크 아이콘에 적용되는 기본 스타일 값을 정의하는 오브젝트
+ */
 @Immutable
 object MaterialLabelIconDefaults {
+    /**
+     * 링크 아이콘의 기본 컨테이너 배경 색상
+     */
     val ContainerColor: Color
         @Composable
         get() = IenTheme.colors.brandWeak
 
+    /**
+     * 링크 아이콘의 기본 틴트/콘텐츠 색상
+     */
     val Tint: Color
         @Composable
         get() = IenTheme.colors.onBrandWeak
 
+    /**
+     * 링크 아이콘의 기본 모양
+     */
     val Shape: Shape
         @Composable
         get() = CircleShape

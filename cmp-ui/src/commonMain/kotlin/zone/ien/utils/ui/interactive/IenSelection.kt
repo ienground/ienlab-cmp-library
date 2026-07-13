@@ -71,6 +71,16 @@ import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
 
+/**
+ * 활성/비활성 상태를 직관적으로 전환할 수 있는 토글 스위치 컴포저블.
+ *
+ * @param checked 현재 선택(활성화) 상태 여부.
+ * @param onCheckedChange 선택 상태 변경 시 호출되는 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param enabled 활성화 여부. false일 경우 상호작용이 불가능하며 클릭 시 흔들림 애니메이션 효과가 발생합니다.
+ * @param thumbContent 스위치 손잡이(Thumb) 내부에 커스텀하게 표시될 컴포저블.
+ * @param interactionSource 스위치 인터랙션 정보를 전달할 [MutableInteractionSource].
+ */
 @Composable
 fun IenSwitch(
     checked: Boolean,
@@ -158,16 +168,34 @@ fun IenSwitch(
     )
 }
 
+/**
+ * [IenSegmentedControl]의 크기를 정의하는 열거형 클래스.
+ */
 enum class IenSegmentedControlSize {
+    /** 작은 크기 */
     Small,
+    /** 큰 크기 */
     Large,
 }
 
+/**
+ * [IenSegmentedControl] 내부 아이템들의 너비 배치 방식을 정의하는 열거형 클래스.
+ */
 enum class IenSegmentedControlAlignment {
+    /** 아이템들이 사용 가능한 너비를 동일하게 나눠서 채움 (고정폭) */
     Fixed,
+    /** 아이템들이 텍스트 길이에 비례하는 너비를 가지고 가로 스크롤 가능하게 함 (유동폭) */
     Fluid,
 }
 
+/**
+ * 세그먼티드 컨트롤의 개별 아이템 속성을 정의하는 데이터 클래스.
+ *
+ * @property value 아이템의 실제 식별 값.
+ * @property label 아이템에 표시될 라벨 텍스트.
+ * @property enabled 개별 아이템의 활성화 여부.
+ * @property size 개별 아이템에 적용할 오버라이드 크기 규격. null인 경우 컨트롤 기본 크기를 따릅니다.
+ */
 data class IenSegmentedControlItem(
     val value: String,
     val label: String,
@@ -180,6 +208,18 @@ private data class IenSegmentedControlItemBounds(
     val width: Dp,
 )
 
+/**
+ * 여러 옵션 중 하나를 선택할 수 있도록 수평으로 나열된 버튼 형태의 세그먼티드 컨트롤 컴포저블.
+ *
+ * @param items 표시할 옵션 아이템 목록 ([IenSegmentedControlItem]).
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param value 외부 상태로 제어되는 현재 선택된 값. null인 경우 컴포저블 내부 상태를 사용합니다.
+ * @param defaultValue 내부 상태로 제어될 때 처음에 선택될 기본 값.
+ * @param onChange 선택 값이 변경되었을 때 호출되는 콜백 함수.
+ * @param size 세그먼티드 컨트롤의 크기 규격 ([IenSegmentedControlSize]). 기본값은 [IenSegmentedControlSize.Small].
+ * @param alignment 옵션 아이템들의 가로 너비 정렬 및 스크롤 옵션 ([IenSegmentedControlAlignment]). 기본값은 [IenSegmentedControlAlignment.Fixed].
+ * @param enabled 활성화 여부. false일 경우 상호작용할 수 없습니다.
+ */
 @Composable
 fun IenSegmentedControl(
     items: List<IenSegmentedControlItem>,
@@ -400,6 +440,15 @@ private fun segmentedControlIndicatorColor(): Color {
     }
 }
 
+/**
+ * 문자열 리스트를 인자로 받아 쉽게 구성할 수 있는 정량 인덱스 기반의 세그먼티드 컨트롤 컴포저블.
+ *
+ * @param items 표시할 옵션 라벨 문자열 목록.
+ * @param selectedIndex 현재 선택된 옵션의 인덱스.
+ * @param onSelectedIndexChange 선택된 인덱스가 변경될 때 호출되는 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param enabled 활성화 여부.
+ */
 @Composable
 fun IenSegmentedControl(
     items: List<String>,
@@ -435,6 +484,17 @@ private fun IenCheckMark(
     )
 }
 
+/**
+ * 원형 체크박스와 라벨이 함께 제공되는 체크박스 컴포저블.
+ *
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param checked 외부 상태로 제어되는 현재 체크 여부. null인 경우 컴포저블 내부 상태를 사용합니다.
+ * @param defaultChecked 내부 상태로 제어될 때 처음에 적용될 기본 체크 여부.
+ * @param onCheckedChange 체크 여부가 변경될 때 호출되는 콜백 함수.
+ * @param enabled 활성화 여부. false일 경우 상호작용이 불가능하며 클릭 시 흔들림 애니메이션 효과가 발생합니다.
+ * @param size 체크박스의 크기 규격. 기본값은 24.dp.
+ * @param label 체크박스 옆에 표시될 설명 라벨 텍스트.
+ */
 @Composable
 fun IenCircleCheckbox(
     modifier: Modifier = Modifier,
@@ -561,6 +621,17 @@ fun IenCircleCheckbox(
     }
 }
 
+/**
+ * 체크 시 원형 점(Dot) 형태로 표시되는 미니멀한 체크박스 컴포저블.
+ *
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param checked 외부 상태로 제어되는 현재 체크 여부. null인 경우 컴포저블 내부 상태를 사용합니다.
+ * @param defaultChecked 내부 상태로 제어될 때 처음에 적용될 기본 체크 여부.
+ * @param onCheckedChange 체크 여부가 변경될 때 호출되는 콜백 함수.
+ * @param enabled 활성화 여부. false일 경우 상호작용이 불가능하며 클릭 시 흔들림 애니메이션 효과가 발생합니다.
+ * @param size 체크 영역(점)의 크기 규격. 기본값은 8.dp.
+ * @param label 체크박스 옆에 표시될 설명 라벨 텍스트.
+ */
 @Composable
 fun IenDotCheckbox(
     modifier: Modifier = Modifier,
@@ -679,6 +750,17 @@ fun IenDotCheckbox(
     }
 }
 
+/**
+ * 테두리나 배경 없이 체크 표시(Check icon) 자체만 노출되는 형태의 라인 체크박스 컴포저블.
+ *
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param checked 외부 상태로 제어되는 현재 체크 여부. null인 경우 컴포저블 내부 상태를 사용합니다.
+ * @param defaultChecked 내부 상태로 제어될 때 처음에 적용될 기본 체크 여부.
+ * @param onCheckedChange 체크 여부가 변경될 때 호출되는 콜백 함수.
+ * @param enabled 활성화 여부. false일 경우 상호작용이 불가능하며 클릭 시 흔들림 애니메이션 효과가 발생합니다.
+ * @param size 체크 아이콘의 크기 규격. 기본값은 24.dp.
+ * @param label 체크박스 옆에 표시될 설명 라벨 텍스트.
+ */
 @Composable
 fun IenLineCheckbox(
     modifier: Modifier = Modifier,

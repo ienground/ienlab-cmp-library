@@ -42,16 +42,29 @@ import zone.ien.utils.icon.remix.line.ArrowRightS
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenText
 
+/**
+ * 리스트 행(Row)의 구분선 스타일을 정의하는 열거형 클래스입니다.
+ */
 enum class IenListRowBorder {
+    /** 왼쪽에 여백이 들어간 구분선 */
     Indented,
+    /** 구분선 없음 */
     None,
 }
 
+/**
+ * 리스트 행이 비활성화되었을 때의 스타일 유형을 정의하는 열거형 클래스입니다.
+ */
 enum class IenListRowDisabledStyle {
+    /** 텍스트 불투명도만 조절하는 기본 스타일 */
     Type1,
+    /** 배경색과 불투명도를 모두 조절하는 스타일 */
     Type2,
 }
 
+/**
+ * 리스트 행의 여백(패딩) 크기를 정의하는 열거형 클래스입니다.
+ */
 enum class IenListRowPadding {
     ExtraSmall,
     Small,
@@ -60,31 +73,54 @@ enum class IenListRowPadding {
     XLarge,
 }
 
+/**
+ * 리스트 행 내부 콘텐츠의 수직 정렬 방식을 정의하는 열거형 클래스입니다.
+ */
 enum class IenListRowAlignment {
     Top,
     Center,
 }
 
+/**
+ * 리스트 행의 스켈레톤 로더(Loader) 레이아웃 유형을 정의하는 열거형 클래스입니다.
+ */
 enum class IenListRowLoaderType {
+    /** 사각형 이미지 영역 로더 */
     Square,
+    /** 원형 이미지 영역 로더 */
     Circle,
+    /** 텍스트 바 영역 로더 */
     Bar,
 }
 
+/**
+ * 리스트 행에 표시할 어셋(이미지/아이콘)의 모양을 정의하는 열거형 클래스입니다.
+ */
 enum class IenListRowAssetShape {
+    /** 원본 모양 그대로 노출 */
     Original,
+    /** 둥근 모서리가 큰 스쿼클 모양 */
     Squircle,
+    /** 카드 형태의 둥근 모서리 모양 */
     Card,
+    /** 일반 사각형 모양 */
     Square,
+    /** 원형 모양 */
     Circle,
 }
 
+/**
+ * 리스트 행에 표시할 어셋의 크기를 정의하는 열거형 클래스입니다.
+ */
 enum class IenListRowAssetSize {
     XSmall,
     Small,
     Medium,
 }
 
+/**
+ * 리스트 행에 포함되는 텍스트 조합(행 수 및 스타일 정렬)을 정의하는 열거형 클래스입니다.
+ */
 enum class IenListRowTextsType {
     OneRowTypeA,
     OneRowTypeB,
@@ -113,6 +149,25 @@ enum class IenListRowTextsType {
     ThreeRowTypeF,
 }
 
+/**
+ * 리스트 아이템을 구성하는 행(Row) 컴포저블의 기본 구현입니다.
+ * 좌측 어셋, 중앙 커스텀 콘텐츠, 우측 상세 버튼 슬롯을 지원합니다.
+ *
+ * @param contents 중앙 메인 콘텐츠 영역 컴포저블
+ * @param modifier 적용할 Modifier
+ * @param left 좌측 영역 컴포저블 (예: 아이콘, 썸네일 등)
+ * @param right 우측 영역 컴포저블 (예: 스위치, 라디오 버튼 등)
+ * @param border 구분선 스타일 ([IenListRowBorder])
+ * @param disabled 비활성화 여부
+ * @param disabledStyle 비활성화 상태 스타일 ([IenListRowDisabledStyle])
+ * @param verticalPadding 수직 여백 ([IenListRowPadding])
+ * @param horizontalPadding 수평 여백 ([IenListRowPadding])
+ * @param leftAlignment 좌측 영역 수직 정렬 ([IenListRowAlignment])
+ * @param rightAlignment 우측 영역 수직 정렬 ([IenListRowAlignment])
+ * @param withArrow 우측 끝 화살표 아이콘 노출 여부
+ * @param withTouchEffect 터치 효과(피드백) 적용 여부
+ * @param onClick 클릭 이벤트 콜백
+ */
 @Composable
 fun IenListRow(
     contents: @Composable () -> Unit,
@@ -220,6 +275,22 @@ fun IenListRow(
     }
 }
 
+/**
+ * 문자열 형태의 제목과 부제목을 전달받아 리스트 행을 구성하는 편리한 컴포저블입니다.
+ *
+ * @param title 제목 텍스트
+ * @param modifier 적용할 Modifier
+ * @param subtitle 부제목 텍스트 (선택사항)
+ * @param enabled 행 활성화 여부
+ * @param selected 행 선택 상태 여부 (true인 경우 제목 텍스트 색상이 강조됨)
+ * @param onClick 클릭 이벤트 콜백
+ * @param leading 좌측 영역 컴포저블
+ * @param trailing 우측 영역 컴포저블
+ * @param border 구분선 스타일 ([IenListRowBorder])
+ * @param verticalPadding 수직 여백 ([IenListRowPadding])
+ * @param horizontalPadding 수평 여백 ([IenListRowPadding])
+ * @param withArrow 우측 끝 화살표 아이콘 노출 여부
+ */
 @Composable
 fun IenListRow(
     title: String,
@@ -256,6 +327,19 @@ fun IenListRow(
     )
 }
 
+/**
+ * 리스트 행 내부에서 최대 3개의 텍스트 요소를 정의된 조합 스타일([IenListRowTextsType])에 따라 수직 배치하는 컴포저블입니다.
+ *
+ * @param top 가장 상단(혹은 첫 번째 행)에 들어갈 텍스트
+ * @param modifier 적용할 Modifier
+ * @param type 행의 구성 및 정렬 방식을 지정하는 타입 ([IenListRowTextsType])
+ * @param middle 중간 행에 들어갈 텍스트 (타입이 3행 스타일일 때 활성화)
+ * @param bottom 하단 행에 들어갈 텍스트 (타입이 2행 이상 스타일일 때 활성화)
+ * @param topColor 상단 텍스트 색상 (null인 경우 타입 기본 색상 사용)
+ * @param middleColor 중간 텍스트 색상 (null인 경우 타입 기본 색상 사용)
+ * @param bottomColor 하단 텍스트 색상 (null인 경우 타입 기본 색상 사용)
+ * @param maxLines 상단 및 중간 텍스트의 최대 줄 수
+ */
 @Composable
 fun IenListRowTexts(
     top: String,
@@ -306,6 +390,16 @@ fun IenListRowTexts(
     }
 }
 
+/**
+ * 리스트 행의 좌측 어셋 영역에 표시할 텍스트 컴포저블입니다. 원형이나 사각형 등의 배경 프레임 내에 텍스트가 표시됩니다.
+ *
+ * @param text 표시할 텍스트
+ * @param modifier 적용할 Modifier
+ * @param shape 프레임 모양 ([IenListRowAssetShape])
+ * @param size 프레임 크기 ([IenListRowAssetSize])
+ * @param backgroundColor 프레임 배경 색상
+ * @param contentColor 텍스트 색상
+ */
 @Composable
 fun IenListRowAssetText(
     text: String,
@@ -332,6 +426,15 @@ fun IenListRowAssetText(
     }
 }
 
+/**
+ * 리스트 행의 좌측 영역에 들어갈 커스텀 컴포저블을 일정한 프레임 규격으로 감싸주는 래퍼 컴포저블입니다.
+ *
+ * @param modifier 적용할 Modifier
+ * @param shape 프레임 모양 ([IenListRowAssetShape])
+ * @param size 프레임 크기 ([IenListRowAssetSize])
+ * @param backgroundColor 프레임 배경 색상 (모양이 Original인 경우 무시됨)
+ * @param content 내부 콘텐츠 컴포저블
+ */
 @Composable
 fun IenListRowAssetFrame(
     modifier: Modifier = Modifier,
@@ -351,6 +454,13 @@ fun IenListRowAssetFrame(
     }
 }
 
+/**
+ * 리스트 행의 스켈레톤 로더 컴포저블입니다. 로딩 중에 깜빡이는 스켈레톤 UI를 제공합니다.
+ *
+ * @param modifier 적용할 Modifier
+ * @param type 로더 레이아웃 형태 ([IenListRowLoaderType])
+ * @param verticalPadding 수직 여백 ([IenListRowPadding])
+ */
 @Composable
 fun IenListRowLoader(
     modifier: Modifier = Modifier,
@@ -494,16 +604,38 @@ private fun IenListRowTextsType.bottomColor(): Color = when (this) {
     else -> IenTheme.colors.textSecondary
 }
 
+/**
+ * 테이블 행 내부 항목의 수평 정렬 방식을 정의하는 열거형 클래스입니다.
+ */
 enum class IenTableRowAlign {
     Left,
     SpaceBetween,
 }
 
+/**
+ * [IenTableRow] 내부 슬롯의 영역 수평 정렬 정보를 제공하는 스코프 클래스입니다.
+ *
+ * @property align 테이블 행 정렬 방식 ([IenTableRowAlign])
+ */
 @Immutable
 data class IenTableRowScope(
     val align: IenTableRowAlign,
 )
 
+/**
+ * 표(Table) 형태의 키-밸브 데이터를 간편하게 표시하기 위한 행(Row) 컴포저블입니다.
+ *
+ * @param modifier 적용할 Modifier
+ * @param left 좌측 영역에 들어갈 기본 텍스트 (label과 동일 기능)
+ * @param right 우측 영역에 들어갈 기본 텍스트 (value와 동일 기능)
+ * @param label 좌측 라벨 텍스트 (레거시 지원)
+ * @param value 우측 값 텍스트 (레거시 지원)
+ * @param description 좌측 라벨 하단에 표시할 설명 문구 (레거시 지원)
+ * @param leading 좌측 영역 텍스트 앞에 배치될 컴포저블 (레거시 지원)
+ * @param trailing 우측 영역 텍스트 뒤에 배치될 컴포저블 (레거시 지원)
+ * @param align 수평 정렬 방식 ([IenTableRowAlign])
+ * @param leftRatio 좌측 영역이 차지할 비율 (1 ~ 99, 제공하는 경우 가로 전체를 비율 분할함)
+ */
 @Composable
 fun IenTableRow(
     modifier: Modifier = Modifier,
@@ -568,6 +700,15 @@ fun IenTableRow(
     )
 }
 
+/**
+ * 표(Table) 형태의 데이터를 커스텀 컴포저블 슬롯으로 표시하기 위한 행(Row) 컴포저블입니다.
+ *
+ * @param left 좌측 영역에 들어갈 컴포저블 슬롯
+ * @param right 우측 영역에 들어갈 컴포저블 슬롯
+ * @param modifier 적용할 Modifier
+ * @param align 수평 정렬 방식 ([IenTableRowAlign])
+ * @param leftRatio 좌측 영역이 차지할 비율 (1 ~ 99, 제공하는 경우 가로 전체를 비율 분할함)
+ */
 @Composable
 fun IenTableRow(
     left: @Composable IenTableRowScope.() -> Unit,

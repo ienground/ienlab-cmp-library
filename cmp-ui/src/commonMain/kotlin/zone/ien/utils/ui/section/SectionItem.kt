@@ -541,6 +541,21 @@ fun SectionScope.IenSectionLink(
 }
 
 
+/**
+ * 섹션 항목의 배경 및 텍스트/아이콘 색상 값을 정의하는 데이터 클래스
+ *
+ * @property containerColor 컨테이너 배경 색상
+ * @property headlineColor 활성화 상태의 제목 텍스트 색상
+ * @property leadingIconColor 활성화 상태의 좌측 아이콘 색상
+ * @property overlineColor 활성화 상태의 오버라인 텍스트 색상
+ * @property supportingTextColor 활성화 상태의 지원 텍스트 색상
+ * @property trailingIconColor 활성화 상태의 우측 아이콘 색상
+ * @property disabledHeadlineColor 비활성화 상태의 제목 텍스트 색상
+ * @property disabledLeadingIconColor 비활성화 상태의 좌측 아이콘 색상
+ * @property disabledOverlineColor 비활성화 상태의 오버라인 텍스트 색상
+ * @property disabledSupportingTextColor 비활성화 상태의 지원 텍스트 색상
+ * @property disabledTrailingIconColor 비활성화 상태의 우측 아이콘 색상
+ */
 @Immutable
 class IenSectionColors(
     val containerColor: Color,
@@ -556,8 +571,7 @@ class IenSectionColors(
     val disabledTrailingIconColor: Color,
 ) {
     /**
-     * Returns a copy of this ListItemColors, optionally overriding some of the values. This uses
-     * the Color.Unspecified to mean “use the value from the source”
+     * 일부 색상 값을 선택적으로 오버라이드하여 새로운 [IenSectionColors] 복사본을 생성합니다.
      */
     fun copy(
         containerColor: Color = this.containerColor,
@@ -586,6 +600,11 @@ class IenSectionColors(
             disabledTrailingIconColor = disabledTrailingIconColor.takeOrElse { this.disabledTrailingIconColor },
         )
 
+    /**
+     * Material3의 [ListItemColors] 객체로 변환합니다.
+     *
+     * @param enabled 활성화 상태 여부
+     */
     fun toListItemColors(enabled: Boolean) = ListItemColors(
         containerColor = containerColor(),
         headlineColor = headlineColor(enabled),
@@ -617,7 +636,13 @@ class IenSectionColors(
     @Stable internal fun trailingIconColor(enabled: Boolean): Color = if (enabled) trailingIconColor else disabledTrailingIconColor
 }
 
+/**
+ * 링크 형식의 섹션 항목에 적용되는 기본 색상 제공 오브젝트
+ */
 object IenSectionLinkDefault {
+    /**
+     * 기본 섹션 링크 색상 테마를 생성하여 반환합니다.
+     */
     @Composable
     fun colors() = IenSectionColors(
         containerColor = IenTheme.colors.surface,
@@ -634,6 +659,15 @@ object IenSectionLinkDefault {
     )
 }
 
+/**
+ * 섹션 영역에 단추(Button)를 배치하기 위한 컴포저블
+ *
+ * @param modifier 적용할 Modifier
+ * @param onClick 단추 클릭 시 호출되는 콜백 함수
+ * @param icon 단추에 표시할 아이콘 컴포저블 (선택 사항)
+ * @param enabled 단추의 활성화 여부
+ * @param label 단추 내에 들어갈 라벨 컴포저블
+ */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SectionScope.IenSectionButton(
@@ -676,6 +710,18 @@ private fun ienSectionTextFieldColor(
     }
 }
 
+/**
+ * 섹션 영역에 슬라이더(Slider) 항목을 배치하기 위한 컴포저블
+ *
+ * @param modifier 적용할 Modifier
+ * @param value 슬라이더의 현재 값
+ * @param onValueChange 값이 변경될 때 호출되는 콜백 함수
+ * @param enabled 슬라이더의 활성화 여부
+ * @param valueRange 슬라이더의 최소/최대 값 범위
+ * @param steps 슬라이더 내 눈금의 개수 (0이면 연속적인 슬라이더)
+ * @param title 슬라이더 위에 표시할 제목 (선택 사항)
+ * @param icon 슬라이더에 사용할 이미지 벡터 아이콘 (선택 사항)
+ */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SectionScope.IenSectionSlider(

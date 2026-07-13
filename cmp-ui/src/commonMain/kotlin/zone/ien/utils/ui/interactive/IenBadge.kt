@@ -18,14 +18,40 @@ import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
 
-enum class IenBadgeSize { Small, Medium, Large }
+/**
+ * [IenBadge]의 텍스트 스타일 및 패딩 크기를 정의하는 열거형 클래스.
+ */
+enum class IenBadgeSize {
+    /** 작은 크기 */
+    Small,
+    /** 중간 크기 */
+    Medium,
+    /** 큰 크기 */
+    Large,
+}
 
+/**
+ * [IenBadge]의 비주얼 스타일 유형을 정의하는 인터페이스.
+ */
 sealed interface IenBadgeVariant {
+    /** 배경색이 가득 채워지는 형태 */
     data object Fill : IenBadgeVariant
+    /** 옅은 배경색이 채워지는 형태 */
     data object Weak : IenBadgeVariant
+    /** 테두리선만 있는 형태 */
     data object Line : IenBadgeVariant
 }
 
+/**
+ * 카테고리 태그나 상태 요약 등을 시각적으로 보여주기 위한 알약 모양의 배지 컴포저블.
+ *
+ * @param text 배지 내부에 표시할 문자열.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param size 배지의 크기 규격 ([IenBadgeSize]). 기본값은 [IenBadgeSize.Medium].
+ * @param variant 배지의 비주얼 스타일 변형 ([IenBadgeVariant]). 기본값은 [IenBadgeVariant.Weak].
+ * @param tone 배지의 시각적 어조 또는 의미적 강조 색상 ([IenSemanticTone]). 기본값은 [IenSemanticTone.Brand].
+ * @param leadingIcon 배지 텍스트 왼쪽에 추가로 표시할 아이콘 등의 컴포저블.
+ */
 @Composable
 fun IenBadge(
     text: String,

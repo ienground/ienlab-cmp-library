@@ -78,12 +78,25 @@ import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
 
+/**
+ * 텍스트 필드의 상태(정상, 오류, 성공)를 표현하는 실드 인터페이스.
+ */
 sealed interface IenFieldStatus {
+    /** 기본 일반 상태 */
     data object Normal : IenFieldStatus
+    /** 오류 상태 (오류 메시지를 포함함) */
     data class Error(val message: String) : IenFieldStatus
+    /** 성공 상태 (선택적인 안내 메시지를 포함할 수 있음) */
     data class Success(val message: String? = null) : IenFieldStatus
 }
 
+/**
+ * 텍스트 필드의 인터랙션 가능 여부와 시각적 오류/성공 상태를 관리하는 데이터 클래스.
+ *
+ * @property enabled 사용자가 필드를 조작할 수 있는지 여부.
+ * @property readOnly 읽기 전용 상태 여부. true일 경우 텍스트를 수정할 수 없습니다.
+ * @property status 필드의 유효성 상태 ([IenFieldStatus]).
+ */
 @Immutable
 data class IenTextFieldState(
     val enabled: Boolean = true,
@@ -91,24 +104,74 @@ data class IenTextFieldState(
     val status: IenFieldStatus = IenFieldStatus.Normal,
 )
 
+/**
+ * 텍스트 필드의 프레임 스타일 종류를 정의하는 열거형 클래스.
+ */
 enum class IenTextFieldVariant {
+    /** 둥근 테두리 상자 형태 */
     Box,
+    /** 하단 선만 표시되는 심플한 형태 */
     Line,
+    /** 다소 큰 크기의 둥근 테두리 상자 형태 */
     Big,
+    /** 큰 폰트 크기가 적용된 매우 강조되는 디자인 형태 */
     Hero,
 }
 
+/**
+ * 상단 라벨이 노출되는 인터랙티브 타이밍을 정의하는 열거형 클래스.
+ */
 enum class IenTextFieldLabelOption {
+    /** 포커스 되거나 값이 입력되었을 때 위로 나타나는 애니메이션 형태 */
     Appear,
+    /** 포커스나 값 입력 여부와 상관없이 항상 노출되어 유지되는 형태 */
     Sustain,
 }
 
+/**
+ * 입력된 텍스트의 포맷팅 규칙(예: 전화번호 하이픈 자동 삽입 등)을 지정하는 설정 클래스.
+ *
+ * @property transform 입력값을 포맷팅된 문자열로 변환하는 함수.
+ * @property reset 포맷팅된 문자열에서 원래 값으로 되돌리는(언포맷팅) 선택적 함수.
+ */
 @Immutable
 data class IenTextFieldFormat(
     val transform: (value: String) -> String,
     val reset: ((formattedValue: String) -> String)? = null,
 )
 
+/**
+ * IEN 라이브러리의 범용 기본 단일/다중 행 텍스트 필드 컴포저블.
+ *
+ * @param value 필드의 현재 텍스트 값.
+ * @param onValueChange 텍스트 변경 시 호출되는 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param label 필드 상단에 표시될 라벨 명칭.
+ * @param labelOption 라벨의 상시 노출 또는 애니메이션 등장 옵션 ([IenTextFieldLabelOption]). 기본값은 [IenTextFieldLabelOption.Appear].
+ * @param placeholder 텍스트가 비어있을 때 내부에 표시될 힌트 문자열.
+ * @param help 필드 하단에 노출될 부가 설명 또는 에러 텍스트 (단순 지원용).
+ * @param hasError 오류 발생 여부 설정. true일 경우 컴포저블 내부 상태를 강제로 [IenFieldStatus.Error]로 취급합니다.
+ * @param variant 필드의 테두리 디자인 형태 ([IenTextFieldVariant]). 기본값은 [IenTextFieldVariant.Box].
+ * @param prefix 필드 입력 영역 왼쪽에 텍스트에 밀접하게 고정 노출될 접두사.
+ * @param suffix 필드 입력 영역 오른쪽에 텍스트에 밀접하게 고정 노출될 접미사.
+ * @param right 필드 내부 가장 오른쪽에 고정으로 그릴 컴포저블 (주로 클릭 가능 버튼 등).
+ * @param format 입력 포맷 필터 지정 규칙 ([IenTextFieldFormat]).
+ * @param paddingTop 내부 위쪽 추가 여백.
+ * @param paddingBottom 내부 아래쪽 추가 여백.
+ * @param state 필드의 제어 상태 지정 및 유효성 메시지 상태 ([IenTextFieldState]).
+ * @param leading 필드 내 앞쪽에 들어갈 커스텀 컴포저블 (아이콘 등).
+ * @param trailing 필드 내 뒤쪽에 들어갈 커스텀 컴포저블.
+ * @param supportingText 필드 하단에 보여줄 부가 안내 텍스트.
+ * @param singleLine 한 줄로만 입력할지 여부.
+ * @param keyboardOptions 소프트 키보드 속성 설정 ([KeyboardOptions]).
+ * @param keyboardActions 키보드 완료/검색 액션 정의 ([KeyboardActions]).
+ * @param visualTransformation 입력값 가공 규칙 (비밀번호 가리기 등).
+ * @param interactionSource 필드의 인터랙션 이벤트를 전달할 [MutableInteractionSource].
+ * @param minLines 최소 높이를 보장할 행 수.
+ * @param maxLines 최대 행 수.
+ * @param onFocus 필드가 포커스를 받았을 때 호출할 선택적 콜백 함수.
+ * @param onBlur 필드가 포커스를 잃었을 때 호출할 선택적 콜백 함수.
+ */
 @Composable
 fun IenTextField(
     value: String,
@@ -329,6 +392,19 @@ fun IenTextField(
     }
 }
 
+/**
+ * 긴 본문 텍스트 입력을 위해 기본 4줄에서 8줄 크기로 구성된 다중 행 텍스트 영역 컴포저블.
+ *
+ * @param value 영역의 현재 텍스트 값.
+ * @param onValueChange 텍스트 변경 시 호출되는 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param label 영역 상단에 표시될 라벨 명칭.
+ * @param placeholder 텍스트가 비어있을 때 표시될 힌트 문자열.
+ * @param state 영역의 제어 상태 ([IenTextFieldState]).
+ * @param supportingText 영역 하단 부가 안내 텍스트.
+ * @param minLines 최소 노출 행 수. 기본값은 4.
+ * @param maxLines 최대 확장 노출 행 수. 기본값은 8.
+ */
 @Composable
 fun IenTextArea(
     value: String,
@@ -355,6 +431,25 @@ fun IenTextArea(
     )
 }
 
+/**
+ * 텍스트 입력 시 우측에 일괄 삭제용 클리어(x) 버튼이 자동 노출되는 편리한 텍스트 필드 컴포저블.
+ *
+ * @param value 필드의 현재 텍스트 값.
+ * @param onValueChange 텍스트 변경 시 호출되는 콜백 함수.
+ * @param onClear 클리어 버튼이 눌려 텍스트가 지워졌을 때 호출되는 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param label 필드 상단에 표시될 라벨 명칭.
+ * @param labelOption 라벨 노출 옵션 ([IenTextFieldLabelOption]).
+ * @param placeholder 힌트 문자열.
+ * @param help 부가 설명 또는 에러 설명 텍스트.
+ * @param hasError 오류 발생 여부 설정.
+ * @param variant field 디자인 형태 ([IenTextFieldVariant]).
+ * @param prefix 고정 노출 접두사.
+ * @param suffix 고정 노출 접미사.
+ * @param state 필드 제어 상태 ([IenTextFieldState]).
+ * @param keyboardOptions 소프트 키보드 속성 설정.
+ * @param keyboardActions 키보드 액션 정의.
+ */
 @Composable
 fun IenClearableTextField(
     value: String,
@@ -403,6 +498,24 @@ fun IenClearableTextField(
     )
 }
 
+/**
+ * 비밀번호 입력을 위해 텍스트 마스킹 처리 및 우측 보기/숨기기 토글 버튼이 포함된 비밀번호 전용 텍스트 필드 컴포저블.
+ *
+ * @param value 필드의 현재 비밀번호 텍스트 값.
+ * @param onValueChange 비밀번호 변경 시 호출되는 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param label 필드 상단에 표시될 라벨 명칭.
+ * @param labelOption 라벨 노출 옵션 ([IenTextFieldLabelOption]).
+ * @param placeholder 힌트 문자열.
+ * @param help 부가 설명 또는 에러 설명 텍스트.
+ * @param hasError 오류 발생 여부 설정.
+ * @param variant 필드 디자인 형태 ([IenTextFieldVariant]).
+ * @param state 필드 제어 상태 ([IenTextFieldState]).
+ * @param visible 외부 상태로 비밀번호 노출 여부를 직접 제어하고 싶을 때 전달할 값. null이면 컴포저블 내부 상태로 자동 동작합니다.
+ * @param onVisibilityChange 노출 여부 토글 시 호출되는 선택적 콜백 함수.
+ * @param keyboardOptions 키보드 입력 유형. 기본적으로 비밀번호 전용 키보드가 나타납니다.
+ * @param keyboardActions 키보드 액션 정의.
+ */
 @Composable
 fun IenPasswordTextField(
     value: String,
@@ -449,6 +562,22 @@ fun IenPasswordTextField(
     )
 }
 
+/**
+ * 텍스트 필드 형태로 표현되지만 직접 타이핑하는 대신 클릭하여 바텀 시트나 새 화면을 여는 링크 액션 전용 버튼식 필드 컴포저블.
+ *
+ * @param onClick 필드를 클릭했을 때 실행할 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param value 필드 내부에 표시될 값 문자열.
+ * @param label 필드 상단에 표시될 라벨 명칭.
+ * @param labelOption 라벨 노출 옵션 ([IenTextFieldLabelOption]).
+ * @param placeholder 값이 없을 때 표시할 힌트 문자열.
+ * @param help 부가 설명 텍스트.
+ * @param variant 필드 디자인 형태 ([IenTextFieldVariant]).
+ * @param prefix 고정 노출 접두사.
+ * @param suffix 고정 노출 접미사.
+ * @param enabled 활성화 여부.
+ * @param right 필드 우측에 표시할 아이콘 컴포저블. 기본값은 아래쪽 화살표([IenTextFieldArrowDown])입니다.
+ */
 @Composable
 fun IenTextFieldButton(
     onClick: () -> Unit,
@@ -622,6 +751,18 @@ private fun IenTextFieldArrowDown(
     )
 }
 
+/**
+ * 인증번호 등의 입력을 위해 정해진 글자 수만큼 분할된 여러 박스 형태로 표시되는 분할 텍스트 필드 컴포저블.
+ *
+ * @param value 현재 입력된 텍스트.
+ * @param onValueChange 텍스트 변경 시 호출되는 콜백 함수.
+ * @param length 입력받을 총 글자 수 제한 (박스의 개수).
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param state 필드 상태 정보 ([IenTextFieldState]).
+ * @param placeholderChar 미입력 빈 박스 내부에 표기할 보조 기호. 기본값은 '•'.
+ * @param mask 입력된 실문자를 감추고 [placeholderChar]로 강제 표시할지 여부.
+ * @param keyboardOptions 키보드 타입 설정. 기본적으로 숫자 비밀번호 입력 스타일을 제공합니다.
+ */
 @Composable
 fun IenSplitTextField(
     value: String,
@@ -701,6 +842,24 @@ fun IenSplitTextField(
     }
 }
 
+/**
+ * 검색을 위한 전용 필드로 돋보기 아이콘, 텍스트 일괄 삭제 버튼이 제공되는 검색 필드 컴포저블.
+ *
+ * @param value 검색어 입력 값.
+ * @param onValueChange 검색어 변경 시 호출되는 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param placeholder 힌트 텍스트. 기본적으로 '검색'에 대응되는 다국어 리소스가 제공됩니다.
+ * @param state 필드 제어 상태 ([IenTextFieldState]).
+ * @param contentDescription 접근성 스크린 리더용 설명 명칭.
+ * @param fixed 가로 패딩 및 상하 마진 레이아웃을 고정한 고밀도 검색바 형태로 출력할지 여부.
+ * @param takeSpace 레이아웃 할당 공간 조절용 매개변수.
+ * @param onDeleteClick 일괄 지우기 버튼을 클릭했을 때 호출되는 선택적 콜백 함수.
+ * @param leading 필드 내 앞쪽에 고정 노출할 아이콘 컴포저블. 기본값은 돋보기 아이콘([IenSearchFieldSearchIcon])입니다.
+ * @param trailing 필드 내 뒤쪽에 노출할 추가 컴포저블.
+ * @param deleteButton 지우기 버튼을 커스텀하고자 할 때 제공할 컴포저블.
+ * @param keyboardOptions 키보드 옵션. 기본적으로 검색(Search) 작업에 적합한 옵션이 지정됩니다.
+ * @param keyboardActions 키보드 액션 정의.
+ */
 @Composable
 fun IenSearchField(
     value: String,
@@ -836,6 +995,13 @@ private fun IenSearchFieldInput(
     }
 }
 
+/**
+ * 검색 필드 내부에 표시되는 돋보기 검색 아이콘 컴포저블.
+ *
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param contentDescription 접근성 스크린 리더용 설명 명칭.
+ * @param size 아이콘의 크기 규격. 기본값은 18.dp.
+ */
 @Composable
 fun IenSearchFieldSearchIcon(
     modifier: Modifier = Modifier,
@@ -853,6 +1019,13 @@ fun IenSearchFieldSearchIcon(
     )
 }
 
+/**
+ * 검색 필드 내부에 표시되는 검색어 일괄 삭제용 클리어 버튼 컴포저블.
+ *
+ * @param onClick 삭제 버튼 클릭 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param contentDescription 접근성 설명 명칭.
+ */
 @Composable
 fun IenSearchFieldDeleteButton(
     onClick: () -> Unit,

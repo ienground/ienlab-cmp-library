@@ -32,12 +32,14 @@ import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.section.IenSectionColors
 import zone.ien.utils.ui.section.IenSectionLinkDefault
 
+/**
+ * Lazy 리스트 섹션의 스코프를 정의하는 인터페이스
+ *
+ * 이 인터페이스는 Lazy 리스트 섹션 내부에 항목을 동적으로 추가할 수 있는 컨텍스트를 제공합니다.
+ */
 sealed interface LazySectionScope {
     /**
-     * Lazy 섹션 스코프 인터페이스
-     *
-     * 이 인터페이스는 Lazy 리스트 섹션의 컨텍스트를 제공하여,
-     * 섹션 내부에 항목을 추가할 수 있도록 합니다.
+     * 섹션 내부에 단일 항목을 추가합니다.
      *
      * @param key 항목의 고유 키
      * @param contentType 항목의 타입
@@ -169,6 +171,15 @@ fun LazySectionScope.empty(
     }
 }
 
+/**
+ * 섹션 내부에 컬렉션 데이터를 기반으로 여러 항목을 동적으로 추가합니다.
+ *
+ * @param items 추가할 데이터 컬렉션
+ * @param key 각 항목의 고유 키를 정의하는 함수
+ * @param contentType 각 항목의 타입을 정의하는 함수
+ * @param dividerPadding 항목 사이의 구분선 패딩
+ * @param content 각 항목의 콘텐츠를 표시하는 컴포저블 블록
+ */
 inline fun <T> LazySectionScope.items(
     items: Collection<T>,
     key: (T) -> Any? = { null },

@@ -45,6 +45,7 @@ fun Modifier.conditional(
  * 
  * @param enabled 제스처 감지 활성화 여부
  * @param onPressedChange 눌림 상태 변경 시 호출될 콜백 (Pressed -> true, Released/Cancelled -> false)
+ * @return 눌림 상태 감지 기능이 적용된 Modifier
  */
 fun Modifier.instantPress(
     enabled: Boolean = true,

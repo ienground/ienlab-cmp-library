@@ -58,7 +58,14 @@ import zone.ien.utils.ui.foundation.IenTheme
 
 // ─── CompositionLocals ───────────────────────────────────────────────────────
 
+/**
+ * 현재 선택된 네비게이션 바 항목의 인덱스를 제공하는 CompositionLocal입니다.
+ */
 internal val LocalNavigationBarSelectedIndex = compositionLocalOf { -1 }
+
+/**
+ * 네비게이션 바 및 하위 항목에서 사용할 색상 구성을 제공하는 CompositionLocal입니다.
+ */
 internal val LocalNavigationBarColors = compositionLocalOf {
     CustomNavigationBarColors(
         containerColor = Color.Unspecified,
@@ -69,16 +76,37 @@ internal val LocalNavigationBarColors = compositionLocalOf {
         unselectedTextColor = Color.Unspecified,
     )
 }
+
+/**
+ * 네비게이션 바에서 각 항목의 가로 위치 정보(왼쪽 시작 지점과 너비)를 나타내는 데이터 클래스입니다.
+ *
+ * @property left 항목의 왼쪽 시작 지점 (Dp)
+ * @property width 항목의 너비 (Dp)
+ */
 internal data class NavigationBarItemBounds(
     val left: Dp,
     val width: Dp,
 )
+
+/**
+ * 네비게이션 바 항목의 경계 정보(위치 및 너비)를 업데이트하는 콜백 함수를 제공하는 CompositionLocal입니다.
+ */
 internal val LocalNavigationBarItemBoundsUpdater = compositionLocalOf<(Int, NavigationBarItemBounds) -> Unit> {
     { _, _ -> }
 }
 
 // ─── Colors ──────────────────────────────────────────────────────────────────
 
+/**
+ * 사용자 정의 네비게이션 바([CustomNavigationBar])의 색상 구성 정보를 담는 데이터 클래스입니다.
+ *
+ * @property containerColor 네비게이션 바의 배경색
+ * @property selectedItemBackgroundColor 선택된 항목의 배경색 (인디케이터 색상)
+ * @property selectedIconColor 선택된 항목의 아이콘 색상
+ * @property selectedTextColor 선택된 항목의 텍스트 색상
+ * @property unselectedIconColor 선택되지 않은 항목의 아이콘 색상
+ * @property unselectedTextColor 선택되지 않은 항목의 텍스트 색상
+ */
 @Immutable
 data class CustomNavigationBarColors(
     val containerColor: Color,
@@ -89,7 +117,20 @@ data class CustomNavigationBarColors(
     val unselectedTextColor: Color,
 )
 
+/**
+ * 사용자 정의 네비게이션 바의 기본값 및 색상 생성을 위한 유틸리티 객체입니다.
+ */
 object CustomNavigationBarDefaults {
+    /**
+     * [CustomNavigationBar]에 적용할 색상 구성을 생성합니다.
+     *
+     * @param containerColor 네비게이션 바의 배경색
+     * @param selectedItemBackgroundColor 선택된 항목의 배경색
+     * @param selectedIconColor 선택된 항목의 아이콘 색상
+     * @param selectedTextColor 선택된 항목의 텍스트 색상
+     * @param unselectedIconColor 선택되지 않은 항목의 아이콘 색상
+     * @param unselectedTextColor 선택되지 않은 항목의 텍스트 색상
+     */
     @Composable
     fun colors(
         containerColor: Color = IenTheme.colors.brand,

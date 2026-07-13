@@ -17,6 +17,12 @@ import zone.ien.utils.utils.DecimalFormat
 open class MoneyCommaVisualTransformation(private val symbol: String) : VisualTransformation {
     private val decimalFormat = DecimalFormat()
 
+    /**
+     * 입력된 숫자 텍스트에 천 단위 콤마와 통화 기호를 추가하고 오프셋을 매핑합니다.
+     *
+     * @param text 원본 입력 텍스트
+     * @return 통화 기호와 천 단위 콤마가 적용된 텍스트와 오프셋 매퍼가 포함된 [TransformedText]
+     */
     override fun filter(text: AnnotatedString): TransformedText {
         // 숫자만 추출 (숫자 이외는 무시)
         val raw = text.text.filter { it.isDigit() }
