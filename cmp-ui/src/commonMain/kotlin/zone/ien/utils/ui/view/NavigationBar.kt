@@ -23,7 +23,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -200,39 +200,43 @@ fun CustomNavigationBar(
                 .fillMaxWidth()
                 .padding(bottom = navBarPadding.calculateBottomPadding())
         ) {
-            Surface(
-                color = colors.containerColor,
-                shape = RoundedCornerShape(999.dp),
-                tonalElevation = 0.dp,
-                shadowElevation = 18.dp,
+            Box(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
-                    .height(78.dp)
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
             ) {
-                Box(
+                Surface(
+                    color = colors.containerColor,
+                    shape = RoundedCornerShape(999.dp),
+                    tonalElevation = 0.dp,
+                    shadowElevation = 18.dp,
                     modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                        .height(78.dp)
                 ) {
-                    if (selectedBounds != null) {
-                        Box(
-                            modifier = Modifier
-                                .offset(x = indicatorOffset)
-                                .width(indicatorWidth)
-                                .fillMaxHeight()
-                                .background(
-                                    color = colors.selectedItemBackgroundColor,
-                                    shape = RoundedCornerShape(999.dp),
-                                )
-                        )
-                    }
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxHeight(),
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(horizontal = 8.dp, vertical = 8.dp),
                     ) {
-                        content()
+                        if (selectedBounds != null) {
+                            Box(
+                                modifier = Modifier
+                                    .offset(x = indicatorOffset)
+                                    .width(indicatorWidth)
+                                    .fillMaxHeight()
+                                    .background(
+                                        color = colors.selectedItemBackgroundColor,
+                                        shape = RoundedCornerShape(999.dp),
+                                    )
+                            )
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxHeight(),
+                        ) {
+                            content()
+                        }
                     }
                 }
             }
@@ -301,11 +305,7 @@ fun RowScope.CustomNavigationBarItem(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .then(
-                if (selected || alwaysShowLabel) {
-                    Modifier.widthIn(min = 156.dp)
-                } else {
-                    Modifier.width(48.dp)
-                }
+                if (selected || alwaysShowLabel) Modifier else Modifier.width(48.dp)
             )
             .fillMaxHeight()
             .onGloballyPositioned { coordinates ->
@@ -335,7 +335,7 @@ fun RowScope.CustomNavigationBarItem(
                 .align(Alignment.Center)
                 .then(
                     if (selected || alwaysShowLabel) {
-                        Modifier.widthIn(min = 156.dp)
+                        Modifier.padding(horizontal = 24.dp)
                     } else {
                         Modifier.width(48.dp)
                     }
@@ -347,7 +347,10 @@ fun RowScope.CustomNavigationBarItem(
             }
 
             if (alwaysShowLabel || selected) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.width(IntrinsicSize.Min),
+                ) {
                     Spacer(modifier = Modifier.width(8.dp))
                     ProvideTextStyle(
                         IenTheme.typography.label2.copy(color = textColor)

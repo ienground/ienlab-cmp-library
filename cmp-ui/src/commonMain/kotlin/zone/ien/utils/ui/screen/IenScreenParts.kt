@@ -80,9 +80,11 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -501,51 +503,191 @@ fun IenTopBar(
             .requiredHeight(topPadding + contentHeight)
             .background(containerColor),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .requiredHeight(topPadding + contentHeight)
-                .padding(top = topPadding)
-                .padding(contentPadding),
-            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (navigationIcon != null) {
-                IenTopBarFloatingSlot(enabled = floatingSlots) {
-                    navigationIcon()
-                }
-            }
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = if (titleAlignment == IenTopBarTitleAlignment.Center) Alignment.CenterHorizontally else Alignment.Start,
-            ) {
-                IenProvideTextStyle(IenTheme.typography.title3, IenTheme.colors.textPrimary) {
-                    title()
-                }
-                if (subtitle != null) {
-                    IenProvideTextStyle(IenTheme.typography.caption, IenTheme.colors.textSecondary) {
-                        subtitle()
-                    }
-                }
-            }
-            if (actions != null) {
-                IenTopBarFloatingSlot(enabled = floatingSlots) {
-                    Row(
-                        modifier = Modifier
-                            .clipToBounds()
-                            .animateContentSize(animationSpec = tween(durationMillis = 110, easing = IenTheme.motion.standardEasing)),
-                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        CompositionLocalProvider(LocalContentColor provides IenTheme.colors.textPrimary) {
-                            actions.invoke(this)
-                        }
-                    }
-                }
-            }
+        if (titleAlignment == IenTopBarTitleAlignment.Center) {
+            IenCenterAlignedTopBarContent(
+                title = title,
+                subtitle = subtitle,
+                navigationIcon = navigationIcon,
+                actions = actions,
+                contentPadding = contentPadding,
+                topPadding = topPadding,
+                contentHeight = contentHeight,
+                floatingSlots = floatingSlots,
+            )
+        } else {
+            IenStartAlignedTopBarContent(
+                title = title,
+                subtitle = subtitle,
+                navigationIcon = navigationIcon,
+                actions = actions,
+                contentPadding = contentPadding,
+                topPadding = topPadding,
+                contentHeight = contentHeight,
+                floatingSlots = floatingSlots,
+            )
         }
         if (showDivider) {
             IenDivider()
+        }
+    }
+}
+
+@Composable
+private fun IenStartAlignedTopBarContent(
+    title: @Composable () -> Unit,
+    subtitle: (@Composable () -> Unit)?,
+    navigationIcon: (@Composable () -> Unit)?,
+    actions: (@Composable RowScope.() -> Unit)?,
+    contentPadding: PaddingValues,
+    topPadding: Dp,
+    contentHeight: Dp,
+    floatingSlots: Boolean,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .requiredHeight(topPadding + contentHeight)
+            .padding(top = topPadding)
+            .padding(contentPadding),
+        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (navigationIcon != null) {
+            IenTopBarFloatingSlot(enabled = floatingSlots) {
+                navigationIcon()
+            }
+        }
+        IenTopBarTitleColumn(
+            title = title,
+            subtitle = subtitle,
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier.weight(1f),
+        )
+        if (actions != null) {
+            IenTopBarFloatingSlot(enabled = floatingSlots) {
+                IenTopBarActionsRow(actions)
+            }
+        }
+    }
+}
+
+@Composable
+private fun IenCenterAlignedTopBarContent(
+    title: @Composable () -> Unit,
+    subtitle: (@Composable () -> Unit)?,
+    navigationIcon: (@Composable () -> Unit)?,
+    actions: (@Composable RowScope.() -> Unit)?,
+    contentPadding: PaddingValues,
+    topPadding: Dp,
+    contentHeight: Dp,
+    floatingSlots: Boolean,
+) {
+    val sideSpacing = IenTheme.spacing.sm
+
+    SubcomposeLayout(
+        modifier = Modifier
+            .fillMaxWidth()
+            .requiredHeight(topPadding + contentHeight)
+            .padding(top = topPadding)
+            .padding(contentPadding),
+    ) { constraints ->
+        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+        val navigationPlaceables = navigationIcon?.let {
+            subcompose("navigation") {
+                IenTopBarFloatingSlot(enabled = floatingSlots) {
+                    it()
+                }
+            }.map { measurable -> measurable.measure(looseConstraints) }
+        }.orEmpty()
+        val actionsPlaceables = actions?.let {
+            subcompose("actions") {
+                IenTopBarFloatingSlot(enabled = floatingSlots) {
+                    IenTopBarActionsRow(it)
+                }
+            }.map { measurable -> measurable.measure(looseConstraints) }
+        }.orEmpty()
+
+        val navigationWidth = navigationPlaceables.maxOfOrNull { it.width } ?: 0
+        val actionsWidth = actionsPlaceables.maxOfOrNull { it.width } ?: 0
+        val sideSpacingPx = sideSpacing.roundToPx()
+        val titleLeftLimit = if (navigationWidth > 0) navigationWidth + sideSpacingPx else 0
+        val titleRightLimit = if (actionsWidth > 0) constraints.maxWidth - actionsWidth - sideSpacingPx else constraints.maxWidth
+        val titleMaxWidth = (titleRightLimit - titleLeftLimit).coerceAtLeast(0)
+        val titlePlaceables = subcompose("title") {
+            IenTopBarTitleColumn(
+                title = title,
+                subtitle = subtitle,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            )
+        }.map { measurable ->
+            measurable.measure(
+                Constraints(
+                    minWidth = 0,
+                    maxWidth = titleMaxWidth,
+                    minHeight = 0,
+                    maxHeight = constraints.maxHeight,
+                )
+            )
+        }
+
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            navigationPlaceables.forEach { placeable ->
+                placeable.placeRelative(
+                    x = 0,
+                    y = (constraints.maxHeight - placeable.height) / 2,
+                )
+            }
+            actionsPlaceables.forEach { placeable ->
+                placeable.placeRelative(
+                    x = constraints.maxWidth - placeable.width,
+                    y = (constraints.maxHeight - placeable.height) / 2,
+                )
+            }
+            titlePlaceables.forEach { placeable ->
+                val centeredX = (constraints.maxWidth - placeable.width) / 2
+                val maxTitleX = titleRightLimit - placeable.width
+                placeable.placeRelative(
+                    x = centeredX.coerceIn(titleLeftLimit, maxTitleX.coerceAtLeast(titleLeftLimit)),
+                    y = (constraints.maxHeight - placeable.height) / 2,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun IenTopBarTitleColumn(
+    title: @Composable () -> Unit,
+    subtitle: (@Composable () -> Unit)?,
+    horizontalAlignment: Alignment.Horizontal,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = horizontalAlignment,
+    ) {
+        IenProvideTextStyle(IenTheme.typography.title3, IenTheme.colors.textPrimary) {
+            title()
+        }
+        if (subtitle != null) {
+            IenProvideTextStyle(IenTheme.typography.caption, IenTheme.colors.textSecondary) {
+                subtitle()
+            }
+        }
+    }
+}
+
+@Composable
+private fun IenTopBarActionsRow(actions: @Composable RowScope.() -> Unit) {
+    Row(
+        modifier = Modifier
+            .clipToBounds()
+            .animateContentSize(animationSpec = tween(durationMillis = 110, easing = IenTheme.motion.standardEasing)),
+        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        CompositionLocalProvider(LocalContentColor provides IenTheme.colors.textPrimary) {
+            actions.invoke(this)
         }
     }
 }
