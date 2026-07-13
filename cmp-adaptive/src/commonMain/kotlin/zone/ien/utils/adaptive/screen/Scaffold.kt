@@ -161,6 +161,7 @@ fun AdaptiveTopAppBarScaffold(
                     scaffoldContentColor = it.scaffoldContentColor,
                     contentWindowInsets = it.contentWindowInsets,
                     contentEdge = contentEdge.resolveTopProgress(scrollableState),
+                    scrollableState = scrollableState,
                     isScrollTint = it.isScrollTint,
                     size = it.size,
                     content = { content(it, {}) }

@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +26,7 @@ import zone.ien.utils.ui.section.lazy.link
 import zone.ien.utils.ui.section.lazy.m3Section
 import zone.ien.utils.ui.section.lazy.switch
 import zone.ien.utils.ui.section.m3SectionBackground
+import zone.ien.utils.ui.primitives.IenText
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -46,7 +46,7 @@ fun LazySectionScreen(
         AdaptiveTopAppBarScaffold(
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
             title = {
-                Text(text = "Title")
+                IenText(text = "Title")
             },
             actions = {
                 AdaptiveSwitch(
@@ -76,20 +76,20 @@ fun LazySectionScreen(
 //                /*
                 m3Section(
 //                    isMaterialTheme = isMaterialTheme,
-                    title = { Text(text = "title") }
+                    title = { IenText(text = "title") }
                 ) {
                     empty {
-                        Text(text = "empty")
+                        IenText(text = "empty")
                     }
                     link(
                         onClick = {},
-                        title = { Text(text = "hello") }
+                        title = { IenText(text = "hello") }
                     )
                     switch(
                         checked = enabled,
                         onCheckedChange = { enabled = it },
-                        title = { Text(text = "switch") },
-                        supportingContent = { Text(text = "supporting") }
+                        title = { IenText(text = "switch") },
+                        supportingContent = { IenText(text = "supporting") }
                     )
                 }
 //

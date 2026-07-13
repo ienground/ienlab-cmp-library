@@ -15,13 +15,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +40,13 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.save
 import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.interactive.IenButtonSize
+import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenIconButton
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.view.textfield.PlaceholderBasicTextField
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAdaptiveApi::class)
@@ -68,7 +71,7 @@ fun TextFieldScreen(
 //        }
 //    )
 
-    Scaffold(
+    IenScaffold(
 //        navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
         snackbarHost = { SnackbarHost(snackbarState) },
 //        title = { Text(text = stringResource(Res.string.daily_mission)) },
@@ -95,7 +98,7 @@ fun TextFieldScreen(
                         PlaceholderBasicTextField(
                             value = text,
                             onValueChange = { text = it },
-                            placeholder = { Text(text = stringResource(Res.string.save)) },
+                            placeholder = { IenText(text = stringResource(Res.string.save)) },
                             cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
                             contentPadding = PaddingValues(vertical = 12.dp),
                             maxLines = 6,
@@ -106,12 +109,15 @@ fun TextFieldScreen(
                                 .weight(1f)
 
                         )
-                        IconButton(
+                        IenIconButton(
                             onClick = {
                             },
-                            modifier = Modifier.size(48.dp)
+                            modifier = Modifier.size(48.dp),
+                            size = IenButtonSize.Medium,
+                            variant = IenButtonVariant.Ghost,
+                            tone = IenSemanticTone.Neutral,
                         ) {
-                            Icon(
+                            IenIcon(
                                 imageVector = M3SystemIcons.Close,
                                 contentDescription = null
                             )
@@ -126,7 +132,7 @@ fun TextFieldScreen(
             modifier = Modifier
         ) {
             itemsIndexed(items = listOf("1", "2", "3")) { index, item ->
-                Text(
+                IenText(
                     text = item,
                     modifier = Modifier
                         .fillMaxWidth()

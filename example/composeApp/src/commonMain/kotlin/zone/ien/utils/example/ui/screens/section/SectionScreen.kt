@@ -6,9 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,7 +35,13 @@ import zone.ien.utils.example.isIos
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.navigation.result.ResultStore
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.interactive.IenButtonSize
+import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.menu.ActionMenuItem
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.section.IenProvideSectionStyle
 
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -58,7 +61,7 @@ fun SectionScreen(
     ) {
         AdaptiveTopAppBarScaffold(
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
-            title = { Text(text = "Title") },
+            title = { IenText(text = "Title") },
             adaptation = {
                 cupertino {
                     this.backdrop = backdrop
@@ -88,7 +91,7 @@ fun SectionScreen(
             ) {
                 title()
                 AdaptiveSection(
-                    title = { Text(text = "title") }
+                    title = { IenText(text = "title") }
                 ) {
                     AdaptiveSectionItem(
                         leadingContent = {
@@ -108,20 +111,23 @@ fun SectionScreen(
                         }
                     ) {
 
-                        Text(text = "Section1")
+                        IenText(text = "Section1")
                     }
                     AdaptiveSectionItem {
-                        Text(text = "Section2")
+                        IenText(text = "Section2")
                     }
                     var text by remember { mutableStateOf("") }
                     AdaptiveSectionTextField(
                         value = text,
                         onValueChange = { text = it },
                         trailingIcon = {
-                            IconButton(
-                                onClick = { resultStore.setResult("text", text) }
+                            IenIconButton(
+                                onClick = { resultStore.setResult("text", text) },
+                                size = IenButtonSize.Small,
+                                variant = IenButtonVariant.Ghost,
+                                tone = IenSemanticTone.Neutral,
                             ) {
-                                Icon(
+                                IenIcon(
                                     imageVector = M3SystemIcons.Save,
                                     contentDescription = null
                                 )
@@ -131,13 +137,13 @@ fun SectionScreen(
                     AdaptiveSectionLink(
                         onClick = {}
                     ) {
-                        Text(text = "Section3")
+                        IenText(text = "Section3")
                     }
                     AdaptiveSectionItem {
-                        Text(text = "Section4")
+                        IenText(text = "Section4")
                     }
                     AdaptiveSectionSwitchItem(
-                        title = { Text(text = "Check") },
+                        title = { IenText(text = "Check") },
                         checked = isMaterialTheme,
                         onCheckedChange = { isMaterialTheme = it }
                     )
@@ -146,22 +152,22 @@ fun SectionScreen(
 //                    title = { Text(text = "Title") }
                 ) {
                     AdaptiveSectionItem {
-                        Text(text = "Section4")
+                        IenText(text = "Section4")
                     }
                     AdaptiveSectionSwitchItem(
-                        title = { Text(text = "Check") },
+                        title = { IenText(text = "Check") },
                         checked = isMaterialTheme,
                         onCheckedChange = { isMaterialTheme = it }
                     )
                 }
                 AdaptiveSection(
-                    title = { Text(text = "Title") }
+                    title = { IenText(text = "Title") }
                 ) {
                     AdaptiveSectionItem {
-                        Text(text = "Section4")
+                        IenText(text = "Section4")
                     }
                     AdaptiveSectionSwitchItem(
-                        title = { Text(text = "Check") },
+                        title = { IenText(text = "Check") },
                         checked = isMaterialTheme,
                         onCheckedChange = { isMaterialTheme = it }
                     )

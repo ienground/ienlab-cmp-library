@@ -5,11 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.utils.dragToKeyboardClose
 import zone.ien.utils.ui.utils.keyboardAsState
 
@@ -29,7 +29,7 @@ fun IenRootWrapper(
 ) {
     val isKeyboardVisible by keyboardAsState()
 
-    Scaffold(
+    IenScaffold(
         contentWindowInsets = WindowInsets(0.dp),
         modifier = modifier
     ) {

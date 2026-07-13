@@ -20,13 +20,10 @@ import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -65,6 +62,8 @@ import zone.ien.utils.ui.interactive.IenButton
 import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenTextField
+import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.utils.moveToBackground
 import zone.ien.utils.utils.shareText
@@ -90,7 +89,9 @@ fun HomeScreen(
     val snackbarState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
-
+    var bottomText by remember { mutableStateOf("") }
+    var nativeInputText by remember { mutableStateOf("") }
+    var textFieldText by remember { mutableStateOf("") }
 
     IenAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
@@ -192,7 +193,7 @@ fun HomeScreen(
                                 }
                             }
                         ) {
-                            Text(
+                            IenText(
                                 text = "Hi",
                             )
                             Icon(
@@ -238,8 +239,8 @@ fun HomeScreen(
                     )
                 }
             },
-            title = { Text(text = "IENGROUND") },
-            subtitle = { Text(text = "Sub Title") },
+            title = { IenText(text = "IENGROUND") },
+            subtitle = { IenText(text = "Sub Title") },
             scrollableState = scrollState,
             adaptation = {
                 material {
@@ -253,8 +254,9 @@ fun HomeScreen(
             },
             bottomBar = {
                 BottomAppBar {
-                    TextField(
-                        state = rememberTextFieldState(),
+                    IenTextField(
+                        value = bottomText,
+                        onValueChange = { bottomText = it },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -275,7 +277,7 @@ fun HomeScreen(
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
                 ) {
-                    Text(
+                    IenText(
                         text = "set material3",
                         modifier = Modifier.weight(1f)
                     )
@@ -290,7 +292,7 @@ fun HomeScreen(
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
                 ) {
-                    Text(
+                    IenText(
                         text = "isDropdownMenu",
                         modifier = Modifier.weight(1f)
                     )
@@ -299,7 +301,7 @@ fun HomeScreen(
                         onCheckedChange = { isDropdownMenu = it }
                     )
                 }
-                Text(
+                IenText(
                     text = "result: ${resultStore.getResult<String>("text")}"
                 )
                 val onBackPressed = rememberRepeatClick(
@@ -336,7 +338,7 @@ fun HomeScreen(
                             .padding(horizontal = 16.dp)
                             .fillMaxWidth()
                     ) {
-                        Text(
+                        IenText(
                             text = "showVisible",
                             modifier = Modifier.weight(1f)
                         )
@@ -355,7 +357,7 @@ fun HomeScreen(
                             .padding(horizontal = 16.dp)
                             .fillMaxWidth()
                     ) {
-                        Text(
+                        IenText(
                             text = "real single",
                             modifier = Modifier.weight(1f)
                         )
@@ -372,7 +374,7 @@ fun HomeScreen(
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
                 ) {
-                    Text(
+                    IenText(
                         text = "all invisible",
                         modifier = Modifier.weight(1f)
                     )
@@ -388,7 +390,7 @@ fun HomeScreen(
                         .height(400.dp)
                         .background(Color.Magenta)
                 ) {
-                    Text(text = "Design System")
+                    IenText(text = "Design System")
                 }
                 Box(
                     modifier = Modifier
@@ -397,7 +399,7 @@ fun HomeScreen(
                         .height(400.dp)
                         .background(Color(0xFF3182F6))
                 ) {
-                    Text(text = "Color Tokens")
+                    IenText(text = "Color Tokens")
                 }
                 Box(
                     modifier = Modifier
@@ -406,7 +408,7 @@ fun HomeScreen(
                         .height(400.dp)
                         .background(Color.Red)
                 ) {
-                    Text(text = "Section")
+                    IenText(text = "Section")
                 }
                 Box(
                     modifier = Modifier
@@ -415,7 +417,7 @@ fun HomeScreen(
                         .height(400.dp)
                         .background(Color.Blue)
                 ) {
-                    Text(text = "Settings")
+                    IenText(text = "Settings")
                 }
                 Box(
                     modifier = Modifier
@@ -424,7 +426,7 @@ fun HomeScreen(
                         .height(400.dp)
                         .background(Color.Green)
                 ) {
-                    Text(text = "Lazy")
+                    IenText(text = "Lazy")
                 }
                 Box(
                     modifier = Modifier
@@ -433,7 +435,7 @@ fun HomeScreen(
                         .height(400.dp)
                         .background(Color.Cyan)
                 ) {
-                    Text(text = "Playground")
+                    IenText(text = "Playground")
                 }
                 Box(
                     modifier = Modifier
@@ -442,7 +444,7 @@ fun HomeScreen(
                         .height(400.dp)
                         .background(Color(0xFF8B5CF6))
                 ) {
-                    Text(text = "Ien Playground")
+                    IenText(text = "Ien Playground")
                 }
                 Box(
                     modifier = Modifier
@@ -451,15 +453,17 @@ fun HomeScreen(
                         .height(400.dp)
                         .background(Color.Yellow)
                 ) {
-                    Text(text = "Navigation")
+                    IenText(text = "Navigation")
                 }
-                TextField(
-                    state = rememberTextFieldState(),
+                IenTextField(
+                    value = nativeInputText,
+                    onValueChange = { nativeInputText = it },
                     keyboardOptions = KeyboardOptions.Default.enableNativeInput(),
                     modifier = Modifier.fillMaxWidth()
                 )
-                TextField(
-                    state = rememberTextFieldState(),
+                IenTextField(
+                    value = textFieldText,
+                    onValueChange = { textFieldText = it },
                     modifier = Modifier.fillMaxWidth()
                 )
                 BasicTextField(

@@ -9,10 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,9 +17,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenButton
 import zone.ien.utils.ui.primitives.IenAssetFrame
 import zone.ien.utils.ui.primitives.IenAssetFrameSize
-import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.primitives.IenText
 
 /**
  * Empty는 비어 있는 상태를 표시하기 위한 컴포저블입니다.
@@ -52,8 +52,8 @@ fun Empty(
                 it(Modifier.size(36.dp))
             }
         }
-        ProvideTextStyle(
-            value = IenTheme.typography.title2.copy(
+        IenProvideTextStyle(
+            style = IenTheme.typography.title2.copy(
                 color = IenTheme.colors.textPrimary,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
@@ -65,8 +65,8 @@ fun Empty(
                 title()
             }
         }
-        ProvideTextStyle(
-            value = IenTheme.typography.body2.copy(
+        IenProvideTextStyle(
+            style = IenTheme.typography.body2.copy(
                 color = IenTheme.colors.textSecondary,
                 textAlign = TextAlign.Center
             )
@@ -96,23 +96,19 @@ private fun EmptyPreview() {
         ) {
             Empty(
                 icon = {
-                    Icon(
+                    IenIcon(
                         imageVector = M3SystemIcons.Edit,
                         contentDescription = null,
                         modifier = it
                     )
                 },
-                title = { Text(text = "Title is Here") },
+                title = { IenText(text = "Title is Here") },
                 content = {
-                    Text(text = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolo")
+                    IenText(text = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolo")
                 },
                 buttons = {
-                    Button(
-                        onClick = {}
-                    ) { Text(text = "hi") }
-                    Button(
-                        onClick = {}
-                    ) { Text(text = "hi") }
+                    IenButton(onClick = {}, text = "hi")
+                    IenButton(onClick = {}, text = "hi")
                 },
                 modifier = Modifier.fillMaxWidth(0.75f)
             )

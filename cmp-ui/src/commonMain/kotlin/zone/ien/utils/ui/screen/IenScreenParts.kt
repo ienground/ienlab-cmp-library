@@ -526,6 +526,7 @@ private fun IenTopBarFloatingSlot(
                 LocalIenButtonPressedReporter provides pressedReporter,
                 LocalIenButtonScalePressedOverride provides 1f,
                 LocalIenTopBarFloatingSlotHiddenRequester provides { hiddenRequested = it },
+                LocalIenNavigationButtonVariant provides IenButtonVariant.Ghost,
                 LocalRippleConfiguration provides null,
             ) {
                 content()

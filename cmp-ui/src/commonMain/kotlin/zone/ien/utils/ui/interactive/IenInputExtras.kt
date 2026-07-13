@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -88,6 +87,7 @@ import zone.ien.utils.cmp_ui.generated.resources.rating_value
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.utils.instantPress
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.icon.remix.RemixIcons
@@ -791,7 +791,7 @@ private fun DrawScope.drawRatingStarPath(
 @Composable
 private fun ScreenPreview() {
     IenTheme {
-        Scaffold {
+        IenScaffold {
             Box(
                 modifier = Modifier.padding(it)
             ) {

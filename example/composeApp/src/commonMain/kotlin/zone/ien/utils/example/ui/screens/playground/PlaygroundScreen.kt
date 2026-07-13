@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +41,8 @@ import zone.ien.utils.example.Android
 import zone.ien.utils.example.isIos
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.menu.ActionMenuItem
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.shimmer.m3Placeholder
 import zone.ien.utils.ui.utils.TextFieldDialogData
 
@@ -62,8 +62,8 @@ fun PlaygroundScreen(
 //        /*
         AdaptiveTopAppBarScaffold(
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop, visible = visible) { navigateBack() } },
-            title = { Text(text = "Playground") },
-            subtitle = { Text(text = "IENGROUND") },
+            title = { IenText(text = "Playground") },
+            subtitle = { IenText(text = "IENGROUND") },
             actions = listOf(
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
                     icon = IconData.Vector(Android),
@@ -190,7 +190,7 @@ private fun ScreenBody(
                 .fillMaxWidth()
                 .m3Placeholder()
         )
-        Text(
+        IenText(
             text = "Hello World!",
             modifier = Modifier.placeholder()
         )
@@ -230,7 +230,7 @@ private fun ScreenBody(
                 modifier = Modifier
 //                    .padding(32.dp)
             ) {
-                Icon(
+                IenIcon(
                     imageVector = Android,
                     contentDescription = null
                 )

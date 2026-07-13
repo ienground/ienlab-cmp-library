@@ -13,8 +13,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +29,8 @@ import zone.ien.utils.ui.dialog.IenProgressDialog
 import zone.ien.utils.ui.dialog.IenTextFieldDialog
 import zone.ien.utils.ui.dialog.IenTimePickerDialog
 import zone.ien.utils.ui.interactive.IenTextButton
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.IenBackButton
 import zone.ien.utils.ui.screen.IenTopAppBarScaffold
 import zone.ien.utils.ui.section.IenSection
@@ -92,8 +92,8 @@ fun IenPlaygroundScreen(
                     navigateBack()
                 }
             },
-            title = { Text("UI Module Playground") },
-            subtitle = { Text("Testing all migrated Material3 wrapper components") },
+            title = { IenText("UI Module Playground") },
+            subtitle = { IenText("Testing all migrated Material3 wrapper components") },
             actions = listOf<ActionMenuItem>(),
             bottomBar = {
                 CustomNavigationBar(
@@ -104,34 +104,34 @@ fun IenPlaygroundScreen(
                         index = 0,
                         onClick = { selectedNavIndex = 0 },
                         icon = {
-                            Icon(
+                            IenIcon(
                                 imageVector = M3SystemIcons.Save,
                                 contentDescription = null
                             )
                         },
-                        label = { Text("Save") }
+                        label = { IenText("Save") }
                     )
                     CustomNavigationBarItem(
                         index = 1,
                         onClick = { selectedNavIndex = 1 },
                         icon = {
-                            Icon(
+                            IenIcon(
                                 imageVector = M3SystemIcons.Edit,
                                 contentDescription = null
                             )
                         },
-                        label = { Text("Edit") }
+                        label = { IenText("Edit") }
                     )
                     CustomNavigationBarItem(
                         index = 2,
                         onClick = { selectedNavIndex = 2 },
                         icon = {
-                            Icon(
+                            IenIcon(
                                 imageVector = M3SystemIcons.Schedule,
                                 contentDescription = null
                             )
                         },
-                        label = { Text("Schedule") }
+                        label = { IenText("Schedule") }
                     )
                 }
             }
@@ -147,49 +147,49 @@ fun IenPlaygroundScreen(
             ) {
                 // ─── Dialogs Section ───
                 IenSection(
-                    title = { Text("Dialogs") }
+                    title = { IenText("Dialogs") }
                 ) {
                     IenSectionSwitchItem(
                         checked = darkTheme,
                         onCheckedChange = { darkTheme = it },
-                        title = { Text("IenTheme dark mode") }
+                        title = { IenText("IenTheme dark mode") }
                     )
                     IenSectionSwitchItem(
                         checked = darkTheme,
                         onCheckedChange = { darkTheme = it },
                         enabled = false,
-                        title = { Text("IenTheme dark mode") }
+                        title = { IenText("IenTheme dark mode") }
                     )
                     IenSectionButton(
                         onClick = { showAlertDialog = true },
-                        label = { Text("Open IenAlertDialog") },
+                        label = { IenText("Open IenAlertDialog") },
                         modifier = Modifier.fillMaxWidth()
                     )
                     IenSectionButton(
                         onClick = { showDatePicker = true },
-                        label = { Text("Open IenDatePickerDialog") },
+                        label = { IenText("Open IenDatePickerDialog") },
                         modifier = Modifier.fillMaxWidth()
                     )
                     IenSectionButton(
                         onClick = { showTimePicker = true },
-                        label = { Text("Open IenTimePickerDialog") },
+                        label = { IenText("Open IenTimePickerDialog") },
                         modifier = Modifier.fillMaxWidth()
                     )
                     IenSectionButton(
                         onClick = { showProgressDialog = true },
-                        label = { Text("Open IenProgressDialog") },
+                        label = { IenText("Open IenProgressDialog") },
                         modifier = Modifier.fillMaxWidth()
                     )
                     IenSectionButton(
                         onClick = { showTextFieldDialog = true },
-                        label = { Text("Open IenTextFieldDialog") },
+                        label = { IenText("Open IenTextFieldDialog") },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
 
                 // ─── Exposed Dropdown Section ───
                 IenSection(
-                    title = { Text("Exposed Dropdown Menus") }
+                    title = { IenText("Exposed Dropdown Menus") }
                 ) {
                     IenSectionItem(
                         title = {
@@ -202,7 +202,7 @@ fun IenPlaygroundScreen(
                                         value = value,
                                         onValueChange = {},
                                         readOnly = true,
-                                        placeholder = { Text("Select Fruit") },
+                                        placeholder = { IenText("Select Fruit") },
                                         trailingIcon = { trailingIcon() }
                                     )
                                 }
@@ -220,7 +220,7 @@ fun IenPlaygroundScreen(
                                         value = value,
                                         onValueChange = {},
                                         readOnly = true,
-                                        placeholder = { Text("Select Fruits (Multi)") },
+                                        placeholder = { IenText("Select Fruits (Multi)") },
                                         trailingIcon = { trailingIcon() }
                                     )
                                 }
@@ -231,32 +231,32 @@ fun IenPlaygroundScreen(
 
                 // ─── Inputs Section ───
                 IenSection(
-                    title = { Text("Section Items & Inputs") }
+                    title = { IenText("Section Items & Inputs") }
                 ) {
                     IenSectionSwitchItem(
                         checked = switchChecked,
                         onCheckedChange = { switchChecked = it },
-                        title = { Text("Switch Item") }
+                        title = { IenText("Switch Item") }
                     )
                     IenSectionCheckboxItem(
                         checked = checkboxChecked,
                         onCheckedChange = { checkboxChecked = it },
-                        title = { Text("Checkbox Item") }
+                        title = { IenText("Checkbox Item") }
                     )
                     IenSectionCheckboxItem(
                         checked = checkboxChecked,
                         onCheckedChange = { checkboxChecked = it },
                         enabled = false,
-                        title = { Text("Checkbox Item") }
+                        title = { IenText("Checkbox Item") }
                     )
                     IenSectionTextField(
                         value = sectionTextFieldValue,
                         onValueChange = { sectionTextFieldValue = it },
-                        placeholder = { Text("Placeholder Text") }
+                        placeholder = { IenText("Placeholder Text") }
                     )
                     IenSectionSecureTextField(
                         state = secureTextFieldState,
-                        placeholder = { Text("Password Input") }
+                        placeholder = { IenText("Password Input") }
                     )
                     IenSectionSlider(
                         value = sliderValue,
@@ -267,21 +267,21 @@ fun IenPlaygroundScreen(
 
                 // ─── Views & Formatting ───
                 IenSection(
-                    title = { Text("Views & Formatting") }
+                    title = { IenText("Views & Formatting") }
                 ) {
                     IenSectionItem(
                         title = {
                             IenTooltipBox(
                                 label = "This is a custom tooltip text container styling test!"
                             ) {
-                                Text("Hover/Click here for IenTooltipBox")
+                                IenText("Hover/Click here for IenTooltipBox")
                             }
                         }
                     )
                     IenSectionItem(
                         title = {
                             IenAsteriskTextWrapper {
-                                Text("Required Input Field Wrapper")
+                                IenText("Required Input Field Wrapper")
                             }
                         }
                     )
@@ -289,20 +289,20 @@ fun IenPlaygroundScreen(
 
                 // ─── Empty State Preview ───
                 IenSection(
-                    title = { Text("Empty State Preview") }
+                    title = { IenText("Empty State Preview") }
                 ) {
                     IenSectionItem(
                         title = {
                             Empty(
                                 icon = { modifier ->
-                                    Icon(
+                                    IenIcon(
                                         imageVector = M3SystemIcons.Edit,
                                         contentDescription = null,
                                         modifier = modifier
                                     )
                                 },
-                                title = { Text("No Data Available") },
-                                content = { Text("Try configuring settings or refreshing the screen to load samples.") }
+                                title = { IenText("No Data Available") },
+                                content = { IenText("Try configuring settings or refreshing the screen to load samples.") }
                             )
                         }
                     )

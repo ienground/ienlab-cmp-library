@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +33,7 @@ import zone.ien.utils.adaptive.view.NavigationBarItem
 import zone.ien.utils.icon.Adaptive
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.ui.primitives.IenText
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
@@ -106,7 +105,7 @@ fun NavigationScreen(
                             .background(if (it % 2 == 0) Color.Cyan else Color.Green)
                             .fillMaxWidth()
                     ) {
-                        Text(
+                        IenText(
                             text = "${it}"
                         )
                     }
