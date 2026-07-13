@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.ui.components.composite.IenScaffold
 import zone.ien.utils.ui.components.foundation.IenTheme
@@ -63,7 +64,7 @@ fun M3TopAppBarScaffold(
     navigationIcon: (@Composable () -> Unit)? = null,
     actions: (@Composable (RowScope.() -> Unit))? = null,
     topBarWindowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    bottomBar: @Composable () -> Unit = {},
+    bottomBar: (@Composable () -> Unit)? = null,
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.Center,
@@ -72,6 +73,15 @@ fun M3TopAppBarScaffold(
     scaffoldContainerColor: Color = IenTheme.colors.background,
     scaffoldContentColor: Color = IenTheme.colors.textPrimary,
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
+    contentEdgeBlur: Boolean = true,
+    contentEdgeBlurTop: Boolean = true,
+    contentEdgeBlurBottom: Boolean = true,
+    contentEdgeBlurTopProgress: Float = 1f,
+    contentEdgeBlurBottomProgress: Float = 1f,
+    contentEdgeBlurHeight: Dp = 220.dp,
+    contentEdgeBlurBottomHeight: Dp = 132.dp,
+    contentEdgeBlurRadius: Dp = 22.dp,
+    contentEdgeBlurColor: Color = scaffoldContainerColor,
     isScrollTint: Boolean = LocalIsScrollTint.current,
     size: TopBarSize = LocalM3TopBarSize.current,
     scrollBehavior: TopAppBarScrollBehavior = if (size == TopBarSize.Small) TopAppBarDefaults.pinnedScrollBehavior() else TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
@@ -105,6 +115,15 @@ fun M3TopAppBarScaffold(
         contentWindowInsets = contentWindowInsets,
         containerColor = scaffoldContainerColor,
         contentColor = scaffoldContentColor,
+        contentEdgeBlur = contentEdgeBlur,
+        contentEdgeBlurTop = contentEdgeBlurTop,
+        contentEdgeBlurBottom = contentEdgeBlurBottom,
+        contentEdgeBlurTopProgress = contentEdgeBlurTopProgress,
+        contentEdgeBlurBottomProgress = contentEdgeBlurBottomProgress,
+        contentEdgeBlurHeight = contentEdgeBlurHeight,
+        contentEdgeBlurBottomHeight = contentEdgeBlurBottomHeight,
+        contentEdgeBlurRadius = contentEdgeBlurRadius,
+        contentEdgeBlurColor = contentEdgeBlurColor,
         content = content
     )
 }
@@ -120,7 +139,7 @@ fun M3TopAppBarScaffold(
     navigationIcon: (@Composable () -> Unit)? = null,
     actions: List<ActionMenuItem> = listOf(),
     topBarWindowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    bottomBar: @Composable () -> Unit = {},
+    bottomBar: (@Composable () -> Unit)? = null,
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.Center,
@@ -129,6 +148,15 @@ fun M3TopAppBarScaffold(
     scaffoldContainerColor: Color = IenTheme.colors.background,
     scaffoldContentColor: Color = IenTheme.colors.textPrimary,
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
+    contentEdgeBlur: Boolean = true,
+    contentEdgeBlurTop: Boolean = true,
+    contentEdgeBlurBottom: Boolean = true,
+    contentEdgeBlurTopProgress: Float = 1f,
+    contentEdgeBlurBottomProgress: Float = 1f,
+    contentEdgeBlurHeight: Dp = 220.dp,
+    contentEdgeBlurBottomHeight: Dp = 132.dp,
+    contentEdgeBlurRadius: Dp = 22.dp,
+    contentEdgeBlurColor: Color = scaffoldContainerColor,
     isScrollTint: Boolean = LocalIsScrollTint.current,
     size: TopBarSize = LocalM3TopBarSize.current,
     scrollBehavior: TopAppBarScrollBehavior = if (size == TopBarSize.Small) TopAppBarDefaults.pinnedScrollBehavior() else TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
@@ -155,7 +183,6 @@ fun M3TopAppBarScaffold(
                         onToggleOverflow = { menuExpanded = !menuExpanded },
                         maxVisibleItems = 5
                     )
-                    Spacer(modifier = Modifier.width(16.dp))
                 }
             }
         },
@@ -169,6 +196,15 @@ fun M3TopAppBarScaffold(
         scaffoldContainerColor = scaffoldContainerColor,
         scaffoldContentColor = scaffoldContentColor,
         contentWindowInsets = contentWindowInsets,
+        contentEdgeBlur = contentEdgeBlur,
+        contentEdgeBlurTop = contentEdgeBlurTop,
+        contentEdgeBlurBottom = contentEdgeBlurBottom,
+        contentEdgeBlurTopProgress = contentEdgeBlurTopProgress,
+        contentEdgeBlurBottomProgress = contentEdgeBlurBottomProgress,
+        contentEdgeBlurHeight = contentEdgeBlurHeight,
+        contentEdgeBlurBottomHeight = contentEdgeBlurBottomHeight,
+        contentEdgeBlurRadius = contentEdgeBlurRadius,
+        contentEdgeBlurColor = contentEdgeBlurColor,
         scrollBehavior = scrollBehavior,
         isScrollTint = isScrollTint,
         size = size,

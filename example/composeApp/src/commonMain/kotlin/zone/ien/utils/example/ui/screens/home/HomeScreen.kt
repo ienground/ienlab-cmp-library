@@ -85,6 +85,7 @@ fun HomeScreen(
     val children = listOf("Hi", "Hello")
     val snackbarState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
 
 
     GeneratedAdaptiveTheme(
@@ -92,6 +93,7 @@ fun HomeScreen(
     ) {
         AdaptiveTopAppBarScaffold(
             snackbarHost = { SnackbarHost(snackbarState) },
+            contentEdgeBlurTopProgress = (scrollState.value / 48f).coerceIn(0f, 1f),
             actions = if (isDropdownMenu) listOf(
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
                     title = "Text",
@@ -243,6 +245,7 @@ fun HomeScreen(
                 }
                 cupertino {
                     this.backdrop = backdrop
+                    this.scrollableState = scrollState
                     showNavTitle = true
                 }
             },
@@ -260,7 +263,7 @@ fun HomeScreen(
             Column(
                 modifier = Modifier
                     .layerBackdrop(backdrop).consumeWindowInsets(WindowInsets.ime)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(scrollState)
                     .padding(pv)
             ) {
                 title()

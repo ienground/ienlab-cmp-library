@@ -249,9 +249,11 @@ fun DesignSystemScreen(
         var showIconToast by remember { mutableStateOf(false) }
         var showActionToast by remember { mutableStateOf(false) }
         var showCtaToast by remember { mutableStateOf(false) }
+        val scrollState = rememberScrollState()
 
         IenScaffold(
             modifier = modifier,
+            contentEdgeBlurTopProgress = (scrollState.value / 48f).coerceIn(0f, 1f),
             topBar = {
                 IenTopBar(
                     title = "Ien CMP UI",
@@ -278,7 +280,7 @@ fun DesignSystemScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(scrollState)
                         .padding(contentPadding),
                     verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
                 ) {

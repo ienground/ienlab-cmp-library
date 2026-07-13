@@ -36,6 +36,7 @@ kotlin {
             implementation(libs.compose.preview)
             implementation(libs.compose.resources)
             implementation(libs.hig.core)
+            implementation(libs.backdrop)
             implementation(libs.placeholder)
 
             implementation(projects.cmpCommon)

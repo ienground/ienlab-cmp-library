@@ -44,8 +44,11 @@ fun ColorTokenScreen(
     var darkTheme by remember { mutableStateOf(false) }
 
     IenTheme(darkTheme = darkTheme) {
+        val scrollState = rememberScrollState()
+
         IenScaffold(
             modifier = modifier,
+            contentEdgeBlurTopProgress = (scrollState.value / 48f).coerceIn(0f, 1f),
             topBar = {
                 IenTopBar(
                     title = "Color Tokens",
@@ -58,7 +61,7 @@ fun ColorTokenScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(IenTheme.colors.background)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(scrollState)
                     .padding(contentPadding)
                     .padding(IenTheme.spacing.md),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),

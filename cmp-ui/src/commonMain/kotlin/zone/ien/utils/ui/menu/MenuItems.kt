@@ -90,7 +90,10 @@ fun M3ActionsMenu(
                     ) {
                         IenIconButton(
                             onClick = item.onClick,
-                            modifier = Modifier.size(LocalMenuIconButtonSize.current.first),
+                            modifier = Modifier.size(
+                                width = LocalMenuIconButtonSize.current.first,
+                                height = LocalMenuIconButtonSize.current.second,
+                            ),
                             size = IenButtonSize.Medium,
                             variant = IenButtonVariant.Ghost,
                             tone = IenSemanticTone.Neutral,

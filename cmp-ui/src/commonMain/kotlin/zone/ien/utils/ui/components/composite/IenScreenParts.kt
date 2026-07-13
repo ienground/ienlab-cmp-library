@@ -62,6 +62,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Offset
@@ -117,6 +118,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
+import com.kyant.backdrop.drawPlainBackdrop
+import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.runtimeShaderEffect
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.agreement_optional
@@ -162,27 +169,161 @@ data class IenTopSubtitleBadge(
 fun IenScaffold(
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit = {},
-    bottomBar: @Composable () -> Unit = {},
+    bottomBar: (@Composable () -> Unit)? = null,
     snackbarHost: @Composable () -> Unit = {},
     floating: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.Center,
     containerColor: Color = IenTheme.colors.background,
     contentColor: Color = IenTheme.colors.textPrimary,
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
+    contentEdgeBlur: Boolean = true,
+    contentEdgeBlurTop: Boolean = true,
+    contentEdgeBlurBottom: Boolean = true,
+    contentEdgeBlurTopProgress: Float = 1f,
+    contentEdgeBlurBottomProgress: Float = 1f,
+    contentEdgeBlurHeight: Dp = 220.dp,
+    contentEdgeBlurBottomHeight: Dp = 132.dp,
+    contentEdgeBlurRadius: Dp = 22.dp,
+    contentEdgeBlurColor: Color = containerColor,
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    val backdrop = rememberLayerBackdrop {
+        drawRect(contentEdgeBlurColor)
+        drawContent()
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = topBar,
-        bottomBar = bottomBar,
+        bottomBar = { bottomBar?.invoke() },
         snackbarHost = snackbarHost,
         floatingActionButton = floating,
         floatingActionButtonPosition = floatingActionButtonPosition,
         containerColor = containerColor,
         contentColor = contentColor,
         contentWindowInsets = contentWindowInsets,
-        content = content,
-    )
+    ) { contentPadding ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .layerBackdrop(backdrop),
+            ) {
+                content(contentPadding)
+            }
+            if (contentEdgeBlur) {
+                IenScaffoldEdgeBlur(
+                    modifier = Modifier.matchParentSize(),
+                    backdrop = backdrop,
+                    showTop = contentEdgeBlurTop,
+                    showBottom = contentEdgeBlurBottom,
+                    topProgress = contentEdgeBlurTopProgress.coerceIn(0f, 1f),
+                    bottomProgress = contentEdgeBlurBottomProgress.coerceIn(0f, 1f),
+                    topHeight = contentEdgeBlurHeight,
+                    bottomHeight = contentEdgeBlurBottomHeight,
+                    radius = contentEdgeBlurRadius,
+                    color = contentEdgeBlurColor,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun IenScaffoldEdgeBlur(
+    modifier: Modifier = Modifier,
+    backdrop: LayerBackdrop,
+    showTop: Boolean,
+    showBottom: Boolean,
+    topProgress: Float,
+    bottomProgress: Float,
+    topHeight: Dp,
+    bottomHeight: Dp,
+    radius: Dp,
+    color: Color,
+) {
+    Box(modifier = modifier) {
+        if (showTop && topProgress > 0f) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .height(topHeight)
+                    .drawPlainBackdrop(
+                        backdrop = backdrop,
+                        shape = { RectangleShape },
+                        effects = {
+                            blur(radius.toPx())
+                            runtimeShaderEffect(
+                                "IenTopEdgeBackdropMask",
+                                """
+                                uniform shader content;
+
+                                uniform float2 size;
+                                layout(color) uniform half4 tint;
+                                uniform float tintIntensity;
+                                uniform float edgeIntensity;
+
+                                half4 main(float2 coord) {
+                                    float progress = clamp(coord.y / size.y, 0.0, 1.0);
+                                    float edgeAlpha = (1.0 - smoothstep(0.42, 1.0, progress)) * edgeIntensity;
+                                    half4 blurred = content.eval(coord) * edgeAlpha;
+                                    half4 tintLayer = tint * edgeAlpha;
+                                    return mix(blurred, tintLayer, tintIntensity);
+                                }
+                                """.trimIndent(),
+                                "content",
+                            ) {
+                                setFloatUniform("size", size.width, size.height)
+                                setColorUniform("tint", color.copy(alpha = 0.42f))
+                                setFloatUniform("tintIntensity", 0.24f)
+                                setFloatUniform("edgeIntensity", topProgress)
+                            }
+                        },
+                    ),
+            )
+        }
+        if (showBottom && bottomProgress > 0f) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(bottomHeight)
+                    .drawPlainBackdrop(
+                        backdrop = backdrop,
+                        shape = { RectangleShape },
+                        effects = {
+                            blur(radius.toPx())
+                            runtimeShaderEffect(
+                                "IenBottomEdgeBackdropMask",
+                                """
+                                uniform shader content;
+
+                                uniform float2 size;
+                                layout(color) uniform half4 tint;
+                                uniform float tintIntensity;
+                                uniform float edgeIntensity;
+
+                                half4 main(float2 coord) {
+                                    float progress = clamp(coord.y / size.y, 0.0, 1.0);
+                                    float edgeAlpha = smoothstep(0.0, 0.58, progress) * edgeIntensity;
+                                    half4 blurred = content.eval(coord) * edgeAlpha;
+                                    half4 tintLayer = tint * edgeAlpha;
+                                    return mix(blurred, tintLayer, tintIntensity);
+                                }
+                                """.trimIndent(),
+                                "content",
+                            ) {
+                                setFloatUniform("size", size.width, size.height)
+                                setColorUniform("tint", color.copy(alpha = 0.42f))
+                                setFloatUniform("tintIntensity", 0.24f)
+                                setFloatUniform("edgeIntensity", bottomProgress)
+                            }
+                        },
+                    ),
+            )
+        }
+    }
 }
 
 @Composable
@@ -2198,7 +2339,7 @@ private fun IenBottomCTAContainer(
     val shouldCompose = visible || takeSpace
 
     if (shouldCompose) {
-        IenSurface(
+        Box(
             modifier = modifier
                 .fillMaxWidth()
                 .graphicsLayer {
@@ -2207,8 +2348,6 @@ private fun IenBottomCTAContainer(
                     scaleY = scale
                     translationY = translation
                 },
-            color = containerColor,
-            tonalElevation = if (fixed) IenTheme.elevation.floating else 0.dp,
         ) {
             Column(
                 modifier = Modifier.padding(
@@ -2220,7 +2359,22 @@ private fun IenBottomCTAContainer(
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
             ) {
                 topAccessory?.invoke()
-                content()
+                if (background == IenBottomCTABackground.None) {
+                    content()
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .shadow(
+                                elevation = IenTheme.elevation.floating,
+                                shape = RoundedCornerShape(IenTheme.radius.default),
+                                clip = false,
+                            )
+                            .clip(RoundedCornerShape(IenTheme.radius.default))
+                            .background(containerColor),
+                    ) {
+                        content()
+                    }
+                }
                 bottomAccessory?.invoke()
             }
         }

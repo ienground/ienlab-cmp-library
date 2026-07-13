@@ -117,11 +117,13 @@ fun AdaptiveTopAppBarScaffold(
     showTopBar: Boolean = true,
     navigationIcon: (@Composable () -> Unit)? = null,
     actions: (@Composable (RowScope.() -> Unit))? = null,
-    bottomBar: @Composable () -> Unit = {},
+    bottomBar: (@Composable () -> Unit)? = null,
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
+    contentEdgeBlurTopProgress: Float = 1f,
+    contentEdgeBlurBottomProgress: Float = 1f,
     adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
@@ -154,6 +156,8 @@ fun AdaptiveTopAppBarScaffold(
                 scaffoldContainerColor = it.scaffoldContainerColor,
                 scaffoldContentColor = it.scaffoldContentColor,
                 contentWindowInsets = it.contentWindowInsets,
+                contentEdgeBlurTopProgress = contentEdgeBlurTopProgress,
+                contentEdgeBlurBottomProgress = contentEdgeBlurBottomProgress,
                 scrollBehavior = it.scrollBehavior,
                 isScrollTint = it.isScrollTint,
                 size = it.size,
@@ -219,7 +223,7 @@ fun AdaptiveTopAppBarScaffold(
                         }
                     }
                 },
-                bottomBar = bottomBar,
+                bottomBar = { bottomBar?.invoke() },
                 snackbarHost = snackbarHost,
                 floatingActionButton = floatingActionButton,
                 floatingActionButtonPosition = higFabPosition,
@@ -273,11 +277,13 @@ fun AdaptiveTopAppBarScaffold(
     navigationIcon: (@Composable () -> Unit)? = null,
     actions: List<ActionMenuItem> = listOf(),
     primaryAction: ActionMenuItem.IconMenuItem? = null,
-    bottomBar: @Composable () -> Unit = {},
+    bottomBar: (@Composable () -> Unit)? = null,
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
+    contentEdgeBlurTopProgress: Float = 1f,
+    contentEdgeBlurBottomProgress: Float = 1f,
     adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
@@ -296,6 +302,8 @@ fun AdaptiveTopAppBarScaffold(
             floatingActionButton = floatingActionButton,
             fabPosition = fabPosition,
             higFabPosition = higFabPosition,
+            contentEdgeBlurTopProgress = contentEdgeBlurTopProgress,
+            contentEdgeBlurBottomProgress = contentEdgeBlurBottomProgress,
             adaptation = adaptation,
             content = content
         )
@@ -309,7 +317,6 @@ fun AdaptiveTopAppBarScaffold(
                 {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxHeight()
                     ) {
                         M3ActionsMenu(
                             items = it,
@@ -318,7 +325,6 @@ fun AdaptiveTopAppBarScaffold(
                             onToggleOverflow = { menuExpanded = !menuExpanded },
                             maxVisibleItems = 3,
                         )
-                        Spacer(modifier = Modifier.width(16.dp))
                     }
                 }
             })
