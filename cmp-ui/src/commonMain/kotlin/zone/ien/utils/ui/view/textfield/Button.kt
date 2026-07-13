@@ -66,9 +66,13 @@ fun IenTextFieldIconButton(
             .clip(CircleShape)
             .background(color = containerColor)
             .combinedClickable(
-                enabled = enabled && !loading,
-                onClick = onClick,
-                onLongClick = onLongClick,
+                enabled = true,
+                onClick = {
+                    if (enabled && !loading) onClick()
+                },
+                onLongClick = {
+                    if (enabled && !loading) onLongClick()
+                },
                 role = Role.Button,
                 interactionSource = interactionSource
             ),

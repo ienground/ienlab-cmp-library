@@ -240,15 +240,14 @@ fun HomeScreen(
             },
             title = { Text(text = "IENGROUND") },
             subtitle = { Text(text = "Sub Title") },
+            scrollableState = scrollState,
             adaptation = {
                 material {
                     size = TopBarSize.Medium
                     isCenterAligned = true
-                    scrollableState = scrollState
                 }
                 cupertino {
                     this.backdrop = backdrop
-                    this.scrollableState = scrollState
                     showNavTitle = true
                 }
             },
@@ -443,7 +442,7 @@ fun HomeScreen(
                         .height(400.dp)
                         .background(Color(0xFF8B5CF6))
                 ) {
-                    Text(text = "M3 Playground")
+                    Text(text = "Ien Playground")
                 }
                 Box(
                     modifier = Modifier

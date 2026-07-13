@@ -1,10 +1,9 @@
 package zone.ien.utils.ui.screen
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.back
@@ -20,6 +19,8 @@ import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.view.IenTooltipBox
+
+internal val LocalIenNavigationButtonVariant = staticCompositionLocalOf<IenButtonVariant?> { null }
 
 /**
  * IenBackButton은 뒤로 가기 버튼을 표시하기 위한 컴포저블입니다.
@@ -42,9 +43,9 @@ fun IenBackButton(
     ) {
         IenIconButton(
             onClick = onClick,
-            modifier = modifier.padding(horizontal = 8.dp),
+            modifier = modifier,
             size = IenButtonSize.Medium,
-            variant = IenButtonVariant.Weak,
+            variant = LocalIenNavigationButtonVariant.current ?: IenButtonVariant.Weak,
             tone = IenSemanticTone.Neutral,
             state = IenButtonState(enabled = enabled),
         ) {

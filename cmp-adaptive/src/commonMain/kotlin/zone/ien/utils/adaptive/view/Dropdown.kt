@@ -71,11 +71,32 @@ fun AdaptiveDropdownBox(
     AdaptiveWidget(
         material = {
             Box(
-                modifier = modifier
+                contentAlignment = Alignment.TopCenter,
+                modifier = modifier.graphicsLayer { clip = false }
             ) {
-                trigger()
+                val alpha by animateFloatAsState(
+                    targetValue = if (expanded) 0.001f else 1f,
+                    animationSpec = spring(1.2f)
+                )
+
+                Box(
+                    modifier = Modifier.graphicsLayer {
+                        this.scaleX = alpha
+                        this.scaleY = alpha
+                        this.alpha = alpha
+                        compositingStrategy = CompositingStrategy.ModulateAlpha
+                    }
+                ) {
+                    trigger()
+                }
                 dropdown()
             }
+//            Box(
+//                modifier = modifier
+//            ) {
+//                trigger()
+//                dropdown()
+//            }
         },
         cupertino = {
             Box(

@@ -53,6 +53,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
@@ -77,24 +80,80 @@ fun IenSwitch(
     thumbContent: @Composable (() -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
 ) {
+    val checkedTrackColor = if (enabled) {
+        IenTheme.colors.brand
+    } else {
+        IenTheme.colors.brand.copy(alpha = IenTheme.state.disabledAlpha)
+    }
+    val uncheckedTrackColor = if (enabled) {
+        IenTheme.colors.borderStrong
+    } else {
+        IenTheme.colors.borderStrong.copy(alpha = IenTheme.state.disabledAlpha)
+    }
+    val density = LocalDensity.current
+    val shakeOffset = remember { Animatable(0f) }
+    val coroutineScope = rememberCoroutineScope()
+
+    fun shakeDisabledSwitch() {
+        coroutineScope.launch {
+            val shakeDistance = with(density) { 6.dp.toPx() }
+            shakeOffset.snapTo(0f)
+            shakeOffset.animateTo(
+                targetValue = 0f,
+                animationSpec = keyframes {
+                    durationMillis = 200
+                    -shakeDistance at 30
+                    shakeDistance at 70
+                    -shakeDistance * 0.6f at 110
+                    shakeDistance * 0.6f at 150
+                    0f at 200
+                }
+            )
+        }
+    }
+
     Switch(
         checked = checked,
-        onCheckedChange = onCheckedChange,
-        modifier = modifier,
-        enabled = enabled,
+        onCheckedChange = {
+            if (enabled) {
+                onCheckedChange(it)
+            } else {
+                shakeDisabledSwitch()
+            }
+        },
+        modifier = modifier
+            .then(
+                if (enabled) {
+                    Modifier
+                } else {
+                    Modifier.pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent(PointerEventPass.Initial)
+                                if (event.changes.any { it.changedToDownIgnoreConsumed() }) {
+                                    shakeDisabledSwitch()
+                                }
+                                event.changes.forEach { it.consume() }
+                            }
+                        }
+                    }
+                }
+            )
+            .offset { IntOffset(x = shakeOffset.value.roundToInt(), y = 0) },
+        enabled = true,
         thumbContent = thumbContent,
         interactionSource = interactionSource,
         colors = SwitchDefaults.colors(
             checkedThumbColor = IenTheme.colors.surface,
-            checkedTrackColor = IenTheme.colors.brand,
-            checkedBorderColor = IenTheme.colors.brand,
+            checkedTrackColor = checkedTrackColor,
+            checkedBorderColor = checkedTrackColor,
             uncheckedThumbColor = IenTheme.colors.surface,
-            uncheckedTrackColor = IenTheme.colors.borderStrong,
-            uncheckedBorderColor = IenTheme.colors.borderStrong,
+            uncheckedTrackColor = uncheckedTrackColor,
+            uncheckedBorderColor = uncheckedTrackColor,
             disabledCheckedThumbColor = IenTheme.colors.surface,
-            disabledCheckedTrackColor = IenTheme.colors.brand.copy(alpha = IenTheme.state.disabledAlpha),
+            disabledCheckedTrackColor = checkedTrackColor,
             disabledUncheckedThumbColor = IenTheme.colors.surface,
-            disabledUncheckedTrackColor = IenTheme.colors.borderStrong.copy(alpha = IenTheme.state.disabledAlpha),
+            disabledUncheckedTrackColor = uncheckedTrackColor,
         ),
     )
 }

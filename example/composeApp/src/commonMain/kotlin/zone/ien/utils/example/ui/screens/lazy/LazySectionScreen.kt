@@ -54,12 +54,9 @@ fun LazySectionScreen(
                     onCheckedChange = { isMaterialTheme = it }
                 )
             },
+            scrollableState = lazyListState,
             adaptation = {
-                material {
-                    this.scrollableState = lazyListState
-                }
                 cupertino {
-                    this.scrollableState = lazyListState
                     this.showNavTitle = true
                 }
             },

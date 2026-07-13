@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -532,6 +533,9 @@ internal fun IenButtonContainer(
             scaleY = scale
         }
         .semantics { role = Role.Button }
+        .semantics {
+            if (!interactiveEnabled) disabled()
+        }
         .instantPress(interactiveEnabled) { isPressed = it }
 
     val resolvedIenColors = colors ?: ienColors
@@ -560,7 +564,7 @@ internal fun IenButtonContainer(
         IenButtonVariant.Fill, IenButtonVariant.Weak -> Button(
             onClick = handleOnClick,
             modifier = buttonModifier,
-            enabled = interactiveEnabled,
+            enabled = true,
             shape = shape,
             colors = resolvedColors,
             contentPadding = contentPadding,
@@ -571,7 +575,7 @@ internal fun IenButtonContainer(
         IenButtonVariant.Line -> OutlinedButton(
             onClick = handleOnClick,
             modifier = buttonModifier,
-            enabled = interactiveEnabled,
+            enabled = true,
             shape = shape,
             border = border ?: BorderStroke(IenTheme.stroke.thin, ienColors.border),
             colors = resolvedColors,
@@ -583,7 +587,7 @@ internal fun IenButtonContainer(
         IenButtonVariant.Ghost -> TextButton(
             onClick = handleOnClick,
             modifier = buttonModifier,
-            enabled = interactiveEnabled,
+            enabled = true,
             shape = shape,
             colors = resolvedColors,
             contentPadding = contentPadding,

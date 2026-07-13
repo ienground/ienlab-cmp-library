@@ -102,6 +102,7 @@ import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
  * @param floatingActionButton 플로팅 액션 버튼
  * @param fabPosition 플로팅 액션 버튼 위치
  * @param higFabPosition HIG 플로팅 액션 버튼 위치
+ * @param scrollableState 상단바 스크롤 상태 계산에 사용할 상태
  * @param adaptation 어댑테이션 설정
  * @param content 콘텐츠
  */
@@ -123,6 +124,7 @@ fun AdaptiveTopAppBarScaffold(
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
+    scrollableState: ScrollableState = rememberScrollState(),
     adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
@@ -137,7 +139,7 @@ fun AdaptiveTopAppBarScaffold(
         adaptation = remember { TopAppBarScaffoldAdaptation() },
         adaptationScope = adaptation,
         material = {
-            val scaffoldScrollState = it.scrollableState as? ScrollState
+            val scaffoldScrollState = scrollableState as? ScrollState
             CompositionLocalProvider(
                 LocalTopBarScaffoldScrollState provides scaffoldScrollState,
             ) {
@@ -158,7 +160,7 @@ fun AdaptiveTopAppBarScaffold(
                     scaffoldContainerColor = it.scaffoldContainerColor,
                     scaffoldContentColor = it.scaffoldContentColor,
                     contentWindowInsets = it.contentWindowInsets,
-                    contentEdge = contentEdge.resolveTopProgress(it.scrollableState),
+                    contentEdge = contentEdge.resolveTopProgress(scrollableState),
                     isScrollTint = it.isScrollTint,
                     size = it.size,
                     content = { content(it, {}) }
@@ -166,14 +168,13 @@ fun AdaptiveTopAppBarScaffold(
             }
         },
         cupertino = {
-            val scaffoldScrollState = it.scrollableState as? ScrollState
-            val isScrolled by remember {
-                val state = it.scrollableState
+            val scaffoldScrollState = scrollableState as? ScrollState
+            val isScrolled by remember(scrollableState) {
                 derivedStateOf {
-                    when (state) {
-                        is ScrollState -> state.value > 20
-                        is LazyListState -> state.firstVisibleItemIndex > 0 || state.firstVisibleItemScrollOffset > 0
-                        is LazyGridState -> state.firstVisibleItemIndex > 0 || state.firstVisibleItemScrollOffset > 0
+                    when (scrollableState) {
+                        is ScrollState -> scrollableState.value > 20
+                        is LazyListState -> scrollableState.firstVisibleItemIndex > 0 || scrollableState.firstVisibleItemScrollOffset > 0
+                        is LazyGridState -> scrollableState.firstVisibleItemIndex > 0 || scrollableState.firstVisibleItemScrollOffset > 0
                         else -> false
                     }
                 }
@@ -269,6 +270,7 @@ fun AdaptiveTopAppBarScaffold(
  * @param floatingActionButton 플로팅 액션 버튼
  * @param fabPosition 플로팅 액션 버튼 위치
  * @param higFabPosition HIG 플로팅 액션 버튼 위치
+ * @param scrollableState 상단바 스크롤 상태 계산에 사용할 상태
  * @param adaptation 어댑테이션 설정
  * @param content 콘텐츠
  */
@@ -289,6 +291,7 @@ fun AdaptiveTopAppBarScaffold(
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
+    scrollableState: ScrollableState = rememberScrollState(),
     adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
@@ -308,6 +311,7 @@ fun AdaptiveTopAppBarScaffold(
             fabPosition = fabPosition,
             higFabPosition = higFabPosition,
             contentEdge = contentEdge,
+            scrollableState = scrollableState,
             adaptation = adaptation,
             content = content
         )
@@ -461,7 +465,6 @@ class IenTopAppBarScaffoldAdaptation internal constructor(
     scaffoldContainerColor: Color,
     scaffoldContentColor: Color,
     size: TopBarSize,
-    scrollableState: ScrollableState,
 ) {
     var topBarWindowInsets by mutableStateOf(topBarWindowInsets)
     var contentWindowInsets by mutableStateOf(contentWindowInsets)
@@ -470,7 +473,6 @@ class IenTopAppBarScaffoldAdaptation internal constructor(
     var scaffoldContainerColor by mutableStateOf(scaffoldContainerColor)
     var scaffoldContentColor by mutableStateOf(scaffoldContentColor)
     var size by mutableStateOf(size)
-    var scrollableState by mutableStateOf(scrollableState)
 }
 
 /**
@@ -486,7 +488,6 @@ class IenTopAppBarScaffoldAdaptation internal constructor(
  * @param colors 상단바 색상
  * @param scaffoldContainerColor 스크라프트 컨테이너 색상
  * @param scaffoldContentColor 스크라프트 콘텐츠 색상
- * @param scrollableState 스크롤 가능한 상태
  * @param showNavTitle 네비게이션 타이틀 표시 여부
  */
 class HigTopAppBarScaffoldAdaptation internal constructor(
@@ -500,7 +501,6 @@ class HigTopAppBarScaffoldAdaptation internal constructor(
     colors: CupertinoTopAppBarColors,
     scaffoldContainerColor: Color,
     scaffoldContentColor: Color,
-    scrollableState: ScrollableState,
     showNavTitle: Boolean,
 ) {
     var topBarWindowInsets by mutableStateOf(topBarWindowInsets)
@@ -513,7 +513,6 @@ class HigTopAppBarScaffoldAdaptation internal constructor(
     var colors by mutableStateOf(colors)
     var scaffoldContainerColor by mutableStateOf(scaffoldContainerColor)
     var scaffoldContentColor by mutableStateOf(scaffoldContentColor)
-    var scrollableState by mutableStateOf(scrollableState)
     var showNavTitle by mutableStateOf(showNavTitle)
 }
 
@@ -531,10 +530,9 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
         val colors = CupertinoTopAppBarDefaults.topAppBarColors()
         val scaffoldContainerColor = MaterialTheme.colorScheme.background// CupertinoScaffoldDefaults.containerColor
         val scaffoldContentColor = contentColorFor(scaffoldContainerColor) // CupertinoScaffoldDefaults.contentColor
-        val scrollableState = rememberScrollState()
         val showNavTitle = LocalHigShowNavTitle.current
 
-        return remember(topBarWindowInsets, contentWindowInsets, backdrop,isDropdownNative, isCenterAligned, isBackgroundAdaptive, isBackgroundGradient, colors, scaffoldContainerColor, scaffoldContentColor, scrollableState, showNavTitle) {
+        return remember(topBarWindowInsets, contentWindowInsets, backdrop,isDropdownNative, isCenterAligned, isBackgroundAdaptive, isBackgroundGradient, colors, scaffoldContainerColor, scaffoldContentColor, showNavTitle) {
             HigTopAppBarScaffoldAdaptation(
                 topBarWindowInsets = topBarWindowInsets,
                 contentWindowInsets = contentWindowInsets,
@@ -546,7 +544,6 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
                 colors = colors,
                 scaffoldContainerColor = scaffoldContainerColor,
                 scaffoldContentColor = scaffoldContentColor,
-                scrollableState = scrollableState,
                 showNavTitle = showNavTitle
             )
         }
@@ -562,9 +559,8 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
         val scaffoldContainerColor = MaterialTheme.colorScheme.background
         val scaffoldContentColor = contentColorFor(scaffoldContainerColor)
         val size = LocalM3TopBarSize.current
-        val scrollableState = rememberScrollState()
 
-        return remember(topBarWindowInsets, contentWindowInsets, isScrollTint, isCenterAligned, scaffoldContainerColor, scaffoldContentColor, size, scrollableState) {
+        return remember(topBarWindowInsets, contentWindowInsets, isScrollTint, isCenterAligned, scaffoldContainerColor, scaffoldContentColor, size) {
             IenTopAppBarScaffoldAdaptation(
                 topBarWindowInsets = topBarWindowInsets,
                 contentWindowInsets = contentWindowInsets,
@@ -573,7 +569,6 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
                 scaffoldContainerColor = scaffoldContainerColor,
                 scaffoldContentColor = scaffoldContentColor,
                 size = size,
-                scrollableState = scrollableState,
             )
         }
     }

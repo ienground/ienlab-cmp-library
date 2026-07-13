@@ -189,6 +189,7 @@ fun SectionScope.IenSectionSwitchItem(
  * @param leadingContent 앞쪽 콘텐츠
  * @param checked 체크박스의 현재 상태 (선택됨/해제됨)
  * @param onCheckedChange 체크박스 상태가 변경될 때 호출되는 함수
+ * @param enabled 활성화 상태
  * @param supportingContent 지원 콘텐츠
  * @param title 제목
  */
@@ -198,6 +199,7 @@ fun SectionScope.IenSectionCheckboxItem(
     leadingContent: (@Composable () -> Unit)? = null,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
     supportingContent: @Composable (() -> Unit)? = null,
     title: @Composable () -> Unit
 ) {
@@ -207,11 +209,12 @@ fun SectionScope.IenSectionCheckboxItem(
             IenCircleCheckbox(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
+                enabled = enabled,
             )
         },
         supportingContent = supportingContent,
         title = title,
-        modifier = modifier.clickable { onCheckedChange(!checked) }
+        modifier = modifier.clickable(enabled = enabled) { onCheckedChange(!checked) }
     )
 }
 

@@ -7,6 +7,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.ScaffoldDefaults
@@ -45,6 +50,7 @@ import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
  * @param scaffoldContainerColor 스크래프트 컨테이너 색상
  * @param scaffoldContentColor 스크래프트 내용 색상
  * @param contentWindowInsets 내용 윈도우 인셋
+ * @param scrollableState 상단 영역 흐림 진행도 계산에 사용할 스크롤 상태
  * @param isScrollTint 스크롤 tint 여부
  * @param size 크기
  * @param content 내용
@@ -69,6 +75,7 @@ fun IenTopAppBarScaffold(
     scaffoldContentColor: Color = IenTheme.colors.textPrimary,
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
+    scrollableState: ScrollableState = rememberScrollState(),
     isScrollTint: Boolean = LocalIsScrollTint.current,
     size: TopBarSize = LocalM3TopBarSize.current,
     content: @Composable (PaddingValues) -> Unit
@@ -99,7 +106,7 @@ fun IenTopAppBarScaffold(
         contentWindowInsets = contentWindowInsets,
         containerColor = scaffoldContainerColor,
         contentColor = scaffoldContentColor,
-        contentEdge = contentEdge,
+        contentEdge = contentEdge.resolveTopProgress(scrollableState),
         content = content
     )
 }
@@ -124,6 +131,7 @@ fun IenTopAppBarScaffold(
     scaffoldContentColor: Color = IenTheme.colors.textPrimary,
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
+    scrollableState: ScrollableState = rememberScrollState(),
     isScrollTint: Boolean = LocalIsScrollTint.current,
     size: TopBarSize = LocalM3TopBarSize.current,
     content: @Composable (PaddingValues) -> Unit
@@ -163,8 +171,30 @@ fun IenTopAppBarScaffold(
         scaffoldContentColor = scaffoldContentColor,
         contentWindowInsets = contentWindowInsets,
         contentEdge = contentEdge,
+        scrollableState = scrollableState,
         isScrollTint = isScrollTint,
         size = size,
         content = content
     )
+}
+
+private fun IenScaffoldContentEdge.resolveTopProgress(
+    scrollableState: ScrollableState,
+): IenScaffoldContentEdge {
+    return copy(topProgress = scrollableState.topEdgeProgress())
+}
+
+private fun ScrollableState.topEdgeProgress(): Float {
+    return when (this) {
+        is ScrollState -> (value / 48f).coerceIn(0f, 1f)
+        is LazyListState -> {
+            val offset = if (firstVisibleItemIndex > 0) 48f else firstVisibleItemScrollOffset.toFloat()
+            (offset / 48f).coerceIn(0f, 1f)
+        }
+        is LazyGridState -> {
+            val offset = if (firstVisibleItemIndex > 0) 48f else firstVisibleItemScrollOffset.toFloat()
+            (offset / 48f).coerceIn(0f, 1f)
+        }
+        else -> 0f
+    }
 }

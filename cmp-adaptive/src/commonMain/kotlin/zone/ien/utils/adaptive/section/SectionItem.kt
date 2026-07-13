@@ -282,6 +282,7 @@ fun SectionScope.AdaptiveSectionSwitchItem(
  * @param leadingContent 항목 앞에 표시할 콘텐츠
  * @param checked 체크 여부
  * @param onCheckedChange 체크 상태 변경 콜백
+ * @param enabled 항목 활성화 여부
  * @param supportingContent 보조 콘텐츠
  * @param adaptation 적응형 스타일 설정을 위한 범위
  * @param title 항목 제목
@@ -293,6 +294,7 @@ fun SectionScope.AdaptiveSectionCheckboxItem(
     leadingContent: (@Composable () -> Unit)? = null,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
     supportingContent: @Composable (() -> Unit)? = null,
     adaptation: AdaptationScope<HigSectionItemAdaptation, IenSectionItemAdaptation>.() -> Unit = {},
     title: @Composable () -> Unit
@@ -306,6 +308,7 @@ fun SectionScope.AdaptiveSectionCheckboxItem(
                 leadingContent = leadingContent,
                 checked = checked,
                 onCheckedChange = onCheckedChange,
+                enabled = enabled,
                 supportingContent = supportingContent,
                 title = title
             )
@@ -318,7 +321,8 @@ fun SectionScope.AdaptiveSectionCheckboxItem(
                 trailingContent = {
                     CupertinoCheckBox(
                         checked = checked,
-                        onCheckedChange = onCheckedChange
+                        onCheckedChange = onCheckedChange,
+                        enabled = enabled
                     )
                 },
                 title = {
