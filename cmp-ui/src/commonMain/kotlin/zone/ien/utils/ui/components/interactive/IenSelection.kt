@@ -71,41 +71,6 @@ import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.components.primitives.IenText
 
 @Composable
-fun IenCheckbox(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    label: String? = null,
-) {
-    Row(
-        modifier = modifier
-            .defaultMinSize(minHeight = IenTheme.state.minimumTouchTarget)
-            .clickable(enabled = enabled, role = Role.Checkbox) { onCheckedChange(!checked) },
-        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Checkbox(
-            checked = checked,
-            onCheckedChange = null,
-            enabled = enabled,
-            colors = CheckboxDefaults.colors(
-                checkedColor = IenTheme.colors.brand,
-                uncheckedColor = IenTheme.colors.borderStrong,
-                checkmarkColor = IenTheme.colors.surface,
-            ),
-        )
-        if (label != null) {
-            IenText(
-                text = label,
-                style = IenTheme.typography.body2,
-                color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
-            )
-        }
-    }
-}
-
-@Composable
 fun IenSwitch(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -523,6 +488,124 @@ fun IenCircleCheckbox(
                 modifier = Modifier.size(size * 0.65f)
             )
         }
+        if (label != null) {
+            IenText(
+                text = label,
+                style = IenTheme.typography.body2,
+                color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
+            )
+        }
+    }
+}
+
+@Composable
+fun IenDotCheckbox(
+    modifier: Modifier = Modifier,
+    checked: Boolean? = null,
+    defaultChecked: Boolean? = null,
+    onCheckedChange: ((Boolean) -> Unit)? = null,
+    enabled: Boolean = true,
+    size: Dp = 8.dp,
+    label: String? = null,
+) {
+    val alpha = if (enabled) 1f else IenTheme.state.disabledAlpha
+    val brandColor = IenTheme.colors.brand
+    val borderColor = IenTheme.colors.borderStrong
+
+    var localCheckedState by remember { mutableStateOf(defaultChecked ?: false) }
+    val isChecked = checked ?: localCheckedState
+
+    val toggleChecked = {
+        val target = !isChecked
+        if (checked == null) {
+            localCheckedState = target
+        }
+        onCheckedChange?.invoke(target)
+    }
+
+    val interactionSource = remember { MutableInteractionSource() }
+    var isPressed by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed && enabled) 0.95f else 1.0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium
+        )
+    )
+
+    val density = LocalDensity.current
+    val shakeOffset = remember { Animatable(0f) }
+    val coroutineScope = rememberCoroutineScope()
+
+    val handleClick = {
+        if (enabled) {
+            toggleChecked()
+        } else {
+            coroutineScope.launch {
+                val shakeDistance = with(density) { 6.dp.toPx() }
+                shakeOffset.animateTo(
+                    targetValue = 0f,
+                    animationSpec = keyframes {
+                        durationMillis = 200
+                        -shakeDistance at 30
+                        shakeDistance at 70
+                        -shakeDistance * 0.6f at 110
+                        shakeDistance * 0.6f at 150
+                        0f at 200
+                    }
+                )
+            }
+        }
+    }
+
+    val targetBgColor = if (isChecked) brandColor else Color.Transparent
+    val targetBorderColor = if (isChecked) brandColor else borderColor
+    val targetCheckColor = if (isChecked) Color.White else borderColor
+
+    val backgroundColor by animateColorAsState(
+        targetValue = targetBgColor,
+        animationSpec = tween(durationMillis = 200)
+    )
+    val borderAnimColor by animateColorAsState(
+        targetValue = targetBorderColor,
+        animationSpec = tween(durationMillis = 200)
+    )
+    val checkAnimColor by animateColorAsState(
+        targetValue = targetCheckColor,
+        animationSpec = tween(durationMillis = 200)
+    )
+
+    Row(
+        modifier = modifier
+            .defaultMinSize(minHeight = IenTheme.state.minimumTouchTarget)
+            .instantPress(enabled) { isPressed = it }
+            .clickable(
+                enabled = true,
+                interactionSource = interactionSource,
+                indication = null,
+                role = Role.Checkbox
+            ) { handleClick() },
+        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .offset { IntOffset(x = shakeOffset.value.roundToInt(), y = 0) }
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }
+                .alpha(alpha)
+                .size(size)
+                .background(
+                    color = backgroundColor,
+                    shape = androidx.compose.foundation.shape.CircleShape
+                )
+                .border(
+                    BorderStroke(1.5.dp, borderAnimColor),
+                    shape = androidx.compose.foundation.shape.CircleShape
+                ),
+        )
         if (label != null) {
             IenText(
                 text = label,

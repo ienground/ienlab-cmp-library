@@ -38,7 +38,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FabPosition
@@ -101,7 +100,6 @@ import zone.ien.utils.ui.components.interactive.IenButton
 import zone.ien.utils.ui.components.interactive.IenButtonSize
 import zone.ien.utils.ui.components.interactive.IenButtonVariant
 import zone.ien.utils.ui.components.interactive.IenButtonDisplay
-import zone.ien.utils.ui.components.interactive.IenCheckbox
 import zone.ien.utils.ui.components.interactive.IenBadge
 import zone.ien.utils.ui.components.interactive.IenBadgeSize
 import zone.ien.utils.ui.components.interactive.IenBadgeVariant
@@ -115,9 +113,6 @@ import zone.ien.utils.ui.components.primitives.IenDivider
 import zone.ien.utils.ui.components.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.components.primitives.IenText
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.foundation.layout.fillMaxSize
@@ -135,6 +130,8 @@ import zone.ien.utils.cmp_ui.generated.resources.agreement_required
 import zone.ien.utils.cmp_ui.generated.resources.agreement_terms
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.line.ArrowDownWide
+import zone.ien.utils.ui.components.interactive.IenCircleCheckbox
+import zone.ien.utils.ui.components.interactive.IenDotCheckbox
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
 enum class IenTopBarTitleAlignment {
@@ -1490,7 +1487,7 @@ fun IenAgreementCheckbox(
 
     when (variant) {
         IenAgreementCheckboxVariant.Checkbox -> {
-            IenCheckbox(
+            IenCircleCheckbox(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = enabled,
@@ -1501,7 +1498,7 @@ fun IenAgreementCheckbox(
             )
         }
         IenAgreementCheckboxVariant.Dot -> {
-            IenAgreementCheckboxCanvas(
+            IenDotCheckbox(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = enabled,
@@ -1513,56 +1510,6 @@ fun IenAgreementCheckbox(
         }
         IenAgreementCheckboxVariant.Hidden -> {
             Spacer(modifier = modifier.size(24.dp))
-        }
-    }
-}
-
-@Composable
-private fun IenAgreementCheckboxCanvas(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    enabled: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    val brandColor = IenTheme.colors.brand
-    val borderColor = IenTheme.colors.borderStrong
-    val disabledColor = IenTheme.colors.textDisabled
-    Box(
-        modifier = modifier
-            .size(24.dp)
-            .toggleable(
-                value = checked,
-                enabled = enabled,
-                role = Role.Checkbox,
-                onValueChange = onCheckedChange,
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val strokeWidth = 1.6.dp.toPx()
-            val radius = 8.dp.toPx()
-            if (checked) {
-                drawCircle(
-                    color = if (enabled) brandColor else disabledColor,
-                    radius = radius,
-                )
-                val path = Path().apply {
-                    moveTo(size.width * 0.35f, size.height * 0.49f)
-                    lineTo(size.width * 0.47f, size.height * 0.61f)
-                    lineTo(size.width * 0.65f, size.height * 0.39f)
-                }
-                drawPath(
-                    path = path,
-                    color = Color.White,
-                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round),
-                )
-            } else {
-                drawCircle(
-                    color = if (enabled) borderColor else disabledColor,
-                    radius = radius - strokeWidth / 2,
-                    style = Stroke(width = strokeWidth),
-                )
-            }
         }
     }
 }

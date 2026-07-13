@@ -70,7 +70,7 @@ import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.interactive.IenButtonContainer
 import zone.ien.utils.ui.components.interactive.IenButtonState
 import zone.ien.utils.ui.components.interactive.IenButtonVariant
-import zone.ien.utils.ui.components.interactive.IenCheckbox
+import zone.ien.utils.ui.components.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.components.interactive.IenSwitch
 import zone.ien.utils.ui.components.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.components.primitives.IenSurface
@@ -217,7 +217,7 @@ fun SectionScope.M3SectionCheckboxItem(
     M3SectionItem(
         leadingContent = leadingContent,
         trailingContent = {
-            IenCheckbox(
+            IenCircleCheckbox(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
             )
