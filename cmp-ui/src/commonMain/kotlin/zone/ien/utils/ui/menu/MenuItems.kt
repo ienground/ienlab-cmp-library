@@ -16,15 +16,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
@@ -32,6 +38,7 @@ import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenBadge
 import zone.ien.utils.ui.interactive.IenBadgeSize
 import zone.ien.utils.ui.interactive.IenBadgeVariant
@@ -40,6 +47,7 @@ import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.interactive.IenTextButton
+import zone.ien.utils.ui.screen.LocalIenTopBarFloatingSlotHiddenRequester
 import zone.ien.utils.ui.view.IenTooltipBox
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
@@ -68,127 +76,51 @@ fun IenActionsMenu(
     )
     val actionFadeOut = tween<Float>(durationMillis = 120)
     val visibleOverflowItems = menuItems.overflowItems.filter { it.visible }
+    val hideFloatingSlot = LocalIenTopBarFloatingSlotHiddenRequester.current
+    val triggerAlpha by animateFloatAsState(
+        targetValue = if (isOpen) 0.001f else 1f,
+        animationSpec = spring(1.2f),
+        label = "actions_trigger_alpha",
+    )
 
-    Row(modifier = Modifier.animateContentSizeWithoutClipping()) {
-        menuItems.alwaysShownItems.forEach { item ->
-            val alpha by animateFloatAsState(
-                targetValue = if (item.enabled) 1f else 0.25f,
-                animationSpec = actionFadeAnimation,
-                label = "action_alpha"
-            )
-
-            AnimatedVisibility(
-                visible = item.visible,
-                enter = fadeIn(actionFadeAnimation) +
-                    slideInHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
-                    expandHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), expandFrom = androidx.compose.ui.Alignment.End),
-                exit = fadeOut(actionFadeOut) +
-                    slideOutHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
-                    shrinkHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), shrinkTowards = androidx.compose.ui.Alignment.End),
-            ) {
-                item.icon?.let { icon ->
-                    IenTooltipBox(
-                        label = item.title
-                    ) {
-                        BadgedBox(
-                            badge = {
-                                if (item.badge != 0) {
-                                    IenBadge(
-                                        modifier = Modifier
-                                            .offset(x = (-8).dp, y = 8.dp),
-                                        text = if (item.badge > 0) item.badge.toString() else "",
-                                        size = IenBadgeSize.Small,
-                                        variant = IenBadgeVariant.Fill,
-                                        tone = IenSemanticTone.Danger,
-                                    )
-                                }
-                            }
-                        ) {
-                            IenIconButton(
-                                onClick = item.onClick,
-                                modifier = Modifier.size(
-                                    width = LocalMenuIconButtonSize.current.first,
-                                    height = LocalMenuIconButtonSize.current.second,
-                                ),
-                                size = IenButtonSize.Medium,
-                                variant = IenButtonVariant.Ghost,
-                                tone = IenSemanticTone.Neutral,
-                                state = IenButtonState(enabled = item.enabled),
-                            ) {
-                                AnimatedContent(
-                                    targetState = item.icon,
-                                    label = "menu_icon"
-                                ) { targetIcon ->
-                                    targetIcon?.let {
-                                        ComplexIcon(
-                                            icon = it,
-                                            contentDescription = item.title,
-                                            modifier = Modifier
-                                                .alpha(alpha)
-                                                .size(LocalMenuIconButtonSize.current.first - 16.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } ?: run {
-                    IenTextButton(
-                        text = item.title,
-                        onClick = item.onClick,
-                        tone = IenSemanticTone.Neutral,
-                        state = IenButtonState(enabled = item.enabled),
-                    )
-                }
-            }
+    LaunchedEffect(isOpen, hideFloatingSlot) {
+        hideFloatingSlot?.invoke(isOpen)
+    }
+    DisposableEffect(hideFloatingSlot) {
+        onDispose {
+            hideFloatingSlot?.invoke(false)
         }
     }
 
-    AnimatedVisibility(
-        visible = visibleOverflowItems.isNotEmpty(),
-        enter = fadeIn(actionFadeAnimation) +
-            slideInHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
-            expandHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), expandFrom = androidx.compose.ui.Alignment.End),
-        exit = fadeOut(actionFadeOut) +
-            slideOutHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
-            shrinkHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), shrinkTowards = androidx.compose.ui.Alignment.End),
-    ) {
-        IenTooltipBox(
-            label = stringResource(Res.string.more_options),
-        ) {
-            Box {
-                IenIconButton(
-                    onClick = onToggleOverflow,
-                    size = IenButtonSize.Medium,
-                    variant = IenButtonVariant.Ghost,
-                    tone = IenSemanticTone.Neutral,
+    @Composable
+    fun ActionsRow() {
+        Row(modifier = Modifier.animateContentSizeWithoutClipping()) {
+            menuItems.alwaysShownItems.forEach { item ->
+                val alpha by animateFloatAsState(
+                    targetValue = if (item.enabled) 1f else 0.25f,
+                    animationSpec = actionFadeAnimation,
+                    label = "action_alpha"
+                )
+
+                AnimatedVisibility(
+                    visible = item.visible,
+                    enter = fadeIn(actionFadeAnimation) +
+                        slideInHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
+                        expandHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), expandFrom = Alignment.End),
+                    exit = fadeOut(actionFadeOut) +
+                        slideOutHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
+                        shrinkHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), shrinkTowards = Alignment.End),
                 ) {
-                    Icon(
-                        imageVector = M3SystemIcons.MoreVert,
-                        contentDescription = stringResource(Res.string.more_options),
-                    )
-                }
-                IenDropdownMenu(
-                    expanded = isOpen,
-                    onDismissRequest = onToggleOverflow
-                ) {
-                    visibleOverflowItems.forEach { item ->
-                        IenDropdownMenuItem(
-                            text = { Text(text = item.title) },
-                            leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
-                                item.icon?.let {
-                                    {
-                                        ComplexIcon(
-                                            icon = it,
-                                            contentDescription = item.title
-                                        )
-                                    }
-                                }
-                            } else null,
-                            trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
-                                {
+                    item.icon?.let { icon ->
+                        IenTooltipBox(
+                            label = item.title
+                        ) {
+                            BadgedBox(
+                                badge = {
                                     if (item.badge != 0) {
                                         IenBadge(
+                                            modifier = Modifier
+                                                .offset(x = (-8).dp, y = 8.dp),
                                             text = if (item.badge > 0) item.badge.toString() else "",
                                             size = IenBadgeSize.Small,
                                             variant = IenBadgeVariant.Fill,
@@ -196,13 +128,128 @@ fun IenActionsMenu(
                                         )
                                     }
                                 }
-                            } else null,
-                            onClick = {
-                                closeDropdown()
-                                item.onClick()
+                            ) {
+                                IenIconButton(
+                                    onClick = item.onClick,
+                                    modifier = Modifier.size(
+                                        width = LocalMenuIconButtonSize.current.first,
+                                        height = LocalMenuIconButtonSize.current.second,
+                                    ),
+                                    size = IenButtonSize.Medium,
+                                    variant = IenButtonVariant.Ghost,
+                                    tone = IenSemanticTone.Neutral,
+                                    state = IenButtonState(enabled = item.enabled),
+                                ) {
+                                    AnimatedContent(
+                                        targetState = item.icon,
+                                        label = "menu_icon"
+                                    ) { targetIcon ->
+                                        targetIcon?.let {
+                                            ComplexIcon(
+                                                icon = it,
+                                                contentDescription = item.title,
+                                                modifier = Modifier
+                                                    .alpha(alpha)
+                                                    .size(LocalMenuIconButtonSize.current.first - 16.dp)
+                                            )
+                                        }
+                                    }
+                                }
                             }
+                        }
+                    } ?: run {
+                        IenTextButton(
+                            text = item.title,
+                            onClick = item.onClick,
+                            tone = IenSemanticTone.Neutral,
+                            state = IenButtonState(enabled = item.enabled),
                         )
                     }
+                }
+            }
+
+            AnimatedVisibility(
+                visible = visibleOverflowItems.isNotEmpty(),
+                enter = fadeIn(actionFadeAnimation) +
+                    slideInHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
+                    expandHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), expandFrom = Alignment.End),
+                exit = fadeOut(actionFadeOut) +
+                    slideOutHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
+                    shrinkHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), shrinkTowards = Alignment.End),
+            ) {
+                IenTooltipBox(
+                    label = stringResource(Res.string.more_options),
+                ) {
+                    IenIconButton(
+                        onClick = onToggleOverflow,
+                        size = IenButtonSize.Medium,
+                        variant = IenButtonVariant.Ghost,
+                        tone = IenSemanticTone.Neutral,
+                    ) {
+                        Icon(
+                            imageVector = M3SystemIcons.MoreVert,
+                            contentDescription = stringResource(Res.string.more_options),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .wrapContentSize(align = Alignment.TopEnd)
+            .graphicsLayer { clip = false }
+            .animateContentSizeWithoutClipping(),
+        contentAlignment = Alignment.TopEnd,
+    ) {
+        Box(
+            modifier = Modifier.graphicsLayer {
+                scaleX = triggerAlpha
+                scaleY = triggerAlpha
+                clip = false
+            },
+        ) {
+            ActionsRow()
+        }
+
+        if (visibleOverflowItems.isNotEmpty()) {
+            IenDropdownMenu(
+                expanded = isOpen,
+                onDismissRequest = onToggleOverflow,
+                offset = DpOffset(IenTheme.spacing.xxs, -IenTheme.spacing.xxs),
+                matchAnchorTop = true,
+            ) {
+                visibleOverflowItems.forEach { item ->
+                    IenDropdownMenuItem(
+                        text = { Text(text = item.title) },
+                        leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
+                            item.icon?.let {
+                                {
+                                    ComplexIcon(
+                                        icon = it,
+                                        contentDescription = item.title
+                                    )
+                                }
+                            }
+                        } else null,
+                        trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
+                            {
+                                if (item.badge != 0) {
+                                    IenBadge(
+                                        text = if (item.badge > 0) item.badge.toString() else "",
+                                        size = IenBadgeSize.Small,
+                                        variant = IenBadgeVariant.Fill,
+                                        tone = IenSemanticTone.Danger,
+                                    )
+                                }
+                            }
+                        } else null,
+                        onClick = {
+                            closeDropdown()
+                            item.onClick()
+                        }
+                    )
                 }
             }
         }

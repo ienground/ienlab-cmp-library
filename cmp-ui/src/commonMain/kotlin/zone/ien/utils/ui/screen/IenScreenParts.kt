@@ -134,6 +134,8 @@ import zone.ien.utils.ui.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.interactive.IenDotCheckbox
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
+internal val LocalIenTopBarFloatingSlotHiddenRequester = staticCompositionLocalOf<((Boolean) -> Unit)?> { null }
+
 enum class IenTopBarTitleAlignment {
     Start,
     Center,
@@ -462,6 +464,7 @@ private fun IenTopBarFloatingSlot(
     }
 
     var pressedTokens by remember { mutableStateOf(setOf<Any>()) }
+    var hiddenRequested by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (pressedTokens.isNotEmpty()) 0.96f else 1f,
         animationSpec = spring(
@@ -476,6 +479,10 @@ private fun IenTopBarFloatingSlot(
             stiffness = Spring.StiffnessMedium,
         ),
     )
+    val visibleScale by animateFloatAsState(
+        targetValue = if (hiddenRequested) 0.001f else 1f,
+        animationSpec = spring(1.2f),
+    )
     val pressedReporter: (Any, Boolean) -> Unit = { token, pressed ->
         pressedTokens = if (pressed) {
             pressedTokens + token
@@ -485,22 +492,31 @@ private fun IenTopBarFloatingSlot(
     }
 
     Box(
-        modifier = Modifier
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .shadow(elevation = IenTheme.elevation.floating, shape = CircleShape, clip = false)
-            .clip(CircleShape)
-            .background(IenTheme.colors.surface.copy(alpha = 0.92f)),
+        modifier = Modifier.graphicsLayer {
+            clip = false
+        },
         contentAlignment = Alignment.Center,
     ) {
-        if (pressedOverlayAlpha > 0f) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .background(IenTheme.colors.textPrimary.copy(alpha = pressedOverlayAlpha)),
-            )
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .graphicsLayer {
+                    scaleX = scale * visibleScale
+                    scaleY = scale * visibleScale
+                    clip = false
+                }
+                .shadow(elevation = IenTheme.elevation.floating, shape = CircleShape, clip = false)
+                .background(IenTheme.colors.surface.copy(alpha = 0.92f), CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (pressedOverlayAlpha > 0f) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(CircleShape)
+                        .background(IenTheme.colors.textPrimary.copy(alpha = pressedOverlayAlpha)),
+                )
+            }
         }
         Box(
             modifier = Modifier.padding(horizontal = IenTheme.spacing.xxs, vertical = IenTheme.spacing.xxs),
@@ -509,6 +525,7 @@ private fun IenTopBarFloatingSlot(
             CompositionLocalProvider(
                 LocalIenButtonPressedReporter provides pressedReporter,
                 LocalIenButtonScalePressedOverride provides 1f,
+                LocalIenTopBarFloatingSlotHiddenRequester provides { hiddenRequested = it },
                 LocalRippleConfiguration provides null,
             ) {
                 content()

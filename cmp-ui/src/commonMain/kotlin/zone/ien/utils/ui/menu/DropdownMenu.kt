@@ -1,20 +1,15 @@
 package zone.ien.utils.ui.menu
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,13 +19,18 @@ import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
@@ -44,8 +44,10 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
+import kotlinx.coroutines.delay
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.conditional
+import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
 internal val DefaultMenuProperties = PopupProperties(
     focusable = true,
@@ -76,6 +78,7 @@ fun IenDropdownMenu(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     offset: DpOffset = DpOffset(0.dp, 0.dp),
+    matchAnchorTop: Boolean = false,
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = DefaultMenuProperties,
     shape: Shape = RoundedCornerShape(IenTheme.radius.lg),
@@ -83,19 +86,38 @@ fun IenDropdownMenu(
     tonalElevation: Dp = IenTheme.elevation.none,
     shadowElevation: Dp = IenTheme.elevation.floating,
     border: BorderStroke? = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border),
-    shadowPadding: Dp = 24.dp,
+    shadowPadding: Dp = 48.dp,
     innerPadding: PaddingValues = PaddingValues(IenTheme.spacing.xxs),
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val density = LocalDensity.current
-    val visibilityState = remember { MutableTransitionState(false) }
+    val motion = IenTheme.motion
+    var keepPopupVisible by remember { mutableStateOf(expanded) }
+    var animatePopupVisible by remember { mutableStateOf(expanded) }
+    val scale by animateFloatAsState(
+        targetValue = if (animatePopupVisible) 1f else 0.96f,
+        animationSpec = tween(
+            durationMillis = if (animatePopupVisible) motion.fastMillis else motion.instantMillis,
+            easing = motion.standardEasing,
+        ),
+        label = "dropdown_scale",
+    )
     LaunchedEffect(expanded) {
-        visibilityState.targetState = expanded
+        if (expanded) {
+            keepPopupVisible = true
+            animatePopupVisible = false
+            withFrameNanos { }
+            animatePopupVisible = true
+        } else {
+            animatePopupVisible = false
+            delay(motion.instantMillis.toLong())
+            keepPopupVisible = false
+        }
     }
 
-    if (visibilityState.currentState || visibilityState.targetState) {
+    if (keepPopupVisible) {
         Popup(
-            popupPositionProvider = remember(offset, density, shadowPadding) {
+            popupPositionProvider = remember(offset, density, shadowPadding, matchAnchorTop) {
                 object : PopupPositionProvider {
                     override fun calculatePosition(
                         anchorBounds: IntRect,
@@ -111,10 +133,16 @@ fun IenDropdownMenu(
                             height = (popupContentSize.height - shadowPaddingPx * 2).coerceAtLeast(0),
                         )
                         val cardX = anchorBounds.right - cardSize.width + offsetX
-                        val cardY = anchorBounds.bottom + offsetY
+                        val cardY = if (matchAnchorTop) {
+                            anchorBounds.top + offsetY
+                        } else {
+                            anchorBounds.bottom + offsetY
+                        }
+                        val clampedCardX = cardX.coerceIn(8, maxOf(8, windowSize.width - cardSize.width - 8))
+                        val clampedCardY = cardY.coerceIn(8, maxOf(8, windowSize.height - cardSize.height - 8))
                         return IntOffset(
-                            x = cardX.coerceIn(8, maxOf(8, windowSize.width - cardSize.width - 8)),
-                            y = cardY.coerceIn(8, maxOf(8, windowSize.height - cardSize.height - 8)),
+                            x = clampedCardX - shadowPaddingPx,
+                            y = clampedCardY - shadowPaddingPx,
                         )
                     }
                 }
@@ -122,23 +150,22 @@ fun IenDropdownMenu(
             onDismissRequest = onDismissRequest,
             properties = properties,
         ) {
-            AnimatedVisibility(
-                visibleState = visibilityState,
-                enter = fadeIn(animationSpec = tween(120)) + scaleIn(
-                    initialScale = 0.96f,
-                    transformOrigin = TransformOrigin(1f, 0f),
-                    animationSpec = tween(160),
-                ),
-                exit = fadeOut(animationSpec = tween(90)) + scaleOut(
-                    targetScale = 0.98f,
-                    transformOrigin = TransformOrigin(1f, 0f),
-                    animationSpec = tween(90),
-                ),
+            Box(
+                modifier = modifier
+                    .padding(shadowPadding)
+                    .animateContentSizeWithoutClipping()
+                    .graphicsLayer {
+                        clip = false
+                    },
             ) {
                 Surface(
-                    modifier = modifier
-                        .padding(shadowPadding)
-                        .offset(x = -shadowPadding, y = -shadowPadding)
+                    modifier = Modifier
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                            transformOrigin = TransformOrigin(1f, 0f)
+                            clip = false
+                        }
                         .shadow(elevation = shadowElevation, shape = shape, clip = false),
                     shape = shape,
                     color = containerColor,
