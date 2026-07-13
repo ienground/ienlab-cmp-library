@@ -2117,7 +2117,6 @@ fun IenBottomCTA(
 ) {
     IenBottomCTAContainer(
         modifier = modifier,
-        background = background,
         hasSafeAreaPadding = hasSafeAreaPadding,
         hasPaddingBottom = hasPaddingBottom,
         fixed = fixed,
@@ -2165,7 +2164,6 @@ fun IenDoubleBottomCTA(
 ) {
     IenDoubleBottomCTA(
         modifier = modifier,
-        background = background,
         hasSafeAreaPadding = hasSafeAreaPadding,
         hasPaddingBottom = hasPaddingBottom,
         fixed = fixed,
@@ -2216,7 +2214,6 @@ fun IenDoubleBottomCTA(
 ) {
     IenBottomCTAContainer(
         modifier = modifier,
-        background = background,
         hasSafeAreaPadding = hasSafeAreaPadding,
         hasPaddingBottom = hasPaddingBottom,
         fixed = fixed,
@@ -2340,7 +2337,6 @@ fun BoxScope.IenFixedDoubleBottomCTA(
 @Composable
 private fun IenBottomCTAContainer(
     modifier: Modifier,
-    background: IenBottomCTABackground,
     hasSafeAreaPadding: Boolean,
     hasPaddingBottom: Boolean,
     fixed: Boolean,
@@ -2387,10 +2383,6 @@ private fun IenBottomCTAContainer(
         else -> defaultBottom
     }
     val bottomPadding = if (keyboardBottom > safeBottom) keyboardBottom else safeBottom
-    val containerColor = when (background) {
-        IenBottomCTABackground.Default -> IenTheme.colors.surface
-        IenBottomCTABackground.None -> Color.Transparent
-    }
     val shouldCompose = visible || takeSpace
 
     if (shouldCompose) {
@@ -2414,22 +2406,7 @@ private fun IenBottomCTAContainer(
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
             ) {
                 topAccessory?.invoke()
-                if (background == IenBottomCTABackground.None) {
-                    content()
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .shadow(
-                                elevation = IenTheme.elevation.floating,
-                                shape = RoundedCornerShape(IenTheme.radius.default),
-                                clip = false,
-                            )
-                            .clip(RoundedCornerShape(IenTheme.radius.default))
-                            .background(containerColor),
-                    ) {
-                        content()
-                    }
-                }
+                content()
                 bottomAccessory?.invoke()
             }
         }
