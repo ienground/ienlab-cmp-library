@@ -111,12 +111,16 @@ fun IenSwitch(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    thumbContent: @Composable (() -> Unit)? = null,
+    interactionSource: MutableInteractionSource? = null,
 ) {
     Switch(
         checked = checked,
         onCheckedChange = onCheckedChange,
         modifier = modifier,
         enabled = enabled,
+        thumbContent = thumbContent,
+        interactionSource = interactionSource,
         colors = SwitchDefaults.colors(
             checkedThumbColor = IenTheme.colors.surface,
             checkedTrackColor = IenTheme.colors.brand,

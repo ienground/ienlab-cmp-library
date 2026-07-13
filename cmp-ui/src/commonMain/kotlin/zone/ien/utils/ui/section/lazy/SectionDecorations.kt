@@ -3,25 +3,25 @@ package zone.ien.utils.ui.section.lazy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import zone.ien.utils.ui.components.foundation.IenTheme
+import zone.ien.utils.ui.components.primitives.IenProvideTextStyle
 
 @Composable
 internal fun SectionTitle(
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    ProvideTextStyle(
-        value = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.primary)
+    IenProvideTextStyle(
+        style = IenTheme.typography.label1,
+        color = IenTheme.colors.textSecondary,
     ) {
         Box(
             modifier = modifier
-                .padding(bottom = 8.dp)
-                .padding(horizontal = 22.dp),
-        ) { content(PaddingValues(0.dp)) }
+                .padding(bottom = IenTheme.spacing.xs)
+                .padding(horizontal = IenTheme.spacing.xl),
+        ) { content(PaddingValues()) }
     }
 }
 
@@ -29,14 +29,15 @@ internal fun SectionTitle(
 internal fun SectionCaption(
     content: @Composable () -> Unit,
 ) {
-    ProvideTextStyle(
-        value = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.primary)
+    IenProvideTextStyle(
+        style = IenTheme.typography.caption,
+        color = IenTheme.colors.textTertiary,
     ) {
         content.let {
             Box(
                 modifier = Modifier
-                    .padding(top = 8.dp)
-                    .padding(horizontal = 22.dp),
+                    .padding(top = IenTheme.spacing.xs)
+                    .padding(horizontal = IenTheme.spacing.xl),
             ) { it() }
         }
     }

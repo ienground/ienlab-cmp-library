@@ -1,32 +1,56 @@
 package zone.ien.utils.ui.menu
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.MenuItemColors
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.utils.conditional
-import zone.ien.utils.ui.utils.crop
 
-internal val DefaultMenuProperties = PopupProperties(focusable = true)
+internal val DefaultMenuProperties = PopupProperties(
+    focusable = true,
+    clippingEnabled = false,
+)
 
 /**
  * M3DropdownMenu는 드롭다운 메뉴를 표시하기 위한 컴포저블입니다.
@@ -42,6 +66,7 @@ internal val DefaultMenuProperties = PopupProperties(focusable = true)
  * @param tonalElevation 톤탈 침강
  * @param shadowElevation 그림자 침강
  * @param border 테두리
+ * @param shadowPadding 그림자가 잘리지 않도록 팝업 측정 영역에 더할 여유 공간
  * @param innerPadding 내부 패딩
  * @param content 메뉴 내용
  */
@@ -58,28 +83,80 @@ fun IenDropdownMenu(
     tonalElevation: Dp = IenTheme.elevation.none,
     shadowElevation: Dp = IenTheme.elevation.floating,
     border: BorderStroke? = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border),
+    shadowPadding: Dp = 24.dp,
     innerPadding: PaddingValues = PaddingValues(IenTheme.spacing.xxs),
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest,
-        modifier = modifier.crop(vertical = 8.dp),
-        offset = offset,
-        scrollState = scrollState,
-        properties = properties,
-        shape = shape,
-        containerColor = containerColor,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
-        border = border,
-        content = {
-            Column(
-                modifier = Modifier.padding(innerPadding),
-                content = content
-            )
+    val density = LocalDensity.current
+    val visibilityState = remember { MutableTransitionState(false) }
+    LaunchedEffect(expanded) {
+        visibilityState.targetState = expanded
+    }
+
+    if (visibilityState.currentState || visibilityState.targetState) {
+        Popup(
+            popupPositionProvider = remember(offset, density, shadowPadding) {
+                object : PopupPositionProvider {
+                    override fun calculatePosition(
+                        anchorBounds: IntRect,
+                        windowSize: IntSize,
+                        layoutDirection: LayoutDirection,
+                        popupContentSize: IntSize,
+                    ): IntOffset {
+                        val offsetX = with(density) { offset.x.roundToPx() }
+                        val offsetY = with(density) { offset.y.roundToPx() }
+                        val shadowPaddingPx = with(density) { shadowPadding.roundToPx() }
+                        val cardSize = IntSize(
+                            width = (popupContentSize.width - shadowPaddingPx * 2).coerceAtLeast(0),
+                            height = (popupContentSize.height - shadowPaddingPx * 2).coerceAtLeast(0),
+                        )
+                        val cardX = anchorBounds.right - cardSize.width + offsetX
+                        val cardY = anchorBounds.bottom + offsetY
+                        return IntOffset(
+                            x = cardX.coerceIn(8, maxOf(8, windowSize.width - cardSize.width - 8)),
+                            y = cardY.coerceIn(8, maxOf(8, windowSize.height - cardSize.height - 8)),
+                        )
+                    }
+                }
+            },
+            onDismissRequest = onDismissRequest,
+            properties = properties,
+        ) {
+            AnimatedVisibility(
+                visibleState = visibilityState,
+                enter = fadeIn(animationSpec = tween(120)) + scaleIn(
+                    initialScale = 0.96f,
+                    transformOrigin = TransformOrigin(1f, 0f),
+                    animationSpec = tween(160),
+                ),
+                exit = fadeOut(animationSpec = tween(90)) + scaleOut(
+                    targetScale = 0.98f,
+                    transformOrigin = TransformOrigin(1f, 0f),
+                    animationSpec = tween(90),
+                ),
+            ) {
+                Surface(
+                    modifier = modifier
+                        .padding(shadowPadding)
+                        .offset(x = -shadowPadding, y = -shadowPadding)
+                        .shadow(elevation = shadowElevation, shape = shape, clip = false),
+                    shape = shape,
+                    color = containerColor,
+                    tonalElevation = tonalElevation,
+                    shadowElevation = 0.dp,
+                    border = border,
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .widthIn(min = 112.dp, max = 280.dp)
+                            .width(IntrinsicSize.Max)
+                            .padding(innerPadding),
+                        content = content,
+                    )
+                }
+            }
         }
-    )
+    }
 }
 
 @Composable
@@ -95,6 +172,7 @@ fun M3DropdownMenu(
     tonalElevation: Dp = IenTheme.elevation.none,
     shadowElevation: Dp = IenTheme.elevation.floating,
     border: BorderStroke? = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border),
+    shadowPadding: Dp = 24.dp,
     innerPadding: PaddingValues = PaddingValues(IenTheme.spacing.xxs),
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -110,6 +188,7 @@ fun M3DropdownMenu(
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation,
         border = border,
+        shadowPadding = shadowPadding,
         innerPadding = innerPadding,
         content = content,
     )
