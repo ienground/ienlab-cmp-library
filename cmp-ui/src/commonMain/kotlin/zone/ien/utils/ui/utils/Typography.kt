@@ -1,42 +1,46 @@
 package zone.ien.utils.ui.utils
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import zone.ien.utils.ui.components.foundation.IenTheme
 
 /**
  * getM3Typography은 Material Design 3 타이포그래피를 반환하는 함수입니다.
  * 
- * 이 함수는 MaterialTheme.typography를 기반으로 제공된 폰트 패밀리를 적용하여
+ * 이 함수는 IenTheme.typography를 기반으로 제공된 폰트 패밀리를 적용하여
  * 타이포그래피를 반환합니다.
  * 
  * @param fontFamily 폰트 패밀리
  * @return M3 타이포그래피
  */
 @Composable
-fun getM3Typography(fontFamily: FontFamily? = null): Typography =
-    MaterialTheme.typography.let {
-        it.copy(
-            displayLarge = fontFamily?.let { f -> it.displayLarge.copy(fontFamily = f) } ?: it.displayLarge,
-            displayMedium = fontFamily?.let { f -> it.displayMedium.copy(fontFamily = f) } ?: it.displayMedium,
-            displaySmall = fontFamily?.let { f -> it.displaySmall.copy(fontFamily = f) } ?: it.displaySmall,
-            headlineLarge = fontFamily?.let { f -> it.headlineLarge.copy(fontFamily = f) } ?: it.headlineLarge,
-            headlineMedium = fontFamily?.let { f -> it.headlineMedium.copy(fontFamily = f) } ?: it.headlineMedium,
-            headlineSmall = fontFamily?.let { f -> it.headlineSmall.copy(fontFamily = f) } ?: it.headlineSmall,
-            titleLarge = fontFamily?.let { f -> it.titleLarge.copy(fontFamily = f) } ?: it.titleLarge,
-            titleMedium = fontFamily?.let { f -> it.titleMedium.copy(fontFamily = f) } ?: it.titleMedium,
-            titleSmall = fontFamily?.let { f -> it.titleSmall.copy(fontFamily = f) } ?: it.titleSmall,
-            bodyLarge = fontFamily?.let { f -> it.bodyLarge.copy(fontFamily = f) } ?: it.bodyLarge,
-            bodyMedium = fontFamily?.let { f -> it.bodyMedium.copy(fontFamily = f) } ?: it.bodyMedium,
-            bodySmall = fontFamily?.let { f -> it.bodySmall.copy(fontFamily = f) } ?: it.bodySmall,
-            labelLarge = fontFamily?.let { f -> it.labelLarge.copy(fontFamily = f) } ?: it.labelLarge,
-            labelMedium = fontFamily?.let { f -> it.labelMedium.copy(fontFamily = f) } ?: it.labelMedium,
-            labelSmall = fontFamily?.let { f -> it.labelSmall.copy(fontFamily = f) } ?: it.labelSmall
-        )
-    }
+fun getM3Typography(fontFamily: FontFamily? = null): Typography {
+    fun TextStyle.withFontFamily(): TextStyle =
+        fontFamily?.let { copy(fontFamily = it) } ?: this
+
+    val typography = IenTheme.typography
+
+    return Typography(
+        displayLarge = typography.display.withFontFamily(),
+        displayMedium = typography.display.withFontFamily(),
+        displaySmall = typography.title1.withFontFamily(),
+        headlineLarge = typography.title1.withFontFamily(),
+        headlineMedium = typography.title2.withFontFamily(),
+        headlineSmall = typography.title3.withFontFamily(),
+        titleLarge = typography.title2.withFontFamily(),
+        titleMedium = typography.title3.withFontFamily(),
+        titleSmall = typography.label1.withFontFamily(),
+        bodyLarge = typography.body1.withFontFamily(),
+        bodyMedium = typography.body2.withFontFamily(),
+        bodySmall = typography.caption.withFontFamily(),
+        labelLarge = typography.label1.withFontFamily(),
+        labelMedium = typography.label2.withFontFamily(),
+        labelSmall = typography.caption.withFontFamily(),
+    )
+}
 
 /**
  * TextStyle을 Thin 폰트 웨이트로 변환하는 확장 함수

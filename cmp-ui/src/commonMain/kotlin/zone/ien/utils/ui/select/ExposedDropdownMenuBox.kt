@@ -1,7 +1,6 @@
 package zone.ien.utils.ui.select
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
@@ -15,7 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.fastForEach
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
-import zone.ien.utils.ui.menu.M3DropdownMenuItem
+import zone.ien.utils.ui.menu.IenDropdownMenu
+import zone.ien.utils.ui.menu.IenDropdownMenuItem
 import zone.ien.utils.ui.view.textfield.M3TextFieldIconButton
 
 /**
@@ -48,7 +48,7 @@ fun <T> M3ExposedDropdownMenuBox(
     dropdownMenuItem: @Composable (
         text: @Composable () -> Unit,
         onClick: () -> Unit,
-    ) -> Unit = { text, onClick -> DropdownMenuItem(text = text, onClick = onClick) },
+    ) -> Unit = { text, onClick -> IenDropdownMenuItem(text = text, onClick = onClick) },
     textField: @Composable (value: String, trailingIcon: @Composable () -> Unit) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -61,7 +61,7 @@ fun <T> M3ExposedDropdownMenuBox(
         textField(itemsWithLabels[currentItem].orEmpty()) {
             trailingIconButton({ expanded = !expanded }, expanded)
         }
-        ExposedDropdownMenu(
+        IenDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
@@ -110,7 +110,7 @@ fun <T> M3ExposedDropdownMenuBox(
         onClick: () -> Unit,
         checked: Boolean
     ) -> Unit = { text, onClick, checked ->
-        M3DropdownMenuItem(
+        IenDropdownMenuItem(
             text = text,
             onClick = onClick,
             leadingIcon = if (checked) { { Icon(imageVector = M3SystemIcons.Check, contentDescription = null) } } else null
@@ -128,7 +128,7 @@ fun <T> M3ExposedDropdownMenuBox(
         textField(currentItems.map { itemsWithLabels[it] }.joinToString(", ")) {
             trailingIconButton({ expanded = !expanded }, expanded)
         }
-        ExposedDropdownMenu(
+        IenDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {

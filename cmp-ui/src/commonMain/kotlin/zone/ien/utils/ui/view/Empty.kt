@@ -14,20 +14,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.ui.components.foundation.IenTheme
 
 /**
  * Empty는 비어 있는 상태를 표시하기 위한 컴포저블입니다.
@@ -52,20 +50,20 @@ fun Empty(
         modifier = modifier
     ) {
         CompositionLocalProvider(
-            LocalContentColor provides MaterialTheme.colorScheme.onSurface,
+            LocalContentColor provides IenTheme.colors.textPrimary,
         ) {
             icon?.let {
                 it(
                     Modifier
-                        .background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(8.dp))
+                        .background(IenTheme.colors.surfaceVariant, RoundedCornerShape(IenTheme.radius.sm))
                         .padding(8.dp)
                         .size(36.dp)
                 )
             }
         }
         ProvideTextStyle(
-            value = MaterialTheme.typography.headlineMedium.copy(
-                color = MaterialTheme.colorScheme.onBackground,
+            value = IenTheme.typography.title2.copy(
+                color = IenTheme.colors.textPrimary,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
@@ -77,8 +75,8 @@ fun Empty(
             }
         }
         ProvideTextStyle(
-            value = MaterialTheme.typography.labelMedium.copy(
-                color = MaterialTheme.colorScheme.outline,
+            value = IenTheme.typography.body2.copy(
+                color = IenTheme.colors.textSecondary,
                 textAlign = TextAlign.Center
             )
         ) {
@@ -100,13 +98,7 @@ fun Empty(
 @Preview(showBackground = true)
 @Composable
 private fun EmptyPreview() {
-    MaterialTheme(
-        colorScheme = lightColorScheme(
-            onSurface = Color.Red,
-            surfaceContainerHigh = Color.Blue,
-            outline = Color.Green
-        )
-    ) {
+    IenTheme {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxSize()

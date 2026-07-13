@@ -1,14 +1,10 @@
 package zone.ien.utils.ui.view
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -21,16 +17,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -39,6 +35,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,7 +43,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.icon.material.filled.Delete
@@ -68,6 +69,13 @@ internal val LocalNavigationBarColors = compositionLocalOf {
         unselectedTextColor = Color.Unspecified,
     )
 }
+internal data class NavigationBarItemBounds(
+    val left: Dp,
+    val width: Dp,
+)
+internal val LocalNavigationBarItemBoundsUpdater = compositionLocalOf<(Int, NavigationBarItemBounds) -> Unit> {
+    { _, _ -> }
+}
 
 // ─── Colors ──────────────────────────────────────────────────────────────────
 
@@ -85,7 +93,7 @@ object CustomNavigationBarDefaults {
     @Composable
     fun colors(
         containerColor: Color = IenTheme.colors.brand,
-        selectedItemBackgroundColor: Color = MaterialTheme.colorScheme.surface,
+        selectedItemBackgroundColor: Color = IenTheme.colors.surface,
         selectedIconColor: Color = IenTheme.colors.brand,
         selectedTextColor: Color = IenTheme.colors.brand,
         unselectedIconColor: Color = Color.White.copy(alpha = 0.72f),
@@ -122,10 +130,29 @@ fun CustomNavigationBar(
     content: @Composable RowScope.() -> Unit
 ) {
     val navBarPadding = windowInsets.asPaddingValues()
+    val itemBounds = remember { mutableStateMapOf<Int, NavigationBarItemBounds>() }
+    val selectedBounds = itemBounds[selectedIndex]
+    val indicatorOffset by animateDpAsState(
+        targetValue = selectedBounds?.left ?: 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+        label = "navigationBarIndicatorOffset",
+    )
+    val indicatorWidth by animateDpAsState(
+        targetValue = selectedBounds?.width ?: 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+        label = "navigationBarIndicatorWidth",
+    )
 
     CompositionLocalProvider(
         LocalNavigationBarSelectedIndex provides selectedIndex,
         LocalNavigationBarColors provides colors,
+        LocalNavigationBarItemBoundsUpdater provides { index, bounds -> itemBounds[index] = bounds },
     ) {
         Box(
             modifier = modifier
@@ -138,18 +165,34 @@ fun CustomNavigationBar(
                 tonalElevation = 0.dp,
                 shadowElevation = 18.dp,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .align(Alignment.Center)
                     .padding(horizontal = 16.dp, vertical = 16.dp)
                     .height(78.dp)
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                Box(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxHeight()
                         .padding(horizontal = 8.dp, vertical = 8.dp),
                 ) {
-                    content()
+                    if (selectedBounds != null) {
+                        Box(
+                            modifier = Modifier
+                                .offset(x = indicatorOffset)
+                                .width(indicatorWidth)
+                                .fillMaxHeight()
+                                .background(
+                                    color = colors.selectedItemBackgroundColor,
+                                    shape = RoundedCornerShape(999.dp),
+                                )
+                        )
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxHeight(),
+                    ) {
+                        content()
+                    }
                 }
             }
         }
@@ -181,6 +224,8 @@ fun RowScope.CustomNavigationBarItem(
 ) {
     val selectedIndex = LocalNavigationBarSelectedIndex.current
     val colors = LocalNavigationBarColors.current
+    val updateItemBounds = LocalNavigationBarItemBoundsUpdater.current
+    val density = LocalDensity.current
     val selected = index == selectedIndex
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
@@ -202,14 +247,6 @@ fun RowScope.CustomNavigationBarItem(
         label = "textColor"
     )
 
-    val weight by animateFloatAsState(
-        targetValue = if (selected) 2.4f else 0.72f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioNoBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = "itemWeight"
-    )
     val pressScale by animateFloatAsState(
         targetValue = if (pressed && enabled) 0.975f else 1.0f,
         animationSpec = spring(
@@ -222,8 +259,23 @@ fun RowScope.CustomNavigationBarItem(
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .weight(weight)
+            .then(
+                if (selected || alwaysShowLabel) {
+                    Modifier.widthIn(min = 156.dp)
+                } else {
+                    Modifier.width(48.dp)
+                }
+            )
             .fillMaxHeight()
+            .onGloballyPositioned { coordinates ->
+                updateItemBounds(
+                    index,
+                    NavigationBarItemBounds(
+                        left = with(density) { coordinates.positionInParent().x.toDp() },
+                        width = with(density) { coordinates.size.width.toDp() },
+                    )
+                )
+            }
             .graphicsLayer {
                 scaleX = pressScale
                 scaleY = pressScale
@@ -235,35 +287,29 @@ fun RowScope.CustomNavigationBarItem(
                 onClick = onClick
             )
     ) {
-        val pillBgColor by animateColorAsState(
-            targetValue = if (selected) colors.selectedItemBackgroundColor else Color.Transparent,
-            label = "pillBgColor"
-        )
-
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
                 .align(Alignment.Center)
-                .background(
-                    color = pillBgColor,
-                    shape = RoundedCornerShape(999.dp)
+                .then(
+                    if (selected || alwaysShowLabel) {
+                        Modifier.widthIn(min = 156.dp)
+                    } else {
+                        Modifier.width(48.dp)
+                    }
                 )
-                .fillMaxSize()
+                .fillMaxHeight()
         ) {
             CompositionLocalProvider(LocalContentColor provides iconColor) {
                 icon()
             }
 
-            AnimatedVisibility(
-                visible = alwaysShowLabel || selected,
-                enter = fadeIn() + expandHorizontally(),
-                exit = fadeOut() + shrinkHorizontally()
-            ) {
+            if (alwaysShowLabel || selected) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Spacer(modifier = Modifier.width(8.dp))
                     ProvideTextStyle(
-                        MaterialTheme.typography.labelMedium.copy(color = textColor)
+                        IenTheme.typography.label2.copy(color = textColor)
                     ) {
                         label()
                     }
@@ -280,7 +326,7 @@ fun RowScope.CustomNavigationBarItem(
 private fun CustomNavigationBarPreview() {
     var selectedIndex by remember { mutableStateOf(0) }
 
-    MaterialTheme {
+    IenTheme {
         CustomNavigationBar(
             selectedIndex = selectedIndex,
             itemCount = 4,
@@ -317,7 +363,7 @@ private fun CustomNavigationBarPreview() {
 @Preview(showBackground = true, backgroundColor = 0xFFEEF0F8, name = "Index 1 Selected")
 @Composable
 private fun CustomNavigationBarPreview1() {
-    MaterialTheme {
+    IenTheme {
         CustomNavigationBar(
             selectedIndex = 1,
             itemCount = 4,
@@ -354,7 +400,7 @@ private fun CustomNavigationBarPreview1() {
 @Preview(showBackground = true, backgroundColor = 0xFFEEF0F8, name = "Disabled Item")
 @Composable
 private fun CustomNavigationBarPreviewDisabled() {
-    MaterialTheme {
+    IenTheme {
         CustomNavigationBar(
             selectedIndex = 0,
             itemCount = 4,

@@ -1,12 +1,13 @@
 package zone.ien.utils.ui.dialog
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import zone.ien.utils.ui.components.foundation.IenTheme
 
 /**
  * LocalDialogProviderDefault은 다이얼로그의 기본 제공 값을 정의하는 내부 객체입니다.
@@ -14,19 +15,19 @@ import androidx.compose.ui.graphics.Shape
  */
 internal object LocalDialogProviderDefault {
     /**
-     * 기본 다이얼로그 모양을 반환합니다. MaterialTheme의 extraLarge 모양을 사용합니다.
+     * 기본 다이얼로그 모양을 반환합니다.
      */
-    val Shape @Composable get() = MaterialTheme.shapes.extraLarge
+    val Shape @Composable get() = RoundedCornerShape(IenTheme.radius.xl)
     
     /**
-     * 기본 다이얼로그 배경 색상을 반환합니다. MaterialTheme의 surfaceContainerHigh 색상을 사용합니다.
+     * 기본 다이얼로그 배경 색상을 반환합니다.
      */
-    val BackgroundColor @Composable get() = MaterialTheme.colorScheme.surfaceContainerHigh
+    val BackgroundColor @Composable get() = IenTheme.colors.surfaceRaised
     
     /**
-     * 기본 다이얼로그 내용 색상을 반환합니다. MaterialTheme의 onSurface 색상을 사용합니다.
+     * 기본 다이얼로그 내용 색상을 반환합니다.
      */
-    val ContentColor @Composable get() = MaterialTheme.colorScheme.onSurface
+    val ContentColor @Composable get() = IenTheme.colors.textPrimary
 }
 
 /**

@@ -16,7 +16,6 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
@@ -36,6 +35,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.view.M3AsteriskTextWrapper
 
 /**
@@ -72,7 +72,7 @@ fun PlaceholderBasicTextField(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     readOnly: Boolean = false,
-    textStyle: TextStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSurface),
+    textStyle: TextStyle = LocalTextStyle.current.copy(color = IenTheme.colors.textPrimary),
     placeholder: @Composable (() -> Unit)? = null,
     isRequired: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -85,7 +85,7 @@ fun PlaceholderBasicTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     interactionSource: MutableInteractionSource? = null,
-    cursorBrush: Brush = SolidColor(MaterialTheme.colorScheme.onSurface),
+    cursorBrush: Brush = SolidColor(IenTheme.colors.textPrimary),
     contentPadding: PaddingValues? = null
 ) {
     val iS = interactionSource ?: remember { MutableInteractionSource() }
@@ -156,7 +156,7 @@ fun PlaceholderBasicTextField(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     readOnly: Boolean = false,
-    textStyle: TextStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSurface),
+    textStyle: TextStyle = LocalTextStyle.current.copy(color = IenTheme.colors.textPrimary),
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
@@ -168,7 +168,7 @@ fun PlaceholderBasicTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     interactionSource: MutableInteractionSource? = null,
-    cursorBrush: Brush = SolidColor(MaterialTheme.colorScheme.onSurface),
+    cursorBrush: Brush = SolidColor(IenTheme.colors.textPrimary),
     contentPadding: PaddingValues? = null
 ) {
     val iS = interactionSource ?: remember { MutableInteractionSource() }

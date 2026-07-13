@@ -6,11 +6,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,6 +20,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import zone.ien.utils.ui.components.foundation.IenTheme
 
 /**
  * Material3 링크 아이콘 컴포저블
@@ -121,16 +120,13 @@ fun M3LinkIconText(
 object MaterialLabelIconDefaults {
     val ContainerColor: Color
         @Composable
-        @ReadOnlyComposable
-        get() = MaterialTheme.colorScheme.primaryContainer
+        get() = IenTheme.colors.brandWeak
 
     val Tint: Color
         @Composable
-        @ReadOnlyComposable
-        get() = MaterialTheme.colorScheme.onPrimaryContainer
+        get() = IenTheme.colors.onBrandWeak
 
     val Shape: Shape
         @Composable
-        @ReadOnlyComposable
         get() = CircleShape
 }
