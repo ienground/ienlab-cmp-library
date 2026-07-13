@@ -19,7 +19,7 @@ import zone.ien.utils.ui.components.interactive.IenButtonSize
 import zone.ien.utils.ui.components.interactive.IenButtonState
 import zone.ien.utils.ui.components.interactive.IenButtonVariant
 import zone.ien.utils.ui.components.interactive.IenIconButton
-import zone.ien.utils.ui.view.M3TooltipBox
+import zone.ien.utils.ui.view.IenTooltipBox
 
 /**
  * M3BackButton은 뒤로 가기 버튼을 표시하기 위한 컴포저블입니다.
@@ -37,7 +37,7 @@ fun M3BackButton(
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
-    M3TooltipBox(
+    IenTooltipBox(
         label = stringResource(Res.string.back)
     ) {
         IenIconButton(
@@ -72,7 +72,7 @@ fun M3CloseButton(
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
-    M3TooltipBox(
+    IenTooltipBox(
         label = stringResource(Res.string.close)
     ) {
         IenIconButton(

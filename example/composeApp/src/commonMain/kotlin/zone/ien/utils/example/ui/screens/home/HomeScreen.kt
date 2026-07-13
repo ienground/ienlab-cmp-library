@@ -58,7 +58,6 @@ import zone.ien.utils.adaptive.view.DropdownMenuSectionNative
 import zone.ien.utils.example.Android
 import zone.ien.utils.example.ui.navigation.RootRoute
 import zone.ien.utils.ui.menu.ActionMenuItem
-import zone.ien.utils.ui.components.composite.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.TopBarSize
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
@@ -99,9 +98,6 @@ fun HomeScreen(
     ) {
         AdaptiveTopAppBarScaffold(
             snackbarHost = { SnackbarHost(snackbarState) },
-            contentEdge = IenScaffoldContentEdge(
-                topProgress = (scrollState.value / 48f).coerceIn(0f, 1f),
-            ),
             actions = if (isDropdownMenu) listOf(
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
                     title = "Text",
@@ -250,6 +246,7 @@ fun HomeScreen(
                     size = TopBarSize.Medium
                     scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
                     isCenterAligned = true
+                    scrollableState = scrollState
                 }
                 cupertino {
                     this.backdrop = backdrop

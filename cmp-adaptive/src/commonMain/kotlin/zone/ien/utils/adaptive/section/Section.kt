@@ -34,6 +34,7 @@ import zone.ien.hig.section.SectionStyle
 import zone.ien.hig.section.rememberSectionState
 import zone.ien.hig.section.sectionContainerBackground
 import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.utils.adaptive.screen.LocalTopBarScaffoldScrollState
 import zone.ien.utils.ui.section.M3ProvideSectionStyle
 import zone.ien.utils.ui.section.M3Section
 import zone.ien.utils.ui.section.m3SectionBackground
@@ -73,7 +74,7 @@ fun AdaptiveProvideSectionStyle(
     style: SectionStyle,
     modifier: Modifier = Modifier,
     fullHeight: Boolean = true,
-    scrollState: ScrollState? = rememberScrollState(),
+    scrollState: ScrollState? = LocalTopBarScaffoldScrollState.current ?: rememberScrollState(),
     shape: Shape = RectangleShape,
     title: @Composable (() -> Unit)? = null,
     backdrop: LayerBackdrop = rememberDefaultBackdrop(),

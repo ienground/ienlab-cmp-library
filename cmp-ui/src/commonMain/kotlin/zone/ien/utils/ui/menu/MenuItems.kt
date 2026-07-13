@@ -38,7 +38,7 @@ import zone.ien.utils.ui.components.interactive.IenButtonState
 import zone.ien.utils.ui.components.interactive.IenButtonVariant
 import zone.ien.utils.ui.components.interactive.IenIconButton
 import zone.ien.utils.ui.components.interactive.IenTextButton
-import zone.ien.utils.ui.view.M3TooltipBox
+import zone.ien.utils.ui.view.IenTooltipBox
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
 /**
@@ -85,7 +85,7 @@ fun M3ActionsMenu(
                     shrinkHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), shrinkTowards = androidx.compose.ui.Alignment.End),
             ) {
                 item.icon?.let { icon ->
-                    M3TooltipBox(
+                    IenTooltipBox(
                         label = item.title
                     ) {
                         BadgedBox(
@@ -149,7 +149,7 @@ fun M3ActionsMenu(
             slideOutHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
             shrinkHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), shrinkTowards = androidx.compose.ui.Alignment.End),
     ) {
-        M3TooltipBox(
+        IenTooltipBox(
             label = stringResource(Res.string.more_options),
         ) {
             Box {

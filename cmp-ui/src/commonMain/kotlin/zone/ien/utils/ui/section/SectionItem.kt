@@ -7,37 +7,40 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.clearText
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -61,7 +64,17 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Alignment
 import zone.ien.hig.section.SectionScope
+import zone.ien.utils.ui.components.foundation.IenSemanticTone
+import zone.ien.utils.ui.components.foundation.IenTheme
+import zone.ien.utils.ui.components.interactive.IenButtonContainer
+import zone.ien.utils.ui.components.interactive.IenButtonState
+import zone.ien.utils.ui.components.interactive.IenButtonVariant
+import zone.ien.utils.ui.components.interactive.IenCheckbox
+import zone.ien.utils.ui.components.interactive.IenSwitch
+import zone.ien.utils.ui.components.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.view.M3AsteriskTextWrapper
 import zone.ien.utils.ui.view.textfield.M3TextFieldClearButton
 import zone.ien.utils.ui.view.textfield.PlaceholderBasicSecureTextField
@@ -91,16 +104,54 @@ fun SectionScope.M3SectionItem(
     colors: M3SectionColors = M3SectionLinkDefault.colors(),
     title: @Composable () -> Unit
 ) {
-    ListItem(
-        headlineContent = title,
-        supportingContent = supportingContent,
-        leadingContent = leadingContent,
-        trailingContent = trailingContent,
-        colors = colors.toListItemColors(enabled),
+    IenSurface(
         modifier = Modifier
-            .clip(RoundedCornerShape(4.dp))
-            .then(modifier)
-    )
+            .clip(RoundedCornerShape(IenTheme.radius.sm))
+            .then(modifier),
+        color = colors.containerColor(),
+        contentColor = colors.headlineColor(enabled),
+        shape = RoundedCornerShape(IenTheme.radius.sm),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 56.dp)
+                .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (leadingContent != null) {
+                CompositionLocalProvider(LocalContentColor provides colors.leadingIconColor(enabled)) {
+                    Box(
+                        modifier = Modifier.heightIn(min = IenTheme.icon.lg),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        leadingContent()
+                    }
+                }
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxxs),
+            ) {
+                IenProvideTextStyle(IenTheme.typography.body2, colors.headlineColor(enabled)) {
+                    title()
+                }
+                if (supportingContent != null) {
+                    IenProvideTextStyle(IenTheme.typography.caption, colors.supportingColor(enabled)) {
+                        supportingContent()
+                    }
+                }
+            }
+            if (trailingContent != null) {
+                CompositionLocalProvider(LocalContentColor provides colors.trailingIconColor(enabled)) {
+                    Box(contentAlignment = Alignment.Center) {
+                        trailingContent()
+                    }
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -130,7 +181,7 @@ fun SectionScope.M3SectionSwitchItem(
     M3SectionItem(
         leadingContent = leadingContent,
         trailingContent = {
-            Switch(
+            IenSwitch(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = enabled,
@@ -138,7 +189,7 @@ fun SectionScope.M3SectionSwitchItem(
         },
         supportingContent = supportingContent,
         title = title,
-        modifier = modifier.clickable { onCheckedChange(!checked) }
+        modifier = modifier.clickable(enabled = enabled) { onCheckedChange(!checked) }
     )
 }
 
@@ -167,9 +218,9 @@ fun SectionScope.M3SectionCheckboxItem(
     M3SectionItem(
         leadingContent = leadingContent,
         trailingContent = {
-            Checkbox(
+            IenCheckbox(
                 checked = checked,
-                onCheckedChange = onCheckedChange
+                onCheckedChange = onCheckedChange,
             )
         },
         supportingContent = supportingContent,
@@ -607,17 +658,17 @@ class M3SectionColors(
 object M3SectionLinkDefault {
     @Composable
     fun colors() = M3SectionColors(
-        containerColor = MaterialTheme.colorScheme.surface,
-        headlineColor = MaterialTheme.colorScheme.onSurface,
-        leadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        overlineColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        supportingTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        trailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        disabledHeadlineColor = MaterialTheme.colorScheme.onSurface.copy(0.35f),
-        disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f),
-        disabledSupportingTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f),
-        disabledOverlineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f),
-        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f)
+        containerColor = IenTheme.colors.surface,
+        headlineColor = IenTheme.colors.textPrimary,
+        leadingIconColor = IenTheme.colors.textSecondary,
+        overlineColor = IenTheme.colors.textSecondary,
+        supportingTextColor = IenTheme.colors.textSecondary,
+        trailingIconColor = IenTheme.colors.textSecondary,
+        disabledHeadlineColor = IenTheme.colors.textDisabled,
+        disabledLeadingIconColor = IenTheme.colors.textDisabled,
+        disabledSupportingTextColor = IenTheme.colors.textDisabled,
+        disabledOverlineColor = IenTheme.colors.textDisabled,
+        disabledTrailingIconColor = IenTheme.colors.textDisabled,
     )
 }
 
@@ -631,19 +682,23 @@ fun SectionScope.M3SectionButton(
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     label: @Composable () -> Unit,
 ) {
-    Button(
+    IenButtonContainer(
         onClick = onClick,
-        shapes = ButtonDefaults.shapes(),
-        enabled = enabled,
-        colors = colors,
+        state = IenButtonState(enabled = enabled),
+        variant = IenButtonVariant.Fill,
+        tone = IenSemanticTone.Brand,
+        shape = RoundedCornerShape(IenTheme.radius.default),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+        colors = colors,
         modifier = modifier
     ) {
-        icon?.let {
-            it.invoke()
-            Spacer(Modifier.width(8.dp))
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            icon?.invoke()
+            label.invoke()
         }
-        label.invoke()
     }
 }
 
@@ -668,12 +723,26 @@ fun SectionScope.M3SectionSlider(
                 enabled = enabled,
                 valueRange = valueRange,
                 steps = steps,
+                colors = SliderDefaults.colors(
+                    thumbColor = IenTheme.colors.brand,
+                    activeTrackColor = IenTheme.colors.brand,
+                    inactiveTrackColor = IenTheme.colors.brandWeak,
+                    activeTickColor = IenTheme.colors.onBrand,
+                    inactiveTickColor = IenTheme.colors.brand,
+                    disabledThumbColor = IenTheme.colors.textDisabled,
+                    disabledActiveTrackColor = IenTheme.colors.textDisabled,
+                    disabledInactiveTrackColor = IenTheme.colors.surfaceWeak,
+                ),
                 thumb = { sliderState ->
                     SliderDefaults.Thumb(
                         interactionSource = remember { MutableInteractionSource() },
                         sliderState = sliderState,
                         enabled = enabled,
-                        thumbSize = DpSize(4.dp, 52.dp)
+                        thumbSize = DpSize(4.dp, 52.dp),
+                        colors = SliderDefaults.colors(
+                            thumbColor = IenTheme.colors.brand,
+                            disabledThumbColor = IenTheme.colors.textDisabled,
+                        ),
                     )
                 },
                 track = { sliderState ->
@@ -681,8 +750,8 @@ fun SectionScope.M3SectionSlider(
                     val iconSize = DpSize(24.dp, 24.dp)
                     val iconPadding = 10.dp
                     val thumbTrackGapSize = 6.dp
-                    val activeIconColor = SliderDefaults.colors().activeTickColor
-                    val inactiveIconColor = SliderDefaults.colors().inactiveTickColor
+                    val activeIconColor = IenTheme.colors.onBrand
+                    val inactiveIconColor = IenTheme.colors.brand
                     val trackIcon: (DrawScope.(Offset, Color) -> Unit)? = icon?.let { { offset, color ->
                         translate(offset.x - iconPadding.toPx() - iconSize.toSize().width, offset.y) {
                             with (it) {
@@ -696,6 +765,12 @@ fun SectionScope.M3SectionSlider(
                         enabled = enabled,
                         sliderState = sliderState,
                         trackCornerSize = 12.dp,
+                        colors = SliderDefaults.colors(
+                            activeTrackColor = IenTheme.colors.brand,
+                            inactiveTrackColor = IenTheme.colors.brandWeak,
+                            disabledActiveTrackColor = IenTheme.colors.textDisabled,
+                            disabledInactiveTrackColor = IenTheme.colors.surfaceWeak,
+                        ),
                         drawStopIndicator = {
 
                         },

@@ -55,6 +55,9 @@ fun LazySectionScreen(
                 )
             },
             adaptation = {
+                material {
+                    this.scrollableState = lazyListState
+                }
                 cupertino {
                     this.scrollableState = lazyListState
                     this.showNavTitle = true

@@ -45,7 +45,7 @@ import zone.ien.utils.ui.view.CustomNavigationBar
 import zone.ien.utils.ui.view.CustomNavigationBarItem
 import zone.ien.utils.ui.view.Empty
 import zone.ien.utils.ui.view.M3AsteriskTextWrapper
-import zone.ien.utils.ui.view.M3TooltipBox
+import zone.ien.utils.ui.view.IenTooltipBox
 import zone.ien.utils.ui.menu.ActionMenuItem
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -252,7 +252,7 @@ fun M3PlaygroundScreen(
                 ) {
                     M3SectionItem(
                         title = {
-                            M3TooltipBox(
+                            IenTooltipBox(
                                 label = "This is a custom tooltip text container styling test!"
                             ) {
                                 Text("Hover/Click here for M3TooltipBox")

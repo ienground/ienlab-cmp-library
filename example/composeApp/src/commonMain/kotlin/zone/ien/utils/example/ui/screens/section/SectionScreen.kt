@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,7 +49,6 @@ fun SectionScreen(
     resultStore: ResultStore
 ) {
     val backdrop = rememberDefaultBackdrop()
-    val scrollState = rememberScrollState()
 
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
     var checked by remember { mutableStateOf(false) }
@@ -83,7 +81,6 @@ fun SectionScreen(
         ) { pv, title ->
             AdaptiveProvideSectionStyle(
                 style = SectionStyle.InsetGrouped,
-                scrollState = null,
                 fullHeight = true,
                 backdrop = backdrop,
                 modifier = Modifier

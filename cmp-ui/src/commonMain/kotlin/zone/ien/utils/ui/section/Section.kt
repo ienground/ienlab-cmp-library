@@ -1,6 +1,7 @@
 package zone.ien.utils.ui.section
 
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,8 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
@@ -27,6 +26,9 @@ import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastSumBy
 import zone.ien.hig.section.SectionScope
+import zone.ien.utils.ui.components.foundation.IenTheme
+import zone.ien.utils.ui.components.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.components.primitives.IenSurface
 import zone.ien.utils.ui.utils.conditional
 
 /**
@@ -48,7 +50,7 @@ internal object SectionScopeImpl: SectionScope
  */
 @Composable
 fun Modifier.m3SectionBackground(): Modifier {
-    return this.background(MaterialTheme.colorScheme.surfaceContainer)
+    return this.background(IenTheme.colors.surfaceWeak)
 }
 
 /**
@@ -115,49 +117,57 @@ fun M3Section(
     Column(
         modifier = modifier
     ) {
-        ProvideTextStyle(
-            value = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.primary)
+        IenProvideTextStyle(
+            style = IenTheme.typography.label1,
+            color = IenTheme.colors.textSecondary,
         ) {
             title?.let {
                 Box(
                     modifier = Modifier
-                        .padding(bottom = 8.dp)
-                        .padding(horizontal = 22.dp),
+                        .padding(bottom = IenTheme.spacing.xs)
+                        .padding(horizontal = IenTheme.spacing.xl),
                 ) { it() }
             }
         }
-        SubcomposeLayout(
+        val itemGap = IenTheme.stroke.hairline
+        IenSurface(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
-                .clip(RoundedCornerShape(16.dp))
-        ) { constraints ->
-            val gap = 2.dp.toPx().toInt()
-            val measurables = subcompose(null) { content(SectionScopeImpl) }
+                .clip(RoundedCornerShape(IenTheme.radius.lg)),
+            color = IenTheme.colors.surfaceRaised,
+            shape = RoundedCornerShape(IenTheme.radius.lg),
+            border = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border.copy(alpha = 0.72f)),
+        ) {
+            SubcomposeLayout { constraints ->
+                val gap = itemGap.toPx().toInt()
+                val measurables = subcompose(null) { content(SectionScopeImpl) }
 
-            val placeables = measurables.fastMap { it.measure(constraints) }
+                val placeables = measurables.fastMap { it.measure(constraints) }
 
-            layout(
-                width = constraints.maxWidth,
-                height = (placeables.fastSumBy { it.height } + gap * (placeables.size - 1)).coerceAtLeast(0)
-            ) {
-                var h = 0
-                placeables.fastForEachIndexed { i, p ->
-                    p.place(0, h)
-                    h += p.height
-                    if (i < placeables.lastIndex) {
-                        h += gap
+                layout(
+                    width = constraints.maxWidth,
+                    height = (placeables.fastSumBy { it.height } + gap * (placeables.size - 1)).coerceAtLeast(0)
+                ) {
+                    var h = 0
+                    placeables.fastForEachIndexed { i, p ->
+                        p.place(0, h)
+                        h += p.height
+                        if (i < placeables.lastIndex) {
+                            h += gap
+                        }
                     }
                 }
             }
         }
-        ProvideTextStyle(
-            value = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.primary)
+        IenProvideTextStyle(
+            style = IenTheme.typography.caption,
+            color = IenTheme.colors.textTertiary,
         ) {
             caption?.let {
                 Box(
                     modifier = Modifier
-                        .padding(top = 8.dp)
-                        .padding(horizontal = 22.dp),
+                        .padding(top = IenTheme.spacing.xs)
+                        .padding(horizontal = IenTheme.spacing.xl),
                 ) { it() }
             }
         }
