@@ -1,6 +1,7 @@
 package zone.ien.utils.ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -56,6 +57,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
@@ -435,7 +437,9 @@ fun IenTopBar(
             if (actions != null) {
                 IenTopBarFloatingSlot(enabled = floatingSlots) {
                     Row(
-                        modifier = Modifier.animateContentSizeWithoutClipping(),
+                        modifier = Modifier
+                            .clipToBounds()
+                            .animateContentSize(animationSpec = tween(durationMillis = 110, easing = IenTheme.motion.standardEasing)),
                         horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -519,7 +523,9 @@ private fun IenTopBarFloatingSlot(
             }
         }
         Box(
-            modifier = Modifier.padding(horizontal = IenTheme.spacing.xxs, vertical = IenTheme.spacing.xxs),
+            modifier = Modifier
+                .clip(CircleShape)
+                .padding(horizontal = IenTheme.spacing.xxs, vertical = IenTheme.spacing.xxs),
             contentAlignment = Alignment.Center,
         ) {
             CompositionLocalProvider(

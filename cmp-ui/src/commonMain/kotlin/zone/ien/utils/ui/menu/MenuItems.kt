@@ -2,9 +2,8 @@ package zone.ien.utils.ui.menu
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Spring
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -28,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.DpOffset
@@ -70,16 +70,19 @@ fun IenActionsMenu(
     maxVisibleItems: Int,
 ) {
     val menuItems = remember(items, maxVisibleItems) { splitMenuItems(items, maxVisibleItems) }
-    val actionFadeAnimation = spring<Float>(
-        dampingRatio = Spring.DampingRatioNoBouncy,
-        stiffness = Spring.StiffnessMediumLow,
+    val actionFadeAnimation = tween<Float>(
+        durationMillis = 90,
+        easing = IenTheme.motion.standardEasing,
     )
-    val actionFadeOut = tween<Float>(durationMillis = 120)
+    val actionFadeOut = tween<Float>(
+        durationMillis = 70,
+        easing = IenTheme.motion.standardEasing,
+    )
     val visibleOverflowItems = menuItems.overflowItems.filter { it.visible }
     val hideFloatingSlot = LocalIenTopBarFloatingSlotHiddenRequester.current
     val triggerAlpha by animateFloatAsState(
         targetValue = if (isOpen) 0.001f else 1f,
-        animationSpec = spring(1.2f),
+        animationSpec = tween(durationMillis = 100, easing = IenTheme.motion.standardEasing),
         label = "actions_trigger_alpha",
     )
 
@@ -94,7 +97,11 @@ fun IenActionsMenu(
 
     @Composable
     fun ActionsRow() {
-        Row(modifier = Modifier.animateContentSizeWithoutClipping()) {
+        Row(
+            modifier = Modifier
+                .clipToBounds()
+                .animateContentSize(animationSpec = tween(durationMillis = 110, easing = IenTheme.motion.standardEasing))
+        ) {
             menuItems.alwaysShownItems.forEach { item ->
                 val alpha by animateFloatAsState(
                     targetValue = if (item.enabled) 1f else 0.25f,
@@ -105,11 +112,11 @@ fun IenActionsMenu(
                 AnimatedVisibility(
                     visible = item.visible,
                     enter = fadeIn(actionFadeAnimation) +
-                        slideInHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
-                        expandHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), expandFrom = Alignment.End),
+                        slideInHorizontally(tween(durationMillis = 110, easing = IenTheme.motion.standardEasing)) { it / 2 } +
+                        expandHorizontally(animationSpec = tween(durationMillis = 110, easing = IenTheme.motion.standardEasing), expandFrom = Alignment.End),
                     exit = fadeOut(actionFadeOut) +
-                        slideOutHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
-                        shrinkHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), shrinkTowards = Alignment.End),
+                        slideOutHorizontally(tween(durationMillis = 90, easing = IenTheme.motion.standardEasing)) { it / 2 } +
+                        shrinkHorizontally(animationSpec = tween(durationMillis = 90, easing = IenTheme.motion.standardEasing), shrinkTowards = Alignment.End),
                 ) {
                     item.icon?.let { icon ->
                         IenTooltipBox(
@@ -171,11 +178,11 @@ fun IenActionsMenu(
             AnimatedVisibility(
                 visible = visibleOverflowItems.isNotEmpty(),
                 enter = fadeIn(actionFadeAnimation) +
-                    slideInHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
-                    expandHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), expandFrom = Alignment.End),
+                    slideInHorizontally(tween(durationMillis = 110, easing = IenTheme.motion.standardEasing)) { it / 2 } +
+                    expandHorizontally(animationSpec = tween(durationMillis = 110, easing = IenTheme.motion.standardEasing), expandFrom = Alignment.End),
                 exit = fadeOut(actionFadeOut) +
-                    slideOutHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
-                    shrinkHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), shrinkTowards = Alignment.End),
+                    slideOutHorizontally(tween(durationMillis = 90, easing = IenTheme.motion.standardEasing)) { it / 2 } +
+                    shrinkHorizontally(animationSpec = tween(durationMillis = 90, easing = IenTheme.motion.standardEasing), shrinkTowards = Alignment.End),
             ) {
                 IenTooltipBox(
                     label = stringResource(Res.string.more_options),
