@@ -63,12 +63,17 @@ import zone.ien.utils.ui.screen.TopBarSize
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.navigation.result.ResultStore
+import zone.ien.utils.ui.components.interactive.IenButton
+import zone.ien.utils.ui.components.interactive.IenButtonDisplay
+import zone.ien.utils.ui.components.interactive.IenButtonSize
+import zone.ien.utils.ui.components.interactive.IenButtonVariant
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.utils.moveToBackground
 import zone.ien.utils.utils.shareText
 import zone.ien.utils.utils.ui.enableNativeInput
 import zone.ien.utils.utils.ui.rememberRepeatClick
 
+@Suppress("FrequentlyChangingValue")
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -314,16 +319,20 @@ fun HomeScreen(
                     }
                 )
 
-                Button(
-                    onClick = onBackPressed
-                ) { Text(text = "move to background") }
-                Button(
+                IenButton(
+                    onClick = onBackPressed,
+                    variant = IenButtonVariant.Weak,
+                    display = IenButtonDisplay.Full,
+                    text = "move to background"
+                )
+                IenButton(
                     onClick = {
                         shareText("text share")
-                    }
-                ) {
-                    Text(text = "Text Share")
-                }
+                    },
+                    variant = IenButtonVariant.Fill,
+                    display = IenButtonDisplay.Full,
+                    text = "Text share"
+                )
                 AnimatedVisibility(
                     visible = !isDropdownMenu,
                 ) {
