@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,17 +31,20 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.material.M3SystemIcons
-import zone.ien.utils.ui.components.foundation.IenSemanticTone
-import zone.ien.utils.ui.components.interactive.IenButtonSize
-import zone.ien.utils.ui.components.interactive.IenButtonState
-import zone.ien.utils.ui.components.interactive.IenButtonVariant
-import zone.ien.utils.ui.components.interactive.IenIconButton
-import zone.ien.utils.ui.components.interactive.IenTextButton
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.interactive.IenBadge
+import zone.ien.utils.ui.interactive.IenBadgeSize
+import zone.ien.utils.ui.interactive.IenBadgeVariant
+import zone.ien.utils.ui.interactive.IenButtonSize
+import zone.ien.utils.ui.interactive.IenButtonState
+import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenIconButton
+import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.view.IenTooltipBox
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
 /**
- * M3ActionsMenu는 액션 메뉴를 표시하기 위한 컴포저블입니다.
+ * IenActionsMenu는 액션 메뉴를 표시하기 위한 컴포저블입니다.
  *
  * @param items 메뉴 항목 리스트
  * @param isOpen 드롭다운이 열려 있는지 여부
@@ -52,7 +54,7 @@ import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun M3ActionsMenu(
+fun IenActionsMenu(
     items: List<ActionMenuItem>,
     isOpen: Boolean,
     closeDropdown: () -> Unit,
@@ -91,11 +93,13 @@ fun M3ActionsMenu(
                         BadgedBox(
                             badge = {
                                 if (item.badge != 0) {
-                                    Badge(
+                                    IenBadge(
                                         modifier = Modifier
-                                            .offset(x = (-8).dp, y = 8.dp)
-                                        ,
-                                        content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null
+                                            .offset(x = (-8).dp, y = 8.dp),
+                                        text = if (item.badge > 0) item.badge.toString() else "",
+                                        size = IenBadgeSize.Small,
+                                        variant = IenBadgeVariant.Fill,
+                                        tone = IenSemanticTone.Danger,
                                     )
                                 }
                             }
@@ -184,8 +188,11 @@ fun M3ActionsMenu(
                             trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
                                 {
                                     if (item.badge != 0) {
-                                        Badge(
-                                            content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null
+                                        IenBadge(
+                                            text = if (item.badge > 0) item.badge.toString() else "",
+                                            size = IenBadgeSize.Small,
+                                            variant = IenBadgeVariant.Fill,
+                                            tone = IenSemanticTone.Danger,
                                         )
                                     }
                                 }

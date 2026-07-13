@@ -1,4 +1,4 @@
-package zone.ien.utils.ui.components.primitives
+package zone.ien.utils.ui.primitives
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.ui.components.foundation.IenTheme
+import zone.ien.utils.ui.foundation.IenTheme
 
 @Composable
 fun IenSurface(

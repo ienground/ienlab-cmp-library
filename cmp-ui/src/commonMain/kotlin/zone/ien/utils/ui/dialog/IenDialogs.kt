@@ -1,4 +1,4 @@
-package zone.ien.utils.ui.components.composite
+package zone.ien.utils.ui.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,17 +27,17 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
 import zone.ien.utils.cmp_ui.generated.resources.close
 import zone.ien.utils.cmp_ui.generated.resources.ok
-import zone.ien.utils.ui.components.foundation.IenSemanticTone
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.interactive.IenButton
-import zone.ien.utils.ui.components.interactive.IenButtonSize
-import zone.ien.utils.ui.components.interactive.IenButtonDisplay
-import zone.ien.utils.ui.components.interactive.IenButtonVariant
-import zone.ien.utils.ui.components.interactive.IenTextButton
-import zone.ien.utils.ui.components.interactive.IenTextButtonSize
-import zone.ien.utils.ui.components.interactive.IenTextButtonVariant
-import zone.ien.utils.ui.components.primitives.IenSurface
-import zone.ien.utils.ui.components.primitives.IenText
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenButton
+import zone.ien.utils.ui.interactive.IenButtonSize
+import zone.ien.utils.ui.interactive.IenButtonDisplay
+import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenTextButton
+import zone.ien.utils.ui.interactive.IenTextButtonSize
+import zone.ien.utils.ui.interactive.IenTextButtonVariant
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.primitives.IenText
 
 enum class IenDialogButtonLayout {
     Horizontal,

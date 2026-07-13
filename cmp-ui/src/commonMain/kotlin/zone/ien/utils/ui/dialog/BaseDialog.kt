@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import zone.ien.utils.ui.components.foundation.IenTheme
+import zone.ien.utils.ui.foundation.IenTheme
 
 /**
  * BaseDialog은 AlertDialog의 기본 구성 요소로, 기본적인 다이얼로그 레이아웃을 제공합니다.

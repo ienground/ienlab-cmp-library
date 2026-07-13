@@ -2,8 +2,8 @@ package zone.ien.utils.adaptive.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import zone.ien.utils.ui.dialog.M3AlertDialog
-import zone.ien.utils.ui.dialog.M3DeleteAlertDialog
+import zone.ien.utils.ui.dialog.IenAlertDialog
+import zone.ien.utils.ui.dialog.IenDeleteAlertDialog
 
 /**
  * 삭제 다이얼로그 컴포저블 (안드로이드 플랫폼 구현)
@@ -23,7 +23,7 @@ actual fun DeleteAlertDialog(
     onConfirm: () -> Unit,
     enabledConfirm: Boolean
 ) {
-    M3DeleteAlertDialog(
+    IenDeleteAlertDialog(
         modifier = modifier,
         visible = visible,
         onDismiss = onDismiss,

@@ -7,14 +7,6 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.LoadingIndicatorDefaults
-import androidx.compose.material3.ProgressIndicatorDefaults
-import androidx.compose.material3.WavyProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -26,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.graphics.shapes.RoundedPolygon
 import zone.ien.hig.CupertinoActivityIndicator
 import zone.ien.hig.CupertinoActivityIndicatorDefaults
@@ -36,6 +29,10 @@ import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.Gray
+import zone.ien.utils.ui.feedback.IenCircularProgressIndicator
+import zone.ien.utils.ui.feedback.IenCircularWavyProgressIndicator
+import zone.ien.utils.ui.feedback.IenLoadingIndicator
+import zone.ien.utils.ui.foundation.IenTheme
 
 /**
  * 적응형 원형 진행 표시기 컴포저블
@@ -47,13 +44,13 @@ import zone.ien.hig.theme.Gray
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun AdaptiveCircularProgressIndicator(
-    adaptation: AdaptationScope<CupertinoCircularProgressIndicatorAdaptation, MaterialCircularProgressIndicatorAdaptation>.() -> Unit = {}
+    adaptation: AdaptationScope<CupertinoCircularProgressIndicatorAdaptation, IenCircularProgressIndicatorAdaptation>.() -> Unit = {}
 ) {
     AdaptiveWidget(
         adaptation = remember { CircularProgressIndicatorAdaptation() },
         adaptationScope = adaptation,
         material = {
-            CircularProgressIndicator(
+            IenCircularProgressIndicator(
                 modifier = it.modifier,
                 color = it.color,
                 strokeWidth = it.strokeWidth,
@@ -85,23 +82,22 @@ fun AdaptiveCircularProgressIndicator(
  * @param adaptation 플랫폼별 적응형 설정을 위한 블록
  */
 @OptIn(
-    ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class,
-    ExperimentalMaterial3ExpressiveApi::class
+    ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class
 )
 @Composable
 fun AdaptiveCircularWavyProgressIndicator(
-    adaptation: AdaptationScope<CupertinoCircularProgressIndicatorAdaptation, MaterialWavyCircularProgressIndicatorAdaptation>.() -> Unit = {}
+    adaptation: AdaptationScope<CupertinoCircularProgressIndicatorAdaptation, IenWavyCircularProgressIndicatorAdaptation>.() -> Unit = {}
 ) {
     AdaptiveWidget(
         adaptation = remember { WavyProgressIndicatorAdaptation() },
         adaptationScope = adaptation,
         material = {
-            CircularWavyProgressIndicator(
+            IenCircularWavyProgressIndicator(
                 modifier = it.modifier,
                 color = it.color,
                 trackColor = it.trackColor,
-                stroke = it.stroke ?: WavyProgressIndicatorDefaults.circularIndicatorStroke,
-                trackStroke = it.trackStroke ?: WavyProgressIndicatorDefaults.circularTrackStroke,
+                stroke = it.stroke,
+                trackStroke = it.trackStroke,
                 gapSize = it.gapSize,
                 amplitude = it.amplitude,
                 wavelength = it.wavelength,
@@ -130,18 +126,16 @@ fun AdaptiveCircularWavyProgressIndicator(
  * 
  * @param adaptation 플랫폼별 적응형 설정을 위한 블록
  */
-@OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3ExpressiveApi::class,
-    ExperimentalCupertinoApi::class
-)
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun AdaptiveLoadingIndicator(
-    adaptation: AdaptationScope<CupertinoCircularProgressIndicatorAdaptation, MaterialLoadingIndicatorAdaptation>.() -> Unit = {}
+    adaptation: AdaptationScope<CupertinoCircularProgressIndicatorAdaptation, IenLoadingIndicatorAdaptation>.() -> Unit = {}
 ) {
     AdaptiveWidget(
         adaptation = remember { LoadingIndicatorAdaptation() },
         adaptationScope = adaptation,
         material = {
-            LoadingIndicator(
+            IenLoadingIndicator(
                 modifier = it.modifier,
                 color = it.color,
                 polygons = it.polygons
@@ -171,13 +165,12 @@ fun AdaptiveLoadingIndicator(
  * @param adaptation 플랫폼별 적응형 설정을 위한 블록
  */
 @OptIn(
-    ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class,
-    ExperimentalMaterial3ExpressiveApi::class
+    ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class
 )
 @Composable
 fun AdaptiveCircularWavyProgressIndicator(
     progress: () -> Float,
-    adaptation: AdaptationScope<CupertinoCircularProgressIndicatorAdaptation, MaterialWavyCircularDeterminedProgressIndicatorAdaptation>.() -> Unit = {}
+    adaptation: AdaptationScope<CupertinoCircularProgressIndicatorAdaptation, IenWavyCircularDeterminedProgressIndicatorAdaptation>.() -> Unit = {}
 ) {
     val currentProgress by animateFloatAsState(
         targetValue = progress.invoke().let { if (it > 1f) 1f else if (it < 0f) 0f else it }
@@ -187,13 +180,13 @@ fun AdaptiveCircularWavyProgressIndicator(
         adaptation = remember { WavyProgressDeterminedIndicatorAdaptation() },
         adaptationScope = adaptation,
         material = {
-            CircularWavyProgressIndicator(
+            IenCircularWavyProgressIndicator(
                 progress = { currentProgress },
                 modifier = it.modifier,
                 color = it.color,
                 trackColor = it.trackColor,
-                stroke = it.stroke ?: WavyProgressIndicatorDefaults.circularIndicatorStroke,
-                trackStroke = it.trackStroke ?: WavyProgressIndicatorDefaults.circularTrackStroke,
+                stroke = it.stroke,
+                trackStroke = it.trackStroke,
                 gapSize = it.gapSize,
                 amplitude = it.amplitude,
                 wavelength = it.wavelength,
@@ -244,13 +237,13 @@ class CupertinoCircularProgressIndicatorAdaptation(
     var minAlpha: Float by mutableStateOf(minAlpha)
 }
 
-class MaterialCircularProgressIndicatorAdaptation @OptIn(ExperimentalMaterial3Api::class) constructor(
+class IenCircularProgressIndicatorAdaptation(
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
-    strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth,
+    strokeWidth: Dp = 4.dp,
     trackColor: Color = Color.Unspecified,
-    strokeCap: StrokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap,
-    gapSize: Dp = ProgressIndicatorDefaults.CircularIndicatorTrackGapSize,
+    strokeCap: StrokeCap = StrokeCap.Round,
+    gapSize: Dp = 4.dp,
 ) {
     var modifier: Modifier by mutableStateOf(modifier)
     var color: Color by mutableStateOf(color)
@@ -260,15 +253,15 @@ class MaterialCircularProgressIndicatorAdaptation @OptIn(ExperimentalMaterial3Ap
     var gapSize: Dp by mutableStateOf(gapSize)
 }
 
-class MaterialWavyCircularProgressIndicatorAdaptation @OptIn(ExperimentalMaterial3ExpressiveApi::class) constructor(
+class IenWavyCircularProgressIndicatorAdaptation(
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
     trackColor: Color = Color.Unspecified,
     stroke: Stroke? = null,
     trackStroke: Stroke? = null,
-    gapSize: Dp = WavyProgressIndicatorDefaults.CircularIndicatorTrackGapSize,
+    gapSize: Dp = 4.dp,
     @FloatRange(from = 0.0, to = 1.0) amplitude: Float = 1f,
-    wavelength: Dp = WavyProgressIndicatorDefaults.CircularWavelength,
+    wavelength: Dp = 40.dp,
     waveSpeed: Dp = wavelength
 ) {
     var modifier: Modifier by mutableStateOf(modifier)
@@ -282,15 +275,15 @@ class MaterialWavyCircularProgressIndicatorAdaptation @OptIn(ExperimentalMateria
     var waveSpeed: Dp by mutableStateOf(waveSpeed)
 }
 
-class MaterialWavyCircularDeterminedProgressIndicatorAdaptation @OptIn(ExperimentalMaterial3ExpressiveApi::class) constructor(
+class IenWavyCircularDeterminedProgressIndicatorAdaptation(
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
     trackColor: Color = Color.Unspecified,
     stroke: Stroke? = null,
     trackStroke: Stroke? = null,
-    gapSize: Dp = WavyProgressIndicatorDefaults.CircularIndicatorTrackGapSize,
-    amplitude: (progress: Float) -> Float = WavyProgressIndicatorDefaults.indicatorAmplitude,
-    wavelength: Dp = WavyProgressIndicatorDefaults.CircularWavelength,
+    gapSize: Dp = 4.dp,
+    amplitude: ((progress: Float) -> Float)? = null,
+    wavelength: Dp = 40.dp,
     waveSpeed: Dp = wavelength
 ) {
     var modifier: Modifier by mutableStateOf(modifier)
@@ -299,19 +292,19 @@ class MaterialWavyCircularDeterminedProgressIndicatorAdaptation @OptIn(Experimen
     var stroke: Stroke? by mutableStateOf(stroke)
     var trackStroke: Stroke? by mutableStateOf(trackStroke)
     var gapSize: Dp by mutableStateOf(gapSize)
-    var amplitude: (progress: Float) -> Float by mutableStateOf(amplitude)
+    var amplitude: ((progress: Float) -> Float)? by mutableStateOf(amplitude)
     var wavelength: Dp by mutableStateOf(wavelength)
     var waveSpeed: Dp by mutableStateOf(waveSpeed)
 }
 
-class MaterialLoadingIndicatorAdaptation @OptIn(ExperimentalMaterial3ExpressiveApi::class) constructor(
+class IenLoadingIndicatorAdaptation(
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
-    polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.IndeterminateIndicatorPolygons,
+    polygons: List<RoundedPolygon>? = null,
 ) {
     var modifier: Modifier by mutableStateOf(modifier)
     var color: Color by mutableStateOf(color)
-    var polygons: List<RoundedPolygon> by mutableStateOf(polygons)
+    var polygons: List<RoundedPolygon>? by mutableStateOf(polygons)
 }
 
 
@@ -345,79 +338,75 @@ private abstract class BaseCircularProgressIndicatorAdaptation<T> : Adaptation<C
     }
 }
 
-private class CircularProgressIndicatorAdaptation: BaseCircularProgressIndicatorAdaptation<MaterialCircularProgressIndicatorAdaptation>() {
-    @OptIn(ExperimentalMaterial3Api::class)
+private class CircularProgressIndicatorAdaptation: BaseCircularProgressIndicatorAdaptation<IenCircularProgressIndicatorAdaptation>() {
     @Composable
-    override fun rememberMaterialAdaptation(): MaterialCircularProgressIndicatorAdaptation {
+    override fun rememberMaterialAdaptation(): IenCircularProgressIndicatorAdaptation {
         val modifier: Modifier = Modifier
-        val color: Color = ProgressIndicatorDefaults.circularColor
-        val strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth
-        val trackColor: Color = ProgressIndicatorDefaults.circularDeterminateTrackColor
-        val strokeCap: StrokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap
-        val gapSize: Dp = ProgressIndicatorDefaults.CircularIndicatorTrackGapSize
+        val color: Color = IenTheme.colors.brand
+        val strokeWidth: Dp = 4.dp
+        val trackColor: Color = IenTheme.colors.brandWeak
+        val strokeCap: StrokeCap = StrokeCap.Round
+        val gapSize: Dp = 4.dp
 
         return remember(modifier, color, strokeWidth, trackColor, strokeCap, gapSize) {
-            MaterialCircularProgressIndicatorAdaptation(
+            IenCircularProgressIndicatorAdaptation(
                 modifier, color, strokeWidth, trackColor, strokeCap, gapSize
             )
         }
     }
 }
 
-private class WavyProgressIndicatorAdaptation: BaseCircularProgressIndicatorAdaptation<MaterialWavyCircularProgressIndicatorAdaptation>() {
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+private class WavyProgressIndicatorAdaptation: BaseCircularProgressIndicatorAdaptation<IenWavyCircularProgressIndicatorAdaptation>() {
     @Composable
-    override fun rememberMaterialAdaptation(): MaterialWavyCircularProgressIndicatorAdaptation {
+    override fun rememberMaterialAdaptation(): IenWavyCircularProgressIndicatorAdaptation {
         val modifier: Modifier = Modifier
-        val color: Color = WavyProgressIndicatorDefaults.indicatorColor
-        val trackColor: Color = WavyProgressIndicatorDefaults.trackColor
-        val stroke: Stroke = WavyProgressIndicatorDefaults.circularIndicatorStroke
-        val trackStroke: Stroke = WavyProgressIndicatorDefaults.circularTrackStroke
-        val gapSize: Dp = WavyProgressIndicatorDefaults.CircularIndicatorTrackGapSize
+        val color: Color = IenTheme.colors.brand
+        val trackColor: Color = IenTheme.colors.brandWeak
+        val stroke: Stroke? = null
+        val trackStroke: Stroke? = null
+        val gapSize: Dp = 4.dp
         val amplitude: Float = 1f
-        val wavelength: Dp = WavyProgressIndicatorDefaults.CircularWavelength
+        val wavelength: Dp = 40.dp
         val waveSpeed: Dp = wavelength
 
         return remember(modifier, color, trackColor, stroke, trackStroke, gapSize, amplitude, wavelength, waveSpeed) {
-            MaterialWavyCircularProgressIndicatorAdaptation(
+            IenWavyCircularProgressIndicatorAdaptation(
                 modifier, color, trackColor, stroke, trackStroke, gapSize, amplitude, wavelength, waveSpeed
             )
         }
     }
 }
 
-private class WavyProgressDeterminedIndicatorAdaptation: BaseCircularProgressIndicatorAdaptation<MaterialWavyCircularDeterminedProgressIndicatorAdaptation>() {
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+private class WavyProgressDeterminedIndicatorAdaptation: BaseCircularProgressIndicatorAdaptation<IenWavyCircularDeterminedProgressIndicatorAdaptation>() {
     @Composable
-    override fun rememberMaterialAdaptation(): MaterialWavyCircularDeterminedProgressIndicatorAdaptation {
+    override fun rememberMaterialAdaptation(): IenWavyCircularDeterminedProgressIndicatorAdaptation {
         val modifier: Modifier = Modifier
-        val color: Color = WavyProgressIndicatorDefaults.indicatorColor
-        val trackColor: Color = WavyProgressIndicatorDefaults.trackColor
-        val stroke: Stroke = WavyProgressIndicatorDefaults.circularIndicatorStroke
-        val trackStroke: Stroke = WavyProgressIndicatorDefaults.circularTrackStroke
-        val gapSize: Dp = WavyProgressIndicatorDefaults.CircularIndicatorTrackGapSize
-        val amplitude: (progress: Float) -> Float = WavyProgressIndicatorDefaults.indicatorAmplitude
-        val wavelength: Dp = WavyProgressIndicatorDefaults.CircularWavelength
+        val color: Color = IenTheme.colors.brand
+        val trackColor: Color = IenTheme.colors.brandWeak
+        val stroke: Stroke? = null
+        val trackStroke: Stroke? = null
+        val gapSize: Dp = 4.dp
+        val amplitude: ((progress: Float) -> Float)? = null
+        val wavelength: Dp = 40.dp
         val waveSpeed: Dp = wavelength
 
         return remember(modifier, color, trackColor, stroke, trackStroke, gapSize, amplitude, wavelength, waveSpeed) {
-            MaterialWavyCircularDeterminedProgressIndicatorAdaptation(
+            IenWavyCircularDeterminedProgressIndicatorAdaptation(
                 modifier, color, trackColor, stroke, trackStroke, gapSize, amplitude, wavelength, waveSpeed
             )
         }
     }
 }
 
-private class LoadingIndicatorAdaptation: BaseCircularProgressIndicatorAdaptation<MaterialLoadingIndicatorAdaptation>() {
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+private class LoadingIndicatorAdaptation: BaseCircularProgressIndicatorAdaptation<IenLoadingIndicatorAdaptation>() {
     @Composable
-    override fun rememberMaterialAdaptation(): MaterialLoadingIndicatorAdaptation {
+    override fun rememberMaterialAdaptation(): IenLoadingIndicatorAdaptation {
         val modifier: Modifier = Modifier
-        val color: Color = LoadingIndicatorDefaults.indicatorColor
-        val polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.IndeterminateIndicatorPolygons
+        val color: Color = IenTheme.colors.brand
+        val polygons: List<RoundedPolygon>? = null
 
         return remember(modifier, color, polygons) {
-            MaterialLoadingIndicatorAdaptation(
+            IenLoadingIndicatorAdaptation(
                 modifier, color, polygons
             )
         }

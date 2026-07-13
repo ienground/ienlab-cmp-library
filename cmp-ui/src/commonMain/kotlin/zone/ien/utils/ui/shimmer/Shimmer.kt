@@ -45,7 +45,7 @@ import com.revenuecat.placeholder.placeholder
 fun Modifier.m3Placeholder(
     enabled: Boolean = true,
     color: Color = Color.Gray.copy(alpha = 0.35f),
-    shape: Shape = LocalM3ShimmerShape.current,
+    shape: Shape = LocalIenShimmerShape.current,
     highlight: PlaceholderHighlight? = PlaceholderDefaults.fade,
     placeholderFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() },
     contentFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() }
@@ -84,7 +84,7 @@ fun Modifier.m3Placeholder(
  * @param contentFadeTransitionSpec 컴포저블 내용의 페이드 전환 애니메이션 스펙
  */
 @Composable
-fun M3TextShimmer(
+fun IenTextShimmer(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     fontSize: TextUnit = TextUnit.Unspecified,
@@ -99,7 +99,7 @@ fun M3TextShimmer(
     softWrap: Boolean = true,
     style: TextStyle? = null,
     color: Color = Color.Gray.copy(alpha = 0.35f),
-    shape: Shape = LocalM3ShimmerShape.current,
+    shape: Shape = LocalIenShimmerShape.current,
     highlight: PlaceholderHighlight? = PlaceholderDefaults.fade,
     placeholderFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() },
     contentFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() }

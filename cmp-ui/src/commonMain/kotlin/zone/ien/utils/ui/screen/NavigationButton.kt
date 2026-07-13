@@ -14,15 +14,15 @@ import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.LocalBackButtonIcon
 import zone.ien.utils.icon.LocalButtonProviderDefault
 import zone.ien.utils.icon.LocalCloseButtonIcon
-import zone.ien.utils.ui.components.foundation.IenSemanticTone
-import zone.ien.utils.ui.components.interactive.IenButtonSize
-import zone.ien.utils.ui.components.interactive.IenButtonState
-import zone.ien.utils.ui.components.interactive.IenButtonVariant
-import zone.ien.utils.ui.components.interactive.IenIconButton
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.interactive.IenButtonSize
+import zone.ien.utils.ui.interactive.IenButtonState
+import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.view.IenTooltipBox
 
 /**
- * M3BackButton은 뒤로 가기 버튼을 표시하기 위한 컴포저블입니다.
+ * IenBackButton은 뒤로 가기 버튼을 표시하기 위한 컴포저블입니다.
  *
  * @param modifier 적용할 Modifier
  * @param icon 표시할 아이콘
@@ -31,7 +31,7 @@ import zone.ien.utils.ui.view.IenTooltipBox
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun M3BackButton(
+fun IenBackButton(
     modifier: Modifier = Modifier,
     icon: IconData = LocalBackButtonIcon.current ?: LocalButtonProviderDefault.BackIcon,
     enabled: Boolean = true,
@@ -57,7 +57,7 @@ fun M3BackButton(
 }
 
 /**
- * M3CloseButton은 닫기 버튼을 표시하기 위한 컴포저블입니다.
+ * IenCloseButton은 닫기 버튼을 표시하기 위한 컴포저블입니다.
  *
  * @param modifier 적용할 Modifier
  * @param icon 표시할 아이콘
@@ -66,7 +66,7 @@ fun M3BackButton(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun M3CloseButton(
+fun IenCloseButton(
     modifier: Modifier = Modifier,
     icon: IconData = LocalCloseButtonIcon.current ?: LocalButtonProviderDefault.CloseIcon,
     enabled: Boolean = true,

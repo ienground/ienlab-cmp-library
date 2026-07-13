@@ -39,9 +39,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -78,14 +76,14 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.menu.HigActionMenu
 import zone.ien.utils.adaptive.menu.HigActionsMenu
 import zone.ien.utils.ui.menu.ActionMenuItem
-import zone.ien.utils.ui.menu.M3ActionsMenu
-import zone.ien.utils.ui.components.composite.IenScaffoldContentEdge
+import zone.ien.utils.ui.menu.IenActionsMenu
+import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.LocalHigShowNavTitle
 import zone.ien.utils.ui.screen.LocalIsHigTopBarCenterAligned
 import zone.ien.utils.ui.screen.LocalIsM3TopBarCenterAligned
 import zone.ien.utils.ui.screen.LocalIsScrollTint
 import zone.ien.utils.ui.screen.LocalM3TopBarSize
-import zone.ien.utils.ui.screen.M3TopAppBarScaffold
+import zone.ien.utils.ui.screen.IenTopAppBarScaffold
 import zone.ien.utils.ui.screen.TopBarSize
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
@@ -125,7 +123,7 @@ fun AdaptiveTopAppBarScaffold(
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
-    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
+    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
     fun FabPosition.transform(): androidx.compose.material3.FabPosition {
@@ -143,7 +141,7 @@ fun AdaptiveTopAppBarScaffold(
             CompositionLocalProvider(
                 LocalTopBarScaffoldScrollState provides scaffoldScrollState,
             ) {
-                M3TopAppBarScaffold(
+                IenTopAppBarScaffold(
                     modifier = modifier,
                     topBarModifier = topBarModifier,
                     title = title,
@@ -156,13 +154,11 @@ fun AdaptiveTopAppBarScaffold(
                     snackbarHost = snackbarHost,
                     floatingActionButton = floatingActionButton,
                     floatingActionButtonPosition = fabPosition.transform(),
-                    topAppBarColors = it.colors,
                     isCenterAligned = it.isCenterAligned,
                     scaffoldContainerColor = it.scaffoldContainerColor,
                     scaffoldContentColor = it.scaffoldContentColor,
                     contentWindowInsets = it.contentWindowInsets,
                     contentEdge = contentEdge.resolveTopProgress(it.scrollableState),
-                    scrollBehavior = it.scrollBehavior,
                     isScrollTint = it.isScrollTint,
                     size = it.size,
                     content = { content(it, {}) }
@@ -293,7 +289,7 @@ fun AdaptiveTopAppBarScaffold(
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
-    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
+    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
@@ -326,7 +322,7 @@ fun AdaptiveTopAppBarScaffold(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        M3ActionsMenu(
+                        IenActionsMenu(
                             items = it,
                             isOpen = menuExpanded,
                             closeDropdown = { menuExpanded = false },
@@ -451,35 +447,29 @@ fun AdaptiveTopAppBarScaffold(
  * @param topBarWindowInsets 상단바 윈도우 인셋
  * @param contentWindowInsets 콘텐츠 윈도우 인셋
  * @param isScrollTint 스크롤 틴트 여부
- * @param colors 상단바 색상
  * @param isCenterAligned 중앙 정렬 여부
  * @param scaffoldContainerColor 스크라프트 컨테이너 색상
  * @param scaffoldContentColor 스크라프트 콘텐츠 색상
  * @param size 상단바 크기
- * @param scrollBehavior 스크롤 행동
  */
 @OptIn(ExperimentalMaterial3Api::class)
-class M3TopAppBarScaffoldAdaptation internal constructor(
+class IenTopAppBarScaffoldAdaptation internal constructor(
     topBarWindowInsets: WindowInsets,
     contentWindowInsets: WindowInsets,
     isScrollTint: Boolean,
-    colors: TopAppBarColors,
     isCenterAligned: Boolean,
     scaffoldContainerColor: Color,
     scaffoldContentColor: Color,
     size: TopBarSize,
-    scrollBehavior: TopAppBarScrollBehavior,
     scrollableState: ScrollableState,
 ) {
     var topBarWindowInsets by mutableStateOf(topBarWindowInsets)
     var contentWindowInsets by mutableStateOf(contentWindowInsets)
     var isScrollTint by mutableStateOf(isScrollTint)
-    var colors by mutableStateOf(colors)
     var isCenterAligned by mutableStateOf(isCenterAligned)
     var scaffoldContainerColor by mutableStateOf(scaffoldContainerColor)
     var scaffoldContentColor by mutableStateOf(scaffoldContentColor)
     var size by mutableStateOf(size)
-    var scrollBehavior by mutableStateOf(scrollBehavior)
     var scrollableState by mutableStateOf(scrollableState)
 }
 
@@ -528,7 +518,7 @@ class HigTopAppBarScaffoldAdaptation internal constructor(
 }
 
 @OptIn(ExperimentalAdaptiveApi::class)
-internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>() {
+internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): HigTopAppBarScaffoldAdaptation {
         val topBarWindowInsets = CupertinoTopAppBarDefaults.windowInsets
@@ -564,29 +554,25 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    override fun rememberMaterialAdaptation(): M3TopAppBarScaffoldAdaptation {
+    override fun rememberMaterialAdaptation(): IenTopAppBarScaffoldAdaptation {
         val topBarWindowInsets = TopAppBarDefaults.windowInsets
         val contentWindowInsets = ScaffoldDefaults.contentWindowInsets
         val isScrollTint = LocalIsScrollTint.current
-        val colors = TopAppBarDefaults.topAppBarColors()
         val isCenterAligned = LocalIsM3TopBarCenterAligned.current
         val scaffoldContainerColor = MaterialTheme.colorScheme.background
         val scaffoldContentColor = contentColorFor(scaffoldContainerColor)
         val size = LocalM3TopBarSize.current
-        val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
         val scrollableState = rememberScrollState()
 
-        return remember(topBarWindowInsets, contentWindowInsets, isScrollTint, colors, isCenterAligned, scaffoldContainerColor, scaffoldContentColor, size, scrollBehavior, scrollableState) {
-            M3TopAppBarScaffoldAdaptation(
+        return remember(topBarWindowInsets, contentWindowInsets, isScrollTint, isCenterAligned, scaffoldContainerColor, scaffoldContentColor, size, scrollableState) {
+            IenTopAppBarScaffoldAdaptation(
                 topBarWindowInsets = topBarWindowInsets,
                 contentWindowInsets = contentWindowInsets,
                 isScrollTint = isScrollTint,
-                colors = colors,
                 isCenterAligned = isCenterAligned,
                 scaffoldContainerColor = scaffoldContainerColor,
                 scaffoldContentColor = scaffoldContentColor,
                 size = size,
-                scrollBehavior = scrollBehavior,
                 scrollableState = scrollableState,
             )
         }

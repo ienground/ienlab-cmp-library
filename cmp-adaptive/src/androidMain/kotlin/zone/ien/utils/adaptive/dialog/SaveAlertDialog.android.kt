@@ -2,7 +2,7 @@ package zone.ien.utils.adaptive.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import zone.ien.utils.ui.dialog.M3SaveAlertDialog
+import zone.ien.utils.ui.dialog.IenSaveAlertDialog
 
 @Composable
 actual fun SaveAlertDialog(
@@ -14,7 +14,7 @@ actual fun SaveAlertDialog(
     onSave: () -> Unit,
     enabledSave: Boolean
 ) {
-    M3SaveAlertDialog(
+    IenSaveAlertDialog(
         modifier = modifier,
         visible = visible,
         onCancel = onCancel,

@@ -1,4 +1,4 @@
-package zone.ien.utils.ui.components.composite
+package zone.ien.utils.ui.content
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,12 +17,12 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.ui.components.foundation.IenSemanticTone
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.interactive.toneColor
-import zone.ien.utils.ui.components.interactive.toneWeakColor
-import zone.ien.utils.ui.components.primitives.IenSurface
-import zone.ien.utils.ui.components.primitives.IenText
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.toneColor
+import zone.ien.utils.ui.interactive.toneWeakColor
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.primitives.IenText
 
 enum class IenBubbleTail {
     None,

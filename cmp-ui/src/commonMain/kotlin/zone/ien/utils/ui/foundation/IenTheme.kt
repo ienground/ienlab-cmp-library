@@ -1,4 +1,4 @@
-package zone.ien.utils.ui.components.foundation
+package zone.ien.utils.ui.foundation
 
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing

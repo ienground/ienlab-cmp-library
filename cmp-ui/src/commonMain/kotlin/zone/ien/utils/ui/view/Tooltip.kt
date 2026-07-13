@@ -12,7 +12,7 @@ import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.ui.components.foundation.IenTheme
+import zone.ien.utils.ui.foundation.IenTheme
 
 /**
  * BaseTooltipBox는 툴팁 박스를 표시하기 위한 내부 컴포저블입니다.
@@ -81,34 +81,5 @@ fun IenTooltipText(
         modifier = modifier
             .background(IenTheme.colors.surfaceRaised, RoundedCornerShape(IenTheme.radius.xs))
             .padding(horizontal = IenTheme.spacing.xs, vertical = IenTheme.spacing.xxs)
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun M3TooltipBox(
-    modifier: Modifier = Modifier,
-    positioning: TooltipAnchorPosition = TooltipAnchorPosition.Below,
-    isPersistent: Boolean = false,
-    label: String,
-    content: @Composable () -> Unit
-) {
-    IenTooltipBox(
-        modifier = modifier,
-        positioning = positioning,
-        isPersistent = isPersistent,
-        label = label,
-        content = content,
-    )
-}
-
-@Composable
-fun M3TooltipText(
-    modifier: Modifier = Modifier,
-    label: String
-) {
-    IenTooltipText(
-        modifier = modifier,
-        label = label,
     )
 }

@@ -1,4 +1,4 @@
-package zone.ien.utils.ui.components.composite
+package zone.ien.utils.ui.menu
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,12 +20,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import zone.ien.utils.ui.components.foundation.IenSemanticTone
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.interactive.toneColor
-import zone.ien.utils.ui.components.primitives.IenDivider
-import zone.ien.utils.ui.components.primitives.IenSurface
-import zone.ien.utils.ui.components.primitives.IenText
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.toneColor
+import zone.ien.utils.ui.primitives.IenDivider
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.primitives.IenText
 
 @Immutable
 data class IenMenuItem(

@@ -15,15 +15,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.clearText
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -67,16 +62,17 @@ import zone.ien.utils.adaptive.view.AsteriskTextWrapper
 import zone.ien.utils.adaptive.view.textfield.AdaptiveTextFieldClearButton
 import zone.ien.utils.hig.section.SectionSecureTextField
 import zone.ien.utils.hig.section.SectionTextField
-import zone.ien.utils.ui.section.M3SectionButton
-import zone.ien.utils.ui.section.M3SectionCheckboxItem
-import zone.ien.utils.ui.section.M3SectionColors
-import zone.ien.utils.ui.section.M3SectionItem
-import zone.ien.utils.ui.section.M3SectionLink
-import zone.ien.utils.ui.section.M3SectionLinkDefault
-import zone.ien.utils.ui.section.M3SectionSecureTextField
-import zone.ien.utils.ui.section.M3SectionSlider
-import zone.ien.utils.ui.section.M3SectionSwitchItem
-import zone.ien.utils.ui.section.M3SectionTextField
+import zone.ien.utils.ui.section.IenSectionButton
+import zone.ien.utils.ui.section.IenSectionCheckboxItem
+import zone.ien.utils.ui.section.IenSectionColors
+import zone.ien.utils.ui.section.IenSectionItem
+import zone.ien.utils.ui.section.IenSectionLink
+import zone.ien.utils.ui.section.IenSectionLinkDefault
+import zone.ien.utils.ui.section.IenSectionSecureTextField
+import zone.ien.utils.ui.section.IenSectionSlider
+import zone.ien.utils.ui.section.IenSectionSwitchItem
+import zone.ien.utils.ui.section.IenSectionTextField
+import zone.ien.utils.ui.feedback.IenLinearProgressIndicator
 
 /**
  * 적응형 섹션 항목 컴포저블
@@ -97,14 +93,14 @@ fun SectionScope.AdaptiveSectionItem(
     leadingContent: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
-    adaptation: AdaptationScope<HigSectionItemAdaptation, M3SectionItemAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<HigSectionItemAdaptation, IenSectionItemAdaptation>.() -> Unit = {},
     title: @Composable () -> Unit
 ) {
     AdaptiveWidget(
         adaptation = remember { SectionItemAdaptation() },
         adaptationScope = adaptation,
         material = {
-            M3SectionItem(
+            IenSectionItem(
                 modifier = modifier,
                 enabled = enabled,
                 leadingContent = leadingContent,
@@ -146,8 +142,8 @@ fun SectionScope.AdaptiveSectionItem(
  *
  * @param colors Material3 색상
  */
-class M3SectionItemAdaptation internal constructor(
-    colors: M3SectionColors
+class IenSectionItemAdaptation internal constructor(
+    colors: IenSectionColors
 ) {
     var colors by mutableStateOf(colors)
 }
@@ -173,7 +169,7 @@ class HigSectionItemAdaptation internal constructor(
  * 섹션 항목 적응성 클래스
  */
 @OptIn(ExperimentalAdaptiveApi::class)
-internal class SectionItemAdaptation: Adaptation<HigSectionItemAdaptation, M3SectionItemAdaptation>() {
+internal class SectionItemAdaptation: Adaptation<HigSectionItemAdaptation, IenSectionItemAdaptation>() {
     /**
      * Cupertino 적응성 설정 메서드
      *
@@ -200,10 +196,10 @@ internal class SectionItemAdaptation: Adaptation<HigSectionItemAdaptation, M3Sec
      * @return Material3 섹션 항목 적응성 객체
      */
     @Composable
-    override fun rememberMaterialAdaptation(): M3SectionItemAdaptation {
-        val colors = M3SectionLinkDefault.colors()
+    override fun rememberMaterialAdaptation(): IenSectionItemAdaptation {
+        val colors = IenSectionLinkDefault.colors()
         return remember(colors) {
-            M3SectionItemAdaptation(colors = colors)
+            IenSectionItemAdaptation(colors = colors)
         }
     }
 }
@@ -229,14 +225,14 @@ fun SectionScope.AdaptiveSectionSwitchItem(
     onCheckedChange: (Boolean) -> Unit,
     enabled: Boolean = true,
     supportingContent: @Composable (() -> Unit)? = null,
-    adaptation: AdaptationScope<HigSectionItemAdaptation, M3SectionItemAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<HigSectionItemAdaptation, IenSectionItemAdaptation>.() -> Unit = {},
     title: @Composable () -> Unit
 ) {
     AdaptiveWidget(
         adaptation = remember { SectionItemAdaptation() },
         adaptationScope = adaptation,
         material = {
-            M3SectionSwitchItem(
+            IenSectionSwitchItem(
                 modifier = modifier,
                 leadingContent = leadingContent,
                 checked = checked,
@@ -298,14 +294,14 @@ fun SectionScope.AdaptiveSectionCheckboxItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     supportingContent: @Composable (() -> Unit)? = null,
-    adaptation: AdaptationScope<HigSectionItemAdaptation, M3SectionItemAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<HigSectionItemAdaptation, IenSectionItemAdaptation>.() -> Unit = {},
     title: @Composable () -> Unit
 ) {
     AdaptiveWidget(
         adaptation = remember { SectionItemAdaptation() },
         adaptationScope = adaptation,
         material = {
-            M3SectionCheckboxItem(
+            IenSectionCheckboxItem(
                 modifier = modifier,
                 leadingContent = leadingContent,
                 checked = checked,
@@ -396,13 +392,13 @@ fun SectionScope.AdaptiveSectionTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    adaptation: AdaptationScope<HigSectionTextFieldAdaptation, M3SectionTextFieldAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<HigSectionTextFieldAdaptation, IenSectionTextFieldAdaptation>.() -> Unit = {},
 ) {
     AdaptiveWidget(
         adaptation = remember { SectionTextFieldAdaptation() },
         adaptationScope = adaptation,
         material = {
-            M3SectionTextField(
+            IenSectionTextField(
                 value = value,
                 onValueChange = onValueChange,
                 modifier = modifier,
@@ -421,7 +417,6 @@ fun SectionScope.AdaptiveSectionTextField(
                 maxLines = maxLines,
                 minLines = minLines,
                 interactionSource = interactionSource,
-                colors = it.colors
             )
         },
         cupertino = {
@@ -500,13 +495,13 @@ fun SectionScope.AdaptiveSectionSecureTextField(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     textObfuscationMode: TextObfuscationMode = TextObfuscationMode.RevealLastTyped,
     textObfuscationCharacter: Char = '\u2022',
-    adaptation: AdaptationScope<HigSectionTextFieldAdaptation, M3SectionTextFieldAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<HigSectionTextFieldAdaptation, IenSectionTextFieldAdaptation>.() -> Unit = {},
 ) {
     AdaptiveWidget(
         adaptation = remember { SectionTextFieldAdaptation() },
         adaptationScope = adaptation,
         material = {
-            M3SectionSecureTextField(
+            IenSectionSecureTextField(
                 state = state,
                 modifier = modifier,
                 enabled = enabled,
@@ -519,7 +514,6 @@ fun SectionScope.AdaptiveSectionSecureTextField(
                 isError = isError,
                 keyboardOptions = keyboardOptions,
                 interactionSource = interactionSource,
-                colors = it.colors,
                 textObfuscationMode = textObfuscationMode,
                 textObfuscationCharacter = textObfuscationCharacter,
             )
@@ -603,13 +597,13 @@ fun SectionScope.AdaptiveSectionTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    adaptation: AdaptationScope<HigSectionTextFieldAdaptation, M3SectionTextFieldAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<HigSectionTextFieldAdaptation, IenSectionTextFieldAdaptation>.() -> Unit = {},
 ) {
     AdaptiveWidget(
         adaptation = remember { SectionTextFieldAdaptation() },
         adaptationScope = adaptation,
         material = {
-            M3SectionTextField(
+            IenSectionTextField(
                 value = value,
                 onValueChange = onValueChange,
                 modifier = modifier,
@@ -627,7 +621,6 @@ fun SectionScope.AdaptiveSectionTextField(
                 maxLines = maxLines,
                 minLines = minLines,
                 interactionSource = interactionSource,
-                colors = it.colors
             )
         },
         cupertino = {
@@ -662,15 +655,9 @@ fun SectionScope.AdaptiveSectionTextField(
 }
 
 /**
- * Material3 섹션 텍스트 필드 적응성 클래스
- *
- * @param colors 텍스트 필드 색상
+ * IEN 섹션 텍스트 필드 적응성 클래스
  */
-class M3SectionTextFieldAdaptation internal constructor(
-    colors: TextFieldColors
-) {
-    var colors by mutableStateOf(colors)
-}
+class IenSectionTextFieldAdaptation internal constructor()
 
 /**
  * HIG 섹션 텍스트 필드 적응성 클래스
@@ -687,7 +674,7 @@ class HigSectionTextFieldAdaptation internal constructor(
  * 섹션 텍스트 필드 적응성 클래스
  */
 @OptIn(ExperimentalAdaptiveApi::class)
-internal class SectionTextFieldAdaptation: Adaptation<HigSectionTextFieldAdaptation, M3SectionTextFieldAdaptation>() {
+internal class SectionTextFieldAdaptation: Adaptation<HigSectionTextFieldAdaptation, IenSectionTextFieldAdaptation>() {
     /**
      * Cupertino 적응성 설정 메서드
      *
@@ -703,13 +690,11 @@ internal class SectionTextFieldAdaptation: Adaptation<HigSectionTextFieldAdaptat
     /**
      * Material 적응성 설정 메서드
      *
-     * @return Material3 섹션 텍스트 필드 적응성 객체
+     * @return IEN 섹션 텍스트 필드 적응성 객체
      */
     @Composable
-    override fun rememberMaterialAdaptation(): M3SectionTextFieldAdaptation {
-        val colors = TextFieldDefaults.colors()
-
-        return remember(colors) { M3SectionTextFieldAdaptation(colors = colors) }
+    override fun rememberMaterialAdaptation(): IenSectionTextFieldAdaptation {
+        return remember { IenSectionTextFieldAdaptation() }
     }
 }
 
@@ -740,14 +725,14 @@ fun SectionScope.AdaptiveSectionLink(
     interactionSource: MutableInteractionSource? = null,
     caption: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = if (currentTheme == Theme.Material3) null else { { CupertinoSectionDefaults.LabelChevron() } },
-    adaptation: AdaptationScope<HigSectionLinkAdaptation, M3SectionLinkAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<HigSectionLinkAdaptation, IenSectionLinkAdaptation>.() -> Unit = {},
     title: @Composable () -> Unit,
 ) {
     AdaptiveWidget(
         adaptation = remember { SectionLinkAdaptation() },
         adaptationScope = adaptation,
         material = {
-            M3SectionLink(
+            IenSectionLink(
                 onClick = onClick,
                 modifier = modifier,
                 enabled = enabled,
@@ -794,8 +779,8 @@ fun SectionScope.AdaptiveSectionLink(
  *
  * @param colors 링크 색상
  */
-class M3SectionLinkAdaptation internal constructor(
-    colors: M3SectionColors
+class IenSectionLinkAdaptation internal constructor(
+    colors: IenSectionColors
 ) {
     var colors by mutableStateOf(colors)
 }
@@ -818,7 +803,7 @@ class HigSectionLinkAdaptation internal constructor(
  * 섹션 링크 적응성 클래스
  */
 @OptIn(ExperimentalAdaptiveApi::class)
-internal class SectionLinkAdaptation: Adaptation<HigSectionLinkAdaptation, M3SectionLinkAdaptation>() {
+internal class SectionLinkAdaptation: Adaptation<HigSectionLinkAdaptation, IenSectionLinkAdaptation>() {
     /**
      * Cupertino 적응성 설정 메서드
      *
@@ -842,9 +827,9 @@ internal class SectionLinkAdaptation: Adaptation<HigSectionLinkAdaptation, M3Sec
      * @return Material3 섹션 링크 적응성 객체
      */
     @Composable
-    override fun rememberMaterialAdaptation(): M3SectionLinkAdaptation {
-        val colors = M3SectionLinkDefault.colors()
-        return remember(colors) { M3SectionLinkAdaptation(colors = colors) }
+    override fun rememberMaterialAdaptation(): IenSectionLinkAdaptation {
+        val colors = IenSectionLinkDefault.colors()
+        return remember(colors) { IenSectionLinkAdaptation(colors = colors) }
     }
 }
 
@@ -864,18 +849,17 @@ fun SectionScope.AdaptiveSectionButton(
     onClick: () -> Unit,
     enabled: Boolean = true,
     label: @Composable () -> Unit,
-    adaptation: AdaptationScope<HigSectionButtonAdaptation, M3SectionButtonAdaptation>.() -> Unit = {}
+    adaptation: AdaptationScope<HigSectionButtonAdaptation, IenSectionButtonAdaptation>.() -> Unit = {}
 ) {
     AdaptiveWidget(
         adaptation = remember { SectionButtonAdaptation() },
         adaptationScope = adaptation,
         material = {
-            M3SectionButton(
+            IenSectionButton(
                 modifier = modifier,
                 onClick = onClick,
                 icon = it.icon,
                 enabled = enabled,
-                colors = it.colors,
                 label = label
             )
         },
@@ -904,17 +888,14 @@ fun SectionScope.AdaptiveSectionButton(
 }
 
 /**
- * Material3 섹션 버튼 적응성 클래스
+ * IEN 섹션 버튼 적응성 클래스
  *
  * @param icon 아이콘
- * @param colors 버튼 색상
  */
-class M3SectionButtonAdaptation internal constructor(
+class IenSectionButtonAdaptation internal constructor(
     icon: @Composable (() -> Unit)? = null,
-    colors: ButtonColors
 ) {
     var icon by mutableStateOf(icon)
-    var colors by mutableStateOf(colors)
 }
 
 /**
@@ -926,7 +907,7 @@ class HigSectionButtonAdaptation internal constructor()
  * 섹션 버튼 적응성 클래스
  */
 @OptIn(ExperimentalAdaptiveApi::class)
-internal class SectionButtonAdaptation: Adaptation<HigSectionButtonAdaptation, M3SectionButtonAdaptation>() {
+internal class SectionButtonAdaptation: Adaptation<HigSectionButtonAdaptation, IenSectionButtonAdaptation>() {
     /**
      * Cupertino 적응성 설정 메서드
      *
@@ -940,17 +921,15 @@ internal class SectionButtonAdaptation: Adaptation<HigSectionButtonAdaptation, M
     /**
      * Material 적응성 설정 메서드
      *
-     * @return Material3 섹션 버튼 적응성 객체
+     * @return IEN 섹션 버튼 적응성 객체
      */
     @Composable
-    override fun rememberMaterialAdaptation(): M3SectionButtonAdaptation {
+    override fun rememberMaterialAdaptation(): IenSectionButtonAdaptation {
         val icon: @Composable (() -> Unit)? = null
-        val colors = ButtonDefaults.buttonColors()
 
-        return remember(icon, colors) {
-            M3SectionButtonAdaptation(
+        return remember(icon) {
+            IenSectionButtonAdaptation(
                 icon = icon,
-                colors = colors
             )
         }
     }
@@ -977,12 +956,12 @@ fun SectionScope.AdaptiveSectionSlider(
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     @IntRange(from = 0) steps: Int = 0,
-    adaptation: AdaptationScope<HigSectionSliderAdaptation, M3SectionSliderAdaptation>.() -> Unit = {}
+    adaptation: AdaptationScope<HigSectionSliderAdaptation, IenSectionSliderAdaptation>.() -> Unit = {}
 ) {
     AdaptiveWidget(
         adaptation = remember { SectionSliderAdaptation() },
         material = {
-            M3SectionSlider(
+            IenSectionSlider(
                 modifier = modifier,
                 value = value,
                 onValueChange = onValueChange,
@@ -1043,7 +1022,7 @@ private fun SectionScope.AdaptiveSectionProgressBar(
             AdaptiveSectionItem(
                 title = {},
                 supportingContent = {
-                    LinearProgressIndicator()
+                    IenLinearProgressIndicator()
                 },
                 modifier = modifier
             )
@@ -1078,7 +1057,7 @@ class HigSectionSliderAdaptation(
  * @param title 제목
  * @param icon 아이콘
  */
-class M3SectionSliderAdaptation(
+class IenSectionSliderAdaptation(
     title: String? = null,
     icon: ImageVector?
 ) {
@@ -1091,7 +1070,7 @@ class M3SectionSliderAdaptation(
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
-private class SectionSliderAdaptation: Adaptation<HigSectionSliderAdaptation, M3SectionSliderAdaptation>() {
+private class SectionSliderAdaptation: Adaptation<HigSectionSliderAdaptation, IenSectionSliderAdaptation>() {
     /**
      * Cupertino 적응성 설정 메서드
      *
@@ -1115,12 +1094,12 @@ private class SectionSliderAdaptation: Adaptation<HigSectionSliderAdaptation, M3
      * @return Material3 섹션 슬라이더 적응성 객체
      */
     @Composable
-    override fun rememberMaterialAdaptation(): M3SectionSliderAdaptation {
+    override fun rememberMaterialAdaptation(): IenSectionSliderAdaptation {
         val title: String? = null
         val icon: ImageVector? = null
 
         return remember(title, icon) {
-            M3SectionSliderAdaptation(
+            IenSectionSliderAdaptation(
                 title, icon
             )
         }

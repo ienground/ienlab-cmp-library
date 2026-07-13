@@ -16,10 +16,10 @@ import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.ui.menu.IenDropdownMenu
 import zone.ien.utils.ui.menu.IenDropdownMenuItem
-import zone.ien.utils.ui.view.textfield.M3TextFieldIconButton
+import zone.ien.utils.ui.view.textfield.IenTextFieldIconButton
 
 /**
- * M3ExposedDropdownMenuBox은 노출된 드롭다운 메뉴 박스를 표시하기 위한 컴포저블입니다.
+ * IenExposedDropdownMenuBox은 노출된 드롭다운 메뉴 박스를 표시하기 위한 컴포저블입니다.
  *
  * @param modifier 적용할 Modifier
  * @param itemsWithLabels 아이템과 라벨의 매핑
@@ -31,7 +31,7 @@ import zone.ien.utils.ui.view.textfield.M3TextFieldIconButton
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T> M3ExposedDropdownMenuBox(
+fun <T> IenExposedDropdownMenuBox(
     modifier: Modifier = Modifier,
     itemsWithLabels: Map<T, String>,
     currentItem: T?,
@@ -40,7 +40,7 @@ fun <T> M3ExposedDropdownMenuBox(
         onClick: () -> Unit,
         expanded: Boolean
     ) -> Unit = { onClick, expanded ->
-        M3TextFieldIconButton(
+        IenTextFieldIconButton(
             onClick = onClick,
             icon = IconData.Vector(if (expanded) M3SystemIcons.ArrowDropUp else M3SystemIcons.ArrowDropDown)
         )
@@ -79,7 +79,7 @@ fun <T> M3ExposedDropdownMenuBox(
 }
 
 /**
- * M3ExposedDropdownMenuBox은 다중 선택 가능한 노출된 드롭다운 메뉴 박스를 표시하기 위한 컴포저블입니다.
+ * IenExposedDropdownMenuBox은 다중 선택 가능한 노출된 드롭다운 메뉴 박스를 표시하기 위한 컴포저블입니다.
  *
  * @param modifier 적용할 Modifier
  * @param itemsWithLabels 아이템과 라벨의 매핑
@@ -91,7 +91,7 @@ fun <T> M3ExposedDropdownMenuBox(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T> M3ExposedDropdownMenuBox(
+fun <T> IenExposedDropdownMenuBox(
     modifier: Modifier = Modifier,
     itemsWithLabels: Map<T, String>,
     currentItems: List<T>,
@@ -100,7 +100,7 @@ fun <T> M3ExposedDropdownMenuBox(
         onClick: () -> Unit,
         expanded: Boolean,
     ) -> Unit = { onClick, expanded ->
-        M3TextFieldIconButton(
+        IenTextFieldIconButton(
             onClick = onClick,
             icon = IconData.Vector(if (expanded) M3SystemIcons.ArrowDropUp else M3SystemIcons.ArrowDropDown)
         )

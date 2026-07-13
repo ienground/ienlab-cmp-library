@@ -1,4 +1,4 @@
-package zone.ien.utils.ui.components.interactive
+package zone.ien.utils.ui.interactive
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -12,11 +12,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.ui.components.foundation.IenSemanticTone
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.primitives.IenProvideTextStyle
-import zone.ien.utils.ui.components.primitives.IenSurface
-import zone.ien.utils.ui.components.primitives.IenText
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.primitives.IenText
 
 enum class IenBadgeSize { Small, Medium, Large }
 

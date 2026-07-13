@@ -8,12 +8,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,7 +47,8 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.ui.menu.M3DropdownMenu
+import zone.ien.utils.ui.menu.IenDropdownMenu
+import zone.ien.utils.ui.menu.IenDropdownMenuItem
 
 /**
  * 적응형 드롭다운 박스 컴포저블
@@ -129,7 +127,7 @@ fun AdaptiveDropdownMenu(
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(clippingEnabled = false),
-    adaptation: AdaptationScope<HigDropdownMenuAdaptation, M3DropdownMenuAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<HigDropdownMenuAdaptation, IenDropdownMenuAdaptation>.() -> Unit = {},
     items: List<DropdownMenuSection.Action>,
     sections: List<DropdownMenuSection>
 ) {
@@ -137,7 +135,7 @@ fun AdaptiveDropdownMenu(
         adaptation = remember { DropdownMenuAdaptation() },
         adaptationScope = adaptation,
         material = {
-            M3DropdownMenu(
+            IenDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = onDismissRequest,
                 modifier = modifier,
@@ -150,13 +148,13 @@ fun AdaptiveDropdownMenu(
                 shadowElevation = it.shadowElevation,
                 border = it.border,
                 content = {
-                    items.filter { it.visible }.forEach { it.M3Menu() }
+                    items.filter { it.visible }.forEach { it.IenMenu() }
                     sections.forEachIndexed { index, section ->
                         if (index != 0 || items.isNotEmpty()) {
                             HorizontalDivider()
                         }
                         section.title?.let { DropdownMenuSectionTitle(it) }
-                        section.items.filter { it.visible }.forEach { it.M3Menu() }
+                        section.items.filter { it.visible }.forEach { it.IenMenu() }
                     }
                 }
             )
@@ -216,7 +214,7 @@ fun AdaptiveDropdownMenuNative(
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(clippingEnabled = false),
-    adaptation: AdaptationScope<HigDropdownMenuAdaptation, M3DropdownMenuAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<HigDropdownMenuAdaptation, IenDropdownMenuAdaptation>.() -> Unit = {},
     items: List<DropdownMenuSectionNative.Action> = listOf(),
     sections: List<DropdownMenuSectionNative> = listOf()
 ) {
@@ -224,7 +222,7 @@ fun AdaptiveDropdownMenuNative(
         adaptation = remember { DropdownMenuAdaptation() },
         adaptationScope = adaptation,
         material = {
-            M3DropdownMenu(
+            IenDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = onDismissRequest,
                 modifier = modifier,
@@ -237,13 +235,13 @@ fun AdaptiveDropdownMenuNative(
                 shadowElevation = it.shadowElevation,
                 border = it.border,
                 content = {
-                    items.filter { it.visible }.forEach { it.M3Menu() }
+                    items.filter { it.visible }.forEach { it.IenMenu() }
                     sections.forEachIndexed { index, section ->
                         if (index != 0 || items.isNotEmpty()) {
                             HorizontalDivider()
                         }
                         section.title?.let { DropdownMenuSectionTitle { Text(text = it) } }
-                        section.items.filter { it.visible }.forEach { it.M3Menu() }
+                        section.items.filter { it.visible }.forEach { it.IenMenu() }
                     }
                 }
             )
@@ -317,7 +315,7 @@ data class DropdownMenuSectionNative(
 }
 
 @Composable
-private fun DropdownMenuSection.Action.M3Menu() = DropdownMenuItem(
+private fun DropdownMenuSection.Action.IenMenu() = IenDropdownMenuItem(
     text = text,
     onClick = onClick,
     modifier = modifier,
@@ -337,7 +335,7 @@ private fun CupertinoMenuScope.ActionToUIMenu(action: DropdownMenuSection.Action
 }
 
 @Composable
-private fun DropdownMenuSectionNative.Action.M3Menu() = DropdownMenuItem(
+private fun DropdownMenuSectionNative.Action.IenMenu() = IenDropdownMenuItem(
     text = { Text(text = text) },
     onClick = onClick,
     modifier = modifier,
@@ -365,7 +363,7 @@ private fun DropdownMenuSectionNative.Action.toUIMenu() = CupertinoMenuItemData(
     isDestructive = isDestructive
 )
 
-class M3DropdownMenuAdaptation internal constructor(
+class IenDropdownMenuAdaptation internal constructor(
     shape: Shape,
     containerColor: Color,
     tonalElevation: Dp,
@@ -392,7 +390,7 @@ class HigDropdownMenuAdaptation internal constructor(
 }
 
 @OptIn(ExperimentalAdaptiveApi::class)
-private class DropdownMenuAdaptation: Adaptation<HigDropdownMenuAdaptation, M3DropdownMenuAdaptation>() {
+private class DropdownMenuAdaptation: Adaptation<HigDropdownMenuAdaptation, IenDropdownMenuAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): HigDropdownMenuAdaptation {
         val paddingValues = CupertinoDropdownMenuDefaults.PaddingValues
@@ -411,7 +409,7 @@ private class DropdownMenuAdaptation: Adaptation<HigDropdownMenuAdaptation, M3Dr
     }
 
     @Composable
-    override fun rememberMaterialAdaptation(): M3DropdownMenuAdaptation {
+    override fun rememberMaterialAdaptation(): IenDropdownMenuAdaptation {
         val shape = MenuDefaults.shape
         val containerColor = MenuDefaults.containerColor
         val tonalElevation = MenuDefaults.TonalElevation
@@ -419,7 +417,7 @@ private class DropdownMenuAdaptation: Adaptation<HigDropdownMenuAdaptation, M3Dr
         val border: BorderStroke? = null
 
         return remember(shape, containerColor, tonalElevation, shadowElevation, border) {
-            M3DropdownMenuAdaptation(
+            IenDropdownMenuAdaptation(
                 shape = shape,
                 containerColor = containerColor,
                 tonalElevation = tonalElevation,

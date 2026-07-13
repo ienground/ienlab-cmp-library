@@ -18,11 +18,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.primitives.IenSurface
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenSurface
 
 @Composable
-internal fun M3IenDialogFrame(
+internal fun IenDialogFrame(
     visible: Boolean,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,

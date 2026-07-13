@@ -54,7 +54,7 @@ import zone.ien.utils.icon.material.filled.Delete
 import zone.ien.utils.icon.material.filled.Edit
 import zone.ien.utils.icon.material.filled.Save
 import zone.ien.utils.icon.material.filled.Schedule
-import zone.ien.utils.ui.components.foundation.IenTheme
+import zone.ien.utils.ui.foundation.IenTheme
 
 // ─── CompositionLocals ───────────────────────────────────────────────────────
 

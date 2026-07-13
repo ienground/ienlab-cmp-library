@@ -12,4 +12,4 @@ import androidx.compose.ui.unit.dp
  * 이 Local은 쉐이머 효과의 기본 모양을 제공합니다.
  * 기본값으로는 4.dp의 라운드 코너 모양이 적용됩니다.
  */
-val LocalM3ShimmerShape: ProvidableCompositionLocal<Shape> = staticCompositionLocalOf { RoundedCornerShape(4.dp) }
+val LocalIenShimmerShape: ProvidableCompositionLocal<Shape> = staticCompositionLocalOf { RoundedCornerShape(4.dp) }

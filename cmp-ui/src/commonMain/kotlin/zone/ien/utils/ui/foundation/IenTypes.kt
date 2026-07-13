@@ -1,4 +1,4 @@
-package zone.ien.utils.ui.components.foundation
+package zone.ien.utils.ui.foundation
 
 enum class IenSemanticTone {
     Neutral,

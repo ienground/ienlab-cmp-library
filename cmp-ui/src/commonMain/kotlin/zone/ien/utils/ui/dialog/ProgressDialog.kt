@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 /**
- * M3ProgressDialog은 진행 상태를 표시하는 다이얼로그를 제공하는 컴포저블입니다.
+ * IenProgressDialog은 진행 상태를 표시하는 다이얼로그를 제공하는 컴포저블입니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
@@ -24,13 +24,13 @@ import androidx.compose.ui.unit.dp
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun M3ProgressDialog(
+fun IenProgressDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     isLoadingIndicator: Boolean = true,
     isWavyIndicator: Boolean = true
 ) {
-    M3IenDialogFrame(
+    IenDialogFrame(
         visible = visible,
         onDismiss = {},
         modifier = modifier,
@@ -54,7 +54,7 @@ fun M3ProgressDialog(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun M3ProgressDialog(
+fun IenProgressDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     progress: () -> Float,
@@ -64,7 +64,7 @@ fun M3ProgressDialog(
         targetValue = progress.invoke().let { if (it > 1f) 1f else if (it < 0f) 0f else it }
     )
 
-    M3IenDialogFrame(
+    IenDialogFrame(
         visible = visible,
         onDismiss = {},
         modifier = modifier,

@@ -44,7 +44,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
-import zone.ien.utils.ui.components.foundation.IenTheme
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.conditional
 
 internal val DefaultMenuProperties = PopupProperties(
@@ -53,7 +53,7 @@ internal val DefaultMenuProperties = PopupProperties(
 )
 
 /**
- * M3DropdownMenu는 드롭다운 메뉴를 표시하기 위한 컴포저블입니다.
+ * IenDropdownMenu는 드롭다운 메뉴를 표시하기 위한 컴포저블입니다.
  *
  * @param expanded 드롭다운이 열려 있는지 여부
  * @param onDismissRequest 드롭다운을 닫기 위한 콜백 함수
@@ -159,43 +159,8 @@ fun IenDropdownMenu(
     }
 }
 
-@Composable
-fun M3DropdownMenu(
-    expanded: Boolean,
-    onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
-    offset: DpOffset = DpOffset(0.dp, 0.dp),
-    scrollState: ScrollState = rememberScrollState(),
-    properties: PopupProperties = DefaultMenuProperties,
-    shape: Shape = RoundedCornerShape(IenTheme.radius.lg),
-    containerColor: Color = IenTheme.colors.surfaceRaised,
-    tonalElevation: Dp = IenTheme.elevation.none,
-    shadowElevation: Dp = IenTheme.elevation.floating,
-    border: BorderStroke? = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border),
-    shadowPadding: Dp = 24.dp,
-    innerPadding: PaddingValues = PaddingValues(IenTheme.spacing.xxs),
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    IenDropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest,
-        modifier = modifier,
-        offset = offset,
-        scrollState = scrollState,
-        properties = properties,
-        shape = shape,
-        containerColor = containerColor,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
-        border = border,
-        shadowPadding = shadowPadding,
-        innerPadding = innerPadding,
-        content = content,
-    )
-}
-
 /**
- * M3DropdownMenuItem은 드롭다운 메뉴 항목을 표시하기 위한 컴포저블입니다.
+ * IenDropdownMenuItem은 드롭다운 메뉴 항목을 표시하기 위한 컴포저블입니다.
  *
  * @param text 항목 텍스트
  * @param onClick 항목 클릭 시 호출되는 콜백 함수
@@ -238,39 +203,5 @@ fun IenDropdownMenuItem(
         colors = colors,
         contentPadding = contentPadding,
         interactionSource = interactionSource
-    )
-}
-
-@Composable
-fun M3DropdownMenuItem(
-    text: @Composable () -> Unit,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    enabled: Boolean = true,
-    colors: MenuItemColors = MenuDefaults.itemColors(
-        textColor = IenTheme.colors.textPrimary,
-        leadingIconColor = IenTheme.colors.textSecondary,
-        trailingIconColor = IenTheme.colors.textSecondary,
-        disabledTextColor = IenTheme.colors.textDisabled,
-        disabledLeadingIconColor = IenTheme.colors.textDisabled,
-        disabledTrailingIconColor = IenTheme.colors.textDisabled,
-    ),
-    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.sm, vertical = IenTheme.spacing.xs),
-    shape: Shape? = RoundedCornerShape(IenTheme.radius.sm),
-    interactionSource: MutableInteractionSource? = null,
-) {
-    IenDropdownMenuItem(
-        text = text,
-        onClick = onClick,
-        modifier = modifier,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        enabled = enabled,
-        colors = colors,
-        contentPadding = contentPadding,
-        shape = shape,
-        interactionSource = interactionSource,
     )
 }

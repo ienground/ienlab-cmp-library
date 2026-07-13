@@ -35,8 +35,8 @@ import zone.ien.hig.section.rememberSectionState
 import zone.ien.hig.section.sectionContainerBackground
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.screen.LocalTopBarScaffoldScrollState
-import zone.ien.utils.ui.section.M3ProvideSectionStyle
-import zone.ien.utils.ui.section.M3Section
+import zone.ien.utils.ui.section.IenProvideSectionStyle
+import zone.ien.utils.ui.section.IenSection
 import zone.ien.utils.ui.section.m3SectionBackground
 import zone.ien.utils.ui.utils.conditional
 
@@ -82,7 +82,7 @@ fun AdaptiveProvideSectionStyle(
 ) {
     AdaptiveWidget(
         material = {
-            M3ProvideSectionStyle(
+            IenProvideSectionStyle(
                 modifier = modifier,
                 fullHeight = fullHeight,
                 scrollState = scrollState,
@@ -147,7 +147,7 @@ fun AdaptiveSection(
 ) {
     AdaptiveWidget(
         material = {
-            M3Section(
+            IenSection(
                 modifier = modifier,
                 title = title,
                 caption = caption,

@@ -1,4 +1,4 @@
-package zone.ien.utils.ui.components.composite
+package zone.ien.utils.ui.list
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -43,9 +43,9 @@ import zone.ien.utils.cmp_ui.generated.resources.state_collapsed
 import zone.ien.utils.cmp_ui.generated.resources.state_expanded
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.line.ArrowDownS
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.primitives.IenIcon
-import zone.ien.utils.ui.components.primitives.IenSurface
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.primitives.IenSurface
 
 @Stable
 interface IenBoardRowState {

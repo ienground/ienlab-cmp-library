@@ -22,7 +22,7 @@ import com.kyant.backdrop.backdrops.layerBackdrop
 import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationBarItem
 import zone.ien.hig.ExperimentalCupertinoApi
-import zone.ien.hig.adaptive.AdaptiveSwitch
+import zone.ien.utils.adaptive.component.AdaptiveSwitch
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.utils.rememberDefaultBackdrop
@@ -126,4 +126,3 @@ private fun ScreenPreview() {
         )
     }
 }
-

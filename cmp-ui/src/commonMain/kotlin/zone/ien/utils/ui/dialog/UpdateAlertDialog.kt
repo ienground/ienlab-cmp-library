@@ -10,7 +10,7 @@ import zone.ien.utils.cmp_ui.generated.resources.version_update_dialog_title
 import zone.ien.utils.icon.material.M3SystemIcons
 
 /**
- * M3UpdateAlertDialog은 앱 업데이트를 위한 다이얼로그 컴포저블입니다.
+ * IenUpdateAlertDialog은 앱 업데이트를 위한 다이얼로그 컴포저블입니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
@@ -18,13 +18,13 @@ import zone.ien.utils.icon.material.M3SystemIcons
  * @param onDismiss 다이얼로그를 닫기 위한 콜백 함수
  */
 @Composable
-fun M3UpdateAlertDialog(
+fun IenUpdateAlertDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     appName: String,
     onDismiss: () -> Unit,
 ) {
-    M3AlertDialog(
+    IenAlertDialog(
         modifier = modifier,
         visible = visible,
         icon = { Icon(imageVector = M3SystemIcons.Update, contentDescription = null) },

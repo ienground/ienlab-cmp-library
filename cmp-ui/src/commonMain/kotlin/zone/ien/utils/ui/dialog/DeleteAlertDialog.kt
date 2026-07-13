@@ -10,7 +10,7 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.icon.material.M3SystemIcons
 
 /**
- * M3DeleteAlertDialog은 항목 삭제 확인을 위한 다이얼로그 컴포저블입니다.
+ * IenDeleteAlertDialog은 항목 삭제 확인을 위한 다이얼로그 컴포저블입니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
@@ -19,14 +19,14 @@ import zone.ien.utils.icon.material.M3SystemIcons
  * @param enabledConfirm 확인 버튼의 활성화 여부
  */
 @Composable
-fun M3DeleteAlertDialog(
+fun IenDeleteAlertDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     enabledConfirm: Boolean = true
 ) {
-    M3AlertDialog(
+    IenAlertDialog(
         modifier = modifier,
         visible = visible,
         icon = { Icon(imageVector = M3SystemIcons.Delete, contentDescription = null) },

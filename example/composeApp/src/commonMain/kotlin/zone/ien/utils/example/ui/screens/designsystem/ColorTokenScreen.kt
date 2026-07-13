@@ -27,15 +27,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.ui.components.composite.IenScaffold
-import zone.ien.utils.ui.components.composite.IenScaffoldContentEdge
-import zone.ien.utils.ui.components.composite.IenTopBar
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.interactive.IenSwitch
-import zone.ien.utils.ui.components.interactive.IenTextButton
-import zone.ien.utils.ui.components.primitives.IenDivider
-import zone.ien.utils.ui.components.primitives.IenSurface
-import zone.ien.utils.ui.components.primitives.IenText
+import zone.ien.utils.ui.screen.IenScaffold
+import zone.ien.utils.ui.screen.IenScaffoldContentEdge
+import zone.ien.utils.ui.screen.IenTopBar
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenSwitch
+import zone.ien.utils.ui.interactive.IenTextButton
+import zone.ien.utils.ui.primitives.IenDivider
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.primitives.IenText
 
 @Composable
 fun ColorTokenScreen(

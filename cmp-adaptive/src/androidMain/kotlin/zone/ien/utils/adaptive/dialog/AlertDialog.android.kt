@@ -2,7 +2,7 @@ package zone.ien.utils.adaptive.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import zone.ien.utils.ui.dialog.M3AlertDialog
+import zone.ien.utils.ui.dialog.IenAlertDialog
 
 /**
  * 알림 다이얼로그 컴포저블 (안드로이드 플랫폼 구현)
@@ -28,7 +28,7 @@ actual fun AlertDialog(
     styleDismiss: UIAlertActionStyle,
     onDismiss: (() -> Unit)?
 ) {
-    M3AlertDialog(
+    IenAlertDialog(
         modifier = modifier,
         visible = visible,
         icon = icon,
@@ -71,7 +71,7 @@ actual fun AlertDialog(
     onConfirm: () -> Unit,
     enabledConfirm: Boolean
 ) {
-    M3AlertDialog(
+    IenAlertDialog(
         modifier = modifier,
         visible = visible,
         icon = icon,
@@ -125,7 +125,7 @@ actual fun AlertDialog(
     onPositive: () -> Unit,
     enabledPositive: Boolean
 ) {
-    M3AlertDialog(
+    IenAlertDialog(
         modifier = modifier,
         visible = visible,
         icon = icon,

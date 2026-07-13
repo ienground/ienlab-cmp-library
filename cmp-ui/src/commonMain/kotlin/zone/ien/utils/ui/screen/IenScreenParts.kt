@@ -1,4 +1,4 @@
-package zone.ien.utils.ui.components.composite
+package zone.ien.utils.ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -94,25 +94,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.ui.components.foundation.IenSemanticTone
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.interactive.IenButton
-import zone.ien.utils.ui.components.interactive.IenButtonSize
-import zone.ien.utils.ui.components.interactive.IenButtonVariant
-import zone.ien.utils.ui.components.interactive.IenButtonDisplay
-import zone.ien.utils.ui.components.interactive.IenBadge
-import zone.ien.utils.ui.components.interactive.IenBadgeSize
-import zone.ien.utils.ui.components.interactive.IenBadgeVariant
-import zone.ien.utils.ui.components.interactive.IenButtonState
-import zone.ien.utils.ui.components.interactive.LocalIenButtonPressedReporter
-import zone.ien.utils.ui.components.interactive.LocalIenButtonScalePressedOverride
-import zone.ien.utils.ui.components.interactive.IenTextButton
-import zone.ien.utils.ui.components.interactive.IenTextButtonSize
-import zone.ien.utils.ui.components.interactive.IenTextButtonVariant
-import zone.ien.utils.ui.components.primitives.IenDivider
-import zone.ien.utils.ui.components.primitives.IenProvideTextStyle
-import zone.ien.utils.ui.components.primitives.IenSurface
-import zone.ien.utils.ui.components.primitives.IenText
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenButton
+import zone.ien.utils.ui.interactive.IenButtonSize
+import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenButtonDisplay
+import zone.ien.utils.ui.interactive.IenBadge
+import zone.ien.utils.ui.interactive.IenBadgeSize
+import zone.ien.utils.ui.interactive.IenBadgeVariant
+import zone.ien.utils.ui.interactive.IenButtonState
+import zone.ien.utils.ui.interactive.LocalIenButtonPressedReporter
+import zone.ien.utils.ui.interactive.LocalIenButtonScalePressedOverride
+import zone.ien.utils.ui.interactive.IenTextButton
+import zone.ien.utils.ui.interactive.IenTextButtonSize
+import zone.ien.utils.ui.interactive.IenTextButtonVariant
+import zone.ien.utils.ui.primitives.IenDivider
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.primitives.IenText
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.foundation.layout.fillMaxSize
@@ -130,8 +130,8 @@ import zone.ien.utils.cmp_ui.generated.resources.agreement_required
 import zone.ien.utils.cmp_ui.generated.resources.agreement_terms
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.line.ArrowDownWide
-import zone.ien.utils.ui.components.interactive.IenCircleCheckbox
-import zone.ien.utils.ui.components.interactive.IenDotCheckbox
+import zone.ien.utils.ui.interactive.IenCircleCheckbox
+import zone.ien.utils.ui.interactive.IenDotCheckbox
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
 enum class IenTopBarTitleAlignment {
@@ -1191,7 +1191,7 @@ private fun IenTooltipPopup(
     val backgroundColor = if (isNeutral) {
         Color.White
     } else {
-        zone.ien.utils.ui.components.interactive.toneColor(tone)
+        zone.ien.utils.ui.interactive.toneColor(tone)
     }
     val contentColor = if (isNeutral) {
         IenTheme.colors.textPrimary

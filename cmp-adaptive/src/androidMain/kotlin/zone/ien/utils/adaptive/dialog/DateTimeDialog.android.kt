@@ -4,8 +4,8 @@ import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.SelectableDates
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import zone.ien.utils.ui.dialog.M3DatePickerDialog
-import zone.ien.utils.ui.dialog.M3TimePickerDialog
+import zone.ien.utils.ui.dialog.IenDatePickerDialog
+import zone.ien.utils.ui.dialog.IenTimePickerDialog
 
 @Composable
 actual fun DatePickerDialog(
@@ -20,7 +20,7 @@ actual fun DatePickerDialog(
     onDismiss: () -> Unit,
     onConfirm: (Long) -> Unit
 ) {
-    M3DatePickerDialog(
+    IenDatePickerDialog(
         modifier = modifier,
         visible = visible,
         initialSelectedDateMillis = initialSelectedDateMillis,
@@ -45,7 +45,7 @@ actual fun TimePickerDialog(
     onDismiss: () -> Unit,
     onConfirm: (Int, Int) -> Unit
 ) {
-    M3TimePickerDialog(
+    IenTimePickerDialog(
         modifier = modifier,
         visible = visible,
         initialHour = initialHour,

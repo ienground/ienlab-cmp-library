@@ -2,7 +2,7 @@ package zone.ien.utils.adaptive.select
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import zone.ien.utils.ui.select.M3ExposedDropdownMenuBox
+import zone.ien.utils.ui.select.IenExposedDropdownMenuBox
 
 /**
  * @param title is not used at Android.
@@ -18,7 +18,7 @@ actual fun <T> ExposedDropdownMenuBox(
     dropdownMenuItem: @Composable (text: @Composable () -> Unit, onClick: () -> Unit) -> Unit,
     textField: @Composable (value: String, trailingIcon: @Composable () -> Unit) -> Unit
 ) {
-    M3ExposedDropdownMenuBox(
+    IenExposedDropdownMenuBox(
         modifier = modifier,
         itemsWithLabels = itemsWithLabels,
         currentItem = currentItem,
@@ -43,7 +43,7 @@ actual fun <T> ExposedDropdownMenuBox(
     dropdownMenuItem: @Composable (text: @Composable () -> Unit, onClick: () -> Unit, checked: Boolean) -> Unit,
     textField: @Composable (value: String, trailingIcon: @Composable () -> Unit) -> Unit
 ) {
-    M3ExposedDropdownMenuBox(
+    IenExposedDropdownMenuBox(
         modifier = modifier,
         itemsWithLabels = itemsWithLabels,
         currentItems = currentItems,

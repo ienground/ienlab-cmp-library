@@ -1,4 +1,4 @@
-package zone.ien.utils.ui.components.interactive
+package zone.ien.utils.ui.interactive
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -33,9 +33,9 @@ import zone.ien.utils.cmp_ui.generated.resources.korean
 import zone.ien.utils.cmp_ui.generated.resources.space
 import zone.ien.utils.cmp_ui.generated.resources.special
 import zone.ien.utils.cmp_ui.generated.resources.submit
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.primitives.IenSurface
-import zone.ien.utils.ui.components.primitives.IenText
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.primitives.IenText
 import kotlin.random.Random
 
 sealed interface IenKeyboardAction {

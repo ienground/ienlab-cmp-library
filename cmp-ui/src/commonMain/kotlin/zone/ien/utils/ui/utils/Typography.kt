@@ -5,10 +5,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import zone.ien.utils.ui.components.foundation.IenTheme
+import zone.ien.utils.ui.foundation.IenTheme
 
 /**
- * getM3Typography은 Material Design 3 타이포그래피를 반환하는 함수입니다.
+ * getIenTypography은 Material Design 3 타이포그래피를 반환하는 함수입니다.
  * 
  * 이 함수는 IenTheme.typography를 기반으로 제공된 폰트 패밀리를 적용하여
  * 타이포그래피를 반환합니다.
@@ -17,7 +17,7 @@ import zone.ien.utils.ui.components.foundation.IenTheme
  * @return M3 타이포그래피
  */
 @Composable
-fun getM3Typography(fontFamily: FontFamily? = null): Typography {
+fun getIenTypography(fontFamily: FontFamily? = null): Typography {
     fun TextStyle.withFontFamily(): TextStyle =
         fontFamily?.let { copy(fontFamily = it) } ?: this
 

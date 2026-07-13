@@ -26,9 +26,9 @@ import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastSumBy
 import zone.ien.hig.section.SectionScope
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.primitives.IenProvideTextStyle
-import zone.ien.utils.ui.components.primitives.IenSurface
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.utils.conditional
 
 /**
@@ -67,7 +67,7 @@ fun Modifier.m3SectionBackground(): Modifier {
  * @param content 섹션의 내용을 표시하는 컴포저블 블록
  */
 @Composable
-fun M3ProvideSectionStyle(
+fun IenProvideSectionStyle(
     modifier: Modifier = Modifier,
     fullHeight: Boolean = true,
     scrollState: ScrollState? = rememberScrollState(),
@@ -108,7 +108,7 @@ fun M3ProvideSectionStyle(
  * @param content 섹션의 내용을 정의하는 SectionScope 블록
  */
 @Composable
-fun M3Section(
+fun IenSection(
     modifier: Modifier = Modifier,
     title: (@Composable () -> Unit)? = null,
     caption: (@Composable () -> Unit)? = null,

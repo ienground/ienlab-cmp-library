@@ -27,7 +27,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +42,6 @@ import androidx.compose.ui.util.fastMapIndexed
 import androidx.navigation3.runtime.NavBackStack
 import com.kyant.backdrop.backdrops.layerBackdrop
 import kotlinx.coroutines.launch
-import zone.ien.hig.adaptive.AdaptiveSwitch
 import zone.ien.hig.adaptive.AdaptiveTextButton
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
@@ -51,6 +49,7 @@ import zone.ien.hig.adaptive.currentTheme
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
+import zone.ien.utils.adaptive.component.AdaptiveSwitch
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.adaptive.view.AdaptiveDropdownBox
 import zone.ien.utils.adaptive.view.AdaptiveDropdownMenuNative
@@ -62,10 +61,10 @@ import zone.ien.utils.ui.screen.TopBarSize
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.navigation.result.ResultStore
-import zone.ien.utils.ui.components.interactive.IenButton
-import zone.ien.utils.ui.components.interactive.IenButtonDisplay
-import zone.ien.utils.ui.components.interactive.IenButtonSize
-import zone.ien.utils.ui.components.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenButton
+import zone.ien.utils.ui.interactive.IenButtonDisplay
+import zone.ien.utils.ui.interactive.IenButtonSize
+import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.utils.moveToBackground
 import zone.ien.utils.utils.shareText
@@ -244,7 +243,6 @@ fun HomeScreen(
             adaptation = {
                 material {
                     size = TopBarSize.Medium
-                    scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
                     isCenterAligned = true
                     scrollableState = scrollState
                 }
@@ -440,7 +438,7 @@ fun HomeScreen(
                 }
                 Box(
                     modifier = Modifier
-                        .clickable { backStack.add(RootRoute.M3Playground) }
+                        .clickable { backStack.add(RootRoute.IenPlayground) }
                         .fillMaxWidth()
                         .height(400.dp)
                         .background(Color(0xFF8B5CF6))

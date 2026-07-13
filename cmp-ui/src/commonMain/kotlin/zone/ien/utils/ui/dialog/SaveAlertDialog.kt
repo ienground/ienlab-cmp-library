@@ -13,7 +13,7 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.icon.material.M3SystemIcons
 
 /**
- * M3SaveAlertDialog은 데이터 저장 확인을 위한 다이얼로그 컴포저블입니다.
+ * IenSaveAlertDialog은 데이터 저장 확인을 위한 다이얼로그 컴포저블입니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
@@ -24,7 +24,7 @@ import zone.ien.utils.icon.material.M3SystemIcons
  * @param enabledSave 저장 버튼의 활성화 여부
  */
 @Composable
-fun M3SaveAlertDialog(
+fun IenSaveAlertDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     onCancel: () -> Unit,
@@ -33,7 +33,7 @@ fun M3SaveAlertDialog(
     onSave: () -> Unit,
     enabledSave: Boolean = true,
 ) {
-    M3AlertDialog(
+    IenAlertDialog(
         modifier = modifier,
         visible = visible,
         icon = { Icon(imageVector = M3SystemIcons.Save, contentDescription = null) },

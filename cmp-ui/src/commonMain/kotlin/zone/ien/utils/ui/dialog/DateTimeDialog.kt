@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -18,6 +19,7 @@ import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
+import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,20 +34,20 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
 import zone.ien.utils.cmp_ui.generated.resources.ok
 import zone.ien.utils.icon.material.M3SystemIcons
-import zone.ien.utils.ui.components.composite.IenAlertDialogTitle
-import zone.ien.utils.ui.components.composite.IenConfirmDialogCancelButton
-import zone.ien.utils.ui.components.foundation.IenSemanticTone
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.interactive.IenButton
-import zone.ien.utils.ui.components.interactive.IenButtonDisplay
-import zone.ien.utils.ui.components.interactive.IenButtonSize
-import zone.ien.utils.ui.components.interactive.IenButtonState
-import zone.ien.utils.ui.components.interactive.IenButtonVariant
-import zone.ien.utils.ui.components.interactive.IenIconButton
+import zone.ien.utils.ui.dialog.IenAlertDialogTitle
+import zone.ien.utils.ui.dialog.IenConfirmDialogCancelButton
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenButton
+import zone.ien.utils.ui.interactive.IenButtonDisplay
+import zone.ien.utils.ui.interactive.IenButtonSize
+import zone.ien.utils.ui.interactive.IenButtonState
+import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.utils.rememberMyDatePickerState
 
 /**
- * M3DatePickerDialog은 날짜 선택 다이얼로그를 제공하는 컴포저블입니다.
+ * IenDatePickerDialog은 날짜 선택 다이얼로그를 제공하는 컴포저블입니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
@@ -60,7 +62,7 @@ import zone.ien.utils.ui.utils.rememberMyDatePickerState
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun M3DatePickerDialog(
+fun IenDatePickerDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     initialSelectedDateMillis: Long? = null,
@@ -81,7 +83,7 @@ fun M3DatePickerDialog(
             selectableDates = selectableDates
         )
 
-        M3IenDialogFrame(
+        IenDialogFrame(
             visible = visible,
             onDismiss = onDismiss,
             modifier = modifier,
@@ -100,32 +102,9 @@ fun M3DatePickerDialog(
                 Box(
                     modifier = Modifier.weight(1f, fill = false)
                 ) {
-                    DatePicker(
+                    IenDatePicker(
                         state = datePickerState,
-                        colors = DatePickerDefaults.colors(
-                            containerColor = IenTheme.colors.surfaceRaised,
-                            titleContentColor = IenTheme.colors.textPrimary,
-                            headlineContentColor = IenTheme.colors.textPrimary,
-                            weekdayContentColor = IenTheme.colors.textSecondary,
-                            subheadContentColor = IenTheme.colors.textSecondary,
-                            navigationContentColor = IenTheme.colors.textPrimary,
-                            currentYearContentColor = IenTheme.colors.brand,
-                            selectedYearContentColor = IenTheme.colors.onBrand,
-                            selectedYearContainerColor = IenTheme.colors.brand,
-                            selectedDayContentColor = IenTheme.colors.onBrand,
-                            selectedDayContainerColor = IenTheme.colors.brand,
-                            todayContentColor = IenTheme.colors.brand,
-                            todayDateBorderColor = IenTheme.colors.brand,
-                            dividerColor = IenTheme.colors.border,
-                        ),
-                        title = {
-                            IenAlertDialogTitle(
-                                text = title,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 24.dp, end = 24.dp, top = 16.dp)
-                            )
-                        },
+                        title = title,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -158,7 +137,7 @@ fun M3DatePickerDialog(
 }
 
 /**
- * M3TimePickerDialog은 시간 선택 다이얼로그를 제공하는 컴포저블입니다.
+ * IenTimePickerDialog은 시간 선택 다이얼로그를 제공하는 컴포저블입니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
@@ -171,7 +150,7 @@ fun M3DatePickerDialog(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun M3TimePickerDialog(
+fun IenTimePickerDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     initialHour: Int,
@@ -189,7 +168,7 @@ fun M3TimePickerDialog(
         )
         var isTimePickerDial by remember { mutableStateOf(true) }
 
-        M3IenDialogFrame(
+        IenDialogFrame(
             visible = visible,
             onDismiss = onDismiss,
             modifier = modifier,
@@ -198,31 +177,18 @@ fun M3TimePickerDialog(
             usePlatformDefaultWidth = false,
             horizontalMargin = 16.dp,
         ) {
-            val timePickerColors = TimePickerDefaults.colors(
-                selectorColor = IenTheme.colors.brand,
-                clockDialSelectedContentColor = IenTheme.colors.onBrand,
-                clockDialUnselectedContentColor = IenTheme.colors.textPrimary,
-                timeSelectorSelectedContainerColor = IenTheme.colors.brandWeak,
-                timeSelectorSelectedContentColor = IenTheme.colors.brand,
-                timeSelectorUnselectedContainerColor = IenTheme.colors.surfaceWeak,
-                timeSelectorUnselectedContentColor = IenTheme.colors.textPrimary,
-                periodSelectorSelectedContainerColor = IenTheme.colors.brandWeak,
-                periodSelectorSelectedContentColor = IenTheme.colors.brand,
-                periodSelectorUnselectedContainerColor = IenTheme.colors.surfaceRaised,
-                periodSelectorUnselectedContentColor = IenTheme.colors.textPrimary,
-            )
             IenAlertDialogTitle(text = title)
             if (isTimePickerDial) {
-                TimePicker(
+                IenTimePicker(
                     state = timePickerState,
+                    isDial = true,
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    colors = timePickerColors,
                 )
             } else {
-                TimeInput(
+                IenTimePicker(
                     state = timePickerState,
+                    isDial = false,
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    colors = timePickerColors,
                 )
             }
             Row(
@@ -262,5 +228,92 @@ fun M3TimePickerDialog(
                 )
             }
         }
+    }
+}
+
+/**
+ * IenDatePicker는 IEN 색상 체계를 적용한 날짜 선택 컴포넌트입니다.
+ *
+ * @param state 날짜 선택 상태
+ * @param modifier 적용할 Modifier
+ * @param title 상단 제목
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun IenDatePicker(
+    state: DatePickerState,
+    modifier: Modifier = Modifier,
+    title: String,
+) {
+    DatePicker(
+        state = state,
+        colors = DatePickerDefaults.colors(
+            containerColor = IenTheme.colors.surfaceRaised,
+            titleContentColor = IenTheme.colors.textPrimary,
+            headlineContentColor = IenTheme.colors.textPrimary,
+            weekdayContentColor = IenTheme.colors.textSecondary,
+            subheadContentColor = IenTheme.colors.textSecondary,
+            navigationContentColor = IenTheme.colors.textPrimary,
+            currentYearContentColor = IenTheme.colors.brand,
+            selectedYearContentColor = IenTheme.colors.onBrand,
+            selectedYearContainerColor = IenTheme.colors.brand,
+            selectedDayContentColor = IenTheme.colors.onBrand,
+            selectedDayContainerColor = IenTheme.colors.brand,
+            todayContentColor = IenTheme.colors.brand,
+            todayDateBorderColor = IenTheme.colors.brand,
+            dividerColor = IenTheme.colors.border,
+        ),
+        title = {
+            IenAlertDialogTitle(
+                text = title,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 24.dp, end = 24.dp, top = 16.dp)
+            )
+        },
+        modifier = modifier,
+    )
+}
+
+/**
+ * IenTimePicker는 IEN 색상 체계를 적용한 시간 선택 컴포넌트입니다.
+ *
+ * @param state 시간 선택 상태
+ * @param modifier 적용할 Modifier
+ * @param isDial 다이얼 방식 사용 여부
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun IenTimePicker(
+    state: TimePickerState,
+    modifier: Modifier = Modifier,
+    isDial: Boolean = true,
+) {
+    val timePickerColors = TimePickerDefaults.colors(
+        selectorColor = IenTheme.colors.brand,
+        clockDialSelectedContentColor = IenTheme.colors.onBrand,
+        clockDialUnselectedContentColor = IenTheme.colors.textPrimary,
+        timeSelectorSelectedContainerColor = IenTheme.colors.brandWeak,
+        timeSelectorSelectedContentColor = IenTheme.colors.brand,
+        timeSelectorUnselectedContainerColor = IenTheme.colors.surfaceWeak,
+        timeSelectorUnselectedContentColor = IenTheme.colors.textPrimary,
+        periodSelectorSelectedContainerColor = IenTheme.colors.brandWeak,
+        periodSelectorSelectedContentColor = IenTheme.colors.brand,
+        periodSelectorUnselectedContainerColor = IenTheme.colors.surfaceRaised,
+        periodSelectorUnselectedContentColor = IenTheme.colors.textPrimary,
+    )
+
+    if (isDial) {
+        TimePicker(
+            state = state,
+            modifier = modifier,
+            colors = timePickerColors,
+        )
+    } else {
+        TimeInput(
+            state = state,
+            modifier = modifier,
+            colors = timePickerColors,
+        )
     }
 }

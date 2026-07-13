@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import zone.ien.utils.ui.components.foundation.IenTheme
+import zone.ien.utils.ui.foundation.IenTheme
 
 /**
  * Material3 링크 아이콘 컴포저블
@@ -36,7 +36,7 @@ import zone.ien.utils.ui.components.foundation.IenTheme
  * @param contentDescription 콘텐츠 설명
  */
 @Composable
-fun M3LinkIcon(
+fun IenLinkIcon(
     painter: Painter,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialLabelIconDefaults.ContainerColor,
@@ -68,14 +68,14 @@ fun M3LinkIcon(
  * @param contentDescription 콘텐츠 설명
  */
 @Composable
-fun M3LinkIcon(
+fun IenLinkIcon(
     imageVector: ImageVector,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialLabelIconDefaults.ContainerColor,
     tint: Color = MaterialLabelIconDefaults.Tint,
     shape: Shape = MaterialLabelIconDefaults.Shape,
     contentDescription: String? = null,
-) = M3LinkIcon(
+) = IenLinkIcon(
     painter = rememberVectorPainter(imageVector),
     modifier = modifier,
     containerColor = containerColor,
@@ -96,7 +96,7 @@ fun M3LinkIcon(
  * @param shape 아이콘의 모양
  */
 @Composable
-fun M3LinkIconText(
+fun IenLinkIconText(
     text: String,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialLabelIconDefaults.ContainerColor,

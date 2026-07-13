@@ -1,4 +1,4 @@
-package zone.ien.utils.ui.components.interactive
+package zone.ien.utils.ui.interactive
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -68,15 +68,15 @@ import zone.ien.utils.cmp_ui.generated.resources.show
 import zone.ien.utils.cmp_ui.generated.resources.show_password
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.fill.Close
-import zone.ien.utils.ui.components.foundation.IenTheme
+import zone.ien.utils.ui.foundation.IenTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
 import zone.ien.utils.icon.remix.line.ArrowDownWide
 import zone.ien.utils.icon.remix.line.Search
-import zone.ien.utils.ui.components.primitives.IenDivider
-import zone.ien.utils.ui.components.primitives.IenIcon
-import zone.ien.utils.ui.components.primitives.IenSurface
-import zone.ien.utils.ui.components.primitives.IenText
+import zone.ien.utils.ui.primitives.IenDivider
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.primitives.IenText
 
 sealed interface IenFieldStatus {
     data object Normal : IenFieldStatus

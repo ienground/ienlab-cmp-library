@@ -1,4 +1,4 @@
-package zone.ien.utils.ui.components.interactive
+package zone.ien.utils.ui.interactive
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -6,10 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.Canvas
@@ -22,6 +18,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -65,10 +63,10 @@ import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.fill.Check
 import zone.ien.utils.icon.remix.fill.Close
 import kotlin.math.roundToInt
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.primitives.IenIcon
-import zone.ien.utils.ui.components.primitives.IenSurface
-import zone.ien.utils.ui.components.primitives.IenText
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.primitives.IenText
 
 @Composable
 fun IenSwitch(
@@ -89,8 +87,14 @@ fun IenSwitch(
         colors = SwitchDefaults.colors(
             checkedThumbColor = IenTheme.colors.surface,
             checkedTrackColor = IenTheme.colors.brand,
+            checkedBorderColor = IenTheme.colors.brand,
             uncheckedThumbColor = IenTheme.colors.surface,
             uncheckedTrackColor = IenTheme.colors.borderStrong,
+            uncheckedBorderColor = IenTheme.colors.borderStrong,
+            disabledCheckedThumbColor = IenTheme.colors.surface,
+            disabledCheckedTrackColor = IenTheme.colors.brand.copy(alpha = IenTheme.state.disabledAlpha),
+            disabledUncheckedThumbColor = IenTheme.colors.surface,
+            disabledUncheckedTrackColor = IenTheme.colors.borderStrong.copy(alpha = IenTheme.state.disabledAlpha),
         ),
     )
 }

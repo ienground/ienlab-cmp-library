@@ -27,20 +27,20 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
 import zone.ien.utils.cmp_ui.generated.resources.ok
-import zone.ien.utils.ui.components.composite.IenAlertDialogDescription
-import zone.ien.utils.ui.components.composite.IenAlertDialogTitle
-import zone.ien.utils.ui.components.composite.IenConfirmDialogCancelButton
-import zone.ien.utils.ui.components.foundation.IenSemanticTone
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.interactive.IenButton
-import zone.ien.utils.ui.components.interactive.IenButtonDisplay
-import zone.ien.utils.ui.components.interactive.IenButtonSize
-import zone.ien.utils.ui.components.interactive.IenButtonState
-import zone.ien.utils.ui.components.interactive.IenButtonVariant
+import zone.ien.utils.ui.dialog.IenAlertDialogDescription
+import zone.ien.utils.ui.dialog.IenAlertDialogTitle
+import zone.ien.utils.ui.dialog.IenConfirmDialogCancelButton
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenButton
+import zone.ien.utils.ui.interactive.IenButtonDisplay
+import zone.ien.utils.ui.interactive.IenButtonSize
+import zone.ien.utils.ui.interactive.IenButtonState
+import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.utils.TextFieldDialogData
 
 /**
- * M3BaseTextFieldDialog은 텍스트 필드 다이얼로그의 기본 구조를 정의하는 컴포저블입니다.
+ * IenBaseTextFieldDialog은 텍스트 필드 다이얼로그의 기본 구조를 정의하는 컴포저블입니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
@@ -52,7 +52,7 @@ import zone.ien.utils.ui.utils.TextFieldDialogData
  * @param buttons 다이얼로그의 버튼을 나타내는 Composable
  */
 @Composable
-fun M3BaseTextFieldDialog(
+fun IenBaseTextFieldDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     icon: @Composable (() -> Unit)? = null,
@@ -62,7 +62,7 @@ fun M3BaseTextFieldDialog(
     textFields: @Composable ColumnScope.() -> Unit,
     buttons: @Composable RowScope.() -> Unit
 ) {
-    M3IenDialogFrame(
+    IenDialogFrame(
         visible = visible,
         onDismiss = onDismiss,
         modifier = modifier,
@@ -104,7 +104,7 @@ fun M3BaseTextFieldDialog(
 }
 
 /**
- * M3TextFieldDialog은 사용자 입력을 받기 위한 텍스트 필드 다이얼로그 컴포저블입니다.
+ * IenTextFieldDialog은 사용자 입력을 받기 위한 텍스트 필드 다이얼로그 컴포저블입니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
@@ -118,7 +118,7 @@ fun M3BaseTextFieldDialog(
  * @param onConfirm 입력 데이터를 처리하기 위한 콜백 함수
  */
 @Composable
-fun M3TextFieldDialog(
+fun IenTextFieldDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     icon: @Composable (() -> Unit)? = null,
@@ -145,7 +145,7 @@ fun M3TextFieldDialog(
         }
     }
 
-    M3BaseTextFieldDialog(
+    IenBaseTextFieldDialog(
         modifier = modifier,
         visible = visible,
         icon = icon,

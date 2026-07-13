@@ -12,7 +12,7 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
  * @return ProvidableCompositionLocal - 상단바 어댑테이션 설정
  */
 @OptIn(ExperimentalAdaptiveApi::class)
-val LocalTopBarAdaptation: ProvidableCompositionLocal<AdaptationScope<HigTopAppBarAdaptation, M3TopAppBarAdaptation>.() -> Unit> = staticCompositionLocalOf { {
+val LocalTopBarAdaptation: ProvidableCompositionLocal<AdaptationScope<HigTopAppBarAdaptation, IenTopAppBarAdaptation>.() -> Unit> = staticCompositionLocalOf { {
         material {
             isCenterAligned = true
         }
@@ -24,7 +24,7 @@ val LocalTopBarAdaptation: ProvidableCompositionLocal<AdaptationScope<HigTopAppB
  * @return ProvidableCompositionLocal - 상단바 스캐폴드 어댑테이션 설정
  */
 @OptIn(ExperimentalAdaptiveApi::class)
-val LocalTopBarScaffoldAdaptation: ProvidableCompositionLocal<AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit> = staticCompositionLocalOf { {
+val LocalTopBarScaffoldAdaptation: ProvidableCompositionLocal<AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit> = staticCompositionLocalOf { {
         material {
             isCenterAligned = true
         }

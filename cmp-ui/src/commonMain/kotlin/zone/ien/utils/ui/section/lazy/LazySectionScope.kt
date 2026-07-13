@@ -25,12 +25,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.interactive.IenSwitch
-import zone.ien.utils.ui.components.primitives.IenProvideTextStyle
-import zone.ien.utils.ui.components.primitives.IenSurface
-import zone.ien.utils.ui.section.M3SectionColors
-import zone.ien.utils.ui.section.M3SectionLinkDefault
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenSwitch
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.section.IenSectionColors
+import zone.ien.utils.ui.section.IenSectionLinkDefault
 
 sealed interface LazySectionScope {
     /**
@@ -227,7 +227,7 @@ private fun LazySectionScope.row(
     leadingContent: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
-    colors: @Composable () -> M3SectionColors = { M3SectionLinkDefault.colors() },
+    colors: @Composable () -> IenSectionColors = { IenSectionLinkDefault.colors() },
     title: @Composable () -> Unit,
 ) = item(
     key = key,

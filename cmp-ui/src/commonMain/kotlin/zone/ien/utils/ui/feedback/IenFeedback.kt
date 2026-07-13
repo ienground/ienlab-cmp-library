@@ -1,4 +1,4 @@
-package zone.ien.utils.ui.components.composite
+package zone.ien.utils.ui.feedback
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -80,12 +80,19 @@ import zone.ien.utils.cmp_ui.generated.resources.selected
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.fill.Check
 import zone.ien.utils.icon.remix.fill.Close
-import zone.ien.utils.ui.components.foundation.IenSemanticTone
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.primitives.IenIcon
-import zone.ien.utils.ui.components.primitives.IenLoaderPrimitive
-import zone.ien.utils.ui.components.primitives.IenSurface
-import zone.ien.utils.ui.components.primitives.IenText
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.list.IenListRow
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.primitives.IenLoaderPrimitive
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.dialog.IenAlertDialog
+import zone.ien.utils.ui.dialog.IenConfirmDialog
+import zone.ien.utils.ui.dialog.IenConfirmDialogCancelButton
+import zone.ien.utils.ui.dialog.IenConfirmDialogConfirmButton
+import zone.ien.utils.ui.dialog.IenConfirmDialogDescription
+import zone.ien.utils.ui.dialog.IenConfirmDialogTitle
 import kotlin.math.PI
 import kotlin.math.roundToInt
 import kotlin.math.sin

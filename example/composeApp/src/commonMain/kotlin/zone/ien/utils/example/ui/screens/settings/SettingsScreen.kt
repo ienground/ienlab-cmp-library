@@ -20,7 +20,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import org.koin.compose.koinInject
 import org.koin.core.qualifier.named
-import zone.ien.hig.adaptive.AdaptiveSwitch
+import zone.ien.utils.adaptive.component.AdaptiveSwitch
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.utils.rememberDefaultBackdrop

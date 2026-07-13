@@ -15,8 +15,8 @@ import zone.ien.utils.adaptive.section.AdaptiveSectionItem
 import zone.ien.utils.adaptive.section.AdaptiveSectionLink
 import zone.ien.utils.adaptive.section.HigSectionItemAdaptation
 import zone.ien.utils.adaptive.section.HigSectionLinkAdaptation
-import zone.ien.utils.adaptive.section.M3SectionItemAdaptation
-import zone.ien.utils.adaptive.section.M3SectionLinkAdaptation
+import zone.ien.utils.adaptive.section.IenSectionItemAdaptation
+import zone.ien.utils.adaptive.section.IenSectionLinkAdaptation
 
 
 /**
@@ -54,7 +54,7 @@ fun SectionScope.TextPref(
             cupertino = { CupertinoSectionDefaults.LabelChevron() }
         )
     },
-    adaptation: AdaptationScope<HigSectionLinkAdaptation, M3SectionLinkAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<HigSectionLinkAdaptation, IenSectionLinkAdaptation>.() -> Unit = {},
     title: String,
 ) {
     AdaptiveSectionLink(
@@ -92,7 +92,7 @@ fun SectionScope.TextPref(
     leadingContent: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null,
     summary: String? = null,
-    adaptation: AdaptationScope<HigSectionItemAdaptation, M3SectionItemAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<HigSectionItemAdaptation, IenSectionItemAdaptation>.() -> Unit = {},
     title: String,
 ) {
     AdaptiveSectionItem(

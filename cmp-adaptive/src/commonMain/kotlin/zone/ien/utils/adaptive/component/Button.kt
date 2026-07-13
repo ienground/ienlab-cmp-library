@@ -29,7 +29,7 @@ import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.LocalBackButtonIcon
 import zone.ien.utils.icon.LocalButtonProviderDefault
-import zone.ien.utils.ui.screen.M3BackButton
+import zone.ien.utils.ui.screen.IenBackButton
 
 /**
  * 적응형 뒤로가기 버튼 컴포저블
@@ -66,7 +66,7 @@ fun AdaptiveBackButton(
     ) {
         AdaptiveWidget(
             material = {
-                M3BackButton(
+                IenBackButton(
                     modifier = modifier,
                     icon = icon,
                     enabled = enabled,

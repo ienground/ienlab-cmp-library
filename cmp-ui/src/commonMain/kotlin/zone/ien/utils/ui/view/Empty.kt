@@ -1,6 +1,5 @@
 package zone.ien.utils.ui.view
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,14 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -25,7 +21,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.icon.material.M3SystemIcons
-import zone.ien.utils.ui.components.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenAssetFrame
+import zone.ien.utils.ui.primitives.IenAssetFrameSize
+import zone.ien.utils.ui.foundation.IenTheme
 
 /**
  * Empty는 비어 있는 상태를 표시하기 위한 컴포저블입니다.
@@ -49,16 +47,9 @@ fun Empty(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
     ) {
-        CompositionLocalProvider(
-            LocalContentColor provides IenTheme.colors.textPrimary,
-        ) {
-            icon?.let {
-                it(
-                    Modifier
-                        .background(IenTheme.colors.surfaceVariant, RoundedCornerShape(IenTheme.radius.sm))
-                        .padding(8.dp)
-                        .size(36.dp)
-                )
+        icon?.let {
+            IenAssetFrame(size = IenAssetFrameSize.Large) {
+                it(Modifier.size(36.dp))
             }
         }
         ProvideTextStyle(

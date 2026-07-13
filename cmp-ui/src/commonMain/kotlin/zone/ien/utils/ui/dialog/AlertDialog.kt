@@ -17,23 +17,23 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
 import zone.ien.utils.cmp_ui.generated.resources.close
 import zone.ien.utils.cmp_ui.generated.resources.ok
-import zone.ien.utils.ui.components.composite.IenAlertDialog
-import zone.ien.utils.ui.components.composite.IenAlertDialogDescription
-import zone.ien.utils.ui.components.composite.IenAlertDialogTitle
-import zone.ien.utils.ui.components.composite.IenConfirmDialog
-import zone.ien.utils.ui.components.composite.IenConfirmDialogCancelButton
-import zone.ien.utils.ui.components.composite.IenDialogButtonLayout
-import zone.ien.utils.ui.components.foundation.IenSemanticTone
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.interactive.IenButton
-import zone.ien.utils.ui.components.interactive.IenButtonDisplay
-import zone.ien.utils.ui.components.interactive.IenButtonSize
-import zone.ien.utils.ui.components.interactive.IenButtonState
-import zone.ien.utils.ui.components.interactive.IenButtonVariant
-import zone.ien.utils.ui.components.interactive.IenTextButton
+import zone.ien.utils.ui.dialog.IenAlertDialog
+import zone.ien.utils.ui.dialog.IenAlertDialogDescription
+import zone.ien.utils.ui.dialog.IenAlertDialogTitle
+import zone.ien.utils.ui.dialog.IenConfirmDialog
+import zone.ien.utils.ui.dialog.IenConfirmDialogCancelButton
+import zone.ien.utils.ui.dialog.IenDialogButtonLayout
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenButton
+import zone.ien.utils.ui.interactive.IenButtonDisplay
+import zone.ien.utils.ui.interactive.IenButtonSize
+import zone.ien.utils.ui.interactive.IenButtonState
+import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenTextButton
 
 /**
- * M3BaseAlertDialog는 AlertDialog의 기본 구조를 정의하는 컴포저블로, IEN 다이얼로그 프레임을 사용합니다.
+ * IenBaseAlertDialog는 AlertDialog의 기본 구조를 정의하는 컴포저블로, IEN 다이얼로그 프레임을 사용합니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
@@ -44,7 +44,7 @@ import zone.ien.utils.ui.components.interactive.IenTextButton
  * @param buttons 다이얼로그의 버튼을 나타내는 Composable
  */
 @Composable
-fun M3BaseAlertDialog(
+fun IenBaseAlertDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     icon: @Composable (() -> Unit)? = null,
@@ -53,7 +53,7 @@ fun M3BaseAlertDialog(
     onDismiss: () -> Unit,
     buttons: @Composable RowScope.() -> Unit
 ) {
-    M3IenAlertDialogFrame(
+    IenAlertDialogFrame(
         modifier = modifier,
         visible = visible,
         icon = icon,
@@ -72,7 +72,7 @@ fun M3BaseAlertDialog(
 }
 
 /**
- * M3AlertDialog은 간단한 확인/취소 다이얼로그를 제공하는 컴포저블입니다.
+ * IenAlertDialog은 간단한 확인/취소 다이얼로그를 제공하는 컴포저블입니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
@@ -85,7 +85,7 @@ fun M3BaseAlertDialog(
  * @param isDestructive true이면 Danger 톤으로 표시
  */
 @Composable
-fun M3AlertDialog(
+fun IenAlertDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     icon: @Composable (() -> Unit)? = null,
@@ -96,8 +96,8 @@ fun M3AlertDialog(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     isDestructive: Boolean = false,
 ) {
-    val resolvedTone = M3AlertDialogTone(tone = tone, isDestructive = isDestructive)
-    M3IenAlertDialogFrame(
+    val resolvedTone = IenAlertDialogTone(tone = tone, isDestructive = isDestructive)
+    IenAlertDialogFrame(
         modifier = modifier,
         visible = visible,
         icon = icon,
@@ -119,7 +119,7 @@ fun M3AlertDialog(
 }
 
 /**
- * M3AlertDialog은 확인/취소 다이얼로그를 제공하는 컴포저블로, 확인 버튼이 있는 형태입니다.
+ * IenAlertDialog은 확인/취소 다이얼로그를 제공하는 컴포저블로, 확인 버튼이 있는 형태입니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
@@ -136,7 +136,7 @@ fun M3AlertDialog(
  * @param buttonLayout 확인/취소 버튼의 배치 방향
  */
 @Composable
-fun M3AlertDialog(
+fun IenAlertDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     icon: @Composable (() -> Unit)? = null,
@@ -151,13 +151,13 @@ fun M3AlertDialog(
     isDestructive: Boolean = false,
     buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Horizontal,
 ) {
-    val resolvedTone = M3AlertDialogTone(tone = tone, isDestructive = isDestructive)
+    val resolvedTone = IenAlertDialogTone(tone = tone, isDestructive = isDestructive)
     IenConfirmDialog(
         visible = visible,
         onClose = onDismiss,
         modifier = modifier,
         title = {
-            M3AlertDialogHeader(
+            IenAlertDialogHeader(
                 icon = icon,
                 title = title,
                 tone = resolvedTone,
@@ -175,7 +175,7 @@ fun M3AlertDialog(
             )
         },
         confirmButton = {
-            M3IenDialogButton(
+            IenDialogButton(
                 text = textConfirm,
                 onClick = onConfirm,
                 enabled = enabledConfirm,
@@ -188,7 +188,7 @@ fun M3AlertDialog(
 }
 
 /**
- * M3AlertDialog은 세 가지 버튼(중립, 부정, 긍정)을 포함한 다이얼로그를 제공하는 컴포저블입니다.
+ * IenAlertDialog은 세 가지 버튼(중립, 부정, 긍정)을 포함한 다이얼로그를 제공하는 컴포저블입니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
@@ -208,7 +208,7 @@ fun M3AlertDialog(
  * @param buttonLayout 긍정/부정 버튼의 배치 방향
  */
 @Composable
-fun M3AlertDialog(
+fun IenAlertDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     icon: @Composable (() -> Unit)? = null,
@@ -226,8 +226,8 @@ fun M3AlertDialog(
     isDestructive: Boolean = false,
     buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Horizontal,
 ) {
-    val resolvedTone = M3AlertDialogTone(tone = tone, isDestructive = isDestructive)
-    M3IenAlertDialogFrame(
+    val resolvedTone = IenAlertDialogTone(tone = tone, isDestructive = isDestructive)
+    IenAlertDialogFrame(
         modifier = modifier,
         visible = visible,
         icon = icon,
@@ -243,7 +243,7 @@ fun M3AlertDialog(
                 tone = IenSemanticTone.Neutral,
                 state = IenButtonState(enabled = enabledNeutral),
             )
-            M3IenDialogButtonGroup(
+            IenDialogButtonGroup(
                 buttonLayout = buttonLayout,
                 cancelButton = {
                     IenConfirmDialogCancelButton(
@@ -252,7 +252,7 @@ fun M3AlertDialog(
                     )
                 },
                 confirmButton = {
-                    M3IenDialogButton(
+                    IenDialogButton(
                         text = textPositive,
                         onClick = onPositive,
                         enabled = enabledPositive,
@@ -266,7 +266,7 @@ fun M3AlertDialog(
 }
 
 @Composable
-private fun M3IenAlertDialogFrame(
+private fun IenAlertDialogFrame(
     modifier: Modifier,
     visible: Boolean,
     icon: @Composable (() -> Unit)?,
@@ -281,7 +281,7 @@ private fun M3IenAlertDialogFrame(
         onClose = onDismiss,
         modifier = modifier,
         title = {
-            M3AlertDialogHeader(
+            IenAlertDialogHeader(
                 icon = icon,
                 title = title,
                 tone = tone,
@@ -304,7 +304,7 @@ private fun M3IenAlertDialogFrame(
 }
 
 @Composable
-private fun M3AlertDialogHeader(
+private fun IenAlertDialogHeader(
     icon: @Composable (() -> Unit)?,
     title: String?,
     tone: IenSemanticTone,
@@ -317,7 +317,7 @@ private fun M3AlertDialogHeader(
         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
     ) {
         icon?.let {
-            CompositionLocalProvider(LocalContentColor provides M3AlertDialogToneColor(tone)) {
+            CompositionLocalProvider(LocalContentColor provides IenAlertDialogToneColor(tone)) {
                 Box(contentAlignment = Alignment.Center) {
                     it()
                 }
@@ -330,7 +330,7 @@ private fun M3AlertDialogHeader(
 }
 
 @Composable
-private fun M3IenDialogButton(
+private fun IenDialogButton(
     text: String,
     onClick: () -> Unit,
     enabled: Boolean,
@@ -350,7 +350,7 @@ private fun M3IenDialogButton(
 }
 
 @Composable
-private fun M3IenDialogButtonGroup(
+private fun IenDialogButtonGroup(
     buttonLayout: IenDialogButtonLayout,
     cancelButton: @Composable () -> Unit,
     confirmButton: @Composable () -> Unit,
@@ -377,7 +377,7 @@ private fun M3IenDialogButtonGroup(
     }
 }
 
-private fun M3AlertDialogTone(
+private fun IenAlertDialogTone(
     tone: IenSemanticTone,
     isDestructive: Boolean,
 ): IenSemanticTone {
@@ -385,7 +385,7 @@ private fun M3AlertDialogTone(
 }
 
 @Composable
-private fun M3AlertDialogToneColor(tone: IenSemanticTone): Color {
+private fun IenAlertDialogToneColor(tone: IenSemanticTone): Color {
     return when (tone) {
         IenSemanticTone.Neutral -> IenTheme.colors.textPrimary
         IenSemanticTone.Brand -> IenTheme.colors.brand

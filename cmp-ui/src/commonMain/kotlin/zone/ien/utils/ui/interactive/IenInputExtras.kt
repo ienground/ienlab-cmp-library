@@ -1,4 +1,4 @@
-package zone.ien.utils.ui.components.interactive
+package zone.ien.utils.ui.interactive
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -85,11 +85,11 @@ import zone.ien.utils.cmp_ui.generated.resources.number_spinner
 import zone.ien.utils.cmp_ui.generated.resources.rate_stars
 import zone.ien.utils.cmp_ui.generated.resources.rating_score
 import zone.ien.utils.cmp_ui.generated.resources.rating_value
-import zone.ien.utils.ui.components.foundation.IenTheme
-import zone.ien.utils.ui.components.primitives.IenSurface
-import zone.ien.utils.ui.components.primitives.IenText
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.instantPress
-import zone.ien.utils.ui.components.primitives.IenIcon
+import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.fill.Star
 import zone.ien.utils.icon.remix.fill.StarHalf

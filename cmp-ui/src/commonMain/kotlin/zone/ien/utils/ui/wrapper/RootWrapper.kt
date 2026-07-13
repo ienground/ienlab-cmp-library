@@ -23,7 +23,7 @@ import zone.ien.utils.ui.utils.keyboardAsState
  * @param content 내부 콘텐츠를 지정하는 컴포저블 블록
  */
 @Composable
-fun M3RootWrapper(
+fun IenRootWrapper(
     modifier: Modifier = Modifier,
     content: @Composable (Modifier) -> Unit
 ) {

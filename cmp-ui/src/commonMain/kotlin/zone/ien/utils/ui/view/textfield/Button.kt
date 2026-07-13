@@ -45,7 +45,7 @@ import zone.ien.utils.icon.material.M3SystemIcons
  * @param contentDescription 콘텐츠 설명
  */
 @Composable
-fun M3TextFieldIconButton(
+fun IenTextFieldIconButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     onLongClick: () -> Unit = {},
@@ -113,7 +113,7 @@ fun M3TextFieldIconButton(
  * @param onClick 버튼 클릭 시 호출되는 콜백 함수
  */
 @Composable
-fun M3TextFieldClearButton(
+fun IenTextFieldClearButton(
     visible: Boolean,
     onClick: () -> Unit
 ) {
@@ -122,7 +122,7 @@ fun M3TextFieldClearButton(
         enter = fadeIn(spring(1.2f)) + scaleIn(spring(1.2f), initialScale = 0.75f),
         exit = fadeOut(spring(1.2f)) + scaleOut(spring(1.2f), targetScale = 0.75f)
     ) {
-        M3TextFieldIconButton(
+        IenTextFieldIconButton(
             icon = IconData.Vector(M3SystemIcons.Cancel),
             onClick = onClick
         )

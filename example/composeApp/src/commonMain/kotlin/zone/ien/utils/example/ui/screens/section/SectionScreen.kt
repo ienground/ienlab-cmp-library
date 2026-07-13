@@ -39,7 +39,7 @@ import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.navigation.result.ResultStore
 import zone.ien.utils.ui.menu.ActionMenuItem
-import zone.ien.utils.ui.section.M3ProvideSectionStyle
+import zone.ien.utils.ui.section.IenProvideSectionStyle
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -228,7 +228,7 @@ fun SectionScreen(
                         .height(400.dp)
                         .background(Color.Red)
                 )
-//                M3ProvideSectionStyle(
+//                IenProvideSectionStyle(
                 AdaptiveProvideSectionStyle(
                     style = SectionStyle.InsetGrouped,
                     scrollState = null,
