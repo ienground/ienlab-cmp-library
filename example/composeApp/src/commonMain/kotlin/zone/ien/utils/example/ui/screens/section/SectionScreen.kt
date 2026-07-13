@@ -33,7 +33,7 @@ import zone.ien.utils.adaptive.section.AdaptiveSectionItem
 import zone.ien.utils.adaptive.section.AdaptiveSectionLink
 import zone.ien.utils.adaptive.section.AdaptiveSectionSwitchItem
 import zone.ien.utils.adaptive.section.AdaptiveSectionTextField
-import zone.ien.utils.example.ui.theme.SampleIenTheme
+import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.example.Android
 import zone.ien.utils.example.isIos
 import zone.ien.utils.icon.IconData
@@ -55,7 +55,7 @@ fun SectionScreen(
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
     var checked by remember { mutableStateOf(false) }
 
-    SampleIenTheme(
+    IenAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
         AdaptiveTopAppBarScaffold(

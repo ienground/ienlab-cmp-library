@@ -28,7 +28,7 @@ import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
-import zone.ien.utils.example.ui.theme.SampleIenTheme
+import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.adaptive.utils.getSurfaceTopAppBarAdaptation
 import zone.ien.utils.adaptive.view.AdaptiveNavigationBar
 import zone.ien.utils.adaptive.view.NavigationBarItem
@@ -47,7 +47,7 @@ fun NavigationScreen(
     var isMaterialTheme by remember { mutableStateOf(true) }
     var isNative by remember { mutableStateOf(true) }
 
-    SampleIenTheme(
+    IenAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
         AdaptiveTopAppBarScaffold(
@@ -120,7 +120,7 @@ fun NavigationScreen(
 @Preview(showBackground = true)
 @Composable
 private fun ScreenPreview() {
-    SampleIenTheme(Theme.Material3) {
+    IenAdaptiveTheme(Theme.Material3) {
         NavigationScreen(
             navigateBack = {}
         )

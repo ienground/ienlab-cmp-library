@@ -38,7 +38,7 @@ import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.dialog.TextFieldDialog
 import zone.ien.utils.adaptive.menu.adaptiveSaveButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
-import zone.ien.utils.example.ui.theme.SampleIenTheme
+import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.example.Android
 import zone.ien.utils.example.isIos
 import zone.ien.utils.icon.IconData
@@ -55,7 +55,7 @@ fun PlaygroundScreen(
     val backdrop = rememberDefaultBackdrop()
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
     var visible by remember { mutableStateOf(true) }
-    SampleIenTheme(
+    IenAdaptiveTheme(
         target = Theme.Cupertino
 //        target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {

@@ -51,7 +51,7 @@ import zone.ien.hig.adaptive.currentTheme
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
-import zone.ien.utils.example.ui.theme.SampleIenTheme
+import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.adaptive.view.AdaptiveDropdownBox
 import zone.ien.utils.adaptive.view.AdaptiveDropdownMenuNative
 import zone.ien.utils.adaptive.view.DropdownMenuSectionNative
@@ -94,7 +94,7 @@ fun HomeScreen(
     val scrollState = rememberScrollState()
 
 
-    SampleIenTheme(
+    IenAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
         AdaptiveTopAppBarScaffold(

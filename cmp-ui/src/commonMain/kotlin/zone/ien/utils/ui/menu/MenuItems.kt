@@ -2,22 +2,22 @@ package zone.ien.utils.ui.menu
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -26,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
@@ -39,8 +38,8 @@ import zone.ien.utils.ui.components.interactive.IenButtonState
 import zone.ien.utils.ui.components.interactive.IenButtonVariant
 import zone.ien.utils.ui.components.interactive.IenIconButton
 import zone.ien.utils.ui.components.interactive.IenTextButton
-import zone.ien.utils.ui.utils.crop
 import zone.ien.utils.ui.view.M3TooltipBox
+import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
 /**
  * M3ActionsMenu는 액션 메뉴를 표시하기 위한 컴포저블입니다.
@@ -61,71 +60,95 @@ fun M3ActionsMenu(
     maxVisibleItems: Int,
 ) {
     val menuItems = remember(items, maxVisibleItems) { splitMenuItems(items, maxVisibleItems) }
-    menuItems.alwaysShownItems.forEach { item ->
-        val alpha by animateFloatAsState(
-            targetValue = if (item.enabled) 1f else 0.25f,
-            label = "action_alpha"
-        )
+    val actionFadeAnimation = spring<Float>(
+        dampingRatio = Spring.DampingRatioNoBouncy,
+        stiffness = Spring.StiffnessMediumLow,
+    )
+    val actionFadeOut = tween<Float>(durationMillis = 120)
+    val visibleOverflowItems = menuItems.overflowItems.filter { it.visible }
 
-        AnimatedVisibility(
-            visible = item.visible,
-            enter = fadeIn(tween(150)) + expandHorizontally(tween(300)),
-            exit = fadeOut(tween(150)) + shrinkHorizontally(tween(300))
-        ) {
-            item.icon?.let { icon ->
-                M3TooltipBox(
-                    label = item.title
-                ) {
-                    BadgedBox(
-                        badge = {
-                            if (item.badge != 0) {
-                                Badge(
-                                    modifier = Modifier
-                                        .offset(x = (-8).dp, y = 8.dp)
-                                    ,
-                                    content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null
-                                )
-                            }
-                        }
+    Row(modifier = Modifier.animateContentSizeWithoutClipping()) {
+        menuItems.alwaysShownItems.forEach { item ->
+            val alpha by animateFloatAsState(
+                targetValue = if (item.enabled) 1f else 0.25f,
+                animationSpec = actionFadeAnimation,
+                label = "action_alpha"
+            )
+
+            AnimatedVisibility(
+                visible = item.visible,
+                enter = fadeIn(actionFadeAnimation) +
+                    slideInHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
+                    expandHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), expandFrom = androidx.compose.ui.Alignment.End),
+                exit = fadeOut(actionFadeOut) +
+                    slideOutHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
+                    shrinkHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), shrinkTowards = androidx.compose.ui.Alignment.End),
+            ) {
+                item.icon?.let { icon ->
+                    M3TooltipBox(
+                        label = item.title
                     ) {
-                        IenIconButton(
-                            onClick = item.onClick,
-                            modifier = Modifier.size(
-                                width = LocalMenuIconButtonSize.current.first,
-                                height = LocalMenuIconButtonSize.current.second,
-                            ),
-                            size = IenButtonSize.Medium,
-                            variant = IenButtonVariant.Ghost,
-                            tone = IenSemanticTone.Neutral,
-                            state = IenButtonState(enabled = item.enabled),
+                        BadgedBox(
+                            badge = {
+                                if (item.badge != 0) {
+                                    Badge(
+                                        modifier = Modifier
+                                            .offset(x = (-8).dp, y = 8.dp)
+                                        ,
+                                        content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null
+                                    )
+                                }
+                            }
                         ) {
-                            AnimatedContent(
-                                targetState = item.icon,
-                                label = "menu_icon"
+                            IenIconButton(
+                                onClick = item.onClick,
+                                modifier = Modifier.size(
+                                    width = LocalMenuIconButtonSize.current.first,
+                                    height = LocalMenuIconButtonSize.current.second,
+                                ),
+                                size = IenButtonSize.Medium,
+                                variant = IenButtonVariant.Ghost,
+                                tone = IenSemanticTone.Neutral,
+                                state = IenButtonState(enabled = item.enabled),
                             ) {
-                                ComplexIcon(
-                                    icon = icon,
-                                    contentDescription = item.title,
-                                    modifier = Modifier
-                                        .alpha(alpha)
-                                        .size(LocalMenuIconButtonSize.current.first - 16.dp)
-                                )
+                                AnimatedContent(
+                                    targetState = item.icon,
+                                    label = "menu_icon"
+                                ) { targetIcon ->
+                                    targetIcon?.let {
+                                        ComplexIcon(
+                                            icon = it,
+                                            contentDescription = item.title,
+                                            modifier = Modifier
+                                                .alpha(alpha)
+                                                .size(LocalMenuIconButtonSize.current.first - 16.dp)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
+                } ?: run {
+                    IenTextButton(
+                        text = item.title,
+                        onClick = item.onClick,
+                        tone = IenSemanticTone.Neutral,
+                        state = IenButtonState(enabled = item.enabled),
+                    )
                 }
-            } ?: run {
-                IenTextButton(
-                    text = item.title,
-                    onClick = item.onClick,
-                    tone = IenSemanticTone.Neutral,
-                    state = IenButtonState(enabled = item.enabled),
-                )
             }
         }
     }
 
-    if (menuItems.overflowItems.isNotEmpty()) {
+    AnimatedVisibility(
+        visible = visibleOverflowItems.isNotEmpty(),
+        enter = fadeIn(actionFadeAnimation) +
+            slideInHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
+            expandHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), expandFrom = androidx.compose.ui.Alignment.End),
+        exit = fadeOut(actionFadeOut) +
+            slideOutHorizontally(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
+            shrinkHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), shrinkTowards = androidx.compose.ui.Alignment.End),
+    ) {
         M3TooltipBox(
             label = stringResource(Res.string.more_options),
         ) {
@@ -141,44 +164,41 @@ fun M3ActionsMenu(
                         contentDescription = stringResource(Res.string.more_options),
                     )
                 }
-                M3DropdownMenu(
+                IenDropdownMenu(
                     expanded = isOpen,
                     onDismissRequest = onToggleOverflow
                 ) {
-                    menuItems.overflowItems.forEach { item ->
-                        if (item.visible) {
-                            M3DropdownMenuItem(
-                                text = { Text(text = item.title) },
-                                leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
-                                    item.icon?.let {
-                                        {
-                                            ComplexIcon(
-                                                icon = it,
-                                                contentDescription = item.title
-                                            )
-                                        }
-                                    }
-                                } else null,
-                                trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
+                    visibleOverflowItems.forEach { item ->
+                        IenDropdownMenuItem(
+                            text = { Text(text = item.title) },
+                            leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
+                                item.icon?.let {
                                     {
-                                        if (item.badge != 0) {
-                                            Badge(
-                                                content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null
-                                            )
-                                        }
+                                        ComplexIcon(
+                                            icon = it,
+                                            contentDescription = item.title
+                                        )
                                     }
-                                } else null,
-                                onClick = {
-                                    closeDropdown()
-                                    item.onClick()
                                 }
-                            )
-                        }
+                            } else null,
+                            trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
+                                {
+                                    if (item.badge != 0) {
+                                        Badge(
+                                            content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null
+                                        )
+                                    }
+                                }
+                            } else null,
+                            onClick = {
+                                closeDropdown()
+                                item.onClick()
+                            }
+                        )
                     }
                 }
             }
         }
-
     }
 }
 

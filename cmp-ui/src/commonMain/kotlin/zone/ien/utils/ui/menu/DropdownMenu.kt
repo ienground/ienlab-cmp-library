@@ -15,7 +15,6 @@ import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.MenuItemColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.Modifier.Companion
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -23,6 +22,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
+import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.ui.utils.crop
 
@@ -46,19 +46,19 @@ internal val DefaultMenuProperties = PopupProperties(focusable = true)
  * @param content 메뉴 내용
  */
 @Composable
-fun M3DropdownMenu(
+fun IenDropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = DefaultMenuProperties,
-    shape: Shape = RoundedCornerShape(16.dp),
-    containerColor: Color = MenuDefaults.containerColor,
-    tonalElevation: Dp = MenuDefaults.TonalElevation,
-    shadowElevation: Dp = MenuDefaults.ShadowElevation,
-    border: BorderStroke? = null,
-    innerPadding: PaddingValues = PaddingValues(4.dp),
+    shape: Shape = RoundedCornerShape(IenTheme.radius.lg),
+    containerColor: Color = IenTheme.colors.surfaceRaised,
+    tonalElevation: Dp = IenTheme.elevation.none,
+    shadowElevation: Dp = IenTheme.elevation.floating,
+    border: BorderStroke? = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border),
+    innerPadding: PaddingValues = PaddingValues(IenTheme.spacing.xxs),
     content: @Composable ColumnScope.() -> Unit,
 ) {
     DropdownMenu(
@@ -82,6 +82,39 @@ fun M3DropdownMenu(
     )
 }
 
+@Composable
+fun M3DropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    scrollState: ScrollState = rememberScrollState(),
+    properties: PopupProperties = DefaultMenuProperties,
+    shape: Shape = RoundedCornerShape(IenTheme.radius.lg),
+    containerColor: Color = IenTheme.colors.surfaceRaised,
+    tonalElevation: Dp = IenTheme.elevation.none,
+    shadowElevation: Dp = IenTheme.elevation.floating,
+    border: BorderStroke? = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border),
+    innerPadding: PaddingValues = PaddingValues(IenTheme.spacing.xxs),
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    IenDropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        offset = offset,
+        scrollState = scrollState,
+        properties = properties,
+        shape = shape,
+        containerColor = containerColor,
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
+        border = border,
+        innerPadding = innerPadding,
+        content = content,
+    )
+}
+
 /**
  * M3DropdownMenuItem은 드롭다운 메뉴 항목을 표시하기 위한 컴포저블입니다.
  *
@@ -97,16 +130,23 @@ fun M3DropdownMenu(
  * @param interactionSource 상호작용 소스
  */
 @Composable
-fun M3DropdownMenuItem(
+fun IenDropdownMenuItem(
     text: @Composable () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
-    colors: MenuItemColors = MenuDefaults.itemColors(),
-    contentPadding: PaddingValues = MenuDefaults.DropdownMenuItemContentPadding,
-    shape: Shape? = RoundedCornerShape(12.dp),
+    colors: MenuItemColors = MenuDefaults.itemColors(
+        textColor = IenTheme.colors.textPrimary,
+        leadingIconColor = IenTheme.colors.textSecondary,
+        trailingIconColor = IenTheme.colors.textSecondary,
+        disabledTextColor = IenTheme.colors.textDisabled,
+        disabledLeadingIconColor = IenTheme.colors.textDisabled,
+        disabledTrailingIconColor = IenTheme.colors.textDisabled,
+    ),
+    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.sm, vertical = IenTheme.spacing.xs),
+    shape: Shape? = RoundedCornerShape(IenTheme.radius.sm),
     interactionSource: MutableInteractionSource? = null,
 ) {
     DropdownMenuItem(
@@ -119,5 +159,39 @@ fun M3DropdownMenuItem(
         colors = colors,
         contentPadding = contentPadding,
         interactionSource = interactionSource
+    )
+}
+
+@Composable
+fun M3DropdownMenuItem(
+    text: @Composable () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    enabled: Boolean = true,
+    colors: MenuItemColors = MenuDefaults.itemColors(
+        textColor = IenTheme.colors.textPrimary,
+        leadingIconColor = IenTheme.colors.textSecondary,
+        trailingIconColor = IenTheme.colors.textSecondary,
+        disabledTextColor = IenTheme.colors.textDisabled,
+        disabledLeadingIconColor = IenTheme.colors.textDisabled,
+        disabledTrailingIconColor = IenTheme.colors.textDisabled,
+    ),
+    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.sm, vertical = IenTheme.spacing.xs),
+    shape: Shape? = RoundedCornerShape(IenTheme.radius.sm),
+    interactionSource: MutableInteractionSource? = null,
+) {
+    IenDropdownMenuItem(
+        text = text,
+        onClick = onClick,
+        modifier = modifier,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+        enabled = enabled,
+        colors = colors,
+        contentPadding = contentPadding,
+        shape = shape,
+        interactionSource = interactionSource,
     )
 }

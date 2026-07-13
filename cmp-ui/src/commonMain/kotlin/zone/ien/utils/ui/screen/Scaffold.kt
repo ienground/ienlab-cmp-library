@@ -26,6 +26,7 @@ import zone.ien.utils.ui.components.composite.IenScaffold
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.menu.M3ActionsMenu
+import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
 /**
  * M3TopAppBarScaffold는 상단 앱 바를 가진 스크래프트를 표시하기 위한 컴포저블입니다.
@@ -149,6 +150,7 @@ fun M3TopAppBarScaffold(
         actions = actions.takeIf { it.isNotEmpty() }?.let {
             {
                 Row(
+                    modifier = Modifier.animateContentSizeWithoutClipping(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     M3ActionsMenu(

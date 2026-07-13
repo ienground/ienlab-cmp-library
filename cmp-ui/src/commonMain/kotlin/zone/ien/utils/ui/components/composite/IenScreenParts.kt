@@ -135,6 +135,7 @@ import zone.ien.utils.cmp_ui.generated.resources.agreement_required
 import zone.ien.utils.cmp_ui.generated.resources.agreement_terms
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.line.ArrowDownWide
+import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
 enum class IenTopBarTitleAlignment {
     Start,
@@ -435,6 +436,7 @@ fun IenTopBar(
             if (actions != null) {
                 IenTopBarFloatingSlot(enabled = floatingSlots) {
                     Row(
+                        modifier = Modifier.animateContentSizeWithoutClipping(),
                         horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
