@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.ui.components.composite.IenScaffold
+import zone.ien.utils.ui.components.composite.IenScaffoldContentEdge
 import zone.ien.utils.ui.components.composite.IenTopBar
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.components.interactive.IenSwitch
@@ -48,7 +49,9 @@ fun ColorTokenScreen(
 
         IenScaffold(
             modifier = modifier,
-            contentEdgeBlurTopProgress = (scrollState.value / 48f).coerceIn(0f, 1f),
+            contentEdge = IenScaffoldContentEdge(
+                topProgress = (scrollState.value / 48f).coerceIn(0f, 1f),
+            ),
             topBar = {
                 IenTopBar(
                     title = "Color Tokens",

@@ -26,7 +26,7 @@ import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
-import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
+import zone.ien.utils.example.ui.theme.SampleIenTheme
 import zone.ien.utils.example.di.KoinKey.DEFAULT_DATASTORE
 import zone.ien.utils.example.isIos
 import zone.ien.utils.icon.material.M3SystemIcons
@@ -48,7 +48,7 @@ fun SettingsScreen(
     val dataStore: DataStore<Preferences> = koinInject(named(DEFAULT_DATASTORE))
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
 
-    GeneratedAdaptiveTheme(
+    SampleIenTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
         AdaptiveTopAppBarScaffold(

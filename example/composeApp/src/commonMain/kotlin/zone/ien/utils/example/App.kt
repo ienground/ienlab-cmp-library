@@ -13,7 +13,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
-import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
+import zone.ien.utils.example.ui.theme.SampleIenTheme
 import zone.ien.utils.adaptive.wrapper.RootWrapper
 import zone.ien.utils.example.ui.navigation.RootNavigationGraph
 import zone.ien.utils.example.ui.navigation.RootRoute
@@ -36,7 +36,7 @@ fun App() {
 //    val backStack = rememberNavBackStack(getConfig<RootRoute>(), RootRoute.Home)
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
 
-    GeneratedAdaptiveTheme(
+    SampleIenTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino,
     ) {
         RootWrapper(

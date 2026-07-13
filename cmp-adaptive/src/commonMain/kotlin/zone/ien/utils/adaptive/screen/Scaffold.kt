@@ -78,6 +78,7 @@ import zone.ien.utils.adaptive.menu.HigActionMenu
 import zone.ien.utils.adaptive.menu.HigActionsMenu
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.menu.M3ActionsMenu
+import zone.ien.utils.ui.components.composite.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.LocalHigShowNavTitle
 import zone.ien.utils.ui.screen.LocalIsHigTopBarCenterAligned
 import zone.ien.utils.ui.screen.LocalIsM3TopBarCenterAligned
@@ -122,8 +123,7 @@ fun AdaptiveTopAppBarScaffold(
     floatingActionButton: @Composable () -> Unit = {},
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
-    contentEdgeBlurTopProgress: Float = 1f,
-    contentEdgeBlurBottomProgress: Float = 1f,
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
     adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
@@ -156,8 +156,7 @@ fun AdaptiveTopAppBarScaffold(
                 scaffoldContainerColor = it.scaffoldContainerColor,
                 scaffoldContentColor = it.scaffoldContentColor,
                 contentWindowInsets = it.contentWindowInsets,
-                contentEdgeBlurTopProgress = contentEdgeBlurTopProgress,
-                contentEdgeBlurBottomProgress = contentEdgeBlurBottomProgress,
+                contentEdge = contentEdge,
                 scrollBehavior = it.scrollBehavior,
                 isScrollTint = it.isScrollTint,
                 size = it.size,
@@ -282,8 +281,7 @@ fun AdaptiveTopAppBarScaffold(
     floatingActionButton: @Composable () -> Unit = {},
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
-    contentEdgeBlurTopProgress: Float = 1f,
-    contentEdgeBlurBottomProgress: Float = 1f,
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
     adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
@@ -302,8 +300,7 @@ fun AdaptiveTopAppBarScaffold(
             floatingActionButton = floatingActionButton,
             fabPosition = fabPosition,
             higFabPosition = higFabPosition,
-            contentEdgeBlurTopProgress = contentEdgeBlurTopProgress,
-            contentEdgeBlurBottomProgress = contentEdgeBlurBottomProgress,
+            contentEdge = contentEdge,
             adaptation = adaptation,
             content = content
         )

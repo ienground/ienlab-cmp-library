@@ -123,6 +123,7 @@ import zone.ien.utils.ui.components.composite.IenProgressStepperVariant
 import zone.ien.utils.ui.components.composite.IenResult
 import zone.ien.utils.ui.components.composite.IenResultTone
 import zone.ien.utils.ui.components.composite.IenScaffold
+import zone.ien.utils.ui.components.composite.IenScaffoldContentEdge
 import zone.ien.utils.ui.components.composite.IenSheetDetent
 import zone.ien.utils.ui.components.composite.IenSkeleton
 import zone.ien.utils.ui.components.composite.IenSkeletonBackground
@@ -253,7 +254,9 @@ fun DesignSystemScreen(
 
         IenScaffold(
             modifier = modifier,
-            contentEdgeBlurTopProgress = (scrollState.value / 48f).coerceIn(0f, 1f),
+            contentEdge = IenScaffoldContentEdge(
+                topProgress = (scrollState.value / 48f).coerceIn(0f, 1f),
+            ),
             topBar = {
                 IenTopBar(
                     title = "Ien CMP UI",

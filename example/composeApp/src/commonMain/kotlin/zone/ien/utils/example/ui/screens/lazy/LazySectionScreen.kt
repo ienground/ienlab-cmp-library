@@ -19,7 +19,7 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.section.sectionBackground
-import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
+import zone.ien.utils.example.ui.theme.SampleIenTheme
 import zone.ien.utils.example.currentTheme
 import zone.ien.utils.example.isIos
 import zone.ien.utils.ui.section.lazy.empty
@@ -40,7 +40,7 @@ fun LazySectionScreen(
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
     var enabled by remember { mutableStateOf(false) }
 
-    GeneratedAdaptiveTheme(
+    SampleIenTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
         AdaptiveTopAppBarScaffold(

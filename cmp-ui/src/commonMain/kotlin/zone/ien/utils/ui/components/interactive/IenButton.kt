@@ -26,11 +26,14 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import zone.ien.utils.ui.utils.instantPress
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,6 +63,9 @@ enum class IenIconPlacement { Start, End }
 enum class IenButtonDisplay { Inline, Block, Full }
 enum class IenTextButtonSize { XSmall, Small, Medium, Large, XLarge, XXLarge }
 enum class IenTextButtonVariant { Clear, Arrow, Underline }
+
+internal val LocalIenButtonPressedReporter = staticCompositionLocalOf<((Any, Boolean) -> Unit)?> { null }
+internal val LocalIenButtonScalePressedOverride = staticCompositionLocalOf<Float?> { null }
 
 sealed interface IenButtonVariant {
     data object Fill : IenButtonVariant
@@ -498,15 +504,29 @@ internal fun IenButtonContainer(
 ) {
     val ienColors = ienButtonColors(variant, tone, state.enabled)
     val interactiveEnabled = state.enabled && !state.loading
+    val pressedReporter = LocalIenButtonPressedReporter.current
+    val pressedToken = remember { Any() }
+    val resolvedScalePressed = LocalIenButtonScalePressedOverride.current ?: scalePressed
 
     var isPressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
-        targetValue = if (isPressed && interactiveEnabled) scalePressed else 1.0f,
+        targetValue = if (isPressed && interactiveEnabled) resolvedScalePressed else 1.0f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioNoBouncy,
             stiffness = Spring.StiffnessMedium
         )
     )
+    val reportedPressed = isPressed && interactiveEnabled
+
+    LaunchedEffect(pressedReporter, pressedToken, reportedPressed) {
+        pressedReporter?.invoke(pressedToken, reportedPressed)
+    }
+
+    DisposableEffect(pressedReporter, pressedToken) {
+        onDispose {
+            pressedReporter?.invoke(pressedToken, false)
+        }
+    }
 
     val buttonModifier = modifier
         .graphicsLayer {

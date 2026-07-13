@@ -42,7 +42,9 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.runtime.Composable
@@ -104,6 +106,8 @@ import zone.ien.utils.ui.components.interactive.IenBadge
 import zone.ien.utils.ui.components.interactive.IenBadgeSize
 import zone.ien.utils.ui.components.interactive.IenBadgeVariant
 import zone.ien.utils.ui.components.interactive.IenButtonState
+import zone.ien.utils.ui.components.interactive.LocalIenButtonPressedReporter
+import zone.ien.utils.ui.components.interactive.LocalIenButtonScalePressedOverride
 import zone.ien.utils.ui.components.interactive.IenTextButton
 import zone.ien.utils.ui.components.interactive.IenTextButtonSize
 import zone.ien.utils.ui.components.interactive.IenTextButtonVariant
@@ -165,6 +169,19 @@ data class IenTopSubtitleBadge(
     val variant: IenBadgeVariant = IenBadgeVariant.Weak,
 )
 
+@Immutable
+data class IenScaffoldContentEdge(
+    val enabled: Boolean = true,
+    val topEnabled: Boolean = true,
+    val bottomEnabled: Boolean = true,
+    val topProgress: Float = 1f,
+    val bottomProgress: Float = 1f,
+    val topHeight: Dp = 220.dp,
+    val bottomHeight: Dp = 132.dp,
+    val radius: Dp = 22.dp,
+    val color: Color? = null,
+)
+
 @Composable
 fun IenScaffold(
     modifier: Modifier = Modifier,
@@ -176,19 +193,12 @@ fun IenScaffold(
     containerColor: Color = IenTheme.colors.background,
     contentColor: Color = IenTheme.colors.textPrimary,
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
-    contentEdgeBlur: Boolean = true,
-    contentEdgeBlurTop: Boolean = true,
-    contentEdgeBlurBottom: Boolean = true,
-    contentEdgeBlurTopProgress: Float = 1f,
-    contentEdgeBlurBottomProgress: Float = 1f,
-    contentEdgeBlurHeight: Dp = 220.dp,
-    contentEdgeBlurBottomHeight: Dp = 132.dp,
-    contentEdgeBlurRadius: Dp = 22.dp,
-    contentEdgeBlurColor: Color = containerColor,
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    val contentEdgeColor = contentEdge.color ?: containerColor
     val backdrop = rememberLayerBackdrop {
-        drawRect(contentEdgeBlurColor)
+        drawRect(contentEdgeColor)
         drawContent()
     }
 
@@ -211,18 +221,18 @@ fun IenScaffold(
             ) {
                 content(contentPadding)
             }
-            if (contentEdgeBlur) {
+            if (contentEdge.enabled) {
                 IenScaffoldEdgeBlur(
                     modifier = Modifier.matchParentSize(),
                     backdrop = backdrop,
-                    showTop = contentEdgeBlurTop,
-                    showBottom = contentEdgeBlurBottom,
-                    topProgress = contentEdgeBlurTopProgress.coerceIn(0f, 1f),
-                    bottomProgress = contentEdgeBlurBottomProgress.coerceIn(0f, 1f),
-                    topHeight = contentEdgeBlurHeight,
-                    bottomHeight = contentEdgeBlurBottomHeight,
-                    radius = contentEdgeBlurRadius,
-                    color = contentEdgeBlurColor,
+                    showTop = contentEdge.topEnabled,
+                    showBottom = contentEdge.bottomEnabled,
+                    topProgress = contentEdge.topProgress.coerceIn(0f, 1f),
+                    bottomProgress = contentEdge.bottomProgress.coerceIn(0f, 1f),
+                    topHeight = contentEdge.topHeight,
+                    bottomHeight = contentEdge.bottomHeight,
+                    radius = contentEdge.radius,
+                    color = contentEdgeColor,
                 )
             }
         }
@@ -441,6 +451,7 @@ fun IenTopBar(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun IenTopBarFloatingSlot(
     enabled: Boolean,
@@ -451,15 +462,59 @@ private fun IenTopBarFloatingSlot(
         return
     }
 
+    var pressedTokens by remember { mutableStateOf(setOf<Any>()) }
+    val scale by animateFloatAsState(
+        targetValue = if (pressedTokens.isNotEmpty()) 0.96f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+    )
+    val pressedOverlayAlpha by animateFloatAsState(
+        targetValue = if (pressedTokens.isNotEmpty()) 0.08f else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+    )
+    val pressedReporter: (Any, Boolean) -> Unit = { token, pressed ->
+        pressedTokens = if (pressed) {
+            pressedTokens + token
+        } else {
+            pressedTokens - token
+        }
+    }
+
     Box(
         modifier = Modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
             .shadow(elevation = IenTheme.elevation.floating, shape = CircleShape, clip = false)
             .clip(CircleShape)
-            .background(IenTheme.colors.surface.copy(alpha = 0.92f))
-            .padding(horizontal = IenTheme.spacing.xxs, vertical = IenTheme.spacing.xxs),
+            .background(IenTheme.colors.surface.copy(alpha = 0.92f)),
         contentAlignment = Alignment.Center,
     ) {
-        content()
+        if (pressedOverlayAlpha > 0f) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(IenTheme.colors.textPrimary.copy(alpha = pressedOverlayAlpha)),
+            )
+        }
+        Box(
+            modifier = Modifier.padding(horizontal = IenTheme.spacing.xxs, vertical = IenTheme.spacing.xxs),
+            contentAlignment = Alignment.Center,
+        ) {
+            CompositionLocalProvider(
+                LocalIenButtonPressedReporter provides pressedReporter,
+                LocalIenButtonScalePressedOverride provides 1f,
+                LocalRippleConfiguration provides null,
+            ) {
+                content()
+            }
+        }
     }
 }
 

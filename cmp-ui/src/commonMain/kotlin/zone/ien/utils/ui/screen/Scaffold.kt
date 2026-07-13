@@ -21,8 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import zone.ien.utils.ui.components.composite.IenScaffoldContentEdge
 import zone.ien.utils.ui.components.composite.IenScaffold
 import zone.ien.utils.ui.components.foundation.IenTheme
 import zone.ien.utils.ui.menu.ActionMenuItem
@@ -73,15 +72,7 @@ fun M3TopAppBarScaffold(
     scaffoldContainerColor: Color = IenTheme.colors.background,
     scaffoldContentColor: Color = IenTheme.colors.textPrimary,
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
-    contentEdgeBlur: Boolean = true,
-    contentEdgeBlurTop: Boolean = true,
-    contentEdgeBlurBottom: Boolean = true,
-    contentEdgeBlurTopProgress: Float = 1f,
-    contentEdgeBlurBottomProgress: Float = 1f,
-    contentEdgeBlurHeight: Dp = 220.dp,
-    contentEdgeBlurBottomHeight: Dp = 132.dp,
-    contentEdgeBlurRadius: Dp = 22.dp,
-    contentEdgeBlurColor: Color = scaffoldContainerColor,
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
     isScrollTint: Boolean = LocalIsScrollTint.current,
     size: TopBarSize = LocalM3TopBarSize.current,
     scrollBehavior: TopAppBarScrollBehavior = if (size == TopBarSize.Small) TopAppBarDefaults.pinnedScrollBehavior() else TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
@@ -115,15 +106,7 @@ fun M3TopAppBarScaffold(
         contentWindowInsets = contentWindowInsets,
         containerColor = scaffoldContainerColor,
         contentColor = scaffoldContentColor,
-        contentEdgeBlur = contentEdgeBlur,
-        contentEdgeBlurTop = contentEdgeBlurTop,
-        contentEdgeBlurBottom = contentEdgeBlurBottom,
-        contentEdgeBlurTopProgress = contentEdgeBlurTopProgress,
-        contentEdgeBlurBottomProgress = contentEdgeBlurBottomProgress,
-        contentEdgeBlurHeight = contentEdgeBlurHeight,
-        contentEdgeBlurBottomHeight = contentEdgeBlurBottomHeight,
-        contentEdgeBlurRadius = contentEdgeBlurRadius,
-        contentEdgeBlurColor = contentEdgeBlurColor,
+        contentEdge = contentEdge,
         content = content
     )
 }
@@ -148,15 +131,7 @@ fun M3TopAppBarScaffold(
     scaffoldContainerColor: Color = IenTheme.colors.background,
     scaffoldContentColor: Color = IenTheme.colors.textPrimary,
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
-    contentEdgeBlur: Boolean = true,
-    contentEdgeBlurTop: Boolean = true,
-    contentEdgeBlurBottom: Boolean = true,
-    contentEdgeBlurTopProgress: Float = 1f,
-    contentEdgeBlurBottomProgress: Float = 1f,
-    contentEdgeBlurHeight: Dp = 220.dp,
-    contentEdgeBlurBottomHeight: Dp = 132.dp,
-    contentEdgeBlurRadius: Dp = 22.dp,
-    contentEdgeBlurColor: Color = scaffoldContainerColor,
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
     isScrollTint: Boolean = LocalIsScrollTint.current,
     size: TopBarSize = LocalM3TopBarSize.current,
     scrollBehavior: TopAppBarScrollBehavior = if (size == TopBarSize.Small) TopAppBarDefaults.pinnedScrollBehavior() else TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
@@ -196,15 +171,7 @@ fun M3TopAppBarScaffold(
         scaffoldContainerColor = scaffoldContainerColor,
         scaffoldContentColor = scaffoldContentColor,
         contentWindowInsets = contentWindowInsets,
-        contentEdgeBlur = contentEdgeBlur,
-        contentEdgeBlurTop = contentEdgeBlurTop,
-        contentEdgeBlurBottom = contentEdgeBlurBottom,
-        contentEdgeBlurTopProgress = contentEdgeBlurTopProgress,
-        contentEdgeBlurBottomProgress = contentEdgeBlurBottomProgress,
-        contentEdgeBlurHeight = contentEdgeBlurHeight,
-        contentEdgeBlurBottomHeight = contentEdgeBlurBottomHeight,
-        contentEdgeBlurRadius = contentEdgeBlurRadius,
-        contentEdgeBlurColor = contentEdgeBlurColor,
+        contentEdge = contentEdge,
         scrollBehavior = scrollBehavior,
         isScrollTint = isScrollTint,
         size = size,
