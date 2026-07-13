@@ -58,6 +58,9 @@ fun NavigationScreen(
                     onTabSelected = { selected = it == 0 },
                     isNative = isNative,
                     adaptation = {
+                        material {
+                            this.alwaysShowLabel = false
+                        }
                         cupertino { this.backdrop = backdrop }
                     },
                     items = listOf(

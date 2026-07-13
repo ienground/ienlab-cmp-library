@@ -51,6 +51,7 @@ internal data class NavigationBarState(
     val onTabSelected: (Int) -> Unit,
 )
 internal val LocalNavigationBarState = compositionLocalOf<NavigationBarState?> { null }
+private val LocalNavigationBarAlwaysShowLabel = compositionLocalOf { true }
 
 /**
  * 적응형 네비게이션 바 컴포저블
@@ -164,7 +165,13 @@ private fun AdaptiveNavigationBar(
                     selectedIndex = selectedTabIndex(),
                     itemCount = tabsCount,
                     windowInsets = it.windowInsets,
-                    content = content
+                    content = {
+                        CompositionLocalProvider(
+                            LocalNavigationBarAlwaysShowLabel provides it.alwaysShowLabel
+                        ) {
+                            content()
+                        }
+                    }
                 )
             }
         )
@@ -358,7 +365,7 @@ private class NavigationBarItemAdaptation: Adaptation<CupertinoNavigationBarItem
 
     @Composable
     override fun rememberMaterialAdaptation(): IenNavigationBarItemAdaptation {
-        val alwaysShowLabel = true
+        val alwaysShowLabel = LocalNavigationBarAlwaysShowLabel.current
 
         return remember(alwaysShowLabel) {
             IenNavigationBarItemAdaptation(
