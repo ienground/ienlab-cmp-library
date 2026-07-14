@@ -9,10 +9,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,10 +27,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -56,10 +55,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
-import zone.ien.utils.ui.foundation.IenTheme
-import zone.ien.utils.ui.primitives.IenIcon
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.fill.Check
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.instantPress
@@ -361,7 +361,7 @@ object IenMenu {
             dismissOnBackPress = true,
             clippingEnabled = false,
         ),
-        shape: Shape = RoundedCornerShape(28.dp),
+        shape: Shape = ContinuousRoundedRectangle(28.dp),
         containerColor: Color = IenTheme.colors.surfaceRaised,
         shadowElevation: Dp = ShadowPadding - 24.dp,
         border: BorderStroke? = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border.copy(alpha = 0.35f)),
@@ -607,7 +607,7 @@ object IenMenu {
      * @param modifier 드롭다운 컨테이너에 적용할 Modifier
      * @param onDismissRequest 드롭다운 영역 밖을 터치하거나 닫기를 원할 때 호출되는 콜백 함수
      * @param header 드롭다운 최상단에 표시할 헤더 컴포저블
-     * @param shape 드롭다운 모서리 둥글기 모양 (기본값: 28.dp RoundedCornerShape)
+     * @param shape 드롭다운 모서리 둥글기 모양 (기본값: 28.dp ContinuousRoundedRectangle)
      * @param minWidth 최소 너비 (기본값: 180.dp)
      * @param maxWidth 최대 너비 (기본값: 280.dp)
      * @param content 드롭다운 항목들을 포함할 내부 컴포저블
@@ -617,7 +617,7 @@ object IenMenu {
         modifier: Modifier = Modifier,
         onDismissRequest: (() -> Unit)? = null,
         header: (@Composable () -> Unit)? = null,
-        shape: Shape = RoundedCornerShape(28.dp),
+        shape: Shape = ContinuousRoundedRectangle(28.dp),
         containerColor: Color = IenTheme.colors.surfaceRaised,
         shadowElevation: Dp = ShadowPadding - 24.dp,
         border: BorderStroke? = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border.copy(alpha = 0.35f)),
@@ -906,7 +906,7 @@ object IenMenu {
                     modifier = Modifier
                         .matchParentSize()
                         .padding(horizontal = 10.dp, vertical = 4.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(ContinuousRoundedRectangle(12.dp))
                         .graphicsLayer(alpha = if (pressAlpha > 0f) pressAlpha else 0.4f)
                         .background(if (selected) IenTheme.colors.brandWeak else IenTheme.colors.surfaceVariant),
                 )

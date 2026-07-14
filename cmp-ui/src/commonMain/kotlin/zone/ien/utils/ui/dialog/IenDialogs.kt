@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.kyant.capsule.ContinuousRoundedRectangle
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
@@ -509,7 +510,7 @@ private fun IenDialogFrame(
                 .fillMaxWidth()
                 .widthIn(max = 320.dp),
             color = IenTheme.colors.surfaceRaised,
-            shape = RoundedCornerShape(IenTheme.radius.xl),
+            shape = ContinuousRoundedRectangle(IenTheme.radius.xl),
             tonalElevation = IenTheme.elevation.overlay,
         ) {
             Column(

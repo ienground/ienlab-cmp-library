@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,12 +13,11 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.toneColor
 import zone.ien.utils.ui.interactive.toneWeakColor
-import zone.ien.utils.ui.primitives.IenProvideTextStyle
-import zone.ien.utils.ui.primitives.IenSurface
 
 /**
  * 자산 프레임([IenAssetFrame])의 크기 유형을 정의하는 Enum 클래스입니다.
@@ -110,6 +108,6 @@ private val IenAssetFrameSize.value: Dp
 
 @Composable
 private fun IenAssetFrameShape.toShape(): Shape = when (this) {
-    IenAssetFrameShape.Rounded -> RoundedCornerShape(IenTheme.radius.lg)
+    IenAssetFrameShape.Rounded -> ContinuousRoundedRectangle(IenTheme.radius.lg)
     IenAssetFrameShape.Circle -> CircleShape
 }

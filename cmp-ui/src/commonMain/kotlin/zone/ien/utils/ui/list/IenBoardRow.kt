@@ -21,9 +21,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +35,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import com.kyant.capsule.ContinuousRoundedRectangle
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.state_collapsed
@@ -132,7 +131,7 @@ fun IenBoardRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .scale(pressedScale)
-                    .background(pressedBackground, RoundedCornerShape(IenTheme.radius.default))
+                    .background(pressedBackground, ContinuousRoundedRectangle(IenTheme.radius.default))
                     .defaultMinSize(minHeight = IenTheme.state.minimumTouchTarget)
                     .clickable(
                         interactionSource = interactionSource,

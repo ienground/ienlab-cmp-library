@@ -11,7 +11,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousRoundedRectangle
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.toneGradientBrush
 
 /**
  * 말풍선(Bubble)의 배경 스타일을 나타내는 열거형 클래스입니다.
@@ -51,18 +54,27 @@ fun IenBubble(
     }
 
     val isLeft = (background == IenBubbleBackground.Grey)
+    val shape = ContinuousRoundedRectangle(
+        topStart = if (isLeft) 4.dp else 16.dp,
+        topEnd = if (isLeft) 16.dp else 4.dp,
+        bottomStart = if (isLeft && !withTail) 4.dp else 16.dp,
+        bottomEnd = if (!isLeft && !withTail) 4.dp else 16.dp,
+    )
+    val backgroundModifier = if (background == IenBubbleBackground.Brand) {
+        Modifier.background(
+            brush = toneGradientBrush(IenSemanticTone.Brand),
+            shape = shape,
+        )
+    } else {
+        Modifier.background(
+            color = backgroundColor,
+            shape = shape,
+        )
+    }
 
     Box(
         modifier = modifier
-            .background(
-                color = backgroundColor,
-                shape = RoundedCornerShape(
-                    topStart = if (isLeft) 4.dp else 16.dp,
-                    topEnd = if (isLeft) 16.dp else 4.dp,
-                    bottomStart = if (isLeft && !withTail) 4.dp else 16.dp,
-                    bottomEnd = if (!isLeft && !withTail) 4.dp else 16.dp,
-                )
-            )
+            .then(backgroundModifier)
             .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
         CompositionLocalProvider(LocalContentColor provides contentColor) {

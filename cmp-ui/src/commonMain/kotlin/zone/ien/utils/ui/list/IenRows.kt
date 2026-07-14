@@ -1,8 +1,10 @@
 package zone.ien.utils.ui.list
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,10 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
@@ -37,6 +36,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousCapsule
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.line.ArrowRightS
 import zone.ien.utils.ui.foundation.IenTheme
@@ -479,7 +480,7 @@ fun IenListRowLoader(
                 when (type) {
                     IenListRowLoaderType.Square -> IenListRowLoaderBlock(
                         modifier = Modifier.size(44.dp),
-                        shape = RoundedCornerShape(IenTheme.radius.lg),
+                        shape = ContinuousRoundedRectangle(IenTheme.radius.lg),
                     )
 
                     IenListRowLoaderType.Circle -> IenListRowLoaderBlock(
@@ -497,13 +498,13 @@ fun IenListRowLoader(
                     modifier = Modifier
                         .fillMaxWidth(0.7f)
                         .height(16.dp),
-                    shape = RoundedCornerShape(IenTheme.radius.full),
+                    shape = ContinuousCapsule(),
                 )
                 IenListRowLoaderBlock(
                     modifier = Modifier
                         .fillMaxWidth(0.45f)
                         .height(14.dp),
-                    shape = RoundedCornerShape(IenTheme.radius.full),
+                    shape = ContinuousCapsule(),
                 )
             }
         },
@@ -540,10 +541,10 @@ private val IenListRowAssetSize.value: Dp
 
 @Composable
 private fun IenListRowAssetShape.toShape(): Shape = when (this) {
-    IenListRowAssetShape.Original -> RoundedCornerShape(0.dp)
-    IenListRowAssetShape.Squircle -> RoundedCornerShape(IenTheme.radius.lg)
-    IenListRowAssetShape.Card -> RoundedCornerShape(IenTheme.radius.default)
-    IenListRowAssetShape.Square -> RoundedCornerShape(IenTheme.radius.sm)
+    IenListRowAssetShape.Original -> ContinuousRoundedRectangle(0.dp)
+    IenListRowAssetShape.Squircle -> ContinuousRoundedRectangle(IenTheme.radius.lg)
+    IenListRowAssetShape.Card -> ContinuousRoundedRectangle(IenTheme.radius.default)
+    IenListRowAssetShape.Square -> ContinuousRoundedRectangle(IenTheme.radius.sm)
     IenListRowAssetShape.Circle -> CircleShape
 }
 

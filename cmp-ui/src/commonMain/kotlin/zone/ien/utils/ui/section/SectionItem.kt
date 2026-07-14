@@ -14,10 +14,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
@@ -37,6 +35,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -48,8 +47,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.Alignment
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.section.SectionScope
+import zone.ien.utils.ui.feedback.IenLinearProgressIndicator
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButtonContainer
@@ -58,7 +58,6 @@ import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.interactive.IenSlider
 import zone.ien.utils.ui.interactive.IenSwitch
-import zone.ien.utils.ui.feedback.IenLinearProgressIndicator
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.view.IenAsteriskTextWrapper
@@ -92,11 +91,11 @@ fun SectionScope.IenSectionItem(
 ) {
     IenSurface(
         modifier = Modifier
-            .clip(RoundedCornerShape(IenTheme.radius.sm))
+            .clip(ContinuousRoundedRectangle(IenTheme.radius.sm))
             .then(modifier),
         color = colors.containerColor(),
         contentColor = colors.headlineColor(enabled),
-        shape = RoundedCornerShape(IenTheme.radius.sm),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.sm),
     ) {
         Row(
             modifier = Modifier
@@ -682,7 +681,7 @@ fun SectionScope.IenSectionButton(
         state = IenButtonState(enabled = enabled),
         variant = IenButtonVariant.Fill,
         tone = IenSemanticTone.Brand,
-        shape = RoundedCornerShape(IenTheme.radius.default),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.default),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
         modifier = modifier
     ) {

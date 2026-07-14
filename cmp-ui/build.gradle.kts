@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.invoke
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
@@ -37,6 +35,7 @@ kotlin {
             implementation(libs.compose.resources)
             implementation(libs.hig.core)
             implementation(libs.backdrop)
+            implementation(libs.capsule)
             implementation(libs.placeholder)
 
             implementation(projects.cmpCommon)

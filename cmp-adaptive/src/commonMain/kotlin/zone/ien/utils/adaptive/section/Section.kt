@@ -15,10 +15,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.shapes.RoundedRectangle
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
@@ -137,7 +136,7 @@ fun AdaptiveSection(
     state: SectionState = rememberSectionState(canCollapse = true),
     enterTransition: EnterTransition = CupertinoSectionDefaults.EnterTransition,
     exitTransition: ExitTransition = CupertinoSectionDefaults.ExitTransition,
-    shape: RoundedRectangle = CupertinoSectionDefaults.shape(style),
+    shape: ContinuousRoundedRectangle = CupertinoSectionDefaults.shape(style),
     color: Color = if (style.grouped) CupertinoSectionDefaults.Color else Color.Transparent,
     dividerPadding: PaddingValues = PaddingValues(start = CupertinoSectionDefaults.DividerPadding),
     contentPadding : PaddingValues = CupertinoSectionDefaults.paddingValues(style = style, includePaddingBetweenSections = true),

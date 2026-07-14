@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -24,6 +23,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousRoundedRectangle
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.clear
@@ -281,7 +281,7 @@ fun IenNumberKeypad(
     IenSurface(
         modifier = modifier.fillMaxWidth(),
         color = IenTheme.colors.surfaceWeak,
-        shape = RoundedCornerShape(IenTheme.radius.default),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.default),
     ) {
         Column(
             modifier = Modifier.padding(IenTheme.spacing.xs),
@@ -360,7 +360,7 @@ fun IenFullSecureKeypad(
     IenSurface(
         modifier = modifier.fillMaxWidth(),
         color = IenTheme.colors.surfaceWeak,
-        shape = RoundedCornerShape(IenTheme.radius.default),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.default),
     ) {
         Column(
             modifier = Modifier.padding(IenTheme.spacing.xs),
@@ -545,7 +545,7 @@ fun IenFullSecureKeyboard(
         IenSurface(
             modifier = Modifier.fillMaxWidth(),
             color = IenTheme.colors.surfaceWeak,
-            shape = RoundedCornerShape(IenTheme.radius.default),
+            shape = ContinuousRoundedRectangle(IenTheme.radius.default),
             border = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border),
         ) {
             Row(
@@ -720,7 +720,7 @@ private fun IenNumberKeypadDigitKey(
         modifier = modifier,
         color = if (enabled) IenTheme.colors.surfaceRaised else IenTheme.colors.surface,
         contentColor = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
-        shape = RoundedCornerShape(IenTheme.radius.default),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.default),
         tonalElevation = if (enabled) IenTheme.elevation.raised else IenTheme.elevation.none,
     ) {
         Box(
@@ -750,7 +750,7 @@ private fun IenNumberKeypadActionKey(
         modifier = modifier,
         color = if (enabled) IenTheme.colors.surfaceRaised else IenTheme.colors.surface,
         contentColor = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
-        shape = RoundedCornerShape(IenTheme.radius.default),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.default),
         tonalElevation = if (enabled) IenTheme.elevation.raised else IenTheme.elevation.none,
     ) {
         Box(
@@ -821,7 +821,7 @@ private fun IenFullSecureInputKey(
         modifier = modifier,
         color = if (enabled) IenTheme.colors.surfaceRaised else IenTheme.colors.surface,
         contentColor = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
-        shape = RoundedCornerShape(IenTheme.radius.sm),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.sm),
         tonalElevation = if (enabled) IenTheme.elevation.raised else IenTheme.elevation.none,
     ) {
         Box(
@@ -874,7 +874,7 @@ private fun IenFullSecureActionKey(
         modifier = modifier,
         color = background,
         contentColor = content,
-        shape = RoundedCornerShape(IenTheme.radius.sm),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.sm),
         tonalElevation = if (enabled) IenTheme.elevation.raised else IenTheme.elevation.none,
     ) {
         Box(
@@ -903,7 +903,7 @@ private fun KeyboardKey(
         modifier = modifier,
         color = if (enabled) IenTheme.colors.surfaceRaised else IenTheme.colors.surfaceWeak,
         contentColor = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
-        shape = RoundedCornerShape(IenTheme.radius.sm),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.sm),
         border = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border),
     ) {
         Box(
@@ -933,7 +933,7 @@ private fun IenKeypadKey(
         modifier = modifier,
         color = if (enabled) IenTheme.colors.surfaceRaised else IenTheme.colors.surfaceWeak,
         contentColor = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
-        shape = RoundedCornerShape(IenTheme.radius.default),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.default),
         tonalElevation = if (enabled) IenTheme.elevation.raised else IenTheme.elevation.none,
     ) {
         Box(

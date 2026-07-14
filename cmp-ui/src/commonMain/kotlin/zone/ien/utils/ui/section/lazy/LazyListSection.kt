@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,6 +19,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenTheme
 
 /**
@@ -105,15 +105,15 @@ private fun LazyListScope.itemsAndCaption(
 
     items.fastForEachIndexed { index, item ->
         item(item.key, item.contentType) {
-            val shape = RoundedCornerShape(IenTheme.radius.lg)
-            val itemShape = RoundedCornerShape(0.dp)
+            val shape = ContinuousRoundedRectangle(IenTheme.radius.lg)
+            val itemShape = ContinuousRoundedRectangle(0.dp)
             val hasDivider =
                 index != items.lastIndex &&
                     item.dividerPadding != null &&
                     items[index + 1].dividerPadding != null
 
             val clipShape =
-                RoundedCornerShape(
+                ContinuousRoundedRectangle(
                     topStart = if (index == 0) shape.topStart else itemShape.topStart,
                     topEnd = if (index == 0) shape.topEnd else itemShape.topEnd,
                     bottomStart = if (index == items.lastIndex) shape.bottomStart else itemShape.bottomStart,

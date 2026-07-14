@@ -70,6 +70,8 @@ import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.kyant.capsule.ContinuousCapsule
+import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -82,6 +84,7 @@ import zone.ien.utils.icon.remix.fill.Check
 import zone.ien.utils.icon.remix.fill.Close
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.toneGradientBrush
 import zone.ien.utils.ui.list.IenListRow
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
@@ -283,7 +286,7 @@ fun IenBottomSheet(
                                 interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
                             ) { },
                         color = IenTheme.colors.surfaceRaised,
-                        shape = RoundedCornerShape(topStart = IenTheme.radius.lg, topEnd = IenTheme.radius.lg),
+                        shape = ContinuousRoundedRectangle(topStart = IenTheme.radius.lg, topEnd = IenTheme.radius.lg),
                     ) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
@@ -299,7 +302,7 @@ fun IenBottomSheet(
                                             .padding(vertical = 12.dp)
                                             .width(36.dp)
                                             .height(4.dp)
-                                            .clip(RoundedCornerShape(IenTheme.radius.full))
+                                            .clip(ContinuousCapsule)
                                             .background(IenTheme.colors.borderStrong),
                                     )
                                 } else {
@@ -734,7 +737,7 @@ private fun IenToastContent(
     val container = Color(0xFF191F28) // TDS grey900 오리지널 다크 그레이 고정!
     IenSurface(
         modifier = modifier
-            .shadow(elevation = 6.dp, shape = RoundedCornerShape(22.dp), clip = false)
+            .shadow(elevation = 6.dp, shape = ContinuousRoundedRectangle(22.dp), clip = false)
             .widthIn(max = IenToastDefaults.MaxWidth)
             .semantics {
                 liveRegion = when (ariaLive) {
@@ -745,7 +748,7 @@ private fun IenToastContent(
             },
         color = container,
         contentColor = Color.White,
-        shape = RoundedCornerShape(22.dp),
+        shape = ContinuousRoundedRectangle(22.dp),
     ) {
         Row(
             modifier = Modifier
@@ -783,7 +786,7 @@ fun IenToastButton(
     IenText(
         text = text,
         modifier = modifier
-            .clip(RoundedCornerShape(IenTheme.radius.sm))
+            .clip(ContinuousRoundedRectangle(IenTheme.radius.sm))
             .clickable(onClick = onClick)
             .padding(horizontal = IenTheme.spacing.sm, vertical = IenTheme.spacing.xs),
         color = Color(0xFF3182F6),
@@ -1237,7 +1240,7 @@ private fun IenSkeletonBlock(
         modifier = modifier
             .then(motionModifier)
             .height(height)
-            .clip(RoundedCornerShape(radius))
+            .clip(ContinuousRoundedRectangle(radius))
             .background(color),
     )
 }
@@ -1305,15 +1308,21 @@ fun IenProgressBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(barHeight)
-                .clip(RoundedCornerShape(IenTheme.radius.full))
+                .clip(ContinuousCapsule)
                 .background(color.copy(alpha = 0.16f)),
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(displayedProgress)
                     .fillMaxHeight()
-                    .clip(RoundedCornerShape(IenTheme.radius.full))
-                    .background(color),
+                    .clip(ContinuousCapsule)
+                    .background(
+                        brush = if (color == IenTheme.colors.brand) {
+                            toneGradientBrush(IenSemanticTone.Brand)
+                        } else {
+                            androidx.compose.ui.graphics.SolidColor(color)
+                        },
+                    ),
             )
         }
         if (showLabel) {
@@ -1495,7 +1504,13 @@ fun IenProgressStepper(
                                 .align(Alignment.CenterStart)
                                 .fillMaxWidth(0.5f)
                                 .height(IenTheme.stroke.thin)
-                                .background(if (index <= safeActiveStepIndex) IenTheme.colors.brand else IenTheme.colors.border),
+                                .background(
+                                    brush = if (index <= safeActiveStepIndex) {
+                                        toneGradientBrush(IenSemanticTone.Brand)
+                                    } else {
+                                        androidx.compose.ui.graphics.SolidColor(IenTheme.colors.border)
+                                    },
+                                ),
                         )
                     }
                     if (index < steps.lastIndex) {
@@ -1504,7 +1519,13 @@ fun IenProgressStepper(
                                 .align(Alignment.CenterEnd)
                                 .fillMaxWidth(0.5f)
                                 .height(IenTheme.stroke.thin)
-                                .background(if (index < safeActiveStepIndex) IenTheme.colors.brand else IenTheme.colors.border),
+                                .background(
+                                    brush = if (index < safeActiveStepIndex) {
+                                        toneGradientBrush(IenSemanticTone.Brand)
+                                    } else {
+                                        androidx.compose.ui.graphics.SolidColor(IenTheme.colors.border)
+                                    },
+                                ),
                         )
                     }
                     ProgressStepMarker(
@@ -1557,7 +1578,13 @@ private fun ProgressStepMarker(
         modifier = Modifier
             .size(markerSize)
             .clip(CircleShape)
-            .background(backgroundColor),
+            .background(
+                brush = when {
+                    status == IenStepStatus.Pending -> androidx.compose.ui.graphics.SolidColor(backgroundColor)
+                    status == IenStepStatus.Error -> toneGradientBrush(IenSemanticTone.Danger)
+                    else -> toneGradientBrush(IenSemanticTone.Brand)
+                },
+            ),
         contentAlignment = Alignment.Center,
     ) {
         when {

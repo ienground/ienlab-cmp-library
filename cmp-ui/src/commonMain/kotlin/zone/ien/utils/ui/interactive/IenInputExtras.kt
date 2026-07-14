@@ -5,8 +5,8 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,8 +35,8 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,17 +60,18 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -84,16 +84,17 @@ import zone.ien.utils.cmp_ui.generated.resources.number_spinner
 import zone.ien.utils.cmp_ui.generated.resources.rate_stars
 import zone.ien.utils.cmp_ui.generated.resources.rating_score
 import zone.ien.utils.cmp_ui.generated.resources.rating_value
-import zone.ien.utils.ui.foundation.IenTheme
-import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
-import zone.ien.utils.ui.screen.IenScaffold
-import zone.ien.utils.ui.utils.instantPress
-import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.fill.Star
 import zone.ien.utils.icon.remix.fill.StarHalf
 import zone.ien.utils.icon.remix.line.Star
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.screen.IenScaffold
+import zone.ien.utils.ui.utils.instantPress
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -252,7 +253,7 @@ fun IenNumericSpinner(
             },
         color = IenTheme.colors.surfaceVariant,
         contentColor = IenTheme.colors.textPrimary,
-        shape = RoundedCornerShape(spinnerRadius),
+        shape = ContinuousRoundedRectangle(spinnerRadius),
     ) {
         Row(
             modifier = Modifier.padding(horizontal = spec.outerHorizontalPadding),
@@ -278,10 +279,10 @@ fun IenNumericSpinner(
                     .height(spec.numberBoxHeight)
                     .shadow(
                         elevation = spec.numberElevation,
-                        shape = RoundedCornerShape(numberRadius),
+                        shape = ContinuousRoundedRectangle(numberRadius),
                         clip = false,
                     )
-                    .clip(RoundedCornerShape(numberRadius))
+                    .clip(ContinuousRoundedRectangle(numberRadius))
                     .background(IenTheme.colors.surface)
                     .pointerInput(currentNumber, canDecrease, canIncrease, disable) {
                         var dragAmount = 0f
@@ -759,6 +760,8 @@ private fun IenRatingStar(
         else -> RemixIcons.Line.Star
     }
     val glowColor = IenTheme.colors.brand
+    val starBrush = toneGradientBrush(IenSemanticTone.Brand)
+    val emptyStarColor = IenTheme.colors.borderStrong
 
     Box(
         modifier = itemModifier,
@@ -781,19 +784,41 @@ private fun IenRatingStar(
                 )
             }
         }
-        IenIcon(
-            imageVector = ratingIcon,
-            contentDescription = null,
-            modifier = Modifier
-                .size(iconSize)
-                .graphicsLayer {
-                    val scale = starScale.value * pressScale
-                    scaleX = scale
-                    scaleY = scale
-                    alpha = starAlpha
-                },
-            tint = if (isFilled) IenTheme.colors.brand else IenTheme.colors.borderStrong,
-        )
+        if (isFilled) {
+            Canvas(
+                modifier = Modifier
+                    .size(iconSize)
+                    .graphicsLayer {
+                        val scale = starScale.value * pressScale
+                        scaleX = scale
+                        scaleY = scale
+                        alpha = starAlpha
+                    },
+            ) {
+                if (fillFraction >= 0.75f) {
+                    drawRatingStarPath(brush = starBrush, scale = 0.92f)
+                } else {
+                    drawRatingStarPath(color = emptyStarColor, scale = 0.92f)
+                    clipRect(right = this.size.width * fillFraction) {
+                        drawRatingStarPath(brush = starBrush, scale = 0.92f)
+                    }
+                }
+            }
+        } else {
+            IenIcon(
+                imageVector = ratingIcon,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(iconSize)
+                    .graphicsLayer {
+                        val scale = starScale.value * pressScale
+                        scaleX = scale
+                        scaleY = scale
+                        alpha = starAlpha
+                    },
+                tint = emptyStarColor,
+            )
+        }
     }
 }
 
@@ -819,6 +844,24 @@ private fun DrawScope.drawRatingStarPath(
     color: Color,
     scale: Float,
 ) {
+    drawRatingStarPath(scale = scale) { path ->
+        drawPath(path = path, color = color)
+    }
+}
+
+private fun DrawScope.drawRatingStarPath(
+    brush: Brush,
+    scale: Float,
+) {
+    drawRatingStarPath(scale = scale) { path ->
+        drawPath(path = path, brush = brush)
+    }
+}
+
+private fun DrawScope.drawRatingStarPath(
+    scale: Float,
+    drawPath: DrawScope.(Path) -> Unit,
+) {
     val path = Path()
     val center = Offset(size.width / 2f, size.height / 2f)
     val outerRadius = minOf(size.width, size.height) * 0.5f * scale
@@ -836,7 +879,7 @@ private fun DrawScope.drawRatingStarPath(
         }
     }
     path.close()
-    drawPath(path = path, color = color)
+    drawPath(path)
 }
 
 @Preview(showBackground = true)

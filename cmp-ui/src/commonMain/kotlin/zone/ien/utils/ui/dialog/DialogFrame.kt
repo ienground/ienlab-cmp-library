@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenSurface
 
@@ -73,7 +74,7 @@ internal fun IenDialogFrame(
                     .then(fixedWidth?.let { Modifier.width(it) } ?: Modifier.fillMaxWidth())
                     .widthIn(max = maxWidth),
                 color = IenTheme.colors.surfaceRaised,
-                shape = RoundedCornerShape(IenTheme.radius.xl),
+                shape = ContinuousRoundedRectangle(IenTheme.radius.xl),
                 tonalElevation = IenTheme.elevation.overlay,
             ) {
                 Column(

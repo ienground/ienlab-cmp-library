@@ -17,6 +17,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.toneColor
@@ -67,7 +68,7 @@ fun IenBubble(
         IenSurface(
             color = container,
             contentColor = content,
-            shape = RoundedCornerShape(IenTheme.radius.lg),
+            shape = ContinuousRoundedRectangle(IenTheme.radius.lg),
         ) {
             IenText(
                 text = text,

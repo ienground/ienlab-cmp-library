@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -35,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenTheme
 
 /**
@@ -55,7 +55,7 @@ fun IenSurface(
     modifier: Modifier = Modifier,
     color: Color = IenTheme.colors.surface,
     contentColor: Color = IenTheme.colors.textPrimary,
-    shape: Shape = RoundedCornerShape(IenTheme.radius.default),
+    shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
     border: BorderStroke? = null,
     tonalElevation: Dp = IenTheme.elevation.none,
     content: @Composable () -> Unit,
@@ -183,7 +183,7 @@ fun IenDivider(
 @Composable
 fun IenBorderBox(
     modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(IenTheme.radius.default),
+    shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
     color: Color = IenTheme.colors.border,
     width: Dp = IenTheme.stroke.thin,
     padding: PaddingValues = PaddingValues(IenTheme.spacing.md),

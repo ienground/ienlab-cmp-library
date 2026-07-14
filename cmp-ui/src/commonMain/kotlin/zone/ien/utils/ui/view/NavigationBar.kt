@@ -50,12 +50,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousCapsule
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.icon.material.filled.Delete
 import zone.ien.utils.icon.material.filled.Edit
 import zone.ien.utils.icon.material.filled.Save
 import zone.ien.utils.icon.material.filled.Schedule
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.toneGradientBrush
 
 // ─── CompositionLocals ───────────────────────────────────────────────────────
 
@@ -214,13 +217,22 @@ fun CustomNavigationBar(
                     .align(Alignment.Center)
                     .padding(horizontal = 16.dp, vertical = 16.dp),
             ) {
+                val containerShape = ContinuousCapsule()
                 Surface(
-                    color = colors.containerColor,
-                    shape = RoundedCornerShape(999.dp),
+                    color = Color.Transparent,
+                    shape = containerShape,
                     tonalElevation = 0.dp,
                     shadowElevation = 18.dp,
                     modifier = Modifier
                         .height(78.dp)
+                        .background(
+                            brush = if (colors.containerColor == IenTheme.colors.brand) {
+                                toneGradientBrush(IenSemanticTone.Brand)
+                            } else {
+                                androidx.compose.ui.graphics.SolidColor(colors.containerColor)
+                            },
+                            shape = containerShape,
+                        )
                 ) {
                     Box(
                         modifier = Modifier
@@ -235,7 +247,7 @@ fun CustomNavigationBar(
                                     .fillMaxHeight()
                                     .background(
                                         color = colors.selectedItemBackgroundColor,
-                                        shape = RoundedCornerShape(999.dp),
+                                        shape = ContinuousCapsule(),
                                     )
                             )
                         }

@@ -1,10 +1,10 @@
 [versions]
 agp = "9.1.1"
-kotlin = "2.4.0"
+kotlin = "2.4.10"
 android-minSdk = "29"
 android-compileSdk = "37"
 android-targetSdk = "37"
-lib-version-name = "3.0.0-alpha08"
+lib-version-name = "3.0.0-alpha09"
 
 # plugin
 compose-plugin = "1.11.1"
@@ -19,11 +19,11 @@ firebase-common = "22.1.0"
 
 # ui
 activity-compose = "1.13.0"
-lifecycle = "2.11.0-rc01"
+lifecycle = "2.11.0"
 backdrop = "2.0.0-alpha06"
 haze = "1.7.2"
-hig = "1.1.0"
-capsule = "1.2.0"
+hig = "1.2.0"
+capsule = "2.1.4"
 placeholder = "1.0.3"
 
 # functionality
@@ -75,7 +75,7 @@ hig-core = { group = "zone.ien.hig", name = "hig-core", version.ref = "hig" }
 hig = { group = "zone.ien.hig", name = "hig", version.ref = "hig"}
 hig-adaptive = { group = "zone.ien.hig", name = "hig-adaptive", version.ref = "hig" }
 hig-icons = { group = "zone.ien.hig", name = "hig-icons-extended", version.ref = "hig" }
-capsule = { group = "zone.ien.shapes", name = "shapes", version.ref = "capsule"}
+capsule = { group = "zone.ien.capsule", name = "capsule", version.ref = "capsule" }
 #capsule = { group = "io.github.kyant0", name = "shapes", version.ref = "capsule"}
 
 placeholder = { group = "com.revenuecat.purchases", name = "placeholder", version.ref = "placeholder"}

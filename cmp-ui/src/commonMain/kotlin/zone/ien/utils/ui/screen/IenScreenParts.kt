@@ -226,9 +226,9 @@ data class IenScaffoldContentEdge(
     val bottomEnabled: Boolean = true,
     val topProgress: Float = 1f,
     val bottomProgress: Float = 1f,
-    val topHeight: Dp = 220.dp,
-    val bottomHeight: Dp = 132.dp,
-    val radius: Dp = 22.dp,
+    val topHeight: Dp = 168.dp,
+    val bottomHeight: Dp = 96.dp,
+    val radius: Dp = 18.dp,
     val color: Color? = null,
 )
 

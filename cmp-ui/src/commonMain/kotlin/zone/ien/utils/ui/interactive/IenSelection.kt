@@ -1,75 +1,71 @@
 package zone.ien.utils.ui.interactive
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.ui.graphics.graphicsLayer
-import zone.ien.utils.ui.utils.instantPress
-import androidx.compose.runtime.remember
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.layout.offset
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousCapsule
+import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlinx.coroutines.launch
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.fill.Check
-import zone.ien.utils.icon.remix.fill.Close
-import kotlin.math.roundToInt
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.utils.instantPress
+import kotlin.math.roundToInt
 
 /**
  * 활성/비활성 상태를 직관적으로 전환할 수 있는 토글 스위치 컴포저블.
@@ -276,7 +272,7 @@ fun IenSegmentedControl(
     IenSurface(
         modifier = modifier.then(if (alignment == IenSegmentedControlAlignment.Fixed) Modifier.fillMaxWidth() else Modifier),
         color = segmentedControlContainerColor(),
-        shape = RoundedCornerShape(IenTheme.radius.full),
+        shape = ContinuousCapsule(),
     ) {
         Box(
             modifier = Modifier
@@ -295,7 +291,7 @@ fun IenSegmentedControl(
                         .size(width = indicatorWidth, height = itemHeight)
                         .background(
                             color = segmentedControlIndicatorColor(),
-                            shape = RoundedCornerShape(IenTheme.radius.full),
+                            shape = ContinuousCapsule(),
                         ),
                 )
             }
@@ -585,6 +581,17 @@ fun IenCircleCheckbox(
         horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        val checkboxBackgroundModifier = if (isChecked) {
+            Modifier.background(
+                brush = toneGradientBrush(IenSemanticTone.Brand),
+                shape = androidx.compose.foundation.shape.CircleShape,
+            )
+        } else {
+            Modifier.background(
+                color = backgroundColor,
+                shape = androidx.compose.foundation.shape.CircleShape,
+            )
+        }
         Box(
             modifier = Modifier
                 .offset { IntOffset(x = shakeOffset.value.roundToInt(), y = 0) }
@@ -594,10 +601,7 @@ fun IenCircleCheckbox(
                 }
                 .alpha(alpha)
                 .size(size)
-                .background(
-                    color = backgroundColor,
-                    shape = androidx.compose.foundation.shape.CircleShape
-                )
+                .then(checkboxBackgroundModifier)
                 .border(
                     BorderStroke(1.5.dp, borderAnimColor),
                     shape = androidx.compose.foundation.shape.CircleShape
@@ -722,6 +726,17 @@ fun IenDotCheckbox(
         horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        val dotBackgroundModifier = if (isChecked) {
+            Modifier.background(
+                brush = toneGradientBrush(IenSemanticTone.Brand),
+                shape = androidx.compose.foundation.shape.CircleShape,
+            )
+        } else {
+            Modifier.background(
+                color = backgroundColor,
+                shape = androidx.compose.foundation.shape.CircleShape,
+            )
+        }
         Box(
             modifier = Modifier
                 .offset { IntOffset(x = shakeOffset.value.roundToInt(), y = 0) }
@@ -731,10 +746,7 @@ fun IenDotCheckbox(
                 }
                 .alpha(alpha)
                 .size(size)
-                .background(
-                    color = backgroundColor,
-                    shape = androidx.compose.foundation.shape.CircleShape
-                )
+                .then(dotBackgroundModifier)
                 .border(
                     BorderStroke(1.5.dp, borderAnimColor),
                     shape = androidx.compose.foundation.shape.CircleShape

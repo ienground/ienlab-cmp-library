@@ -1,7 +1,11 @@
 package zone.ien.utils.ui.interactive
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -10,15 +14,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,11 +37,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.semantics.error
-import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -47,14 +52,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.semantics.contentDescription
+import com.kyant.capsule.ContinuousCapsule
+import com.kyant.capsule.ContinuousRoundedRectangle
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.clear_input
@@ -68,11 +67,9 @@ import zone.ien.utils.cmp_ui.generated.resources.show
 import zone.ien.utils.cmp_ui.generated.resources.show_password
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.fill.Close
-import zone.ien.utils.ui.foundation.IenTheme
-import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.CircleShape
 import zone.ien.utils.icon.remix.line.ArrowDownWide
 import zone.ien.utils.icon.remix.line.Search
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
@@ -947,7 +944,7 @@ private fun IenSearchFieldInput(
             .fillMaxWidth()
             .height(44.dp),
         color = searchFieldContainerColor(),
-        shape = RoundedCornerShape(IenTheme.radius.lg),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.lg),
     ) {
         Row(
             modifier = Modifier.padding(start = 14.dp, end = 8.dp),
@@ -1050,7 +1047,7 @@ fun IenSearchFieldDeleteButton(
         IenSurface(
             modifier = Modifier.size(18.dp),
             color = backgroundColor,
-            shape = RoundedCornerShape(IenTheme.radius.full),
+            shape = ContinuousCapsule(),
         ) {
             IenIcon(
                 imageVector = RemixIcons.Fill.Close,

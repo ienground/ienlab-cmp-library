@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.IenTopBar
@@ -201,7 +202,7 @@ private fun ColorTokenRow(
         Box(
             modifier = Modifier
                 .size(44.dp)
-                .background(token.color, RoundedCornerShape(IenTheme.radius.default)),
+                .background(token.color, ContinuousRoundedRectangle(IenTheme.radius.default)),
         )
         Column(Modifier.weight(1f)) {
             IenText(token.name, style = IenTheme.typography.label1)

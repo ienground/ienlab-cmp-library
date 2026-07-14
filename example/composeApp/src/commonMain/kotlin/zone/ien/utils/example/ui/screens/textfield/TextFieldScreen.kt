@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousRoundedRectangle
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.hig.adaptive.AdaptiveHorizontalDivider
 import zone.ien.hig.adaptive.AdaptiveWidget
@@ -104,7 +105,7 @@ fun TextFieldScreen(
                             maxLines = 6,
                             modifier = Modifier
                                 .focusRequester(focusRequester)
-                                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(24.dp))
+                                .background(MaterialTheme.colorScheme.surface, ContinuousRoundedRectangle(24.dp))
                                 .padding(horizontal = 16.dp)
                                 .weight(1f)
 

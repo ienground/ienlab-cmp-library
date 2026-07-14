@@ -7,6 +7,7 @@ import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenTheme
 
 /**
@@ -17,7 +18,7 @@ internal object LocalDialogProviderDefault {
     /**
      * 기본 다이얼로그 모양을 반환합니다.
      */
-    val Shape @Composable get() = RoundedCornerShape(IenTheme.radius.xl)
+    val Shape @Composable get() = ContinuousRoundedRectangle(IenTheme.radius.xl)
     
     /**
      * 기본 다이얼로그 배경 색상을 반환합니다.

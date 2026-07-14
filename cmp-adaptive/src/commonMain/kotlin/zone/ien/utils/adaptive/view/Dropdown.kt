@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.kyant.backdrop.Backdrop
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoDropdownMenuDefaults
 import zone.ien.hig.CupertinoDropdownMenuNative
@@ -441,7 +442,7 @@ private class DropdownMenuAdaptation: Adaptation<HigDropdownMenuAdaptation, IenD
 
     @Composable
     override fun rememberMaterialAdaptation(): IenDropdownMenuAdaptation {
-        val shape = RoundedCornerShape(IenTheme.radius.lg)
+        val shape = ContinuousRoundedRectangle(IenTheme.radius.lg)
         val containerColor = IenTheme.colors.surfaceRaised
         val shadowElevation = IenTheme.elevation.floating
         val border = BorderStroke(

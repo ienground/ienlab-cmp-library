@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -25,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenSwitch
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
@@ -160,7 +160,7 @@ fun LazySectionScope.empty(
     ) {
         Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(IenTheme.radius.sm))
+                .clip(ContinuousRoundedRectangle(IenTheme.radius.sm))
                 .then(modifier)
                 .fillMaxSize()
                 .background(IenTheme.colors.surface)
@@ -249,11 +249,11 @@ private fun LazySectionScope.row(
 
     IenSurface(
         modifier = Modifier
-            .clip(RoundedCornerShape(IenTheme.radius.sm))
+            .clip(ContinuousRoundedRectangle(IenTheme.radius.sm))
             .then(modifier()),
         color = itemColors.containerColor(),
         contentColor = itemColors.headlineColor(enabled),
-        shape = RoundedCornerShape(IenTheme.radius.sm),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.sm),
     ) {
         Row(
             modifier = Modifier

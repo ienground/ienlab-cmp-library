@@ -11,17 +11,18 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
@@ -39,11 +40,10 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
+import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlinx.coroutines.delay
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.conditional
@@ -85,7 +85,7 @@ fun IenDropdownMenu(
     matchAnchorTop: Boolean = false,
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = DefaultMenuProperties,
-    shape: Shape = RoundedCornerShape(IenTheme.radius.lg),
+    shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.lg),
     containerColor: Color = IenTheme.colors.surfaceRaised,
     tonalElevation: Dp = IenTheme.elevation.none,
     shadowElevation: Dp = IenTheme.elevation.floating,
@@ -221,7 +221,7 @@ fun IenDropdownMenuItem(
         disabledTrailingIconColor = IenTheme.colors.textDisabled,
     ),
     contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.sm, vertical = IenTheme.spacing.xs),
-    shape: Shape? = RoundedCornerShape(IenTheme.radius.sm),
+    shape: Shape? = ContinuousRoundedRectangle(IenTheme.radius.sm),
     interactionSource: MutableInteractionSource? = null,
 ) {
     DropdownMenuItem(

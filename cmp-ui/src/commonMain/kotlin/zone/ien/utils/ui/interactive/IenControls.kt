@@ -11,11 +11,16 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.DragInteraction
+import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,7 +41,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
@@ -44,6 +48,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,8 +56,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -65,7 +79,10 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousCapsule
+import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
@@ -73,14 +90,16 @@ import zone.ien.utils.cmp_ui.generated.resources.next
 import zone.ien.utils.cmp_ui.generated.resources.stepper_step_list
 import zone.ien.utils.cmp_ui.generated.resources.tab_list
 import zone.ien.utils.cmp_ui.generated.resources.tab_update_indicator_desc
-import kotlin.math.roundToInt
-import kotlin.math.roundToLong
-import zone.ien.utils.ui.foundation.IenTheme
-import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.line.ArrowRightS
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
+import kotlin.math.max
+import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -108,6 +127,7 @@ fun IenSlider(
     label: String? = null,
     valueLabel: String? = null,
 ) {
+    val sliderInteractionSource = remember { MutableInteractionSource() }
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
@@ -123,17 +143,203 @@ fun IenSlider(
             valueRange = valueRange,
             steps = steps,
             enabled = enabled,
+            interactionSource = sliderInteractionSource,
             colors = SliderDefaults.colors(
-                thumbColor = IenTheme.colors.brand,
-                activeTrackColor = IenTheme.colors.brand,
+                thumbColor = Color.Transparent,
+                disabledThumbColor = Color.Transparent,
+                activeTrackColor = Color.Transparent,
+                disabledActiveTrackColor = Color.Transparent,
                 inactiveTrackColor = IenTheme.colors.brandWeak,
+                disabledInactiveTrackColor = IenTheme.colors.brandWeak.copy(alpha = IenTheme.state.disabledAlpha),
             ),
+            thumb = {
+                IenSliderThumb(
+                    interactionSource = sliderInteractionSource,
+                    enabled = enabled,
+                )
+            },
+            track = { sliderState ->
+                IenSliderTrack(
+                    fraction = sliderState.coercedValueAsFraction,
+                    tickFractions = remember(steps) { ienSliderTickFractions(steps) },
+                    enabled = enabled,
+                )
+            },
         )
         if (valueLabel != null) {
-            IenText(valueLabel, style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            IenText(
+                text = valueLabel,
+                modifier = Modifier.widthIn(min = IenSliderValueLabelMinWidth),
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.textSecondary,
+                textAlign = TextAlign.End,
+            )
         }
     }
 }
+
+@Composable
+private fun IenSliderThumb(
+    interactionSource: MutableInteractionSource,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val interactions = remember { mutableStateListOf<Interaction>() }
+    LaunchedEffect(interactionSource) {
+        interactionSource.interactions.collect { interaction ->
+            when (interaction) {
+                is FocusInteraction.Focus -> interactions.add(interaction)
+                is FocusInteraction.Unfocus -> interactions.remove(interaction.focus)
+                is PressInteraction.Press -> interactions.add(interaction)
+                is PressInteraction.Release -> interactions.remove(interaction.press)
+                is PressInteraction.Cancel -> interactions.remove(interaction.press)
+                is DragInteraction.Start -> interactions.add(interaction)
+                is DragInteraction.Stop -> interactions.remove(interaction.start)
+                is DragInteraction.Cancel -> interactions.remove(interaction.start)
+            }
+        }
+    }
+
+    val thumbSize = if (interactions.isNotEmpty()) {
+        IenSliderActiveThumbSize
+    } else {
+        IenSliderThumbSize
+    }
+    val brush = if (enabled) {
+        toneGradientBrush(IenSemanticTone.Brand)
+    } else {
+        SolidColor(IenTheme.colors.textDisabled)
+    }
+
+    Spacer(
+        modifier = modifier
+            .size(thumbSize)
+            .clip(IenSliderThumbShape)
+            .background(brush),
+    )
+}
+
+@Composable
+private fun IenSliderTrack(
+    fraction: Float,
+    tickFractions: List<Float>,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val activeBrush = if (enabled) {
+        toneGradientBrush(IenSemanticTone.Brand)
+    } else {
+        SolidColor(IenTheme.colors.textDisabled)
+    }
+    val inactiveColor = IenTheme.colors.brandWeak.copy(
+        alpha = if (enabled) 1f else IenTheme.state.disabledAlpha,
+    )
+    val indicatorColor = if (enabled) IenTheme.colors.brand else IenTheme.colors.textDisabled
+    val trackCornerRadius = IenTheme.radius.md
+    Canvas(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IenSliderTrackHeight),
+    ) {
+        val corner = trackCornerRadius.toPx()
+        val insideCorner = IenSliderTrackInsideCorner.toPx()
+        val thumbGap = IenSliderThumbWidth.toPx() / 2f + IenSliderThumbTrackGap.toPx()
+        val activeEnd = size.width * fraction.coerceIn(0f, 1f)
+        val inactiveStart = activeEnd + thumbGap
+        val activeWidth = max(0f, activeEnd - thumbGap)
+
+        if (inactiveStart < size.width) {
+            drawSliderTrackSegment(
+                topLeft = Offset(inactiveStart, 0f),
+                size = Size(size.width - inactiveStart, size.height),
+                startCorner = insideCorner,
+                endCorner = corner,
+                color = inactiveColor,
+                keepEndCorner = true,
+            )
+        }
+        if (activeWidth > 0f) {
+            drawSliderTrackSegment(
+                topLeft = Offset.Zero,
+                size = Size(activeWidth, size.height),
+                startCorner = corner,
+                endCorner = insideCorner,
+                brush = activeBrush,
+                keepEndCorner = false,
+            )
+        }
+
+        val indicatorRadius = IenSliderTickSize.toPx() / 2f
+        val tickStart = corner
+        val tickEnd = size.width - corner
+        tickFractions.forEachIndexed { index, tick ->
+            if (index == tickFractions.lastIndex) return@forEachIndexed
+
+            val centerX = tickStart + (tickEnd - tickStart) * tick
+            if (centerX in (activeEnd - thumbGap)..(activeEnd + thumbGap)) return@forEachIndexed
+
+            drawCircle(
+                color = if (tick <= fraction) inactiveColor else indicatorColor,
+                radius = indicatorRadius,
+                center = Offset(centerX, center.y),
+            )
+        }
+    }
+}
+
+private fun ienSliderTickFractions(steps: Int): List<Float> {
+    if (steps == 0) return emptyList()
+    val tickCount = steps + 2
+    return List(tickCount) { index -> index.toFloat() / (tickCount - 1) }
+}
+
+private fun DrawScope.drawSliderTrackSegment(
+    topLeft: Offset,
+    size: Size,
+    startCorner: Float,
+    endCorner: Float,
+    color: Color? = null,
+    brush: androidx.compose.ui.graphics.Brush? = null,
+    keepEndCorner: Boolean,
+) {
+    val naturalWidth = max(size.width, startCorner + endCorner)
+    val naturalTopLeft = if (keepEndCorner && naturalWidth > size.width) {
+        topLeft.copy(x = topLeft.x + size.width - naturalWidth)
+    } else {
+        topLeft
+    }
+    val track = RoundRect(
+        rect = Rect(naturalTopLeft, Size(naturalWidth, size.height)),
+        topLeft = CornerRadius(startCorner, startCorner),
+        bottomLeft = CornerRadius(startCorner, startCorner),
+        topRight = CornerRadius(endCorner, endCorner),
+        bottomRight = CornerRadius(endCorner, endCorner),
+    )
+    val path = Path().apply { addRoundRect(track) }
+    clipRect(
+        left = topLeft.x,
+        top = topLeft.y,
+        right = topLeft.x + size.width,
+        bottom = topLeft.y + size.height,
+    ) {
+        if (brush != null) {
+            drawPath(path = path, brush = brush)
+        } else if (color != null) {
+            drawPath(path = path, color = color)
+        }
+    }
+}
+
+private val IenSliderTrackHeight = 36.dp
+private val IenSliderThumbWidth = 4.dp
+private val IenSliderThumbHeight = 44.dp
+private val IenSliderThumbSize = DpSize(IenSliderThumbWidth, IenSliderThumbHeight)
+private val IenSliderActiveThumbSize = DpSize(IenSliderThumbWidth / 2, IenSliderThumbHeight)
+private val IenSliderThumbTrackGap = 6.dp
+private val IenSliderTrackInsideCorner = 2.dp
+private val IenSliderTickSize = 4.dp
+private val IenSliderValueLabelMinWidth = 48.dp
+private val IenSliderThumbShape = CircleShape
 
 /**
  * [IenStepper]의 값 범위를 정의하는 데이터 클래스.
@@ -298,10 +504,16 @@ fun IenStepperRow(
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(
-            animationSpec = tween(durationMillis = IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing),
+            animationSpec = tween(
+                durationMillis = IenTheme.motion.normalMillis,
+                easing = IenTheme.motion.standardEasing
+            ),
         ) + slideInVertically(
             initialOffsetY = { it / 5 },
-            animationSpec = tween(durationMillis = IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing),
+            animationSpec = tween(
+                durationMillis = IenTheme.motion.normalMillis,
+                easing = IenTheme.motion.standardEasing
+            ),
         ),
     ) {
         Row(
@@ -328,7 +540,7 @@ fun IenStepperRow(
                         modifier = Modifier
                             .width(IenTheme.stroke.thick)
                             .height(28.dp)
-                            .clip(RoundedCornerShape(IenTheme.radius.full))
+                            .clip(ContinuousCapsule())
                             .graphicsLayer { alpha = 0.85f }
                             .background(IenTheme.colors.border),
                     )
@@ -364,8 +576,10 @@ fun IenStepperRow(
 enum class IenStepperTextsType {
     /** 굵은 작은 라벨 및 보통 본문 스타일 */
     A,
+
     /** 큰 제목 및 보통 본문 스타일 */
     B,
+
     /** 보통 크기 라벨 및 캡션 스타일 */
     C,
 }
@@ -393,6 +607,7 @@ fun IenStepperTexts(
     val descriptionStyle = when (type) {
         IenStepperTextsType.A,
         IenStepperTextsType.B -> IenTheme.typography.body2
+
         IenStepperTextsType.C -> IenTheme.typography.caption
     }
 
@@ -431,7 +646,7 @@ fun IenStepperNumberIcon(
         modifier = modifier.size(28.dp),
         color = IenTheme.colors.brandWeak,
         contentColor = IenTheme.colors.brand,
-        shape = RoundedCornerShape(IenTheme.radius.full),
+        shape = ContinuousCapsule(),
         border = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.brand.copy(alpha = 0.18f)),
     ) {
         Box(
@@ -453,10 +668,13 @@ fun IenStepperNumberIcon(
 enum class IenStepperAssetFrameShape {
     /** 원형 프레임 */
     CircleMedium,
+
     /** 모서리가 둥근 사각형 프레임 */
     RoundedMedium,
+
     /** 24dp 크기의 여백 없는 사각형 프레임 */
     CleanW24,
+
     /** 32dp 크기의 여백 없는 사각형 프레임 */
     CleanW32,
 }
@@ -509,13 +727,14 @@ fun IenStepperAssetFrame(
         IenStepperAssetFrameShape.CircleMedium,
         IenStepperAssetFrameShape.RoundedMedium,
         IenStepperAssetFrameShape.CleanW32 -> 32.dp
+
         IenStepperAssetFrameShape.CleanW24 -> 24.dp
     }
     val resolvedShape: Shape = when (shape) {
-        IenStepperAssetFrameShape.CircleMedium -> RoundedCornerShape(IenTheme.radius.full)
-        IenStepperAssetFrameShape.RoundedMedium -> RoundedCornerShape(IenTheme.radius.default)
+        IenStepperAssetFrameShape.CircleMedium -> ContinuousCapsule()
+        IenStepperAssetFrameShape.RoundedMedium -> ContinuousRoundedRectangle(IenTheme.radius.default)
         IenStepperAssetFrameShape.CleanW24,
-        IenStepperAssetFrameShape.CleanW32 -> RoundedCornerShape(0.dp)
+        IenStepperAssetFrameShape.CleanW32 -> ContinuousRoundedRectangle(0.dp)
     }
 
     IenSurface(
@@ -597,16 +816,23 @@ private fun StepperAction(
     IenSurface(
         color = if (enabled) IenTheme.colors.brandWeak else IenTheme.colors.surfaceWeak,
         contentColor = if (enabled) IenTheme.colors.brand else IenTheme.colors.textDisabled,
-        shape = RoundedCornerShape(IenTheme.radius.full),
+        shape = ContinuousCapsule(),
         border = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border),
     ) {
         Box(
             modifier = Modifier
-                .defaultMinSize(minWidth = IenTheme.state.minimumTouchTarget, minHeight = IenTheme.state.minimumTouchTarget)
+                .defaultMinSize(
+                    minWidth = IenTheme.state.minimumTouchTarget,
+                    minHeight = IenTheme.state.minimumTouchTarget
+                )
                 .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            IenText(text, style = IenTheme.typography.title3, color = if (enabled) IenTheme.colors.brand else IenTheme.colors.textDisabled)
+            IenText(
+                text,
+                style = IenTheme.typography.title3,
+                color = if (enabled) IenTheme.colors.brand else IenTheme.colors.textDisabled
+            )
         }
     }
 }
@@ -639,6 +865,7 @@ data class IenTabItem(
 enum class IenTabSize {
     /** 작은 탭 크기 */
     Small,
+
     /** 큰 탭 크기 */
     Large,
 }
@@ -691,8 +918,10 @@ fun IenTab(
     var itemBounds by remember(items) { mutableStateOf<Map<Int, IenTabItemBounds>>(emptyMap()) }
     var viewportWidthPx by remember { mutableStateOf(0) }
     val selectedBounds = itemBounds[selectedIndex]
-    val indicatorWidthTarget = selectedBounds?.width?.let { (it - 24.dp).coerceAtLeast(20.dp) } ?: 20.dp
-    val indicatorOffsetTarget = selectedBounds?.let { it.left + (it.width - indicatorWidthTarget) / 2 } ?: 0.dp
+    val indicatorWidthTarget =
+        selectedBounds?.width?.let { (it - 24.dp).coerceAtLeast(20.dp) } ?: 20.dp
+    val indicatorOffsetTarget =
+        selectedBounds?.let { it.left + (it.width - indicatorWidthTarget) / 2 } ?: 0.dp
     val indicatorOffset by animateDpAsState(
         targetValue = indicatorOffsetTarget,
         animationSpec = spring(
@@ -740,7 +969,7 @@ fun IenTab(
                     .align(Alignment.BottomStart)
                     .offset(x = indicatorOffset)
                     .size(width = indicatorWidth, height = 2.dp)
-                    .clip(RoundedCornerShape(IenTheme.radius.full))
+                    .clip(ContinuousCapsule())
                     .background(IenTheme.colors.textPrimary),
             )
         }
@@ -769,13 +998,21 @@ fun IenTab(
                         selected -> IenTheme.colors.textPrimary
                         else -> IenTheme.colors.textSecondary
                     },
-                    animationSpec = tween(durationMillis = IenTheme.motion.fastMillis, easing = IenTheme.motion.standardEasing),
+                    animationSpec = tween(
+                        durationMillis = IenTheme.motion.fastMillis,
+                        easing = IenTheme.motion.standardEasing
+                    ),
                     label = "ienTabTextColor",
                 )
-                val contentDescription = stringResource(Res.string.tab_update_indicator_desc, item.text)
+                val contentDescription =
+                    stringResource(Res.string.tab_update_indicator_desc, item.text)
                 Column(
                     modifier = Modifier
-                        .then(if (fluid) Modifier.widthIn(min = minItemWidth) else Modifier.weight(1f))
+                        .then(
+                            if (fluid) Modifier.widthIn(min = minItemWidth) else Modifier.weight(
+                                1f
+                            )
+                        )
                         .height(tabHeight)
                         .onGloballyPositioned { coordinates ->
                             val bounds = IenTabItemBounds(
@@ -799,7 +1036,8 @@ fun IenTab(
                         }
                         .semantics {
                             this.selected = selected
-                            this.contentDescription = item.ariaLabel ?: if (item.redBean) contentDescription else item.text
+                            this.contentDescription = item.ariaLabel
+                                ?: if (item.redBean) contentDescription else item.text
                         }
                         .padding(horizontal = if (fluid) IenTheme.spacing.xs else 0.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -864,7 +1102,7 @@ fun IenFloatingTabBar(
     ariaLabel: String? = null,
     onChange: ((index: Int, key: Any?) -> Unit)? = null,
 ) {
-    val shape = RoundedCornerShape(IenTheme.radius.full)
+    val shape = ContinuousCapsule()
     val contentDescription = stringResource(Res.string.tab_list)
 
     Box(
@@ -908,10 +1146,14 @@ fun IenFloatingTabBar(
                         selected -> IenTheme.colors.textPrimary
                         else -> IenTheme.colors.textSecondary
                     },
-                    animationSpec = tween(durationMillis = IenTheme.motion.fastMillis, easing = IenTheme.motion.standardEasing),
+                    animationSpec = tween(
+                        durationMillis = IenTheme.motion.fastMillis,
+                        easing = IenTheme.motion.standardEasing
+                    ),
                     label = "ienFloatingTabItemColor",
                 )
-                val itemContentDescription = stringResource(Res.string.tab_update_indicator_desc, item.text)
+                val itemContentDescription =
+                    stringResource(Res.string.tab_update_indicator_desc, item.text)
 
                 LaunchedEffect(selected) {
                     if (!selected) {
@@ -959,7 +1201,8 @@ fun IenFloatingTabBar(
                         }
                         .semantics {
                             this.selected = selected
-                            this.contentDescription = item.ariaLabel ?: if (item.redBean) itemContentDescription else item.text
+                            this.contentDescription = item.ariaLabel
+                                ?: if (item.redBean) itemContentDescription else item.text
                         },
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,

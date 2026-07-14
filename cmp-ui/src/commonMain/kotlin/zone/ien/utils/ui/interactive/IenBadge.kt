@@ -12,6 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousCapsule
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
@@ -76,7 +78,7 @@ fun IenBadge(
         modifier = modifier,
         color = container,
         contentColor = content,
-        shape = RoundedCornerShape(IenTheme.radius.full),
+        shape = ContinuousCapsule(),
         border = border,
     ) {
         IenProvideTextStyle(size.textStyle(), LocalContentColor.current) {

@@ -1,7 +1,7 @@
 package zone.ien.utils.ui.section
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,10 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -25,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastSumBy
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.section.SectionScope
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
@@ -133,9 +132,9 @@ fun IenSection(
         IenSurface(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
-                .clip(RoundedCornerShape(IenTheme.radius.lg)),
+                .clip(ContinuousRoundedRectangle(IenTheme.radius.lg)),
             color = IenTheme.colors.surfaceRaised,
-            shape = RoundedCornerShape(IenTheme.radius.lg),
+            shape = ContinuousRoundedRectangle(IenTheme.radius.lg),
             border = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border.copy(alpha = 0.72f)),
         ) {
             SubcomposeLayout { constraints ->

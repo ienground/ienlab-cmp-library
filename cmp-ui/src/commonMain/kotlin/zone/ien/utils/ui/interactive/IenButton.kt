@@ -2,6 +2,7 @@ package zone.ien.utils.ui.interactive
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -36,9 +37,11 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import zone.ien.utils.ui.utils.instantPress
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.Role
@@ -49,6 +52,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousCapsule
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.line.ArrowRightS
 import zone.ien.utils.ui.foundation.IenSemanticTone
@@ -137,6 +142,7 @@ data class IenButtonState(
  * @param iconPlacement 아이콘이 배치될 위치 ([IenIconPlacement]). 기본값은 [IenIconPlacement.Start].
  * @param shape 버튼의 형태 정의 ([Shape]).
  * @param contentPadding 버튼 내부 콘텐츠의 여백 ([PaddingValues]).
+ * @param backgroundBrush 버튼 배경에 적용할 브러시. null이면 Fill 버튼에 tone 기반 기본 그라데이션을 사용합니다.
  * @param interactionSource 버튼 인터랙션 정보를 전달할 [MutableInteractionSource].
  * @param display 버튼의 가로 확장 모드 ([IenButtonDisplay]). 기본값은 [IenButtonDisplay.Inline].
  */
@@ -151,8 +157,9 @@ fun IenButton(
     state: IenButtonState = IenButtonState(),
     icon: (@Composable () -> Unit)? = null,
     iconPlacement: IenIconPlacement = IenIconPlacement.Start,
-    shape: Shape = RoundedCornerShape(IenTheme.radius.default),
+    shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
     contentPadding: PaddingValues = size.buttonPadding(),
+    backgroundBrush: Brush? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     display: IenButtonDisplay = IenButtonDisplay.Inline,
 ) {
@@ -162,11 +169,10 @@ fun IenButton(
         .heightIn(min = height)
 
     val resolvedShape = if (display == IenButtonDisplay.Full) {
-        RoundedCornerShape(0.dp)
+        ContinuousRoundedRectangle(0.dp)
     } else {
         shape
     }
-
     IenButtonContainer(
         onClick = onClick,
         modifier = buttonModifier,
@@ -175,6 +181,7 @@ fun IenButton(
         state = state,
         shape = resolvedShape,
         contentPadding = contentPadding,
+        backgroundBrush = backgroundBrush,
         interactionSource = interactionSource,
         scalePressed = 0.975f,
     ) {
@@ -209,7 +216,7 @@ fun IenIconButton(
     variant: IenButtonVariant = IenButtonVariant.Fill,
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(),
-    shape: Shape = RoundedCornerShape(IenTheme.radius.default),
+    shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
@@ -334,7 +341,7 @@ fun IenExtendedFab(
     state: IenButtonState = IenButtonState(),
     icon: (@Composable () -> Unit)? = null,
     iconPlacement: IenIconPlacement = IenIconPlacement.Start,
-    shape: Shape = RoundedCornerShape(IenTheme.radius.full),
+    shape: Shape = ContinuousCapsule(),
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
@@ -404,7 +411,7 @@ fun IenTextButton(
         variant = IenButtonVariant.Ghost,
         tone = tone,
         state = state.copy(enabled = enabled),
-        shape = RoundedCornerShape(IenTheme.radius.sm),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.sm),
         contentPadding = size.contentPadding(),
         interactionSource = interactionSource,
         scalePressed = 0.97f,
@@ -542,6 +549,27 @@ internal fun toneOnColor(tone: IenSemanticTone): Color = when (tone) {
     IenSemanticTone.Info -> IenTheme.colors.onInfo
 }
 
+@Composable
+internal fun toneGradientBrush(tone: IenSemanticTone): Brush {
+    val base = toneColor(tone)
+    val start = lerp(base, Color.White, 0.18f)
+    val end = lerp(base, Color.White, 0.36f)
+    return Brush.linearGradient(
+        colors = listOf(start, base, end),
+    )
+}
+
+@Composable
+internal fun toneWeakGradientBrush(tone: IenSemanticTone): Brush {
+    val base = toneWeakColor(tone)
+    val accent = toneColor(tone)
+    val start = lerp(base, Color.White, 0.16f)
+    val end = lerp(base, accent, 0.08f)
+    return Brush.linearGradient(
+        colors = listOf(start, base, end),
+    )
+}
+
 private fun IenButtonSize.buttonHeight(): Dp = when (this) {
     IenButtonSize.Small -> 36.dp
     IenButtonSize.Medium -> 44.dp
@@ -622,12 +650,13 @@ internal fun IenButtonContainer(
     variant: IenButtonVariant = IenButtonVariant.Fill,
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(),
-    shape: Shape = RoundedCornerShape(IenTheme.radius.default),
+    shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
     contentPadding: PaddingValues = PaddingValues(0.dp),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     scalePressed: Float = 0.975f,
     colors: IenButtonResolvedColors? = null,
     border: BorderStroke? = null,
+    backgroundBrush: Brush? = null,
     content: @Composable () -> Unit,
 ) {
     val ienColors = ienButtonColors(variant, tone, state.enabled)
@@ -668,14 +697,26 @@ internal fun IenButtonContainer(
         .instantPress(interactiveEnabled) { isPressed = it }
 
     val resolvedIenColors = colors ?: ienColors
-    val resolvedColors = ButtonDefaults.buttonColors(
-        containerColor = resolvedIenColors.container,
-        contentColor = resolvedIenColors.content,
-        disabledContainerColor = if (state.loading && state.enabled) {
+    val effectiveBackgroundBrush = (backgroundBrush ?: when (variant) {
+        IenButtonVariant.Fill -> toneGradientBrush(tone)
+        IenButtonVariant.Weak -> toneWeakGradientBrush(tone)
+        IenButtonVariant.Line, IenButtonVariant.Ghost -> null
+    })
+        .takeIf { state.enabled }
+    val containerColor = if (effectiveBackgroundBrush == null) resolvedIenColors.container else Color.Transparent
+    val disabledContainerColor = if (effectiveBackgroundBrush == null) {
+        if (state.loading && state.enabled) {
             resolvedIenColors.container
         } else {
             resolvedIenColors.disabledContainer
-        },
+        }
+    } else {
+        Color.Transparent
+    }
+    val resolvedColors = ButtonDefaults.buttonColors(
+        containerColor = containerColor,
+        contentColor = resolvedIenColors.content,
+        disabledContainerColor = disabledContainerColor,
         disabledContentColor = if (state.loading && state.enabled) {
             resolvedIenColors.content
         } else {
@@ -688,11 +729,16 @@ internal fun IenButtonContainer(
             onClick()
         }
     }
+    val paintedButtonModifier = if (effectiveBackgroundBrush == null) {
+        buttonModifier
+    } else {
+        buttonModifier.background(effectiveBackgroundBrush, shape)
+    }
 
     when (variant) {
         IenButtonVariant.Fill, IenButtonVariant.Weak -> Button(
             onClick = handleOnClick,
-            modifier = buttonModifier,
+            modifier = paintedButtonModifier,
             enabled = true,
             shape = shape,
             colors = resolvedColors,

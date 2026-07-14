@@ -7,11 +7,10 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
@@ -20,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.toneColor
@@ -67,7 +67,7 @@ fun IenMenu(
     IenSurface(
         modifier = modifier.widthIn(min = IenTheme.state.minimumTouchTarget * 4),
         color = IenTheme.colors.surfaceRaised,
-        shape = RoundedCornerShape(IenTheme.radius.lg),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.lg),
         tonalElevation = IenTheme.elevation.floating,
     ) {
         Column(Modifier.padding(vertical = IenTheme.spacing.xs)) {
@@ -193,7 +193,7 @@ object IenModal {
     @Composable
     fun Content(
         modifier: Modifier = Modifier,
-        shape: RoundedCornerShape = RoundedCornerShape(IenTheme.radius.xl),
+        shape: ContinuousRoundedRectangle = ContinuousRoundedRectangle(IenTheme.radius.xl),
         content: @Composable ColumnScope.() -> Unit,
     ) {
         IenSurface(
