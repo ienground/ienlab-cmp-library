@@ -241,20 +241,29 @@ fun IenTextField(
         IenTextFieldVariant.Big -> IenTheme.typography.title2
         IenTextFieldVariant.Hero -> IenTheme.typography.display
     }.fieldInputTextStyle()
-    val borderColor = when (effectiveStatus) {
-        is IenFieldStatus.Error -> IenTheme.colors.danger
-        is IenFieldStatus.Success -> IenTheme.colors.success
-        IenFieldStatus.Normal -> if (focused) IenTheme.colors.brand else IenTheme.colors.border
+    val errorStatus = effectiveStatus as? IenFieldStatus.Error
+    val successStatus = effectiveStatus as? IenFieldStatus.Success
+    val isNormal = effectiveStatus === IenFieldStatus.Normal
+
+    val borderColor = when {
+        errorStatus != null -> IenTheme.colors.danger
+        successStatus != null -> IenTheme.colors.success
+        isNormal -> if (focused) IenTheme.colors.brand else IenTheme.colors.border
+        else -> error("Unknown IenFieldStatus: $effectiveStatus")
     }
-    val supporting = when (val status = effectiveStatus) {
-        is IenFieldStatus.Error -> status.message
-        is IenFieldStatus.Success -> status.message ?: help ?: supportingText
-        IenFieldStatus.Normal -> help ?: supportingText
+
+    val supporting = when {
+        errorStatus != null -> errorStatus.message
+        successStatus != null -> successStatus.message ?: help ?: supportingText
+        isNormal -> help ?: supportingText
+        else -> error("Unknown IenFieldStatus: $effectiveStatus")
     }
-    val supportingColor = when (effectiveStatus) {
-        is IenFieldStatus.Error -> IenTheme.colors.danger
-        is IenFieldStatus.Success -> IenTheme.colors.success
-        IenFieldStatus.Normal -> IenTheme.colors.textTertiary
+
+    val supportingColor = when {
+        errorStatus != null -> IenTheme.colors.danger
+        successStatus != null -> IenTheme.colors.success
+        isNormal -> IenTheme.colors.textTertiary
+        else -> error("Unknown IenFieldStatus: $effectiveStatus")
     }
     val textColor = if (state.enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled
 
