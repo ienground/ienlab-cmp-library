@@ -12,17 +12,21 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -68,20 +72,374 @@ object IenMenu {
 
     /**
      * 메뉴 팝업이 표시될 위치를 정의하는 열거형 클래스입니다.
+     *
+     * 이름의 첫 단어는 메뉴가 앵커의 어느 바깥 방향에 놓이는지 나타냅니다.
+     * `Start`/`End`는 그 방향의 축과 직교하는 정렬 기준입니다.
+     * `Anchor*` 값은 메뉴를 앵커 바깥에 놓지 않고, 앵커 영역과 겹치게 배치합니다.
+     *
+     * ![IenMenu placement diagram](../../../../../../../../images/ien_menu_placement_diagram_large_text.png)
      */
     enum class Placement {
+        /**
+         * 메뉴를 앵커 위에 배치하고, 메뉴의 가로 중앙을 앵커의 가로 중앙에 맞춥니다.
+         *
+         *         ┌────────────────┐
+         *         │                │
+         *         │     Popup      │
+         *         │                │
+         *         └────────────────┘
+         *             ┌────────┐
+         *             │ Anchor │
+         *             └────────┘
+         */
         Top,
+
+        /**
+         * 메뉴를 앵커 위에 배치하고, 메뉴의 왼쪽을 앵커의 왼쪽에 맞춥니다.
+         *
+         *         ┌────────────────┐
+         *         │                │
+         *         │     Popup      │
+         *         │                │
+         *         └────────────────┘
+         *         ┌────────┐
+         *         │ Anchor │
+         *         └────────┘
+         */
         TopStart,
+
+        /**
+         * 메뉴를 앵커 위에 배치하고, 메뉴의 오른쪽을 앵커의 오른쪽에 맞춥니다.
+         *
+         *         ┌────────────────┐
+         *         │                │
+         *         │     Popup      │
+         *         │                │
+         *         └────────────────┘
+         *                 ┌────────┐
+         *                 │ Anchor │
+         *                 └────────┘
+         */
         TopEnd,
+
+        /**
+         * 메뉴의 위쪽을 앵커의 위쪽에 맞추고, 메뉴의 오른쪽을 앵커의 오른쪽에 맞춥니다.
+         *
+         * 메뉴가 앵커의 위/아래가 아니라 앵커와 같은 세로 시작점에서 펼쳐져야 할 때 사용합니다.
+         * 예: 상단바 actions 영역의 더보기 메뉴처럼 기존 버튼 줄의 top/end에 붙여 열어야 하는 경우.
+         *
+         *         ┌───────┌────────┐
+         *         │       │ Anchor │
+         *         │     Po└────────┘
+         *         │                │
+         *         └────────────────┘
+         */
+        AnchorTopEnd,
+
+        /**
+         * 메뉴의 위쪽을 앵커의 위쪽에 맞추고, 메뉴의 왼쪽을 앵커의 왼쪽에 맞춥니다.
+         *
+         *         ┌────────┐───────┐
+         *         │ Anchor │       │
+         *         └────────┘p      │
+         *         │                │
+         *         └────────────────┘
+         */
+        AnchorTopStart,
+
+        /**
+         * 메뉴의 위쪽을 앵커의 위쪽에 맞추고, 메뉴의 가로 중앙을 앵커의 가로 중앙에 맞춥니다.
+         *
+         *         ┌───┌────────┐───┐
+         *         │   │ Anchor │   │
+         *         │   └────────┘   │
+         *         │                │
+         *         └────────────────┘
+         */
+        AnchorTop,
+
+        /**
+         * 메뉴의 세로 중앙을 앵커의 세로 중앙에 맞추고, 메뉴의 왼쪽을 앵커의 왼쪽에 맞춥니다.
+         *
+         *         ┌────────────────┐
+         *         ┌────────┐       │
+         *         │ Anchorp│p      │
+         *         └────────┘       │
+         *         └────────────────┘
+         */
+        AnchorCenterStart,
+
+        /**
+         * 메뉴의 중앙을 앵커의 중앙에 맞춥니다.
+         *
+         *         ┌────────────────┐
+         *         │   ┌────────┐   │
+         *         │   │ Anchor │   │
+         *         │   └────────┘   │
+         *         └────────────────┘
+         */
+        AnchorCenter,
+
+        /**
+         * 메뉴의 세로 중앙을 앵커의 세로 중앙에 맞추고, 메뉴의 오른쪽을 앵커의 오른쪽에 맞춥니다.
+         *
+         *         ┌────────────────┐
+         *         │       ┌────────┐
+         *         │     Po│uAnchor │
+         *         │       └────────┘
+         *         └────────────────┘
+         */
+        AnchorCenterEnd,
+
+        /**
+         * 메뉴의 아래쪽을 앵커의 아래쪽에 맞추고, 메뉴의 왼쪽을 앵커의 왼쪽에 맞춥니다.
+         *
+         *         ┌────────────────┐
+         *         │                │
+         *         ┌────────┐p      │
+         *         │ Anchor │       │
+         *         └────────┘───────┘
+         */
+        AnchorBottomStart,
+
+        /**
+         * 메뉴의 아래쪽을 앵커의 아래쪽에 맞추고, 메뉴의 가로 중앙을 앵커의 가로 중앙에 맞춥니다.
+         *
+         *         ┌────────────────┐
+         *         │                │
+         *         │   ┌────────┐   │
+         *         │   │ Anchor │   │
+         *         └───└────────┘───┘
+         */
+        AnchorBottom,
+
+        /**
+         * 메뉴의 아래쪽을 앵커의 아래쪽에 맞추고, 메뉴의 오른쪽을 앵커의 오른쪽에 맞춥니다.
+         *
+         *         ┌────────────────┐
+         *         │                │
+         *         │     Po┌────────┐
+         *         │       │ Anchor │
+         *         └───────└────────┘
+         */
+        AnchorBottomEnd,
+
+        /**
+         * 메뉴를 앵커 오른쪽에 배치하고, 메뉴의 세로 중앙을 앵커의 세로 중앙에 맞춥니다.
+         *
+         *              ┌────────────────┐
+         *    ┌────────┐│                │
+         *    │ Anchor ││     Popup      │
+         *    └────────┘│                │
+         *              └────────────────┘
+         */
         Right,
+
+        /**
+         * 메뉴를 앵커 오른쪽에 배치하고, 메뉴의 위쪽을 앵커의 위쪽에 맞춥니다.
+         *
+         *    ┌────────┐┌────────────────┐
+         *    │ Anchor ││                │
+         *    └────────┘│     Popup      │
+         *              │                │
+         *              └────────────────┘
+         */
         RightStart,
+
+        /**
+         * 메뉴를 앵커 오른쪽에 배치하고, 메뉴의 아래쪽을 앵커의 아래쪽에 맞춥니다.
+         *
+         *              ┌────────────────┐
+         *              │                │
+         *    ┌────────┐│     Popup      │
+         *    │ Anchor ││                │
+         *    └────────┘└────────────────┘
+         */
         RightEnd,
+
+        /**
+         * 메뉴를 앵커 아래에 배치하고, 메뉴의 가로 중앙을 앵커의 가로 중앙에 맞춥니다.
+         *
+         *             ┌────────┐
+         *             │ Anchor │
+         *             └────────┘
+         *         ┌────────────────┐
+         *         │                │
+         *         │     Popup      │
+         *         │                │
+         *         └────────────────┘
+         */
         Bottom,
+
+        /**
+         * 메뉴를 앵커 아래에 배치하고, 메뉴의 왼쪽을 앵커의 왼쪽에 맞춥니다.
+         *
+         *         ┌────────┐
+         *         │ Anchor │
+         *         └────────┘
+         *         ┌────────────────┐
+         *         │                │
+         *         │     Popup      │
+         *         │                │
+         *         └────────────────┘
+         */
         BottomStart,
+
+        /**
+         * 메뉴를 앵커 아래에 배치하고, 메뉴의 오른쪽을 앵커의 오른쪽에 맞춥니다.
+         *
+         *                 ┌────────┐
+         *                 │ Anchor │
+         *                 └────────┘
+         *         ┌────────────────┐
+         *         │                │
+         *         │     Popup      │
+         *         │                │
+         *         └────────────────┘
+         */
         BottomEnd,
+
+        /**
+         * 메뉴를 앵커 왼쪽에 배치하고, 메뉴의 세로 중앙을 앵커의 세로 중앙에 맞춥니다.
+         *
+         *    ┌────────────────┐
+         *    │                │┌────────┐
+         *    │     Popup      ││ Anchor │
+         *    │                │└────────┘
+         *    └────────────────┘
+         */
         Left,
+
+        /**
+         * 메뉴를 앵커 왼쪽에 배치하고, 메뉴의 위쪽을 앵커의 위쪽에 맞춥니다.
+         *
+         *    ┌────────────────┐┌────────┐
+         *    │                ││ Anchor │
+         *    │     Popup      │└────────┘
+         *    │                │
+         *    └────────────────┘
+         */
         LeftStart,
+
+        /**
+         * 메뉴를 앵커 왼쪽에 배치하고, 메뉴의 아래쪽을 앵커의 아래쪽에 맞춥니다.
+         *
+         *    ┌────────────────┐
+         *    │                │
+         *    │     Popup      │┌────────┐
+         *    │                ││ Anchor │
+         *    └────────────────┘└────────┘
+         */
         LeftEnd,
+    }
+
+    /**
+     * 별도의 트리거 래퍼 없이 현재 컴포지션 위치를 앵커로 삼아 팝업 메뉴를 표시합니다.
+     *
+     * @param expanded 메뉴가 열려 있는지 여부
+     * @param onDismissRequest 메뉴를 닫을 때 호출되는 콜백 함수
+     * @param modifier 드롭다운 컨테이너에 적용할 Modifier
+     * @param offset 메뉴 팝업의 추가 오프셋
+     * @param placement 메뉴가 나타날 방향 및 정렬 방식
+     * @param properties 팝업의 창 속성
+     * @param shape 드롭다운 모서리 둥글기 모양
+     * @param containerColor 드롭다운 배경 색상
+     * @param shadowElevation 그림자 높이
+     * @param border 드롭다운 테두리
+     * @param content 드롭다운 항목들을 포함할 내부 컴포저블
+     */
+    @Composable
+    fun PopupDropdown(
+        expanded: Boolean,
+        onDismissRequest: () -> Unit,
+        modifier: Modifier = Modifier,
+        offset: DpOffset = DpOffset.Zero,
+        placement: Placement = Placement.BottomEnd,
+        properties: PopupProperties = PopupProperties(
+            focusable = true,
+            dismissOnClickOutside = true,
+            dismissOnBackPress = true,
+            clippingEnabled = false,
+        ),
+        shape: Shape = RoundedCornerShape(28.dp),
+        containerColor: Color = IenTheme.colors.surfaceRaised,
+        shadowElevation: Dp = ShadowPadding - 24.dp,
+        border: BorderStroke? = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border.copy(alpha = 0.35f)),
+        scrollState: ScrollState = rememberScrollState(),
+        minWidth: Dp = 180.dp,
+        maxWidth: Dp = 280.dp,
+        content: @Composable ColumnScope.() -> Unit,
+    ) {
+        val density = LocalDensity.current
+        val visibilityState = remember { MutableTransitionState(false) }
+        LaunchedEffect(expanded) {
+            visibilityState.targetState = expanded
+        }
+
+        if (visibilityState.currentState || visibilityState.targetState) {
+            Popup(
+                popupPositionProvider = remember(offset, placement, density) {
+                    object : PopupPositionProvider {
+                        override fun calculatePosition(
+                            anchorBounds: IntRect,
+                            windowSize: IntSize,
+                            layoutDirection: LayoutDirection,
+                            popupContentSize: IntSize,
+                        ): IntOffset {
+                            val offsetX = with(density) { offset.x.roundToPx() }
+                            val offsetY = with(density) { offset.y.roundToPx() }
+                            val shadowPadding = with(density) { ShadowPadding.roundToPx() }
+                            val cardSize = IntSize(
+                                width = (popupContentSize.width - shadowPadding * 2).coerceAtLeast(0),
+                                height = (popupContentSize.height - shadowPadding * 2).coerceAtLeast(0),
+                            )
+                            val cardX = placement.menuX(anchorBounds, cardSize, offsetX)
+                            val cardY = placement.menuY(anchorBounds, cardSize, offsetY)
+                            val clampedCardX = cardX.coerceIn(
+                                8,
+                                maxOf(8, windowSize.width - cardSize.width - 8),
+                            )
+                            val clampedCardY = cardY.coerceIn(
+                                8,
+                                maxOf(8, windowSize.height - cardSize.height - 8),
+                            )
+                            return IntOffset(
+                                x = clampedCardX - shadowPadding,
+                                y = clampedCardY - shadowPadding,
+                            )
+                        }
+                    }
+                },
+                onDismissRequest = onDismissRequest,
+                properties = properties,
+            ) {
+                AnimatedVisibility(
+                    visibleState = visibilityState,
+                    enter = fadeIn(animationSpec = tween(120)) + scaleIn(
+                        initialScale = 0.96f,
+                        transformOrigin = placement.transformOrigin(),
+                        animationSpec = tween(160),
+                    ),
+                    exit = fadeOut(animationSpec = tween(90)) + scaleOut(
+                        targetScale = 0.98f,
+                        transformOrigin = placement.transformOrigin(),
+                        animationSpec = tween(90),
+                    ),
+                ) {
+                    Dropdown(
+                        modifier = modifier,
+                        shape = shape,
+                        containerColor = containerColor,
+                        shadowElevation = shadowElevation,
+                        border = border,
+                        scrollState = scrollState,
+                        minWidth = minWidth,
+                        maxWidth = maxWidth,
+                        content = content,
+                    )
+                }
+            }
+        }
     }
 
     /**
@@ -107,6 +465,7 @@ object IenMenu {
             focusable = true,
             dismissOnClickOutside = true,
             dismissOnBackPress = true,
+            clippingEnabled = false,
         ),
         dropdown: @Composable () -> Unit,
         children: @Composable () -> Unit,
@@ -150,6 +509,7 @@ object IenMenu {
             focusable = true,
             dismissOnClickOutside = true,
             dismissOnBackPress = true,
+            clippingEnabled = false,
         ),
         dropdown: @Composable () -> Unit,
         children: @Composable () -> Unit,
@@ -212,8 +572,8 @@ object IenMenu {
                                     maxOf(8, windowSize.height - cardSize.height - 8),
                                 )
                                 return IntOffset(
-                                    x = clampedCardX,
-                                    y = clampedCardY,
+                                    x = clampedCardX - shadowPadding,
+                                    y = clampedCardY - shadowPadding,
                                 )
                             }
                         }
@@ -258,6 +618,10 @@ object IenMenu {
         onDismissRequest: (() -> Unit)? = null,
         header: (@Composable () -> Unit)? = null,
         shape: Shape = RoundedCornerShape(28.dp),
+        containerColor: Color = IenTheme.colors.surfaceRaised,
+        shadowElevation: Dp = ShadowPadding - 24.dp,
+        border: BorderStroke? = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border.copy(alpha = 0.35f)),
+        scrollState: ScrollState = rememberScrollState(),
         minWidth: Dp = 180.dp,
         maxWidth: Dp = 280.dp,
         content: @Composable ColumnScope.() -> Unit,
@@ -275,22 +639,23 @@ object IenMenu {
         ) {
             IenSurface(
                 modifier = Modifier
-                    .offset(x = -ShadowPadding, y = -ShadowPadding)
                     .widthIn(min = minWidth, max = maxWidth)
-                    .shadow(elevation = ShadowPadding - 24.dp, shape = shape, clip = false)
+                    .width(IntrinsicSize.Max)
+                    .shadow(elevation = shadowElevation, shape = shape, clip = false)
                     .clickable(
                         interactionSource = cardInteractionSource,
                         indication = null,
                         onClick = {},
                     ),
-                color = IenTheme.colors.surfaceRaised,
+                color = containerColor,
                 shape = shape,
-                border = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border.copy(alpha = 0.35f)),
+                border = border,
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(shape)
+                        .verticalScroll(scrollState)
                         .padding(vertical = IenTheme.spacing.sm),
                 ) {
                     header?.invoke()
@@ -596,10 +961,19 @@ private fun IenMenu.Placement.menuX(
     IenMenu.Placement.RightStart,
     IenMenu.Placement.RightEnd -> anchorBounds.right + offsetX
     IenMenu.Placement.TopStart,
+    IenMenu.Placement.AnchorTopStart,
+    IenMenu.Placement.AnchorCenterStart,
+    IenMenu.Placement.AnchorBottomStart,
     IenMenu.Placement.BottomStart -> anchorBounds.left + offsetX
     IenMenu.Placement.TopEnd,
+    IenMenu.Placement.AnchorTopEnd,
+    IenMenu.Placement.AnchorCenterEnd,
+    IenMenu.Placement.AnchorBottomEnd,
     IenMenu.Placement.BottomEnd -> anchorBounds.right - cardSize.width + offsetX
     IenMenu.Placement.Top,
+    IenMenu.Placement.AnchorTop,
+    IenMenu.Placement.AnchorCenter,
+    IenMenu.Placement.AnchorBottom,
     IenMenu.Placement.Bottom -> anchorBounds.left + (anchorBounds.width - cardSize.width) / 2 + offsetX
 }
 
@@ -611,14 +985,23 @@ private fun IenMenu.Placement.menuY(
     IenMenu.Placement.Top,
     IenMenu.Placement.TopStart,
     IenMenu.Placement.TopEnd -> anchorBounds.top - cardSize.height - offsetY
+    IenMenu.Placement.AnchorTop,
+    IenMenu.Placement.AnchorTopStart,
+    IenMenu.Placement.AnchorTopEnd -> anchorBounds.top + offsetY
     IenMenu.Placement.Bottom,
     IenMenu.Placement.BottomStart,
     IenMenu.Placement.BottomEnd -> anchorBounds.bottom + offsetY
+    IenMenu.Placement.AnchorBottom,
+    IenMenu.Placement.AnchorBottomStart,
+    IenMenu.Placement.AnchorBottomEnd -> anchorBounds.bottom - cardSize.height + offsetY
     IenMenu.Placement.LeftStart,
     IenMenu.Placement.RightStart -> anchorBounds.top + offsetY
     IenMenu.Placement.LeftEnd,
     IenMenu.Placement.RightEnd -> anchorBounds.bottom - cardSize.height + offsetY
     IenMenu.Placement.Left,
+    IenMenu.Placement.AnchorCenter,
+    IenMenu.Placement.AnchorCenterStart,
+    IenMenu.Placement.AnchorCenterEnd,
     IenMenu.Placement.Right -> anchorBounds.top + (anchorBounds.height - cardSize.height) / 2 + offsetY
 }
 
@@ -626,6 +1009,15 @@ private fun IenMenu.Placement.transformOrigin(): TransformOrigin = when (this) {
     IenMenu.Placement.TopStart -> TransformOrigin(0f, 1f)
     IenMenu.Placement.Top -> TransformOrigin(0.5f, 1f)
     IenMenu.Placement.TopEnd -> TransformOrigin(1f, 1f)
+    IenMenu.Placement.AnchorTopStart -> TransformOrigin(0f, 0f)
+    IenMenu.Placement.AnchorTop -> TransformOrigin(0.5f, 0f)
+    IenMenu.Placement.AnchorTopEnd -> TransformOrigin(1f, 0f)
+    IenMenu.Placement.AnchorCenterStart -> TransformOrigin(0f, 0.5f)
+    IenMenu.Placement.AnchorCenter -> TransformOrigin(0.5f, 0.5f)
+    IenMenu.Placement.AnchorCenterEnd -> TransformOrigin(1f, 0.5f)
+    IenMenu.Placement.AnchorBottomStart -> TransformOrigin(0f, 1f)
+    IenMenu.Placement.AnchorBottom -> TransformOrigin(0.5f, 1f)
+    IenMenu.Placement.AnchorBottomEnd -> TransformOrigin(1f, 1f)
     IenMenu.Placement.BottomStart -> TransformOrigin(0f, 0f)
     IenMenu.Placement.Bottom -> TransformOrigin(0.5f, 0f)
     IenMenu.Placement.BottomEnd -> TransformOrigin(1f, 0f)

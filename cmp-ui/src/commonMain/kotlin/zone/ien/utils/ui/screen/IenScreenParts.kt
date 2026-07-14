@@ -553,7 +553,7 @@ private fun IenStartAlignedTopBarContent(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (navigationIcon != null) {
-            IenTopBarFloatingSlot(enabled = floatingSlots) {
+            IenTopBarNavigationIconSlot {
                 navigationIcon()
             }
         }
@@ -594,7 +594,7 @@ private fun IenCenterAlignedTopBarContent(
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         val navigationPlaceables = navigationIcon?.let {
             subcompose("navigation") {
-                IenTopBarFloatingSlot(enabled = floatingSlots) {
+                IenTopBarNavigationIconSlot {
                     it()
                 }
             }.map { measurable -> measurable.measure(looseConstraints) }
@@ -689,6 +689,16 @@ private fun IenTopBarActionsRow(actions: @Composable RowScope.() -> Unit) {
         CompositionLocalProvider(LocalContentColor provides IenTheme.colors.textPrimary) {
             actions.invoke(this)
         }
+    }
+}
+
+@Composable
+private fun IenTopBarNavigationIconSlot(content: @Composable () -> Unit) {
+    CompositionLocalProvider(
+        LocalContentColor provides IenTheme.colors.textPrimary,
+        LocalIenNavigationButtonVariant provides IenButtonVariant.Ghost,
+    ) {
+        content()
     }
 }
 

@@ -12,6 +12,7 @@ import zone.ien.hig.adaptive.Theme
 import zone.ien.utils.ui.foundation.IenColorScheme
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.foundation.IenTokens
+import zone.ien.utils.ui.foundation.IenTypography
 import zone.ien.utils.ui.foundation.darkIenTokens
 import zone.ien.utils.ui.foundation.lightIenTokens
 
@@ -23,8 +24,6 @@ fun IenAdaptiveTheme(
     useDynamicColor: Boolean = false,
     lightTokens: IenTokens = lightIenTokens(),
     darkTokens: IenTokens = darkIenTokens(),
-    materialTypography: Typography = Typography(),
-    cupertinoTypography: zone.ien.hig.theme.Typography = zone.ien.hig.theme.Typography(),
     vararg values: ProvidedValue<*>,
     content: @Composable () -> Unit,
 ) {
@@ -36,12 +35,48 @@ fun IenAdaptiveTheme(
             useDynamicColor = useDynamicColor,
             lightScheme = lightTokens.colors.toIenMaterialColorScheme(darkTheme = false),
             darkScheme = darkTokens.colors.toIenMaterialColorScheme(darkTheme = true),
-            materialTypography = materialTypography,
-            cupertinoTypography = cupertinoTypography,
+            materialTypography = tokens.typography.toMaterialTypography(),
+            cupertinoTypography = tokens.typography.toCupertinoTypography(),
             values = values,
             content = content,
         )
     }
+}
+
+fun IenTypography.toMaterialTypography(): Typography {
+    return Typography(
+        displayLarge = display,
+        displayMedium = title1,
+        displaySmall = title2,
+        headlineLarge = title1,
+        headlineMedium = title2,
+        headlineSmall = title3,
+        titleLarge = title1,
+        titleMedium = title2,
+        titleSmall = title3,
+        bodyLarge = body1,
+        bodyMedium = body2,
+        bodySmall = caption,
+        labelLarge = label1,
+        labelMedium = label2,
+        labelSmall = caption,
+    )
+}
+
+fun IenTypography.toCupertinoTypography(): zone.ien.hig.theme.Typography {
+    return zone.ien.hig.theme.Typography().copy(
+        largeTitle = display,
+        title1 = title1,
+        title2 = title2,
+        title3 = title3,
+        headline = label1,
+        body = body1,
+        callout = body2,
+        subhead = body2,
+        footnote = caption,
+        caption1 = caption,
+        caption2 = caption,
+    )
 }
 
 fun IenColorScheme.toIenMaterialColorScheme(darkTheme: Boolean): ColorScheme {

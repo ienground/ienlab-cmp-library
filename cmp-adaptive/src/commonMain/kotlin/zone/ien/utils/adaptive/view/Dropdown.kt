@@ -4,13 +4,14 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,8 +48,8 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.ui.menu.IenDropdownMenu
-import zone.ien.utils.ui.menu.IenDropdownMenuItem
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.menu.IenMenu
 
 /**
  * 적응형 드롭다운 박스 컴포저블
@@ -65,42 +66,65 @@ import zone.ien.utils.ui.menu.IenDropdownMenuItem
 fun AdaptiveDropdownBox(
     modifier: Modifier = Modifier,
     expanded: Boolean,
+    contentAlignment: Alignment = Alignment.TopStart,
     trigger: @Composable () -> Unit,
     dropdown: @Composable () -> Unit
 ) {
-    AdaptiveWidget(
-        material = {
-            Box(
-                modifier = modifier
-            ) {
-                trigger()
-                dropdown()
-            }
-        },
-        cupertino = {
-            Box(
-                contentAlignment = Alignment.TopCenter,
-                modifier = modifier.graphicsLayer { clip = false }
-            ) {
-                val alpha by animateFloatAsState(
-                    targetValue = if (expanded) 0.001f else 1f,
-                    animationSpec = spring(1.2f)
-                )
+    Box(
+        contentAlignment = contentAlignment,
+        modifier = modifier.graphicsLayer { clip = false }
+    ) {
+        val alpha by animateFloatAsState(
+            targetValue = if (expanded) 0.001f else 1f,
+            animationSpec = spring(1.2f)
+        )
 
-                Box(
-                    modifier = Modifier.graphicsLayer {
-                        this.scaleX = alpha
-                        this.scaleY = alpha
-                        this.alpha = alpha
-                        compositingStrategy = CompositingStrategy.ModulateAlpha
-                    }
-                ) {
-                    trigger()
-                }
-                dropdown()
+        Box(
+            modifier = Modifier.graphicsLayer {
+                this.scaleX = alpha
+                this.scaleY = alpha
+                this.alpha = alpha
+                compositingStrategy = CompositingStrategy.ModulateAlpha
             }
+        ) {
+            trigger()
         }
-    )
+        dropdown()
+    }
+//    AdaptiveWidget(
+//        material = {
+//            Box(
+//                contentAlignment = contentAlignment,
+//                modifier = modifier.graphicsLayer { clip = false }
+//            ) {
+//                trigger()
+//                dropdown()
+//            }
+//        },
+//        cupertino = {
+//            Box(
+//                contentAlignment = contentAlignment,
+//                modifier = modifier.graphicsLayer { clip = false }
+//            ) {
+//                val alpha by animateFloatAsState(
+//                    targetValue = if (expanded) 0.001f else 1f,
+//                    animationSpec = spring(1.2f)
+//                )
+//
+//                Box(
+//                    modifier = Modifier.graphicsLayer {
+//                        this.scaleX = alpha
+//                        this.scaleY = alpha
+//                        this.alpha = alpha
+//                        compositingStrategy = CompositingStrategy.ModulateAlpha
+//                    }
+//                ) {
+//                    trigger()
+//                }
+//                dropdown()
+//            }
+//        }
+//    )
 }
 
 /**
@@ -135,26 +159,28 @@ fun AdaptiveDropdownMenu(
         adaptation = remember { DropdownMenuAdaptation() },
         adaptationScope = adaptation,
         material = {
-            IenDropdownMenu(
+            IenMenu.PopupDropdown(
                 expanded = expanded,
                 onDismissRequest = onDismissRequest,
                 modifier = modifier,
                 offset = offset,
+                placement = it.placement,
                 scrollState = scrollState,
                 properties = properties,
                 shape = it.shape,
                 containerColor = it.containerColor,
-                tonalElevation = it.tonalElevation,
                 shadowElevation = it.shadowElevation,
                 border = it.border,
+                minWidth = 112.dp,
+                maxWidth = 280.dp,
                 content = {
-                    items.filter { it.visible }.forEach { it.IenMenu() }
+                    items.filter { it.visible }.forEach { it.IenMenuItem() }
                     sections.forEachIndexed { index, section ->
                         if (index != 0 || items.isNotEmpty()) {
                             HorizontalDivider()
                         }
                         section.title?.let { DropdownMenuSectionTitle(it) }
-                        section.items.filter { it.visible }.forEach { it.IenMenu() }
+                        section.items.filter { it.visible }.forEach { it.IenMenuItem() }
                     }
                 }
             )
@@ -222,26 +248,28 @@ fun AdaptiveDropdownMenuNative(
         adaptation = remember { DropdownMenuAdaptation() },
         adaptationScope = adaptation,
         material = {
-            IenDropdownMenu(
+            IenMenu.PopupDropdown(
                 expanded = expanded,
                 onDismissRequest = onDismissRequest,
                 modifier = modifier,
                 offset = offset,
+                placement = it.placement,
                 scrollState = scrollState,
                 properties = properties,
                 shape = it.shape,
                 containerColor = it.containerColor,
-                tonalElevation = it.tonalElevation,
                 shadowElevation = it.shadowElevation,
                 border = it.border,
+                minWidth = 112.dp,
+                maxWidth = 280.dp,
                 content = {
-                    items.filter { it.visible }.forEach { it.IenMenu() }
+                    items.filter { it.visible }.forEach { it.IenMenuItem() }
                     sections.forEachIndexed { index, section ->
                         if (index != 0 || items.isNotEmpty()) {
                             HorizontalDivider()
                         }
                         section.title?.let { DropdownMenuSectionTitle { Text(text = it) } }
-                        section.items.filter { it.visible }.forEach { it.IenMenu() }
+                        section.items.filter { it.visible }.forEach { it.IenMenuItem() }
                     }
                 }
             )
@@ -315,12 +343,12 @@ data class DropdownMenuSectionNative(
 }
 
 @Composable
-private fun DropdownMenuSection.Action.IenMenu() = IenDropdownMenuItem(
-    text = text,
+private fun DropdownMenuSection.Action.IenMenuItem() = IenMenu.DropdownItem(
     onClick = onClick,
     modifier = modifier,
-    leadingIcon = icon,
-    enabled = enabled
+    left = icon,
+    enabled = enabled,
+    content = text,
 )
 
 @Composable
@@ -335,14 +363,17 @@ private fun CupertinoMenuScope.ActionToUIMenu(action: DropdownMenuSection.Action
 }
 
 @Composable
-private fun DropdownMenuSectionNative.Action.IenMenu() = IenDropdownMenuItem(
-    text = { Text(text = text) },
+private fun DropdownMenuSectionNative.Action.IenMenuItem() = IenMenu.DropdownItem(
     onClick = onClick,
     modifier = modifier,
-    leadingIcon = icon?.let { { ComplexIcon(icon = it) } },
+    left = icon?.let { { ComplexIcon(icon = it) } },
     enabled = enabled,
-    colors = if (isDestructive) MenuDefaults.itemColors(textColor = MaterialTheme.colorScheme.error, leadingIconColor = MaterialTheme.colorScheme.error) else MenuDefaults.itemColors()
-)
+) {
+    Text(
+        text = text,
+        color = if (isDestructive) MaterialTheme.colorScheme.error else Color.Unspecified,
+    )
+}
 
 @Composable
 private fun DropdownMenuSectionNative.toUISection() = CupertinoMenuSectionData(
@@ -366,15 +397,15 @@ private fun DropdownMenuSectionNative.Action.toUIMenu() = CupertinoMenuItemData(
 class IenDropdownMenuAdaptation internal constructor(
     shape: Shape,
     containerColor: Color,
-    tonalElevation: Dp,
     shadowElevation: Dp,
-    border: BorderStroke?
+    border: BorderStroke?,
+    placement: IenMenu.Placement,
 ) {
     var shape by mutableStateOf(shape)
     var containerColor by mutableStateOf(containerColor)
-    var tonalElevation by mutableStateOf(tonalElevation)
     var shadowElevation by mutableStateOf(shadowElevation)
     var border by mutableStateOf(border)
+    var placement by mutableStateOf(placement)
 }
 
 class HigDropdownMenuAdaptation internal constructor(
@@ -410,19 +441,22 @@ private class DropdownMenuAdaptation: Adaptation<HigDropdownMenuAdaptation, IenD
 
     @Composable
     override fun rememberMaterialAdaptation(): IenDropdownMenuAdaptation {
-        val shape = MenuDefaults.shape
-        val containerColor = MenuDefaults.containerColor
-        val tonalElevation = MenuDefaults.TonalElevation
-        val shadowElevation = MenuDefaults.ShadowElevation
-        val border: BorderStroke? = null
+        val shape = RoundedCornerShape(IenTheme.radius.lg)
+        val containerColor = IenTheme.colors.surfaceRaised
+        val shadowElevation = IenTheme.elevation.floating
+        val border = BorderStroke(
+            width = IenTheme.stroke.thin,
+            color = IenTheme.colors.border.copy(alpha = 0.35f),
+        )
+        val placement = IenMenu.Placement.BottomStart
 
-        return remember(shape, containerColor, tonalElevation, shadowElevation, border) {
+        return remember(shape, containerColor, shadowElevation, border, placement) {
             IenDropdownMenuAdaptation(
                 shape = shape,
                 containerColor = containerColor,
-                tonalElevation = tonalElevation,
                 shadowElevation = shadowElevation,
-                border = border
+                border = border,
+                placement = placement,
             )
         }
     }

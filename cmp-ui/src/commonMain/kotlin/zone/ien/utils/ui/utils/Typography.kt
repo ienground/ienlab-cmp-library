@@ -6,39 +6,81 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.foundation.IenTypography
 
 /**
- * getIenTypography은 Material Design 3 타이포그래피를 반환하는 함수입니다.
+ * getIenTypography은 현재 Ien 타이포그래피를 반환하는 함수입니다.
  * 
  * 이 함수는 IenTheme.typography를 기반으로 제공된 폰트 패밀리를 적용하여
- * 타이포그래피를 반환합니다.
+ * Ien 타이포그래피를 반환합니다.
  * 
+ * @param fontFamily 폰트 패밀리
+ * @return Ien 타이포그래피
+ */
+@Composable
+fun getIenTypography(fontFamily: FontFamily? = null): IenTypography {
+    return IenTheme.typography.withFontFamily(fontFamily)
+}
+
+/**
+ * getMaterialTypography은 Material Design 3 타이포그래피를 반환하는 함수입니다.
+ *
+ * 이 함수는 IenTheme.typography를 기반으로 제공된 폰트 패밀리를 적용한 뒤
+ * Material Design 3 타이포그래피로 변환합니다.
+ *
  * @param fontFamily 폰트 패밀리
  * @return M3 타이포그래피
  */
 @Composable
-fun getIenTypography(fontFamily: FontFamily? = null): Typography {
+fun getMaterialTypography(fontFamily: FontFamily? = null): Typography {
+    return getIenTypography(fontFamily).toMaterialTypography()
+}
+
+/**
+ * IenTypography의 모든 TextStyle에 폰트 패밀리를 적용합니다.
+ *
+ * @param fontFamily 적용할 폰트 패밀리
+ * @return 폰트 패밀리가 적용된 Ien 타이포그래피
+ */
+fun IenTypography.withFontFamily(fontFamily: FontFamily? = null): IenTypography {
     fun TextStyle.withFontFamily(): TextStyle =
         fontFamily?.let { copy(fontFamily = it) } ?: this
 
-    val typography = IenTheme.typography
+    return IenTypography(
+        display = display.withFontFamily(),
+        title1 = title1.withFontFamily(),
+        title2 = title2.withFontFamily(),
+        title3 = title3.withFontFamily(),
+        body1 = body1.withFontFamily(),
+        body2 = body2.withFontFamily(),
+        label1 = label1.withFontFamily(),
+        label2 = label2.withFontFamily(),
+        caption = caption.withFontFamily(),
+    )
+}
 
+/**
+ * IenTypography를 Material Design 3 타이포그래피로 변환합니다.
+ *
+ * @return M3 타이포그래피
+ */
+fun IenTypography.toMaterialTypography(): Typography {
     return Typography(
-        displayLarge = typography.display.withFontFamily(),
-        displayMedium = typography.display.withFontFamily(),
-        displaySmall = typography.title1.withFontFamily(),
-        headlineLarge = typography.title1.withFontFamily(),
-        headlineMedium = typography.title2.withFontFamily(),
-        headlineSmall = typography.title3.withFontFamily(),
-        titleLarge = typography.title2.withFontFamily(),
-        titleMedium = typography.title3.withFontFamily(),
-        titleSmall = typography.label1.withFontFamily(),
-        bodyLarge = typography.body1.withFontFamily(),
-        bodyMedium = typography.body2.withFontFamily(),
-        bodySmall = typography.caption.withFontFamily(),
-        labelLarge = typography.label1.withFontFamily(),
-        labelMedium = typography.label2.withFontFamily(),
-        labelSmall = typography.caption.withFontFamily(),
+        displayLarge = display,
+        displayMedium = display,
+        displaySmall = title1,
+        headlineLarge = title1,
+        headlineMedium = title2,
+        headlineSmall = title3,
+        titleLarge = title2,
+        titleMedium = title3,
+        titleSmall = label1,
+        bodyLarge = body1,
+        bodyMedium = body2,
+        bodySmall = caption,
+        labelLarge = label1,
+        labelMedium = label2,
+        labelSmall = caption,
     )
 }
 

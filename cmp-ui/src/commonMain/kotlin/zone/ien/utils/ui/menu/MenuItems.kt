@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -92,6 +91,42 @@ fun IenActionsMenu(
     DisposableEffect(hideFloatingSlot) {
         onDispose {
             hideFloatingSlot?.invoke(false)
+        }
+    }
+
+    @Composable
+    fun OverflowDropdownContent() {
+        visibleOverflowItems.forEach { item ->
+            IenMenu.DropdownItem(
+                text = item.title,
+                left = if (item is ActionMenuItem.IconMenuItem) {
+                    item.icon?.let {
+                        {
+                            ComplexIcon(
+                                icon = it,
+                                contentDescription = item.title
+                            )
+                        }
+                    }
+                } else null,
+                right = if (item is ActionMenuItem.IconMenuItem) {
+                    {
+                        if (item.badge != 0) {
+                            IenBadge(
+                                text = if (item.badge > 0) item.badge.toString() else "",
+                                size = IenBadgeSize.Small,
+                                variant = IenBadgeVariant.Fill,
+                                tone = IenSemanticTone.Danger,
+                            )
+                        }
+                    }
+                } else null,
+                enabled = item.enabled,
+                onClick = {
+                    closeDropdown()
+                    item.onClick()
+                }
+            )
         }
     }
 
@@ -221,44 +256,14 @@ fun IenActionsMenu(
         }
 
         if (visibleOverflowItems.isNotEmpty()) {
-            IenDropdownMenu(
+            IenMenu.PopupDropdown(
                 expanded = isOpen,
-                onDismissRequest = onToggleOverflow,
+                onDismissRequest = closeDropdown,
                 offset = DpOffset(IenTheme.spacing.xxs, -IenTheme.spacing.xxs),
-                matchAnchorTop = true,
-            ) {
-                visibleOverflowItems.forEach { item ->
-                    IenDropdownMenuItem(
-                        text = { Text(text = item.title) },
-                        leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
-                            item.icon?.let {
-                                {
-                                    ComplexIcon(
-                                        icon = it,
-                                        contentDescription = item.title
-                                    )
-                                }
-                            }
-                        } else null,
-                        trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
-                            {
-                                if (item.badge != 0) {
-                                    IenBadge(
-                                        text = if (item.badge > 0) item.badge.toString() else "",
-                                        size = IenBadgeSize.Small,
-                                        variant = IenBadgeVariant.Fill,
-                                        tone = IenSemanticTone.Danger,
-                                    )
-                                }
-                            }
-                        } else null,
-                        onClick = {
-                            closeDropdown()
-                            item.onClick()
-                        }
-                    )
-                }
-            }
+                placement = IenMenu.Placement.AnchorTopEnd,
+                minWidth = 112.dp,
+                content = { OverflowDropdownContent() },
+            )
         }
     }
 }

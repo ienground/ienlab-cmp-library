@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.ui.menu.IenDropdownMenuItem
+import zone.ien.utils.ui.menu.IenMenu
 import zone.ien.utils.ui.view.textfield.IenTextFieldIconButton
 
 /**
@@ -43,7 +43,7 @@ expect fun <T> ExposedDropdownMenuBox(
     dropdownMenuItem: @Composable (
         text: @Composable () -> Unit,
         onClick: () -> Unit,
-    ) -> Unit = { text, onClick -> IenDropdownMenuItem(text = text, onClick = onClick) },
+    ) -> Unit = { text, onClick -> IenMenu.DropdownItem(onClick = onClick, content = text) },
     textField: @Composable (value: String, trailingIcon: @Composable () -> Unit) -> Unit
 )
 
@@ -84,10 +84,10 @@ expect fun <T> ExposedDropdownMenuBox(
         onClick: () -> Unit,
         checked: Boolean
     ) -> Unit = { text, onClick, checked ->
-        IenDropdownMenuItem(
-            text = text,
+        IenMenu.DropdownItem(
             onClick = onClick,
-            leadingIcon = if (checked) { { Icon(imageVector = M3SystemIcons.Check, contentDescription = null) } } else null
+            left = if (checked) { { Icon(imageVector = M3SystemIcons.Check, contentDescription = null) } } else null,
+            content = text,
         )
     },
     textField: @Composable (value: String, trailingIcon: @Composable () -> Unit) -> Unit

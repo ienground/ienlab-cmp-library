@@ -279,109 +279,107 @@ fun DesignSystemScreen(
                 IenBottomCTA(text = "샘플 하단 CTA", onClick = {})
             },
         ) { contentPadding ->
-            Box(modifier = Modifier.fillMaxSize()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState)
-                        .padding(contentPadding),
-                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
-                ) {
-                    BadgeSection()
-                    BoardRowSection()
-                    BorderSection()
-                    BottomInfoSection()
-                    BottomSheetSection()
-                    BubbleSection()
-                    ButtonSection()
-                    CheckboxSection()
-                    FabSection()
-                    HighlightSection()
-                    IconButtonSection()
-                    ListFooterSection()
-                    ListHeaderSection()
-                    LoaderSection()
-                    MenuSection()
-                    ModalSection()
-                    NumericSpinnerSection()
-                    ParagraphSection()
-                    PostSection()
-                    ProgressBarSection()
-                    ProgressStepperSection()
-                    RatingSection()
-                    ResultSection()
-                    SearchFieldSection()
-                    SegmentedControlSection()
-                    SkeletonSection()
-                    SliderSection()
-                    StepperSection()
-                    SwitchSection()
-                    TabSection()
-                    TableRowSection()
-                    TextButtonSection()
-                    ToastSection(
-                        showTopToast = showTopToast,
-                        showBottomToast = showBottomToast,
-                        showIconToast = showIconToast,
-                        showActionToast = showActionToast,
-                        showCtaToast = showCtaToast,
-                        onShowTopToastChange = { showTopToast = it },
-                        onShowBottomToastChange = { showBottomToast = it },
-                        onShowIconToastChange = { showIconToast = it },
-                        onShowActionToastChange = { showActionToast = it },
-                        onShowCtaToastChange = { showCtaToast = it },
-                    )
-                    TooltipSection()
-                    TopSection()
-                    AgreementSection()
-                    AssetSection()
-                    BottomCTASection()
-                    DialogSection()
-                    KeypadSection()
-                    ListRowSection()
-                    TextFieldSection()
-                    SplitTextFieldSection()
-                    TextAreaSection()
-                    PrimitivesSection()
+            Column(
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(contentPadding),
+            ) {
+                BadgeSection()
+                BoardRowSection()
+                BorderSection()
+                BottomInfoSection()
+                BottomSheetSection()
+                BubbleSection()
+                ButtonSection()
+                CheckboxSection()
+                FabSection()
+                HighlightSection()
+                IconButtonSection()
+                ListFooterSection()
+                ListHeaderSection()
+                LoaderSection()
+                MenuSection()
+                ModalSection()
+                NumericSpinnerSection()
+                ParagraphSection()
+                PostSection()
+                ProgressBarSection()
+                ProgressStepperSection()
+                RatingSection()
+                ResultSection()
+                SearchFieldSection()
+                SegmentedControlSection()
+                SkeletonSection()
+                SliderSection()
+                StepperSection()
+                SwitchSection()
+                TabSection()
+                TableRowSection()
+                TextButtonSection()
+                ToastSection(
+                    showTopToast = showTopToast,
+                    showBottomToast = showBottomToast,
+                    showIconToast = showIconToast,
+                    showActionToast = showActionToast,
+                    showCtaToast = showCtaToast,
+                    onShowTopToastChange = { showTopToast = it },
+                    onShowBottomToastChange = { showBottomToast = it },
+                    onShowIconToastChange = { showIconToast = it },
+                    onShowActionToastChange = { showActionToast = it },
+                    onShowCtaToastChange = { showCtaToast = it },
+                )
+                TooltipSection()
+                TopSection()
+                AgreementSection()
+                AssetSection()
+                BottomCTASection()
+                DialogSection()
+                KeypadSection()
+                ListRowSection()
+                TextFieldSection()
+                SplitTextFieldSection()
+                TextAreaSection()
+                PrimitivesSection()
 
-                    Spacer(modifier = Modifier.height(IenTheme.spacing.md))
-                }
-
-                IenToast(
-                    open = showTopToast,
-                    position = IenToastPosition.Top,
-                    text = "상단 토스트 메시지예요",
-                    onClose = { showTopToast = false },
-                )
-                IenToast(
-                    open = showBottomToast,
-                    position = IenToastPosition.Bottom,
-                    text = "하단 토스트 메시지예요",
-                    onClose = { showBottomToast = false },
-                )
-                IenToast(
-                    open = showIconToast,
-                    position = IenToastPosition.Top,
-                    text = "아이콘이 포함된 토스트예요",
-                    leftAddon = { IenToastIcon(tone = IenSemanticTone.Success) },
-                    onClose = { showIconToast = false },
-                )
-                IenToast(
-                    open = showActionToast,
-                    position = IenToastPosition.Bottom,
-                    text = "버튼이 포함된 토스트예요",
-                    button = IenToastAction("확인") { showActionToast = false },
-                    onClose = { showActionToast = false },
-                )
-                IenToast(
-                    open = showCtaToast,
-                    position = IenToastPosition.Bottom,
-                    text = "CTA 버튼 위에 표시되는 토스트예요",
-                    higherThanCTA = true,
-                    onClose = { showCtaToast = false },
-                )
+                Spacer(modifier = Modifier.height(IenTheme.spacing.md))
             }
         }
+
+        IenToast(
+            open = showTopToast,
+            position = IenToastPosition.Top,
+            text = "상단 토스트 메시지예요",
+            onClose = { showTopToast = false },
+        )
+        IenToast(
+            open = showBottomToast,
+            position = IenToastPosition.Bottom,
+            text = "하단 토스트 메시지예요",
+            onClose = { showBottomToast = false },
+        )
+        IenToast(
+            open = showIconToast,
+            position = IenToastPosition.Top,
+            text = "아이콘이 포함된 토스트예요",
+            leftAddon = { IenToastIcon(tone = IenSemanticTone.Success) },
+            onClose = { showIconToast = false },
+        )
+        IenToast(
+            open = showActionToast,
+            position = IenToastPosition.Bottom,
+            text = "버튼이 포함된 토스트예요",
+            button = IenToastAction("확인") { showActionToast = false },
+            onClose = { showActionToast = false },
+        )
+        IenToast(
+            open = showCtaToast,
+            position = IenToastPosition.Bottom,
+            text = "CTA 버튼 위에 표시되는 토스트예요",
+            higherThanCTA = true,
+            onClose = { showCtaToast = false },
+        )
     }
 }
 
@@ -826,7 +824,7 @@ fun LoaderSection() {
     }
 }
 
-@Preview
+@Preview(heightDp = 600)
 @Composable
 fun MenuSection() {
     var menuOpen by remember { mutableStateOf(false) }
@@ -838,7 +836,7 @@ fun MenuSection() {
                 open = menuOpen,
                 onOpen = { menuOpen = true },
                 onClose = { menuOpen = false },
-                placement = IenMenu.Placement.BottomStart,
+                placement = IenMenu.Placement.AnchorTopStart,
                 offset = DpOffset(0.dp, 8.dp),
                 dropdown = {
                     IenMenu.Dropdown(

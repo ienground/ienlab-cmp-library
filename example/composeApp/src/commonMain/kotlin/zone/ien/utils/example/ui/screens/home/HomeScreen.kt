@@ -63,6 +63,7 @@ import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenTextField
+import zone.ien.utils.ui.menu.IenMenu
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.utils.moveToBackground
@@ -210,7 +211,10 @@ fun HomeScreen(
                     AdaptiveDropdownMenuNative(
                         expanded = childExpanded,
                         onDismissRequest = { childExpanded = false },
-                        adaptation = { cupertino { this.backdrop = backdrop } },
+                        adaptation = {
+                            material { this.placement = IenMenu.Placement.AnchorTopStart }
+                            cupertino { this.backdrop = backdrop }
+                        },
                         items = children.fastMapIndexed { index, child ->
                             DropdownMenuSectionNative.Action(
                                 text = child,
