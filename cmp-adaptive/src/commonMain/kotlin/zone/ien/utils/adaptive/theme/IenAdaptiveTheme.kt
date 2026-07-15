@@ -28,13 +28,13 @@ fun IenAdaptiveTheme(
     content: @Composable () -> Unit,
 ) {
     val tokens = if (darkTheme) darkTokens else lightTokens
-    IenTheme(tokens = tokens) {
+    IenTheme(tokens = tokens, darkTheme = darkTheme) {
         GeneratedAdaptiveTheme(
             target = target,
             useDarkTheme = darkTheme,
             useDynamicColor = useDynamicColor,
-            lightScheme = lightTokens.colors.toIenMaterialColorScheme(darkTheme = false),
-            darkScheme = darkTokens.colors.toIenMaterialColorScheme(darkTheme = true),
+            lightScheme = lightTokens.lightColors.toIenMaterialColorScheme(darkTheme = false),
+            darkScheme = darkTokens.darkColors.toIenMaterialColorScheme(darkTheme = true),
             materialTypography = tokens.typography.toMaterialTypography(),
             cupertinoTypography = tokens.typography.toCupertinoTypography(),
             values = values,

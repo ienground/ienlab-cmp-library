@@ -8,10 +8,6 @@ import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
-import com.sunnychung.lib.multiplatform.kdatetime.KZoneOffset
-import com.sunnychung.lib.multiplatform.kdatetime.KZonedDateTime
-import com.sunnychung.lib.multiplatform.kdatetime.serializer.KInstantAsLong
-import com.sunnychung.lib.multiplatform.kdatetime.toKZonedDateTime
 
 /**
  * 주어진 시간을 UTC 시간대에 맞춰 조정하고 밀리초를 반환하는 함수
@@ -22,7 +18,7 @@ import com.sunnychung.lib.multiplatform.kdatetime.toKZonedDateTime
  * @param time 조정할 타임스탬프 (밀리초 단위)
  * @return UTC 시간대의 조정된 타임스탬프 (밀리초 단위)
  */
-internal fun KZonedDateTime.Companion.adjustAndGetMillis(time: Long) = KInstantAsLong(time).atLocalZoneOffset().toKZonedDateTime().copy(zoneOffset = KZoneOffset.UTC).toKInstant().toEpochMilliseconds()
+internal expect fun adjustDatePickerMillis(time: Long): Long
 
 /**
  * UTC 시간대를 처리하는 Date Picker 상태를 생성하는 함수
@@ -46,11 +42,11 @@ fun rememberMyDatePickerState(
     selectableDates: SelectableDates = DatePickerDefaults.AllDates
 ): DatePickerState {
     return rememberDatePickerState(
-        initialDisplayedMonthMillis = initialDisplayedMonthMillis?.let { KZonedDateTime.adjustAndGetMillis(it) },
+        initialDisplayedMonthMillis = initialDisplayedMonthMillis?.let { adjustDatePickerMillis(it) },
         yearRange = yearRange,
         initialDisplayMode = initialDisplayMode,
         selectableDates = selectableDates,
-        initialSelectedDateMillis = initialSelectedDateMillis?.let { KZonedDateTime.adjustAndGetMillis(it) }
+        initialSelectedDateMillis = initialSelectedDateMillis?.let { adjustDatePickerMillis(it) }
     )
 }
 
@@ -78,11 +74,11 @@ fun rememberMyDateRangePickerState(
     selectableDates: SelectableDates = DatePickerDefaults.AllDates
 ): DateRangePickerState {
     return rememberDateRangePickerState(
-        initialDisplayedMonthMillis = initialDisplayedMonthMillis?.let { KZonedDateTime.adjustAndGetMillis(it) },
+        initialDisplayedMonthMillis = initialDisplayedMonthMillis?.let { adjustDatePickerMillis(it) },
         yearRange = yearRange,
         initialDisplayMode = initialDisplayMode,
         selectableDates = selectableDates,
-        initialSelectedStartDateMillis = initialSelectedStartDateMillis?.let { KZonedDateTime.adjustAndGetMillis(it) },
-        initialSelectedEndDateMillis = initialSelectedEndDateMillis?.let { KZonedDateTime.adjustAndGetMillis(it) },
+        initialSelectedStartDateMillis = initialSelectedStartDateMillis?.let { adjustDatePickerMillis(it) },
+        initialSelectedEndDateMillis = initialSelectedEndDateMillis?.let { adjustDatePickerMillis(it) },
     )
 }

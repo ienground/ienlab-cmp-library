@@ -27,11 +27,13 @@ kotlin {
     }
     iosArm64()
     iosSimulatorArm64()
+    wasmJs {
+        browser()
+    }
 
     sourceSets {
         commonMain.dependencies {
             implementation(libs.compose.material3)
-            implementation(libs.kdatetime)
             implementation(libs.hig.icons)
         }
 
@@ -41,6 +43,7 @@ kotlin {
 
         androidMain.dependencies {
             implementation(libs.startup.runtime)
+            implementation(libs.kdatetime)
         }
 
         getByName("androidDeviceTest").dependencies {
@@ -50,6 +53,7 @@ kotlin {
         }
 
         iosMain.dependencies {
+            implementation(libs.kdatetime)
         }
     }
 }

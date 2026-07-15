@@ -262,7 +262,8 @@ data class IenStateTokens(
 /**
  * IenTheme의 모든 토큰 정보(색상, 타이포그래피, 간격 등)를 모아놓은 통합 데이터 클래스입니다.
  *
- * @property colors 테마 색상 스키마
+ * @property lightColors 라이트 테마 색상 스키마.
+ * @property darkColors 다크 테마 색상 스키마. 지정하지 않으면 [lightColors]와 같은 값을 사용합니다.
  * @property typography 테마 글꼴 규격
  * @property spacing 테마 간격/여백 규격
  * @property radius 테마 모서리 둥글기 규격
@@ -274,7 +275,8 @@ data class IenStateTokens(
  */
 @Immutable
 data class IenTokens(
-    val colors: IenColorScheme,
+    val lightColors: IenColorScheme,
+    val darkColors: IenColorScheme = lightColors,
     val typography: IenTypography,
     val spacing: IenSpacing = IenSpacing(),
     val radius: IenRadius = IenRadius(),
@@ -291,6 +293,11 @@ data class IenTokens(
 val LocalIenTokens = staticCompositionLocalOf { lightIenTokens() }
 
 /**
+ * 현재 IenTheme가 다크 색상 스키마를 사용 중인지 전달하는 CompositionLocal입니다.
+ */
+val LocalIenDarkTheme = staticCompositionLocalOf { false }
+
+/**
  * 앱 전반의 테마 정보에 쉽게 접근할 수 있도록 해주는 싱글톤 테마 객체입니다.
  *
  * 하위 컴포저블에서 `IenTheme.colors`와 같이 사용하여 테마 스타일을 동적으로 적용받을 수 있습니다.
@@ -298,7 +305,10 @@ val LocalIenTokens = staticCompositionLocalOf { lightIenTokens() }
 object IenTheme {
     /** 현재 테마의 색상 스키마 */
     val colors: IenColorScheme
-        @Composable get() = LocalIenTokens.current.colors
+        @Composable get() {
+            val tokens = LocalIenTokens.current
+            return if (LocalIenDarkTheme.current) tokens.darkColors else tokens.lightColors
+        }
     /** 현재 테마의 타이포그래피 스타일 */
     val typography: IenTypography
         @Composable get() = LocalIenTokens.current.typography
@@ -338,17 +348,43 @@ fun IenTheme(
     tokens: IenTokens? = null,
     content: @Composable () -> Unit,
 ) {
+    val resolvedTokens = tokens ?: LocalIenTokens.current
+
     androidx.compose.runtime.CompositionLocalProvider(
-        LocalIenTokens provides (tokens ?: if (darkTheme) darkIenTokens() else lightIenTokens()),
+        LocalIenTokens provides resolvedTokens,
+        LocalIenDarkTheme provides darkTheme,
         content = content,
     )
 }
 
 /**
+ * 라이트/다크 색상 스키마를 모두 포함한 기본 Ien 토큰을 생성하고 반환합니다.
+ */
+fun defaultIenTokens() = IenTokens(
+    lightColors = defaultLightIenColorScheme(),
+    darkColors = defaultDarkIenColorScheme(),
+    typography = defaultIenTypography(),
+)
+
+/**
  * 기본 라이트 모드(Light Theme)에 해당하는 [IenTokens] 객체를 생성하고 반환합니다.
  */
 fun lightIenTokens() = IenTokens(
-    colors = IenColorScheme(
+    lightColors = defaultLightIenColorScheme(),
+    darkColors = defaultDarkIenColorScheme(),
+    typography = defaultIenTypography(),
+)
+
+/**
+ * 기본 다크 모드(Dark Theme)에 해당하는 [IenTokens] 객체를 생성하고 반환합니다.
+ */
+fun darkIenTokens() = IenTokens(
+    lightColors = defaultDarkIenColorScheme(),
+    darkColors = defaultDarkIenColorScheme(),
+    typography = defaultIenTypography(),
+)
+
+private fun defaultLightIenColorScheme() = IenColorScheme(
         background = Color(0xFFFFFFFF),
         surface = Color(0xFFFFFFFF),
         surfaceRaised = Color(0xFFFFFFFF),
@@ -381,15 +417,9 @@ fun lightIenTokens() = IenTokens(
         onInfo = Color(0xFFFFFFFF),
         infoWeak = Color(0xFFEDF8F8),
         onInfoWeak = Color(0xFF18A5A5),
-    ),
-    typography = defaultIenTypography(),
 )
 
-/**
- * 기본 다크 모드(Dark Theme)에 해당하는 [IenTokens] 객체를 생성하고 반환합니다.
- */
-fun darkIenTokens() = IenTokens(
-    colors = IenColorScheme(
+private fun defaultDarkIenColorScheme() = IenColorScheme(
         background = Color(0xFF101318),
         surface = Color(0xFF171B22),
         surfaceRaised = Color(0xFF202631),
@@ -422,8 +452,6 @@ fun darkIenTokens() = IenTokens(
         onInfo = Color(0xFFFFFFFF),
         infoWeak = Color(0xFF123A3A),
         onInfoWeak = Color(0xFF58C7C7),
-    ),
-    typography = defaultIenTypography(),
 )
 
 private fun defaultIenTypography() = IenTypography(

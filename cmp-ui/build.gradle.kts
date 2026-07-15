@@ -27,6 +27,9 @@ kotlin {
     }
     iosArm64()
     iosSimulatorArm64()
+    wasmJs {
+        browser()
+    }
 
     sourceSets {
         commonMain.dependencies {
@@ -36,11 +39,9 @@ kotlin {
             implementation(libs.hig.core)
             implementation(libs.backdrop)
             implementation(libs.capsule)
-            implementation(libs.placeholder)
 
             implementation(projects.cmpCommon)
             implementation(projects.cmpIcon)
-            implementation(projects.cmpUtils)
         }
 
         commonTest.dependencies {
