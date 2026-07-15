@@ -13,8 +13,7 @@ import zone.ien.utils.ui.foundation.IenColorScheme
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.foundation.IenTokens
 import zone.ien.utils.ui.foundation.IenTypography
-import zone.ien.utils.ui.foundation.darkIenTokens
-import zone.ien.utils.ui.foundation.lightIenTokens
+import zone.ien.utils.ui.foundation.defaultIenTokens
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -22,19 +21,17 @@ fun IenAdaptiveTheme(
     target: Theme,
     darkTheme: Boolean = isSystemInDarkTheme(),
     useDynamicColor: Boolean = false,
-    lightTokens: IenTokens = lightIenTokens(),
-    darkTokens: IenTokens = darkIenTokens(),
+    tokens: IenTokens = defaultIenTokens(),
     vararg values: ProvidedValue<*>,
     content: @Composable () -> Unit,
 ) {
-    val tokens = if (darkTheme) darkTokens else lightTokens
     IenTheme(tokens = tokens, darkTheme = darkTheme) {
         GeneratedAdaptiveTheme(
             target = target,
             useDarkTheme = darkTheme,
             useDynamicColor = useDynamicColor,
-            lightScheme = lightTokens.lightColors.toIenMaterialColorScheme(darkTheme = false),
-            darkScheme = darkTokens.darkColors.toIenMaterialColorScheme(darkTheme = true),
+            lightScheme = tokens.lightColors.toIenMaterialColorScheme(darkTheme = false),
+            darkScheme = tokens.darkColors.toIenMaterialColorScheme(darkTheme = true),
             materialTypography = tokens.typography.toMaterialTypography(),
             cupertinoTypography = tokens.typography.toCupertinoTypography(),
             values = values,
