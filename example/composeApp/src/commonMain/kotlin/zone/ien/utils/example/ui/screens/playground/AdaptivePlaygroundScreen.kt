@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,9 +23,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.capsule.ContinuousCapsule
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.utils.rememberDefaultBackdrop
@@ -35,12 +40,14 @@ import zone.ien.utils.adaptive.component.AdaptiveDotCheckbox
 import zone.ien.utils.adaptive.component.AdaptiveExtendedFloatingActionButton
 import zone.ien.utils.adaptive.component.AdaptiveFilledIconButton
 import zone.ien.utils.adaptive.component.AdaptiveIconButton
+import zone.ien.utils.adaptive.component.AdaptiveIconToggleButton
 import zone.ien.utils.adaptive.component.AdaptiveLineCheckbox
 import zone.ien.utils.adaptive.component.AdaptiveMediumFloatingActionButton
 import zone.ien.utils.adaptive.component.AdaptiveSegmentedControl
 import zone.ien.utils.adaptive.component.AdaptiveSlider
 import zone.ien.utils.adaptive.component.AdaptiveSwitch
 import zone.ien.utils.adaptive.component.AdaptiveTextButton
+import zone.ien.utils.adaptive.component.AdaptiveToggleButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.adaptive.view.AdaptiveCircularProgressIndicator
@@ -53,6 +60,7 @@ import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconPlacement
 import zone.ien.utils.ui.interactive.IenSegmentedControlItem
+import zone.ien.utils.ui.interactive.IenToggleButtonDefaults
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.TopBarMode
@@ -72,6 +80,8 @@ fun AdaptivePlaygroundScreen(
     var checkboxChecked by remember { mutableStateOf(true) }
     var dotChecked by remember { mutableStateOf(false) }
     var lineChecked by remember { mutableStateOf(true) }
+    var toggleChecked by remember { mutableStateOf(true) }
+    var iconToggleChecked by remember { mutableStateOf(false) }
     var sliderValue by remember { mutableFloatStateOf(0.64f) }
     var segmentedIndex by remember { mutableIntStateOf(0) }
     var topBarMode by remember { mutableStateOf(TopBarMode.Expanded) }
@@ -89,7 +99,6 @@ fun AdaptivePlaygroundScreen(
             },
             title = { IenText("Adaptive Playground") },
             subtitle = { IenText(if (isMaterialTheme) "Material3 + Ien" else "Cupertino + HIG") },
-            scrollableState = scrollState,
             modifier = modifier,
             adaptation = {
                 material {
@@ -165,6 +174,29 @@ fun AdaptivePlaygroundScreen(
                         icon = { SampleIcon() },
                         iconPlacement = IenIconPlacement.End,
                     )
+                    AdaptiveToggleButton(
+                        checked = toggleChecked,
+                        onCheckedChange = { toggleChecked = it },
+                        text = if (toggleChecked) "Toggle enabled" else "Toggle disabled",
+                        enabled = enabled,
+                        display = IenButtonDisplay.Full,
+                        shapes = IenToggleButtonDefaults.shapes(
+                            checked = ContinuousCapsule(),
+                            unchecked = ContinuousRoundedRectangle(IenTheme.radius.default),
+                        ),
+                        colors = IenToggleButtonDefaults.colors(
+                            checkedTone = IenSemanticTone.Success,
+                            uncheckedTone = IenSemanticTone.Neutral,
+                            checkedBackgroundBrush = Brush.linearGradient(
+                                listOf(
+                                    Color(0xFF34D399),
+                                    Color(0xFF10B981),
+                                    Color(0xFF2DD4BF),
+                                )
+                            ),
+                        ),
+                        icon = { SampleIcon() },
+                    )
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         AdaptiveTextButton(
                             text = "Text button",
@@ -182,6 +214,18 @@ fun AdaptivePlaygroundScreen(
                             onClick = {},
                             enabled = enabled,
                             size = IenButtonSize.Medium,
+                        ) {
+                            SampleIcon()
+                        }
+                        AdaptiveIconToggleButton(
+                            checked = iconToggleChecked,
+                            onCheckedChange = { iconToggleChecked = it },
+                            enabled = enabled,
+                            size = IenButtonSize.Medium,
+                            shapes = IenToggleButtonDefaults.shapes(
+                                checked = CircleShape,
+                                unchecked = ContinuousRoundedRectangle(IenTheme.radius.sm),
+                            ),
                         ) {
                             SampleIcon()
                         }

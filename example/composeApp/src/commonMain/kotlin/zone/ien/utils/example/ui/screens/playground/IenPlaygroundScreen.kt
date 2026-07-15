@@ -85,7 +85,6 @@ fun IenPlaygroundScreen(
     IenTheme(darkTheme = darkTheme) {
         IenTopAppBarScaffold(
             modifier = modifier,
-            scrollableState = scrollState,
             navigationIcon = {
 //                IenTextButton(text = "닫기", onClick = navigateBack)
                 IenBackButton {

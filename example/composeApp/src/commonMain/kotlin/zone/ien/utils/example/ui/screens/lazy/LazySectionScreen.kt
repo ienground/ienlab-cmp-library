@@ -55,7 +55,6 @@ fun LazySectionScreen(
                     onCheckedChange = { isMaterialTheme = it }
                 )
             },
-            scrollableState = lazyListState,
             adaptation = {
                 material {
                     mode = TopBarMode.Expanded

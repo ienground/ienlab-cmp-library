@@ -17,9 +17,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,9 +36,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -48,7 +43,6 @@ import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -114,7 +108,6 @@ import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
  * @param floatingActionButton 플로팅 액션 버튼
  * @param fabPosition 플로팅 액션 버튼 위치
  * @param higFabPosition HIG 플로팅 액션 버튼 위치
- * @param scrollableState 상단바 스크롤 상태 계산에 사용할 상태
  * @param adaptation 어댑테이션 설정
  * @param content 콘텐츠
  */
@@ -136,7 +129,6 @@ fun AdaptiveTopAppBarScaffold(
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
-    scrollableState: ScrollableState = rememberScrollState(),
     adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
@@ -151,114 +143,97 @@ fun AdaptiveTopAppBarScaffold(
         adaptation = remember { TopAppBarScaffoldAdaptation() },
         adaptationScope = adaptation,
         material = {
-            val scaffoldScrollState = scrollableState as? ScrollState
             val materialAdaptation = it
             val scaffoldCoordinates = remember { mutableStateOf<LayoutCoordinates?>(null) }
             val topBarHeight = remember { mutableStateOf(0f) }
             var navigationTitleVisible by remember { mutableStateOf(true) }
 
-            CompositionLocalProvider(
-                LocalTopBarScaffoldScrollState provides scaffoldScrollState,
-            ) {
-                IenScaffold(
-                    modifier = modifier.onGloballyPositioned {
-                        scaffoldCoordinates.value = it
-                    },
-                    topBar = {
-                        Box {
-                            AnimatedVisibility(
-                                visible = showTopBar,
-                                enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
-                                exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
-                            ) {
-                                IenTopAppBar(
-                                    title = {
+            IenScaffold(
+                modifier = modifier.onGloballyPositioned {
+                    scaffoldCoordinates.value = it
+                },
+                topBar = {
+                    Box {
+                        AnimatedVisibility(
+                            visible = showTopBar,
+                            enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
+                            exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
+                        ) {
+                            IenTopAppBar(
+                                title = {
+                                    AnimatedVisibility(
+                                        visible = materialAdaptation.mode == TopBarMode.Static ||
+                                            !navigationTitleVisible,
+                                        enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
+                                        exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
+                                    ) {
+                                        title()
+                                    }
+                                },
+                                subtitle = subtitle?.let {
+                                    {
                                         AnimatedVisibility(
                                             visible = materialAdaptation.mode == TopBarMode.Static ||
                                                 !navigationTitleVisible,
                                             enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
                                             exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
                                         ) {
-                                            title()
+                                            it()
                                         }
-                                    },
-                                    subtitle = subtitle?.let {
-                                        {
-                                            AnimatedVisibility(
-                                                visible = materialAdaptation.mode == TopBarMode.Static ||
-                                                    !navigationTitleVisible,
-                                                enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
-                                                exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
-                                            ) {
-                                                it()
-                                            }
-                                        }
-                                    },
-                                    modifier = topBarModifier.onGloballyPositioned {
-                                        topBarHeight.value = it.size.height.toFloat()
-                                    },
-                                    navigationIcon = navigationIcon,
-                                    actions = actions,
-                                    windowInsets = materialAdaptation.topBarWindowInsets,
-                                    isCenterAligned = materialAdaptation.isCenterAligned,
-                                    isScrollTint = materialAdaptation.isScrollTint,
-                                    mode = TopBarMode.Static,
-                                )
-                            }
-                            AnimatedVisibility(
-                                visible = !showTopBar,
-                                enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
-                                exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
+                                    }
+                                },
+                                modifier = topBarModifier.onGloballyPositioned {
+                                    topBarHeight.value = it.size.height.toFloat()
+                                },
+                                navigationIcon = navigationIcon,
+                                actions = actions,
+                                windowInsets = materialAdaptation.topBarWindowInsets,
+                                isCenterAligned = materialAdaptation.isCenterAligned,
+                                isScrollTint = materialAdaptation.isScrollTint,
+                                mode = TopBarMode.Static,
+                            )
+                        }
+                        AnimatedVisibility(
+                            visible = !showTopBar,
+                            enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
+                            exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
+                        ) {
+                            Box(
+                                modifier = Modifier.height(IntrinsicSize.Min)
                             ) {
-                                Box(
-                                    modifier = Modifier.height(IntrinsicSize.Min)
-                                ) {
-                                    Box(modifier = Modifier.statusBarsPadding())
-                                    Box(modifier = Modifier.fillMaxSize())
-                                }
+                                Box(modifier = Modifier.statusBarsPadding())
+                                Box(modifier = Modifier.fillMaxSize())
                             }
                         }
-                    },
-                    bottomBar = bottomBar,
-                    snackbarHost = snackbarHost,
-                    floating = floatingActionButton,
-                    floatingActionButtonPosition = fabPosition.transform(),
-                    containerColor = materialAdaptation.scaffoldContainerColor,
-                    contentColor = materialAdaptation.scaffoldContentColor,
-                    contentWindowInsets = materialAdaptation.contentWindowInsets,
-                    contentEdge = contentEdge.resolveTopProgress(scrollableState),
-                    content = { contentPadding ->
-                        content(
-                            contentPadding,
-                            {
-                                if (materialAdaptation.mode == TopBarMode.Expanded) {
-                                    IenNavigationTitle(
-                                        title = title,
-                                        subtitle = subtitle,
-                                        topBarHeight = topBarHeight.value,
-                                        scaffoldCoordinates = scaffoldCoordinates.value,
-                                        onVisibilityChange = { navigationTitleVisible = it },
-                                    )
-                                }
-                            }
-                        )
                     }
-                )
-            }
+                },
+                bottomBar = bottomBar,
+                snackbarHost = snackbarHost,
+                floating = floatingActionButton,
+                floatingActionButtonPosition = fabPosition.transform(),
+                containerColor = materialAdaptation.scaffoldContainerColor,
+                contentColor = materialAdaptation.scaffoldContentColor,
+                contentWindowInsets = materialAdaptation.contentWindowInsets,
+                contentEdge = contentEdge,
+                content = { contentPadding ->
+                    content(
+                        contentPadding,
+                        {
+                            if (materialAdaptation.mode == TopBarMode.Expanded) {
+                                IenNavigationTitle(
+                                    title = title,
+                                    subtitle = subtitle,
+                                    topBarHeight = topBarHeight.value,
+                                    scaffoldCoordinates = scaffoldCoordinates.value,
+                                    onVisibilityChange = { navigationTitleVisible = it },
+                                )
+                            }
+                        }
+                    )
+                }
+            )
         },
         cupertino = {
-            val scaffoldScrollState = scrollableState as? ScrollState
-            val isScrolled by remember(scrollableState) {
-                derivedStateOf {
-                    when (scrollableState) {
-                        is ScrollState -> scrollableState.value > 20
-                        is LazyListState -> scrollableState.firstVisibleItemIndex > 0 || scrollableState.firstVisibleItemScrollOffset > 0
-                        is LazyGridState -> scrollableState.firstVisibleItemIndex > 0 || scrollableState.firstVisibleItemScrollOffset > 0
-                        else -> false
-                    }
-                }
-            }
-
             CupertinoScaffold(
                 modifier = modifier,
                 topBar = {
@@ -286,7 +261,7 @@ fun AdaptiveTopAppBarScaffold(
                                 windowInsets = it.topBarWindowInsets,
                                 isCenterAligned = it.isCenterAligned,
                                 isBackgroundAdaptive = it.isBackgroundAdaptive,
-                                isBackgroundGradient = it.isBackgroundGradient && isScrolled,
+                                isBackgroundGradient = it.isBackgroundGradient,
                                 backdrop = it.backdrop,
                                 colors = it.colors
                             )
@@ -314,21 +289,17 @@ fun AdaptiveTopAppBarScaffold(
                 contentWindowInsets = it.contentWindowInsets,
                 hasNavigationTitle = it.mode == TopBarMode.Expanded,
                 content = { contentPadding ->
-                    CompositionLocalProvider(
-                        LocalTopBarScaffoldScrollState provides scaffoldScrollState,
-                    ) {
-                        content(
-                            contentPadding,
-                            {
-                                if (it.mode == TopBarMode.Expanded) {
-                                    CupertinoNavigationTitle(
-                                        title = title,
-                                        subtitle = subtitle
-                                    )
-                                }
+                    content(
+                        contentPadding,
+                        {
+                            if (it.mode == TopBarMode.Expanded) {
+                                CupertinoNavigationTitle(
+                                    title = title,
+                                    subtitle = subtitle
+                                )
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             )
         }
@@ -351,7 +322,6 @@ fun AdaptiveTopAppBarScaffold(
  * @param floatingActionButton 플로팅 액션 버튼
  * @param fabPosition 플로팅 액션 버튼 위치
  * @param higFabPosition HIG 플로팅 액션 버튼 위치
- * @param scrollableState 상단바 스크롤 상태 계산에 사용할 상태
  * @param adaptation 어댑테이션 설정
  * @param content 콘텐츠
  */
@@ -372,7 +342,6 @@ fun AdaptiveTopAppBarScaffold(
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
-    scrollableState: ScrollableState = rememberScrollState(),
     adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
@@ -392,7 +361,6 @@ fun AdaptiveTopAppBarScaffold(
             fabPosition = fabPosition,
             higFabPosition = higFabPosition,
             contentEdge = contentEdge,
-            scrollableState = scrollableState,
             adaptation = adaptation,
             content = content
         )
@@ -707,26 +675,5 @@ private fun IenNavigationTitle(
                 subtitle()
             }
         }
-    }
-}
-
-private fun IenScaffoldContentEdge.resolveTopProgress(
-    scrollableState: ScrollableState,
-): IenScaffoldContentEdge {
-    return copy(topProgress = scrollableState.topEdgeProgress())
-}
-
-private fun ScrollableState.topEdgeProgress(): Float {
-    return when (this) {
-        is ScrollState -> (value / 48f).coerceIn(0f, 1f)
-        is LazyListState -> {
-            val offset = if (firstVisibleItemIndex > 0) 48f else firstVisibleItemScrollOffset.toFloat()
-            (offset / 48f).coerceIn(0f, 1f)
-        }
-        is LazyGridState -> {
-            val offset = if (firstVisibleItemIndex > 0) 48f else firstVisibleItemScrollOffset.toFloat()
-            (offset / 48f).coerceIn(0f, 1f)
-        }
-        else -> 0f
     }
 }

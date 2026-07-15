@@ -26,9 +26,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousCapsule
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.icon.material.filled.Check
 import zone.ien.utils.icon.material.filled.Close
@@ -184,6 +188,7 @@ import zone.ien.utils.ui.interactive.IenFab
 import zone.ien.utils.ui.interactive.IenFabSize
 import zone.ien.utils.ui.interactive.IenFloatingTabBar
 import zone.ien.utils.ui.interactive.IenIconButton
+import zone.ien.utils.ui.interactive.IenIconToggleButton
 import zone.ien.utils.ui.interactive.IenKeyboardAction
 import zone.ien.utils.ui.interactive.IenLineCheckbox
 import zone.ien.utils.ui.interactive.IenNumberKeypad
@@ -219,6 +224,8 @@ import zone.ien.utils.ui.interactive.IenTextArea
 import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.interactive.IenTextButtonSize
 import zone.ien.utils.ui.interactive.IenTextButtonVariant
+import zone.ien.utils.ui.interactive.IenToggleButton
+import zone.ien.utils.ui.interactive.IenToggleButtonDefaults
 import zone.ien.utils.ui.interactive.IenTextField
 import zone.ien.utils.ui.interactive.IenTextFieldButton
 import zone.ien.utils.ui.interactive.IenTextFieldFormat
@@ -576,6 +583,9 @@ fun BubbleSection() {
 @Composable
 fun ButtonSection() {
     IenTheme {
+        var shapeToggleChecked by remember { mutableStateOf(true) }
+        var colorToggleChecked by remember { mutableStateOf(false) }
+        var iconToggleChecked by remember { mutableStateOf(true) }
         ComponentSection(title = "Button") {
             ButtonVariantStateSample("Fill", IenButtonVariant.Fill)
             ButtonVariantStateSample("Weak", IenButtonVariant.Weak)
@@ -591,6 +601,62 @@ fun ButtonSection() {
             IenButton(text = "Full", onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Full)
             IenButton(text = "Block", onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Block)
             IenButton(text = "Inline", onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Inline)
+            IenBorder()
+            IenText("Toggle", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+            ) {
+                IenToggleButton(
+                    checked = shapeToggleChecked,
+                    onCheckedChange = { shapeToggleChecked = it },
+                    text = if (shapeToggleChecked) "Capsule" else "Rounded",
+                    icon = {
+                        IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                    },
+                    shapes = IenToggleButtonDefaults.shapes(
+                        checked = ContinuousCapsule(),
+                        unchecked = ContinuousRoundedRectangle(IenTheme.radius.sm),
+                    ),
+                )
+                IenToggleButton(
+                    checked = colorToggleChecked,
+                    onCheckedChange = { colorToggleChecked = it },
+                    text = if (colorToggleChecked) "Success" else "Neutral",
+                    shapes = IenToggleButtonDefaults.shapes(
+                        checked = ContinuousCapsule(),
+                        unchecked = ContinuousRoundedRectangle(IenTheme.radius.default),
+                    ),
+                    colors = IenToggleButtonDefaults.colors(
+                        checkedTone = IenSemanticTone.Success,
+                        uncheckedTone = IenSemanticTone.Neutral,
+                        checkedBackgroundBrush = Brush.linearGradient(
+                            listOf(
+                                Color(0xFF34D399),
+                                Color(0xFF10B981),
+                                Color(0xFF2DD4BF),
+                            )
+                        ),
+                    ),
+                )
+                IenIconToggleButton(
+                    checked = iconToggleChecked,
+                    onCheckedChange = { iconToggleChecked = it },
+                    shapes = IenToggleButtonDefaults.shapes(
+                        checked = CircleShape,
+                        unchecked = ContinuousRoundedRectangle(IenTheme.radius.sm),
+                    ),
+                    colors = IenToggleButtonDefaults.colors(
+                        checkedTone = IenSemanticTone.Info,
+                        uncheckedTone = IenSemanticTone.Neutral,
+                    ),
+                ) {
+                    IenIcon(
+                        imageVector = if (iconToggleChecked) M3SystemIcons.Filled.Check else M3SystemIcons.Filled.Close,
+                        contentDescription = null,
+                    )
+                }
+            }
         }
     }
 }

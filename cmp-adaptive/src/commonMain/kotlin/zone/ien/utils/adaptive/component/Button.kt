@@ -53,10 +53,15 @@ import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenExtendedFab
 import zone.ien.utils.ui.interactive.IenIconButton
+import zone.ien.utils.ui.interactive.IenIconToggleButton
 import zone.ien.utils.ui.interactive.IenIconPlacement
 import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.interactive.IenTextButtonSize
 import zone.ien.utils.ui.interactive.IenTextButtonVariant
+import zone.ien.utils.ui.interactive.IenToggleButton
+import zone.ien.utils.ui.interactive.IenToggleButtonColors
+import zone.ien.utils.ui.interactive.IenToggleButtonShapes
+import zone.ien.utils.ui.interactive.IenToggleButtonVariants
 import zone.ien.utils.ui.screen.IenBackButton
 
 /**
@@ -244,6 +249,140 @@ fun AdaptiveFilledIconButton(
                 interactionSource = interactionSource,
                 content = content,
             )
+        },
+    )
+}
+
+/**
+ * Material 분기에서 [IenToggleButton]을 사용하는 적응형 토글 버튼 컴포저블.
+ */
+@OptIn(ExperimentalAdaptiveApi::class)
+@Composable
+fun AdaptiveToggleButton(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    text: String,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    loading: Boolean = false,
+    size: IenButtonSize = IenButtonSize.Large,
+    state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
+    icon: (@Composable () -> Unit)? = null,
+    iconPlacement: IenIconPlacement = IenIconPlacement.Start,
+    shapes: IenToggleButtonShapes? = null,
+    variants: IenToggleButtonVariants = IenToggleButtonVariants(),
+    colors: IenToggleButtonColors? = null,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    display: IenButtonDisplay = IenButtonDisplay.Inline,
+) {
+    AdaptiveWidget(
+        material = {
+            IenToggleButton(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                text = text,
+                modifier = modifier,
+                size = size,
+                state = state.copy(enabled = state.enabled && enabled, loading = state.loading || loading),
+                icon = icon,
+                iconPlacement = iconPlacement,
+                shapes = shapes,
+                variants = variants,
+                colors = colors,
+                contentPadding = contentPadding,
+                interactionSource = interactionSource,
+                display = display,
+            )
+        },
+        cupertino = {
+            val onClick = { onCheckedChange(!checked) }
+            val isEnabled = enabled && state.enabled && !state.loading && !loading
+            if (checked) {
+                HigAdaptiveTonalButton(
+                    onClick = onClick,
+                    modifier = modifier,
+                    enabled = isEnabled,
+                    interactionSource = interactionSource,
+                ) {
+                    AdaptiveButtonTextContent(
+                        text = text,
+                        icon = icon,
+                        iconPlacement = iconPlacement,
+                    )
+                }
+            } else {
+                HigAdaptiveButton(
+                    onClick = onClick,
+                    modifier = modifier,
+                    enabled = isEnabled,
+                    interactionSource = interactionSource,
+                ) {
+                    AdaptiveButtonTextContent(
+                        text = text,
+                        icon = icon,
+                        iconPlacement = iconPlacement,
+                    )
+                }
+            }
+        },
+    )
+}
+
+/**
+ * Material 분기에서 [IenIconToggleButton]을 사용하는 적응형 아이콘 토글 버튼 컴포저블.
+ */
+@OptIn(ExperimentalAdaptiveApi::class)
+@Composable
+fun AdaptiveIconToggleButton(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    loading: Boolean = false,
+    size: IenButtonSize = IenButtonSize.Large,
+    state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
+    shapes: IenToggleButtonShapes? = null,
+    variants: IenToggleButtonVariants = IenToggleButtonVariants(),
+    colors: IenToggleButtonColors? = null,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    content: @Composable () -> Unit,
+) {
+    AdaptiveWidget(
+        material = {
+            IenIconToggleButton(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                modifier = modifier,
+                size = size,
+                state = state.copy(enabled = state.enabled && enabled, loading = state.loading || loading),
+                shapes = shapes,
+                variants = variants,
+                colors = colors,
+                interactionSource = interactionSource,
+                content = content,
+            )
+        },
+        cupertino = {
+            val onClick = { onCheckedChange(!checked) }
+            val isEnabled = enabled && state.enabled && !state.loading && !loading
+            if (checked) {
+                HigAdaptiveFilledIconButton(
+                    onClick = onClick,
+                    modifier = modifier,
+                    enabled = isEnabled,
+                    interactionSource = interactionSource,
+                    content = content,
+                )
+            } else {
+                HigAdaptiveIconButton(
+                    onClick = onClick,
+                    modifier = modifier,
+                    enabled = isEnabled,
+                    interactionSource = interactionSource,
+                    content = content,
+                )
+            }
         },
     )
 }

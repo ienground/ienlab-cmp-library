@@ -4,7 +4,7 @@ kotlin = "2.4.10"
 android-minSdk = "29"
 android-compileSdk = "37"
 android-targetSdk = "37"
-lib-version-name = "3.0.0-alpha15"
+lib-version-name = "3.0.0-alpha16"
 
 # plugin
 compose-plugin = "1.11.1"
@@ -76,7 +76,6 @@ hig = { group = "zone.ien.hig", name = "hig", version.ref = "hig"}
 hig-adaptive = { group = "zone.ien.hig", name = "hig-adaptive", version.ref = "hig" }
 hig-icons = { group = "zone.ien.hig", name = "hig-icons-extended", version.ref = "hig" }
 capsule = { group = "zone.ien.capsule", name = "capsule", version.ref = "capsule" }
-#capsule = { group = "io.github.kyant0", name = "shapes", version.ref = "capsule"}
 
 placeholder = { group = "com.revenuecat.purchases", name = "placeholder", version.ref = "placeholder"}
 

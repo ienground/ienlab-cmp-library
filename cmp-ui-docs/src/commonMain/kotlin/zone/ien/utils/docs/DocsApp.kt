@@ -27,10 +27,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.Font
 import zone.ien.utils.docs.generated.resources.Pretendard_Regular
@@ -344,78 +347,69 @@ private fun InfoPill(text: String) {
 @Composable
 private fun TokenSection() {
     DocsSection(title = "Foundation tokens") {
-        TokenRows(
-            title = "Typography",
-            rows = listOf(
-                "display" to "30 / 38 Bold",
-                "title1" to "24 / 32 Bold",
-                "title2" to "20 / 28 SemiBold",
-                "title3" to "18 / 26 SemiBold",
-                "body1" to "16 / 24 Regular",
-                "body2" to "15 / 22 Regular",
-                "label1" to "14 / 20 SemiBold",
-                "label2" to "13 / 18 SemiBold",
-                "caption" to "12 / 16 Regular",
-            ),
-        )
-        TokenRows(
-            title = "Spacing",
-            rows = listOf(
-                "none" to "0dp",
-                "xxxs" to "2dp",
-                "xxs" to "4dp",
-                "xs" to "8dp",
-                "sm" to "12dp",
-                "md" to "16dp",
-                "lg" to "20dp",
-                "xl" to "24dp",
-                "xxl" to "32dp",
-                "xxxl" to "40dp",
-            ),
-        )
-        TokenRows(
-            title = "Radius",
-            rows = listOf(
-                "none" to "0dp",
-                "xs" to "4dp",
-                "sm" to "8dp",
-                "default" to "12dp",
-                "md" to "12dp",
-                "lg" to "16dp",
-                "xl" to "24dp",
-                "full" to "999dp",
-            ),
-        )
-        TokenRows(
-            title = "Stroke / Elevation / Icon",
-            rows = listOf(
-                "stroke.hairline" to "0.5dp",
-                "stroke.thin" to "1dp",
-                "stroke.medium" to "1.5dp",
-                "stroke.thick" to "2dp",
-                "elevation.raised" to "4dp",
-                "elevation.floating" to "12dp",
-                "icon.md" to "20dp",
-                "icon.xl" to "32dp",
-            ),
-        )
+        TypographyTokenPreview()
+        SpacingTokenPreview()
+        RadiusTokenPreview()
+        StrokeTokenPreview()
+        ElevationTokenPreview()
+        IconTokenPreview()
     }
 }
 
 @Composable
-private fun TokenRows(
-    title: String,
-    rows: List<Pair<String, String>>,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        IenText(title, style = IenTheme.typography.title3)
-        rows.chunked(2).forEach { line ->
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                line.forEach { (name, value) ->
-                    TokenCell(name = name, value = value, modifier = Modifier.weight(1f))
+private fun TypographyTokenPreview() {
+    TokenPreviewGroup(title = "Typography") {
+        typographySamples().forEach { sample ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(IenTheme.radius.sm))
+                    .background(IenTheme.colors.surfaceWeak)
+                    .padding(14.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                IenText(
+                    text = sample.preview,
+                    style = sample.style,
+                    color = IenTheme.colors.textPrimary,
+                )
+                TokenNameValue(name = sample.name, value = sample.value)
+            }
+        }
+    }
+}
+
+@Composable
+private fun SpacingTokenPreview() {
+    TokenPreviewGroup(title = "Spacing") {
+        spacingSamples().forEach { sample ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(IenTheme.radius.sm))
+                    .background(IenTheme.colors.surfaceWeak)
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.width(82.dp)) {
+                    IenText(sample.name, style = IenTheme.typography.label1)
+                    IenText(sample.value, style = IenTheme.typography.caption, color = IenTheme.colors.textSecondary)
                 }
-                if (line.size == 1) {
-                    Spacer(modifier = Modifier.weight(1f))
+                Box(
+                    modifier = Modifier
+                        .width(240.dp)
+                        .height(34.dp)
+                        .clip(RoundedCornerShape(IenTheme.radius.xs))
+                        .background(IenTheme.colors.surfaceVariant),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(if (sample.size == 0.dp) 1.dp else sample.size)
+                            .fillMaxHeight()
+                            .background(IenTheme.colors.brand),
+                    )
                 }
             }
         }
@@ -423,23 +417,243 @@ private fun TokenRows(
 }
 
 @Composable
-private fun TokenCell(
-    name: String,
-    value: String,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .clip(RoundedCornerShape(IenTheme.radius.sm))
-            .background(IenTheme.colors.surfaceWeak)
-            .padding(12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IenText(name, style = IenTheme.typography.label1)
-        IenText(value, style = IenTheme.typography.caption, color = IenTheme.colors.textSecondary)
+private fun RadiusTokenPreview() {
+    TokenPreviewGroup(title = "Radius") {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            radiusSamples().forEach { sample ->
+                Column(
+                    modifier = Modifier
+                        .width(136.dp)
+                        .clip(RoundedCornerShape(IenTheme.radius.sm))
+                        .background(IenTheme.colors.surfaceWeak)
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 88.dp, height = 58.dp)
+                            .clip(RoundedCornerShape(sample.size))
+                            .background(IenTheme.colors.brandWeak)
+                            .border(
+                                width = IenTheme.stroke.thin,
+                                color = IenTheme.colors.brand,
+                                shape = RoundedCornerShape(sample.size),
+                            ),
+                    )
+                    TokenNameValue(name = sample.name, value = sample.value)
+                }
+            }
+        }
     }
 }
+
+@Composable
+private fun StrokeTokenPreview() {
+    TokenPreviewGroup(title = "Stroke") {
+        strokeSamples().forEach { sample ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(IenTheme.radius.sm))
+                    .background(IenTheme.colors.surfaceWeak)
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.width(112.dp)) {
+                    IenText(sample.name, style = IenTheme.typography.label1)
+                    IenText(sample.value, style = IenTheme.typography.caption, color = IenTheme.colors.textSecondary)
+                }
+                Box(
+                    modifier = Modifier
+                        .width(220.dp)
+                        .height(34.dp)
+                        .border(sample.size, IenTheme.colors.brand, RoundedCornerShape(IenTheme.radius.xs)),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ElevationTokenPreview() {
+    TokenPreviewGroup(title = "Elevation") {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            elevationSamples().forEach { sample ->
+                Column(
+                    modifier = Modifier
+                        .width(150.dp)
+                        .clip(RoundedCornerShape(IenTheme.radius.sm))
+                        .background(IenTheme.colors.surfaceWeak)
+                        .padding(14.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    val shape = RoundedCornerShape(IenTheme.radius.md)
+                    Box(
+                        modifier = Modifier
+                            .size(72.dp)
+                            .shadow(sample.size, shape, clip = false)
+                            .clip(shape)
+                            .background(IenTheme.colors.surface),
+                    )
+                    TokenNameValue(name = sample.name, value = sample.value)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun IconTokenPreview() {
+    TokenPreviewGroup(title = "Icon") {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            iconSamples().forEach { sample ->
+                Column(
+                    modifier = Modifier
+                        .width(122.dp)
+                        .clip(RoundedCornerShape(IenTheme.radius.sm))
+                        .background(IenTheme.colors.surfaceWeak)
+                        .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(RoundedCornerShape(IenTheme.radius.sm))
+                            .background(IenTheme.colors.surfaceVariant),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(sample.size)
+                                .clip(CircleShape)
+                                .background(IenTheme.colors.brand),
+                        )
+                    }
+                    TokenNameValue(name = sample.name, value = sample.value)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TokenPreviewGroup(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        IenText(title, style = IenTheme.typography.title3)
+        content()
+    }
+}
+
+@Composable
+private fun TokenNameValue(
+    name: String,
+    value: String,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        IenText(
+            text = name,
+            style = IenTheme.typography.label1,
+            color = IenTheme.colors.textPrimary,
+        )
+        IenText(
+            text = value,
+            style = IenTheme.typography.caption,
+            color = IenTheme.colors.textSecondary,
+        )
+    }
+}
+
+private data class TypographySample(
+    val name: String,
+    val value: String,
+    val preview: String,
+    val style: TextStyle,
+)
+
+private data class SizeSample(
+    val name: String,
+    val value: String,
+    val size: Dp,
+)
+
+@Composable
+private fun typographySamples() = listOf(
+    TypographySample("display", "30 / 38 Bold", "디스플레이 제목 Display", IenTheme.typography.display),
+    TypographySample("title1", "24 / 32 Bold", "큰 제목 Title 1", IenTheme.typography.title1),
+    TypographySample("title2", "20 / 28 SemiBold", "중간 제목 Title 2", IenTheme.typography.title2),
+    TypographySample("title3", "18 / 26 SemiBold", "작은 제목 Title 3", IenTheme.typography.title3),
+    TypographySample("body1", "16 / 24 Regular", "본문 텍스트 Body 1 - 읽기 좋은 기본 문장입니다.", IenTheme.typography.body1),
+    TypographySample("body2", "15 / 22 Regular", "보조 본문 Body 2 - 설명과 안내문에 사용합니다.", IenTheme.typography.body2),
+    TypographySample("label1", "14 / 20 SemiBold", "레이블 Label 1", IenTheme.typography.label1),
+    TypographySample("label2", "13 / 18 SemiBold", "작은 레이블 Label 2", IenTheme.typography.label2),
+    TypographySample("caption", "12 / 16 Regular", "캡션 Caption", IenTheme.typography.caption),
+)
+
+@Composable
+private fun spacingSamples() = listOf(
+    SizeSample("none", "0dp", IenTheme.spacing.none),
+    SizeSample("xxxs", "2dp", IenTheme.spacing.xxxs),
+    SizeSample("xxs", "4dp", IenTheme.spacing.xxs),
+    SizeSample("xs", "8dp", IenTheme.spacing.xs),
+    SizeSample("sm", "12dp", IenTheme.spacing.sm),
+    SizeSample("md", "16dp", IenTheme.spacing.md),
+    SizeSample("lg", "20dp", IenTheme.spacing.lg),
+    SizeSample("xl", "24dp", IenTheme.spacing.xl),
+    SizeSample("xxl", "32dp", IenTheme.spacing.xxl),
+    SizeSample("xxxl", "40dp", IenTheme.spacing.xxxl),
+)
+
+@Composable
+private fun radiusSamples() = listOf(
+    SizeSample("none", "0dp", IenTheme.radius.none),
+    SizeSample("xs", "4dp", IenTheme.radius.xs),
+    SizeSample("sm", "8dp", IenTheme.radius.sm),
+    SizeSample("default", "12dp", IenTheme.radius.default),
+    SizeSample("md", "12dp", IenTheme.radius.md),
+    SizeSample("lg", "16dp", IenTheme.radius.lg),
+    SizeSample("xl", "24dp", IenTheme.radius.xl),
+    SizeSample("full", "999dp", IenTheme.radius.full),
+)
+
+@Composable
+private fun strokeSamples() = listOf(
+    SizeSample("hairline", "0.5dp", IenTheme.stroke.hairline),
+    SizeSample("thin", "1dp", IenTheme.stroke.thin),
+    SizeSample("medium", "1.5dp", IenTheme.stroke.medium),
+    SizeSample("thick", "2dp", IenTheme.stroke.thick),
+)
+
+@Composable
+private fun elevationSamples() = listOf(
+    SizeSample("none", "0dp", IenTheme.elevation.none),
+    SizeSample("raised", "4dp", IenTheme.elevation.raised),
+    SizeSample("floating", "12dp", IenTheme.elevation.floating),
+    SizeSample("overlay", "24dp", IenTheme.elevation.overlay),
+)
+
+@Composable
+private fun iconSamples() = listOf(
+    SizeSample("xs", "12dp", IenTheme.icon.xs),
+    SizeSample("sm", "16dp", IenTheme.icon.sm),
+    SizeSample("md", "20dp", IenTheme.icon.md),
+    SizeSample("lg", "24dp", IenTheme.icon.lg),
+    SizeSample("xl", "32dp", IenTheme.icon.xl),
+)
 
 @Composable
 private fun ColorTokenSection(

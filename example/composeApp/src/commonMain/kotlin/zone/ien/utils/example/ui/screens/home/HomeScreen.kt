@@ -245,7 +245,6 @@ fun HomeScreen(
             },
             title = { IenText(text = "IENGROUND") },
             subtitle = { IenText(text = "Sub Title") },
-            scrollableState = scrollState,
             adaptation = {
                 material {
                     mode = TopBarMode.Expanded
