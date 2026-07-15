@@ -43,6 +43,7 @@ import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.ui.shimmer.m3Placeholder
 import zone.ien.utils.ui.utils.TextFieldDialogData
 
@@ -97,11 +98,11 @@ fun PlaygroundScreen(
             ),
             adaptation = {
                 material {
-
+                    mode = TopBarMode.Expanded
                 }
                 cupertino {
                     this.backdrop = backdrop
-                    showNavTitle = true
+                    mode = TopBarMode.Expanded
                 }
             },
             modifier = modifier

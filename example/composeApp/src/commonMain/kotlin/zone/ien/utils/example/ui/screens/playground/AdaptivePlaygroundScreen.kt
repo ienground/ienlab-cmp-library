@@ -55,6 +55,7 @@ import zone.ien.utils.ui.interactive.IenIconPlacement
 import zone.ien.utils.ui.interactive.IenSegmentedControlItem
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.screen.TopBarMode
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -73,6 +74,7 @@ fun AdaptivePlaygroundScreen(
     var lineChecked by remember { mutableStateOf(true) }
     var sliderValue by remember { mutableFloatStateOf(0.64f) }
     var segmentedIndex by remember { mutableIntStateOf(0) }
+    var topBarMode by remember { mutableStateOf(TopBarMode.Expanded) }
 
     IenAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino,
@@ -90,9 +92,12 @@ fun AdaptivePlaygroundScreen(
             scrollableState = scrollState,
             modifier = modifier,
             adaptation = {
+                material {
+                    mode = topBarMode
+                }
                 cupertino {
                     this.backdrop = backdrop
-                    showNavTitle = true
+                    mode = topBarMode
                 }
             },
         ) { paddingValues, title ->
@@ -123,6 +128,22 @@ fun AdaptivePlaygroundScreen(
                         text = "Components enabled",
                         checked = enabled,
                         onCheckedChange = { enabled = it },
+                    )
+                    AdaptiveSegmentedControl(
+                        items = listOf(
+                            IenSegmentedControlItem("static", "Static"),
+                            IenSegmentedControlItem("expanded", "Expanded"),
+                        ),
+                        value = when (topBarMode) {
+                            TopBarMode.Static -> "static"
+                            TopBarMode.Expanded -> "expanded"
+                        },
+                        onChange = { value ->
+                            topBarMode = when (value) {
+                                "static" -> TopBarMode.Static
+                                else -> TopBarMode.Expanded
+                            }
+                        },
                     )
                 }
 

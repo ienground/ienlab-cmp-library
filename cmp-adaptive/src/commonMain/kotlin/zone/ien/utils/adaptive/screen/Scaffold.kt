@@ -90,14 +90,13 @@ import zone.ien.utils.ui.menu.IenActionsMenu
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
-import zone.ien.utils.ui.screen.LocalHigShowNavTitle
 import zone.ien.utils.ui.screen.LocalIsHigTopBarCenterAligned
 import zone.ien.utils.ui.screen.LocalIsM3TopBarCenterAligned
 import zone.ien.utils.ui.screen.LocalIsScrollTint
-import zone.ien.utils.ui.screen.LocalM3TopBarSize
+import zone.ien.utils.ui.screen.LocalTopBarMode
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.screen.IenTopAppBar
-import zone.ien.utils.ui.screen.TopBarSize
+import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
 /**
@@ -175,7 +174,8 @@ fun AdaptiveTopAppBarScaffold(
                                 IenTopAppBar(
                                     title = {
                                         AnimatedVisibility(
-                                            visible = !navigationTitleVisible,
+                                            visible = materialAdaptation.mode == TopBarMode.Static ||
+                                                !navigationTitleVisible,
                                             enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
                                             exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
                                         ) {
@@ -185,7 +185,8 @@ fun AdaptiveTopAppBarScaffold(
                                     subtitle = subtitle?.let {
                                         {
                                             AnimatedVisibility(
-                                                visible = !navigationTitleVisible,
+                                                visible = materialAdaptation.mode == TopBarMode.Static ||
+                                                    !navigationTitleVisible,
                                                 enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
                                                 exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
                                             ) {
@@ -201,7 +202,7 @@ fun AdaptiveTopAppBarScaffold(
                                     windowInsets = materialAdaptation.topBarWindowInsets,
                                     isCenterAligned = materialAdaptation.isCenterAligned,
                                     isScrollTint = materialAdaptation.isScrollTint,
-                                    size = TopBarSize.Small,
+                                    mode = TopBarMode.Static,
                                 )
                             }
                             AnimatedVisibility(
@@ -230,13 +231,15 @@ fun AdaptiveTopAppBarScaffold(
                         content(
                             contentPadding,
                             {
-                                IenNavigationTitle(
-                                    title = title,
-                                    subtitle = subtitle,
-                                    topBarHeight = topBarHeight.value,
-                                    scaffoldCoordinates = scaffoldCoordinates.value,
-                                    onVisibilityChange = { navigationTitleVisible = it },
-                                )
+                                if (materialAdaptation.mode == TopBarMode.Expanded) {
+                                    IenNavigationTitle(
+                                        title = title,
+                                        subtitle = subtitle,
+                                        topBarHeight = topBarHeight.value,
+                                        scaffoldCoordinates = scaffoldCoordinates.value,
+                                        onVisibilityChange = { navigationTitleVisible = it },
+                                    )
+                                }
                             }
                         )
                     }
@@ -309,7 +312,7 @@ fun AdaptiveTopAppBarScaffold(
                 containerColor = it.scaffoldContainerColor,
                 contentColor = it.scaffoldContentColor,
                 contentWindowInsets = it.contentWindowInsets,
-                hasNavigationTitle = it.showNavTitle,
+                hasNavigationTitle = it.mode == TopBarMode.Expanded,
                 content = { contentPadding ->
                     CompositionLocalProvider(
                         LocalTopBarScaffoldScrollState provides scaffoldScrollState,
@@ -317,10 +320,12 @@ fun AdaptiveTopAppBarScaffold(
                         content(
                             contentPadding,
                             {
-                                CupertinoNavigationTitle(
-                                    title = title,
-                                    subtitle = subtitle
-                                )
+                                if (it.mode == TopBarMode.Expanded) {
+                                    CupertinoNavigationTitle(
+                                        title = title,
+                                        subtitle = subtitle
+                                    )
+                                }
                             }
                         )
                     }
@@ -530,7 +535,7 @@ fun AdaptiveTopAppBarScaffold(
  * @param isCenterAligned 중앙 정렬 여부
  * @param scaffoldContainerColor 스크라프트 컨테이너 색상
  * @param scaffoldContentColor 스크라프트 콘텐츠 색상
- * @param size 상단바 크기
+ * @param mode 상단바 표시 방식
  */
 @OptIn(ExperimentalMaterial3Api::class)
 class IenTopAppBarScaffoldAdaptation internal constructor(
@@ -540,7 +545,7 @@ class IenTopAppBarScaffoldAdaptation internal constructor(
     isCenterAligned: Boolean,
     scaffoldContainerColor: Color,
     scaffoldContentColor: Color,
-    size: TopBarSize,
+    mode: TopBarMode,
 ) {
     var topBarWindowInsets by mutableStateOf(topBarWindowInsets)
     var contentWindowInsets by mutableStateOf(contentWindowInsets)
@@ -548,7 +553,7 @@ class IenTopAppBarScaffoldAdaptation internal constructor(
     var isCenterAligned by mutableStateOf(isCenterAligned)
     var scaffoldContainerColor by mutableStateOf(scaffoldContainerColor)
     var scaffoldContentColor by mutableStateOf(scaffoldContentColor)
-    var size by mutableStateOf(size)
+    var mode by mutableStateOf(mode)
 }
 
 /**
@@ -564,7 +569,7 @@ class IenTopAppBarScaffoldAdaptation internal constructor(
  * @param colors 상단바 색상
  * @param scaffoldContainerColor 스크라프트 컨테이너 색상
  * @param scaffoldContentColor 스크라프트 콘텐츠 색상
- * @param showNavTitle 네비게이션 타이틀 표시 여부
+ * @param mode 상단바 표시 방식
  */
 class HigTopAppBarScaffoldAdaptation internal constructor(
     topBarWindowInsets: WindowInsets,
@@ -577,7 +582,7 @@ class HigTopAppBarScaffoldAdaptation internal constructor(
     colors: CupertinoTopAppBarColors,
     scaffoldContainerColor: Color,
     scaffoldContentColor: Color,
-    showNavTitle: Boolean,
+    mode: TopBarMode,
 ) {
     var topBarWindowInsets by mutableStateOf(topBarWindowInsets)
     var contentWindowInsets by mutableStateOf(contentWindowInsets)
@@ -589,7 +594,7 @@ class HigTopAppBarScaffoldAdaptation internal constructor(
     var colors by mutableStateOf(colors)
     var scaffoldContainerColor by mutableStateOf(scaffoldContainerColor)
     var scaffoldContentColor by mutableStateOf(scaffoldContentColor)
-    var showNavTitle by mutableStateOf(showNavTitle)
+    var mode by mutableStateOf(mode)
 }
 
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -606,9 +611,9 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
         val colors = CupertinoTopAppBarDefaults.topAppBarColors()
         val scaffoldContainerColor = MaterialTheme.colorScheme.background// CupertinoScaffoldDefaults.containerColor
         val scaffoldContentColor = contentColorFor(scaffoldContainerColor) // CupertinoScaffoldDefaults.contentColor
-        val showNavTitle = LocalHigShowNavTitle.current
+        val mode = LocalTopBarMode.current
 
-        return remember(topBarWindowInsets, contentWindowInsets, backdrop,isDropdownNative, isCenterAligned, isBackgroundAdaptive, isBackgroundGradient, colors, scaffoldContainerColor, scaffoldContentColor, showNavTitle) {
+        return remember(topBarWindowInsets, contentWindowInsets, backdrop,isDropdownNative, isCenterAligned, isBackgroundAdaptive, isBackgroundGradient, colors, scaffoldContainerColor, scaffoldContentColor, mode) {
             HigTopAppBarScaffoldAdaptation(
                 topBarWindowInsets = topBarWindowInsets,
                 contentWindowInsets = contentWindowInsets,
@@ -620,7 +625,7 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
                 colors = colors,
                 scaffoldContainerColor = scaffoldContainerColor,
                 scaffoldContentColor = scaffoldContentColor,
-                showNavTitle = showNavTitle
+                mode = mode,
             )
         }
     }
@@ -634,9 +639,9 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
         val isCenterAligned = LocalIsM3TopBarCenterAligned.current
         val scaffoldContainerColor = MaterialTheme.colorScheme.background
         val scaffoldContentColor = contentColorFor(scaffoldContainerColor)
-        val size = LocalM3TopBarSize.current
+        val mode = LocalTopBarMode.current
 
-        return remember(topBarWindowInsets, contentWindowInsets, isScrollTint, isCenterAligned, scaffoldContainerColor, scaffoldContentColor, size) {
+        return remember(topBarWindowInsets, contentWindowInsets, isScrollTint, isCenterAligned, scaffoldContainerColor, scaffoldContentColor, mode) {
             IenTopAppBarScaffoldAdaptation(
                 topBarWindowInsets = topBarWindowInsets,
                 contentWindowInsets = contentWindowInsets,
@@ -644,7 +649,7 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
                 isCenterAligned = isCenterAligned,
                 scaffoldContainerColor = scaffoldContainerColor,
                 scaffoldContentColor = scaffoldContentColor,
-                size = size,
+                mode = mode,
             )
         }
     }
@@ -694,11 +699,11 @@ private fun IenNavigationTitle(
             },
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        IenProvideTextStyle(IenTheme.typography.title1, IenTheme.colors.textPrimary) {
+        IenProvideTextStyle(IenTheme.typography.display, IenTheme.colors.textPrimary) {
             title()
         }
         if (subtitle != null) {
-            IenProvideTextStyle(IenTheme.typography.body2, IenTheme.colors.textSecondary) {
+            IenProvideTextStyle(IenTheme.typography.body1, IenTheme.colors.textSecondary) {
                 subtitle()
             }
         }

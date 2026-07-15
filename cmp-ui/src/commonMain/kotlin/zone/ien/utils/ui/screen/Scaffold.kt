@@ -53,7 +53,7 @@ import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
  * @param contentEdge 콘텐츠 영역의 모서리 스타일 및 블러 진행도를 정의하는 설정
  * @param scrollableState 상단 영역 흐림 진행도 계산에 사용할 스크롤 상태
  * @param isScrollTint 스크롤 tint 여부
- * @param size 크기
+ * @param mode 상단 바 표시 방식
  * @param content 내용
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,7 +78,7 @@ fun IenTopAppBarScaffold(
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
     scrollableState: ScrollableState = rememberScrollState(),
     isScrollTint: Boolean = LocalIsScrollTint.current,
-    size: TopBarSize = LocalM3TopBarSize.current,
+    mode: TopBarMode = LocalTopBarMode.current,
     content: @Composable (PaddingValues) -> Unit
 ) {
     IenScaffold(
@@ -93,7 +93,7 @@ fun IenTopAppBarScaffold(
                     windowInsets = topBarWindowInsets,
                     isCenterAligned = isCenterAligned,
                     isScrollTint = isScrollTint,
-                    size = size,
+                    mode = mode,
                     modifier = topBarModifier
                 )
             } else {
@@ -135,7 +135,7 @@ fun IenTopAppBarScaffold(
  * @param contentEdge 콘텐츠 영역의 모서리 스타일 및 블러 진행도를 정의하는 설정
  * @param scrollableState 상단 영역 흐림 진행도 계산에 사용할 스크롤 상태
  * @param isScrollTint 스크롤 tint 여부
- * @param size 크기
+ * @param mode 상단 바 표시 방식
  * @param content 내용
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -160,7 +160,7 @@ fun IenTopAppBarScaffold(
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
     scrollableState: ScrollableState = rememberScrollState(),
     isScrollTint: Boolean = LocalIsScrollTint.current,
-    size: TopBarSize = LocalM3TopBarSize.current,
+    mode: TopBarMode = LocalTopBarMode.current,
     content: @Composable (PaddingValues) -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
@@ -200,7 +200,7 @@ fun IenTopAppBarScaffold(
         contentEdge = contentEdge,
         scrollableState = scrollableState,
         isScrollTint = isScrollTint,
-        size = size,
+        mode = mode,
         content = content
     )
 }

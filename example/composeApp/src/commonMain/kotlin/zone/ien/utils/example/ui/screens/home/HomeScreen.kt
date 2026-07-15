@@ -54,7 +54,7 @@ import zone.ien.utils.adaptive.view.DropdownMenuSectionNative
 import zone.ien.utils.example.Android
 import zone.ien.utils.example.ui.navigation.RootRoute
 import zone.ien.utils.ui.menu.ActionMenuItem
-import zone.ien.utils.ui.screen.TopBarSize
+import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.navigation.result.ResultStore
@@ -248,12 +248,12 @@ fun HomeScreen(
             scrollableState = scrollState,
             adaptation = {
                 material {
-                    size = TopBarSize.Medium
+                    mode = TopBarMode.Expanded
                     isCenterAligned = true
                 }
                 cupertino {
                     this.backdrop = backdrop
-                    showNavTitle = true
+                    mode = TopBarMode.Expanded
                 }
             },
             bottomBar = {

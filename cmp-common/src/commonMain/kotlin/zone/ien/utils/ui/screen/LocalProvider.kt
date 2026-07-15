@@ -12,20 +12,12 @@ import androidx.compose.runtime.staticCompositionLocalOf
 val LocalIsScrollTint: ProvidableCompositionLocal<Boolean> = staticCompositionLocalOf { true }
 
 /**
- * M3 상단 바 크기를 정의하는 CompositionLocal
+ * 상단 바 표시 방식을 정의하는 CompositionLocal
  *
- * 이 CompositionLocal은 Material 3 상단 바의 크기를 제공합니다.
- * 기본 값은 TopBarSize.Small으로 설정되어 있습니다.
+ * 이 CompositionLocal은 Material 3와 HIG 상단 바의 표시 방식을 제공합니다.
+ * 기본 값은 [TopBarMode.Static]으로 설정되어 있습니다.
  */
-val LocalM3TopBarSize: ProvidableCompositionLocal<TopBarSize> = staticCompositionLocalOf { TopBarSize.Small }
-
-/**
- * 네비게이션 제목 표시 여부를 제어하는 CompositionLocal
- *
- * 이 CompositionLocal은 UI에서 네비게이션 제목을 표시할지 여부를 결정합니다.
- * 기본 값은 false로 설정되어 있습니다.
- */
-val LocalHigShowNavTitle: ProvidableCompositionLocal<Boolean> = staticCompositionLocalOf { false }
+val LocalTopBarMode: ProvidableCompositionLocal<TopBarMode> = staticCompositionLocalOf { TopBarMode.Static }
 
 /**
  * M3 상단 바의 중앙 정렬 여부를 제어하는 CompositionLocal

@@ -22,7 +22,7 @@ import zone.ien.utils.ui.screen.IenTopBarTitleAlignment
  * @param windowInsets 윈도우 인셋
  * @param isScrollTint 스크롤 tint 여부
  * @param isCenterAligned 중앙 정렬 여부
- * @param size 크기
+ * @param mode 상단 바 표시 방식
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +35,7 @@ fun IenTopAppBar(
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
     isScrollTint: Boolean = LocalIsScrollTint.current,
     isCenterAligned: Boolean = false,
-    size: TopBarSize = TopBarSize.Small
+    mode: TopBarMode = TopBarMode.Static,
 ) {
     IenTopBar(
         title = title,
@@ -45,15 +45,13 @@ fun IenTopAppBar(
         actions = actions,
         windowInsets = windowInsets,
         titleAlignment = if (isCenterAligned) IenTopBarTitleAlignment.Center else IenTopBarTitleAlignment.Start,
-        contentPadding = when (size) {
-            TopBarSize.Small,
-            TopBarSize.Medium,
-            TopBarSize.Large -> PaddingValues(horizontal = 16.dp)
+        contentPadding = when (mode) {
+            TopBarMode.Static,
+            TopBarMode.Expanded -> PaddingValues(horizontal = 16.dp)
         },
-        contentHeight = when (size) {
-            TopBarSize.Small -> 64.dp
-            TopBarSize.Medium -> 80.dp
-            TopBarSize.Large -> 96.dp
+        contentHeight = when (mode) {
+            TopBarMode.Static,
+            TopBarMode.Expanded -> 64.dp
         },
     )
 }

@@ -27,6 +27,7 @@ import zone.ien.utils.ui.section.lazy.m3Section
 import zone.ien.utils.ui.section.lazy.switch
 import zone.ien.utils.ui.section.m3SectionBackground
 import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.screen.TopBarMode
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -56,8 +57,11 @@ fun LazySectionScreen(
             },
             scrollableState = lazyListState,
             adaptation = {
+                material {
+                    mode = TopBarMode.Expanded
+                }
                 cupertino {
-                    this.showNavTitle = true
+                    mode = TopBarMode.Expanded
                 }
             },
             modifier = modifier

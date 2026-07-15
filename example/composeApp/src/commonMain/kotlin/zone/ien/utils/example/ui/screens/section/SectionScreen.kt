@@ -43,6 +43,7 @@ import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.section.IenProvideSectionStyle
+import zone.ien.utils.ui.screen.TopBarMode
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -63,9 +64,12 @@ fun SectionScreen(
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
             title = { IenText(text = "Title") },
             adaptation = {
+                material {
+                    mode = TopBarMode.Expanded
+                }
                 cupertino {
                     this.backdrop = backdrop
-                    this.showNavTitle = true
+                    mode = TopBarMode.Expanded
                 }
             },
             actions = listOf(

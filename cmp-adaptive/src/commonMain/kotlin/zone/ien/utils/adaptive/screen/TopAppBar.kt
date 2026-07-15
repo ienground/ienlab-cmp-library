@@ -24,9 +24,9 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.utils.ui.screen.LocalIsHigTopBarCenterAligned
 import zone.ien.utils.ui.screen.LocalIsM3TopBarCenterAligned
 import zone.ien.utils.ui.screen.LocalIsScrollTint
-import zone.ien.utils.ui.screen.LocalM3TopBarSize
+import zone.ien.utils.ui.screen.LocalTopBarMode
 import zone.ien.utils.ui.screen.IenTopAppBar
-import zone.ien.utils.ui.screen.TopBarSize
+import zone.ien.utils.ui.screen.TopBarMode
 
 /**
  * 적응형 상단바 컴포저블
@@ -62,7 +62,7 @@ fun AdaptiveTopAppBar(
                 windowInsets = it.windowInsets,
                 isScrollTint = it.isScrollTint,
                 isCenterAligned = it.isCenterAligned,
-                size = it.size
+                mode = it.mode
             )
         },
         cupertino = {
@@ -88,7 +88,7 @@ fun AdaptiveTopAppBar(
  * @param windowInsets 윈도우 인셋
  * @param isScrollTint 스크롤 틴트 여부
  * @param isCenterAligned 중앙 정렬 여부
- * @param size 상단바 크기
+ * @param mode 상단바 표시 방식
  */
 @Stable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,12 +96,12 @@ class IenTopAppBarAdaptation internal constructor(
     windowInsets: WindowInsets,
     isScrollTint: Boolean,
     isCenterAligned: Boolean,
-    size: TopBarSize
+    mode: TopBarMode,
 ) {
     var windowInsets by mutableStateOf(windowInsets)
     var isScrollTint by mutableStateOf(isScrollTint)
     var isCenterAligned by mutableStateOf(isCenterAligned)
-    var size by mutableStateOf(size)
+    var mode by mutableStateOf(mode)
 }
 
 /**
@@ -161,14 +161,14 @@ internal class TopAppBarAdaptation: Adaptation<HigTopAppBarAdaptation, IenTopApp
         val windowInsets = TopAppBarDefaults.windowInsets
         val isScrollTint = LocalIsScrollTint.current
         val isCenterAligned = LocalIsM3TopBarCenterAligned.current
-        val size = LocalM3TopBarSize.current
+        val mode = LocalTopBarMode.current
 
-        return remember(windowInsets, isScrollTint, isCenterAligned, size) {
+        return remember(windowInsets, isScrollTint, isCenterAligned, mode) {
             IenTopAppBarAdaptation(
                 windowInsets = windowInsets,
                 isScrollTint = isScrollTint,
                 isCenterAligned = isCenterAligned,
-                size = size
+                mode = mode,
             )
         }
     }
