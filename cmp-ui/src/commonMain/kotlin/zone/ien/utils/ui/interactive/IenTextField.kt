@@ -163,6 +163,7 @@ data class IenTextFieldFormat(
  * @param keyboardOptions 소프트 키보드 속성 설정 ([KeyboardOptions]).
  * @param keyboardActions 키보드 완료/검색 액션 정의 ([KeyboardActions]).
  * @param visualTransformation 입력값 가공 규칙 (비밀번호 가리기 등).
+ * @param readOnlyTextSelectionEnabled 읽기 전용 상태에서 텍스트 선택을 허용할지 여부.
  * @param interactionSource 필드의 인터랙션 이벤트를 전달할 [MutableInteractionSource].
  * @param minLines 최소 높이를 보장할 행 수.
  * @param maxLines 최대 행 수.
@@ -194,6 +195,7 @@ fun IenTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    readOnlyTextSelectionEnabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     minLines: Int = 1,
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
@@ -338,7 +340,7 @@ fun IenTextField(
                                 0.dp
                             },
                         ),
-                    enabled = state.enabled,
+                    enabled = state.enabled && (!state.readOnly || readOnlyTextSelectionEnabled),
                     readOnly = state.readOnly,
                     singleLine = singleLine,
                     minLines = minLines,
@@ -599,10 +601,18 @@ fun IenTextFieldButton(
     enabled: Boolean = true,
     right: (@Composable () -> Unit)? = { IenTextFieldArrowDown() },
 ) {
+    val buttonInteractionSource = remember { MutableInteractionSource() }
+
     IenTextField(
         value = value.orEmpty(),
         onValueChange = {},
-        modifier = modifier.clickable(enabled = enabled, role = Role.Button, onClick = onClick),
+        modifier = modifier.clickable(
+            interactionSource = buttonInteractionSource,
+            indication = null,
+            enabled = enabled,
+            role = Role.Button,
+            onClick = onClick,
+        ),
         label = label,
         labelOption = labelOption,
         placeholder = placeholder,
@@ -611,6 +621,7 @@ fun IenTextFieldButton(
         prefix = prefix,
         suffix = suffix,
         state = IenTextFieldState(enabled = enabled, readOnly = true),
+        readOnlyTextSelectionEnabled = false,
         right = right,
     )
 }

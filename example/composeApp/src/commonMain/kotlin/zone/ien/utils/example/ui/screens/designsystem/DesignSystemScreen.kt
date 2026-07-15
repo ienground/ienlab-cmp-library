@@ -272,6 +272,16 @@ fun DesignSystemScreen(
                                 contentDescription = null
                             )
                         }
+                        IenIconButton(
+                            onClick = {},
+                            variant = IenButtonVariant.Ghost,
+                            state = IenButtonState(enabled = false),
+                        ) {
+                            IenIcon(
+                                imageVector = M3SystemIcons.Filled.Check,
+                                contentDescription = null
+                            )
+                        }
                     },
                 )
             },
@@ -567,17 +577,38 @@ fun BubbleSection() {
 fun ButtonSection() {
     IenTheme {
         ComponentSection(title = "Button") {
-            IenButton(text = "주요 액션", onClick = {}, display = IenButtonDisplay.Block, size = IenButtonSize.Small)
-            IenButton(text = "주요 액션2", onClick = {}, display = IenButtonDisplay.Block, size = IenButtonSize.Medium)
-            IenButton(text = "주요 액션3", onClick = {}, display = IenButtonDisplay.Block, size = IenButtonSize.Large)
+            ButtonVariantStateSample("Fill", IenButtonVariant.Fill)
+            ButtonVariantStateSample("Weak", IenButtonVariant.Weak)
+            ButtonVariantStateSample("Line", IenButtonVariant.Line)
+            ButtonVariantStateSample("Ghost", IenButtonVariant.Ghost)
+            IenBorder()
+            IenText("Sizes", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            IenButton(text = "Small", onClick = {}, display = IenButtonDisplay.Block, size = IenButtonSize.Small)
+            IenButton(text = "Medium", onClick = {}, display = IenButtonDisplay.Block, size = IenButtonSize.Medium)
+            IenButton(text = "Large", onClick = {}, display = IenButtonDisplay.Block, size = IenButtonSize.Large)
+            IenBorder()
+            IenText("Display", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
             IenButton(text = "Full", onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Full)
             IenButton(text = "Block", onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Block)
             IenButton(text = "Inline", onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Inline)
-            IenButton(text = "주요 액션", onClick = {}, display = IenButtonDisplay.Block, state = IenButtonState(enabled = false))
-            IenButton(text = "주요 액션", onClick = {}, display = IenButtonDisplay.Block, state = IenButtonState(loading = true))
-            IenButton(text = "보조 액션", onClick = {}, display = IenButtonDisplay.Block, variant = IenButtonVariant.Weak)
-            IenButton(text = "보조 액션", onClick = {}, display = IenButtonDisplay.Block, variant = IenButtonVariant.Line)
-            IenButton(text = "로딩", onClick = {}, size = IenButtonSize.Medium, state = IenButtonState(loading = true))
+        }
+    }
+}
+
+@Composable
+private fun ButtonVariantStateSample(
+    label: String,
+    variant: IenButtonVariant,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
+        IenText(label, style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+        ) {
+            IenButton(text = "일반", onClick = {}, variant = variant)
+            IenButton(text = "로딩", onClick = {}, variant = variant, state = IenButtonState(loading = true))
+            IenButton(text = "비활성", onClick = {}, variant = variant, state = IenButtonState(enabled = false))
         }
     }
 }
@@ -714,31 +745,35 @@ fun IconButtonSection() {
                     }
                 }
                 IenBorder()
-                IenText("Variants (Fill, Weak, Line, Ghost)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
-                Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
-                    IenIconButton(onClick = {}, variant = IenButtonVariant.Fill) {
-                        IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
-                    }
-                    IenIconButton(onClick = {}, variant = IenButtonVariant.Weak) {
-                        IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
-                    }
-                    IenIconButton(onClick = {}, variant = IenButtonVariant.Line) {
-                        IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
-                    }
-                    IenIconButton(onClick = {}, variant = IenButtonVariant.Ghost) {
-                        IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
-                    }
-                }
-                IenBorder()
-                IenText("States (Loading, Disabled)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
-                Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
-                    IenIconButton(onClick = {}, state = IenButtonState(loading = true), variant = IenButtonVariant.Fill) {
-                        IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
-                    }
-                    IenIconButton(onClick = {}, state = IenButtonState(enabled = false), variant = IenButtonVariant.Fill) {
-                        IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
-                    }
-                }
+                IenText("Variants / States", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                IconButtonVariantStateSample("Fill", IenButtonVariant.Fill)
+                IconButtonVariantStateSample("Weak", IenButtonVariant.Weak)
+                IconButtonVariantStateSample("Line", IenButtonVariant.Line)
+                IconButtonVariantStateSample("Ghost", IenButtonVariant.Ghost)
+            }
+        }
+    }
+}
+
+@Composable
+private fun IconButtonVariantStateSample(
+    label: String,
+    variant: IenButtonVariant,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
+        IenText(label, style = IenTheme.typography.caption, color = IenTheme.colors.textTertiary)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IenIconButton(onClick = {}, variant = variant) {
+                IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+            }
+            IenIconButton(onClick = {}, variant = variant, state = IenButtonState(loading = true)) {
+                IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+            }
+            IenIconButton(onClick = {}, variant = variant, state = IenButtonState(enabled = false)) {
+                IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
             }
         }
     }

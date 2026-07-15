@@ -1,8 +1,13 @@
 package zone.ien.utils.ui.interactive
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,37 +18,26 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material3.Icon
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import zone.ien.utils.ui.utils.instantPress
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.role
@@ -61,6 +55,7 @@ import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.utils.instantPress
 
 /**
  * [IenButton]의 크기 규격을 정의하는 열거형 클래스.
@@ -502,11 +497,28 @@ private fun ienButtonColors(
         IenButtonVariant.Line -> IenButtonResolvedColors(Color.Transparent, toneColor, IenTheme.colors.borderStrong, Color.Transparent, toneColor)
         IenButtonVariant.Ghost -> IenButtonResolvedColors(Color.Transparent, toneColor, Color.Transparent, Color.Transparent, toneColor)
     }
-    return if (enabled) resolved else resolved.copy(
-        container = resolved.container.copy(alpha = IenTheme.state.disabledAlpha),
-        content = resolved.content.copy(alpha = IenTheme.state.disabledAlpha),
-        disabledContainer = resolved.disabledContainer.copy(alpha = IenTheme.state.disabledAlpha),
-        disabledContent = resolved.disabledContent.copy(alpha = IenTheme.state.disabledAlpha),
+    if (enabled) return resolved
+
+    val disabledContainer = when (variant) {
+        IenButtonVariant.Fill,
+        IenButtonVariant.Weak -> IenTheme.colors.surfaceWeak
+        IenButtonVariant.Line,
+        IenButtonVariant.Ghost -> Color.Transparent
+    }
+    val disabledContent = IenTheme.colors.textDisabled.copy(alpha = 0.72f)
+    val disabledBorder = when (variant) {
+        IenButtonVariant.Line -> IenTheme.colors.border.copy(alpha = 0.72f)
+        IenButtonVariant.Ghost -> Color.Transparent
+        IenButtonVariant.Fill,
+        IenButtonVariant.Weak -> Color.Transparent
+    }
+
+    return resolved.copy(
+        container = disabledContainer,
+        content = disabledContent,
+        border = disabledBorder,
+        disabledContainer = disabledContainer,
+        disabledContent = disabledContent,
     )
 }
 
@@ -704,70 +716,62 @@ internal fun IenButtonContainer(
     })
         .takeIf { state.enabled }
     val containerColor = if (effectiveBackgroundBrush == null) resolvedIenColors.container else Color.Transparent
-    val disabledContainerColor = if (effectiveBackgroundBrush == null) {
-        if (state.loading && state.enabled) {
-            resolvedIenColors.container
-        } else {
-            resolvedIenColors.disabledContainer
-        }
-    } else {
-        Color.Transparent
-    }
-    val resolvedColors = ButtonDefaults.buttonColors(
-        containerColor = containerColor,
-        contentColor = resolvedIenColors.content,
-        disabledContainerColor = disabledContainerColor,
-        disabledContentColor = if (state.loading && state.enabled) {
-            resolvedIenColors.content
-        } else {
-            resolvedIenColors.disabledContent
-        },
-    )
+    val contentColor = resolvedIenColors.content
 
     val handleOnClick: () -> Unit = {
         if (state.enabled && !state.loading) {
             onClick()
         }
     }
-    val paintedButtonModifier = if (effectiveBackgroundBrush == null) {
-        buttonModifier
+    val backgroundModifier = if (effectiveBackgroundBrush == null) {
+        Modifier.background(containerColor, shape)
     } else {
-        buttonModifier.background(effectiveBackgroundBrush, shape)
+        Modifier.background(effectiveBackgroundBrush, shape)
+    }
+    val borderStroke = border ?: when (variant) {
+        IenButtonVariant.Line -> BorderStroke(IenTheme.stroke.thin, resolvedIenColors.border)
+        IenButtonVariant.Fill,
+        IenButtonVariant.Weak,
+        IenButtonVariant.Ghost -> null
     }
 
-    when (variant) {
-        IenButtonVariant.Fill, IenButtonVariant.Weak -> Button(
-            onClick = handleOnClick,
-            modifier = paintedButtonModifier,
-            enabled = true,
-            shape = shape,
-            colors = resolvedColors,
-            contentPadding = contentPadding,
-            interactionSource = interactionSource,
-            content = { content() },
-        )
+    Box(
+        modifier = buttonModifier
+            .clip(shape)
+            .then(backgroundModifier)
+            .then(if (borderStroke != null) Modifier.border(borderStroke, shape) else Modifier)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                enabled = interactiveEnabled,
+                role = Role.Button,
+                onClick = handleOnClick,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (isPressed && interactiveEnabled) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(pressedLayerColor(variant)),
+            )
+        }
+        Box(
+            modifier = Modifier.padding(contentPadding),
+            contentAlignment = Alignment.Center,
+        ) {
+            CompositionLocalProvider(LocalContentColor provides contentColor) {
+                content()
+            }
+        }
+    }
+}
 
-        IenButtonVariant.Line -> OutlinedButton(
-            onClick = handleOnClick,
-            modifier = buttonModifier,
-            enabled = true,
-            shape = shape,
-            border = border ?: BorderStroke(IenTheme.stroke.thin, ienColors.border),
-            colors = resolvedColors,
-            contentPadding = contentPadding,
-            interactionSource = interactionSource,
-            content = { content() },
-        )
-
-        IenButtonVariant.Ghost -> TextButton(
-            onClick = handleOnClick,
-            modifier = buttonModifier,
-            enabled = true,
-            shape = shape,
-            colors = resolvedColors,
-            contentPadding = contentPadding,
-            interactionSource = interactionSource,
-            content = { content() },
-        )
+private fun pressedLayerColor(variant: IenButtonVariant): Color {
+    return when (variant) {
+        IenButtonVariant.Fill,
+        IenButtonVariant.Weak -> Color.Black.copy(alpha = 0.08f)
+        IenButtonVariant.Line,
+        IenButtonVariant.Ghost -> Color.Black.copy(alpha = 0.04f)
     }
 }
