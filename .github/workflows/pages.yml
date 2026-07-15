@@ -1,0 +1,76 @@
+name: Deploy Sample App
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - ".github/workflows/pages.yml"
+      - "cmp-ui-docs/**"
+      - "cmp-ui/**"
+      - "cmp-icon/**"
+      - "cmp-common/**"
+      - "cmp-adaptive/**"
+      - "example/composeApp/src/commonMain/kotlin/zone/ien/utils/example/ui/screens/designsystem/**"
+      - "gradle/**"
+      - "build.gradle.kts"
+      - "settings.gradle.kts"
+      - "gradle.properties"
+      - "gradlew"
+      - "gradlew.bat"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Wasm sample
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: 21
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build sample app
+        run: ./gradlew :cmp-ui-docs:wasmJsBrowserDistribution --no-configuration-cache
+
+      - name: Prepare Pages artifact
+        run: |
+          touch cmp-ui-docs/build/dist/wasmJs/productionExecutable/.nojekyll
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: cmp-ui-docs/build/dist/wasmJs/productionExecutable
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
