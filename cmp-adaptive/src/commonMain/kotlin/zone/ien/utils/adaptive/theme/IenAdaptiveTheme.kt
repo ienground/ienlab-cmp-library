@@ -25,19 +25,59 @@ fun IenAdaptiveTheme(
     vararg values: ProvidedValue<*>,
     content: @Composable () -> Unit,
 ) {
-    IenTheme(tokens = tokens, darkTheme = darkTheme) {
+    val lightScheme = tokens.lightColors.toIenMaterialColorScheme(darkTheme = false)
+    val darkScheme = tokens.darkColors.toIenMaterialColorScheme(darkTheme = true)
+    val materialColorScheme = dynamicM3ColorScheme(
+        darkTheme = darkTheme,
+        dynamicColor = useDynamicColor,
+        lightScheme = lightScheme,
+        darkScheme = darkScheme,
+    )
+    val effectiveTokens = if (darkTheme) {
+        tokens.copy(darkColors = materialColorScheme.toIenColorScheme(tokens.darkColors))
+    } else {
+        tokens.copy(lightColors = materialColorScheme.toIenColorScheme(tokens.lightColors))
+    }
+
+    IenTheme(tokens = effectiveTokens, darkTheme = darkTheme) {
         GeneratedAdaptiveTheme(
             target = target,
             useDarkTheme = darkTheme,
-            useDynamicColor = useDynamicColor,
-            lightScheme = tokens.lightColors.toIenMaterialColorScheme(darkTheme = false),
-            darkScheme = tokens.darkColors.toIenMaterialColorScheme(darkTheme = true),
+            useDynamicColor = false,
+            lightScheme = if (darkTheme) lightScheme else materialColorScheme,
+            darkScheme = if (darkTheme) materialColorScheme else darkScheme,
             materialTypography = tokens.typography.toMaterialTypography(),
             cupertinoTypography = tokens.typography.toCupertinoTypography(),
             values = values,
             content = content,
         )
     }
+}
+
+private fun ColorScheme.toIenColorScheme(fallback: IenColorScheme): IenColorScheme {
+    return fallback.copy(
+        background = background,
+        surface = surface,
+        surfaceRaised = surfaceVariant,
+        surfaceWeak = surface,
+        textPrimary = onSurface,
+        textSecondary = onSurfaceVariant,
+        border = outline,
+        borderStrong = outlineVariant,
+        surfaceVariant = surfaceVariant,
+        brand = primary,
+        onBrand = onPrimary,
+        brandWeak = primaryContainer,
+        onBrandWeak = onPrimaryContainer,
+        danger = error,
+        onDanger = onError,
+        dangerWeak = errorContainer,
+        onDangerWeak = onErrorContainer,
+        info = secondary,
+        onInfo = onSecondary,
+        infoWeak = secondaryContainer,
+        onInfoWeak = onSecondaryContainer,
+    )
 }
 
 fun IenTypography.toMaterialTypography(): Typography {

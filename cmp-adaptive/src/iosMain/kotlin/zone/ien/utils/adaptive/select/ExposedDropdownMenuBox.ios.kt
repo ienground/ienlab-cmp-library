@@ -6,6 +6,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import kotlinx.cinterop.BetaInteropApi
@@ -74,7 +75,7 @@ import platform.darwin.NSObject
 /**
  * @param dropdownMenuItem is not used at iOS.
  */
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 @Composable
 actual fun <T> ExposedDropdownMenuBox(
     modifier: Modifier,
@@ -89,13 +90,17 @@ actual fun <T> ExposedDropdownMenuBox(
     var expanded by remember { mutableStateOf(false) }
     var pickerRef by remember { mutableStateOf<UIPickerView?>(null) }
     var tempCurrentItem by remember { mutableStateOf(currentItem) }
-    val buttonTarget = remember(expanded) { object: NSObject() {
+    val currentItemsWithLabels by rememberUpdatedState(itemsWithLabels)
+    val currentOnItemSelected by rememberUpdatedState(onItemSelected)
+    val buttonTarget = remember { object: NSObject() {
         @ObjCAction
         fun onBackClick() = run { expanded = false }
 
         @ObjCAction
         fun onFinishClick() {
-            tempCurrentItem?.let(onItemSelected)
+            tempCurrentItem
+                ?.takeIf { it in currentItemsWithLabels.keys }
+                ?.let(currentOnItemSelected)
             expanded = false
         }
     } }
@@ -104,10 +109,13 @@ actual fun <T> ExposedDropdownMenuBox(
             expanded = false
         }
     } }
-    val pickerDelegate = remember { PickerDataSourceDelegate(itemsWithLabels = itemsWithLabels, onSelectionChange = { tempCurrentItem = it }) }
+    val pickerDelegate = remember(itemsWithLabels) {
+        PickerDataSourceDelegate(itemsWithLabels = itemsWithLabels, onSelectionChange = { tempCurrentItem = it })
+    }
 
-    LaunchedEffect(expanded) {
+    LaunchedEffect(expanded, currentItem, itemsWithLabels) {
         if (expanded) {
+            tempCurrentItem = currentItem?.takeIf { it in itemsWithLabels.keys }
             val viewController = UIViewController()
             val navBar = UINavigationBar()
             val navItem = UINavigationItem(title = title)
@@ -140,7 +148,10 @@ actual fun <T> ExposedDropdownMenuBox(
             val pickerView = UIPickerView().apply {
                 this.dataSource = pickerDelegate
                 this.delegate = pickerDelegate
-                currentItem?.let { this.selectRow(itemsWithLabels.keys.indexOf(it).toLong(), animated = false, inComponent = 0) }
+                val selectedIndex = currentItem
+                    ?.let { itemsWithLabels.keys.indexOf(it) }
+                    ?.takeIf { it >= 0 }
+                selectedIndex?.let { this.selectRow(it.toLong(), animated = false, inComponent = 0) }
             }
             pickerRef = pickerView
 
@@ -215,7 +226,7 @@ class PickerDataSourceDelegate<T>(
 /**
  * @param dropdownMenuItem is not used at iOS.
  */
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 @Composable
 actual fun <T> ExposedDropdownMenuBox(
     modifier: Modifier,
@@ -229,14 +240,16 @@ actual fun <T> ExposedDropdownMenuBox(
 ) {
     var expanded by remember { mutableStateOf(false) }
     var pickerRef by remember { mutableStateOf<UIPickerView?>(null) }
-    var tempCurrentItems by remember(expanded) { mutableStateOf(currentItems) }
-    val buttonTarget = remember(expanded, tempCurrentItems) { object: NSObject() {
+    var tempCurrentItems by remember { mutableStateOf(currentItems.filter { it in itemsWithLabels.keys }) }
+    val currentItemsWithLabels by rememberUpdatedState(itemsWithLabels)
+    val currentOnItemsSelected by rememberUpdatedState(onItemsSelected)
+    val buttonTarget = remember { object: NSObject() {
         @ObjCAction
         fun onBackClick() = run { expanded = false }
 
         @ObjCAction
         fun onFinishClick() {
-            onItemsSelected(tempCurrentItems)
+            currentOnItemsSelected(tempCurrentItems.filter { it in currentItemsWithLabels.keys })
             expanded = false
         }
     } }
@@ -246,9 +259,11 @@ actual fun <T> ExposedDropdownMenuBox(
         }
     } }
 
-    LaunchedEffect(expanded) {
+    LaunchedEffect(expanded, currentItems, itemsWithLabels) {
         if (expanded) {
-            val pickerViewController = ListPickerViewController(itemsWithLabels, tempCurrentItems) {
+            val initialItems = currentItems.filter { it in itemsWithLabels.keys }
+            tempCurrentItems = initialItems
+            val pickerViewController = ListPickerViewController(itemsWithLabels, initialItems) {
                 tempCurrentItems = it
             }
 

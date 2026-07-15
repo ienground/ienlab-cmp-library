@@ -6,94 +6,11 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-/**
- * IenTheme에서 사용하는 색상 스키마를 정의하는 데이터 클래스입니다.
- *
- * @property background 화면의 기본 배경 색상.
- * @property surface 카드, 다이얼로그 등 컨텐츠가 올라가는 기본 표면 색상.
- * @property surfaceRaised 기본 표면보다 더 강조되거나 떠 있는 느낌을 주는 표면 색상.
- * @property surfaceWeak 기본 표면보다 약하게 강조되는 대비가 낮은 표면 색상.
- * @property textPrimary 가장 중요한 텍스트(예: 제목, 본문 핵심 내용)에 사용하는 색상.
- * @property textSecondary 보조적인 설명 텍스트나 덜 중요한 정보에 사용하는 색상.
- * @property textTertiary 비활성화되지는 않았으나 부가적인 텍스트나 플레이스홀더 등에 사용하는 색상.
- * @property textDisabled 비활성화된 상태의 텍스트에 사용하는 색상.
- * @property border 요소 간의 경계를 구분하는 기본 테두리 색상.
- * @property borderStrong 보다 명확하게 경계를 구분해야 할 때 사용하는 강한 테두리 색상.
- * @property overlay 다이얼로그나 바텀 시트 뒤의 화면을 어둡게 가리는 레이어에 사용하는 색상.
- * @property surfaceVariant 다양하게 활용할 수 있는 대체 표면 색상.
- * @property brand 브랜드 기본 색상.
- * @property onBrand 브랜드 색상 위에 올라가는 텍스트/아이콘 색상.
- * @property brandWeak 브랜드 색상의 대비가 낮은(연한) 배경 색상.
- * @property onBrandWeak 대비가 낮은 브랜드 색상 위에 올라가는 텍스트/아이콘 색상.
- * @property success 성공 상태를 나타내는 기본 색상.
- * @property onSuccess 성공 상태 색상 위에 올라가는 텍스트/아이콘 색상.
- * @property successWeak 성공 상태의 대비가 낮은(연한) 배경 색상.
- * @property onSuccessWeak 대비가 낮은 성공 상태 색상 위에 올라가는 텍스트/아이콘 색상.
- * @property warning 경고 상태를 나타내는 기본 색상.
- * @property onWarning 경고 상태 색상 위에 올라가는 텍스트/아이콘 색상.
- * @property warningWeak 경고 상태의 대비가 낮은(연한) 배경 색상.
- * @property onWarningWeak 대비가 낮은 경고 상태 색상 위에 올라가는 텍스트/아이콘 색상.
- * @property danger 위험/에러 상태를 나타내는 기본 색상.
- * @property onDanger 위험/에러 상태 색상 위에 올라가는 텍스트/아이콘 색상.
- * @property dangerWeak 위험/에러 상태의 대비가 낮은(연한) 배경 색상.
- * @property onDangerWeak 대비가 낮은 위험/에러 상태 색상 위에 올라가는 텍스트/아이콘 색상.
- * @property info 정보를 제공할 때 사용하는 기본 색상.
- * @property onInfo 정보 색상 위에 올라가는 텍스트/아이콘 색상.
- * @property infoWeak 정보 색상의 대비가 낮은(연한) 배경 색상.
- * @property onInfoWeak 대비가 낮은 정보 색상 위에 올라가는 텍스트/아이콘 색상.
- */
-@Immutable
-data class IenColorScheme(
-    val background: Color,
-    val surface: Color,
-    val surfaceRaised: Color,
-    val surfaceWeak: Color,
-    val textPrimary: Color,
-    val textSecondary: Color,
-    val textTertiary: Color,
-    val textDisabled: Color,
-    val border: Color,
-    val borderStrong: Color,
-    val overlay: Color,
-    val surfaceVariant: Color,
-
-    // Brand
-    val brand: Color,
-    val onBrand: Color,
-    val brandWeak: Color,
-    val onBrandWeak: Color,
-
-    // Success
-    val success: Color,
-    val onSuccess: Color,
-    val successWeak: Color,
-    val onSuccessWeak: Color,
-
-    // Warning
-    val warning: Color,
-    val onWarning: Color,
-    val warningWeak: Color,
-    val onWarningWeak: Color,
-
-    // Danger
-    val danger: Color,
-    val onDanger: Color,
-    val dangerWeak: Color,
-    val onDangerWeak: Color,
-
-    // Info
-    val info: Color,
-    val onInfo: Color,
-    val infoWeak: Color,
-    val onInfoWeak: Color,
-)
 
 /**
  * IenTheme에서 사용하는 타이포그래피(글꼴 스타일) 정보를 정의하는 데이터 클래스입니다.
@@ -275,9 +192,9 @@ data class IenStateTokens(
  */
 @Immutable
 data class IenTokens(
-    val lightColors: IenColorScheme,
-    val darkColors: IenColorScheme = lightColors,
-    val typography: IenTypography,
+    val lightColors: IenColorScheme = defaultLightIenColorScheme(),
+    val darkColors: IenColorScheme = defaultDarkIenColorScheme(),
+    val typography: IenTypography = defaultIenTypography(),
     val spacing: IenSpacing = IenSpacing(),
     val radius: IenRadius = IenRadius(),
     val stroke: IenStroke = IenStroke(),
@@ -290,7 +207,7 @@ data class IenTokens(
 /**
  * CompositionLocal을 통해 하위 컴포저블 트리로 [IenTokens]를 전달하기 위한 키 객체입니다.
  */
-val LocalIenTokens = staticCompositionLocalOf { lightIenTokens() }
+val LocalIenTokens = staticCompositionLocalOf { defaultIenTokens() }
 
 /**
  * 현재 IenTheme가 다크 색상 스키마를 사용 중인지 전달하는 CompositionLocal입니다.
@@ -309,27 +226,35 @@ object IenTheme {
             val tokens = LocalIenTokens.current
             return if (LocalIenDarkTheme.current) tokens.darkColors else tokens.lightColors
         }
+
     /** 현재 테마의 타이포그래피 스타일 */
     val typography: IenTypography
         @Composable get() = LocalIenTokens.current.typography
+
     /** 현재 테마의 여백 규격 */
     val spacing: IenSpacing
         @Composable get() = LocalIenTokens.current.spacing
+
     /** 현재 테마의 모서리 둥글기 규격 */
     val radius: IenRadius
         @Composable get() = LocalIenTokens.current.radius
+
     /** 현재 테마의 선 두께 규격 */
     val stroke: IenStroke
         @Composable get() = LocalIenTokens.current.stroke
+
     /** 현재 테마의 그림자 고도 규격 */
     val elevation: IenElevation
         @Composable get() = LocalIenTokens.current.elevation
+
     /** 현재 테마의 아이콘 크기 규격 */
     val icon: IenIconSize
         @Composable get() = LocalIenTokens.current.icon
+
     /** 현재 테마의 모션 규격 */
     val motion: IenMotion
         @Composable get() = LocalIenTokens.current.motion
+
     /** 현재 테마의 상태별 토큰 규격 */
     val state: IenStateTokens
         @Composable get() = LocalIenTokens.current.state
@@ -364,94 +289,6 @@ fun defaultIenTokens() = IenTokens(
     lightColors = defaultLightIenColorScheme(),
     darkColors = defaultDarkIenColorScheme(),
     typography = defaultIenTypography(),
-)
-
-/**
- * 기본 라이트 모드(Light Theme)에 해당하는 [IenTokens] 객체를 생성하고 반환합니다.
- */
-fun lightIenTokens() = IenTokens(
-    lightColors = defaultLightIenColorScheme(),
-    darkColors = defaultDarkIenColorScheme(),
-    typography = defaultIenTypography(),
-)
-
-/**
- * 기본 다크 모드(Dark Theme)에 해당하는 [IenTokens] 객체를 생성하고 반환합니다.
- */
-fun darkIenTokens() = IenTokens(
-    lightColors = defaultDarkIenColorScheme(),
-    darkColors = defaultDarkIenColorScheme(),
-    typography = defaultIenTypography(),
-)
-
-private fun defaultLightIenColorScheme() = IenColorScheme(
-        background = Color(0xFFFFFFFF),
-        surface = Color(0xFFFFFFFF),
-        surfaceRaised = Color(0xFFFFFFFF),
-        surfaceWeak = Color(0xFFF9FAFB),
-        textPrimary = Color(0xFF191F28),
-        textSecondary = Color(0xFF4E5968),
-        textTertiary = Color(0xFF8B95A1),
-        textDisabled = Color(0xFFB0B8C1),
-        border = Color(0xFFE5E8EB),
-        borderStrong = Color(0xFFD1D6DB),
-        overlay = Color(0x99000000),
-        surfaceVariant = Color(0xFFF2F4F6),
-        brand = Color(0xFF3182F6),
-        onBrand = Color(0xFFFFFFFF),
-        brandWeak = Color(0xFFE8F3FF),
-        onBrandWeak = Color(0xFF3182F6),
-        success = Color(0xFF03B26C),
-        onSuccess = Color(0xFFFFFFFF),
-        successWeak = Color(0xFFF0FAF6),
-        onSuccessWeak = Color(0xFF03B26C),
-        warning = Color(0xFFFE9800),
-        onWarning = Color(0xFFFFFFFF),
-        warningWeak = Color(0xFFFFF3E0),
-        onWarningWeak = Color(0xFFFE9800),
-        danger = Color(0xFFF04452),
-        onDanger = Color(0xFFFFFFFF),
-        dangerWeak = Color(0xFFFFEEEE),
-        onDangerWeak = Color(0xFFF04452),
-        info = Color(0xFF18A5A5),
-        onInfo = Color(0xFFFFFFFF),
-        infoWeak = Color(0xFFEDF8F8),
-        onInfoWeak = Color(0xFF18A5A5),
-)
-
-private fun defaultDarkIenColorScheme() = IenColorScheme(
-        background = Color(0xFF101318),
-        surface = Color(0xFF171B22),
-        surfaceRaised = Color(0xFF202631),
-        surfaceWeak = Color(0xFF11151B),
-        textPrimary = Color(0xFFF2F4F6),
-        textSecondary = Color(0xFFD1D6DB),
-        textTertiary = Color(0xFF8B95A1),
-        textDisabled = Color(0xFF6B7684),
-        border = Color(0xFF333D4B),
-        borderStrong = Color(0xFF4E5968),
-        overlay = Color(0xB3000000),
-        surfaceVariant = Color(0xFF202632),
-        brand = Color(0xFF64A8FF),
-        onBrand = Color(0xFFFFFFFF),
-        brandWeak = Color(0xFF17365D),
-        onBrandWeak = Color(0xFF64A8FF),
-        success = Color(0xFF3FD599),
-        onSuccess = Color(0xFFFFFFFF),
-        successWeak = Color(0xFF113B2B),
-        onSuccessWeak = Color(0xFF3FD599),
-        warning = Color(0xFFFFBD51),
-        onWarning = Color(0xFFFFFFFF),
-        warningWeak = Color(0xFF4A3211),
-        onWarningWeak = Color(0xFFFFBD51),
-        danger = Color(0xFFFB8890),
-        onDanger = Color(0xFFFFFFFF),
-        dangerWeak = Color(0xFF4A1D22),
-        onDangerWeak = Color(0xFFFB8890),
-        info = Color(0xFF58C7C7),
-        onInfo = Color(0xFFFFFFFF),
-        infoWeak = Color(0xFF123A3A),
-        onInfoWeak = Color(0xFF58C7C7),
 )
 
 private fun defaultIenTypography() = IenTypography(
