@@ -50,6 +50,7 @@ kotlin {
 
         androidMain.dependencies {
             implementation(libs.activity.compose)
+            implementation(projects.cmpUtils)
         }
 
         getByName("androidDeviceTest").dependencies {
@@ -59,6 +60,7 @@ kotlin {
         }
 
         iosMain.dependencies {
+            implementation(projects.cmpUtils)
         }
     }
 }

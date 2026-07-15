@@ -14,6 +14,7 @@ import zone.ien.utils.example.ui.screens.home.HomeScreen
 import zone.ien.utils.example.ui.screens.designsystem.DesignSystemScreen
 import zone.ien.utils.example.ui.screens.lazy.LazySectionScreen
 import zone.ien.utils.example.ui.screens.navigation.NavigationScreen
+import zone.ien.utils.example.ui.screens.playground.AdaptivePlaygroundScreen
 import zone.ien.utils.example.ui.screens.playground.PlaygroundScreen
 import zone.ien.utils.example.ui.screens.playground.IenPlaygroundScreen
 import zone.ien.utils.example.ui.screens.section.SectionScreen
@@ -29,6 +30,7 @@ sealed interface RootRoute: NavKey {
     @Serializable data object Settings: RootRoute
     @Serializable data object Playground: RootRoute
     @Serializable data object IenPlayground: RootRoute
+    @Serializable data object AdaptivePlayground: RootRoute
     @Serializable data object Section: RootRoute
     @Serializable data object LazySection: RootRoute
     @Serializable data object Navigation: RootRoute
@@ -65,6 +67,11 @@ fun RootNavigationGraph(
             }
             entry<RootRoute.IenPlayground> {
                 IenPlaygroundScreen(
+                    navigateBack = { backStack.navigateBack() }
+                )
+            }
+            entry<RootRoute.AdaptivePlayground> {
+                AdaptivePlaygroundScreen(
                     navigateBack = { backStack.navigateBack() }
                 )
             }

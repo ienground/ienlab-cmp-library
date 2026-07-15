@@ -48,7 +48,7 @@ import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.screen.LocalIenTopBarFloatingSlotHiddenRequester
 import zone.ien.utils.ui.view.IenTooltipBox
-import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
+import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 
 /**
  * IenActionsMenu는 액션 메뉴를 표시하기 위한 컴포저블입니다.

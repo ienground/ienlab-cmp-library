@@ -452,6 +452,15 @@ fun HomeScreen(
                 }
                 Box(
                     modifier = Modifier
+                        .clickable { backStack.add(RootRoute.AdaptivePlayground) }
+                        .fillMaxWidth()
+                        .height(400.dp)
+                        .background(Color(0xFF0F766E))
+                ) {
+                    IenText(text = "Adaptive Playground")
+                }
+                Box(
+                    modifier = Modifier
                         .clickable { backStack.add(RootRoute.Navigation) }
                         .fillMaxWidth()
                         .height(400.dp)

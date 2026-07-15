@@ -29,7 +29,7 @@ import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.menu.IenActionsMenu
-import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
+import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 
 /**
  * IenTopAppBarScaffold는 상단 앱 바를 가진 스크래프트를 표시하기 위한 컴포저블입니다.

@@ -47,7 +47,7 @@ import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlinx.coroutines.delay
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.conditional
-import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
+import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 
 /**
  * 드롭다운 메뉴의 기본 팝업 속성입니다.

@@ -136,7 +136,7 @@ import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.line.ArrowDownWide
 import zone.ien.utils.ui.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.interactive.IenDotCheckbox
-import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
+import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 
 internal val LocalIenTopBarFloatingSlotHiddenRequester = staticCompositionLocalOf<((Boolean) -> Unit)?> { null }
 
