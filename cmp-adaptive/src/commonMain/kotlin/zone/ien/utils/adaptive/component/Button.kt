@@ -353,7 +353,7 @@ fun AdaptiveBackButton(
                     modifier = modifier,
                     icon = icon,
                     enabled = enabled,
-                    onClick = onClick
+                    onClick = onClick,
                 )
             },
             cupertino = {

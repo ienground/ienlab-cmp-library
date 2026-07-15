@@ -1,9 +1,16 @@
 package zone.ien.utils.ui.screen
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.back
@@ -14,6 +21,7 @@ import zone.ien.utils.icon.LocalBackButtonIcon
 import zone.ien.utils.icon.LocalButtonProviderDefault
 import zone.ien.utils.icon.LocalCloseButtonIcon
 import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
@@ -44,18 +52,26 @@ fun IenBackButton(
     IenTooltipBox(
         label = stringResource(Res.string.back)
     ) {
-        IenIconButton(
-            onClick = onClick,
-            modifier = modifier,
-            size = IenButtonSize.Medium,
-            variant = LocalIenNavigationButtonVariant.current ?: IenButtonVariant.Weak,
-            tone = IenSemanticTone.Neutral,
-            state = IenButtonState(enabled = enabled),
+        Box(
+            modifier = modifier
+                .shadow(elevation = IenTheme.elevation.floating, shape = CircleShape, clip = false)
+                .background(IenTheme.colors.surface.copy(alpha = 0.92f), CircleShape)
+                .clip(CircleShape)
+                .padding(IenTheme.spacing.xxs),
+            contentAlignment = Alignment.Center,
         ) {
-            ComplexIcon(
-                icon = icon,
-                contentDescription = stringResource(Res.string.back)
-            )
+            IenIconButton(
+                onClick = onClick,
+                size = IenButtonSize.Medium,
+                variant = IenButtonVariant.Ghost,
+                tone = IenSemanticTone.Neutral,
+                state = IenButtonState(enabled = enabled),
+            ) {
+                ComplexIcon(
+                    icon = icon,
+                    contentDescription = stringResource(Res.string.back)
+                )
+            }
         }
     }
 }

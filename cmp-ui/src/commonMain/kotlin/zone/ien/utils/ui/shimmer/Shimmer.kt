@@ -23,9 +23,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import com.revenuecat.placeholder.PlaceholderDefaults
-import com.revenuecat.placeholder.PlaceholderHighlight
-import com.revenuecat.placeholder.placeholder
 
 /**
  * Material3 스타일의 PlaceHolder를 적용하는 Modifier
@@ -46,10 +43,10 @@ fun Modifier.m3Placeholder(
     enabled: Boolean = true,
     color: Color = Color.Gray.copy(alpha = 0.35f),
     shape: Shape = LocalIenShimmerShape.current,
-    highlight: PlaceholderHighlight? = PlaceholderDefaults.fade,
+    highlight: IenPlaceholderHighlight? = IenPlaceholderDefaults.fade,
     placeholderFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() },
     contentFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() }
-) = this.placeholder(
+) = this.ienPlaceholder(
     enabled = enabled,
     color = color,
     shape = shape,
@@ -100,7 +97,7 @@ fun IenTextShimmer(
     style: TextStyle? = null,
     color: Color = Color.Gray.copy(alpha = 0.35f),
     shape: Shape = LocalIenShimmerShape.current,
-    highlight: PlaceholderHighlight? = PlaceholderDefaults.fade,
+    highlight: IenPlaceholderHighlight? = IenPlaceholderDefaults.fade,
     placeholderFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() },
     contentFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() }
 ) {
@@ -127,7 +124,7 @@ fun IenTextShimmer(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(vertical = 3.dp)
-                .placeholder(
+                .ienPlaceholder(
                     enabled = enabled,
                     color = color,
                     shape = shape,
