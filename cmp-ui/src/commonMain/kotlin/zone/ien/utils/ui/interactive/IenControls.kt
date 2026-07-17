@@ -799,12 +799,13 @@ fun IenStepperRightButton(
     variant: IenButtonVariant = IenButtonVariant.Weak,
 ) {
     IenButton(
-        text = text,
         onClick = onClick,
         modifier = modifier,
         size = size,
         variant = variant,
-    )
+    ) {
+        IenText(text)
+    }
 }
 
 @Composable

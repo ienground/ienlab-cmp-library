@@ -31,6 +31,7 @@ import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenTextButton
+import zone.ien.utils.ui.primitives.IenText
 
 /**
  * IenBaseAlertDialog는 AlertDialog의 기본 구조를 정의하는 컴포저블로, IEN 다이얼로그 프레임을 사용합니다.
@@ -108,11 +109,12 @@ fun IenAlertDialog(
         actions = {
             onDismiss?.let {
                 IenTextButton(
-                    text = textDismiss,
                     onClick = it,
                     modifier = Modifier.fillMaxWidth(),
                     tone = resolvedTone,
-                )
+                ) {
+                    IenText(textDismiss)
+                }
             }
         },
     )
@@ -237,12 +239,13 @@ fun IenAlertDialog(
         tone = resolvedTone,
         actions = {
             IenTextButton(
-                text = textNeutral,
                 onClick = onNeutral,
                 modifier = Modifier.fillMaxWidth(),
                 tone = IenSemanticTone.Neutral,
                 state = IenButtonState(enabled = enabledNeutral),
-            )
+            ) {
+                IenText(textNeutral)
+            }
             IenDialogButtonGroup(
                 buttonLayout = buttonLayout,
                 cancelButton = {
@@ -338,7 +341,6 @@ private fun IenDialogButton(
     variant: IenButtonVariant,
 ) {
     IenButton(
-        text = text,
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         size = IenButtonSize.Large,
@@ -346,7 +348,9 @@ private fun IenDialogButton(
         tone = tone,
         state = IenButtonState(enabled = enabled),
         display = IenButtonDisplay.Block,
-    )
+    ) {
+        IenText(text)
+    }
 }
 
 @Composable

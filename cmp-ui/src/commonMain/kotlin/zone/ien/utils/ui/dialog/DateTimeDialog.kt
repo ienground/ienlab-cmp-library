@@ -44,6 +44,7 @@ import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconButton
+import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.rememberMyDatePickerState
 
 /**
@@ -121,7 +122,6 @@ fun IenDatePickerDialog(
                         modifier = Modifier.weight(1f),
                     )
                     IenButton(
-                        text = stringResource(Res.string.ok),
                         onClick = { onConfirm(datePickerState.selectedDateMillis ?: 0L) },
                         modifier = Modifier.weight(1f),
                         size = IenButtonSize.Large,
@@ -129,7 +129,9 @@ fun IenDatePickerDialog(
                         tone = IenSemanticTone.Brand,
                         state = IenButtonState(enabled = datePickerState.selectedDateMillis != null),
                         display = IenButtonDisplay.Block,
-                    )
+                    ) {
+                        IenText(stringResource(Res.string.ok))
+                    }
                 }
             }
         }
@@ -218,14 +220,15 @@ fun IenTimePickerDialog(
                     modifier = Modifier.weight(1f),
                 )
                 IenButton(
-                    text = stringResource(Res.string.ok),
                     onClick = { onConfirm(timePickerState.hour, timePickerState.minute) },
                     modifier = Modifier.weight(1f),
                     size = IenButtonSize.Large,
                     variant = IenButtonVariant.Fill,
                     tone = IenSemanticTone.Brand,
                     display = IenButtonDisplay.Block,
-                )
+                ) {
+                    IenText(stringResource(Res.string.ok))
+                }
             }
         }
     }

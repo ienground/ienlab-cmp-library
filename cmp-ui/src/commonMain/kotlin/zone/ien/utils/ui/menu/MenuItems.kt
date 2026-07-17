@@ -46,6 +46,7 @@ import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.interactive.IenTextButton
+import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.LocalIenTopBarFloatingSlotHiddenRequester
 import zone.ien.utils.ui.view.IenTooltipBox
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
@@ -201,11 +202,12 @@ fun IenActionsMenu(
                         }
                     } ?: run {
                         IenTextButton(
-                            text = item.title,
                             onClick = item.onClick,
                             tone = IenSemanticTone.Neutral,
                             state = IenButtonState(enabled = item.enabled),
-                        )
+                        ) {
+                            IenText(item.title)
+                        }
                     }
                 }
             }

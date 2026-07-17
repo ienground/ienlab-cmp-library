@@ -12,8 +12,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -30,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousCapsule
 import com.kyant.capsule.ContinuousRoundedRectangle
 import com.kyant.backdrop.Backdrop
-import zone.ien.hig.CupertinoText
 import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.AdaptiveButton as HigAdaptiveButton
@@ -54,20 +51,16 @@ import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenExtendedFab
 import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.interactive.IenIconToggleButton
-import zone.ien.utils.ui.interactive.IenIconPlacement
 import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.interactive.IenTextButtonSize
 import zone.ien.utils.ui.interactive.IenTextButtonVariant
 import zone.ien.utils.ui.interactive.IenToggleButton
+import zone.ien.utils.ui.interactive.IenToggleButtonDefault
 import zone.ien.utils.ui.screen.IenBackButton
 
-/**
- * Material 분기에서 [IenButton]을 사용하는 적응형 버튼 컴포저블.
- */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveButton(
-    text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -76,31 +69,28 @@ fun AdaptiveButton(
     variant: IenButtonVariant = IenButtonVariant.Fill,
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
-    icon: (@Composable () -> Unit)? = null,
-    iconPlacement: IenIconPlacement = IenIconPlacement.Start,
     shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
     backgroundBrush: Brush? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     display: IenButtonDisplay = IenButtonDisplay.Inline,
+    content: @Composable () -> Unit,
 ) {
     AdaptiveWidget(
         material = {
             IenButton(
-                text = text,
                 onClick = onClick,
                 modifier = modifier,
                 size = size,
                 variant = variant,
                 tone = tone,
                 state = state.copy(enabled = state.enabled && enabled, loading = state.loading || loading),
-                icon = icon,
-                iconPlacement = iconPlacement,
                 shape = shape,
                 contentPadding = contentPadding,
                 backgroundBrush = backgroundBrush,
                 interactionSource = interactionSource,
                 display = display,
+                content = content,
             )
         },
         cupertino = {
@@ -110,23 +100,15 @@ fun AdaptiveButton(
                 enabled = enabled && state.enabled,
                 interactionSource = interactionSource,
             ) {
-                AdaptiveButtonTextContent(
-                    text = text,
-                    icon = icon,
-                    iconPlacement = iconPlacement,
-                )
+                content()
             }
         },
     )
 }
 
-/**
- * Material 분기에서 [IenTextButton]을 사용하는 적응형 텍스트 버튼 컴포저블.
- */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveTextButton(
-    text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     size: IenTextButtonSize = IenTextButtonSize.Medium,
@@ -135,11 +117,11 @@ fun AdaptiveTextButton(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(enabled = !disabled),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    content: @Composable () -> Unit,
 ) {
     AdaptiveWidget(
         material = {
             IenTextButton(
-                text = text,
                 onClick = onClick,
                 modifier = modifier,
                 size = size,
@@ -148,6 +130,7 @@ fun AdaptiveTextButton(
                 tone = tone,
                 state = state,
                 interactionSource = interactionSource,
+                content = content,
             )
         },
         cupertino = {
@@ -157,7 +140,7 @@ fun AdaptiveTextButton(
                 enabled = state.enabled && !disabled,
                 interactionSource = interactionSource,
             ) {
-                CupertinoText(text)
+                content()
             }
         },
     )
@@ -250,48 +233,41 @@ fun AdaptiveFilledIconButton(
     )
 }
 
-/**
- * Material 분기에서 [IenToggleButton]을 사용하는 적응형 토글 버튼 컴포저블.
- */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    text: String,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     loading: Boolean = false,
     size: IenButtonSize = IenButtonSize.Large,
     state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
-    icon: (@Composable () -> Unit)? = null,
-    iconPlacement: IenIconPlacement = IenIconPlacement.Start,
-    shapes: IenToggleButton.Shapes = IenToggleButton.Default.shapes(),
-    variants: IenToggleButton.Variants = IenToggleButton.Default.variants(),
-    colors: IenToggleButton.Colors = IenToggleButton.Default.colors(),
+    shapes: IenToggleButton.Shapes = IenToggleButtonDefault.shapes(),
+    variants: IenToggleButton.Variants = IenToggleButtonDefault.variants(),
+    colors: IenToggleButton.Colors = IenToggleButtonDefault.colors(),
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     display: IenButtonDisplay = IenButtonDisplay.Inline,
+    content: @Composable () -> Unit,
 ) {
     AdaptiveWidget(
         material = {
             IenToggleButton(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
-                text = text,
                 modifier = modifier,
                 size = size,
                 enabled = enabled,
                 loading = loading,
                 state = state,
-                icon = icon,
-                iconPlacement = iconPlacement,
                 shapes = shapes,
                 variants = variants,
                 colors = colors,
                 contentPadding = contentPadding,
                 interactionSource = interactionSource,
                 display = display,
+                content = content,
             )
         },
         cupertino = {
@@ -304,11 +280,7 @@ fun AdaptiveToggleButton(
                     enabled = isEnabled,
                     interactionSource = interactionSource,
                 ) {
-                    AdaptiveButtonTextContent(
-                        text = text,
-                        icon = icon,
-                        iconPlacement = iconPlacement,
-                    )
+                    content()
                 }
             } else {
                 HigAdaptiveButton(
@@ -317,11 +289,7 @@ fun AdaptiveToggleButton(
                     enabled = isEnabled,
                     interactionSource = interactionSource,
                 ) {
-                    AdaptiveButtonTextContent(
-                        text = text,
-                        icon = icon,
-                        iconPlacement = iconPlacement,
-                    )
+                    content()
                 }
             }
         },
@@ -341,9 +309,9 @@ fun AdaptiveIconToggleButton(
     loading: Boolean = false,
     size: IenButtonSize = IenButtonSize.Large,
     state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
-    shapes: IenToggleButton.Shapes = IenToggleButton.Default.shapes(),
-    variants: IenToggleButton.Variants = IenToggleButton.Default.variants(),
-    colors: IenToggleButton.Colors = IenToggleButton.Default.colors(),
+    shapes: IenToggleButton.Shapes = IenToggleButtonDefault.shapes(),
+    variants: IenToggleButton.Variants = IenToggleButtonDefault.variants(),
+    colors: IenToggleButton.Colors = IenToggleButtonDefault.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
@@ -388,13 +356,9 @@ fun AdaptiveIconToggleButton(
     )
 }
 
-/**
- * Material 분기에서 [IenExtendedFab]을 사용하는 적응형 확장 플로팅 액션 버튼 컴포저블.
- */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveExtendedFloatingActionButton(
-    text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -402,26 +366,23 @@ fun AdaptiveExtendedFloatingActionButton(
     variant: IenButtonVariant = IenButtonVariant.Fill,
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
-    icon: (@Composable () -> Unit)? = null,
-    iconPlacement: IenIconPlacement = IenIconPlacement.Start,
     shape: Shape = ContinuousCapsule(),
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    content: @Composable () -> Unit,
 ) {
     AdaptiveWidget(
         material = {
             IenExtendedFab(
-                text = text,
                 onClick = onClick,
                 modifier = modifier,
                 variant = variant,
                 tone = tone,
                 state = state.copy(enabled = state.enabled && enabled, loading = state.loading || loading),
-                icon = icon,
-                iconPlacement = iconPlacement,
                 shape = shape,
                 contentPadding = contentPadding,
                 interactionSource = interactionSource,
+                content = content,
             )
         },
         cupertino = {
@@ -431,27 +392,10 @@ fun AdaptiveExtendedFloatingActionButton(
                 enabled = enabled && state.enabled,
                 interactionSource = interactionSource,
             ) {
-                AdaptiveButtonTextContent(
-                    text = text,
-                    icon = icon,
-                    iconPlacement = iconPlacement,
-                )
+                content()
             }
         },
     )
-}
-
-@Composable
-private fun AdaptiveButtonTextContent(
-    text: String,
-    icon: (@Composable () -> Unit)?,
-    iconPlacement: IenIconPlacement,
-) {
-    Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-        if (iconPlacement == IenIconPlacement.Start) icon?.invoke()
-        CupertinoText(text)
-        if (iconPlacement == IenIconPlacement.End) icon?.invoke()
-    }
 }
 
 /**

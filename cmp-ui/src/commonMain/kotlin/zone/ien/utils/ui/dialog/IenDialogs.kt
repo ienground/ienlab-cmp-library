@@ -406,13 +406,14 @@ fun IenAlertDialogAlertButton(
     variant: IenTextButtonVariant = IenTextButtonVariant.Clear,
 ) {
     IenTextButton(
-        text = text,
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         size = size,
         tone = tone,
         variant = variant,
-    )
+    ) {
+        IenText(text)
+    }
 }
 
 /**
@@ -435,14 +436,15 @@ fun IenConfirmDialogCancelButton(
     size: IenButtonSize = IenButtonSize.Large,
 ) {
     IenButton(
-        text = text,
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         size = size,
         variant = variant,
         tone = tone,
         display = IenButtonDisplay.Block,
-    )
+    ) {
+        IenText(text)
+    }
 }
 
 /**
@@ -465,14 +467,15 @@ fun IenConfirmDialogConfirmButton(
     size: IenButtonSize = IenButtonSize.Large,
 ) {
     IenButton(
-        text = text,
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         size = size,
         variant = variant,
         tone = tone,
         display = IenButtonDisplay.Block,
-    )
+    ) {
+        IenText(text)
+    }
 }
 
 @Composable

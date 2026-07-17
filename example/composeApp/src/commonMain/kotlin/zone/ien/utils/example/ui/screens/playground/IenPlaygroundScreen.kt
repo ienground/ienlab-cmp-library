@@ -86,7 +86,6 @@ fun IenPlaygroundScreen(
         IenTopAppBarScaffold(
             modifier = modifier,
             navigationIcon = {
-//                IenTextButton(text = "닫기", onClick = navigateBack)
                 IenBackButton {
                     navigateBack()
                 }

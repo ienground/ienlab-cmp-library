@@ -935,14 +935,15 @@ fun IenTopTitleTextButton(
     state: IenButtonState = IenButtonState(),
 ) {
     IenTextButton(
-        text = text,
         onClick = onClick,
         modifier = modifier.semantics { heading() },
         size = size,
         variant = variant,
         tone = colorTone,
         state = state,
-    )
+    ) {
+        IenText(text)
+    }
 }
 
 /**
@@ -1033,14 +1034,15 @@ fun IenTopSubtitleTextButton(
     state: IenButtonState = IenButtonState(),
 ) {
     IenTextButton(
-        text = text,
         onClick = onClick,
         modifier = modifier,
         size = size,
         variant = variant,
         tone = colorTone,
         state = state,
-    )
+    ) {
+        IenText(text)
+    }
 }
 
 /**
@@ -1130,14 +1132,15 @@ fun IenTopLowerButton(
     state: IenButtonState = IenButtonState(),
 ) {
     IenButton(
-        text = text,
         onClick = onClick,
         modifier = modifier,
         size = size,
         variant = variant,
         tone = tone,
         state = state,
-    )
+    ) {
+        IenText(text)
+    }
 }
 
 /**
@@ -1185,7 +1188,6 @@ fun RowScope.IenTopLowerCTAButton(
     state: IenButtonState = IenButtonState(),
 ) {
     IenButton(
-        text = text,
         onClick = onClick,
         modifier = modifier.weight(1f),
         size = size,
@@ -1193,7 +1195,9 @@ fun RowScope.IenTopLowerCTAButton(
         tone = tone,
         state = state,
         display = IenButtonDisplay.Block,
-    )
+    ) {
+        IenText(text)
+    }
 }
 
 /**
@@ -1218,14 +1222,15 @@ fun IenTopRightButton(
     state: IenButtonState = IenButtonState(),
 ) {
     IenButton(
-        text = text,
         onClick = onClick,
         modifier = modifier,
         size = size,
         variant = variant,
         tone = tone,
         state = state,
-    )
+    ) {
+        IenText(text)
+    }
 }
 
 /**
@@ -2765,12 +2770,13 @@ fun IenBottomCTA(
         bottomAccessory = bottomAccessory,
     ) {
         IenButton(
-            text = text,
             onClick = onClick,
             display = IenButtonDisplay.Block,
             state = IenButtonState(enabled = enabled),
             variant = variant,
-        )
+        ) {
+            IenText(text)
+        }
     }
 }
 
@@ -2934,7 +2940,6 @@ fun RowScope.IenBottomCTAButton(
     tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     IenButton(
-        text = text,
         onClick = onClick,
         modifier = modifier.weight(1f),
         size = IenButtonSize.Large,
@@ -2942,7 +2947,9 @@ fun RowScope.IenBottomCTAButton(
         variant = variant,
         tone = tone,
         state = IenButtonState(enabled = enabled),
-    )
+    ) {
+        IenText(text)
+    }
 }
 
 /**

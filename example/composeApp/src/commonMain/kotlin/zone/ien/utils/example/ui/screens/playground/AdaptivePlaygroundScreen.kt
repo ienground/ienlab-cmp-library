@@ -58,9 +58,9 @@ import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonVariant
-import zone.ien.utils.ui.interactive.IenIconPlacement
 import zone.ien.utils.ui.interactive.IenSegmentedControlItem
 import zone.ien.utils.ui.interactive.IenToggleButton
+import zone.ien.utils.ui.interactive.IenToggleButtonDefault
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.TopBarMode
@@ -158,33 +158,43 @@ fun AdaptivePlaygroundScreen(
 
                 PlaygroundGroup(title = "Buttons") {
                     AdaptiveButton(
-                        text = "Primary action",
                         onClick = {},
                         enabled = enabled,
                         display = IenButtonDisplay.Full,
-                        icon = { SampleIcon() },
-                    )
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            SampleIcon()
+                            IenText("Primary action")
+                        }
+                    }
                     AdaptiveButton(
-                        text = "Weak action",
                         onClick = {},
                         enabled = enabled,
                         variant = IenButtonVariant.Weak,
                         tone = IenSemanticTone.Success,
                         display = IenButtonDisplay.Full,
-                        icon = { SampleIcon() },
-                        iconPlacement = IenIconPlacement.End,
-                    )
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            IenText("Weak action")
+                            SampleIcon()
+                        }
+                    }
                     AdaptiveToggleButton(
                         checked = toggleChecked,
                         onCheckedChange = { toggleChecked = it },
-                        text = if (toggleChecked) "Toggle enabled" else "Toggle disabled",
                         enabled = enabled,
                         display = IenButtonDisplay.Full,
-                        shapes = IenToggleButton.Default.shapes(
+                        shapes = IenToggleButtonDefault.shapes(
                             checked = ContinuousCapsule(),
                             unchecked = ContinuousRoundedRectangle(IenTheme.radius.default),
                         ),
-                        colors = IenToggleButton.Default.colors(
+                        colors = IenToggleButtonDefault.colors(
                             checkedTone = IenSemanticTone.Success,
                             uncheckedTone = IenSemanticTone.Neutral,
                             checkedBackgroundBrush = Brush.linearGradient(
@@ -195,14 +205,22 @@ fun AdaptivePlaygroundScreen(
                                 )
                             ),
                         ),
-                        icon = { SampleIcon() },
-                    )
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            SampleIcon()
+                            IenText(if (toggleChecked) "Toggle enabled" else "Toggle disabled")
+                        }
+                    }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         AdaptiveTextButton(
-                            text = "Text button",
                             onClick = {},
                             disabled = !enabled,
-                        )
+                        ) {
+                            IenText("Text button")
+                        }
                         AdaptiveIconButton(
                             onClick = {},
                             enabled = enabled,
@@ -222,7 +240,7 @@ fun AdaptivePlaygroundScreen(
                             onCheckedChange = { iconToggleChecked = it },
                             enabled = enabled,
                             size = IenButtonSize.Medium,
-                            shapes = IenToggleButton.Default.shapes(
+                            shapes = IenToggleButtonDefault.shapes(
                                 checked = CircleShape,
                                 unchecked = ContinuousRoundedRectangle(IenTheme.radius.sm),
                             ),
@@ -231,11 +249,17 @@ fun AdaptivePlaygroundScreen(
                         }
                     }
                     AdaptiveExtendedFloatingActionButton(
-                        text = "Extended floating action",
                         onClick = {},
                         enabled = enabled,
-                        icon = { SampleIcon() },
-                    )
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            SampleIcon()
+                            IenText("Extended floating action")
+                        }
+                    }
                     AdaptiveMediumFloatingActionButton(
                         onClick = {},
                         content = { SampleIcon() },

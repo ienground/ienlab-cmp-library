@@ -227,6 +227,7 @@ import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.interactive.IenTextButtonSize
 import zone.ien.utils.ui.interactive.IenTextButtonVariant
 import zone.ien.utils.ui.interactive.IenToggleButton
+import zone.ien.utils.ui.interactive.IenToggleButtonDefault
 import zone.ien.utils.ui.interactive.IenTextField
 import zone.ien.utils.ui.interactive.IenTextFieldButton
 import zone.ien.utils.ui.interactive.IenTextFieldFormat
@@ -267,7 +268,11 @@ fun DesignSystemScreen(
                 IenTopBar(
                     title = "Ien CMP UI",
                     subtitle = "토큰 기반 모바일 디자인 시스템",
-                    navigationIcon = { IenTextButton(text = "닫기", onClick = navigateBack) },
+                    navigationIcon = {
+                        IenTextButton(onClick = navigateBack) {
+                            IenText("닫기")
+                        }
+                    },
                     actions = {
                         IenIconButton(
                             onClick = navigateToColor,
@@ -509,17 +514,19 @@ fun BottomSheetSection() {
 
         ComponentSection(title = "BottomSheet") {
             IenButton(
-                text = "일반 바텀시트 열기",
                 onClick = { sheetState.show(IenSheetDetent.Content) },
                 display = IenButtonDisplay.Block,
-            )
+            ) {
+                IenText("일반 바텀시트 열기")
+            }
             Spacer(modifier = Modifier.height(8.dp))
             IenButton(
-                text = "선택형 바텀시트 열기 (선택: $selectedPet)",
                 onClick = { selectSheetState.show(IenSheetDetent.Content) },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Line,
-            )
+            ) {
+                IenText("선택형 바텀시트 열기 (선택: $selectedPet)")
+            }
         }
 
         IenBottomSheet(
@@ -531,16 +538,18 @@ fun BottomSheetSection() {
                     horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)
                 ) {
                     IenButton(
-                        text = "닫기",
                         onClick = { sheetState.hide() },
                         modifier = Modifier.weight(1f),
                         variant = IenButtonVariant.Weak,
-                    )
+                    ) {
+                        IenText("닫기")
+                    }
                     IenButton(
-                        text = "확인",
                         onClick = { sheetState.hide() },
                         modifier = Modifier.weight(1f),
-                    )
+                    ) {
+                        IenText("확인")
+                    }
                 }
             },
         ) {
@@ -625,14 +634,26 @@ fun ButtonSection() {
             ButtonVariantStateSample("Ghost", IenButtonVariant.Ghost)
             IenBorder()
             IenText("Sizes", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
-            IenButton(text = "Small", onClick = {}, display = IenButtonDisplay.Block, size = IenButtonSize.Small)
-            IenButton(text = "Medium", onClick = {}, display = IenButtonDisplay.Block, size = IenButtonSize.Medium)
-            IenButton(text = "Large", onClick = {}, display = IenButtonDisplay.Block, size = IenButtonSize.Large)
+            IenButton(onClick = {}, display = IenButtonDisplay.Block, size = IenButtonSize.Small) {
+                IenText("Small")
+            }
+            IenButton(onClick = {}, display = IenButtonDisplay.Block, size = IenButtonSize.Medium) {
+                IenText("Medium")
+            }
+            IenButton(onClick = {}, display = IenButtonDisplay.Block, size = IenButtonSize.Large) {
+                IenText("Large")
+            }
             IenBorder()
             IenText("Display", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
-            IenButton(text = "Full", onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Full)
-            IenButton(text = "Block", onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Block)
-            IenButton(text = "Inline", onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Inline)
+            IenButton(onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Full) {
+                IenText("Full")
+            }
+            IenButton(onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Block) {
+                IenText("Block")
+            }
+            IenButton(onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Inline) {
+                IenText("Inline")
+            }
             IenBorder()
             IenText("Toggle", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
             FlowRow(
@@ -642,24 +663,27 @@ fun ButtonSection() {
                 IenToggleButton(
                     checked = shapeToggleChecked,
                     onCheckedChange = { shapeToggleChecked = it },
-                    text = if (shapeToggleChecked) "Capsule" else "Rounded",
-                    icon = {
-                        IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
-                    },
-                    shapes = IenToggleButton.Default.shapes(
+                    shapes = IenToggleButtonDefault.shapes(
                         checked = ContinuousCapsule(),
                         unchecked = ContinuousRoundedRectangle(IenTheme.radius.sm),
                     ),
-                )
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                        IenText(if (shapeToggleChecked) "Capsule" else "Rounded")
+                    }
+                }
                 IenToggleButton(
                     checked = colorToggleChecked,
                     onCheckedChange = { colorToggleChecked = it },
-                    text = if (colorToggleChecked) "Success" else "Neutral",
-                    shapes = IenToggleButton.Default.shapes(
+                    shapes = IenToggleButtonDefault.shapes(
                         checked = ContinuousCapsule(),
                         unchecked = ContinuousRoundedRectangle(IenTheme.radius.default),
                     ),
-                    colors = IenToggleButton.Default.colors(
+                    colors = IenToggleButtonDefault.colors(
                         checkedTone = IenSemanticTone.Success,
                         uncheckedTone = IenSemanticTone.Neutral,
                         checkedBackgroundBrush = Brush.linearGradient(
@@ -670,15 +694,17 @@ fun ButtonSection() {
                             )
                         ),
                     ),
-                )
+                ) {
+                    IenText(if (colorToggleChecked) "Success" else "Neutral")
+                }
                 IenIconToggleButton(
                     checked = iconToggleChecked,
                     onCheckedChange = { iconToggleChecked = it },
-                    shapes = IenToggleButton.Default.shapes(
+                    shapes = IenToggleButtonDefault.shapes(
                         checked = CircleShape,
                         unchecked = ContinuousRoundedRectangle(IenTheme.radius.sm),
                     ),
-                    colors = IenToggleButton.Default.colors(
+                    colors = IenToggleButtonDefault.colors(
                         checkedTone = IenSemanticTone.Info,
                         uncheckedTone = IenSemanticTone.Neutral,
                     ),
@@ -704,9 +730,15 @@ private fun ButtonVariantStateSample(
             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
             verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
         ) {
-            IenButton(text = "일반", onClick = {}, variant = variant)
-            IenButton(text = "로딩", onClick = {}, variant = variant, state = IenButtonState(loading = true))
-            IenButton(text = "비활성", onClick = {}, variant = variant, state = IenButtonState(enabled = false))
+            IenButton(onClick = {}, variant = variant) {
+                IenText("일반")
+            }
+            IenButton(onClick = {}, variant = variant, state = IenButtonState(loading = true)) {
+                IenText("로딩")
+            }
+            IenButton(onClick = {}, variant = variant, state = IenButtonState(enabled = false)) {
+                IenText("비활성")
+            }
         }
     }
 }
@@ -758,23 +790,29 @@ fun FabSection() {
                     verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
                 ) {
                     IenExtendedFab(
-                        text = "작성하기",
                         onClick = {},
-                        icon = {
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
                             IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
-                        },
-                    )
+                            IenText("작성하기")
+                        }
+                    }
                     IenExtendedFab(
-                        text = "로딩",
                         onClick = {},
                         state = IenButtonState(loading = true),
-                    )
+                    ) {
+                        IenText("로딩")
+                    }
                     IenExtendedFab(
-                        text = "비활성",
                         onClick = {},
                         state = IenButtonState(enabled = false),
                         variant = IenButtonVariant.Weak,
-                    )
+                    ) {
+                        IenText("비활성")
+                    }
                 }
             }
         }
@@ -931,7 +969,9 @@ fun ListHeaderSection() {
                 description = "타이틀 위에 보조 설명이 배치됩니다.",
                 descriptionPosition = IenListHeaderDescriptionPosition.Top,
                 right = {
-                    IenTextButton(text = "전체보기", onClick = {})
+                    IenTextButton(onClick = {}) {
+                        IenText("전체보기")
+                    }
                 }
             )
             IenListHeader(
@@ -939,7 +979,9 @@ fun ListHeaderSection() {
                 description = "타이틀 아래에 보조 설명이 배치됩니다.",
                 descriptionPosition = IenListHeaderDescriptionPosition.Bottom,
                 right = {
-                    IenTextButton(text = "편집", onClick = {})
+                    IenTextButton(onClick = {}) {
+                        IenText("편집")
+                    }
                 }
             )
         }
@@ -1018,9 +1060,10 @@ fun MenuSection() {
                 }
             ) {
                 IenButton(
-                    text = "메뉴 열기",
                     onClick = { menuOpen = true },
-                )
+                ) {
+                    IenText("메뉴 열기")
+                }
             }
         }
     }
@@ -1034,11 +1077,12 @@ fun ModalSection() {
 
         ComponentSection(title = "Modal") {
             IenButton(
-                text = "모달 열기",
                 onClick = { showModal = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Line,
-            )
+            ) {
+                IenText("모달 열기")
+            }
         }
 
         IenModal(
@@ -1061,10 +1105,11 @@ fun ModalSection() {
                     color = IenTheme.colors.textSecondary,
                 )
                 IenButton(
-                    text = "확인",
                     onClick = { showModal = false },
                     display = IenButtonDisplay.Block,
-                )
+                ) {
+                    IenText("확인")
+                }
             }
         }
     }
@@ -1163,9 +1208,10 @@ fun ProgressBarSection() {
                 contentDescription = "애니메이션 진행률",
             )
             IenButton(
-                text = if (animatedProgress == 0f) "애니메이션 시작" else "애니메이션 리셋",
                 onClick = { animatedProgress = if (animatedProgress == 0f) 1f else 0f },
-            )
+            ) {
+                IenText(if (animatedProgress == 0f) "애니메이션 시작" else "애니메이션 리셋")
+            }
         }
     }
 }
@@ -1328,7 +1374,9 @@ fun ResultSection() {
                     )
                 },
                 primaryAction = {
-                    IenButton(text = "확인", onClick = {}, size = IenButtonSize.Medium)
+                    IenButton(onClick = {}, size = IenButtonSize.Medium) {
+                        IenText("확인")
+                    }
                 },
             )
         }
@@ -1658,34 +1706,37 @@ fun TextButtonSection() {
     IenTheme {
         ComponentSection(title = "TextButton") {
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                IenTextButton(text = "텍스트 버튼", size = IenTextButtonSize.XSmall, onClick = {})
-                IenTextButton(text = "텍스트 버튼", size = IenTextButtonSize.Small, onClick = {})
-                IenTextButton(text = "텍스트 버튼", size = IenTextButtonSize.Medium, onClick = {})
+                IenTextButton(size = IenTextButtonSize.XSmall, onClick = {}) { IenText("텍스트 버튼") }
+                IenTextButton(size = IenTextButtonSize.Small, onClick = {}) { IenText("텍스트 버튼") }
+                IenTextButton(size = IenTextButtonSize.Medium, onClick = {}) { IenText("텍스트 버튼") }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                IenTextButton(text = "텍스트 버튼", size = IenTextButtonSize.Large, onClick = {})
-                IenTextButton(text = "텍스트 버튼", size = IenTextButtonSize.XLarge, onClick = {})
-                IenTextButton(text = "텍스트 버튼", size = IenTextButtonSize.XXLarge, onClick = {})
+                IenTextButton(size = IenTextButtonSize.Large, onClick = {}) { IenText("텍스트 버튼") }
+                IenTextButton(size = IenTextButtonSize.XLarge, onClick = {}) { IenText("텍스트 버튼") }
+                IenTextButton(size = IenTextButtonSize.XXLarge, onClick = {}) { IenText("텍스트 버튼") }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
                 IenTextButton(
-                    text = "화살표",
                     size = IenTextButtonSize.Medium,
                     variant = IenTextButtonVariant.Arrow,
                     onClick = {},
-                )
+                ) {
+                    IenText("화살표")
+                }
                 IenTextButton(
-                    text = "밑줄",
                     size = IenTextButtonSize.XLarge,
                     variant = IenTextButtonVariant.Underline,
                     onClick = {},
-                )
+                ) {
+                    IenText("밑줄")
+                }
                 IenTextButton(
-                    text = "비활성",
                     size = IenTextButtonSize.XXLarge,
                     disabled = true,
                     onClick = {},
-                )
+                ) {
+                    IenText("비활성")
+                }
             }
         }
     }
@@ -1710,53 +1761,45 @@ fun SnackbarSection(
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
             ) {
                 IenButton(
-                    text = "기본",
                     onClick = onShowBasic,
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
-                )
+                ) { IenText("기본") }
                 IenButton(
-                    text = "성공",
                     onClick = onShowSuccess,
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
-                )
+                ) { IenText("성공") }
                 IenButton(
-                    text = "액션",
                     onClick = onShowAction,
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
-                )
+                ) { IenText("액션") }
                 IenButton(
-                    text = "최대폭",
                     onClick = onShowCompact,
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
-                )
+                ) { IenText("최대폭") }
                 IenButton(
-                    text = "여러 개",
                     onClick = onShowQueued,
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
-                )
+                ) { IenText("여러 개") }
                 IenButton(
-                    text = "Short",
                     onClick = onShowShortDuration,
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
-                )
+                ) { IenText("Short") }
                 IenButton(
-                    text = "Long",
                     onClick = onShowLongDuration,
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
-                )
+                ) { IenText("Long") }
                 IenButton(
-                    text = "Indefinite",
                     onClick = onShowIndefiniteDuration,
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
-                )
+                ) { IenText("Indefinite") }
             }
         }
     }
@@ -1776,13 +1819,21 @@ fun TooltipSection() {
                 IenTooltip(
                     text = "상단에 뜨는 도움말입니다.",
                     placement = IenTooltipPlacement.Top,
-                    anchor = { toggle -> IenButton(text = "Top", size = IenButtonSize.Small, onClick = toggle) },
+                    anchor = { toggle ->
+                        IenButton(size = IenButtonSize.Small, onClick = toggle) {
+                            IenText("Top")
+                        }
+                    },
                 )
                 IenTooltip(
                     text = "중앙 정렬 툴팁은 메시지를 정중앙에 보여줍니다.",
                     messageAlign = IenTooltipMessageAlign.Center,
                     width = 180.dp,
-                    anchor = { toggle -> IenButton(text = "Center", size = IenButtonSize.Small, onClick = toggle) },
+                    anchor = { toggle ->
+                        IenButton(size = IenButtonSize.Small, onClick = toggle) {
+                            IenText("Center")
+                        }
+                    },
                 )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
@@ -1800,10 +1851,11 @@ fun TooltipSection() {
                     dismissible = true,
                     anchor = { toggle ->
                         IenButton(
-                            text = "Toggle",
                             size = IenButtonSize.Small,
                             onClick = { controlledTooltipOpen = !controlledTooltipOpen },
-                        )
+                        ) {
+                            IenText("Toggle")
+                        }
                     },
                 )
             }
@@ -1819,7 +1871,11 @@ fun TopSection() {
             IenTop(
                 title = "결제 확인",
                 subtitle = "Top은 화면 제목과 액션을 하나의 정보 구조로 묶습니다.",
-                navigation = { IenTextButton(text = "뒤로", onClick = {}) },
+                navigation = {
+                    IenTextButton(onClick = {}) {
+                        IenText("뒤로")
+                    }
+                },
                 actions = { IenBadge("v4", size = IenBadgeSize.Small) },
             )
             IenTop(
@@ -2236,11 +2292,12 @@ fun BottomCTASection() {
                 variant = IenButtonVariant.Weak,
             )
             IenButton(
-                text = if (showAnimatedCTA) "애니메이션 CTA 숨기기" else "애니메이션 CTA 보이기",
                 onClick = { showAnimatedCTA = !showAnimatedCTA },
                 size = IenButtonSize.Small,
                 variant = IenButtonVariant.Weak,
-            )
+            ) {
+                IenText(if (showAnimatedCTA) "애니메이션 CTA 숨기기" else "애니메이션 CTA 보이기")
+            }
             IenBottomCTA(
                 text = "지연 등장 CTA",
                 onClick = {},
@@ -2368,92 +2425,79 @@ fun DialogSection() {
 
         ComponentSection(title = "Dialog") {
             IenButton(
-                text = "AlertDialog 기본",
                 onClick = { showAlert = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Weak,
-            )
+            ) { IenText("AlertDialog 기본") }
             IenButton(
-                text = "AlertDialog 딤 클릭 방지",
                 onClick = { showAlertWiggle = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Weak,
-            )
+            ) { IenText("AlertDialog 딤 클릭 방지") }
             IenButton(
-                text = "AlertDialog 긴 콘텐츠",
                 onClick = { showAlertLong = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Line,
-            )
+            ) { IenText("AlertDialog 긴 콘텐츠") }
             IenButton(
-                text = "ConfirmDialog 기본",
                 onClick = { showConfirm = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Line,
                 tone = IenSemanticTone.Danger,
-            )
+            ) { IenText("ConfirmDialog 기본") }
             IenButton(
-                text = "ConfirmDialog 긴 버튼",
                 onClick = { showConfirmLong = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Line,
-            )
+            ) { IenText("ConfirmDialog 긴 버튼") }
             IenButton(
-                text = "ConfirmDialog 설명 없음",
                 onClick = { showConfirmNoDescription = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Ghost,
-            )
+            ) { IenText("ConfirmDialog 설명 없음") }
             IenButton(
-                text = "기본 Dialog 열기",
                 onClick = { showGenericDialog = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Ghost,
-            )
+            ) { IenText("기본 Dialog 열기") }
             IenText(
                 text = "IenAlertDialog 호환 API",
                 style = IenTheme.typography.label1,
                 color = IenTheme.colors.textSecondary,
             )
             IenButton(
-                text = "M3 1버튼 기본",
                 onClick = { showM3OneButton = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Weak,
-            )
+            ) { IenText("M3 1버튼 기본") }
             IenButton(
-                text = "M3 1버튼 destructive",
                 onClick = { showM3OneButtonDestructive = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Weak,
                 tone = IenSemanticTone.Danger,
-            )
+            ) { IenText("M3 1버튼 destructive") }
             IenButton(
-                text = "M3 2버튼 Horizontal",
                 onClick = { showM3TwoButtonHorizontal = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Line,
-            )
+            ) { IenText("M3 2버튼 Horizontal") }
             IenButton(
-                text = "M3 2버튼 Vertical destructive",
                 onClick = { showM3TwoButtonVerticalDestructive = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Line,
                 tone = IenSemanticTone.Danger,
-            )
+            ) { IenText("M3 2버튼 Vertical destructive") }
             IenButton(
-                text = "M3 3버튼 Horizontal",
                 onClick = { showM3ThreeButtonHorizontal = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Ghost,
-            )
+            ) { IenText("M3 3버튼 Horizontal") }
             IenButton(
-                text = "M3 3버튼 Vertical destructive",
                 onClick = { showM3ThreeButtonVerticalDestructive = true },
                 display = IenButtonDisplay.Block,
                 variant = IenButtonVariant.Ghost,
                 tone = IenSemanticTone.Danger,
-            )
+            ) { IenText("M3 3버튼 Vertical destructive") }
             IenText(
                 text = "이벤트: $dialogEventText",
                 style = IenTheme.typography.caption,
@@ -2757,11 +2801,12 @@ fun ListRowSection() {
                 },
                 right = {
                     IenButton(
-                        text = "Button",
                         onClick = {},
                         size = IenButtonSize.Small,
                         variant = IenButtonVariant.Weak,
-                    )
+                    ) {
+                        IenText("Button")
+                    }
                 },
                 withArrow = true,
                 withTouchEffect = true,

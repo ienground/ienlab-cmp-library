@@ -76,11 +76,6 @@ enum class IenButtonSize { Small, Medium, Large }
 enum class IenFabSize { Small, Regular, Large }
 
 /**
- * 버튼 내부에서 아이콘이 텍스트의 어느 쪽에 배치될지 정의하는 열거형 클래스.
- */
-enum class IenIconPlacement { Start, End }
-
-/**
  * 버튼의 가로 배치 방식을 정의하는 열거형 클래스.
  */
 enum class IenButtonDisplay { Inline, Block, Full }
@@ -131,73 +126,6 @@ data class IenButtonState(
     val loading: Boolean = false,
 )
 
-/**
- * IEN 라이브러리의 범용 버튼 컴포저블.
- *
- * @param text 버튼 내부에 표시할 문자열.
- * @param onClick 버튼 클릭 시 실행할 콜백 함수.
- * @param modifier 컴포저블에 적용할 [Modifier].
- * @param size 버튼의 높이 및 내부 패딩 크기 규격 ([IenButtonSize]). 기본값은 [IenButtonSize.Large].
- * @param variant 버튼의 비주얼 스타일 변형 ([IenButtonVariant]). 기본값은 [IenButtonVariant.Fill].
- * @param tone 버튼의 시각적 어조 또는 의미적 강조 색상 ([IenSemanticTone]). 기본값은 [IenSemanticTone.Brand].
- * @param state 버튼의 활성화 및 로딩 진행 상태 ([IenButtonState]).
- * @param icon 버튼 텍스트와 함께 표시할 아이콘 컴포저블.
- * @param iconPlacement 아이콘이 배치될 위치 ([IenIconPlacement]). 기본값은 [IenIconPlacement.Start].
- * @param shape 버튼의 형태 정의 ([Shape]).
- * @param contentPadding 버튼 내부 콘텐츠의 여백 ([PaddingValues]).
- * @param backgroundBrush 버튼 배경에 적용할 브러시. null이면 Fill 버튼에 tone 기반 기본 그라데이션을 사용합니다.
- * @param interactionSource 버튼 인터랙션 정보를 전달할 [MutableInteractionSource].
- * @param display 버튼의 가로 확장 모드 ([IenButtonDisplay]). 기본값은 [IenButtonDisplay.Inline].
- */
-@Composable
-fun IenButton(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    size: IenButtonSize = IenButtonSize.Large,
-    variant: IenButtonVariant = IenButtonVariant.Fill,
-    tone: IenSemanticTone = IenSemanticTone.Brand,
-    state: IenButtonState = IenButtonState(),
-    icon: (@Composable () -> Unit)? = null,
-    iconPlacement: IenIconPlacement = IenIconPlacement.Start,
-    shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
-    contentPadding: PaddingValues = size.buttonPadding(),
-    backgroundBrush: Brush? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    display: IenButtonDisplay = IenButtonDisplay.Inline,
-) {
-    val height = size.buttonHeight()
-    val buttonModifier = modifier
-        .then(if (display == IenButtonDisplay.Block || display == IenButtonDisplay.Full) Modifier.fillMaxWidth() else Modifier)
-        .heightIn(min = height)
-
-    val resolvedShape = if (display == IenButtonDisplay.Full) {
-        ContinuousRoundedRectangle(0.dp)
-    } else {
-        shape
-    }
-    IenButtonContainer(
-        onClick = onClick,
-        modifier = buttonModifier,
-        variant = variant,
-        tone = tone,
-        state = state,
-        shape = resolvedShape,
-        contentPadding = contentPadding,
-        backgroundBrush = backgroundBrush,
-        interactionSource = interactionSource,
-        scalePressed = 0.975f,
-    ) {
-        IenButtonContent(
-            text = text,
-            loading = state.loading,
-            size = size,
-            icon = icon,
-            iconPlacement = iconPlacement,
-        )
-    }
-}
-
 @Composable
 fun IenButton(
     onClick: () -> Unit,
@@ -235,27 +163,17 @@ fun IenButton(
         backgroundBrush = backgroundBrush,
         interactionSource = interactionSource,
         scalePressed = 0.975f,
-        content = content,
-    )
+    ) {
+        IenButtonSlotContent(
+            loading = state.loading,
+            size = size,
+            content = content,
+        )
+    }
 }
 
 /**
- * 선택 상태를 표현하는 IEN 토글 버튼 컴포저블입니다.
- *
- * @param checked 현재 선택 상태입니다.
- * @param onCheckedChange 선택 상태 변경 콜백입니다.
- * @param text 버튼 내부에 표시할 문자열입니다.
- * @param modifier 컴포저블에 적용할 [Modifier]입니다.
- * @param size 버튼의 높이 및 내부 패딩 크기 규격입니다.
- * @param state 버튼의 활성화 및 로딩 진행 상태입니다.
- * @param icon 버튼 텍스트와 함께 표시할 아이콘 컴포저블입니다.
- * @param iconPlacement 아이콘이 배치될 위치입니다.
- * @param shapes 선택/비선택 상태별 버튼 형태 구성입니다.
- * @param variants 선택/비선택 상태별 비주얼 변형 구성입니다.
- * @param colors 선택/비선택 상태별 색상 구성입니다.
- * @param contentPadding 버튼 내부 콘텐츠 여백입니다.
- * @param interactionSource 버튼 인터랙션 정보를 전달할 [MutableInteractionSource]입니다.
- * @param display 버튼의 가로 확장 모드입니다.
+ * 선택 상태를 표현하는 IEN 토글 버튼 네임스페이스입니다.
  */
 object IenToggleButton {
     /**
@@ -291,96 +209,24 @@ object IenToggleButton {
         val disabledBorder: Color,
     )
 
-    object Default {
-        @Composable
-        fun shapes(
-            checked: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
-            unchecked: Shape = checked,
-        ): Shapes = Shapes(
-            checked = checked,
-            unchecked = unchecked,
-        )
-
-        fun variants(
-            checked: IenButtonVariant = IenButtonVariant.Fill,
-            unchecked: IenButtonVariant = IenButtonVariant.Weak,
-        ): Variants = Variants(
-            checked = checked,
-            unchecked = unchecked,
-        )
-
-        @Composable
-        fun colors(
-            checkedTone: IenSemanticTone = IenSemanticTone.Brand,
-            uncheckedTone: IenSemanticTone = IenSemanticTone.Brand,
-            checkedContainer: Color = toneColor(checkedTone),
-            checkedContent: Color = toneOnColor(checkedTone),
-            checkedBorder: Color = checkedContainer,
-            uncheckedContainer: Color = toneWeakColor(uncheckedTone),
-            uncheckedContent: Color = toneColor(uncheckedTone),
-            uncheckedBorder: Color = Color.Transparent,
-            checkedBackgroundBrush: Brush? = null,
-            uncheckedBackgroundBrush: Brush? = null,
-            useGradient: Boolean = true,
-        ): Colors = Colors(
-            checkedContainer = checkedContainer,
-            checkedContent = checkedContent,
-            checkedBorder = checkedBorder,
-            checkedBackgroundBrush = checkedBackgroundBrush ?: if (useGradient) toneGradientBrush(checkedTone) else null,
-            uncheckedContainer = uncheckedContainer,
-            uncheckedContent = uncheckedContent,
-            uncheckedBorder = uncheckedBorder,
-            uncheckedBackgroundBrush = uncheckedBackgroundBrush ?: if (useGradient) toneWeakGradientBrush(uncheckedTone) else null,
-            disabledContainer = IenTheme.colors.surfaceWeak,
-            disabledContent = IenTheme.colors.textDisabled.copy(alpha = 0.72f),
-            disabledBorder = Color.Transparent,
-        )
-    }
-
-    @Composable
-    operator fun invoke(
-        checked: Boolean,
-        onCheckedChange: (Boolean) -> Unit,
-        text: String,
-        modifier: Modifier = Modifier,
-        enabled: Boolean = true,
-        loading: Boolean = false,
-        size: IenButtonSize = IenButtonSize.Large,
-        state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
-        icon: (@Composable () -> Unit)? = null,
-        iconPlacement: IenIconPlacement = IenIconPlacement.Start,
-        shapes: Shapes = Default.shapes(),
-        variants: Variants = Default.variants(),
-        colors: Colors = Default.colors(),
-        contentPadding: PaddingValues = size.buttonPadding(),
-        interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-        display: IenButtonDisplay = IenButtonDisplay.Inline,
-    ) {
-        invoke(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            modifier = modifier,
-            enabled = enabled,
-            loading = loading,
-            size = size,
-            state = state,
-            shapes = shapes,
-            variants = variants,
-            colors = colors,
-            contentPadding = contentPadding,
-            interactionSource = interactionSource,
-            display = display,
-        ) {
-            IenButtonContent(
-                text = text,
-                loading = state.loading || loading,
-                size = size,
-                icon = icon,
-                iconPlacement = iconPlacement,
-            )
-        }
-    }
-
+    /**
+     * 선택 상태를 표현하는 IEN 토글 버튼 컴포저블입니다.
+     *
+     * @param checked 현재 선택 상태입니다.
+     * @param onCheckedChange 선택 상태 변경 콜백입니다.
+     * @param modifier 컴포저블에 적용할 [Modifier]입니다.
+     * @param enabled 버튼 활성화 여부입니다.
+     * @param loading 로딩 상태 표시 여부입니다.
+     * @param size 버튼의 높이 및 내부 패딩 크기 규격입니다.
+     * @param state 버튼의 활성화 및 로딩 진행 상태입니다.
+     * @param shapes 선택/비선택 상태별 버튼 형태 구성입니다.
+     * @param variants 선택/비선택 상태별 비주얼 변형 구성입니다.
+     * @param colors 선택/비선택 상태별 색상 구성입니다.
+     * @param contentPadding 버튼 내부 콘텐츠 여백입니다.
+     * @param interactionSource 버튼 인터랙션 정보를 전달할 [MutableInteractionSource]입니다.
+     * @param display 버튼의 가로 확장 모드입니다.
+     * @param content 버튼 내부에 표시할 컴포저블 콘텐츠입니다.
+     */
     @Composable
     operator fun invoke(
         checked: Boolean,
@@ -390,9 +236,9 @@ object IenToggleButton {
         loading: Boolean = false,
         size: IenButtonSize = IenButtonSize.Large,
         state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
-        shapes: Shapes = Default.shapes(),
-        variants: Variants = Default.variants(),
-        colors: Colors = Default.colors(),
+        shapes: Shapes = IenToggleButtonDefault.shapes(),
+        variants: Variants = IenToggleButtonDefault.variants(),
+        colors: Colors = IenToggleButtonDefault.colors(),
         contentPadding: PaddingValues = size.buttonPadding(),
         interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
         display: IenButtonDisplay = IenButtonDisplay.Inline,
@@ -439,6 +285,52 @@ object IenToggleButton {
             content = content,
         )
     }
+}
+
+object IenToggleButtonDefault {
+    @Composable
+    fun shapes(
+        checked: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
+        unchecked: Shape = checked,
+    ): IenToggleButton.Shapes = IenToggleButton.Shapes(
+        checked = checked,
+        unchecked = unchecked,
+    )
+
+    fun variants(
+        checked: IenButtonVariant = IenButtonVariant.Fill,
+        unchecked: IenButtonVariant = IenButtonVariant.Weak,
+    ): IenToggleButton.Variants = IenToggleButton.Variants(
+        checked = checked,
+        unchecked = unchecked,
+    )
+
+    @Composable
+    fun colors(
+        checkedTone: IenSemanticTone = IenSemanticTone.Brand,
+        uncheckedTone: IenSemanticTone = IenSemanticTone.Brand,
+        checkedContainer: Color = toneColor(checkedTone),
+        checkedContent: Color = toneOnColor(checkedTone),
+        checkedBorder: Color = checkedContainer,
+        uncheckedContainer: Color = toneWeakColor(uncheckedTone),
+        uncheckedContent: Color = toneColor(uncheckedTone),
+        uncheckedBorder: Color = Color.Transparent,
+        checkedBackgroundBrush: Brush? = null,
+        uncheckedBackgroundBrush: Brush? = null,
+        useGradient: Boolean = true,
+    ): IenToggleButton.Colors = IenToggleButton.Colors(
+        checkedContainer = checkedContainer,
+        checkedContent = checkedContent,
+        checkedBorder = checkedBorder,
+        checkedBackgroundBrush = checkedBackgroundBrush ?: if (useGradient) toneGradientBrush(checkedTone) else null,
+        uncheckedContainer = uncheckedContainer,
+        uncheckedContent = uncheckedContent,
+        uncheckedBorder = uncheckedBorder,
+        uncheckedBackgroundBrush = uncheckedBackgroundBrush ?: if (useGradient) toneWeakGradientBrush(uncheckedTone) else null,
+        disabledContainer = IenTheme.colors.surfaceWeak,
+        disabledContent = IenTheme.colors.textDisabled.copy(alpha = 0.72f),
+        disabledBorder = Color.Transparent,
+    )
 }
 
 /**
@@ -531,9 +423,9 @@ fun IenIconToggleButton(
     loading: Boolean = false,
     size: IenButtonSize = IenButtonSize.Large,
     state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
-    shapes: IenToggleButton.Shapes = IenToggleButton.Default.shapes(),
-    variants: IenToggleButton.Variants = IenToggleButton.Default.variants(),
-    colors: IenToggleButton.Colors = IenToggleButton.Default.colors(),
+    shapes: IenToggleButton.Shapes = IenToggleButtonDefault.shapes(),
+    variants: IenToggleButton.Variants = IenToggleButtonDefault.variants(),
+    colors: IenToggleButton.Colors = IenToggleButtonDefault.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
@@ -643,31 +535,27 @@ fun IenFab(
 /**
  * 아이콘과 텍스트를 함께 보여주는 둥근 형태의 확장형 플로팅 액션 버튼(Extended FAB) 컴포저블.
  *
- * @param text 버튼 내부에 표시할 문자열.
  * @param onClick 버튼 클릭 시 실행할 콜백 함수.
  * @param modifier 컴포저블에 적용할 [Modifier].
  * @param variant 버튼의 비주얼 스타일 변형 ([IenButtonVariant]). 기본값은 [IenButtonVariant.Fill].
  * @param tone 버튼의 시각적 어조 또는 의미적 강조 색상 ([IenSemanticTone]). 기본값은 [IenSemanticTone.Brand].
  * @param state 버튼의 활성화 및 로딩 진행 상태 ([IenButtonState]).
- * @param icon 버튼 텍스트와 함께 표시할 아이콘 컴포저블.
- * @param iconPlacement 아이콘이 배치될 위치 ([IenIconPlacement]). 기본값은 [IenIconPlacement.Start].
  * @param shape 버튼의 형태 정의 ([Shape]). 기본값은 타원형 캡슐 형태인 [IenTheme.radius.full]을 가집니다.
  * @param contentPadding 버튼 내부 콘텐츠의 여백 ([PaddingValues]).
  * @param interactionSource 버튼 인터랙션 정보를 전달할 [MutableInteractionSource].
+ * @param content 플로팅 버튼 내부에 표시할 컴포저블 콘텐츠.
  */
 @Composable
 fun IenExtendedFab(
-    text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     variant: IenButtonVariant = IenButtonVariant.Fill,
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(),
-    icon: (@Composable () -> Unit)? = null,
-    iconPlacement: IenIconPlacement = IenIconPlacement.Start,
     shape: Shape = ContinuousCapsule(),
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    content: @Composable () -> Unit,
 ) {
     IenButtonContainer(
         onClick = onClick,
@@ -680,32 +568,16 @@ fun IenExtendedFab(
         interactionSource = interactionSource,
         scalePressed = 0.96f,
     ) {
-        IenButtonContent(
-            text = text,
+        IenButtonSlotContent(
             loading = state.loading,
             size = IenButtonSize.Large,
-            icon = icon,
-            iconPlacement = iconPlacement,
+            content = content,
         )
     }
 }
 
-/**
- * 배경과 아웃라인이 없거나 투명하며 텍스트만으로 구성된 버튼 컴포저블.
- *
- * @param text 버튼에 표시할 문자열.
- * @param onClick 버튼 클릭 시 실행할 콜백 함수.
- * @param modifier 컴포저블에 적용할 [Modifier].
- * @param size 텍스트 버튼의 크기 및 텍스트 스타일 규격 ([IenTextButtonSize]). 기본값은 [IenTextButtonSize.Medium].
- * @param variant 텍스트 스타일 종류 ([IenTextButtonVariant]). 기본값은 [IenTextButtonVariant.Clear].
- * @param disabled 비활성화 여부. true일 경우 사용자와 상호작용할 수 없습니다.
- * @param tone 텍스트 및 아이콘의 시각적 어조 또는 의미적 강조 색상 ([IenSemanticTone]). 기본값은 [IenSemanticTone.Brand].
- * @param state 버튼의 활성화 상태 정보를 담는 상태 객체.
- * @param interactionSource 버튼 인터랙션 정보를 전달할 [MutableInteractionSource].
- */
 @Composable
 fun IenTextButton(
-    text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     size: IenTextButtonSize = IenTextButtonSize.Medium,
@@ -714,6 +586,7 @@ fun IenTextButton(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(enabled = !disabled),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    content: @Composable () -> Unit,
 ) {
     val enabled = state.enabled && !disabled
     val contentColor = if (enabled) {
@@ -752,11 +625,7 @@ fun IenTextButton(
                 horizontalArrangement = Arrangement.spacedBy(size.iconGap()),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                IenText(
-                    text = text,
-                    color = LocalContentColor.current,
-                    style = textStyle,
-                )
+                content()
                 if (variant == IenTextButtonVariant.Arrow) {
                     Icon(
                         imageVector = RemixIcons.Line.ArrowRightS,
@@ -771,12 +640,10 @@ fun IenTextButton(
 }
 
 @Composable
-private fun IenButtonContent(
-    text: String,
+private fun IenButtonSlotContent(
     loading: Boolean,
     size: IenButtonSize,
-    icon: (@Composable () -> Unit)?,
-    iconPlacement: IenIconPlacement,
+    content: @Composable () -> Unit,
 ) {
     val textStyle = when (size) {
         IenButtonSize.Small -> IenTheme.typography.label2
@@ -784,17 +651,10 @@ private fun IenButtonContent(
         IenButtonSize.Large -> IenTheme.typography.body1
     }
     IenProvideTextStyle(textStyle, LocalContentColor.current) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (loading) {
-                IenLoaderPrimitive(color = LocalContentColor.current)
-            } else {
-                if (iconPlacement == IenIconPlacement.Start) icon?.invoke()
-                if (text.isNotEmpty()) IenText(text = text, color = LocalContentColor.current, style = textStyle)
-                if (iconPlacement == IenIconPlacement.End) icon?.invoke()
-            }
+        if (loading) {
+            IenLoaderPrimitive(color = LocalContentColor.current)
+        } else {
+            content()
         }
     }
 }

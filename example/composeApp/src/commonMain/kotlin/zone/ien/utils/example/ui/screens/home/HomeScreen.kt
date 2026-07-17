@@ -322,16 +322,18 @@ fun HomeScreen(
                     onClick = onBackPressed,
                     variant = IenButtonVariant.Weak,
                     display = IenButtonDisplay.Full,
-                    text = "move to background"
-                )
+                ) {
+                    IenText("move to background")
+                }
                 IenButton(
                     onClick = {
                         shareText("text share")
                     },
                     variant = IenButtonVariant.Fill,
                     display = IenButtonDisplay.Full,
-                    text = "Text share"
-                )
+                ) {
+                    IenText("Text share")
+                }
                 AnimatedVisibility(
                     visible = !isDropdownMenu,
                 ) {

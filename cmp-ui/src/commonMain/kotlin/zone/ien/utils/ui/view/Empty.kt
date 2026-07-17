@@ -107,8 +107,8 @@ private fun EmptyPreview() {
                     IenText(text = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolo")
                 },
                 buttons = {
-                    IenButton(onClick = {}, text = "hi")
-                    IenButton(onClick = {}, text = "hi")
+                    IenButton(onClick = {}) { IenText("hi") }
+                    IenButton(onClick = {}) { IenText("hi") }
                 },
                 modifier = Modifier.fillMaxWidth(0.75f)
             )

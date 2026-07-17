@@ -560,7 +560,6 @@ fun IenFullSecureKeyboard(
                     color = IenTheme.colors.textPrimary,
                 )
                 IenTextButton(
-                    text = stringResource(if (state.language == IenSecureKeyboardLanguage.English) Res.string.korean else Res.string.english),
                     onClick = {
                         onLanguageChange(
                             if (state.language == IenSecureKeyboardLanguage.English) {
@@ -570,7 +569,9 @@ fun IenFullSecureKeyboard(
                             },
                         )
                     },
-                )
+                ) {
+                    IenText(stringResource(if (state.language == IenSecureKeyboardLanguage.English) Res.string.korean else Res.string.english))
+                }
             }
         }
         when (state.language) {

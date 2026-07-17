@@ -57,7 +57,11 @@ fun ColorTokenScreen(
                 IenTopBar(
                     title = "Color Tokens",
                     subtitle = if (darkTheme) "Dark theme" else "Light theme",
-                    navigationIcon = { IenTextButton(text = "닫기", onClick = navigateBack) },
+                    navigationIcon = {
+                        IenTextButton(onClick = navigateBack) {
+                            IenText("닫기")
+                        }
+                    },
                 )
             },
         ) { contentPadding ->
