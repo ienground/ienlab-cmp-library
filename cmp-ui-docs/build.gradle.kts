@@ -27,6 +27,7 @@ kotlin {
                 implementation(libs.compose.material3)
                 implementation(libs.compose.preview)
                 implementation(libs.compose.resources)
+                implementation(libs.capsule)
                 implementation(projects.cmpUi)
                 implementation(projects.cmpIcon)
             }

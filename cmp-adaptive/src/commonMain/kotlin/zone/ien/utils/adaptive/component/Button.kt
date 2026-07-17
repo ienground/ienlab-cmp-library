@@ -59,9 +59,6 @@ import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.interactive.IenTextButtonSize
 import zone.ien.utils.ui.interactive.IenTextButtonVariant
 import zone.ien.utils.ui.interactive.IenToggleButton
-import zone.ien.utils.ui.interactive.IenToggleButtonColors
-import zone.ien.utils.ui.interactive.IenToggleButtonShapes
-import zone.ien.utils.ui.interactive.IenToggleButtonVariants
 import zone.ien.utils.ui.screen.IenBackButton
 
 /**
@@ -269,9 +266,9 @@ fun AdaptiveToggleButton(
     state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
     icon: (@Composable () -> Unit)? = null,
     iconPlacement: IenIconPlacement = IenIconPlacement.Start,
-    shapes: IenToggleButtonShapes? = null,
-    variants: IenToggleButtonVariants = IenToggleButtonVariants(),
-    colors: IenToggleButtonColors? = null,
+    shapes: IenToggleButton.Shapes = IenToggleButton.Default.shapes(),
+    variants: IenToggleButton.Variants = IenToggleButton.Default.variants(),
+    colors: IenToggleButton.Colors = IenToggleButton.Default.colors(),
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     display: IenButtonDisplay = IenButtonDisplay.Inline,
@@ -284,7 +281,9 @@ fun AdaptiveToggleButton(
                 text = text,
                 modifier = modifier,
                 size = size,
-                state = state.copy(enabled = state.enabled && enabled, loading = state.loading || loading),
+                enabled = enabled,
+                loading = loading,
+                state = state,
                 icon = icon,
                 iconPlacement = iconPlacement,
                 shapes = shapes,
@@ -342,9 +341,9 @@ fun AdaptiveIconToggleButton(
     loading: Boolean = false,
     size: IenButtonSize = IenButtonSize.Large,
     state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
-    shapes: IenToggleButtonShapes? = null,
-    variants: IenToggleButtonVariants = IenToggleButtonVariants(),
-    colors: IenToggleButtonColors? = null,
+    shapes: IenToggleButton.Shapes = IenToggleButton.Default.shapes(),
+    variants: IenToggleButton.Variants = IenToggleButton.Default.variants(),
+    colors: IenToggleButton.Colors = IenToggleButton.Default.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
@@ -355,7 +354,9 @@ fun AdaptiveIconToggleButton(
                 onCheckedChange = onCheckedChange,
                 modifier = modifier,
                 size = size,
-                state = state.copy(enabled = state.enabled && enabled, loading = state.loading || loading),
+                enabled = enabled,
+                loading = loading,
+                state = state,
                 shapes = shapes,
                 variants = variants,
                 colors = colors,

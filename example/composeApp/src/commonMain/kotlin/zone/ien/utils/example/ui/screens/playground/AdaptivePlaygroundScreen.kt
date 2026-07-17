@@ -60,7 +60,7 @@ import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconPlacement
 import zone.ien.utils.ui.interactive.IenSegmentedControlItem
-import zone.ien.utils.ui.interactive.IenToggleButtonDefaults
+import zone.ien.utils.ui.interactive.IenToggleButton
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.TopBarMode
@@ -180,11 +180,11 @@ fun AdaptivePlaygroundScreen(
                         text = if (toggleChecked) "Toggle enabled" else "Toggle disabled",
                         enabled = enabled,
                         display = IenButtonDisplay.Full,
-                        shapes = IenToggleButtonDefaults.shapes(
+                        shapes = IenToggleButton.Default.shapes(
                             checked = ContinuousCapsule(),
                             unchecked = ContinuousRoundedRectangle(IenTheme.radius.default),
                         ),
-                        colors = IenToggleButtonDefaults.colors(
+                        colors = IenToggleButton.Default.colors(
                             checkedTone = IenSemanticTone.Success,
                             uncheckedTone = IenSemanticTone.Neutral,
                             checkedBackgroundBrush = Brush.linearGradient(
@@ -222,7 +222,7 @@ fun AdaptivePlaygroundScreen(
                             onCheckedChange = { iconToggleChecked = it },
                             enabled = enabled,
                             size = IenButtonSize.Medium,
-                            shapes = IenToggleButtonDefaults.shapes(
+                            shapes = IenToggleButton.Default.shapes(
                                 checked = CircleShape,
                                 unchecked = ContinuousRoundedRectangle(IenTheme.radius.sm),
                             ),

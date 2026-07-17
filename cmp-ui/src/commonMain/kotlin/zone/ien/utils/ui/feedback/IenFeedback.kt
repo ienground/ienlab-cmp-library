@@ -1,15 +1,16 @@
 package zone.ien.utils.ui.feedback
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -33,6 +34,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.SnackbarData
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SnackbarVisuals
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -58,16 +64,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
-import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.kyant.capsule.ContinuousCapsule
@@ -494,256 +493,224 @@ fun IenDialog(
 
 
 /**
- * 토스트([IenToast]) 메시지가 화면에 노출될 수직 위치를 나타내는 Enum 클래스입니다.
+ * IEN 스낵바의 기본값을 정의합니다.
  */
-enum class IenToastPosition {
-    Top,
-    Bottom,
-}
-
-/**
- * 스크린 리더 등 접근성 서비스(Accessibility)에 토스트 메시지의 음성 출력을 안내하는 지연 수준을 지정하는 Enum 클래스입니다.
- */
-enum class IenToastAriaLive {
-    Polite,
-    Assertive,
-}
-
-/**
- * [IenToast] 컴포저블에서 공통으로 적용하는 기본값 정의 객체입니다.
- */
-object IenToastDefaults {
-    const val DurationMillis: Long = 3000L
-    const val ActionDurationMillis: Long = 5000L
+object IenSnackbarDefaults {
+    val MinWidth: Dp? = null
     val MaxWidth: Dp = 420.dp
+    val SwipeDismissThreshold: Dp = 48.dp
+    val ExitTravelDistance: Dp = 160.dp
+    const val FillMaxWidth: Boolean = false
 }
 
 /**
- * 화면 상단 또는 하단에 맞춰 토스트 팝업의 위치를 계산해주는 [PopupPositionProvider] 구현체입니다.
- *
- * @param position 토스트를 표시할 위치 ([IenToastPosition])
- * @param density 화면 픽셀 변환을 위한 [Density] 객체
- * @param higherThanCTA 하단 CTA 버튼 영역보다 위에 띄울지 여부
- */
-class IenToastPositionProvider(
-    private val position: IenToastPosition,
-    private val density: Density,
-    private val higherThanCTA: Boolean = false
-) : PopupPositionProvider {
-    override fun calculatePosition(
-        anchorBounds: IntRect,
-        windowSize: IntSize,
-        layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
-    ): IntOffset {
-        val x = (windowSize.width - popupContentSize.width) / 2
-        val y = when (position) {
-            IenToastPosition.Top -> {
-                with(density) { 16.dp.toPx().toInt() }
-            }
-            IenToastPosition.Bottom -> {
-                val baseOffset = with(density) { 32.dp.toPx().toInt() }
-                val ctaOffset = if (higherThanCTA) with(density) { 88.dp.toPx().toInt() } else 0
-                windowSize.height - popupContentSize.height - baseOffset - ctaOffset
-            }
-        }
-        return IntOffset(x - anchorBounds.left, y - anchorBounds.top)
-    }
-}
-
-/**
- * 토스트([IenToast]) 메시지 내에서 제공할 수 있는 우측 버튼 작업의 데이터 모델입니다.
- *
- * @property text 버튼에 표시할 문구
- * @property onClick 버튼을 클릭했을 때 실행할 콜백 함수
+ * Material [SnackbarHostState]에 IEN 스낵바의 추가 시각 정보를 전달하기 위한 [SnackbarVisuals] 구현입니다.
  */
 @Immutable
-data class IenToastAction(
-    val text: String,
-    val onClick: () -> Unit,
-)
+data class IenSnackbarVisuals(
+    override val message: String,
+    override val actionLabel: String? = null,
+    override val withDismissAction: Boolean = false,
+    override val duration: SnackbarDuration = if (actionLabel == null) SnackbarDuration.Short else SnackbarDuration.Long,
+    val tone: IenSemanticTone = IenSemanticTone.Neutral,
+    val minWidth: Dp? = IenSnackbarDefaults.MinWidth,
+    val maxWidth: Dp = IenSnackbarDefaults.MaxWidth,
+    val fillMaxWidth: Boolean = IenSnackbarDefaults.FillMaxWidth,
+) : SnackbarVisuals
 
 /**
- * 정적 토스트 카드 형태를 그리는 내부 컴포저블입니다.
- *
- * @param message 표시할 메시지 텍스트
- * @param modifier 컴포저블 레이아웃에 적용할 [Modifier]
- * @param tone 토스트의 시맨틱 톤 ([IenSemanticTone])
- * @param leftAddon 메시지 왼쪽에 표시할 아이콘 등 추가 요소 컴포저블
- * @param button 메시지 오른쪽에 표시할 액션 버튼 ([IenToastAction])
+ * Material [SnackbarHostState]를 사용해 IEN 스타일 스낵바를 표시합니다.
  */
-@Composable
-fun IenToast(
+suspend fun SnackbarHostState.showIenSnackbar(
     message: String,
-    modifier: Modifier = Modifier,
+    actionLabel: String? = null,
+    withDismissAction: Boolean = false,
+    duration: SnackbarDuration = if (actionLabel == null) SnackbarDuration.Short else SnackbarDuration.Long,
     tone: IenSemanticTone = IenSemanticTone.Neutral,
-    leftAddon: (@Composable () -> Unit)? = null,
-    button: IenToastAction? = null,
-) {
-    IenToastContent(
-        text = message,
-        modifier = modifier,
-        tone = tone,
-        leftAddon = leftAddon,
-        button = button,
-        ariaLive = IenToastAriaLive.Polite,
+    minWidth: Dp? = IenSnackbarDefaults.MinWidth,
+    maxWidth: Dp = IenSnackbarDefaults.MaxWidth,
+    fillMaxWidth: Boolean = IenSnackbarDefaults.FillMaxWidth,
+): SnackbarResult {
+    return showSnackbar(
+        IenSnackbarVisuals(
+            message = message,
+            actionLabel = actionLabel,
+            withDismissAction = withDismissAction,
+            duration = duration,
+            tone = tone,
+            minWidth = minWidth,
+            maxWidth = maxWidth,
+            fillMaxWidth = fillMaxWidth,
+        )
     )
 }
 
 /**
- * 화면 상단 또는 하단에 애니메이션 및 스와이프 닫기 제스처가 있는 팝업 형태의 토스트를 띄우는 컴포저블입니다.
- *
- * @param open 토스트 표시 활성화 여부
- * @param position 화면상에 배치될 위치 ([IenToastPosition])
- * @param text 표시할 본문 메시지 텍스트
- * @param onClose 토스트 노출 시간이 다 되거나 스와이프로 닫을 때 호출되는 콜백
- * @param modifier 토스트 레이아웃에 적용할 [Modifier]
- * @param leftAddon 메시지 왼쪽에 표시할 추가 컴포저블
- * @param button 메시지 오른쪽에 표시할 버튼 액션 ([IenToastAction])
- * @param durationMillis 토스트가 화면에 유지되는 시간(밀리초). 기본값은 액션 유무에 따라 상이함
- * @param onExited 토스트가 완전히 화면 밖으로 사라지는 애니메이션이 완료될 때 실행될 콜백
- * @param higherThanCTA 하단 표시할 때 CTA 버튼 위로 배치할지 여부
- * @param ariaLive 접근성 지연 강도 수준 ([IenToastAriaLive])
- * @param tone 토스트의 시맨틱 톤 ([IenSemanticTone])
+ * Material [SnackbarHost]를 IEN 디자인으로 렌더링하는 호스트입니다.
  */
 @Composable
-fun IenToast(
-    open: Boolean,
-    position: IenToastPosition,
-    text: String,
-    onClose: () -> Unit,
+fun IenSnackbarHost(
+    hostState: SnackbarHostState,
     modifier: Modifier = Modifier,
-    leftAddon: (@Composable () -> Unit)? = null,
-    button: IenToastAction? = null,
-    durationMillis: Long = if (button == null) IenToastDefaults.DurationMillis else IenToastDefaults.ActionDurationMillis,
-    onExited: (() -> Unit)? = null,
-    higherThanCTA: Boolean = false,
-    ariaLive: IenToastAriaLive = IenToastAriaLive.Polite,
-    tone: IenSemanticTone = IenSemanticTone.Neutral,
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val density = LocalDensity.current
-    val initialOffset = with(density) { if (position == IenToastPosition.Top) -80.dp.toPx() else 80.dp.toPx() }
-    val targetOffset = with(density) { if (position == IenToastPosition.Top) -120.dp.toPx() else 120.dp.toPx() }
-    val offsetY = remember { Animatable(initialOffset) }
-    val dismissThreshold = with(density) { 48.dp.toPx() }
+    var displayedData by remember { mutableStateOf<SnackbarData?>(null) }
+    val currentData = hostState.currentSnackbarData
     val normalMillis = IenTheme.motion.normalMillis
-    var keepInComposition by remember { mutableStateOf(open) }
+    val fastMillis = IenTheme.motion.fastMillis
+    val standardEasing = IenTheme.motion.standardEasing
+    val exitTravelDistance = with(LocalDensity.current) { IenSnackbarDefaults.ExitTravelDistance.roundToPx() }
 
-    LaunchedEffect(open, durationMillis) {
-        if (open && durationMillis > 0L) {
-            delay(durationMillis)
-            onClose()
+    LaunchedEffect(currentData) {
+        if (currentData != null) {
+            displayedData = currentData
+        } else {
+            withFrameMillis { }
+            if (hostState.currentSnackbarData == null) {
+                displayedData = null
+            }
         }
     }
 
-    LaunchedEffect(open) {
-        if (open) {
-            keepInComposition = true
-            offsetY.animateTo(
-                targetValue = 0f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessMediumLow
-                )
-            )
-        } else if (keepInComposition) {
-            offsetY.animateTo(
-                targetValue = targetOffset,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessMedium
-                )
-            )
-            keepInComposition = false
-            onExited?.invoke()
+    LaunchedEffect(currentData) {
+        val data = currentData ?: return@LaunchedEffect
+        val durationMillis = data.visuals.duration.ienSnackbarDurationMillis() ?: return@LaunchedEffect
+        delay(durationMillis)
+        if (hostState.currentSnackbarData === data) {
+            data.dismiss()
         }
     }
 
-    if (keepInComposition) {
-        Popup(
-            popupPositionProvider = remember(position, higherThanCTA) {
-                IenToastPositionProvider(position, density, higherThanCTA)
-            },
-            properties = PopupProperties(focusable = false)
-        ) {
-            AnimatedVisibility(
-                visible = open,
-                enter = fadeIn(spring(stiffness = Spring.StiffnessMediumLow)),
-                exit = fadeOut(spring(stiffness = Spring.StiffnessMediumLow)),
-                modifier = modifier
-                    .padding(horizontal = IenTheme.spacing.lg)
-                    .offset { IntOffset(0, offsetY.value.roundToInt()) }
-                    .pointerInput(open, position) {
-                        detectVerticalDragGestures(
-                            onDragEnd = {
-                                val shouldClose = when (position) {
-                                    IenToastPosition.Top -> offsetY.value < -dismissThreshold
-                                    IenToastPosition.Bottom -> offsetY.value > dismissThreshold
-                                }
-                                if (shouldClose) {
-                                    onClose()
-                                } else {
-                                    coroutineScope.launch {
-                                        offsetY.animateTo(
-                                            targetValue = 0f,
-                                            animationSpec = spring(
-                                                dampingRatio = Spring.DampingRatioNoBouncy,
-                                                stiffness = Spring.StiffnessMedium
-                                            ),
-                                        )
-                                    }
-                                }
-                            },
-                            onDragCancel = {
-                                coroutineScope.launch { offsetY.animateTo(0f) }
-                            },
-                            onVerticalDrag = { change, dragAmount ->
-                                change.consume()
-                                coroutineScope.launch {
-                                    val next = offsetY.value + dragAmount
-                                    offsetY.snapTo(
-                                        when (position) {
-                                            IenToastPosition.Top -> next.coerceAtMost(0f)
-                                            IenToastPosition.Bottom -> next.coerceAtLeast(0f)
-                                        }
-                                    )
-                                }
-                            },
-                        )
-                    },
+    AnimatedContent(
+        targetState = displayedData,
+        modifier = modifier.fillMaxWidth(),
+        transitionSpec = {
+            val enter = slideInVertically(
+                initialOffsetY = { it },
+                animationSpec = tween(normalMillis, easing = standardEasing),
+            ) + fadeIn(animationSpec = tween(fastMillis))
+            val exit = slideOutVertically(
+                targetOffsetY = { it + exitTravelDistance },
+                animationSpec = tween(normalMillis, easing = standardEasing),
+            ) + fadeOut(animationSpec = tween(normalMillis, easing = standardEasing))
+            (enter togetherWith exit).using(SizeTransform(clip = false))
+        },
+        label = "IenSnackbarHost",
+    ) { data ->
+        if (data == null) {
+            Box(modifier = Modifier.fillMaxWidth())
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = IenTheme.spacing.lg),
+                contentAlignment = Alignment.Center,
             ) {
-                IenToastContent(
-                    text = text,
-                    tone = tone,
-                    leftAddon = leftAddon,
-                    button = if (position == IenToastPosition.Bottom) button else null,
-                    ariaLive = ariaLive,
-                )
+                IenSnackbar(data = data)
             }
         }
     }
 }
 
+private fun SnackbarDuration.ienSnackbarDurationMillis(): Long? = when (this) {
+    SnackbarDuration.Short -> 4_000L
+    SnackbarDuration.Long -> 10_000L
+    SnackbarDuration.Indefinite -> null
+}
+
+/**
+ * Material [SnackbarData]를 IEN 스타일 스낵바 카드로 렌더링합니다.
+ */
 @Composable
-private fun IenToastContent(
+fun IenSnackbar(
+    data: SnackbarData,
+    modifier: Modifier = Modifier,
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val density = LocalDensity.current
+    val visuals = data.visuals as? IenSnackbarVisuals
+    val tone = visuals?.tone ?: IenSemanticTone.Neutral
+    val offsetY = remember(data) { Animatable(0f) }
+    val dismissThreshold = with(density) { IenSnackbarDefaults.SwipeDismissThreshold.toPx() }
+    val exitTravelDistance = with(density) { IenSnackbarDefaults.ExitTravelDistance.toPx() }
+    val normalMillis = IenTheme.motion.normalMillis
+    val standardEasing = IenTheme.motion.standardEasing
+
+    IenSnackbarContent(
+        text = data.visuals.message,
+        modifier = modifier
+            .offset { IntOffset(0, offsetY.value.roundToInt()) }
+            .graphicsLayer {
+                alpha = (1f - (offsetY.value / dismissThreshold).coerceIn(0f, 1f) * 0.35f)
+            }
+            .pointerInput(data) {
+                detectVerticalDragGestures(
+                    onDragEnd = {
+                        coroutineScope.launch {
+                            if (offsetY.value > dismissThreshold) {
+                                offsetY.animateTo(
+                                    targetValue = size.height.toFloat() + exitTravelDistance,
+                                    animationSpec = tween(normalMillis, easing = standardEasing),
+                                )
+                                data.dismiss()
+                            } else {
+                                offsetY.animateTo(
+                                    targetValue = 0f,
+                                    animationSpec = tween(normalMillis, easing = standardEasing),
+                                )
+                            }
+                        }
+                    },
+                    onDragCancel = {
+                        coroutineScope.launch {
+                            offsetY.animateTo(
+                                targetValue = 0f,
+                                animationSpec = tween(normalMillis, easing = standardEasing),
+                            )
+                        }
+                    },
+                    onVerticalDrag = { change, dragAmount ->
+                        change.consume()
+                        coroutineScope.launch {
+                            offsetY.snapTo((offsetY.value + dragAmount).coerceAtLeast(0f))
+                        }
+                    },
+                )
+            },
+        leftAddon = if (tone == IenSemanticTone.Neutral) null else {
+            { IenSnackbarIcon(tone = tone) }
+        },
+        actionLabel = data.visuals.actionLabel,
+        onAction = data::performAction,
+        minWidth = if (visuals != null) visuals.minWidth else IenSnackbarDefaults.MinWidth,
+        maxWidth = visuals?.maxWidth ?: IenSnackbarDefaults.MaxWidth,
+        fillMaxWidth = visuals?.fillMaxWidth ?: IenSnackbarDefaults.FillMaxWidth,
+    )
+}
+
+@Composable
+private fun IenSnackbarContent(
     text: String,
     modifier: Modifier = Modifier,
-    tone: IenSemanticTone = IenSemanticTone.Neutral,
     leftAddon: (@Composable () -> Unit)? = null,
-    button: IenToastAction? = null,
-    ariaLive: IenToastAriaLive = IenToastAriaLive.Polite,
+    actionLabel: String? = null,
+    onAction: (() -> Unit)? = null,
+    minWidth: Dp? = IenSnackbarDefaults.MinWidth,
+    maxWidth: Dp = IenSnackbarDefaults.MaxWidth,
+    fillMaxWidth: Boolean = IenSnackbarDefaults.FillMaxWidth,
 ) {
-    val container = Color(0xFF191F28) // TDS grey900 오리지널 다크 그레이 고정!
+    val container = Color(0xFF191F28)
+    val sizeModifier = Modifier.widthIn(
+        min = minWidth ?: Dp.Unspecified,
+        max = maxWidth,
+    ).then(
+        if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier
+    )
     IenSurface(
         modifier = modifier
             .shadow(elevation = 6.dp, shape = ContinuousRoundedRectangle(22.dp), clip = false)
-            .widthIn(max = IenToastDefaults.MaxWidth)
+            .then(sizeModifier)
             .semantics {
-                liveRegion = when (ariaLive) {
-                    IenToastAriaLive.Polite -> LiveRegionMode.Polite
-                    IenToastAriaLive.Assertive -> LiveRegionMode.Assertive
-                }
+                liveRegion = LiveRegionMode.Polite
                 contentDescription = text
             },
         color = container,
@@ -751,8 +718,7 @@ private fun IenToastContent(
         shape = ContinuousRoundedRectangle(22.dp),
     ) {
         Row(
-            modifier = Modifier
-                .padding(horizontal = IenTheme.spacing.lg, vertical = IenTheme.spacing.md),
+            modifier = Modifier.padding(horizontal = IenTheme.spacing.lg, vertical = IenTheme.spacing.md),
             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -763,22 +729,22 @@ private fun IenToastContent(
                 color = Color.White,
                 style = IenTheme.typography.body2,
             )
-            if (button != null) {
-                IenToastButton(text = button.text, onClick = button.onClick)
+            if (actionLabel != null && onAction != null) {
+                IenSnackbarActionButton(text = actionLabel, onClick = onAction)
             }
         }
     }
 }
 
 /**
- * 토스트 메시지 카드 우측에 들어갈 파란색 텍스트 액션 버튼 컴포저블입니다.
+ * 스낵바 카드 우측에 들어갈 파란색 텍스트 액션 버튼 컴포저블입니다.
  *
  * @param text 버튼 텍스트
  * @param onClick 버튼 클릭 콜백 함수
  * @param modifier 적용할 [Modifier]
  */
 @Composable
-fun IenToastButton(
+fun IenSnackbarActionButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -795,14 +761,14 @@ fun IenToastButton(
 }
 
 /**
- * 토스트 좌측에 시맨틱 톤에 따른 상태 아이콘을 나타내는 컴포저블입니다.
+ * 스낵바 좌측에 시맨틱 톤에 따른 상태 아이콘을 나타내는 컴포저블입니다.
  *
  * @param modifier 적용할 [Modifier]
  * @param tone 나타낼 상태의 시맨틱 톤 ([IenSemanticTone])
  * @param size 아이콘 및 배경 서클의 크기
  */
 @Composable
-fun IenToastIcon(
+fun IenSnackbarIcon(
     modifier: Modifier = Modifier,
     tone: IenSemanticTone = IenSemanticTone.Success,
     size: Dp = 20.dp,

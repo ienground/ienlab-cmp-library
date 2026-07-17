@@ -17,11 +17,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -137,10 +141,8 @@ import zone.ien.utils.ui.feedback.IenSkeletonPattern
 import zone.ien.utils.ui.feedback.IenSkeletonRepeat
 import zone.ien.utils.ui.list.IenTableRow
 import zone.ien.utils.ui.list.IenTableRowAlign
-import zone.ien.utils.ui.feedback.IenToast
-import zone.ien.utils.ui.feedback.IenToastAction
-import zone.ien.utils.ui.feedback.IenToastIcon
-import zone.ien.utils.ui.feedback.IenToastPosition
+import zone.ien.utils.ui.feedback.IenSnackbarHost
+import zone.ien.utils.ui.feedback.showIenSnackbar
 import zone.ien.utils.ui.screen.IenTooltip
 import zone.ien.utils.ui.screen.IenTooltipClipToEnd
 import zone.ien.utils.ui.screen.IenTooltipMessageAlign
@@ -225,7 +227,6 @@ import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.interactive.IenTextButtonSize
 import zone.ien.utils.ui.interactive.IenTextButtonVariant
 import zone.ien.utils.ui.interactive.IenToggleButton
-import zone.ien.utils.ui.interactive.IenToggleButtonDefaults
 import zone.ien.utils.ui.interactive.IenTextField
 import zone.ien.utils.ui.interactive.IenTextFieldButton
 import zone.ien.utils.ui.interactive.IenTextFieldFormat
@@ -243,6 +244,7 @@ import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.dialog.IenAlertDialog
+import kotlinx.coroutines.launch
 
 @Preview
 @Composable
@@ -252,11 +254,8 @@ fun DesignSystemScreen(
     navigateToColor: () -> Unit = {}
 ) {
     IenTheme {
-        var showTopToast by remember { mutableStateOf(false) }
-        var showBottomToast by remember { mutableStateOf(false) }
-        var showIconToast by remember { mutableStateOf(false) }
-        var showActionToast by remember { mutableStateOf(false) }
-        var showCtaToast by remember { mutableStateOf(false) }
+        val snackbarHostState = remember { SnackbarHostState() }
+        val coroutineScope = rememberCoroutineScope()
         val scrollState = rememberScrollState()
 
         IenScaffold(
@@ -294,6 +293,9 @@ fun DesignSystemScreen(
             },
             bottomBar = {
                 IenBottomCTA(text = "샘플 하단 CTA", onClick = {})
+            },
+            snackbarHost = {
+                IenSnackbarHost(hostState = snackbarHostState)
             },
         ) { contentPadding ->
             Column(
@@ -335,17 +337,81 @@ fun DesignSystemScreen(
                 TabSection()
                 TableRowSection()
                 TextButtonSection()
-                ToastSection(
-                    showTopToast = showTopToast,
-                    showBottomToast = showBottomToast,
-                    showIconToast = showIconToast,
-                    showActionToast = showActionToast,
-                    showCtaToast = showCtaToast,
-                    onShowTopToastChange = { showTopToast = it },
-                    onShowBottomToastChange = { showBottomToast = it },
-                    onShowIconToastChange = { showIconToast = it },
-                    onShowActionToastChange = { showActionToast = it },
-                    onShowCtaToastChange = { showCtaToast = it },
+                SnackbarSection(
+                    onShowBasic = {
+                        coroutineScope.launch {
+                            snackbarHostState.showIenSnackbar("기본 스낵바 메시지예요")
+                        }
+                    },
+                    onShowSuccess = {
+                        coroutineScope.launch {
+                            snackbarHostState.showIenSnackbar(
+                                message = "성공 상태 스낵바예요",
+                                tone = IenSemanticTone.Success,
+                            )
+                        }
+                    },
+                    onShowAction = {
+                        coroutineScope.launch {
+                            val result = snackbarHostState.showIenSnackbar(
+                                message = "버튼이 포함된 스낵바예요",
+                                actionLabel = "확인",
+                                duration = SnackbarDuration.Long,
+                            )
+                            if (result == SnackbarResult.ActionPerformed) {
+                                snackbarHostState.showIenSnackbar("확인을 눌렀어요")
+                            }
+                        }
+                    },
+                    onShowCompact = {
+                        coroutineScope.launch {
+                            snackbarHostState.showIenSnackbar(
+                                message = "최대 240",
+                                minWidth = null,
+                                maxWidth = 240.dp,
+                                fillMaxWidth = false,
+                            )
+                        }
+                    },
+                    onShowQueued = {
+                        coroutineScope.launch {
+                            snackbarHostState.showIenSnackbar("첫 번째 스낵바예요")
+                        }
+                        coroutineScope.launch {
+                            snackbarHostState.showIenSnackbar("두 번째는 조금 더 긴 메시지예요")
+                        }
+                        coroutineScope.launch {
+                            snackbarHostState.showIenSnackbar(
+                                message = "세 번째 성공 상태 스낵바예요",
+                                tone = IenSemanticTone.Success,
+                            )
+                        }
+                    },
+                    onShowShortDuration = {
+                        coroutineScope.launch {
+                            snackbarHostState.showIenSnackbar(
+                                message = "Short duration",
+                                duration = SnackbarDuration.Short,
+                            )
+                        }
+                    },
+                    onShowLongDuration = {
+                        coroutineScope.launch {
+                            snackbarHostState.showIenSnackbar(
+                                message = "Long duration",
+                                duration = SnackbarDuration.Long,
+                            )
+                        }
+                    },
+                    onShowIndefiniteDuration = {
+                        coroutineScope.launch {
+                            snackbarHostState.showIenSnackbar(
+                                message = "직접 닫을 때까지 유지돼요",
+                                actionLabel = "닫기",
+                                duration = SnackbarDuration.Indefinite,
+                            )
+                        }
+                    },
                 )
                 TooltipSection()
                 TopSection()
@@ -363,40 +429,6 @@ fun DesignSystemScreen(
                 Spacer(modifier = Modifier.height(IenTheme.spacing.md))
             }
         }
-
-        IenToast(
-            open = showTopToast,
-            position = IenToastPosition.Top,
-            text = "상단 토스트 메시지예요",
-            onClose = { showTopToast = false },
-        )
-        IenToast(
-            open = showBottomToast,
-            position = IenToastPosition.Bottom,
-            text = "하단 토스트 메시지예요",
-            onClose = { showBottomToast = false },
-        )
-        IenToast(
-            open = showIconToast,
-            position = IenToastPosition.Top,
-            text = "아이콘이 포함된 토스트예요",
-            leftAddon = { IenToastIcon(tone = IenSemanticTone.Success) },
-            onClose = { showIconToast = false },
-        )
-        IenToast(
-            open = showActionToast,
-            position = IenToastPosition.Bottom,
-            text = "버튼이 포함된 토스트예요",
-            button = IenToastAction("확인") { showActionToast = false },
-            onClose = { showActionToast = false },
-        )
-        IenToast(
-            open = showCtaToast,
-            position = IenToastPosition.Bottom,
-            text = "CTA 버튼 위에 표시되는 토스트예요",
-            higherThanCTA = true,
-            onClose = { showCtaToast = false },
-        )
     }
 }
 
@@ -614,7 +646,7 @@ fun ButtonSection() {
                     icon = {
                         IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
                     },
-                    shapes = IenToggleButtonDefaults.shapes(
+                    shapes = IenToggleButton.Default.shapes(
                         checked = ContinuousCapsule(),
                         unchecked = ContinuousRoundedRectangle(IenTheme.radius.sm),
                     ),
@@ -623,11 +655,11 @@ fun ButtonSection() {
                     checked = colorToggleChecked,
                     onCheckedChange = { colorToggleChecked = it },
                     text = if (colorToggleChecked) "Success" else "Neutral",
-                    shapes = IenToggleButtonDefaults.shapes(
+                    shapes = IenToggleButton.Default.shapes(
                         checked = ContinuousCapsule(),
                         unchecked = ContinuousRoundedRectangle(IenTheme.radius.default),
                     ),
-                    colors = IenToggleButtonDefaults.colors(
+                    colors = IenToggleButton.Default.colors(
                         checkedTone = IenSemanticTone.Success,
                         uncheckedTone = IenSemanticTone.Neutral,
                         checkedBackgroundBrush = Brush.linearGradient(
@@ -642,11 +674,11 @@ fun ButtonSection() {
                 IenIconToggleButton(
                     checked = iconToggleChecked,
                     onCheckedChange = { iconToggleChecked = it },
-                    shapes = IenToggleButtonDefaults.shapes(
+                    shapes = IenToggleButton.Default.shapes(
                         checked = CircleShape,
                         unchecked = ContinuousRoundedRectangle(IenTheme.radius.sm),
                     ),
-                    colors = IenToggleButtonDefaults.colors(
+                    colors = IenToggleButton.Default.colors(
                         checkedTone = IenSemanticTone.Info,
                         uncheckedTone = IenSemanticTone.Neutral,
                     ),
@@ -1661,50 +1693,67 @@ fun TextButtonSection() {
 
 @Preview
 @Composable
-fun ToastSection(
-    showTopToast: Boolean = false,
-    showBottomToast: Boolean = false,
-    showIconToast: Boolean = false,
-    showActionToast: Boolean = false,
-    showCtaToast: Boolean = false,
-    onShowTopToastChange: (Boolean) -> Unit = {},
-    onShowBottomToastChange: (Boolean) -> Unit = {},
-    onShowIconToastChange: (Boolean) -> Unit = {},
-    onShowActionToastChange: (Boolean) -> Unit = {},
-    onShowCtaToastChange: (Boolean) -> Unit = {},
+fun SnackbarSection(
+    onShowBasic: () -> Unit = {},
+    onShowSuccess: () -> Unit = {},
+    onShowAction: () -> Unit = {},
+    onShowCompact: () -> Unit = {},
+    onShowQueued: () -> Unit = {},
+    onShowShortDuration: () -> Unit = {},
+    onShowLongDuration: () -> Unit = {},
+    onShowIndefiniteDuration: () -> Unit = {},
 ) {
     IenTheme {
-        ComponentSection(title = "Toast") {
-            Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
+        ComponentSection(title = "Snackbar") {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+            ) {
                 IenButton(
-                    text = "상단",
-                    onClick = { onShowTopToastChange(true) },
+                    text = "기본",
+                    onClick = onShowBasic,
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
                 )
                 IenButton(
-                    text = "하단",
-                    onClick = { onShowBottomToastChange(true) },
+                    text = "성공",
+                    onClick = onShowSuccess,
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
                 )
                 IenButton(
-                    text = "아이콘",
-                    onClick = { onShowIconToastChange(true) },
-                    size = IenButtonSize.Small,
-                    variant = IenButtonVariant.Weak,
-                )
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
-                IenButton(
-                    text = "버튼",
-                    onClick = { onShowActionToastChange(true) },
+                    text = "액션",
+                    onClick = onShowAction,
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
                 )
                 IenButton(
-                    text = "CTA 위",
-                    onClick = { onShowCtaToastChange(true) },
+                    text = "최대폭",
+                    onClick = onShowCompact,
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                )
+                IenButton(
+                    text = "여러 개",
+                    onClick = onShowQueued,
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                )
+                IenButton(
+                    text = "Short",
+                    onClick = onShowShortDuration,
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                )
+                IenButton(
+                    text = "Long",
+                    onClick = onShowLongDuration,
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                )
+                IenButton(
+                    text = "Indefinite",
+                    onClick = onShowIndefiniteDuration,
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
                 )

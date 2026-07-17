@@ -20,11 +20,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -80,13 +81,11 @@ import zone.ien.utils.example.ui.screens.designsystem.TableRowSection
 import zone.ien.utils.example.ui.screens.designsystem.TextAreaSection
 import zone.ien.utils.example.ui.screens.designsystem.TextButtonSection
 import zone.ien.utils.example.ui.screens.designsystem.TextFieldSection
-import zone.ien.utils.example.ui.screens.designsystem.ToastSection
+import zone.ien.utils.example.ui.screens.designsystem.SnackbarSection
 import zone.ien.utils.example.ui.screens.designsystem.TooltipSection
 import zone.ien.utils.example.ui.screens.designsystem.TopSection
-import zone.ien.utils.ui.feedback.IenToast
-import zone.ien.utils.ui.feedback.IenToastAction
-import zone.ien.utils.ui.feedback.IenToastIcon
-import zone.ien.utils.ui.feedback.IenToastPosition
+import zone.ien.utils.ui.feedback.IenSnackbarHost
+import zone.ien.utils.ui.feedback.showIenSnackbar
 import zone.ien.utils.ui.foundation.IenColorScheme
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
@@ -97,6 +96,7 @@ import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.getIenTypography
+import kotlinx.coroutines.launch
 
 @Composable
 fun DocsApp() {
@@ -106,129 +106,166 @@ fun DocsApp() {
         tokens = docsTokens,
         darkTheme = false,
     ) {
-        var showTopToast by remember { mutableStateOf(false) }
-        var showBottomToast by remember { mutableStateOf(false) }
-        var showIconToast by remember { mutableStateOf(false) }
-        var showActionToast by remember { mutableStateOf(false) }
-        var showCtaToast by remember { mutableStateOf(false) }
+        val snackbarHostState = remember { SnackbarHostState() }
+        val coroutineScope = rememberCoroutineScope()
         val scrollState = rememberScrollState()
 
         IenProvideTextStyle(
             style = IenTheme.typography.body2,
             color = IenTheme.colors.textPrimary,
         ) {
-            Row(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(IenTheme.colors.background),
             ) {
-                DocsSidebar()
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .verticalScroll(scrollState)
-                        .padding(horizontal = 40.dp, vertical = 36.dp),
-                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                Row(
+                    modifier = Modifier.fillMaxSize(),
                 ) {
-                    DocsHero()
-                    TokenSection()
-                    ColorTokenSection("Light colors", docsTokens.lightColors)
-                    ColorTokenSection("Dark colors", docsTokens.darkColors)
-                    ComponentCatalogIntro()
-                    BadgeSection()
-                    BoardRowSection()
-                    BorderSection()
-                    BottomInfoSection()
-                    BottomSheetSection()
-                    BubbleSection()
-                    ButtonSection()
-                    CheckboxSection()
-                    FabSection()
-                    HighlightSection()
-                    IconButtonSection()
-                    ListFooterSection()
-                    ListHeaderSection()
-                    LoaderSection()
-                    MenuSection()
-                    ModalSection()
-                    NumericSpinnerSection()
-                    ParagraphSection()
-                    PostSection()
-                    ProgressBarSection()
-                    ProgressStepperSection()
-                    RatingSection()
-                    ResultSection()
-                    SearchFieldSection()
-                    SegmentedControlSection()
-                    SkeletonSection()
-                    SliderSection()
-                    StepperSection()
-                    SwitchSection()
-                    TabSection()
-                    TableRowSection()
-                    TextButtonSection()
-                    ToastSection(
-                        showTopToast = showTopToast,
-                        showBottomToast = showBottomToast,
-                        showIconToast = showIconToast,
-                        showActionToast = showActionToast,
-                        showCtaToast = showCtaToast,
-                        onShowTopToastChange = { showTopToast = it },
-                        onShowBottomToastChange = { showBottomToast = it },
-                        onShowIconToastChange = { showIconToast = it },
-                        onShowActionToastChange = { showActionToast = it },
-                        onShowCtaToastChange = { showCtaToast = it },
-                    )
-                    TooltipSection()
-                    TopSection()
-                    AgreementSection()
-                    AssetSection()
-                    BottomCTASection()
-                    DialogSection()
-                    KeypadSection()
-                    ListRowSection()
-                    TextFieldSection()
-                    SplitTextFieldSection()
-                    TextAreaSection()
-                    PrimitivesSection()
-                    Spacer(modifier = Modifier.height(48.dp))
+                    DocsSidebar()
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .verticalScroll(scrollState)
+                            .padding(horizontal = 40.dp, vertical = 36.dp),
+                        verticalArrangement = Arrangement.spacedBy(24.dp),
+                    ) {
+                        DocsHero()
+                        TokenSection()
+                        ColorTokenSection("Light colors", docsTokens.lightColors)
+                        ColorTokenSection("Dark colors", docsTokens.darkColors)
+                        ComponentCatalogIntro()
+                        BadgeSection()
+                        BoardRowSection()
+                        BorderSection()
+                        BottomInfoSection()
+                        BottomSheetSection()
+                        BubbleSection()
+                        ButtonSection()
+                        CheckboxSection()
+                        FabSection()
+                        HighlightSection()
+                        IconButtonSection()
+                        ListFooterSection()
+                        ListHeaderSection()
+                        LoaderSection()
+                        MenuSection()
+                        ModalSection()
+                        NumericSpinnerSection()
+                        ParagraphSection()
+                        PostSection()
+                        ProgressBarSection()
+                        ProgressStepperSection()
+                        RatingSection()
+                        ResultSection()
+                        SearchFieldSection()
+                        SegmentedControlSection()
+                        SkeletonSection()
+                        SliderSection()
+                        StepperSection()
+                        SwitchSection()
+                        TabSection()
+                        TableRowSection()
+                        TextButtonSection()
+                        SnackbarSection(
+                            onShowBasic = {
+                                coroutineScope.launch {
+                                    snackbarHostState.showIenSnackbar("기본 스낵바 메시지예요")
+                                }
+                            },
+                            onShowSuccess = {
+                                coroutineScope.launch {
+                                    snackbarHostState.showIenSnackbar(
+                                        message = "성공 상태 스낵바예요",
+                                        tone = IenSemanticTone.Success,
+                                    )
+                                }
+                            },
+                            onShowAction = {
+                                coroutineScope.launch {
+                                    val result = snackbarHostState.showIenSnackbar(
+                                        message = "버튼이 포함된 스낵바예요",
+                                        actionLabel = "확인",
+                                        duration = SnackbarDuration.Long,
+                                    )
+                                    if (result == SnackbarResult.ActionPerformed) {
+                                        snackbarHostState.showIenSnackbar("확인을 눌렀어요")
+                                    }
+                                }
+                            },
+                            onShowCompact = {
+                                coroutineScope.launch {
+                                    snackbarHostState.showIenSnackbar(
+                                        message = "최대 240",
+                                        minWidth = null,
+                                        maxWidth = 240.dp,
+                                        fillMaxWidth = false,
+                                    )
+                                }
+                            },
+                            onShowQueued = {
+                                coroutineScope.launch {
+                                    snackbarHostState.showIenSnackbar("첫 번째 스낵바예요")
+                                }
+                                coroutineScope.launch {
+                                    snackbarHostState.showIenSnackbar("두 번째는 조금 더 긴 메시지예요")
+                                }
+                                coroutineScope.launch {
+                                    snackbarHostState.showIenSnackbar(
+                                        message = "세 번째 성공 상태 스낵바예요",
+                                        tone = IenSemanticTone.Success,
+                                    )
+                                }
+                            },
+                            onShowShortDuration = {
+                                coroutineScope.launch {
+                                    snackbarHostState.showIenSnackbar(
+                                        message = "Short duration",
+                                        duration = SnackbarDuration.Short,
+                                    )
+                                }
+                            },
+                            onShowLongDuration = {
+                                coroutineScope.launch {
+                                    snackbarHostState.showIenSnackbar(
+                                        message = "Long duration",
+                                        duration = SnackbarDuration.Long,
+                                    )
+                                }
+                            },
+                            onShowIndefiniteDuration = {
+                                coroutineScope.launch {
+                                    snackbarHostState.showIenSnackbar(
+                                        message = "직접 닫을 때까지 유지돼요",
+                                        actionLabel = "닫기",
+                                        duration = SnackbarDuration.Indefinite,
+                                    )
+                                }
+                            },
+                        )
+                        TooltipSection()
+                        TopSection()
+                        AgreementSection()
+                        AssetSection()
+                        BottomCTASection()
+                        DialogSection()
+                        KeypadSection()
+                        ListRowSection()
+                        TextFieldSection()
+                        SplitTextFieldSection()
+                        TextAreaSection()
+                        PrimitivesSection()
+                        Spacer(modifier = Modifier.height(48.dp))
+                    }
                 }
+                IenSnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(24.dp),
+                )
             }
-
-            IenToast(
-                open = showTopToast,
-                position = IenToastPosition.Top,
-                text = "Top toast message",
-                onClose = { showTopToast = false },
-            )
-            IenToast(
-                open = showBottomToast,
-                position = IenToastPosition.Bottom,
-                text = "Bottom toast message",
-                onClose = { showBottomToast = false },
-            )
-            IenToast(
-                open = showIconToast,
-                position = IenToastPosition.Top,
-                text = "Toast with icon",
-                leftAddon = { IenToastIcon(tone = IenSemanticTone.Success) },
-                onClose = { showIconToast = false },
-            )
-            IenToast(
-                open = showActionToast,
-                position = IenToastPosition.Bottom,
-                text = "Toast with action",
-                button = IenToastAction("OK") { showActionToast = false },
-                onClose = { showActionToast = false },
-            )
-            IenToast(
-                open = showCtaToast,
-                position = IenToastPosition.Bottom,
-                text = "Toast above CTA",
-                higherThanCTA = true,
-                onClose = { showCtaToast = false },
-            )
         }
     }
 }
@@ -719,7 +756,7 @@ private fun ComponentCatalogIntro() {
                 "Progress",
                 "Rating",
                 "Sheet",
-                "Toast",
+                "Snackbar",
                 "Tooltip",
                 "Top",
                 "Dialog",
