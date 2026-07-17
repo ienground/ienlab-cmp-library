@@ -126,6 +126,24 @@ data class IenButtonState(
     val loading: Boolean = false,
 )
 
+/**
+ * IEN 라이브러리의 기본 버튼 컴포저블입니다.
+ *
+ * 텍스트, 아이콘, 로더 등 버튼 내부 콘텐츠는 [content] 슬롯으로 직접 구성합니다.
+ *
+ * @param onClick 버튼 클릭 시 실행할 콜백 함수입니다.
+ * @param modifier 컴포저블에 적용할 [Modifier]입니다.
+ * @param size 버튼 높이와 기본 내부 여백을 결정하는 크기 규격입니다.
+ * @param variant 버튼의 시각적 스타일 변형입니다.
+ * @param tone 버튼 색상에 반영할 의미적 톤입니다.
+ * @param state 버튼의 활성화 및 로딩 상태입니다.
+ * @param shape 버튼 컨테이너의 형태입니다.
+ * @param contentPadding 버튼 내부 콘텐츠 여백입니다.
+ * @param backgroundBrush 버튼 배경에 직접 적용할 브러시입니다. null이면 variant와 tone 기반 기본 배경을 사용합니다.
+ * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
+ * @param display 버튼의 가로 배치 방식입니다.
+ * @param content 버튼 내부에 표시할 컴포저블 콘텐츠입니다.
+ */
 @Composable
 fun IenButton(
     onClick: () -> Unit,
@@ -173,138 +191,181 @@ fun IenButton(
 }
 
 /**
- * 선택 상태를 표현하는 IEN 토글 버튼 네임스페이스입니다.
+ * 토글 버튼의 선택/비선택 상태별 형태를 정의합니다.
  */
-object IenToggleButton {
-    /**
-     * 토글 버튼의 선택/비선택 상태별 형태를 정의합니다.
-     */
-    data class Shapes(
-        val checked: Shape,
-        val unchecked: Shape,
+data class IenToggleButtonShapes(
+    /** 선택 상태에서 적용할 버튼 형태입니다. */
+    val checked: Shape,
+    /** 비선택 상태에서 적용할 버튼 형태입니다. */
+    val unchecked: Shape,
+)
+
+/**
+ * 토글 버튼의 선택/비선택 상태별 비주얼 변형을 정의합니다.
+ */
+data class IenToggleButtonVariants(
+    /** 선택 상태에서 적용할 버튼 스타일 변형입니다. */
+    val checked: IenButtonVariant = IenButtonVariant.Fill,
+    /** 비선택 상태에서 적용할 버튼 스타일 변형입니다. */
+    val unchecked: IenButtonVariant = IenButtonVariant.Weak,
+)
+
+/**
+ * 토글 버튼의 선택/비선택 상태별 색상과 그라데이션 브러시를 정의합니다.
+ */
+data class IenToggleButtonColors(
+    /** 선택 상태의 컨테이너 색상입니다. */
+    val checkedContainer: Color,
+    /** 선택 상태의 콘텐츠 색상입니다. */
+    val checkedContent: Color,
+    /** 선택 상태의 테두리 색상입니다. */
+    val checkedBorder: Color,
+    /** 선택 상태의 배경 브러시입니다. */
+    val checkedBackgroundBrush: Brush?,
+    /** 비선택 상태의 컨테이너 색상입니다. */
+    val uncheckedContainer: Color,
+    /** 비선택 상태의 콘텐츠 색상입니다. */
+    val uncheckedContent: Color,
+    /** 비선택 상태의 테두리 색상입니다. */
+    val uncheckedBorder: Color,
+    /** 비선택 상태의 배경 브러시입니다. */
+    val uncheckedBackgroundBrush: Brush?,
+    /** 비활성 상태의 컨테이너 색상입니다. */
+    val disabledContainer: Color,
+    /** 비활성 상태의 콘텐츠 색상입니다. */
+    val disabledContent: Color,
+    /** 비활성 상태의 테두리 색상입니다. */
+    val disabledBorder: Color,
+)
+
+/**
+ * 선택 상태를 표현하는 IEN 토글 버튼 컴포저블입니다.
+ *
+ * @param checked 현재 선택 상태입니다.
+ * @param onCheckedChange 선택 상태 변경 콜백입니다.
+ * @param modifier 컴포저블에 적용할 [Modifier]입니다.
+ * @param enabled 버튼 활성화 여부입니다.
+ * @param loading 로딩 상태 표시 여부입니다.
+ * @param size 버튼의 높이 및 내부 패딩 크기 규격입니다.
+ * @param state 버튼의 활성화 및 로딩 진행 상태입니다.
+ * @param shapes 선택/비선택 상태별 버튼 형태 구성입니다.
+ * @param variants 선택/비선택 상태별 비주얼 변형 구성입니다.
+ * @param colors 선택/비선택 상태별 색상 구성입니다.
+ * @param contentPadding 버튼 내부 콘텐츠 여백입니다.
+ * @param interactionSource 버튼 인터랙션 정보를 전달할 [MutableInteractionSource]입니다.
+ * @param display 버튼의 가로 확장 모드입니다.
+ * @param content 버튼 내부에 표시할 컴포저블 콘텐츠입니다.
+ */
+@Composable
+fun IenToggleButton(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    loading: Boolean = false,
+    size: IenButtonSize = IenButtonSize.Large,
+    state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
+    shapes: IenToggleButtonShapes = IenToggleButtonDefault.shapes(),
+    variants: IenToggleButtonVariants = IenToggleButtonDefault.variants(),
+    colors: IenToggleButtonColors = IenToggleButtonDefault.colors(),
+    contentPadding: PaddingValues = size.buttonPadding(),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    display: IenButtonDisplay = IenButtonDisplay.Inline,
+    content: @Composable () -> Unit,
+) {
+    val height = size.buttonHeight()
+    val resolvedState = state.copy(
+        enabled = state.enabled && enabled,
+        loading = state.loading || loading,
     )
-
-    /**
-     * 토글 버튼의 선택/비선택 상태별 비주얼 변형을 정의합니다.
-     */
-    data class Variants(
-        val checked: IenButtonVariant = IenButtonVariant.Fill,
-        val unchecked: IenButtonVariant = IenButtonVariant.Weak,
-    )
-
-    /**
-     * 토글 버튼의 선택/비선택 상태별 색상과 그라데이션 브러시를 정의합니다.
-     */
-    data class Colors(
-        val checkedContainer: Color,
-        val checkedContent: Color,
-        val checkedBorder: Color,
-        val checkedBackgroundBrush: Brush?,
-        val uncheckedContainer: Color,
-        val uncheckedContent: Color,
-        val uncheckedBorder: Color,
-        val uncheckedBackgroundBrush: Brush?,
-        val disabledContainer: Color,
-        val disabledContent: Color,
-        val disabledBorder: Color,
-    )
-
-    /**
-     * 선택 상태를 표현하는 IEN 토글 버튼 컴포저블입니다.
-     *
-     * @param checked 현재 선택 상태입니다.
-     * @param onCheckedChange 선택 상태 변경 콜백입니다.
-     * @param modifier 컴포저블에 적용할 [Modifier]입니다.
-     * @param enabled 버튼 활성화 여부입니다.
-     * @param loading 로딩 상태 표시 여부입니다.
-     * @param size 버튼의 높이 및 내부 패딩 크기 규격입니다.
-     * @param state 버튼의 활성화 및 로딩 진행 상태입니다.
-     * @param shapes 선택/비선택 상태별 버튼 형태 구성입니다.
-     * @param variants 선택/비선택 상태별 비주얼 변형 구성입니다.
-     * @param colors 선택/비선택 상태별 색상 구성입니다.
-     * @param contentPadding 버튼 내부 콘텐츠 여백입니다.
-     * @param interactionSource 버튼 인터랙션 정보를 전달할 [MutableInteractionSource]입니다.
-     * @param display 버튼의 가로 확장 모드입니다.
-     * @param content 버튼 내부에 표시할 컴포저블 콘텐츠입니다.
-     */
-    @Composable
-    operator fun invoke(
-        checked: Boolean,
-        onCheckedChange: (Boolean) -> Unit,
-        modifier: Modifier = Modifier,
-        enabled: Boolean = true,
-        loading: Boolean = false,
-        size: IenButtonSize = IenButtonSize.Large,
-        state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
-        shapes: Shapes = IenToggleButtonDefault.shapes(),
-        variants: Variants = IenToggleButtonDefault.variants(),
-        colors: Colors = IenToggleButtonDefault.colors(),
-        contentPadding: PaddingValues = size.buttonPadding(),
-        interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-        display: IenButtonDisplay = IenButtonDisplay.Inline,
-        content: @Composable () -> Unit,
-    ) {
-        val height = size.buttonHeight()
-        val resolvedState = state.copy(
-            enabled = state.enabled && enabled,
-            loading = state.loading || loading,
-        )
-        val buttonModifier = modifier
-            .then(if (display == IenButtonDisplay.Block || display == IenButtonDisplay.Full) Modifier.fillMaxWidth() else Modifier)
-            .heightIn(min = height)
-            .animateContentSizeWithoutClipping(animationSpec = toggleButtonAnimationSpec())
-            .semantics { selected = checked }
-        val targetShape = if (display == IenButtonDisplay.Full) {
-            ContinuousRoundedRectangle(0.dp)
-        } else if (checked) {
-            shapes.checked
-        } else {
-            shapes.unchecked
-        }
-        val resolvedShape = if (display == IenButtonDisplay.Full) {
-            targetShape
-        } else {
-            rememberAnimatedToggleShape(
-                checked = checked,
-                shapes = shapes,
-            )
-        }
-
-        IenButtonContainer(
-            onClick = { onCheckedChange(!checked) },
-            modifier = buttonModifier,
-            variant = if (checked) variants.checked else variants.unchecked,
-            state = resolvedState,
-            shape = resolvedShape,
-            contentPadding = contentPadding,
-            interactionSource = interactionSource,
-            scalePressed = 0.975f,
-            colors = colors.resolve(checked = checked, enabled = resolvedState.enabled),
-            border = colors.borderStroke(checked = checked, enabled = resolvedState.enabled),
-            backgroundBrush = colors.backgroundBrush(checked = checked, enabled = resolvedState.enabled),
-            content = content,
+    val buttonModifier = modifier
+        .then(if (display == IenButtonDisplay.Block || display == IenButtonDisplay.Full) Modifier.fillMaxWidth() else Modifier)
+        .heightIn(min = height)
+        .animateContentSizeWithoutClipping(animationSpec = toggleButtonAnimationSpec())
+        .semantics { selected = checked }
+    val targetShape = if (display == IenButtonDisplay.Full) {
+        ContinuousRoundedRectangle(0.dp)
+    } else if (checked) {
+        shapes.checked
+    } else {
+        shapes.unchecked
+    }
+    val resolvedShape = if (display == IenButtonDisplay.Full) {
+        targetShape
+    } else {
+        rememberAnimatedToggleShape(
+            checked = checked,
+            shapes = shapes,
         )
     }
+
+    IenButtonContainer(
+        onClick = { onCheckedChange(!checked) },
+        modifier = buttonModifier,
+        variant = if (checked) variants.checked else variants.unchecked,
+        state = resolvedState,
+        shape = resolvedShape,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource,
+        scalePressed = 0.975f,
+        colors = colors.resolve(checked = checked, enabled = resolvedState.enabled),
+        border = colors.borderStroke(checked = checked, enabled = resolvedState.enabled),
+        backgroundBrush = colors.backgroundBrush(checked = checked, enabled = resolvedState.enabled),
+        content = content,
+    )
 }
 
+/**
+ * [IenToggleButton]과 [IenIconToggleButton]의 기본 형태, 스타일, 색상 값을 제공합니다.
+ */
 object IenToggleButtonDefault {
+    /**
+     * 토글 버튼의 선택/비선택 상태별 형태 묶음을 생성합니다.
+     *
+     * @param checked 선택 상태에서 적용할 형태입니다.
+     * @param unchecked 비선택 상태에서 적용할 형태입니다.
+     * @return 선택/비선택 형태를 담은 [IenToggleButtonShapes]입니다.
+     */
     @Composable
     fun shapes(
         checked: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
         unchecked: Shape = checked,
-    ): IenToggleButton.Shapes = IenToggleButton.Shapes(
+    ): IenToggleButtonShapes = IenToggleButtonShapes(
         checked = checked,
         unchecked = unchecked,
     )
 
+    /**
+     * 토글 버튼의 선택/비선택 상태별 스타일 변형 묶음을 생성합니다.
+     *
+     * @param checked 선택 상태에서 적용할 스타일 변형입니다.
+     * @param unchecked 비선택 상태에서 적용할 스타일 변형입니다.
+     * @return 선택/비선택 스타일 변형을 담은 [IenToggleButtonVariants]입니다.
+     */
     fun variants(
         checked: IenButtonVariant = IenButtonVariant.Fill,
         unchecked: IenButtonVariant = IenButtonVariant.Weak,
-    ): IenToggleButton.Variants = IenToggleButton.Variants(
+    ): IenToggleButtonVariants = IenToggleButtonVariants(
         checked = checked,
         unchecked = unchecked,
     )
 
+    /**
+     * 토글 버튼의 선택/비선택 상태별 색상과 배경 브러시 묶음을 생성합니다.
+     *
+     * @param checkedTone 선택 상태의 기본 색상을 계산할 의미적 톤입니다.
+     * @param uncheckedTone 비선택 상태의 기본 색상을 계산할 의미적 톤입니다.
+     * @param checkedContainer 선택 상태의 컨테이너 색상입니다.
+     * @param checkedContent 선택 상태의 콘텐츠 색상입니다.
+     * @param checkedBorder 선택 상태의 테두리 색상입니다.
+     * @param uncheckedContainer 비선택 상태의 컨테이너 색상입니다.
+     * @param uncheckedContent 비선택 상태의 콘텐츠 색상입니다.
+     * @param uncheckedBorder 비선택 상태의 테두리 색상입니다.
+     * @param checkedBackgroundBrush 선택 상태에 직접 적용할 배경 브러시입니다.
+     * @param uncheckedBackgroundBrush 비선택 상태에 직접 적용할 배경 브러시입니다.
+     * @param useGradient 기본 배경 브러시에 그라데이션을 사용할지 여부입니다.
+     * @return 선택/비선택/비활성 색상 값을 담은 [IenToggleButtonColors]입니다.
+     */
     @Composable
     fun colors(
         checkedTone: IenSemanticTone = IenSemanticTone.Brand,
@@ -318,7 +379,7 @@ object IenToggleButtonDefault {
         checkedBackgroundBrush: Brush? = null,
         uncheckedBackgroundBrush: Brush? = null,
         useGradient: Boolean = true,
-    ): IenToggleButton.Colors = IenToggleButton.Colors(
+    ): IenToggleButtonColors = IenToggleButtonColors(
         checkedContainer = checkedContainer,
         checkedContent = checkedContent,
         checkedBorder = checkedBorder,
@@ -406,6 +467,8 @@ fun IenIconButton(
  * @param checked 현재 선택 상태입니다.
  * @param onCheckedChange 선택 상태 변경 콜백입니다.
  * @param modifier 컴포저블에 적용할 [Modifier]입니다.
+ * @param enabled 버튼 활성화 여부입니다.
+ * @param loading 로딩 상태 표시 여부입니다.
  * @param size 버튼의 크기 규격입니다.
  * @param state 버튼의 활성화 및 로딩 진행 상태입니다.
  * @param shapes 선택/비선택 상태별 버튼 형태 구성입니다.
@@ -423,9 +486,9 @@ fun IenIconToggleButton(
     loading: Boolean = false,
     size: IenButtonSize = IenButtonSize.Large,
     state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
-    shapes: IenToggleButton.Shapes = IenToggleButtonDefault.shapes(),
-    variants: IenToggleButton.Variants = IenToggleButtonDefault.variants(),
-    colors: IenToggleButton.Colors = IenToggleButtonDefault.colors(),
+    shapes: IenToggleButtonShapes = IenToggleButtonDefault.shapes(),
+    variants: IenToggleButtonVariants = IenToggleButtonDefault.variants(),
+    colors: IenToggleButtonColors = IenToggleButtonDefault.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
@@ -576,6 +639,19 @@ fun IenExtendedFab(
     }
 }
 
+/**
+ * 텍스트 또는 인라인 콘텐츠를 강조 없이 보여주는 IEN 텍스트 버튼 컴포저블입니다.
+ *
+ * @param onClick 버튼 클릭 시 실행할 콜백 함수입니다.
+ * @param modifier 컴포저블에 적용할 [Modifier]입니다.
+ * @param size 텍스트 버튼의 타이포그래피와 최소 높이를 결정하는 크기 규격입니다.
+ * @param variant 텍스트 버튼의 표시 방식입니다.
+ * @param disabled 버튼을 비활성화할지 여부입니다.
+ * @param tone 텍스트 색상에 반영할 의미적 톤입니다.
+ * @param state 버튼의 활성화 상태입니다.
+ * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
+ * @param content 버튼 내부에 표시할 컴포저블 콘텐츠입니다.
+ */
 @Composable
 fun IenTextButton(
     onClick: () -> Unit,
@@ -771,7 +847,7 @@ internal fun toneWeakGradientBrush(tone: IenSemanticTone): Brush {
     )
 }
 
-private fun IenToggleButton.Colors.resolve(
+private fun IenToggleButtonColors.resolve(
     checked: Boolean,
     enabled: Boolean,
 ): IenButtonResolvedColors {
@@ -803,7 +879,7 @@ private fun IenToggleButton.Colors.resolve(
     }
 }
 
-private fun IenToggleButton.Colors.backgroundBrush(
+private fun IenToggleButtonColors.backgroundBrush(
     checked: Boolean,
     enabled: Boolean,
 ): Brush? {
@@ -814,7 +890,7 @@ private fun IenToggleButton.Colors.backgroundBrush(
 @Composable
 private fun rememberAnimatedToggleShape(
     checked: Boolean,
-    shapes: IenToggleButton.Shapes,
+    shapes: IenToggleButtonShapes,
 ): Shape {
     val progress by animateFloatAsState(
         targetValue = if (checked) 1f else 0f,
@@ -872,7 +948,7 @@ private fun <T> toggleButtonAnimationSpec() = spring<T>(
 )
 
 @Composable
-private fun IenToggleButton.Colors.borderStroke(
+private fun IenToggleButtonColors.borderStroke(
     checked: Boolean,
     enabled: Boolean,
 ): BorderStroke? {

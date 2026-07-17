@@ -55,9 +55,32 @@ import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.interactive.IenTextButtonSize
 import zone.ien.utils.ui.interactive.IenTextButtonVariant
 import zone.ien.utils.ui.interactive.IenToggleButton
+import zone.ien.utils.ui.interactive.IenToggleButtonColors
 import zone.ien.utils.ui.interactive.IenToggleButtonDefault
+import zone.ien.utils.ui.interactive.IenToggleButtonShapes
+import zone.ien.utils.ui.interactive.IenToggleButtonVariants
 import zone.ien.utils.ui.screen.IenBackButton
 
+/**
+ * 현재 플랫폼에 맞는 버튼 구현을 선택하는 적응형 기본 버튼 컴포저블입니다.
+ *
+ * Material 분기에서는 [IenButton]을, Cupertino 분기에서는 compose-hig의 버튼을 사용합니다.
+ *
+ * @param onClick 버튼 클릭 시 실행할 콜백 함수입니다.
+ * @param modifier 컴포저블에 적용할 [Modifier]입니다.
+ * @param enabled 버튼 활성화 여부입니다.
+ * @param loading Material 분기에서 로딩 상태를 표시할지 여부입니다.
+ * @param size Material 분기 버튼 크기 규격입니다.
+ * @param variant Material 분기 버튼 스타일 변형입니다.
+ * @param tone Material 분기 색상에 반영할 의미적 톤입니다.
+ * @param state 버튼의 활성화 및 로딩 상태입니다.
+ * @param shape Material 분기 버튼 형태입니다.
+ * @param contentPadding Material 분기 버튼 내부 여백입니다.
+ * @param backgroundBrush Material 분기 버튼 배경에 직접 적용할 브러시입니다.
+ * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
+ * @param display Material 분기 버튼의 가로 배치 방식입니다.
+ * @param content 버튼 내부에 표시할 컴포저블 콘텐츠입니다.
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveButton(
@@ -106,6 +129,19 @@ fun AdaptiveButton(
     )
 }
 
+/**
+ * 현재 플랫폼에 맞는 텍스트 버튼 구현을 선택하는 적응형 텍스트 버튼 컴포저블입니다.
+ *
+ * @param onClick 버튼 클릭 시 실행할 콜백 함수입니다.
+ * @param modifier 컴포저블에 적용할 [Modifier]입니다.
+ * @param size Material 분기 텍스트 버튼 크기 규격입니다.
+ * @param variant Material 분기 텍스트 버튼 표시 방식입니다.
+ * @param disabled 버튼 비활성화 여부입니다.
+ * @param tone Material 분기 텍스트 색상에 반영할 의미적 톤입니다.
+ * @param state 버튼의 활성화 상태입니다.
+ * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
+ * @param content 버튼 내부에 표시할 컴포저블 콘텐츠입니다.
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveTextButton(
@@ -148,6 +184,18 @@ fun AdaptiveTextButton(
 
 /**
  * Material 분기에서 [IenIconButton]을 사용하는 적응형 아이콘 버튼 컴포저블.
+ *
+ * @param onClick 버튼 클릭 시 실행할 콜백 함수입니다.
+ * @param modifier 컴포저블에 적용할 [Modifier]입니다.
+ * @param enabled 버튼 활성화 여부입니다.
+ * @param loading Material 분기에서 로딩 상태를 표시할지 여부입니다.
+ * @param size Material 분기 아이콘 버튼 크기 규격입니다.
+ * @param variant Material 분기 버튼 스타일 변형입니다.
+ * @param tone Material 분기 색상에 반영할 의미적 톤입니다.
+ * @param state 버튼의 활성화 및 로딩 상태입니다.
+ * @param shape Material 분기 버튼 형태입니다.
+ * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
+ * @param content 버튼 내부에 표시할 아이콘 컴포저블 콘텐츠입니다.
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -192,6 +240,17 @@ fun AdaptiveIconButton(
 
 /**
  * Material 분기에서 채움 스타일 [IenIconButton]을 사용하는 적응형 아이콘 버튼 컴포저블.
+ *
+ * @param onClick 버튼 클릭 시 실행할 콜백 함수입니다.
+ * @param modifier 컴포저블에 적용할 [Modifier]입니다.
+ * @param enabled 버튼 활성화 여부입니다.
+ * @param loading Material 분기에서 로딩 상태를 표시할지 여부입니다.
+ * @param size Material 분기 아이콘 버튼 크기 규격입니다.
+ * @param tone Material 분기 색상에 반영할 의미적 톤입니다.
+ * @param state 버튼의 활성화 및 로딩 상태입니다.
+ * @param shape Material 분기 버튼 형태입니다.
+ * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
+ * @param content 버튼 내부에 표시할 아이콘 컴포저블 콘텐츠입니다.
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -233,6 +292,26 @@ fun AdaptiveFilledIconButton(
     )
 }
 
+/**
+ * 현재 플랫폼에 맞는 토글 버튼 구현을 선택하는 적응형 토글 버튼 컴포저블입니다.
+ *
+ * Material 분기에서는 [IenToggleButton]을 사용하고, Cupertino 분기에서는 선택 상태에 따라 tonal/fill 버튼을 전환합니다.
+ *
+ * @param checked 현재 선택 상태입니다.
+ * @param onCheckedChange 선택 상태 변경 콜백입니다.
+ * @param modifier 컴포저블에 적용할 [Modifier]입니다.
+ * @param enabled 버튼 활성화 여부입니다.
+ * @param loading Material 분기에서 로딩 상태를 표시할지 여부입니다.
+ * @param size Material 분기 버튼 크기 규격입니다.
+ * @param state 버튼의 활성화 및 로딩 상태입니다.
+ * @param shapes Material 분기 선택/비선택 상태별 버튼 형태 구성입니다.
+ * @param variants Material 분기 선택/비선택 상태별 스타일 변형 구성입니다.
+ * @param colors Material 분기 선택/비선택 상태별 색상 구성입니다.
+ * @param contentPadding Material 분기 버튼 내부 여백입니다.
+ * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
+ * @param display Material 분기 버튼의 가로 배치 방식입니다.
+ * @param content 버튼 내부에 표시할 컴포저블 콘텐츠입니다.
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveToggleButton(
@@ -243,9 +322,9 @@ fun AdaptiveToggleButton(
     loading: Boolean = false,
     size: IenButtonSize = IenButtonSize.Large,
     state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
-    shapes: IenToggleButton.Shapes = IenToggleButtonDefault.shapes(),
-    variants: IenToggleButton.Variants = IenToggleButtonDefault.variants(),
-    colors: IenToggleButton.Colors = IenToggleButtonDefault.colors(),
+    shapes: IenToggleButtonShapes = IenToggleButtonDefault.shapes(),
+    variants: IenToggleButtonVariants = IenToggleButtonDefault.variants(),
+    colors: IenToggleButtonColors = IenToggleButtonDefault.colors(),
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     display: IenButtonDisplay = IenButtonDisplay.Inline,
@@ -298,6 +377,19 @@ fun AdaptiveToggleButton(
 
 /**
  * Material 분기에서 [IenIconToggleButton]을 사용하는 적응형 아이콘 토글 버튼 컴포저블.
+ *
+ * @param checked 현재 선택 상태입니다.
+ * @param onCheckedChange 선택 상태 변경 콜백입니다.
+ * @param modifier 컴포저블에 적용할 [Modifier]입니다.
+ * @param enabled 버튼 활성화 여부입니다.
+ * @param loading Material 분기에서 로딩 상태를 표시할지 여부입니다.
+ * @param size Material 분기 버튼 크기 규격입니다.
+ * @param state 버튼의 활성화 및 로딩 상태입니다.
+ * @param shapes Material 분기 선택/비선택 상태별 버튼 형태 구성입니다.
+ * @param variants Material 분기 선택/비선택 상태별 스타일 변형 구성입니다.
+ * @param colors Material 분기 선택/비선택 상태별 색상 구성입니다.
+ * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
+ * @param content 버튼 내부에 표시할 아이콘 컴포저블 콘텐츠입니다.
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -309,9 +401,9 @@ fun AdaptiveIconToggleButton(
     loading: Boolean = false,
     size: IenButtonSize = IenButtonSize.Large,
     state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
-    shapes: IenToggleButton.Shapes = IenToggleButtonDefault.shapes(),
-    variants: IenToggleButton.Variants = IenToggleButtonDefault.variants(),
-    colors: IenToggleButton.Colors = IenToggleButtonDefault.colors(),
+    shapes: IenToggleButtonShapes = IenToggleButtonDefault.shapes(),
+    variants: IenToggleButtonVariants = IenToggleButtonDefault.variants(),
+    colors: IenToggleButtonColors = IenToggleButtonDefault.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
@@ -356,6 +448,23 @@ fun AdaptiveIconToggleButton(
     )
 }
 
+/**
+ * 현재 플랫폼에 맞는 확장형 플로팅 액션 버튼 구현을 선택하는 적응형 컴포저블입니다.
+ *
+ * Material 분기에서는 [IenExtendedFab]을, Cupertino 분기에서는 tonal 버튼을 사용합니다.
+ *
+ * @param onClick 버튼 클릭 시 실행할 콜백 함수입니다.
+ * @param modifier 컴포저블에 적용할 [Modifier]입니다.
+ * @param enabled 버튼 활성화 여부입니다.
+ * @param loading Material 분기에서 로딩 상태를 표시할지 여부입니다.
+ * @param variant Material 분기 버튼 스타일 변형입니다.
+ * @param tone Material 분기 색상에 반영할 의미적 톤입니다.
+ * @param state 버튼의 활성화 및 로딩 상태입니다.
+ * @param shape Material 분기 버튼 형태입니다.
+ * @param contentPadding Material 분기 버튼 내부 여백입니다.
+ * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
+ * @param content 버튼 내부에 표시할 컴포저블 콘텐츠입니다.
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveExtendedFloatingActionButton(
