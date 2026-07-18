@@ -28,6 +28,7 @@ import zone.ien.hig.section.SectionScope
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.screen.LocalIenScaffoldScrollState
 import zone.ien.utils.ui.utils.conditional
 
 /**
@@ -69,7 +70,7 @@ fun Modifier.m3SectionBackground(): Modifier {
 fun IenProvideSectionStyle(
     modifier: Modifier = Modifier,
     fullHeight: Boolean = true,
-    scrollState: ScrollState? = rememberScrollState(),
+    scrollState: ScrollState? = LocalIenScaffoldScrollState.current ?: rememberScrollState(),
     shape: Shape = RectangleShape,
     title: @Composable (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit

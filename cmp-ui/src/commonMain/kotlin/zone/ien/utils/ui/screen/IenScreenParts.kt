@@ -14,6 +14,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -143,6 +144,14 @@ import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 internal val LocalIenTopBarFloatingSlotHiddenRequester = staticCompositionLocalOf<((Boolean) -> Unit)?> { null }
 
 /**
+ * [IenScaffold]가 콘텐츠와 공유하는 기본 스크롤 상태입니다.
+ *
+ * [IenScaffoldContentEdge]에 별도 스크롤 상태가 없을 때 Scaffold가 생성한 상태를 제공하고,
+ * 섹션 컨테이너는 이 값을 우선 사용해 블러 진행도와 실제 스크롤 상태를 맞춥니다.
+ */
+val LocalIenScaffoldScrollState = staticCompositionLocalOf<ScrollState?> { null }
+
+/**
  * 상단 앱 바 제목의 정렬 방식을 정의하는 열거형 클래스입니다.
  */
 enum class IenTopBarTitleAlignment {
@@ -270,22 +279,28 @@ fun IenScaffold(
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    val defaultScrollState = rememberScrollState()
+    val effectiveContentEdge = if (contentEdge.scrollState == null && contentEdge.lazyListState == null) {
+        contentEdge.copy(scrollState = defaultScrollState)
+    } else {
+        contentEdge
+    }
     val contentEdgeColor = contentEdge.color ?: containerColor
     val backdrop = rememberLayerBackdrop {
         drawRect(contentEdgeColor)
         drawContent()
     }
     val scrollFadeDistancePx = with(LocalDensity.current) {
-        contentEdge.scrollFadeDistance.toPx().coerceAtLeast(1f)
+        effectiveContentEdge.scrollFadeDistance.toPx().coerceAtLeast(1f)
     }
-    val scrollTopProgress = contentEdge.scrollState?.topEdgeProgress(scrollFadeDistancePx)
-        ?: contentEdge.lazyListState?.topEdgeProgress(scrollFadeDistancePx)
+    val scrollTopProgress = effectiveContentEdge.scrollState?.topEdgeProgress(scrollFadeDistancePx)
+        ?: effectiveContentEdge.lazyListState?.topEdgeProgress(scrollFadeDistancePx)
         ?: 0f
-    val scrollBottomProgress = contentEdge.scrollState?.bottomEdgeProgress(scrollFadeDistancePx)
-        ?: contentEdge.lazyListState?.bottomEdgeProgress(scrollFadeDistancePx)
+    val scrollBottomProgress = effectiveContentEdge.scrollState?.bottomEdgeProgress(scrollFadeDistancePx)
+        ?: effectiveContentEdge.lazyListState?.bottomEdgeProgress(scrollFadeDistancePx)
         ?: 0f
-    val effectiveTopProgress = contentEdge.topProgress.coerceIn(0f, 1f) * scrollTopProgress
-    val effectiveBottomProgress = contentEdge.bottomProgress.coerceIn(0f, 1f) * scrollBottomProgress
+    val effectiveTopProgress = effectiveContentEdge.topProgress.coerceIn(0f, 1f) * scrollTopProgress
+    val effectiveBottomProgress = effectiveContentEdge.bottomProgress.coerceIn(0f, 1f) * scrollBottomProgress
 
     Scaffold(
         modifier = modifier,
@@ -304,19 +319,21 @@ fun IenScaffold(
                     .matchParentSize()
                     .layerBackdrop(backdrop),
             ) {
-                content(contentPadding)
+                CompositionLocalProvider(LocalIenScaffoldScrollState provides effectiveContentEdge.scrollState) {
+                    content(contentPadding)
+                }
             }
-            if (contentEdge.enabled) {
+            if (effectiveContentEdge.enabled) {
                 IenScaffoldEdgeBlur(
                     modifier = Modifier.matchParentSize(),
                     backdrop = backdrop,
-                    showTop = contentEdge.topEnabled,
-                    showBottom = contentEdge.bottomEnabled,
+                    showTop = effectiveContentEdge.topEnabled,
+                    showBottom = effectiveContentEdge.bottomEnabled,
                     topProgress = effectiveTopProgress,
                     bottomProgress = effectiveBottomProgress,
-                    topHeight = contentEdge.topHeight,
-                    bottomHeight = contentEdge.bottomHeight,
-                    radius = contentEdge.radius,
+                    topHeight = effectiveContentEdge.topHeight,
+                    bottomHeight = effectiveContentEdge.bottomHeight,
+                    radius = effectiveContentEdge.radius,
                     color = contentEdgeColor,
                 )
             }

@@ -17,6 +17,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -133,6 +134,13 @@ fun AdaptiveTopAppBarScaffold(
     adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
+    val defaultScrollState = rememberScrollState()
+    val effectiveContentEdge = if (contentEdge.scrollState == null && contentEdge.lazyListState == null) {
+        contentEdge.copy(scrollState = defaultScrollState)
+    } else {
+        contentEdge
+    }
+
     fun FabPosition.transform(): androidx.compose.material3.FabPosition {
         return when (this) {
             FabPosition.Center -> androidx.compose.material3.FabPosition.Center
@@ -215,9 +223,9 @@ fun AdaptiveTopAppBarScaffold(
                 containerColor = materialAdaptation.scaffoldContainerColor,
                 contentColor = materialAdaptation.scaffoldContentColor,
                 contentWindowInsets = materialAdaptation.contentWindowInsets,
-                contentEdge = contentEdge,
+                contentEdge = effectiveContentEdge,
                 content = { contentPadding ->
-                    CompositionLocalProvider(LocalTopBarScaffoldScrollState provides contentEdge.scrollState) {
+                    CompositionLocalProvider(LocalTopBarScaffoldScrollState provides effectiveContentEdge.scrollState) {
                         content(
                             contentPadding,
                             {
@@ -292,7 +300,7 @@ fun AdaptiveTopAppBarScaffold(
                 contentWindowInsets = it.contentWindowInsets,
                 hasNavigationTitle = it.mode == TopBarMode.Expanded,
                 content = { contentPadding ->
-                    CompositionLocalProvider(LocalTopBarScaffoldScrollState provides contentEdge.scrollState) {
+                    CompositionLocalProvider(LocalTopBarScaffoldScrollState provides effectiveContentEdge.scrollState) {
                         content(
                             contentPadding,
                             {
