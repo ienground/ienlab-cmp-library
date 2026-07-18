@@ -233,6 +233,7 @@ import zone.ien.utils.ui.interactive.IenTextField
 import zone.ien.utils.ui.interactive.IenTextFieldButton
 import zone.ien.utils.ui.interactive.IenTextFieldFormat
 import zone.ien.utils.ui.interactive.IenTextFieldLabelOption
+import zone.ien.utils.ui.interactive.IenTextFieldLengthLimit
 import zone.ien.utils.ui.interactive.IenTextFieldState
 import zone.ien.utils.ui.interactive.IenTextFieldVariant
 import zone.ien.utils.ui.interactive.IenPasswordTextField
@@ -2960,20 +2961,22 @@ fun TextFieldSection() {
             IenTextField(
                 value = text,
                 onValueChange = { text = it },
-                label = "이름",
+                label = "이름 · LengthLimit.Error",
                 placeholder = "이름을 입력하세요",
                 hasError = text.length >= 4,
                 help = if (text.length >= 4) "이름은 3글자 이하로 입력해주세요." else "값이 들어오거나 포커스되면 라벨이 나타납니다.",
+                lengthLimit = IenTextFieldLengthLimit.Error(3),
             )
             IenTextField(
                 value = lineText,
                 onValueChange = { lineText = it },
-                label = "주소",
+                label = "주소 · LengthLimit.None",
                 labelOption = IenTextFieldLabelOption.Sustain,
                 placeholder = "주소를 입력하세요",
                 variant = IenTextFieldVariant.Line,
                 suffix = "시",
-                help = "line variant + sustain label",
+                help = "길이 제한과 카운터를 사용하지 않습니다.",
+                lengthLimit = IenTextFieldLengthLimit.None,
             )
             IenTextField(
                 value = bigText,
@@ -3002,23 +3005,26 @@ fun TextFieldSection() {
                 value = clearText,
                 onValueChange = { clearText = it },
                 onClear = {},
-                label = "Clearable",
+                label = "Clearable · LengthLimit.Block",
                 labelOption = IenTextFieldLabelOption.Sustain,
                 placeholder = "입력 후 지울 수 있어요",
+                lengthLimit = IenTextFieldLengthLimit.Block(20),
             )
             IenPasswordTextField(
                 value = passwordText,
                 onValueChange = { passwordText = it },
-                label = "비밀번호",
+                label = "비밀번호 · LengthLimit.Block",
                 placeholder = "비밀번호 입력",
                 help = "보기/숨김 토글을 제공합니다.",
+                lengthLimit = IenTextFieldLengthLimit.Block(16),
             )
             IenTextFieldButton(
                 value = selectedBank,
                 onClick = { selectedBank = if (selectedBank == "은행 선택") "아이엔뱅크" else "은행 선택" },
-                label = "계좌",
+                label = "계좌 · LengthLimit.None",
                 labelOption = IenTextFieldLabelOption.Sustain,
                 help = "읽기 전용 선택 필드입니다.",
+                lengthLimit = IenTextFieldLengthLimit.None,
             )
             IenTextField(
                 value = "",
@@ -3056,9 +3062,10 @@ fun TextAreaSection() {
             IenTextArea(
                 value = textArea,
                 onValueChange = { textArea = it },
-                label = "메모",
+                label = "메모 · LengthLimit.Block",
                 placeholder = "여러 줄 텍스트를 입력하세요",
                 supportingText = "TextArea는 TextField 토큰과 상태 모델을 공유합니다.",
+                lengthLimit = IenTextFieldLengthLimit.Block(120),
             )
         }
     }

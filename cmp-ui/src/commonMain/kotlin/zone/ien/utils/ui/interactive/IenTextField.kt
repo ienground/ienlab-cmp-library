@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -138,6 +139,41 @@ data class IenTextFieldFormat(
 )
 
 /**
+ * 텍스트 필드의 최대 길이 처리 방식을 정의합니다.
+ */
+sealed interface IenTextFieldLengthLimit {
+    /**
+     * 길이 제한과 카운터를 사용하지 않습니다.
+     */
+    data object None : IenTextFieldLengthLimit
+
+    /**
+     * 최대 길이를 초과해도 입력은 허용하되 오류 상태와 카운터를 표시합니다.
+     *
+     * @param maxLength 허용할 최대 텍스트 길이
+     */
+    data class Error(val maxLength: Int) : IenTextFieldLengthLimit
+
+    /**
+     * 최대 길이를 초과하는 입력을 막고 카운터를 표시합니다.
+     *
+     * @param maxLength 허용할 최대 텍스트 길이
+     */
+    data class Block(val maxLength: Int) : IenTextFieldLengthLimit
+}
+
+private fun IenTextFieldLengthLimit.maxLengthOrNull(): Int? = when (this) {
+    IenTextFieldLengthLimit.None -> null
+    is IenTextFieldLengthLimit.Error -> maxLength.coerceAtLeast(0)
+    is IenTextFieldLengthLimit.Block -> maxLength.coerceAtLeast(0)
+}
+
+private fun IenTextFieldLengthLimit.blocks(value: String): Boolean {
+    return this is IenTextFieldLengthLimit.Block &&
+        value.length > maxLength.coerceAtLeast(0)
+}
+
+/**
  * IEN 라이브러리의 범용 기본 단일/다중 행 텍스트 필드 컴포저블.
  *
  * @param value 필드의 현재 텍스트 값.
@@ -159,6 +195,7 @@ data class IenTextFieldFormat(
  * @param leading 필드 내 앞쪽에 들어갈 커스텀 컴포저블 (아이콘 등).
  * @param trailing 필드 내 뒤쪽에 들어갈 커스텀 컴포저블.
  * @param supportingText 필드 하단에 보여줄 부가 안내 텍스트.
+ * @param lengthLimit 필드 하단 카운터와 최대 길이 처리 방식입니다.
  * @param singleLine 한 줄로만 입력할지 여부.
  * @param keyboardOptions 소프트 키보드 속성 설정 ([KeyboardOptions]).
  * @param keyboardActions 키보드 완료/검색 액션 정의 ([KeyboardActions]).
@@ -191,6 +228,7 @@ fun IenTextField(
     leading: (@Composable () -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
     supportingText: String? = null,
+    lengthLimit: IenTextFieldLengthLimit = IenTextFieldLengthLimit.None,
     singleLine: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
@@ -204,8 +242,15 @@ fun IenTextField(
 ) {
     val focused by interactionSource.collectIsFocusedAsState()
     var wasFocused by remember { mutableStateOf(false) }
+    val maxLength = lengthLimit.maxLengthOrNull()
+    val lengthExceeded = lengthLimit is IenTextFieldLengthLimit.Error &&
+        maxLength != null &&
+        value.length > maxLength
     val effectiveStatus = when {
         hasError && state.status !is IenFieldStatus.Error -> {
+            IenFieldStatus.Error(help ?: supportingText ?: "")
+        }
+        lengthExceeded && state.status !is IenFieldStatus.Error -> {
             IenFieldStatus.Error(help ?: supportingText ?: "")
         }
         else -> state.status
@@ -267,6 +312,12 @@ fun IenTextField(
         isNormal -> IenTheme.colors.textTertiary
         else -> error("Unknown IenFieldStatus: $effectiveStatus")
     }
+    val lengthCounterText = maxLength?.let { "${value.length}/$it" }
+    val lengthCounterColor = if (maxLength != null && value.length > maxLength) {
+        IenTheme.colors.danger
+    } else {
+        IenTheme.colors.textTertiary
+    }
     val textColor = if (state.enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled
 
     Column(modifier = modifier.semantics {
@@ -313,8 +364,11 @@ fun IenTextField(
                 BasicTextField(
                     value = fieldValue,
                     onValueChange = { next ->
+                        val nextValue = format?.reset?.invoke(next.text) ?: next.text
+                        if (lengthLimit.blocks(nextValue)) return@BasicTextField
+
                         fieldValue = next
-                        onValueChange(format?.reset?.invoke(next.text) ?: next.text)
+                        onValueChange(nextValue)
                     },
                     modifier = Modifier
                         .weight(1f)
@@ -388,14 +442,33 @@ fun IenTextField(
                 right?.invoke()
             }
         }
-        if (!supporting.isNullOrBlank()) {
+        if (!supporting.isNullOrBlank() || lengthCounterText != null) {
             Spacer(Modifier.height(IenTheme.spacing.xxs))
-            IenText(
-                text = supporting,
-                modifier = Modifier.padding(horizontal = IenTheme.spacing.xs),
-                style = IenTheme.typography.caption,
-                color = supportingColor,
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = IenTheme.spacing.xs),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                verticalAlignment = Alignment.Top,
+            ) {
+                if (!supporting.isNullOrBlank()) {
+                    IenText(
+                        text = supporting,
+                        modifier = Modifier.weight(1f),
+                        style = IenTheme.typography.caption,
+                        color = supportingColor,
+                    )
+                } else {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+                lengthCounterText?.let {
+                    IenText(
+                        text = it,
+                        style = IenTheme.typography.caption,
+                        color = lengthCounterColor,
+                    )
+                }
+            }
         }
     }
 }
@@ -410,6 +483,7 @@ fun IenTextField(
  * @param placeholder 텍스트가 비어있을 때 표시될 힌트 문자열.
  * @param state 영역의 제어 상태 ([IenTextFieldState]).
  * @param supportingText 영역 하단 부가 안내 텍스트.
+ * @param lengthLimit 영역 하단 카운터와 최대 길이 처리 방식입니다.
  * @param minLines 최소 노출 행 수. 기본값은 4.
  * @param maxLines 최대 확장 노출 행 수. 기본값은 8.
  */
@@ -422,6 +496,7 @@ fun IenTextArea(
     placeholder: String? = null,
     state: IenTextFieldState = IenTextFieldState(),
     supportingText: String? = null,
+    lengthLimit: IenTextFieldLengthLimit = IenTextFieldLengthLimit.None,
     minLines: Int = 4,
     maxLines: Int = 8,
 ) {
@@ -433,6 +508,7 @@ fun IenTextArea(
         placeholder = placeholder,
         state = state,
         supportingText = supportingText,
+        lengthLimit = lengthLimit,
         singleLine = false,
         minLines = minLines,
         maxLines = maxLines,
@@ -455,6 +531,7 @@ fun IenTextArea(
  * @param prefix 고정 노출 접두사.
  * @param suffix 고정 노출 접미사.
  * @param state 필드 제어 상태 ([IenTextFieldState]).
+ * @param lengthLimit 필드 하단 카운터와 최대 길이 처리 방식입니다.
  * @param keyboardOptions 소프트 키보드 속성 설정.
  * @param keyboardActions 키보드 액션 정의.
  */
@@ -473,6 +550,7 @@ fun IenClearableTextField(
     prefix: String? = null,
     suffix: String? = null,
     state: IenTextFieldState = IenTextFieldState(),
+    lengthLimit: IenTextFieldLengthLimit = IenTextFieldLengthLimit.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
 ) {
@@ -489,6 +567,7 @@ fun IenClearableTextField(
         prefix = prefix,
         suffix = suffix,
         state = state,
+        lengthLimit = lengthLimit,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         right = if (value.isNotEmpty() && state.enabled && !state.readOnly) {
@@ -519,6 +598,7 @@ fun IenClearableTextField(
  * @param hasError 오류 발생 여부 설정.
  * @param variant 필드 디자인 형태 ([IenTextFieldVariant]).
  * @param state 필드 제어 상태 ([IenTextFieldState]).
+ * @param lengthLimit 필드 하단 카운터와 최대 길이 처리 방식입니다.
  * @param visible 외부 상태로 비밀번호 노출 여부를 직접 제어하고 싶을 때 전달할 값. null이면 컴포저블 내부 상태로 자동 동작합니다.
  * @param onVisibilityChange 노출 여부 토글 시 호출되는 선택적 콜백 함수.
  * @param keyboardOptions 키보드 입력 유형. 기본적으로 비밀번호 전용 키보드가 나타납니다.
@@ -536,6 +616,7 @@ fun IenPasswordTextField(
     hasError: Boolean = false,
     variant: IenTextFieldVariant = IenTextFieldVariant.Box,
     state: IenTextFieldState = IenTextFieldState(),
+    lengthLimit: IenTextFieldLengthLimit = IenTextFieldLengthLimit.None,
     visible: Boolean? = null,
     onVisibilityChange: ((visible: Boolean) -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -554,6 +635,7 @@ fun IenPasswordTextField(
         hasError = hasError,
         variant = variant,
         state = state,
+        lengthLimit = lengthLimit,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         visualTransformation = if (resolvedVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -584,6 +666,7 @@ fun IenPasswordTextField(
  * @param prefix 고정 노출 접두사.
  * @param suffix 고정 노출 접미사.
  * @param enabled 활성화 여부.
+ * @param lengthLimit 필드 하단 카운터와 최대 길이 처리 방식입니다.
  * @param right 필드 우측에 표시할 아이콘 컴포저블. 기본값은 아래쪽 화살표([IenTextFieldArrowDown])입니다.
  */
 @Composable
@@ -599,6 +682,7 @@ fun IenTextFieldButton(
     prefix: String? = null,
     suffix: String? = null,
     enabled: Boolean = true,
+    lengthLimit: IenTextFieldLengthLimit = IenTextFieldLengthLimit.None,
     right: (@Composable () -> Unit)? = { IenTextFieldArrowDown() },
 ) {
     val buttonInteractionSource = remember { MutableInteractionSource() }
@@ -621,6 +705,7 @@ fun IenTextFieldButton(
         prefix = prefix,
         suffix = suffix,
         state = IenTextFieldState(enabled = enabled, readOnly = true),
+        lengthLimit = lengthLimit,
         readOnlyTextSelectionEnabled = false,
         right = right,
     )
