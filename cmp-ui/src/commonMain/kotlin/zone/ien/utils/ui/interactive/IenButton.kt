@@ -180,7 +180,7 @@ object IenButtonDefault {
         useGradient: Boolean = true,
         containerBrush: Brush? = defaultContainerBrush(variant, container, content, border, useGradient),
         disabledContainer: Color = defaultDisabledContainerColor(variant),
-        disabledContent: Color = IenTheme.colors.textDisabled.copy(alpha = 0.72f),
+        disabledContent: Color = defaultDisabledContentColor(),
         disabledBorder: Color = defaultDisabledBorderColor(variant),
     ): IenButtonColors = IenButtonColors(
         variant = variant,
@@ -205,7 +205,7 @@ object IenButtonDefault {
     fun textColors(
         tone: IenSemanticTone = IenSemanticTone.Brand,
         content: Color = toneColor(tone),
-        disabledContent: Color = toneColor(tone).copy(alpha = IenTheme.state.disabledAlpha),
+        disabledContent: Color = defaultDisabledContentColor(),
     ): IenButtonColors = IenButtonColors(
         variant = IenButtonVariant.Ghost,
         container = Color.Transparent,
@@ -492,8 +492,8 @@ object IenToggleButtonDefault {
         uncheckedBorder = uncheckedBorder,
         uncheckedBackgroundBrush = uncheckedBackgroundBrush,
         disabledContainer = IenTheme.colors.surfaceWeak,
-        disabledContent = IenTheme.colors.textDisabled.copy(alpha = 0.72f),
-        disabledBorder = Color.Transparent,
+        disabledContent = defaultDisabledContentColor(),
+        disabledBorder = IenTheme.colors.border.copy(alpha = 0.48f),
     )
 }
 
@@ -954,19 +954,22 @@ private fun defaultContainerBrush(
 
 @Composable
 private fun defaultDisabledContainerColor(variant: IenButtonVariant): Color = when (variant) {
-    IenButtonVariant.Fill,
-    IenButtonVariant.Weak -> IenTheme.colors.surfaceWeak
+    IenButtonVariant.Fill -> IenTheme.colors.surfaceVariant
+    IenButtonVariant.Weak -> IenTheme.colors.surfaceVariant
     IenButtonVariant.Line,
     IenButtonVariant.Ghost -> Color.Transparent
 }
 
 @Composable
 private fun defaultDisabledBorderColor(variant: IenButtonVariant): Color = when (variant) {
-    IenButtonVariant.Line -> IenTheme.colors.border.copy(alpha = 0.72f)
+    IenButtonVariant.Line -> IenTheme.colors.border.copy(alpha = 0.48f)
     IenButtonVariant.Fill,
     IenButtonVariant.Weak,
     IenButtonVariant.Ghost -> Color.Transparent
 }
+
+@Composable
+private fun defaultDisabledContentColor(): Color = IenTheme.colors.textDisabled
 
 @Composable
 internal fun toneGradientBrush(tone: IenSemanticTone): Brush {
@@ -1254,7 +1257,7 @@ internal fun IenButtonContainer(
         }
         .instantPress(interactiveEnabled) { isPressed = it }
 
-    val resolvedIenColors = colors ?: ienColors
+    val resolvedIenColors = (colors ?: ienColors).resolve(state.enabled)
     val resolvedVariant = if (variant == IenButtonVariant.Fill) resolvedIenColors.variant else variant
     val effectiveBackgroundBrush = when (resolvedVariant) {
         IenButtonVariant.Fill,
