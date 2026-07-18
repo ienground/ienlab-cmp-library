@@ -35,6 +35,7 @@ import zone.ien.utils.pref.item.TextPref
 import zone.ien.utils.ui.interactive.IenTextField
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.utils.sendEmail
 
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -47,12 +48,16 @@ fun SettingsScreen(
     val dataStore: DataStore<Preferences> = koinInject(named(DEFAULT_DATASTORE))
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
     var textFieldValue by remember { mutableStateOf("") }
+    val scrollState = rememberScrollState()
 
     IenAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
         AdaptiveTopAppBarScaffold(
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
+            contentEdge = IenScaffoldContentEdge(
+                scrollState = scrollState,
+            ),
             actions = {
                 AdaptiveSwitch(
                     checked = isMaterialTheme,
@@ -64,7 +69,7 @@ fun SettingsScreen(
             PrefsScreen(
                 dataStore = dataStore,
                 title = title,
-                scrollState = rememberScrollState(),
+                scrollState = scrollState,
                 backdrop = backdrop,
                 modifier = Modifier.padding(pv)
             ) {

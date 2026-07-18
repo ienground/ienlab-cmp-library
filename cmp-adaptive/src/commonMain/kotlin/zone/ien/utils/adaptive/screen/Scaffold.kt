@@ -43,6 +43,7 @@ import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -216,20 +217,22 @@ fun AdaptiveTopAppBarScaffold(
                 contentWindowInsets = materialAdaptation.contentWindowInsets,
                 contentEdge = contentEdge,
                 content = { contentPadding ->
-                    content(
-                        contentPadding,
-                        {
-                            if (materialAdaptation.mode == TopBarMode.Expanded) {
-                                IenNavigationTitle(
-                                    title = title,
-                                    subtitle = subtitle,
-                                    topBarHeight = topBarHeight.value,
-                                    scaffoldCoordinates = scaffoldCoordinates.value,
-                                    onVisibilityChange = { navigationTitleVisible = it },
-                                )
+                    CompositionLocalProvider(LocalTopBarScaffoldScrollState provides contentEdge.scrollState) {
+                        content(
+                            contentPadding,
+                            {
+                                if (materialAdaptation.mode == TopBarMode.Expanded) {
+                                    IenNavigationTitle(
+                                        title = title,
+                                        subtitle = subtitle,
+                                        topBarHeight = topBarHeight.value,
+                                        scaffoldCoordinates = scaffoldCoordinates.value,
+                                        onVisibilityChange = { navigationTitleVisible = it },
+                                    )
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             )
         },
@@ -289,17 +292,19 @@ fun AdaptiveTopAppBarScaffold(
                 contentWindowInsets = it.contentWindowInsets,
                 hasNavigationTitle = it.mode == TopBarMode.Expanded,
                 content = { contentPadding ->
-                    content(
-                        contentPadding,
-                        {
-                            if (it.mode == TopBarMode.Expanded) {
-                                CupertinoNavigationTitle(
-                                    title = title,
-                                    subtitle = subtitle
-                                )
+                    CompositionLocalProvider(LocalTopBarScaffoldScrollState provides contentEdge.scrollState) {
+                        content(
+                            contentPadding,
+                            {
+                                if (it.mode == TopBarMode.Expanded) {
+                                    CupertinoNavigationTitle(
+                                        title = title,
+                                        subtitle = subtitle
+                                    )
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             )
         }

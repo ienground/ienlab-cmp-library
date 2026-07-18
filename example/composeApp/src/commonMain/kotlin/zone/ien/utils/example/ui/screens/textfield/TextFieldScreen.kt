@@ -48,6 +48,7 @@ import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.IenScaffold
+import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.view.textfield.PlaceholderBasicTextField
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAdaptiveApi::class)
@@ -75,6 +76,9 @@ fun TextFieldScreen(
     IenScaffold(
 //        navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
         snackbarHost = { SnackbarHost(snackbarState) },
+        contentEdge = IenScaffoldContentEdge(
+            lazyListState = lazyListState,
+        ),
 //        title = { Text(text = stringResource(Res.string.daily_mission)) },
         bottomBar = {
             BottomAppBar(

@@ -54,6 +54,7 @@ import zone.ien.utils.adaptive.view.DropdownMenuSectionNative
 import zone.ien.utils.example.Android
 import zone.ien.utils.example.ui.navigation.RootRoute
 import zone.ien.utils.ui.menu.ActionMenuItem
+import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
@@ -99,6 +100,9 @@ fun HomeScreen(
     ) {
         AdaptiveTopAppBarScaffold(
             snackbarHost = { SnackbarHost(snackbarState) },
+            contentEdge = IenScaffoldContentEdge(
+                scrollState = scrollState,
+            ),
             actions = if (isDropdownMenu) listOf(
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
                     title = "Text",

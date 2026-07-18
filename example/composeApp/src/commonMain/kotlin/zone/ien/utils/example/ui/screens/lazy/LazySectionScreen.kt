@@ -21,6 +21,7 @@ import zone.ien.utils.adaptive.section.sectionBackground
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.example.currentTheme
 import zone.ien.utils.example.isIos
+import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.section.lazy.empty
 import zone.ien.utils.ui.section.lazy.link
 import zone.ien.utils.ui.section.lazy.m3Section
@@ -46,6 +47,9 @@ fun LazySectionScreen(
     ) {
         AdaptiveTopAppBarScaffold(
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
+            contentEdge = IenScaffoldContentEdge(
+                lazyListState = lazyListState,
+            ),
             title = {
                 IenText(text = "Title")
             },

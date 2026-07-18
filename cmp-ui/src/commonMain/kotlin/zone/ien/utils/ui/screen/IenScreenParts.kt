@@ -10,12 +10,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -214,6 +216,9 @@ data class IenTopSubtitleBadge(
  * @property bottomEnabled 하단 모서리 블러 효과 활성화 여부
  * @property topProgress 상단 블러 진행도 (0f ~ 1f)
  * @property bottomProgress 하단 블러 진행도 (0f ~ 1f)
+ * @property scrollState 일반 스크롤 콘텐츠의 상/하단 블러 진행도를 자동 계산할 상태
+ * @property lazyListState Lazy 리스트 콘텐츠의 상/하단 블러 진행도를 자동 계산할 상태
+ * @property scrollFadeDistance 스크롤 시작/끝 근처에서 블러가 나타나고 사라지는 거리
  * @property topHeight 상단 블러 영역의 높이
  * @property bottomHeight 하단 블러 영역의 높이
  * @property radius 블러 강도 반경
@@ -226,6 +231,9 @@ data class IenScaffoldContentEdge(
     val bottomEnabled: Boolean = true,
     val topProgress: Float = 1f,
     val bottomProgress: Float = 1f,
+    val scrollState: ScrollState? = null,
+    val lazyListState: LazyListState? = null,
+    val scrollFadeDistance: Dp = 48.dp,
     val topHeight: Dp = 168.dp,
     val bottomHeight: Dp = 96.dp,
     val radius: Dp = 18.dp,
@@ -267,6 +275,17 @@ fun IenScaffold(
         drawRect(contentEdgeColor)
         drawContent()
     }
+    val scrollFadeDistancePx = with(LocalDensity.current) {
+        contentEdge.scrollFadeDistance.toPx().coerceAtLeast(1f)
+    }
+    val scrollTopProgress = contentEdge.scrollState?.topEdgeProgress(scrollFadeDistancePx)
+        ?: contentEdge.lazyListState?.topEdgeProgress(scrollFadeDistancePx)
+        ?: 0f
+    val scrollBottomProgress = contentEdge.scrollState?.bottomEdgeProgress(scrollFadeDistancePx)
+        ?: contentEdge.lazyListState?.bottomEdgeProgress(scrollFadeDistancePx)
+        ?: 0f
+    val effectiveTopProgress = contentEdge.topProgress.coerceIn(0f, 1f) * scrollTopProgress
+    val effectiveBottomProgress = contentEdge.bottomProgress.coerceIn(0f, 1f) * scrollBottomProgress
 
     Scaffold(
         modifier = modifier,
@@ -293,8 +312,8 @@ fun IenScaffold(
                     backdrop = backdrop,
                     showTop = contentEdge.topEnabled,
                     showBottom = contentEdge.bottomEnabled,
-                    topProgress = contentEdge.topProgress.coerceIn(0f, 1f),
-                    bottomProgress = contentEdge.bottomProgress.coerceIn(0f, 1f),
+                    topProgress = effectiveTopProgress,
+                    bottomProgress = effectiveBottomProgress,
                     topHeight = contentEdge.topHeight,
                     bottomHeight = contentEdge.bottomHeight,
                     radius = contentEdge.radius,
@@ -303,6 +322,35 @@ fun IenScaffold(
             }
         }
     }
+}
+
+private fun ScrollState.topEdgeProgress(fadeDistancePx: Float): Float {
+    if (maxValue <= 0) return 0f
+    return (value / fadeDistancePx).coerceIn(0f, 1f)
+}
+
+private fun ScrollState.bottomEdgeProgress(fadeDistancePx: Float): Float {
+    if (maxValue <= 0) return 0f
+    return ((maxValue - value) / fadeDistancePx).coerceIn(0f, 1f)
+}
+
+private fun LazyListState.topEdgeProgress(fadeDistancePx: Float): Float {
+    val layoutInfo = layoutInfo
+    if (layoutInfo.totalItemsCount <= 0) return 0f
+    if (!canScrollBackward && !canScrollForward) return 0f
+    if (firstVisibleItemIndex > 0) return 1f
+    return (firstVisibleItemScrollOffset / fadeDistancePx).coerceIn(0f, 1f)
+}
+
+private fun LazyListState.bottomEdgeProgress(fadeDistancePx: Float): Float {
+    val layoutInfo = layoutInfo
+    if (layoutInfo.totalItemsCount <= 0) return 0f
+    if (!canScrollBackward && !canScrollForward) return 0f
+    val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull() ?: return 0f
+    if (lastVisibleItem.index < layoutInfo.totalItemsCount - 1) return 1f
+
+    val remainingPx = (lastVisibleItem.offset + lastVisibleItem.size - layoutInfo.viewportEndOffset).toFloat()
+    return (remainingPx / fadeDistancePx).coerceIn(0f, 1f)
 }
 
 @Composable

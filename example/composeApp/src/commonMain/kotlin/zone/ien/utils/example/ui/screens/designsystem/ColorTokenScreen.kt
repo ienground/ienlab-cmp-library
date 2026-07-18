@@ -51,7 +51,7 @@ fun ColorTokenScreen(
         IenScaffold(
             modifier = modifier,
             contentEdge = IenScaffoldContentEdge(
-                topProgress = (scrollState.value / 48f).coerceIn(0f, 1f),
+                scrollState = scrollState,
             ),
             topBar = {
                 IenTopBar(

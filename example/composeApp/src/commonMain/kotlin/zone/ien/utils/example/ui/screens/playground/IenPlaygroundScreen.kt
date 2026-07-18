@@ -32,6 +32,7 @@ import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.IenBackButton
+import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.IenTopAppBarScaffold
 import zone.ien.utils.ui.section.IenSection
 import zone.ien.utils.ui.section.IenSectionButton
@@ -85,6 +86,9 @@ fun IenPlaygroundScreen(
     IenTheme(darkTheme = darkTheme) {
         IenTopAppBarScaffold(
             modifier = modifier,
+            contentEdge = IenScaffoldContentEdge(
+                scrollState = scrollState,
+            ),
             navigationIcon = {
                 IenBackButton {
                     navigateBack()

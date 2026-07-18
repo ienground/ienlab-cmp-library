@@ -37,8 +37,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -91,11 +91,10 @@ fun SectionScope.IenSectionItem(
 ) {
     IenSurface(
         modifier = Modifier
-            .clip(ContinuousRoundedRectangle(IenTheme.radius.sm))
             .then(modifier),
         color = colors.containerColor(),
         contentColor = colors.headlineColor(enabled),
-        shape = ContinuousRoundedRectangle(IenTheme.radius.sm),
+        shape = RectangleShape,
     ) {
         Row(
             modifier = Modifier

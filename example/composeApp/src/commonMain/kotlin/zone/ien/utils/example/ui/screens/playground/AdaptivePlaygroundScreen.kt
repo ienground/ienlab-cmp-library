@@ -64,6 +64,7 @@ import zone.ien.utils.ui.interactive.IenToggleButton
 import zone.ien.utils.ui.interactive.IenToggleButtonDefault
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.TopBarMode
 
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -101,6 +102,9 @@ fun AdaptivePlaygroundScreen(
             title = { IenText("Adaptive Playground") },
             subtitle = { IenText(if (isMaterialTheme) "Material3 + Ien" else "Cupertino + HIG") },
             modifier = modifier,
+            contentEdge = IenScaffoldContentEdge(
+                scrollState = scrollState,
+            ),
             adaptation = {
                 material {
                     mode = topBarMode

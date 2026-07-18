@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,6 +44,7 @@ import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.section.IenProvideSectionStyle
+import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.TopBarMode
 
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -56,12 +58,16 @@ fun SectionScreen(
 
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
     var checked by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
 
     IenAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
         AdaptiveTopAppBarScaffold(
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
+            contentEdge = IenScaffoldContentEdge(
+                scrollState = scrollState,
+            ),
             title = { IenText(text = "Title") },
             adaptation = {
                 material {
@@ -89,6 +95,7 @@ fun SectionScreen(
             AdaptiveProvideSectionStyle(
                 style = SectionStyle.InsetGrouped,
                 fullHeight = true,
+                scrollState = scrollState,
                 backdrop = backdrop,
                 modifier = Modifier
                     .padding(pv)

@@ -20,11 +20,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenSwitch
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
@@ -160,7 +159,6 @@ fun LazySectionScope.empty(
     ) {
         Box(
             modifier = Modifier
-                .clip(ContinuousRoundedRectangle(IenTheme.radius.sm))
                 .then(modifier)
                 .fillMaxSize()
                 .background(IenTheme.colors.surface)
@@ -249,11 +247,10 @@ private fun LazySectionScope.row(
 
     IenSurface(
         modifier = Modifier
-            .clip(ContinuousRoundedRectangle(IenTheme.radius.sm))
             .then(modifier()),
         color = itemColors.containerColor(),
         contentColor = itemColors.headlineColor(enabled),
-        shape = ContinuousRoundedRectangle(IenTheme.radius.sm),
+        shape = RectangleShape,
     ) {
         Row(
             modifier = Modifier
