@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -44,6 +43,8 @@ import zone.ien.utils.icon.LocalButtonProviderDefault
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButton
+import zone.ien.utils.ui.interactive.IenButtonColors
+import zone.ien.utils.ui.interactive.IenButtonDefault
 import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
@@ -76,7 +77,7 @@ import zone.ien.utils.ui.screen.IenBackButton
  * @param state 버튼의 활성화 및 로딩 상태입니다.
  * @param shape Material 분기 버튼 형태입니다.
  * @param contentPadding Material 분기 버튼 내부 여백입니다.
- * @param backgroundBrush Material 분기 버튼 배경에 직접 적용할 브러시입니다.
+ * @param colors Material 분기 버튼 색상과 배경 브러시입니다.
  * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
  * @param display Material 분기 버튼의 가로 배치 방식입니다.
  * @param content 버튼 내부에 표시할 컴포저블 콘텐츠입니다.
@@ -94,7 +95,7 @@ fun AdaptiveButton(
     state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
     shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
-    backgroundBrush: Brush? = null,
+    colors: IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     display: IenButtonDisplay = IenButtonDisplay.Inline,
     content: @Composable () -> Unit,
@@ -110,7 +111,7 @@ fun AdaptiveButton(
                 state = state.copy(enabled = state.enabled && enabled, loading = state.loading || loading),
                 shape = shape,
                 contentPadding = contentPadding,
-                backgroundBrush = backgroundBrush,
+                colors = colors,
                 interactionSource = interactionSource,
                 display = display,
                 content = content,
@@ -139,6 +140,7 @@ fun AdaptiveButton(
  * @param disabled 버튼 비활성화 여부입니다.
  * @param tone Material 분기 텍스트 색상에 반영할 의미적 톤입니다.
  * @param state 버튼의 활성화 상태입니다.
+ * @param colors Material 분기 버튼 색상입니다.
  * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
  * @param content 버튼 내부에 표시할 컴포저블 콘텐츠입니다.
  */
@@ -152,6 +154,7 @@ fun AdaptiveTextButton(
     disabled: Boolean = false,
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(enabled = !disabled),
+    colors: IenButtonColors = IenButtonDefault.textColors(tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
@@ -165,6 +168,7 @@ fun AdaptiveTextButton(
                 disabled = disabled,
                 tone = tone,
                 state = state,
+                colors = colors,
                 interactionSource = interactionSource,
                 content = content,
             )
@@ -194,6 +198,7 @@ fun AdaptiveTextButton(
  * @param tone Material 분기 색상에 반영할 의미적 톤입니다.
  * @param state 버튼의 활성화 및 로딩 상태입니다.
  * @param shape Material 분기 버튼 형태입니다.
+ * @param colors Material 분기 버튼 색상과 배경 브러시입니다.
  * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
  * @param content 버튼 내부에 표시할 아이콘 컴포저블 콘텐츠입니다.
  */
@@ -209,6 +214,7 @@ fun AdaptiveIconButton(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
     shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
+    colors: IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
@@ -222,6 +228,7 @@ fun AdaptiveIconButton(
                 tone = tone,
                 state = state.copy(enabled = state.enabled && enabled, loading = state.loading || loading),
                 shape = shape,
+                colors = colors,
                 interactionSource = interactionSource,
                 content = content,
             )
@@ -249,6 +256,7 @@ fun AdaptiveIconButton(
  * @param tone Material 분기 색상에 반영할 의미적 톤입니다.
  * @param state 버튼의 활성화 및 로딩 상태입니다.
  * @param shape Material 분기 버튼 형태입니다.
+ * @param colors Material 분기 버튼 색상과 배경 브러시입니다.
  * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
  * @param content 버튼 내부에 표시할 아이콘 컴포저블 콘텐츠입니다.
  */
@@ -263,6 +271,7 @@ fun AdaptiveFilledIconButton(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
     shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
+    colors: IenButtonColors = IenButtonDefault.colors(variant = IenButtonVariant.Fill, tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
@@ -276,6 +285,7 @@ fun AdaptiveFilledIconButton(
                 tone = tone,
                 state = state.copy(enabled = state.enabled && enabled, loading = state.loading || loading),
                 shape = shape,
+                colors = colors,
                 interactionSource = interactionSource,
                 content = content,
             )
@@ -462,6 +472,7 @@ fun AdaptiveIconToggleButton(
  * @param state 버튼의 활성화 및 로딩 상태입니다.
  * @param shape Material 분기 버튼 형태입니다.
  * @param contentPadding Material 분기 버튼 내부 여백입니다.
+ * @param colors Material 분기 버튼 색상과 배경 브러시입니다.
  * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
  * @param content 버튼 내부에 표시할 컴포저블 콘텐츠입니다.
  */
@@ -477,6 +488,7 @@ fun AdaptiveExtendedFloatingActionButton(
     state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
     shape: Shape = ContinuousCapsule(),
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+    colors: IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
@@ -490,6 +502,7 @@ fun AdaptiveExtendedFloatingActionButton(
                 state = state.copy(enabled = state.enabled && enabled, loading = state.loading || loading),
                 shape = shape,
                 contentPadding = contentPadding,
+                colors = colors,
                 interactionSource = interactionSource,
                 content = content,
             )

@@ -127,6 +127,94 @@ data class IenButtonState(
 )
 
 /**
+ * 버튼의 배경, 콘텐츠, 테두리 색상과 배경 브러시를 정의합니다.
+ */
+@Immutable
+data class IenButtonColors(
+    /** 활성 상태의 컨테이너 색상입니다. */
+    val container: Color,
+    /** 활성 상태의 콘텐츠 색상입니다. */
+    val content: Color,
+    /** 활성 상태의 테두리 색상입니다. */
+    val border: Color,
+    /** 활성 상태의 컨테이너 배경 브러시입니다. */
+    val containerBrush: Brush?,
+    /** 비활성 상태의 컨테이너 색상입니다. */
+    val disabledContainer: Color,
+    /** 비활성 상태의 콘텐츠 색상입니다. */
+    val disabledContent: Color,
+    /** 비활성 상태의 테두리 색상입니다. */
+    val disabledBorder: Color,
+)
+
+/**
+ * [IenButton], [IenIconButton], [IenFab], [IenExtendedFab], [IenTextButton]의 기본 색상 값을 제공합니다.
+ */
+object IenButtonDefault {
+    /**
+     * 버튼의 색상과 배경 브러시 묶음을 생성합니다.
+     *
+     * [variant]는 배경과 테두리를 어떻게 그릴지 결정하고, [tone]은 기본 색상 프리셋을 계산합니다.
+     *
+     * @param variant 버튼의 시각적 스타일 변형입니다.
+     * @param tone 기본 색상을 계산할 의미적 톤입니다.
+     * @param container 활성 상태의 컨테이너 색상입니다.
+     * @param content 활성 상태의 콘텐츠 색상입니다.
+     * @param border 활성 상태의 테두리 색상입니다.
+     * @param useGradient 기본 컨테이너 브러시에 그라데이션을 사용할지 여부입니다.
+     * @param containerBrush 활성 상태의 컨테이너 배경 브러시입니다. 기본값은 [container], [content], [border]를 기준으로 계산합니다.
+     * @param disabledContainer 비활성 상태의 컨테이너 색상입니다.
+     * @param disabledContent 비활성 상태의 콘텐츠 색상입니다.
+     * @param disabledBorder 비활성 상태의 테두리 색상입니다.
+     * @return 버튼 색상과 배경 브러시를 담은 [IenButtonColors]입니다.
+     */
+    @Composable
+    fun colors(
+        variant: IenButtonVariant = IenButtonVariant.Fill,
+        tone: IenSemanticTone = IenSemanticTone.Brand,
+        container: Color = defaultContainerColor(variant, tone),
+        content: Color = defaultContentColor(variant, tone),
+        border: Color = defaultBorderColor(variant, tone),
+        useGradient: Boolean = true,
+        containerBrush: Brush? = defaultContainerBrush(variant, container, content, border, useGradient),
+        disabledContainer: Color = defaultDisabledContainerColor(variant),
+        disabledContent: Color = IenTheme.colors.textDisabled.copy(alpha = 0.72f),
+        disabledBorder: Color = defaultDisabledBorderColor(variant),
+    ): IenButtonColors = IenButtonColors(
+        container = container,
+        content = content,
+        border = border,
+        containerBrush = containerBrush,
+        disabledContainer = disabledContainer,
+        disabledContent = disabledContent,
+        disabledBorder = disabledBorder,
+    )
+
+    /**
+     * 텍스트 버튼의 색상 묶음을 생성합니다.
+     *
+     * @param tone 기본 콘텐츠 색상을 계산할 의미적 톤입니다.
+     * @param content 활성 상태의 콘텐츠 색상입니다.
+     * @param disabledContent 비활성 상태의 콘텐츠 색상입니다.
+     * @return 텍스트 버튼 색상 값을 담은 [IenButtonColors]입니다.
+     */
+    @Composable
+    fun textColors(
+        tone: IenSemanticTone = IenSemanticTone.Brand,
+        content: Color = toneColor(tone),
+        disabledContent: Color = toneColor(tone).copy(alpha = IenTheme.state.disabledAlpha),
+    ): IenButtonColors = IenButtonColors(
+        container = Color.Transparent,
+        content = content,
+        border = Color.Transparent,
+        containerBrush = null,
+        disabledContainer = Color.Transparent,
+        disabledContent = disabledContent,
+        disabledBorder = Color.Transparent,
+    )
+}
+
+/**
  * IEN 라이브러리의 기본 버튼 컴포저블입니다.
  *
  * 텍스트, 아이콘, 로더 등 버튼 내부 콘텐츠는 [content] 슬롯으로 직접 구성합니다.
@@ -139,7 +227,7 @@ data class IenButtonState(
  * @param state 버튼의 활성화 및 로딩 상태입니다.
  * @param shape 버튼 컨테이너의 형태입니다.
  * @param contentPadding 버튼 내부 콘텐츠 여백입니다.
- * @param backgroundBrush 버튼 배경에 직접 적용할 브러시입니다. null이면 variant와 tone 기반 기본 배경을 사용합니다.
+ * @param colors 버튼의 색상과 배경 브러시입니다.
  * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
  * @param display 버튼의 가로 배치 방식입니다.
  * @param content 버튼 내부에 표시할 컴포저블 콘텐츠입니다.
@@ -154,7 +242,7 @@ fun IenButton(
     state: IenButtonState = IenButtonState(),
     shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
     contentPadding: PaddingValues = size.buttonPadding(),
-    backgroundBrush: Brush? = null,
+    colors: IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     display: IenButtonDisplay = IenButtonDisplay.Inline,
     content: @Composable () -> Unit,
@@ -178,7 +266,7 @@ fun IenButton(
         state = state,
         shape = resolvedShape,
         contentPadding = contentPadding,
-        backgroundBrush = backgroundBrush,
+        colors = colors,
         interactionSource = interactionSource,
         scalePressed = 0.975f,
     ) {
@@ -310,7 +398,6 @@ fun IenToggleButton(
         scalePressed = 0.975f,
         colors = colors.resolve(checked = checked, enabled = resolvedState.enabled),
         border = colors.borderStroke(checked = checked, enabled = resolvedState.enabled),
-        backgroundBrush = colors.backgroundBrush(checked = checked, enabled = resolvedState.enabled),
         content = content,
     )
 }
@@ -376,18 +463,30 @@ object IenToggleButtonDefault {
         uncheckedContainer: Color = toneWeakColor(uncheckedTone),
         uncheckedContent: Color = toneColor(uncheckedTone),
         uncheckedBorder: Color = Color.Transparent,
-        checkedBackgroundBrush: Brush? = null,
-        uncheckedBackgroundBrush: Brush? = null,
         useGradient: Boolean = true,
+        checkedBackgroundBrush: Brush? = defaultContainerBrush(
+            variant = IenButtonVariant.Fill,
+            container = checkedContainer,
+            content = checkedContent,
+            border = checkedBorder,
+            useGradient = useGradient,
+        ),
+        uncheckedBackgroundBrush: Brush? = defaultContainerBrush(
+            variant = IenButtonVariant.Weak,
+            container = uncheckedContainer,
+            content = uncheckedContent,
+            border = uncheckedBorder,
+            useGradient = useGradient,
+        ),
     ): IenToggleButtonColors = IenToggleButtonColors(
         checkedContainer = checkedContainer,
         checkedContent = checkedContent,
         checkedBorder = checkedBorder,
-        checkedBackgroundBrush = checkedBackgroundBrush ?: if (useGradient) toneGradientBrush(checkedTone) else null,
+        checkedBackgroundBrush = checkedBackgroundBrush,
         uncheckedContainer = uncheckedContainer,
         uncheckedContent = uncheckedContent,
         uncheckedBorder = uncheckedBorder,
-        uncheckedBackgroundBrush = uncheckedBackgroundBrush ?: if (useGradient) toneWeakGradientBrush(uncheckedTone) else null,
+        uncheckedBackgroundBrush = uncheckedBackgroundBrush,
         disabledContainer = IenTheme.colors.surfaceWeak,
         disabledContent = IenTheme.colors.textDisabled.copy(alpha = 0.72f),
         disabledBorder = Color.Transparent,
@@ -404,6 +503,7 @@ object IenToggleButtonDefault {
  * @param tone 버튼의 시각적 어조 또는 의미적 강조 색상 ([IenSemanticTone]). 기본값은 [IenSemanticTone.Brand].
  * @param state 버튼의 활성화 및 로딩 진행 상태 ([IenButtonState]).
  * @param shape 버튼의 형태 정의 ([Shape]).
+ * @param colors 버튼의 색상과 배경 브러시입니다.
  * @param interactionSource 버튼 인터랙션 정보를 전달할 [MutableInteractionSource].
  * @param content 버튼 중심에 표시할 아이콘 등의 컴포저블 콘텐츠.
  */
@@ -416,6 +516,7 @@ fun IenIconButton(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(),
     shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
+    colors: IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
@@ -454,6 +555,7 @@ fun IenIconButton(
         tone = tone,
         state = state,
         shape = shape,
+        colors = colors,
         contentPadding = PaddingValues(0.dp),
         interactionSource = interactionSource,
         scalePressed = 0.95f,
@@ -524,7 +626,6 @@ fun IenIconToggleButton(
         scalePressed = 0.95f,
         colors = colors.resolve(checked = checked, enabled = resolvedState.enabled),
         border = colors.borderStroke(checked = checked, enabled = resolvedState.enabled),
-        backgroundBrush = colors.backgroundBrush(checked = checked, enabled = resolvedState.enabled),
     ) {
         IenProvideTextStyle(IenTheme.typography.body1, LocalContentColor.current) {
             Box(
@@ -551,6 +652,7 @@ fun IenIconToggleButton(
  * @param tone 버튼의 시각적 어조 또는 의미적 강조 색상 ([IenSemanticTone]). 기본값은 [IenSemanticTone.Brand].
  * @param state 버튼의 활성화 및 로딩 진행 상태 ([IenButtonState]).
  * @param shape 버튼의 형태 정의 ([Shape]). 기본값은 [CircleShape].
+ * @param colors 버튼의 색상과 배경 브러시입니다.
  * @param interactionSource 버튼 인터랙션 정보를 전달할 [MutableInteractionSource].
  * @param content 플로팅 버튼 내부에 표시할 컴포저블 콘텐츠.
  */
@@ -563,6 +665,7 @@ fun IenFab(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(),
     shape: Shape = CircleShape,
+    colors: IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
@@ -576,6 +679,7 @@ fun IenFab(
         tone = tone,
         state = state,
         shape = shape,
+        colors = colors,
         contentPadding = PaddingValues(0.dp),
         interactionSource = interactionSource,
         scalePressed = 0.95f,
@@ -605,6 +709,7 @@ fun IenFab(
  * @param state 버튼의 활성화 및 로딩 진행 상태 ([IenButtonState]).
  * @param shape 버튼의 형태 정의 ([Shape]). 기본값은 타원형 캡슐 형태인 [IenTheme.radius.full]을 가집니다.
  * @param contentPadding 버튼 내부 콘텐츠의 여백 ([PaddingValues]).
+ * @param colors 버튼의 색상과 배경 브러시입니다.
  * @param interactionSource 버튼 인터랙션 정보를 전달할 [MutableInteractionSource].
  * @param content 플로팅 버튼 내부에 표시할 컴포저블 콘텐츠.
  */
@@ -617,6 +722,7 @@ fun IenExtendedFab(
     state: IenButtonState = IenButtonState(),
     shape: Shape = ContinuousCapsule(),
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+    colors: IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
@@ -628,6 +734,7 @@ fun IenExtendedFab(
         state = state,
         shape = shape,
         contentPadding = contentPadding,
+        colors = colors,
         interactionSource = interactionSource,
         scalePressed = 0.96f,
     ) {
@@ -649,6 +756,7 @@ fun IenExtendedFab(
  * @param disabled 버튼을 비활성화할지 여부입니다.
  * @param tone 텍스트 색상에 반영할 의미적 톤입니다.
  * @param state 버튼의 활성화 상태입니다.
+ * @param colors 버튼의 색상입니다.
  * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
  * @param content 버튼 내부에 표시할 컴포저블 콘텐츠입니다.
  */
@@ -661,15 +769,13 @@ fun IenTextButton(
     disabled: Boolean = false,
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(enabled = !disabled),
+    colors: IenButtonColors = IenButtonDefault.textColors(tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
     val enabled = state.enabled && !disabled
-    val contentColor = if (enabled) {
-        toneColor(tone)
-    } else {
-        toneColor(tone).copy(alpha = IenTheme.state.disabledAlpha)
-    }
+    val resolvedColors = colors.resolve(enabled)
+    val contentColor = resolvedColors.content
     val textStyle = size.textStyle().let {
         if (variant == IenTextButtonVariant.Underline) {
             it.copy(textDecoration = TextDecoration.Underline)
@@ -688,13 +794,7 @@ fun IenTextButton(
         contentPadding = size.contentPadding(),
         interactionSource = interactionSource,
         scalePressed = 0.97f,
-        colors = IenButtonResolvedColors(
-            container = Color.Transparent,
-            content = contentColor,
-            border = Color.Transparent,
-            disabledContainer = Color.Transparent,
-            disabledContent = contentColor,
-        ),
+        colors = colors,
     ) {
         IenProvideTextStyle(textStyle, contentColor) {
             Row(
@@ -735,55 +835,20 @@ private fun IenButtonSlotContent(
     }
 }
 
-/**
- * 버튼이 그려질 때 각 상태별 배경색, 콘텐츠색, 테두리색 정보를 갖고 있는 내부 데이터 클래스.
- */
-@Immutable
-internal data class IenButtonResolvedColors(
-    val container: Color,
-    val content: Color,
-    val border: Color,
-    val disabledContainer: Color,
-    val disabledContent: Color,
-)
-
 @Composable
 private fun ienButtonColors(
     variant: IenButtonVariant,
     tone: IenSemanticTone,
     enabled: Boolean,
-): IenButtonResolvedColors {
-    val toneColor = toneColor(tone)
-    val weakColor = toneWeakColor(tone)
-    val onToneColor = toneOnColor(tone)
-    val resolved = when (variant) {
-        IenButtonVariant.Fill -> IenButtonResolvedColors(toneColor, onToneColor, toneColor, toneColor, onToneColor)
-        IenButtonVariant.Weak -> IenButtonResolvedColors(weakColor, toneColor, weakColor, weakColor, toneColor)
-        IenButtonVariant.Line -> IenButtonResolvedColors(Color.Transparent, toneColor, IenTheme.colors.borderStrong, Color.Transparent, toneColor)
-        IenButtonVariant.Ghost -> IenButtonResolvedColors(Color.Transparent, toneColor, Color.Transparent, Color.Transparent, toneColor)
-    }
-    if (enabled) return resolved
+): IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone).resolve(enabled)
 
-    val disabledContainer = when (variant) {
-        IenButtonVariant.Fill,
-        IenButtonVariant.Weak -> IenTheme.colors.surfaceWeak
-        IenButtonVariant.Line,
-        IenButtonVariant.Ghost -> Color.Transparent
-    }
-    val disabledContent = IenTheme.colors.textDisabled.copy(alpha = 0.72f)
-    val disabledBorder = when (variant) {
-        IenButtonVariant.Line -> IenTheme.colors.border.copy(alpha = 0.72f)
-        IenButtonVariant.Ghost -> Color.Transparent
-        IenButtonVariant.Fill,
-        IenButtonVariant.Weak -> Color.Transparent
-    }
-
-    return resolved.copy(
+private fun IenButtonColors.resolve(enabled: Boolean): IenButtonColors {
+    if (enabled) return this
+    return copy(
         container = disabledContainer,
         content = disabledContent,
         border = disabledBorder,
-        disabledContainer = disabledContainer,
-        disabledContent = disabledContent,
+        containerBrush = null,
     )
 }
 
@@ -827,64 +892,155 @@ internal fun toneOnColor(tone: IenSemanticTone): Color = when (tone) {
 }
 
 @Composable
+private fun defaultContainerColor(
+    variant: IenButtonVariant,
+    tone: IenSemanticTone,
+): Color = when (variant) {
+    IenButtonVariant.Fill -> toneColor(tone)
+    IenButtonVariant.Weak -> toneWeakColor(tone)
+    IenButtonVariant.Line,
+    IenButtonVariant.Ghost -> Color.Transparent
+}
+
+@Composable
+private fun defaultContentColor(
+    variant: IenButtonVariant,
+    tone: IenSemanticTone,
+): Color = when (variant) {
+    IenButtonVariant.Fill -> toneOnColor(tone)
+    IenButtonVariant.Weak,
+    IenButtonVariant.Line,
+    IenButtonVariant.Ghost -> toneColor(tone)
+}
+
+@Composable
+private fun defaultBorderColor(
+    variant: IenButtonVariant,
+    tone: IenSemanticTone,
+): Color = when (variant) {
+    IenButtonVariant.Line -> toneColor(tone)
+    IenButtonVariant.Fill -> toneColor(tone)
+    IenButtonVariant.Weak -> toneWeakColor(tone)
+    IenButtonVariant.Ghost -> Color.Transparent
+}
+
+@Composable
+private fun defaultContainerBrush(
+    variant: IenButtonVariant,
+    container: Color,
+    content: Color,
+    border: Color,
+    useGradient: Boolean,
+): Brush? {
+    if (!useGradient) return null
+    return when (variant) {
+        IenButtonVariant.Fill -> containerGradientBrush(
+            container = container,
+            content = content,
+        )
+        IenButtonVariant.Weak -> weakContainerGradientBrush(
+            container = container,
+            content = content,
+            border = border,
+        )
+        IenButtonVariant.Line,
+        IenButtonVariant.Ghost -> null
+    }
+}
+
+@Composable
+private fun defaultDisabledContainerColor(variant: IenButtonVariant): Color = when (variant) {
+    IenButtonVariant.Fill,
+    IenButtonVariant.Weak -> IenTheme.colors.surfaceWeak
+    IenButtonVariant.Line,
+    IenButtonVariant.Ghost -> Color.Transparent
+}
+
+@Composable
+private fun defaultDisabledBorderColor(variant: IenButtonVariant): Color = when (variant) {
+    IenButtonVariant.Line -> IenTheme.colors.border.copy(alpha = 0.72f)
+    IenButtonVariant.Fill,
+    IenButtonVariant.Weak,
+    IenButtonVariant.Ghost -> Color.Transparent
+}
+
+@Composable
 internal fun toneGradientBrush(tone: IenSemanticTone): Brush {
-    val base = toneColor(tone)
-    val start = lerp(base, Color.White, 0.18f)
-    val end = lerp(base, Color.White, 0.36f)
-    return Brush.linearGradient(
-        colors = listOf(start, base, end),
+    return containerGradientBrush(
+        container = toneColor(tone),
+        content = toneOnColor(tone),
     )
 }
 
 @Composable
 internal fun toneWeakGradientBrush(tone: IenSemanticTone): Brush {
-    val base = toneWeakColor(tone)
-    val accent = toneColor(tone)
-    val start = lerp(base, Color.White, 0.16f)
-    val end = lerp(base, accent, 0.08f)
+    return weakContainerGradientBrush(
+        container = toneWeakColor(tone),
+        content = toneColor(tone),
+        border = toneWeakColor(tone),
+    )
+}
+
+private fun containerGradientBrush(
+    container: Color,
+    content: Color,
+): Brush {
+    val start = lerp(container, content, 0.18f)
+    val end = lerp(container, content, 0.36f)
     return Brush.linearGradient(
-        colors = listOf(start, base, end),
+        colors = listOf(start, container, end),
+    )
+}
+
+private fun weakContainerGradientBrush(
+    container: Color,
+    content: Color,
+    border: Color,
+): Brush {
+    val accent = if (border != Color.Transparent) border else content
+    val start = lerp(container, content, 0.06f)
+    val end = lerp(container, accent, 0.10f)
+    return Brush.linearGradient(
+        colors = listOf(start, container, end),
     )
 }
 
 private fun IenToggleButtonColors.resolve(
     checked: Boolean,
     enabled: Boolean,
-): IenButtonResolvedColors {
+): IenButtonColors {
     if (!enabled) {
-        return IenButtonResolvedColors(
+        return IenButtonColors(
             container = disabledContainer,
             content = disabledContent,
             border = disabledBorder,
+            containerBrush = null,
             disabledContainer = disabledContainer,
             disabledContent = disabledContent,
+            disabledBorder = disabledBorder,
         )
     }
     return if (checked) {
-        IenButtonResolvedColors(
+        IenButtonColors(
             container = checkedContainer,
             content = checkedContent,
             border = checkedBorder,
+            containerBrush = checkedBackgroundBrush,
             disabledContainer = disabledContainer,
             disabledContent = disabledContent,
+            disabledBorder = disabledBorder,
         )
     } else {
-        IenButtonResolvedColors(
+        IenButtonColors(
             container = uncheckedContainer,
             content = uncheckedContent,
             border = uncheckedBorder,
+            containerBrush = uncheckedBackgroundBrush,
             disabledContainer = disabledContainer,
             disabledContent = disabledContent,
+            disabledBorder = disabledBorder,
         )
     }
-}
-
-private fun IenToggleButtonColors.backgroundBrush(
-    checked: Boolean,
-    enabled: Boolean,
-): Brush? {
-    if (!enabled) return null
-    return if (checked) checkedBackgroundBrush else uncheckedBackgroundBrush
 }
 
 @Composable
@@ -1050,9 +1206,8 @@ internal fun IenButtonContainer(
     contentPadding: PaddingValues = PaddingValues(0.dp),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     scalePressed: Float = 0.975f,
-    colors: IenButtonResolvedColors? = null,
+    colors: IenButtonColors? = null,
     border: BorderStroke? = null,
-    backgroundBrush: Brush? = null,
     content: @Composable () -> Unit,
 ) {
     val ienColors = ienButtonColors(variant, tone, state.enabled)
@@ -1093,12 +1248,13 @@ internal fun IenButtonContainer(
         .instantPress(interactiveEnabled) { isPressed = it }
 
     val resolvedIenColors = colors ?: ienColors
-    val effectiveBackgroundBrush = (backgroundBrush ?: when (variant) {
-        IenButtonVariant.Fill -> toneGradientBrush(tone)
-        IenButtonVariant.Weak -> toneWeakGradientBrush(tone)
-        IenButtonVariant.Line, IenButtonVariant.Ghost -> null
-    })
-        .takeIf { state.enabled }
+    val effectiveBackgroundBrush = when (variant) {
+        IenButtonVariant.Fill,
+        IenButtonVariant.Weak -> resolvedIenColors.containerBrush
+        IenButtonVariant.Line,
+        IenButtonVariant.Ghost -> null
+    }.takeIf { state.enabled }
+    val variantDrawsContainer = variant == IenButtonVariant.Fill || variant == IenButtonVariant.Weak
     val containerColor = if (effectiveBackgroundBrush == null) resolvedIenColors.container else Color.Transparent
     val contentColor = resolvedIenColors.content
 
@@ -1107,7 +1263,9 @@ internal fun IenButtonContainer(
             onClick()
         }
     }
-    val backgroundModifier = if (effectiveBackgroundBrush == null) {
+    val backgroundModifier = if (!variantDrawsContainer) {
+        Modifier.background(Color.Transparent, shape)
+    } else if (effectiveBackgroundBrush == null) {
         Modifier.background(containerColor, shape)
     } else {
         Modifier.background(effectiveBackgroundBrush, shape)

@@ -178,6 +178,7 @@ import zone.ien.utils.ui.interactive.IenBadgeSize
 import zone.ien.utils.ui.interactive.IenBadgeVariant
 import zone.ien.utils.ui.interactive.IenButton
 import zone.ien.utils.ui.interactive.IenButtonDisplay
+import zone.ien.utils.ui.interactive.IenButtonDefault
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
@@ -653,6 +654,77 @@ fun ButtonSection() {
             }
             IenButton(onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Inline) {
                 IenText("Inline")
+            }
+            IenBorder()
+            IenText("Custom colors", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+            ) {
+                IenButton(
+                    onClick = {},
+                    tone = IenSemanticTone.Success,
+                ) {
+                    IenText("Tone")
+                }
+                IenButton(
+                    onClick = {},
+                    colors = IenButtonDefault.colors(
+                        container = Color(0xFF111827),
+                        content = Color.White,
+                        border = Color(0xFF111827),
+                    ),
+                ) {
+                    IenText("Custom gradient")
+                }
+                IenButton(
+                    onClick = {},
+                    variant = IenButtonVariant.Line,
+                    colors = IenButtonDefault.colors(
+                        variant = IenButtonVariant.Line,
+                        content = Color(0xFFDB2777),
+                        border = Color(0xFFDB2777),
+                    ),
+                ) {
+                    IenText("Custom line")
+                }
+                IenButton(
+                    onClick = {},
+                    colors = IenButtonDefault.colors(
+                        container = Color(0xFF2563EB),
+                        content = Color.White,
+                        border = Color(0xFF2563EB),
+                        containerBrush = Brush.linearGradient(
+                            listOf(
+                                Color(0xFF2563EB),
+                                Color(0xFF06B6D4),
+                            ),
+                        ),
+                    ),
+                ) {
+                    IenText("Custom brush")
+                }
+                IenButton(
+                    onClick = {},
+                    colors = IenButtonDefault.colors(
+                        container = Color(0xFF111827),
+                        content = Color.White,
+                        border = Color(0xFF111827),
+                        containerBrush = null,
+                    ),
+                ) {
+                    IenText("Custom solid")
+                }
+                IenButton(
+                    onClick = {},
+                    tone = IenSemanticTone.Warning,
+                    colors = IenButtonDefault.colors(
+                        tone = IenSemanticTone.Warning,
+                        useGradient = false,
+                    ),
+                ) {
+                    IenText("No gradient")
+                }
             }
             IenBorder()
             IenText("Toggle", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)

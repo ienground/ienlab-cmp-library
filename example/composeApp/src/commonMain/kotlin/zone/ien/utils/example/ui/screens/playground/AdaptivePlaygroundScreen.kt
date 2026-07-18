@@ -55,6 +55,7 @@ import zone.ien.utils.adaptive.view.AdaptiveLoadingIndicator
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenButtonDefault
 import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonVariant
@@ -184,6 +185,18 @@ fun AdaptivePlaygroundScreen(
                             IenText("Weak action")
                             SampleIcon()
                         }
+                    }
+                    AdaptiveButton(
+                        onClick = {},
+                        enabled = enabled,
+                        display = IenButtonDisplay.Full,
+                        colors = IenButtonDefault.colors(
+                            container = Color(0xFF111827),
+                            content = Color.White,
+                            border = Color(0xFF111827),
+                        ),
+                    ) {
+                        IenText("Custom color action")
                     }
                     AdaptiveToggleButton(
                         checked = toggleChecked,
