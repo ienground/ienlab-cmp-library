@@ -196,7 +196,19 @@ fun AdaptivePlaygroundScreen(
                             border = Color(0xFF111827),
                         ),
                     ) {
-                        IenText("Custom color action")
+                        IenText("Colors fill action")
+                    }
+                    AdaptiveButton(
+                        onClick = {},
+                        enabled = enabled,
+                        display = IenButtonDisplay.Full,
+                        colors = IenButtonDefault.colors(
+                            variant = IenButtonVariant.Line,
+                            content = IenTheme.colors.info,
+                            border = IenTheme.colors.info,
+                        ),
+                    ) {
+                        IenText("Colors line action")
                     }
                     AdaptiveToggleButton(
                         checked = toggleChecked,

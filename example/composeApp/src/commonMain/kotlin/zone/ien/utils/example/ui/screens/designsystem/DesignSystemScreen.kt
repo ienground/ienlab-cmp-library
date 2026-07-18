@@ -656,7 +656,7 @@ fun ButtonSection() {
                 IenText("Inline")
             }
             IenBorder()
-            IenText("Custom colors", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            IenText("Colors override", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
@@ -665,7 +665,7 @@ fun ButtonSection() {
                     onClick = {},
                     tone = IenSemanticTone.Success,
                 ) {
-                    IenText("Tone")
+                    IenText("Tone only")
                 }
                 IenButton(
                     onClick = {},
@@ -675,18 +675,17 @@ fun ButtonSection() {
                         border = Color(0xFF111827),
                     ),
                 ) {
-                    IenText("Custom gradient")
+                    IenText("Colors fill")
                 }
                 IenButton(
                     onClick = {},
-                    variant = IenButtonVariant.Line,
                     colors = IenButtonDefault.colors(
                         variant = IenButtonVariant.Line,
                         content = Color(0xFFDB2777),
                         border = Color(0xFFDB2777),
                     ),
                 ) {
-                    IenText("Custom line")
+                    IenText("Colors line")
                 }
                 IenButton(
                     onClick = {},
@@ -702,7 +701,7 @@ fun ButtonSection() {
                         ),
                     ),
                 ) {
-                    IenText("Custom brush")
+                    IenText("Brush override")
                 }
                 IenButton(
                     onClick = {},
@@ -713,7 +712,7 @@ fun ButtonSection() {
                         containerBrush = null,
                     ),
                 ) {
-                    IenText("Custom solid")
+                    IenText("Solid override")
                 }
                 IenButton(
                     onClick = {},

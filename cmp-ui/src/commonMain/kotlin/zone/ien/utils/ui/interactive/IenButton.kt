@@ -131,6 +131,8 @@ data class IenButtonState(
  */
 @Immutable
 data class IenButtonColors(
+    /** 버튼 컨테이너를 그릴 시각적 스타일 변형입니다. */
+    val variant: IenButtonVariant,
     /** 활성 상태의 컨테이너 색상입니다. */
     val container: Color,
     /** 활성 상태의 콘텐츠 색상입니다. */
@@ -181,6 +183,7 @@ object IenButtonDefault {
         disabledContent: Color = IenTheme.colors.textDisabled.copy(alpha = 0.72f),
         disabledBorder: Color = defaultDisabledBorderColor(variant),
     ): IenButtonColors = IenButtonColors(
+        variant = variant,
         container = container,
         content = content,
         border = border,
@@ -204,6 +207,7 @@ object IenButtonDefault {
         content: Color = toneColor(tone),
         disabledContent: Color = toneColor(tone).copy(alpha = IenTheme.state.disabledAlpha),
     ): IenButtonColors = IenButtonColors(
+        variant = IenButtonVariant.Ghost,
         container = Color.Transparent,
         content = content,
         border = Color.Transparent,
@@ -1011,6 +1015,7 @@ private fun IenToggleButtonColors.resolve(
 ): IenButtonColors {
     if (!enabled) {
         return IenButtonColors(
+            variant = IenButtonVariant.Weak,
             container = disabledContainer,
             content = disabledContent,
             border = disabledBorder,
@@ -1022,6 +1027,7 @@ private fun IenToggleButtonColors.resolve(
     }
     return if (checked) {
         IenButtonColors(
+            variant = IenButtonVariant.Fill,
             container = checkedContainer,
             content = checkedContent,
             border = checkedBorder,
@@ -1032,6 +1038,7 @@ private fun IenToggleButtonColors.resolve(
         )
     } else {
         IenButtonColors(
+            variant = IenButtonVariant.Weak,
             container = uncheckedContainer,
             content = uncheckedContent,
             border = uncheckedBorder,
@@ -1248,13 +1255,14 @@ internal fun IenButtonContainer(
         .instantPress(interactiveEnabled) { isPressed = it }
 
     val resolvedIenColors = colors ?: ienColors
-    val effectiveBackgroundBrush = when (variant) {
+    val resolvedVariant = if (variant == IenButtonVariant.Fill) resolvedIenColors.variant else variant
+    val effectiveBackgroundBrush = when (resolvedVariant) {
         IenButtonVariant.Fill,
         IenButtonVariant.Weak -> resolvedIenColors.containerBrush
         IenButtonVariant.Line,
         IenButtonVariant.Ghost -> null
     }.takeIf { state.enabled }
-    val variantDrawsContainer = variant == IenButtonVariant.Fill || variant == IenButtonVariant.Weak
+    val variantDrawsContainer = resolvedVariant == IenButtonVariant.Fill || resolvedVariant == IenButtonVariant.Weak
     val containerColor = if (effectiveBackgroundBrush == null) resolvedIenColors.container else Color.Transparent
     val contentColor = resolvedIenColors.content
 
@@ -1270,7 +1278,7 @@ internal fun IenButtonContainer(
     } else {
         Modifier.background(effectiveBackgroundBrush, shape)
     }
-    val borderStroke = border ?: when (variant) {
+    val borderStroke = border ?: when (resolvedVariant) {
         IenButtonVariant.Line -> BorderStroke(IenTheme.stroke.thin, resolvedIenColors.border)
         IenButtonVariant.Fill,
         IenButtonVariant.Weak,
@@ -1295,7 +1303,7 @@ internal fun IenButtonContainer(
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .background(pressedLayerColor(variant)),
+                    .background(pressedLayerColor(resolvedVariant)),
             )
         }
         Box(
