@@ -30,7 +30,6 @@ import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
-import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.primitives.IenText
 
 /**
@@ -108,13 +107,13 @@ fun IenAlertDialog(
         tone = resolvedTone,
         actions = {
             onDismiss?.let {
-                IenTextButton(
+                IenDialogButton(
+                    text = textDismiss,
                     onClick = it,
-                    modifier = Modifier.fillMaxWidth(),
+                    enabled = true,
                     tone = resolvedTone,
-                ) {
-                    IenText(textDismiss)
-                }
+                    variant = IenButtonVariant.Ghost,
+                )
             }
         },
     )
@@ -238,20 +237,24 @@ fun IenAlertDialog(
         onDismiss = onNegative,
         tone = resolvedTone,
         actions = {
-            IenTextButton(
-                onClick = onNeutral,
-                modifier = Modifier.fillMaxWidth(),
-                tone = IenSemanticTone.Neutral,
-                state = IenButtonState(enabled = enabledNeutral),
-            ) {
-                IenText(textNeutral)
-            }
             IenDialogButtonGroup(
                 buttonLayout = buttonLayout,
+                neutralButton = {
+                    IenDialogButton(
+                        text = textNeutral,
+                        onClick = onNeutral,
+                        enabled = enabledNeutral,
+                        tone = IenSemanticTone.Neutral,
+                        variant = IenButtonVariant.Line,
+                    )
+                },
                 cancelButton = {
-                    IenConfirmDialogCancelButton(
+                    IenDialogButton(
                         text = textNegative,
                         onClick = onNegative,
+                        enabled = true,
+                        tone = IenSemanticTone.Neutral,
+                        variant = IenButtonVariant.Ghost,
                     )
                 },
                 confirmButton = {
@@ -356,6 +359,7 @@ private fun IenDialogButton(
 @Composable
 private fun IenDialogButtonGroup(
     buttonLayout: IenDialogButtonLayout,
+    neutralButton: (@Composable () -> Unit)? = null,
     cancelButton: @Composable () -> Unit,
     confirmButton: @Composable () -> Unit,
 ) {
@@ -364,6 +368,11 @@ private fun IenDialogButtonGroup(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
         ) {
+            if (neutralButton != null) {
+                Box(modifier = Modifier.weight(1f)) {
+                    neutralButton()
+                }
+            }
             Box(modifier = Modifier.weight(1f)) {
                 cancelButton()
             }
@@ -376,6 +385,7 @@ private fun IenDialogButtonGroup(
             verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
         ) {
             confirmButton()
+            neutralButton?.invoke()
             cancelButton()
         }
     }
