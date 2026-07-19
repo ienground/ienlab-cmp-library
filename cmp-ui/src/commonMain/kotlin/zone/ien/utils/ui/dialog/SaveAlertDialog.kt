@@ -33,7 +33,7 @@ fun IenSaveAlertDialog(
     enabledUnsave: Boolean = true,
     onSave: () -> Unit,
     enabledSave: Boolean = true,
-    buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Horizontal,
+    buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Vertical,
 ) {
     IenAlertDialog(
         modifier = modifier,

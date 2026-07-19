@@ -120,5 +120,5 @@ expect fun AlertDialog(
     stylePositive: UIAlertActionStyle = UIAlertActionStyle.Default,
     onPositive: () -> Unit,
     enabledPositive: Boolean = true,
-    buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Horizontal,
+    buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Vertical,
 )

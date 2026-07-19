@@ -264,7 +264,7 @@ fun IenAlertDialog(
     enabledPositive: Boolean = true,
     tone: IenSemanticTone = IenSemanticTone.Brand,
     isDestructive: Boolean = false,
-    buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Horizontal,
+    buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Vertical,
     styleNeutral: IenDialogActionStyle = IenDialogActionStyle.Default,
     styleNegative: IenDialogActionStyle = IenDialogActionStyle.Cancel,
     stylePositive: IenDialogActionStyle = if (isDestructive) IenDialogActionStyle.Destructive else IenDialogActionStyle.Default,
