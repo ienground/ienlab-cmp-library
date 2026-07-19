@@ -336,8 +336,6 @@ data class IenToggleButtonColors(
  * @param checked 현재 선택 상태입니다.
  * @param onCheckedChange 선택 상태 변경 콜백입니다.
  * @param modifier 컴포저블에 적용할 [Modifier]입니다.
- * @param enabled 버튼 활성화 여부입니다.
- * @param loading 로딩 상태 표시 여부입니다.
  * @param size 버튼의 높이 및 내부 패딩 크기 규격입니다.
  * @param state 버튼의 활성화 및 로딩 진행 상태입니다.
  * @param shapes 선택/비선택 상태별 버튼 형태 구성입니다.
@@ -353,10 +351,8 @@ fun IenToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    loading: Boolean = false,
     size: IenButtonSize = IenButtonSize.Large,
-    state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
+    state: IenButtonState = IenButtonState(),
     shapes: IenToggleButtonShapes = IenToggleButtonDefault.shapes(),
     variants: IenToggleButtonVariants = IenToggleButtonDefault.variants(),
     colors: IenToggleButtonColors = IenToggleButtonDefault.colors(),
@@ -366,10 +362,6 @@ fun IenToggleButton(
     content: @Composable () -> Unit,
 ) {
     val height = size.buttonHeight()
-    val resolvedState = state.copy(
-        enabled = state.enabled && enabled,
-        loading = state.loading || loading,
-    )
     val buttonModifier = modifier
         .then(if (display == IenButtonDisplay.Block || display == IenButtonDisplay.Full) Modifier.fillMaxWidth() else Modifier)
         .heightIn(min = height)
@@ -395,13 +387,13 @@ fun IenToggleButton(
         onClick = { onCheckedChange(!checked) },
         modifier = buttonModifier,
         variant = if (checked) variants.checked else variants.unchecked,
-        state = resolvedState,
+        state = state,
         shape = resolvedShape,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
         scalePressed = 0.975f,
-        colors = colors.resolve(checked = checked, enabled = resolvedState.enabled),
-        border = colors.borderStroke(checked = checked, enabled = resolvedState.enabled),
+        colors = colors.resolve(checked = checked, enabled = state.enabled),
+        border = colors.borderStroke(checked = checked, enabled = state.enabled),
         content = content,
     )
 }
@@ -573,8 +565,6 @@ fun IenIconButton(
  * @param checked 현재 선택 상태입니다.
  * @param onCheckedChange 선택 상태 변경 콜백입니다.
  * @param modifier 컴포저블에 적용할 [Modifier]입니다.
- * @param enabled 버튼 활성화 여부입니다.
- * @param loading 로딩 상태 표시 여부입니다.
  * @param size 버튼의 크기 규격입니다.
  * @param state 버튼의 활성화 및 로딩 진행 상태입니다.
  * @param shapes 선택/비선택 상태별 버튼 형태 구성입니다.
@@ -588,20 +578,14 @@ fun IenIconToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    loading: Boolean = false,
     size: IenButtonSize = IenButtonSize.Large,
-    state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
+    state: IenButtonState = IenButtonState(),
     shapes: IenToggleButtonShapes = IenToggleButtonDefault.shapes(),
     variants: IenToggleButtonVariants = IenToggleButtonDefault.variants(),
     colors: IenToggleButtonColors = IenToggleButtonDefault.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
-    val resolvedState = state.copy(
-        enabled = state.enabled && enabled,
-        loading = state.loading || loading,
-    )
     val buttonSize = when (size) {
         IenButtonSize.Small -> 36.dp
         IenButtonSize.Medium -> 44.dp
@@ -623,20 +607,20 @@ fun IenIconToggleButton(
             .size(buttonSize)
             .semantics { selected = checked },
         variant = if (checked) variants.checked else variants.unchecked,
-        state = resolvedState,
+        state = state,
         shape = resolvedShape,
         contentPadding = PaddingValues(0.dp),
         interactionSource = interactionSource,
         scalePressed = 0.95f,
-        colors = colors.resolve(checked = checked, enabled = resolvedState.enabled),
-        border = colors.borderStroke(checked = checked, enabled = resolvedState.enabled),
+        colors = colors.resolve(checked = checked, enabled = state.enabled),
+        border = colors.borderStroke(checked = checked, enabled = state.enabled),
     ) {
         IenProvideTextStyle(IenTheme.typography.body1, LocalContentColor.current) {
             Box(
                 modifier = Modifier.size(iconSize),
                 contentAlignment = Alignment.Center,
             ) {
-                if (resolvedState.loading) {
+                if (state.loading) {
                     IenLoaderPrimitive(color = LocalContentColor.current)
                 } else {
                     content()
@@ -757,9 +741,8 @@ fun IenExtendedFab(
  * @param modifier 컴포저블에 적용할 [Modifier]입니다.
  * @param size 텍스트 버튼의 타이포그래피와 최소 높이를 결정하는 크기 규격입니다.
  * @param variant 텍스트 버튼의 표시 방식입니다.
- * @param disabled 버튼을 비활성화할지 여부입니다.
  * @param tone 텍스트 색상에 반영할 의미적 톤입니다.
- * @param state 버튼의 활성화 상태입니다.
+ * @param state 버튼의 활성화 및 로딩 상태입니다.
  * @param colors 버튼의 색상입니다.
  * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
  * @param content 버튼 내부에 표시할 컴포저블 콘텐츠입니다.
@@ -770,15 +753,13 @@ fun IenTextButton(
     modifier: Modifier = Modifier,
     size: IenTextButtonSize = IenTextButtonSize.Medium,
     variant: IenTextButtonVariant = IenTextButtonVariant.Clear,
-    disabled: Boolean = false,
     tone: IenSemanticTone = IenSemanticTone.Brand,
-    state: IenButtonState = IenButtonState(enabled = !disabled),
+    state: IenButtonState = IenButtonState(),
     colors: IenButtonColors = IenButtonDefault.textColors(tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
-    val enabled = state.enabled && !disabled
-    val resolvedColors = colors.resolve(enabled)
+    val resolvedColors = colors.resolve(state.enabled)
     val contentColor = resolvedColors.content
     val textStyle = size.textStyle().let {
         if (variant == IenTextButtonVariant.Underline) {
@@ -793,7 +774,7 @@ fun IenTextButton(
         modifier = modifier.defaultMinSize(minHeight = size.minHeight()),
         variant = IenButtonVariant.Ghost,
         tone = tone,
-        state = state.copy(enabled = enabled),
+        state = state,
         shape = ContinuousRoundedRectangle(IenTheme.radius.sm),
         contentPadding = size.contentPadding(),
         interactionSource = interactionSource,

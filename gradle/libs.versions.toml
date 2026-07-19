@@ -4,7 +4,7 @@ kotlin = "2.4.10"
 android-minSdk = "29"
 android-compileSdk = "37"
 android-targetSdk = "37"
-lib-version-name = "3.0.0-alpha27"
+lib-version-name = "3.0.0-alpha28"
 
 # plugin
 compose-plugin = "1.11.1"
@@ -12,8 +12,8 @@ compose-plugin-experimental = "1.11.0-alpha07"
 compose-navigation3 = "1.1.1"
 
 # firebase
-kmp-firebase = "2.4.0"
-firebase-firestore = "26.4.0"
+kmp-firebase = "2.5.0"
+firebase-firestore = "26.4.1"
 firebase-storage = "22.0.1"
 firebase-common = "22.1.0"
 

@@ -69,8 +69,6 @@ import zone.ien.utils.ui.screen.IenBackButton
  *
  * @param onClick 버튼 클릭 시 실행할 콜백 함수입니다.
  * @param modifier 컴포저블에 적용할 [Modifier]입니다.
- * @param enabled 버튼 활성화 여부입니다.
- * @param loading Material 분기에서 로딩 상태를 표시할지 여부입니다.
  * @param size Material 분기 버튼 크기 규격입니다.
  * @param variant Material 분기 버튼 스타일 변형입니다.
  * @param tone Material 분기 색상에 반영할 의미적 톤입니다.
@@ -87,12 +85,10 @@ import zone.ien.utils.ui.screen.IenBackButton
 fun AdaptiveButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    loading: Boolean = false,
     size: IenButtonSize = IenButtonSize.Large,
     variant: IenButtonVariant = IenButtonVariant.Fill,
     tone: IenSemanticTone = IenSemanticTone.Brand,
-    state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
+    state: IenButtonState = IenButtonState(),
     shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
     colors: IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone),
@@ -108,7 +104,7 @@ fun AdaptiveButton(
                 size = size,
                 variant = variant,
                 tone = tone,
-                state = state.copy(enabled = state.enabled && enabled, loading = state.loading || loading),
+                state = state,
                 shape = shape,
                 contentPadding = contentPadding,
                 colors = colors,
@@ -121,7 +117,7 @@ fun AdaptiveButton(
             HigAdaptiveButton(
                 onClick = onClick,
                 modifier = modifier,
-                enabled = enabled && state.enabled,
+                enabled = state.enabled && !state.loading,
                 interactionSource = interactionSource,
             ) {
                 content()
@@ -137,9 +133,8 @@ fun AdaptiveButton(
  * @param modifier 컴포저블에 적용할 [Modifier]입니다.
  * @param size Material 분기 텍스트 버튼 크기 규격입니다.
  * @param variant Material 분기 텍스트 버튼 표시 방식입니다.
- * @param disabled 버튼 비활성화 여부입니다.
  * @param tone Material 분기 텍스트 색상에 반영할 의미적 톤입니다.
- * @param state 버튼의 활성화 상태입니다.
+ * @param state 버튼의 활성화 및 로딩 상태입니다.
  * @param colors Material 분기 버튼 색상입니다.
  * @param interactionSource 버튼 상호작용 상태를 전달하는 [MutableInteractionSource]입니다.
  * @param content 버튼 내부에 표시할 컴포저블 콘텐츠입니다.
@@ -151,9 +146,8 @@ fun AdaptiveTextButton(
     modifier: Modifier = Modifier,
     size: IenTextButtonSize = IenTextButtonSize.Medium,
     variant: IenTextButtonVariant = IenTextButtonVariant.Clear,
-    disabled: Boolean = false,
     tone: IenSemanticTone = IenSemanticTone.Brand,
-    state: IenButtonState = IenButtonState(enabled = !disabled),
+    state: IenButtonState = IenButtonState(),
     colors: IenButtonColors = IenButtonDefault.textColors(tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
@@ -165,7 +159,6 @@ fun AdaptiveTextButton(
                 modifier = modifier,
                 size = size,
                 variant = variant,
-                disabled = disabled,
                 tone = tone,
                 state = state,
                 colors = colors,
@@ -177,7 +170,7 @@ fun AdaptiveTextButton(
             HigAdaptiveTextButton(
                 onClick = onClick,
                 modifier = modifier,
-                enabled = state.enabled && !disabled,
+                enabled = state.enabled && !state.loading,
                 interactionSource = interactionSource,
             ) {
                 content()
@@ -191,8 +184,6 @@ fun AdaptiveTextButton(
  *
  * @param onClick 버튼 클릭 시 실행할 콜백 함수입니다.
  * @param modifier 컴포저블에 적용할 [Modifier]입니다.
- * @param enabled 버튼 활성화 여부입니다.
- * @param loading Material 분기에서 로딩 상태를 표시할지 여부입니다.
  * @param size Material 분기 아이콘 버튼 크기 규격입니다.
  * @param variant Material 분기 버튼 스타일 변형입니다.
  * @param tone Material 분기 색상에 반영할 의미적 톤입니다.
@@ -207,12 +198,10 @@ fun AdaptiveTextButton(
 fun AdaptiveIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    loading: Boolean = false,
     size: IenButtonSize = IenButtonSize.Large,
     variant: IenButtonVariant = IenButtonVariant.Ghost,
     tone: IenSemanticTone = IenSemanticTone.Brand,
-    state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
+    state: IenButtonState = IenButtonState(),
     shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
     colors: IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -226,7 +215,7 @@ fun AdaptiveIconButton(
                 size = size,
                 variant = variant,
                 tone = tone,
-                state = state.copy(enabled = state.enabled && enabled, loading = state.loading || loading),
+                state = state,
                 shape = shape,
                 colors = colors,
                 interactionSource = interactionSource,
@@ -237,7 +226,7 @@ fun AdaptiveIconButton(
             HigAdaptiveIconButton(
                 onClick = onClick,
                 modifier = modifier,
-                enabled = enabled && state.enabled,
+                enabled = state.enabled && !state.loading,
                 interactionSource = interactionSource,
                 content = content,
             )
@@ -250,8 +239,6 @@ fun AdaptiveIconButton(
  *
  * @param onClick 버튼 클릭 시 실행할 콜백 함수입니다.
  * @param modifier 컴포저블에 적용할 [Modifier]입니다.
- * @param enabled 버튼 활성화 여부입니다.
- * @param loading Material 분기에서 로딩 상태를 표시할지 여부입니다.
  * @param size Material 분기 아이콘 버튼 크기 규격입니다.
  * @param tone Material 분기 색상에 반영할 의미적 톤입니다.
  * @param state 버튼의 활성화 및 로딩 상태입니다.
@@ -265,11 +252,9 @@ fun AdaptiveIconButton(
 fun AdaptiveFilledIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    loading: Boolean = false,
     size: IenButtonSize = IenButtonSize.Large,
     tone: IenSemanticTone = IenSemanticTone.Brand,
-    state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
+    state: IenButtonState = IenButtonState(),
     shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
     colors: IenButtonColors = IenButtonDefault.colors(variant = IenButtonVariant.Fill, tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -283,7 +268,7 @@ fun AdaptiveFilledIconButton(
                 size = size,
                 variant = IenButtonVariant.Fill,
                 tone = tone,
-                state = state.copy(enabled = state.enabled && enabled, loading = state.loading || loading),
+                state = state,
                 shape = shape,
                 colors = colors,
                 interactionSource = interactionSource,
@@ -294,7 +279,7 @@ fun AdaptiveFilledIconButton(
             HigAdaptiveFilledIconButton(
                 onClick = onClick,
                 modifier = modifier,
-                enabled = enabled && state.enabled,
+                enabled = state.enabled && !state.loading,
                 interactionSource = interactionSource,
                 content = content,
             )
@@ -310,8 +295,6 @@ fun AdaptiveFilledIconButton(
  * @param checked 현재 선택 상태입니다.
  * @param onCheckedChange 선택 상태 변경 콜백입니다.
  * @param modifier 컴포저블에 적용할 [Modifier]입니다.
- * @param enabled 버튼 활성화 여부입니다.
- * @param loading Material 분기에서 로딩 상태를 표시할지 여부입니다.
  * @param size Material 분기 버튼 크기 규격입니다.
  * @param state 버튼의 활성화 및 로딩 상태입니다.
  * @param shapes Material 분기 선택/비선택 상태별 버튼 형태 구성입니다.
@@ -328,10 +311,8 @@ fun AdaptiveToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    loading: Boolean = false,
     size: IenButtonSize = IenButtonSize.Large,
-    state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
+    state: IenButtonState = IenButtonState(),
     shapes: IenToggleButtonShapes = IenToggleButtonDefault.shapes(),
     variants: IenToggleButtonVariants = IenToggleButtonDefault.variants(),
     colors: IenToggleButtonColors = IenToggleButtonDefault.colors(),
@@ -347,8 +328,6 @@ fun AdaptiveToggleButton(
                 onCheckedChange = onCheckedChange,
                 modifier = modifier,
                 size = size,
-                enabled = enabled,
-                loading = loading,
                 state = state,
                 shapes = shapes,
                 variants = variants,
@@ -361,7 +340,7 @@ fun AdaptiveToggleButton(
         },
         cupertino = {
             val onClick = { onCheckedChange(!checked) }
-            val isEnabled = enabled && state.enabled && !state.loading && !loading
+            val isEnabled = state.enabled && !state.loading
             if (checked) {
                 HigAdaptiveTonalButton(
                     onClick = onClick,
@@ -391,8 +370,6 @@ fun AdaptiveToggleButton(
  * @param checked 현재 선택 상태입니다.
  * @param onCheckedChange 선택 상태 변경 콜백입니다.
  * @param modifier 컴포저블에 적용할 [Modifier]입니다.
- * @param enabled 버튼 활성화 여부입니다.
- * @param loading Material 분기에서 로딩 상태를 표시할지 여부입니다.
  * @param size Material 분기 버튼 크기 규격입니다.
  * @param state 버튼의 활성화 및 로딩 상태입니다.
  * @param shapes Material 분기 선택/비선택 상태별 버튼 형태 구성입니다.
@@ -407,10 +384,8 @@ fun AdaptiveIconToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    loading: Boolean = false,
     size: IenButtonSize = IenButtonSize.Large,
-    state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
+    state: IenButtonState = IenButtonState(),
     shapes: IenToggleButtonShapes = IenToggleButtonDefault.shapes(),
     variants: IenToggleButtonVariants = IenToggleButtonDefault.variants(),
     colors: IenToggleButtonColors = IenToggleButtonDefault.colors(),
@@ -424,8 +399,6 @@ fun AdaptiveIconToggleButton(
                 onCheckedChange = onCheckedChange,
                 modifier = modifier,
                 size = size,
-                enabled = enabled,
-                loading = loading,
                 state = state,
                 shapes = shapes,
                 variants = variants,
@@ -436,7 +409,7 @@ fun AdaptiveIconToggleButton(
         },
         cupertino = {
             val onClick = { onCheckedChange(!checked) }
-            val isEnabled = enabled && state.enabled && !state.loading && !loading
+            val isEnabled = state.enabled && !state.loading
             if (checked) {
                 HigAdaptiveFilledIconButton(
                     onClick = onClick,
@@ -465,8 +438,6 @@ fun AdaptiveIconToggleButton(
  *
  * @param onClick 버튼 클릭 시 실행할 콜백 함수입니다.
  * @param modifier 컴포저블에 적용할 [Modifier]입니다.
- * @param enabled 버튼 활성화 여부입니다.
- * @param loading Material 분기에서 로딩 상태를 표시할지 여부입니다.
  * @param variant Material 분기 버튼 스타일 변형입니다.
  * @param tone Material 분기 색상에 반영할 의미적 톤입니다.
  * @param state 버튼의 활성화 및 로딩 상태입니다.
@@ -481,11 +452,9 @@ fun AdaptiveIconToggleButton(
 fun AdaptiveExtendedFloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    loading: Boolean = false,
     variant: IenButtonVariant = IenButtonVariant.Fill,
     tone: IenSemanticTone = IenSemanticTone.Brand,
-    state: IenButtonState = IenButtonState(enabled = enabled, loading = loading),
+    state: IenButtonState = IenButtonState(),
     shape: Shape = ContinuousCapsule(),
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
     colors: IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone),
@@ -499,7 +468,7 @@ fun AdaptiveExtendedFloatingActionButton(
                 modifier = modifier,
                 variant = variant,
                 tone = tone,
-                state = state.copy(enabled = state.enabled && enabled, loading = state.loading || loading),
+                state = state,
                 shape = shape,
                 contentPadding = contentPadding,
                 colors = colors,
@@ -511,7 +480,7 @@ fun AdaptiveExtendedFloatingActionButton(
             HigAdaptiveTonalButton(
                 onClick = onClick,
                 modifier = modifier,
-                enabled = enabled && state.enabled,
+                enabled = state.enabled && !state.loading,
                 interactionSource = interactionSource,
             ) {
                 content()

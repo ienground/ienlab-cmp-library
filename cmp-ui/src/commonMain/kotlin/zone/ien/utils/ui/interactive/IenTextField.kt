@@ -665,7 +665,7 @@ fun IenPasswordTextField(
  * @param variant 필드 디자인 형태 ([IenTextFieldVariant]).
  * @param prefix 고정 노출 접두사.
  * @param suffix 고정 노출 접미사.
- * @param enabled 활성화 여부.
+ * @param state 필드 제어 상태입니다. 클릭 전용 필드라 내부적으로 읽기 전용으로 처리됩니다.
  * @param lengthLimit 필드 하단 카운터와 최대 길이 처리 방식입니다.
  * @param right 필드 우측에 표시할 아이콘 컴포저블. 기본값은 아래쪽 화살표([IenTextFieldArrowDown])입니다.
  */
@@ -681,11 +681,12 @@ fun IenTextFieldButton(
     variant: IenTextFieldVariant = IenTextFieldVariant.Box,
     prefix: String? = null,
     suffix: String? = null,
-    enabled: Boolean = true,
+    state: IenTextFieldState = IenTextFieldState(),
     lengthLimit: IenTextFieldLengthLimit = IenTextFieldLengthLimit.None,
     right: (@Composable () -> Unit)? = { IenTextFieldArrowDown() },
 ) {
     val buttonInteractionSource = remember { MutableInteractionSource() }
+    val readOnlyState = state.copy(readOnly = true)
 
     IenTextField(
         value = value.orEmpty(),
@@ -693,7 +694,7 @@ fun IenTextFieldButton(
         modifier = modifier.clickable(
             interactionSource = buttonInteractionSource,
             indication = null,
-            enabled = enabled,
+            enabled = readOnlyState.enabled,
             role = Role.Button,
             onClick = onClick,
         ),
@@ -704,7 +705,7 @@ fun IenTextFieldButton(
         variant = variant,
         prefix = prefix,
         suffix = suffix,
-        state = IenTextFieldState(enabled = enabled, readOnly = true),
+        state = readOnlyState,
         lengthLimit = lengthLimit,
         readOnlyTextSelectionEnabled = false,
         right = right,
