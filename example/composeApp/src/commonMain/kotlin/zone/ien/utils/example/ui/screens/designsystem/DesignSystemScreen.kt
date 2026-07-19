@@ -2961,7 +2961,8 @@ fun TextFieldSection() {
             IenTextField(
                 value = text,
                 onValueChange = { text = it },
-                label = "이름 · LengthLimit.Error",
+                label = "이름 · Required · LengthLimit.Error",
+                required = true,
                 placeholder = "이름을 입력하세요",
                 hasError = text.length >= 4,
                 help = if (text.length >= 4) "이름은 3글자 이하로 입력해주세요." else "값이 들어오거나 포커스되면 라벨이 나타납니다.",
@@ -3014,6 +3015,7 @@ fun TextFieldSection() {
                 value = passwordText,
                 onValueChange = { passwordText = it },
                 label = "비밀번호 · LengthLimit.Block",
+                required = true,
                 placeholder = "비밀번호 입력",
                 help = "보기/숨김 토글을 제공합니다.",
                 lengthLimit = IenTextFieldLengthLimit.Block(16),

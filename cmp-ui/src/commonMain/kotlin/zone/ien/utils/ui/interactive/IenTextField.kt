@@ -180,6 +180,7 @@ private fun IenTextFieldLengthLimit.blocks(value: String): Boolean {
  * @param onValueChange 텍스트 변경 시 호출되는 콜백 함수.
  * @param modifier 컴포저블에 적용할 [Modifier].
  * @param label 필드 상단에 표시될 라벨 명칭.
+ * @param required true이면 라벨 뒤에 필수 입력 표시(*)를 노출합니다.
  * @param labelOption 라벨의 상시 노출 또는 애니메이션 등장 옵션 ([IenTextFieldLabelOption]). 기본값은 [IenTextFieldLabelOption.Appear].
  * @param placeholder 텍스트가 비어있을 때 내부에 표시될 힌트 문자열.
  * @param help 필드 하단에 노출될 부가 설명 또는 에러 텍스트 (단순 지원용).
@@ -213,6 +214,7 @@ fun IenTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     label: String? = null,
+    required: Boolean = false,
     labelOption: IenTextFieldLabelOption = IenTextFieldLabelOption.Appear,
     placeholder: String? = null,
     help: String? = null,
@@ -324,11 +326,10 @@ fun IenTextField(
         if (effectiveStatus is IenFieldStatus.Error) error(effectiveStatus.message)
     }) {
         if (label != null) {
-            IenText(
-                text = label,
+            IenTextFieldLabel(
+                label = label,
+                required = required,
                 modifier = Modifier.graphicsLayer { alpha = labelAlpha },
-                style = IenTheme.typography.label2,
-                color = IenTheme.colors.textSecondary
             )
             Spacer(Modifier.height(IenTheme.spacing.xxs))
         }
@@ -480,6 +481,7 @@ fun IenTextField(
  * @param onValueChange 텍스트 변경 시 호출되는 콜백 함수.
  * @param modifier 컴포저블에 적용할 [Modifier].
  * @param label 영역 상단에 표시될 라벨 명칭.
+ * @param required true이면 라벨 뒤에 필수 입력 표시(*)를 노출합니다.
  * @param placeholder 텍스트가 비어있을 때 표시될 힌트 문자열.
  * @param state 영역의 제어 상태 ([IenTextFieldState]).
  * @param supportingText 영역 하단 부가 안내 텍스트.
@@ -493,6 +495,7 @@ fun IenTextArea(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     label: String? = null,
+    required: Boolean = false,
     placeholder: String? = null,
     state: IenTextFieldState = IenTextFieldState(),
     supportingText: String? = null,
@@ -505,6 +508,7 @@ fun IenTextArea(
         onValueChange = onValueChange,
         modifier = modifier,
         label = label,
+        required = required,
         placeholder = placeholder,
         state = state,
         supportingText = supportingText,
@@ -523,6 +527,7 @@ fun IenTextArea(
  * @param onClear 클리어 버튼이 눌려 텍스트가 지워졌을 때 호출되는 콜백 함수.
  * @param modifier 컴포저블에 적용할 [Modifier].
  * @param label 필드 상단에 표시될 라벨 명칭.
+ * @param required true이면 라벨 뒤에 필수 입력 표시(*)를 노출합니다.
  * @param labelOption 라벨 노출 옵션 ([IenTextFieldLabelOption]).
  * @param placeholder 힌트 문자열.
  * @param help 부가 설명 또는 에러 설명 텍스트.
@@ -542,6 +547,7 @@ fun IenClearableTextField(
     onClear: () -> Unit,
     modifier: Modifier = Modifier,
     label: String? = null,
+    required: Boolean = false,
     labelOption: IenTextFieldLabelOption = IenTextFieldLabelOption.Appear,
     placeholder: String? = null,
     help: String? = null,
@@ -559,6 +565,7 @@ fun IenClearableTextField(
         onValueChange = onValueChange,
         modifier = modifier,
         label = label,
+        required = required,
         labelOption = labelOption,
         placeholder = placeholder,
         help = help,
@@ -592,6 +599,7 @@ fun IenClearableTextField(
  * @param onValueChange 비밀번호 변경 시 호출되는 콜백 함수.
  * @param modifier 컴포저블에 적용할 [Modifier].
  * @param label 필드 상단에 표시될 라벨 명칭.
+ * @param required true이면 라벨 뒤에 필수 입력 표시(*)를 노출합니다.
  * @param labelOption 라벨 노출 옵션 ([IenTextFieldLabelOption]).
  * @param placeholder 힌트 문자열.
  * @param help 부가 설명 또는 에러 설명 텍스트.
@@ -610,6 +618,7 @@ fun IenPasswordTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     label: String? = null,
+    required: Boolean = false,
     labelOption: IenTextFieldLabelOption = IenTextFieldLabelOption.Appear,
     placeholder: String? = null,
     help: String? = null,
@@ -629,6 +638,7 @@ fun IenPasswordTextField(
         onValueChange = onValueChange,
         modifier = modifier,
         label = label,
+        required = required,
         labelOption = labelOption,
         placeholder = placeholder,
         help = help,
@@ -659,6 +669,7 @@ fun IenPasswordTextField(
  * @param modifier 컴포저블에 적용할 [Modifier].
  * @param value 필드 내부에 표시될 값 문자열.
  * @param label 필드 상단에 표시될 라벨 명칭.
+ * @param required true이면 라벨 뒤에 필수 입력 표시(*)를 노출합니다.
  * @param labelOption 라벨 노출 옵션 ([IenTextFieldLabelOption]).
  * @param placeholder 값이 없을 때 표시할 힌트 문자열.
  * @param help 부가 설명 텍스트.
@@ -675,6 +686,7 @@ fun IenTextFieldButton(
     modifier: Modifier = Modifier,
     value: String? = null,
     label: String? = null,
+    required: Boolean = false,
     labelOption: IenTextFieldLabelOption = IenTextFieldLabelOption.Appear,
     placeholder: String? = null,
     help: String? = null,
@@ -699,6 +711,7 @@ fun IenTextFieldButton(
             onClick = onClick,
         ),
         label = label,
+        required = required,
         labelOption = labelOption,
         placeholder = placeholder,
         help = help,
@@ -710,6 +723,32 @@ fun IenTextFieldButton(
         readOnlyTextSelectionEnabled = false,
         right = right,
     )
+}
+
+@Composable
+private fun IenTextFieldLabel(
+    label: String,
+    required: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IenText(
+            text = label,
+            style = IenTheme.typography.label2,
+            color = IenTheme.colors.textSecondary,
+        )
+        if (required) {
+            IenText(
+                text = "*",
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.danger,
+            )
+        }
+    }
 }
 
 @Composable
