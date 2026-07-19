@@ -47,6 +47,7 @@ import zone.ien.utils.adaptive.component.AdaptiveSegmentedControl
 import zone.ien.utils.adaptive.component.AdaptiveSlider
 import zone.ien.utils.adaptive.component.AdaptiveSwitch
 import zone.ien.utils.adaptive.component.AdaptiveTextButton
+import zone.ien.utils.adaptive.component.AdaptiveTonalButton
 import zone.ien.utils.adaptive.component.AdaptiveToggleButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
@@ -58,6 +59,7 @@ import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButtonDefault
 import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonSize
+import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenSegmentedControlItem
 import zone.ien.utils.ui.interactive.IenToggleButton
@@ -164,7 +166,7 @@ fun AdaptivePlaygroundScreen(
                 PlaygroundGroup(title = "Buttons") {
                     AdaptiveButton(
                         onClick = {},
-                        enabled = enabled,
+                        state = IenButtonState(enabled = enabled),
                         display = IenButtonDisplay.Full,
                     ) {
                         Row(
@@ -177,7 +179,7 @@ fun AdaptivePlaygroundScreen(
                     }
                     AdaptiveButton(
                         onClick = {},
-                        enabled = enabled,
+                        state = IenButtonState(enabled = enabled),
                         variant = IenButtonVariant.Weak,
                         tone = IenSemanticTone.Success,
                         display = IenButtonDisplay.Full,
@@ -192,7 +194,7 @@ fun AdaptivePlaygroundScreen(
                     }
                     AdaptiveButton(
                         onClick = {},
-                        enabled = enabled,
+                        state = IenButtonState(enabled = enabled),
                         display = IenButtonDisplay.Full,
                         colors = IenButtonDefault.colors(
                             container = Color(0xFF111827),
@@ -204,7 +206,7 @@ fun AdaptivePlaygroundScreen(
                     }
                     AdaptiveButton(
                         onClick = {},
-                        enabled = enabled,
+                        state = IenButtonState(enabled = enabled),
                         display = IenButtonDisplay.Full,
                         colors = IenButtonDefault.colors(
                             variant = IenButtonVariant.Line,
@@ -217,7 +219,7 @@ fun AdaptivePlaygroundScreen(
                     AdaptiveToggleButton(
                         checked = toggleChecked,
                         onCheckedChange = { toggleChecked = it },
-                        enabled = enabled,
+                        state = IenButtonState(enabled = enabled),
                         display = IenButtonDisplay.Full,
                         shapes = IenToggleButtonDefault.shapes(
                             checked = ContinuousCapsule(),
@@ -243,23 +245,39 @@ fun AdaptivePlaygroundScreen(
                             IenText(if (toggleChecked) "Toggle enabled" else "Toggle disabled")
                         }
                     }
+                    AdaptiveTonalButton(
+                        onClick = {},
+                        state = IenButtonState(enabled = enabled),
+                        display = IenButtonDisplay.Full,
+                        adaptation = {
+                            material {
+                                variant = IenButtonVariant.Line
+                                tone = IenSemanticTone.Warning
+                            }
+                            cupertino {
+                                isBackgroundAdaptive = false
+                            }
+                        },
+                    ) {
+                        IenText("Adaptation override")
+                    }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         AdaptiveTextButton(
                             onClick = {},
-                            disabled = !enabled,
+                            state = IenButtonState(enabled = enabled),
                         ) {
                             IenText("Text button")
                         }
                         AdaptiveIconButton(
                             onClick = {},
-                            enabled = enabled,
+                            state = IenButtonState(enabled = enabled),
                             size = IenButtonSize.Medium,
                         ) {
                             SampleIcon()
                         }
                         AdaptiveFilledIconButton(
                             onClick = {},
-                            enabled = enabled,
+                            state = IenButtonState(enabled = enabled),
                             size = IenButtonSize.Medium,
                         ) {
                             SampleIcon()
@@ -267,7 +285,7 @@ fun AdaptivePlaygroundScreen(
                         AdaptiveIconToggleButton(
                             checked = iconToggleChecked,
                             onCheckedChange = { iconToggleChecked = it },
-                            enabled = enabled,
+                            state = IenButtonState(enabled = enabled),
                             size = IenButtonSize.Medium,
                             shapes = IenToggleButtonDefault.shapes(
                                 checked = CircleShape,
@@ -279,7 +297,7 @@ fun AdaptivePlaygroundScreen(
                     }
                     AdaptiveExtendedFloatingActionButton(
                         onClick = {},
-                        enabled = enabled,
+                        state = IenButtonState(enabled = enabled),
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),

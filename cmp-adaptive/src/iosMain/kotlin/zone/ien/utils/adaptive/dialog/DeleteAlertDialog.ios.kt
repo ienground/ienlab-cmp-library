@@ -6,6 +6,7 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.delete_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.delete_dialog_title
 import org.jetbrains.compose.resources.stringResource
+import zone.ien.utils.ui.dialog.IenDialogButtonLayout
 
 /**
  * 삭제 다이얼로그 컴포저블 (iOS 플랫폼 구현)
@@ -23,7 +24,8 @@ actual fun DeleteAlertDialog(
     visible: Boolean,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
-    enabledConfirm: Boolean
+    enabledConfirm: Boolean,
+    buttonLayout: IenDialogButtonLayout
 ) {
     AlertDialog(
         modifier = modifier,
@@ -34,6 +36,7 @@ actual fun DeleteAlertDialog(
         onDismiss = onDismiss,
         styleConfirm = UIAlertActionStyle.Destructive,
         onConfirm = onConfirm,
-        enabledConfirm = enabledConfirm
+        enabledConfirm = enabledConfirm,
+        buttonLayout = buttonLayout,
     )
 }

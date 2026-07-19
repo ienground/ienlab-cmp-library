@@ -22,6 +22,7 @@ import zone.ien.utils.icon.material.M3SystemIcons
  * @param enabledUnsave 저장하지 않고 닫기 버튼의 활성화 여부
  * @param onSave 저장 버튼을 누를 때 호출되는 콜백 함수
  * @param enabledSave 저장 버튼의 활성화 여부
+ * @param buttonLayout 저장/취소/미저장 버튼의 배치 방향
  */
 @Composable
 fun IenSaveAlertDialog(
@@ -32,6 +33,7 @@ fun IenSaveAlertDialog(
     enabledUnsave: Boolean = true,
     onSave: () -> Unit,
     enabledSave: Boolean = true,
+    buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Horizontal,
 ) {
     IenAlertDialog(
         modifier = modifier,
@@ -42,10 +44,14 @@ fun IenSaveAlertDialog(
         textNeutral = stringResource(Res.string.not_save),
         onNeutral = onUnsave,
         enabledNeutral = enabledUnsave,
+        styleNeutral = IenDialogActionStyle.Destructive,
         textNegative = stringResource(Res.string.cancel),
         onNegative = onCancel,
+        styleNegative = IenDialogActionStyle.Cancel,
         textPositive = stringResource(Res.string.save),
         onPositive = onSave,
-        enabledPositive = enabledSave
+        enabledPositive = enabledSave,
+        stylePositive = IenDialogActionStyle.Default,
+        buttonLayout = buttonLayout,
     )
 }

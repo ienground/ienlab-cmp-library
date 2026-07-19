@@ -1804,7 +1804,7 @@ fun TextButtonSection() {
                 }
                 IenTextButton(
                     size = IenTextButtonSize.XXLarge,
-                    disabled = true,
+                    state = IenButtonState(enabled = false),
                     onClick = {},
                 ) {
                     IenText("비활성")

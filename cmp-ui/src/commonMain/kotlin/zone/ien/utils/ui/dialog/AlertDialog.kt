@@ -33,6 +33,19 @@ import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.primitives.IenText
 
 /**
+ * 다이얼로그 액션 버튼의 의미 스타일입니다.
+ *
+ * @property Default 기본 스타일
+ * @property Cancel 취소 스타일
+ * @property Destructive 파괴적 스타일 (예: 삭제 등의 위험한 작업)
+ */
+enum class IenDialogActionStyle {
+    Default,
+    Cancel,
+    Destructive,
+}
+
+/**
  * IenBaseAlertDialog는 AlertDialog의 기본 구조를 정의하는 컴포저블로, IEN 다이얼로그 프레임을 사용합니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
@@ -83,6 +96,7 @@ fun IenBaseAlertDialog(
  * @param onDismiss 다이얼로그를 닫기 위한 콜백 함수
  * @param tone 버튼과 아이콘에 적용할 의미 색상
  * @param isDestructive true이면 Danger 톤으로 표시
+ * @param styleDismiss 닫기 버튼의 의미 스타일
  */
 @Composable
 fun IenAlertDialog(
@@ -95,8 +109,14 @@ fun IenAlertDialog(
     onDismiss: (() -> Unit)?,
     tone: IenSemanticTone = IenSemanticTone.Brand,
     isDestructive: Boolean = false,
+    styleDismiss: IenDialogActionStyle = if (isDestructive) IenDialogActionStyle.Destructive else IenDialogActionStyle.Cancel,
 ) {
     val resolvedTone = IenAlertDialogTone(tone = tone, isDestructive = isDestructive)
+    val dismissStyle = IenDialogButtonStyle(
+        style = styleDismiss,
+        defaultTone = resolvedTone,
+        defaultVariant = IenButtonVariant.Ghost,
+    )
     IenAlertDialogFrame(
         modifier = modifier,
         visible = visible,
@@ -111,8 +131,8 @@ fun IenAlertDialog(
                     text = textDismiss,
                     onClick = it,
                     enabled = true,
-                    tone = resolvedTone,
-                    variant = IenButtonVariant.Ghost,
+                    tone = dismissStyle.tone,
+                    variant = dismissStyle.variant,
                 )
             }
         },
@@ -135,6 +155,8 @@ fun IenAlertDialog(
  * @param tone 확인 버튼과 아이콘에 적용할 의미 색상
  * @param isDestructive true이면 확인 버튼을 Danger 톤으로 표시
  * @param buttonLayout 확인/취소 버튼의 배치 방향
+ * @param styleDismiss 취소 버튼의 의미 스타일
+ * @param styleConfirm 확인 버튼의 의미 스타일
  */
 @Composable
 fun IenAlertDialog(
@@ -151,8 +173,20 @@ fun IenAlertDialog(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     isDestructive: Boolean = false,
     buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Horizontal,
+    styleDismiss: IenDialogActionStyle = IenDialogActionStyle.Cancel,
+    styleConfirm: IenDialogActionStyle = if (isDestructive) IenDialogActionStyle.Destructive else IenDialogActionStyle.Default,
 ) {
     val resolvedTone = IenAlertDialogTone(tone = tone, isDestructive = isDestructive)
+    val dismissStyle = IenDialogButtonStyle(
+        style = styleDismiss,
+        defaultTone = IenSemanticTone.Neutral,
+        defaultVariant = IenButtonVariant.Ghost,
+    )
+    val confirmStyle = IenDialogButtonStyle(
+        style = styleConfirm,
+        defaultTone = resolvedTone,
+        defaultVariant = IenButtonVariant.Fill,
+    )
     IenConfirmDialog(
         visible = visible,
         onClose = onDismiss,
@@ -173,6 +207,8 @@ fun IenAlertDialog(
             IenConfirmDialogCancelButton(
                 text = textDismiss,
                 onClick = onDismiss,
+                tone = dismissStyle.tone,
+                variant = dismissStyle.variant,
             )
         },
         confirmButton = {
@@ -180,8 +216,8 @@ fun IenAlertDialog(
                 text = textConfirm,
                 onClick = onConfirm,
                 enabled = enabledConfirm,
-                tone = resolvedTone,
-                variant = IenButtonVariant.Fill,
+                tone = confirmStyle.tone,
+                variant = confirmStyle.variant,
             )
         },
         buttonLayout = buttonLayout,
@@ -207,6 +243,9 @@ fun IenAlertDialog(
  * @param tone 긍정 버튼과 아이콘에 적용할 의미 색상
  * @param isDestructive true이면 긍정 버튼을 Danger 톤으로 표시
  * @param buttonLayout 긍정/부정 버튼의 배치 방향
+ * @param styleNeutral 중립 버튼의 의미 스타일
+ * @param styleNegative 부정 버튼의 의미 스타일
+ * @param stylePositive 긍정 버튼의 의미 스타일
  */
 @Composable
 fun IenAlertDialog(
@@ -226,8 +265,26 @@ fun IenAlertDialog(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     isDestructive: Boolean = false,
     buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Horizontal,
+    styleNeutral: IenDialogActionStyle = IenDialogActionStyle.Default,
+    styleNegative: IenDialogActionStyle = IenDialogActionStyle.Cancel,
+    stylePositive: IenDialogActionStyle = if (isDestructive) IenDialogActionStyle.Destructive else IenDialogActionStyle.Default,
 ) {
     val resolvedTone = IenAlertDialogTone(tone = tone, isDestructive = isDestructive)
+    val neutralStyle = IenDialogButtonStyle(
+        style = styleNeutral,
+        defaultTone = IenSemanticTone.Neutral,
+        defaultVariant = IenButtonVariant.Line,
+    )
+    val negativeStyle = IenDialogButtonStyle(
+        style = styleNegative,
+        defaultTone = IenSemanticTone.Neutral,
+        defaultVariant = IenButtonVariant.Ghost,
+    )
+    val positiveStyle = IenDialogButtonStyle(
+        style = stylePositive,
+        defaultTone = resolvedTone,
+        defaultVariant = IenButtonVariant.Fill,
+    )
     IenAlertDialogFrame(
         modifier = modifier,
         visible = visible,
@@ -244,8 +301,8 @@ fun IenAlertDialog(
                         text = textNeutral,
                         onClick = onNeutral,
                         enabled = enabledNeutral,
-                        tone = IenSemanticTone.Neutral,
-                        variant = IenButtonVariant.Line,
+                        tone = neutralStyle.tone,
+                        variant = neutralStyle.variant,
                     )
                 },
                 cancelButton = {
@@ -253,8 +310,8 @@ fun IenAlertDialog(
                         text = textNegative,
                         onClick = onNegative,
                         enabled = true,
-                        tone = IenSemanticTone.Neutral,
-                        variant = IenButtonVariant.Ghost,
+                        tone = negativeStyle.tone,
+                        variant = negativeStyle.variant,
                     )
                 },
                 confirmButton = {
@@ -262,8 +319,8 @@ fun IenAlertDialog(
                         text = textPositive,
                         onClick = onPositive,
                         enabled = enabledPositive,
-                        tone = resolvedTone,
-                        variant = IenButtonVariant.Fill,
+                        tone = positiveStyle.tone,
+                        variant = positiveStyle.variant,
                     )
                 },
             )
@@ -396,6 +453,32 @@ private fun IenAlertDialogTone(
     isDestructive: Boolean,
 ): IenSemanticTone {
     return if (isDestructive) IenSemanticTone.Danger else tone
+}
+
+private data class IenDialogButtonStyleSpec(
+    val tone: IenSemanticTone,
+    val variant: IenButtonVariant,
+)
+
+private fun IenDialogButtonStyle(
+    style: IenDialogActionStyle,
+    defaultTone: IenSemanticTone,
+    defaultVariant: IenButtonVariant,
+): IenDialogButtonStyleSpec {
+    return when (style) {
+        IenDialogActionStyle.Default -> IenDialogButtonStyleSpec(
+            tone = defaultTone,
+            variant = defaultVariant,
+        )
+        IenDialogActionStyle.Cancel -> IenDialogButtonStyleSpec(
+            tone = IenSemanticTone.Neutral,
+            variant = IenButtonVariant.Ghost,
+        )
+        IenDialogActionStyle.Destructive -> IenDialogButtonStyleSpec(
+            tone = IenSemanticTone.Danger,
+            variant = defaultVariant,
+        )
+    }
 }
 
 @Composable

@@ -2,6 +2,7 @@ package zone.ien.utils.adaptive.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import zone.ien.utils.ui.dialog.IenDialogButtonLayout
 import zone.ien.utils.ui.dialog.IenSaveAlertDialog
 
 @Composable
@@ -12,7 +13,8 @@ actual fun SaveAlertDialog(
     onUnsave: () -> Unit,
     enabledUnsave: Boolean,
     onSave: () -> Unit,
-    enabledSave: Boolean
+    enabledSave: Boolean,
+    buttonLayout: IenDialogButtonLayout
 ) {
     IenSaveAlertDialog(
         modifier = modifier,
@@ -21,6 +23,7 @@ actual fun SaveAlertDialog(
         onUnsave = onUnsave,
         enabledUnsave = enabledUnsave,
         onSave = onSave,
-        enabledSave = enabledSave
+        enabledSave = enabledSave,
+        buttonLayout = buttonLayout,
     )
 }

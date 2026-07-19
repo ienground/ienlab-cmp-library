@@ -3,6 +3,8 @@ package zone.ien.utils.adaptive.dialog
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import zone.ien.utils.ui.dialog.IenAlertDialog
+import zone.ien.utils.ui.dialog.IenDialogActionStyle
+import zone.ien.utils.ui.dialog.IenDialogButtonLayout
 
 /**
  * 알림 다이얼로그 컴포저블 (안드로이드 플랫폼 구현)
@@ -35,7 +37,9 @@ actual fun AlertDialog(
         title = title,
         message = message,
         textDismiss = textDismiss,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
+        isDestructive = styleDismiss.isDestructive,
+        styleDismiss = styleDismiss.toIenDialogActionStyle(),
     )
 }
 
@@ -69,7 +73,8 @@ actual fun AlertDialog(
     textConfirm: String,
     styleConfirm: UIAlertActionStyle,
     onConfirm: () -> Unit,
-    enabledConfirm: Boolean
+    enabledConfirm: Boolean,
+    buttonLayout: IenDialogButtonLayout
 ) {
     IenAlertDialog(
         modifier = modifier,
@@ -81,7 +86,11 @@ actual fun AlertDialog(
         onDismiss = onDismiss,
         textConfirm = textConfirm,
         onConfirm = onConfirm,
-        enabledConfirm = enabledConfirm
+        enabledConfirm = enabledConfirm,
+        isDestructive = styleConfirm.isDestructive,
+        buttonLayout = buttonLayout,
+        styleDismiss = styleDismiss.toIenDialogActionStyle(),
+        styleConfirm = styleConfirm.toIenDialogActionStyle(),
     )
 }
 
@@ -123,7 +132,8 @@ actual fun AlertDialog(
     textPositive: String,
     stylePositive: UIAlertActionStyle,
     onPositive: () -> Unit,
-    enabledPositive: Boolean
+    enabledPositive: Boolean,
+    buttonLayout: IenDialogButtonLayout
 ) {
     IenAlertDialog(
         modifier = modifier,
@@ -134,10 +144,26 @@ actual fun AlertDialog(
         textNeutral = textNeutral,
         onNeutral = onNeutral,
         enabledNeutral = enabledNeutral,
+        styleNeutral = styleNeutral.toIenDialogActionStyle(),
         textNegative = textNegative,
         onNegative = onNegative,
+        styleNegative = styleNegative.toIenDialogActionStyle(),
         textPositive = textPositive,
         onPositive = onPositive,
-        enabledPositive = enabledPositive
+        enabledPositive = enabledPositive,
+        isDestructive = stylePositive.isDestructive,
+        buttonLayout = buttonLayout,
+        stylePositive = stylePositive.toIenDialogActionStyle(),
     )
+}
+
+private val UIAlertActionStyle.isDestructive: Boolean
+    get() = this == UIAlertActionStyle.Destructive
+
+private fun UIAlertActionStyle.toIenDialogActionStyle(): IenDialogActionStyle {
+    return when (this) {
+        UIAlertActionStyle.Default -> IenDialogActionStyle.Default
+        UIAlertActionStyle.Cancel -> IenDialogActionStyle.Cancel
+        UIAlertActionStyle.Destructive -> IenDialogActionStyle.Destructive
+    }
 }

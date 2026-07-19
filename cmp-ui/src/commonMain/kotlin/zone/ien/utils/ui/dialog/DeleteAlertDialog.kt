@@ -17,6 +17,7 @@ import zone.ien.utils.icon.material.M3SystemIcons
  * @param onDismiss 다이얼로그를 닫기 위한 콜백 함수
  * @param onConfirm 삭제 확인 시 호출되는 콜백 함수
  * @param enabledConfirm 확인 버튼의 활성화 여부
+ * @param buttonLayout 확인/취소 버튼의 배치 방향
  */
 @Composable
 fun IenDeleteAlertDialog(
@@ -24,7 +25,8 @@ fun IenDeleteAlertDialog(
     visible: Boolean,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
-    enabledConfirm: Boolean = true
+    enabledConfirm: Boolean = true,
+    buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Horizontal,
 ) {
     IenAlertDialog(
         modifier = modifier,
@@ -35,6 +37,8 @@ fun IenDeleteAlertDialog(
         onDismiss = onDismiss,
         onConfirm = onConfirm,
         enabledConfirm = enabledConfirm,
-        isDestructive = true
+        isDestructive = true,
+        buttonLayout = buttonLayout,
+        styleConfirm = IenDialogActionStyle.Destructive,
     )
 }
