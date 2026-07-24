@@ -920,7 +920,9 @@ fun IenSplitTextField(
     BasicTextField(
         value = value.take(length),
         onValueChange = { next ->
-            if (next.length <= length) onValueChange(next)
+        onValueChange = { next ->
+            onValueChange(next.take(length))
+        },
         },
         modifier = modifier.semantics {
             this.contentDescription = contentDescription
