@@ -109,7 +109,7 @@ fun IenAlertDialog(
     onDismiss: (() -> Unit)?,
     tone: IenSemanticTone = IenSemanticTone.Brand,
     isDestructive: Boolean = false,
-    styleDismiss: IenDialogActionStyle = if (isDestructive) IenDialogActionStyle.Destructive else IenDialogActionStyle.Cancel,
+    styleDismiss: IenDialogActionStyle = if (isDestructive) IenDialogActionStyle.Default else IenDialogActionStyle.Cancel,
 ) {
     val resolvedTone = IenAlertDialogTone(tone = tone, isDestructive = isDestructive)
     val dismissStyle = IenDialogButtonStyle(

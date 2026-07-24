@@ -125,6 +125,7 @@ actual fun AlertDialog(
  * @param styleConfirm 확인 버튼 스타일
  * @param onConfirm 확인 버튼 클릭 시 실행할 함수
  * @param enabledConfirm 확인 버튼 활성화 여부
+ * @param buttonLayout 버튼 배치 방향 (iOS UIKit UIAlertController 자체 레이아웃을 사용하므로 생략됨)
  * @return 알림 다이얼로그 컴포저블 (iOS)
  */
 @Composable
