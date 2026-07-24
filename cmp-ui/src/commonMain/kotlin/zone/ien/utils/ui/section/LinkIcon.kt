@@ -6,11 +6,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,6 +20,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import zone.ien.utils.ui.foundation.IenTheme
 
 /**
  * Material3 링크 아이콘 컴포저블
@@ -37,7 +36,7 @@ import androidx.compose.ui.unit.sp
  * @param contentDescription 콘텐츠 설명
  */
 @Composable
-fun M3LinkIcon(
+fun IenLinkIcon(
     painter: Painter,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialLabelIconDefaults.ContainerColor,
@@ -69,14 +68,14 @@ fun M3LinkIcon(
  * @param contentDescription 콘텐츠 설명
  */
 @Composable
-fun M3LinkIcon(
+fun IenLinkIcon(
     imageVector: ImageVector,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialLabelIconDefaults.ContainerColor,
     tint: Color = MaterialLabelIconDefaults.Tint,
     shape: Shape = MaterialLabelIconDefaults.Shape,
     contentDescription: String? = null,
-) = M3LinkIcon(
+) = IenLinkIcon(
     painter = rememberVectorPainter(imageVector),
     modifier = modifier,
     containerColor = containerColor,
@@ -97,7 +96,7 @@ fun M3LinkIcon(
  * @param shape 아이콘의 모양
  */
 @Composable
-fun M3LinkIconText(
+fun IenLinkIconText(
     text: String,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialLabelIconDefaults.ContainerColor,
@@ -117,20 +116,29 @@ fun M3LinkIconText(
             .wrapContentHeight(align = Alignment.CenterVertically, unbounded = true)
 )
 
+/**
+ * 링크 아이콘에 적용되는 기본 스타일 값을 정의하는 오브젝트
+ */
 @Immutable
 object MaterialLabelIconDefaults {
+    /**
+     * 링크 아이콘의 기본 컨테이너 배경 색상
+     */
     val ContainerColor: Color
         @Composable
-        @ReadOnlyComposable
-        get() = MaterialTheme.colorScheme.primaryContainer
+        get() = IenTheme.colors.brandWeak
 
+    /**
+     * 링크 아이콘의 기본 틴트/콘텐츠 색상
+     */
     val Tint: Color
         @Composable
-        @ReadOnlyComposable
-        get() = MaterialTheme.colorScheme.onPrimaryContainer
+        get() = IenTheme.colors.onBrandWeak
 
+    /**
+     * 링크 아이콘의 기본 모양
+     */
     val Shape: Shape
         @Composable
-        @ReadOnlyComposable
         get() = CircleShape
 }

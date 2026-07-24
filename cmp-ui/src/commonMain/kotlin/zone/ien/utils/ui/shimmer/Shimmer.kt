@@ -23,9 +23,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import com.revenuecat.placeholder.PlaceholderDefaults
-import com.revenuecat.placeholder.PlaceholderHighlight
-import com.revenuecat.placeholder.placeholder
 
 /**
  * Material3 스타일의 PlaceHolder를 적용하는 Modifier
@@ -45,11 +42,11 @@ import com.revenuecat.placeholder.placeholder
 fun Modifier.m3Placeholder(
     enabled: Boolean = true,
     color: Color = Color.Gray.copy(alpha = 0.35f),
-    shape: Shape = LocalM3ShimmerShape.current,
-    highlight: PlaceholderHighlight? = PlaceholderDefaults.fade,
+    shape: Shape = LocalIenShimmerShape.current,
+    highlight: IenPlaceholderHighlight? = IenPlaceholderDefaults.fade,
     placeholderFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() },
     contentFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() }
-) = this.placeholder(
+) = this.ienPlaceholder(
     enabled = enabled,
     color = color,
     shape = shape,
@@ -84,7 +81,7 @@ fun Modifier.m3Placeholder(
  * @param contentFadeTransitionSpec 컴포저블 내용의 페이드 전환 애니메이션 스펙
  */
 @Composable
-fun M3TextShimmer(
+fun IenTextShimmer(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     fontSize: TextUnit = TextUnit.Unspecified,
@@ -99,8 +96,8 @@ fun M3TextShimmer(
     softWrap: Boolean = true,
     style: TextStyle? = null,
     color: Color = Color.Gray.copy(alpha = 0.35f),
-    shape: Shape = LocalM3ShimmerShape.current,
-    highlight: PlaceholderHighlight? = PlaceholderDefaults.fade,
+    shape: Shape = LocalIenShimmerShape.current,
+    highlight: IenPlaceholderHighlight? = IenPlaceholderDefaults.fade,
     placeholderFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() },
     contentFadeTransitionSpec: () -> FiniteAnimationSpec<Float> = { spring() }
 ) {
@@ -127,7 +124,7 @@ fun M3TextShimmer(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(vertical = 3.dp)
-                .placeholder(
+                .ienPlaceholder(
                     enabled = enabled,
                     color = color,
                     shape = shape,

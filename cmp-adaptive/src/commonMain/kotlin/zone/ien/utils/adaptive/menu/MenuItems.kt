@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -13,7 +12,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.hig.CupertinoDropdownMenu
@@ -22,8 +20,6 @@ import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoMenuItemData
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.MenuAction
-import zone.ien.hig.theme.CupertinoColors
-import zone.ien.hig.theme.systemRed
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.view.AdaptiveDropdownBox
 import zone.ien.utils.adaptive.view.AdaptiveTooltipBox
@@ -33,6 +29,10 @@ import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.hig.Ellipsis
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.icon.IconData
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.interactive.IenBadge
+import zone.ien.utils.ui.interactive.IenBadgeSize
+import zone.ien.utils.ui.interactive.IenBadgeVariant
 
 /**
  * HIG 액션 메뉴 컴포저블
@@ -54,10 +54,11 @@ fun HigActionMenu(
             BadgedBox(
                 badge = {
                     if (item.badge != 0) {
-                        Badge(
-                            content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null,
-                            containerColor = CupertinoColors.systemRed,
-                            contentColor = Color.White,
+                        IenBadge(
+                            text = if (item.badge > 0) item.badge.toString() else "",
+                            size = IenBadgeSize.Small,
+                            variant = IenBadgeVariant.Fill,
+                            tone = IenSemanticTone.Danger,
                             modifier = Modifier//.offset(x = (-8).dp, y = 8.dp)
                         )
                     }
@@ -194,10 +195,11 @@ fun HigActionsMenu(
                             trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
                                 {
                                     if (item.badge != 0) {
-                                        Badge(
-                                            content = if (item.badge > 0) {{ Text(text = item.badge.toString()) }} else null,
-                                            containerColor = CupertinoColors.systemRed,
-                                            contentColor = Color.White
+                                        IenBadge(
+                                            text = if (item.badge > 0) item.badge.toString() else "",
+                                            size = IenBadgeSize.Small,
+                                            variant = IenBadgeVariant.Fill,
+                                            tone = IenSemanticTone.Danger,
                                         )
                                     }
                                 }

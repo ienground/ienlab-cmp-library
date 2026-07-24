@@ -2,24 +2,16 @@ package zone.ien.utils.example.ui.screens.playground
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,34 +26,24 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.revenuecat.placeholder.placeholder
-import org.jetbrains.compose.resources.stringResource
-import zone.ien.hig.CupertinoDropdownMenu
-import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoLiquidButton
-import zone.ien.hig.CupertinoLiquidIconButton
-import zone.ien.hig.CupertinoScaffold
-import zone.ien.hig.CupertinoTopAppBar
 import zone.ien.hig.ExperimentalCupertinoApi
-import zone.ien.hig.MenuAction
-import zone.ien.hig.MenuSection
-import zone.ien.hig.adaptive.AdaptiveScaffold
-import zone.ien.hig.adaptive.AdaptiveSwitch
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
-import zone.ien.hig.icons.CupertinoIcons
-import zone.ien.hig.icons.outlined.ChevronBackward
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.dialog.TextFieldDialog
 import zone.ien.utils.adaptive.menu.adaptiveSaveButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
-import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
+import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.example.Android
 import zone.ien.utils.example.isIos
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.menu.ActionMenuItem
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.ui.shimmer.m3Placeholder
 import zone.ien.utils.ui.utils.TextFieldDialogData
 
@@ -74,15 +56,15 @@ fun PlaygroundScreen(
     val backdrop = rememberDefaultBackdrop()
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
     var visible by remember { mutableStateOf(true) }
-    GeneratedAdaptiveTheme(
+    IenAdaptiveTheme(
         target = Theme.Cupertino
 //        target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
 //        /*
         AdaptiveTopAppBarScaffold(
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop, visible = visible) { navigateBack() } },
-            title = { Text(text = "Playground") },
-            subtitle = { Text(text = "IENGROUND") },
+            title = { IenText(text = "Playground") },
+            subtitle = { IenText(text = "IENGROUND") },
             actions = listOf(
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
                     icon = IconData.Vector(Android),
@@ -116,11 +98,11 @@ fun PlaygroundScreen(
             ),
             adaptation = {
                 material {
-
+                    mode = TopBarMode.Expanded
                 }
                 cupertino {
                     this.backdrop = backdrop
-                    showNavTitle = true
+                    mode = TopBarMode.Expanded
                 }
             },
             modifier = modifier
@@ -209,7 +191,7 @@ private fun ScreenBody(
                 .fillMaxWidth()
                 .m3Placeholder()
         )
-        Text(
+        IenText(
             text = "Hello World!",
             modifier = Modifier.placeholder()
         )
@@ -249,7 +231,7 @@ private fun ScreenBody(
                 modifier = Modifier
 //                    .padding(32.dp)
             ) {
-                Icon(
+                IenIcon(
                     imageVector = Android,
                     contentDescription = null
                 )

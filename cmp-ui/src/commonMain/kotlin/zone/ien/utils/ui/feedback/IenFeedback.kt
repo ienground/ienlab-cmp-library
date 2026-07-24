@@ -1,0 +1,1629 @@
+package zone.ien.utils.ui.feedback
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.SnackbarData
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SnackbarVisuals
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.withFrameMillis
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.kyant.capsule.ContinuousCapsule
+import com.kyant.capsule.ContinuousRoundedRectangle
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import zone.ien.utils.cmp_ui.generated.resources.Res
+import zone.ien.utils.cmp_ui.generated.resources.loading
+import zone.ien.utils.cmp_ui.generated.resources.progress_stepper_step
+import zone.ien.utils.cmp_ui.generated.resources.selected
+import zone.ien.utils.icon.remix.RemixIcons
+import zone.ien.utils.icon.remix.fill.Check
+import zone.ien.utils.icon.remix.fill.Close
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.toneGradientBrush
+import zone.ien.utils.ui.list.IenListRow
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.primitives.IenLoaderPrimitive
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.dialog.IenAlertDialog
+import zone.ien.utils.ui.dialog.IenConfirmDialog
+import zone.ien.utils.ui.dialog.IenConfirmDialogCancelButton
+import zone.ien.utils.ui.dialog.IenConfirmDialogConfirmButton
+import zone.ien.utils.ui.dialog.IenConfirmDialogDescription
+import zone.ien.utils.ui.dialog.IenConfirmDialogTitle
+import kotlin.math.PI
+import kotlin.math.roundToInt
+import kotlin.math.sin
+
+/**
+ * 바텀시트가 펼쳐지는 높이의 단계를 정의하는 Enum 클래스입니다.
+ *
+ * - [Content]: 콘텐츠의 본래 높이만큼만 펼쳐집니다.
+ * - [Medium]: 화면 높이의 50%만큼 펼쳐집니다.
+ * - [Full]: 화면 높이의 92%만큼 펼쳐집니다.
+ */
+enum class IenSheetDetent { Content, Medium, Full }
+
+/**
+ * [IenBottomSheet]의 상태(표시 여부 및 높이 단계)를 제어하고 관리하는 상태 객체입니다.
+ *
+ * @property visible 바텀시트의 표시 여부
+ * @property detent 바텀시트가 펼쳐진 높이 단계 ([IenSheetDetent])
+ */
+@Stable
+class IenBottomSheetState internal constructor(
+    visible: Boolean,
+    detent: IenSheetDetent,
+) {
+    var visible by mutableStateOf(visible)
+        private set
+    var detent by mutableStateOf(detent)
+        private set
+
+    /**
+     * 바텀시트를 지정된 높이 단계로 화면에 표시합니다.
+     *
+     * @param detent 바텀시트를 펼칠 높이 단계 ([IenSheetDetent])
+     */
+    fun show(detent: IenSheetDetent = IenSheetDetent.Content) {
+        this.detent = detent
+        visible = true
+    }
+
+    /**
+     * 바텀시트를 화면에서 숨깁니다.
+     */
+    fun hide() {
+        visible = false
+    }
+}
+
+/**
+ * [IenBottomSheetState] 인스턴스를 생성하고 기억(remember)하는 헬퍼 컴포저블 함수입니다.
+ *
+ * @param visible 초기 표시 여부
+ * @param detent 초기 높이 단계 ([IenSheetDetent])
+ * @return 생성된 [IenBottomSheetState] 객체
+ */
+@Composable
+fun rememberIenBottomSheetState(
+    visible: Boolean = false,
+    detent: IenSheetDetent = IenSheetDetent.Content,
+) = remember { IenBottomSheetState(visible, detent) }
+
+/**
+ * 다양한 모드와 슬라이드 드래그 제스처를 지원하는 바텀시트 컴포저블입니다.
+ *
+ * @param state 바텀시트의 상태 제어 객체 ([IenBottomSheetState])
+ * @param modifier 바텀시트에 적용할 [Modifier]
+ * @param dismissOnScrimClick 바깥 영역(스크림) 클릭 시 바텀시트를 닫을지 여부
+ * @param showDragHandle 바텀시트 상단에 드래그 핸들 바를 표시할지 여부
+ * @param disableDimmer 배경을 어둡게 처리(dimming)할지 여부
+ * @param disableFocusLock 포커스 잠금(Focus Lock)을 해제할지 여부
+ * @param header 바텀시트 상단에 들어갈 헤더 타이틀 컴포저블
+ * @param headerDescription 헤더 아래에 들어갈 설명문 컴포저블
+ * @param cta 바텀시트 하단에 고정되는 작업 버튼(Call To Action) 영역 컴포저블
+ * @param contentPadding 콘텐츠 영역의 내부 여백 ([PaddingValues])
+ * @param content 바텀시트의 내부 콘텐츠 영역을 정의하는 컴포저블 블록
+ */
+@Composable
+fun IenBottomSheet(
+    state: IenBottomSheetState,
+    modifier: Modifier = Modifier,
+    dismissOnScrimClick: Boolean = true,
+    showDragHandle: Boolean = true,
+    disableDimmer: Boolean = false,
+    disableFocusLock: Boolean = false,
+    header: (@Composable () -> Unit)? = null,
+    headerDescription: (@Composable () -> Unit)? = null,
+    cta: (@Composable () -> Unit)? = null,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val dragOffsetY = remember { Animatable(0f) }
+    var mounted by remember { mutableStateOf(state.visible) }
+    val density = LocalDensity.current
+    val thresholdPx = with(density) { 150.dp.toPx() }
+
+    val motion = IenTheme.motion
+    val normalMillis = motion.normalMillis
+    val standardEasing = motion.standardEasing
+
+    LaunchedEffect(state.visible) {
+        if (state.visible) {
+            mounted = true
+            dragOffsetY.snapTo(0f)
+        } else if (mounted) {
+            delay(normalMillis.toLong())
+            mounted = false
+        }
+    }
+
+    if (!mounted) return
+
+    val dragModifier = Modifier.pointerInput(Unit) {
+        detectVerticalDragGestures(
+            onDragEnd = {
+                coroutineScope.launch {
+                    val sheetHeight = size.height.toFloat()
+                    if (dragOffsetY.value > thresholdPx) {
+                        launch {
+                            dragOffsetY.animateTo(
+                                targetValue = sheetHeight,
+                                animationSpec = tween(normalMillis, easing = standardEasing)
+                            )
+                        }
+                        state.hide()
+                    } else {
+                        dragOffsetY.animateTo(0f)
+                    }
+                }
+            },
+            onDragCancel = {
+                coroutineScope.launch { dragOffsetY.animateTo(0f) }
+            },
+            onVerticalDrag = { change, dragAmount ->
+                change.consume()
+                coroutineScope.launch {
+                    dragOffsetY.snapTo((dragOffsetY.value + dragAmount).coerceAtLeast(0f))
+                }
+            }
+        )
+    }
+
+    Dialog(
+        onDismissRequest = { state.hide() },
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false,
+        ),
+    ) {
+        AnimatedVisibility(
+            visible = state.visible,
+            enter = fadeIn(tween(IenTheme.motion.fastMillis)),
+            exit = fadeOut(tween(IenTheme.motion.fastMillis)),
+        ) {
+            val overlayColor = if (disableDimmer) Color.Transparent else IenTheme.colors.overlay
+            Box(
+                modifier = modifier
+                    .fillMaxSize()
+                    .background(overlayColor)
+                    .clickable(
+                        enabled = dismissOnScrimClick,
+                        indication = null,
+                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                    ) { state.hide() },
+                contentAlignment = Alignment.BottomCenter,
+            ) {
+                AnimatedVisibility(
+                    visible = state.visible,
+                    enter = slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing)
+                    ) + fadeIn(tween(IenTheme.motion.fastMillis)),
+                    exit = slideOutVertically(
+                        targetOffsetY = { it },
+                        animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing)
+                    ) + fadeOut(tween(IenTheme.motion.fastMillis)),
+                    modifier = Modifier
+                        .widthIn(max = 520.dp)
+                        .fillMaxWidth()
+                        .offset { IntOffset(0, dragOffsetY.value.roundToInt()) }
+                ) {
+                    IenSurface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .then(state.detent.sheetHeightModifier())
+                            .clickable(
+                                indication = null,
+                                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                            ) { },
+                        color = IenTheme.colors.surfaceRaised,
+                        shape = ContinuousRoundedRectangle(topStart = IenTheme.radius.lg, topEnd = IenTheme.radius.lg),
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(0.dp),
+                        ) {
+                            Column(
+                                modifier = dragModifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                if (showDragHandle) {
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(vertical = 12.dp)
+                                            .width(36.dp)
+                                            .height(4.dp)
+                                            .clip(ContinuousCapsule)
+                                            .background(IenTheme.colors.borderStrong),
+                                    )
+                                } else {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                }
+
+                                if (header != null || headerDescription != null) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 24.dp, vertical = 8.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        header?.invoke()
+                                        headerDescription?.invoke()
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                            }
+
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f, fill = false)
+                                    .padding(contentPadding)
+                            ) {
+                                content()
+                            }
+
+                            if (cta != null) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .navigationBarsPadding()
+                                        .padding(horizontal = 24.dp)
+                                        .padding(bottom = 16.dp)
+                                ) {
+                                    cta()
+                                }
+                            } else {
+                                Spacer(
+                                    modifier = Modifier
+                                        .navigationBarsPadding()
+                                        .height(16.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun IenSheetDetent.sheetHeightModifier(): Modifier = when (this) {
+    IenSheetDetent.Content -> Modifier
+    IenSheetDetent.Medium -> Modifier.fillMaxHeight(0.5f)
+    IenSheetDetent.Full -> Modifier.fillMaxHeight(0.92f)
+}
+
+/**
+ * [IenBottomSheetSelect]에서 사용할 개별 옵션 항목 데이터 모델입니다.
+ *
+ * @property name 화면에 표시될 옵션 이름
+ * @property value 옵션의 실제 식별 값
+ */
+data class IenBottomSheetOption(
+    val name: String,
+    val value: String,
+)
+
+/**
+ * 바텀시트 내에서 여러 옵션 리스트 중 하나를 선택할 수 있게 해주는 선택 컴포저블입니다.
+ *
+ * @param options 선택 가능한 [IenBottomSheetOption] 목록
+ * @param value 현재 선택된 값의 식별자
+ * @param onChange 새로운 옵션이 선택되었을 때 호출되는 콜백 함수
+ * @param modifier 컴포저블에 적용할 [Modifier]
+ */
+@Composable
+fun IenBottomSheetSelect(
+    options: List<IenBottomSheetOption>,
+    value: String?,
+    onChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(0.dp)
+    ) {
+        options.forEach { option ->
+            val isSelected = option.value == value
+            IenListRow(
+                title = option.name,
+                selected = isSelected,
+                onClick = { onChange(option.value) },
+                trailing = {
+                    if (isSelected) {
+                        IenIcon(
+                            imageVector = RemixIcons.Fill.Check,
+                            contentDescription = stringResource(Res.string.selected),
+                            tint = IenTheme.colors.brand
+                        )
+                    }
+                }
+            )
+        }
+    }
+}
+
+/**
+ * 다이얼로그([IenDialog]) 내의 버튼 동작을 구성하는 데이터 모델입니다.
+ *
+ * @property text 버튼에 표시할 문구
+ * @property onClick 버튼을 클릭했을 때 실행할 콜백 함수
+ * @property tone 버튼의 시맨틱 톤 설정 ([IenSemanticTone])
+ */
+@Immutable
+data class IenDialogAction(
+    val text: String,
+    val onClick: () -> Unit,
+    val tone: IenSemanticTone = IenSemanticTone.Brand,
+)
+
+/**
+ * 사용자에게 알림 또는 확인 작업을 수행할 때 표시되는 다이얼로그 컴포저블입니다.
+ *
+ * [dismiss] 액션 여부에 따라 알림창([IenAlertDialog]) 또는 확인창([IenConfirmDialog])으로 렌더링됩니다.
+ *
+ * @param visible 다이얼로그 표시 여부
+ * @param onDismissRequest 다이얼로그 외부 클릭 또는 뒤로 가기 등으로 닫힐 때 호출되는 콜백
+ * @param title 다이얼로그의 제목
+ * @param message 다이얼로그의 본문 메시지
+ * @param confirm 확인/긍정 버튼 액션 ([IenDialogAction])
+ * @param modifier 다이얼로그 레이아웃에 적용할 [Modifier]
+ * @param dismiss 취소/부정 버튼 액션 ([IenDialogAction]). 생략할 경우 단일 버튼 알림 다이얼로그로 동작합니다.
+ */
+@Composable
+fun IenDialog(
+    visible: Boolean,
+    onDismissRequest: () -> Unit,
+    title: String,
+    message: String,
+    confirm: IenDialogAction,
+    modifier: Modifier = Modifier,
+    dismiss: IenDialogAction? = null,
+) {
+    if (dismiss == null) {
+        IenAlertDialog(
+            visible = visible,
+            title = title,
+            message = message,
+            onDismissRequest = onDismissRequest,
+            modifier = modifier,
+            confirmText = confirm.text,
+            onConfirmClick = confirm.onClick,
+            tone = confirm.tone,
+        )
+    } else {
+        IenConfirmDialog(
+            visible = visible,
+            onClose = onDismissRequest,
+            modifier = modifier,
+            title = {
+                IenConfirmDialogTitle(text = title)
+            },
+            description = {
+                IenConfirmDialogDescription(text = message)
+            },
+            cancelButton = {
+                IenConfirmDialogCancelButton(
+                    text = dismiss.text,
+                    onClick = dismiss.onClick,
+                    tone = dismiss.tone,
+                )
+            },
+            confirmButton = {
+                IenConfirmDialogConfirmButton(
+                    text = confirm.text,
+                    onClick = confirm.onClick,
+                    tone = confirm.tone,
+                )
+            },
+        )
+    }
+}
+
+
+
+/**
+ * IEN 스낵바의 기본값을 정의합니다.
+ */
+object IenSnackbarDefaults {
+    val MinWidth: Dp? = null
+    val MaxWidth: Dp = 420.dp
+    val SwipeDismissThreshold: Dp = 48.dp
+    val ExitTravelDistance: Dp = 160.dp
+    const val FillMaxWidth: Boolean = false
+}
+
+/**
+ * Material [SnackbarHostState]에 IEN 스낵바의 추가 시각 정보를 전달하기 위한 [SnackbarVisuals] 구현입니다.
+ */
+@Immutable
+data class IenSnackbarVisuals(
+    override val message: String,
+    override val actionLabel: String? = null,
+    override val withDismissAction: Boolean = false,
+    override val duration: SnackbarDuration = if (actionLabel == null) SnackbarDuration.Short else SnackbarDuration.Long,
+    val tone: IenSemanticTone = IenSemanticTone.Neutral,
+    val minWidth: Dp? = IenSnackbarDefaults.MinWidth,
+    val maxWidth: Dp = IenSnackbarDefaults.MaxWidth,
+    val fillMaxWidth: Boolean = IenSnackbarDefaults.FillMaxWidth,
+) : SnackbarVisuals
+
+/**
+ * Material [SnackbarHostState]를 사용해 IEN 스타일 스낵바를 표시합니다.
+ */
+suspend fun SnackbarHostState.showIenSnackbar(
+    message: String,
+    actionLabel: String? = null,
+    withDismissAction: Boolean = false,
+    duration: SnackbarDuration = if (actionLabel == null) SnackbarDuration.Short else SnackbarDuration.Long,
+    tone: IenSemanticTone = IenSemanticTone.Neutral,
+    minWidth: Dp? = IenSnackbarDefaults.MinWidth,
+    maxWidth: Dp = IenSnackbarDefaults.MaxWidth,
+    fillMaxWidth: Boolean = IenSnackbarDefaults.FillMaxWidth,
+): SnackbarResult {
+    return showSnackbar(
+        IenSnackbarVisuals(
+            message = message,
+            actionLabel = actionLabel,
+            withDismissAction = withDismissAction,
+            duration = duration,
+            tone = tone,
+            minWidth = minWidth,
+            maxWidth = maxWidth,
+            fillMaxWidth = fillMaxWidth,
+        )
+    )
+}
+
+/**
+ * Material [SnackbarHost]를 IEN 디자인으로 렌더링하는 호스트입니다.
+ */
+@Composable
+fun IenSnackbarHost(
+    hostState: SnackbarHostState,
+    modifier: Modifier = Modifier,
+) {
+    var displayedData by remember { mutableStateOf<SnackbarData?>(null) }
+    val currentData = hostState.currentSnackbarData
+    val normalMillis = IenTheme.motion.normalMillis
+    val fastMillis = IenTheme.motion.fastMillis
+    val standardEasing = IenTheme.motion.standardEasing
+    val exitTravelDistance = with(LocalDensity.current) { IenSnackbarDefaults.ExitTravelDistance.roundToPx() }
+
+    LaunchedEffect(currentData) {
+        if (currentData != null) {
+            displayedData = currentData
+        } else {
+            withFrameMillis { }
+            if (hostState.currentSnackbarData == null) {
+                displayedData = null
+            }
+        }
+    }
+
+    LaunchedEffect(currentData) {
+        val data = currentData ?: return@LaunchedEffect
+        val durationMillis = data.visuals.duration.ienSnackbarDurationMillis() ?: return@LaunchedEffect
+        delay(durationMillis)
+        if (hostState.currentSnackbarData === data) {
+            data.dismiss()
+        }
+    }
+
+    AnimatedContent(
+        targetState = displayedData,
+        modifier = modifier.fillMaxWidth(),
+        transitionSpec = {
+            val enter = slideInVertically(
+                initialOffsetY = { it },
+                animationSpec = tween(normalMillis, easing = standardEasing),
+            ) + fadeIn(animationSpec = tween(fastMillis))
+            val exit = slideOutVertically(
+                targetOffsetY = { it + exitTravelDistance },
+                animationSpec = tween(normalMillis, easing = standardEasing),
+            ) + fadeOut(animationSpec = tween(normalMillis, easing = standardEasing))
+            (enter togetherWith exit).using(SizeTransform(clip = false))
+        },
+        label = "IenSnackbarHost",
+    ) { data ->
+        if (data == null) {
+            Box(modifier = Modifier.fillMaxWidth())
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = IenTheme.spacing.lg),
+                contentAlignment = Alignment.Center,
+            ) {
+                IenSnackbar(data = data)
+            }
+        }
+    }
+}
+
+private fun SnackbarDuration.ienSnackbarDurationMillis(): Long? = when (this) {
+    SnackbarDuration.Short -> 4_000L
+    SnackbarDuration.Long -> 10_000L
+    SnackbarDuration.Indefinite -> null
+}
+
+/**
+ * Material [SnackbarData]를 IEN 스타일 스낵바 카드로 렌더링합니다.
+ */
+@Composable
+fun IenSnackbar(
+    data: SnackbarData,
+    modifier: Modifier = Modifier,
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val density = LocalDensity.current
+    val visuals = data.visuals as? IenSnackbarVisuals
+    val tone = visuals?.tone ?: IenSemanticTone.Neutral
+    val offsetY = remember(data) { Animatable(0f) }
+    val dismissThreshold = with(density) { IenSnackbarDefaults.SwipeDismissThreshold.toPx() }
+    val exitTravelDistance = with(density) { IenSnackbarDefaults.ExitTravelDistance.toPx() }
+    val normalMillis = IenTheme.motion.normalMillis
+    val standardEasing = IenTheme.motion.standardEasing
+
+    IenSnackbarContent(
+        text = data.visuals.message,
+        modifier = modifier
+            .offset { IntOffset(0, offsetY.value.roundToInt()) }
+            .graphicsLayer {
+                alpha = (1f - (offsetY.value / dismissThreshold).coerceIn(0f, 1f) * 0.35f)
+            }
+            .pointerInput(data) {
+                detectVerticalDragGestures(
+                    onDragEnd = {
+                        coroutineScope.launch {
+                            if (offsetY.value > dismissThreshold) {
+                                offsetY.animateTo(
+                                    targetValue = size.height.toFloat() + exitTravelDistance,
+                                    animationSpec = tween(normalMillis, easing = standardEasing),
+                                )
+                                data.dismiss()
+                            } else {
+                                offsetY.animateTo(
+                                    targetValue = 0f,
+                                    animationSpec = tween(normalMillis, easing = standardEasing),
+                                )
+                            }
+                        }
+                    },
+                    onDragCancel = {
+                        coroutineScope.launch {
+                            offsetY.animateTo(
+                                targetValue = 0f,
+                                animationSpec = tween(normalMillis, easing = standardEasing),
+                            )
+                        }
+                    },
+                    onVerticalDrag = { change, dragAmount ->
+                        change.consume()
+                        coroutineScope.launch {
+                            offsetY.snapTo((offsetY.value + dragAmount).coerceAtLeast(0f))
+                        }
+                    },
+                )
+            },
+        leftAddon = if (tone == IenSemanticTone.Neutral) null else {
+            { IenSnackbarIcon(tone = tone) }
+        },
+        actionLabel = data.visuals.actionLabel,
+        onAction = data::performAction,
+        minWidth = if (visuals != null) visuals.minWidth else IenSnackbarDefaults.MinWidth,
+        maxWidth = visuals?.maxWidth ?: IenSnackbarDefaults.MaxWidth,
+        fillMaxWidth = visuals?.fillMaxWidth ?: IenSnackbarDefaults.FillMaxWidth,
+    )
+}
+
+@Composable
+private fun IenSnackbarContent(
+    text: String,
+    modifier: Modifier = Modifier,
+    leftAddon: (@Composable () -> Unit)? = null,
+    actionLabel: String? = null,
+    onAction: (() -> Unit)? = null,
+    minWidth: Dp? = IenSnackbarDefaults.MinWidth,
+    maxWidth: Dp = IenSnackbarDefaults.MaxWidth,
+    fillMaxWidth: Boolean = IenSnackbarDefaults.FillMaxWidth,
+) {
+    val container = Color(0xFF191F28)
+    val sizeModifier = Modifier.widthIn(
+        min = minWidth ?: Dp.Unspecified,
+        max = maxWidth,
+    ).then(
+        if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier
+    )
+    IenSurface(
+        modifier = modifier
+            .shadow(elevation = 6.dp, shape = ContinuousRoundedRectangle(22.dp), clip = false)
+            .then(sizeModifier)
+            .semantics {
+                liveRegion = LiveRegionMode.Polite
+                contentDescription = text
+            },
+        color = container,
+        contentColor = Color.White,
+        shape = ContinuousRoundedRectangle(22.dp),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = IenTheme.spacing.lg, vertical = IenTheme.spacing.md),
+            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            leftAddon?.invoke()
+            IenText(
+                text = text,
+                modifier = Modifier.weight(1f, fill = false),
+                color = Color.White,
+                style = IenTheme.typography.body2,
+            )
+            if (actionLabel != null && onAction != null) {
+                IenSnackbarActionButton(text = actionLabel, onClick = onAction)
+            }
+        }
+    }
+}
+
+/**
+ * 스낵바 카드 우측에 들어갈 파란색 텍스트 액션 버튼 컴포저블입니다.
+ *
+ * @param text 버튼 텍스트
+ * @param onClick 버튼 클릭 콜백 함수
+ * @param modifier 적용할 [Modifier]
+ */
+@Composable
+fun IenSnackbarActionButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    IenText(
+        text = text,
+        modifier = modifier
+            .clip(ContinuousRoundedRectangle(IenTheme.radius.sm))
+            .clickable(onClick = onClick)
+            .padding(horizontal = IenTheme.spacing.sm, vertical = IenTheme.spacing.xs),
+        color = Color(0xFF3182F6),
+        style = IenTheme.typography.label1.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+    )
+}
+
+/**
+ * 스낵바 좌측에 시맨틱 톤에 따른 상태 아이콘을 나타내는 컴포저블입니다.
+ *
+ * @param modifier 적용할 [Modifier]
+ * @param tone 나타낼 상태의 시맨틱 톤 ([IenSemanticTone])
+ * @param size 아이콘 및 배경 서클의 크기
+ */
+@Composable
+fun IenSnackbarIcon(
+    modifier: Modifier = Modifier,
+    tone: IenSemanticTone = IenSemanticTone.Success,
+    size: Dp = 20.dp,
+) {
+    val color = when (tone) {
+        IenSemanticTone.Neutral -> IenTheme.colors.surface
+        IenSemanticTone.Brand -> IenTheme.colors.brand
+        IenSemanticTone.Success -> IenTheme.colors.success
+        IenSemanticTone.Warning -> IenTheme.colors.warning
+        IenSemanticTone.Danger -> IenTheme.colors.danger
+        IenSemanticTone.Info -> IenTheme.colors.info
+    }
+    val iconVector = when (tone) {
+        IenSemanticTone.Success -> RemixIcons.Fill.Check
+        IenSemanticTone.Danger -> RemixIcons.Fill.Close
+        else -> RemixIcons.Fill.Check
+    }
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(color.copy(alpha = 0.15f)),
+        contentAlignment = Alignment.Center,
+    ) {
+        IenIcon(
+            imageVector = iconVector,
+            contentDescription = null,
+            modifier = Modifier.size(size * 0.7f),
+            tint = color,
+        )
+    }
+}
+
+
+/**
+ * 데이터를 로딩 중일 때 표시할 수 있는 스켈레톤(스위머) 자리 표시자 컴포저블입니다.
+ *
+ * @param modifier 적용할 [Modifier]
+ * @param height 단일 블록의 스켈레톤을 만들 때 사용하는 높이. null이 아니면 해당 높이의 단일 블록이 렌더링됩니다.
+ * @param radius 둥근 테두리 반경 ([Dp])
+ * @param pattern 사전에 지정된 레이아웃 템플릿 ([IenSkeletonPattern])
+ * @param custom 직접 지정하고자 하는 스켈레톤 요소([IenSkeletonElement]) 목록
+ * @param repeatLastItemCount 마지막 줄 요소를 반복해 뿌릴 횟수 또는 방식 ([IenSkeletonRepeat])
+ * @param play 스켈레톤을 노출할지 감출지 여부 ([IenSkeletonPlay])
+ * @param background 스켈레톤의 배경 컬러 톤 ([IenSkeletonBackground])
+ */
+@Composable
+fun IenSkeleton(
+    modifier: Modifier = Modifier,
+    height: Dp? = null,
+    radius: Dp = IenTheme.radius.sm,
+    pattern: IenSkeletonPattern = IenSkeletonPattern.TopList,
+    custom: List<IenSkeletonElement>? = null,
+    repeatLastItemCount: IenSkeletonRepeat = IenSkeletonRepeat.Count(3),
+    play: IenSkeletonPlay = IenSkeletonPlay.Show,
+    background: IenSkeletonBackground = IenSkeletonBackground.Grey,
+) {
+    if (play == IenSkeletonPlay.Hide) {
+        return
+    }
+
+    val phase = rememberIenSkeletonPhase()
+    val colors = skeletonColors(background)
+
+    if (height != null) {
+        IenSkeletonBlock(
+            modifier = modifier.fillMaxWidth(),
+            height = height,
+            radius = radius,
+            color = colors.base,
+            phase = phase,
+            animationIndex = 0,
+        )
+        return
+    }
+
+    val elements = (custom ?: pattern.elements()).withRepeatedLast(repeatLastItemCount)
+    val contentDescription = stringResource(Res.string.loading)
+    Column(
+        modifier = modifier.semantics {
+            this.contentDescription = contentDescription
+            liveRegion = LiveRegionMode.Polite
+        },
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+    ) {
+        elements.forEachIndexed { index, element ->
+            IenSkeletonElementView(
+                element = element,
+                index = index,
+                radius = radius,
+                color = colors.base,
+                phase = phase,
+            )
+        }
+    }
+}
+
+/**
+ * 스켈레톤 화면 구조를 쉽게 구성할 수 있도록 지원하는 미리 설정된 레이아웃 템플릿 목록입니다.
+ */
+enum class IenSkeletonPattern {
+    TopList,
+    TopListWithIcon,
+    AmountTopList,
+    AmountTopListWithIcon,
+    SubtitleList,
+    SubtitleListWithIcon,
+    ListOnly,
+    ListWithIconOnly,
+    CardOnly,
+}
+
+/**
+ * 스켈레톤 컴포저블의 애니메이션 및 노출 여부를 조작하는 재생 제어 상태입니다.
+ */
+enum class IenSkeletonPlay {
+    Show,
+    Hide,
+}
+
+/**
+ * 스켈레톤 블록의 배경에 사용할 색상 세트를 결정하는 Enum 클래스입니다.
+ */
+enum class IenSkeletonBackground {
+    White,
+    Grey,
+    GreyOpacity100,
+}
+
+/**
+ * 자식 스켈레톤 요소를 하나로 묶어 파동형 애니메이션 페이즈를 동기화하기 위해 사용하는 모션 그룹 컴포저블입니다.
+ *
+ * @param modifier 적용할 [Modifier]
+ * @param animationIndex 애니메이션 딜레이 기준 인덱스
+ * @param content 내부 콘텐츠 컴포저블
+ */
+@Composable
+fun IenSkeletonMotionGroup(
+    modifier: Modifier = Modifier,
+    animationIndex: Int = 0,
+    content: @Composable BoxScope.() -> Unit,
+) {
+    val phase = rememberIenSkeletonPhase()
+    Box(
+        modifier = modifier.ienSkeletonMotion(phase = phase, animationIndex = animationIndex),
+    ) {
+        CompositionLocalProvider(LocalIenSkeletonBlockMotionEnabled provides false) {
+            content()
+        }
+    }
+}
+
+/**
+ * 스켈레톤 리스트 형태에서 마지막 요소를 반복하는 횟수나 방식을 정의하는 봉인된(sealed) 인터페이스입니다.
+ */
+sealed interface IenSkeletonRepeat {
+    /**
+     * 특정 횟수만큼 마지막 요소를 반복합니다.
+     */
+    data class Count(val value: Int) : IenSkeletonRepeat
+    /**
+     * 무한(또는 최대 수량)만큼 마지막 요소를 반복합니다.
+     */
+    data object Infinite : IenSkeletonRepeat
+}
+
+/**
+ * 스켈레톤 화면 구조를 구성하기 위한 기본 UI 구성 요소 종류를 정의한 봉인된(sealed) 인터페이스입니다.
+ */
+sealed interface IenSkeletonElement {
+    /** 제목 스타일의 얇은 스켈레톤 바 */
+    data object Title : IenSkeletonElement
+    /** 부제목 스타일의 더 얇고 짧은 스켈레톤 바 */
+    data object Subtitle : IenSkeletonElement
+    /** 리스트 아이템 형태의 스켈레톤 바 */
+    data object List : IenSkeletonElement
+    /** 아이콘과 함께 있는 리스트 형태의 스켈레톤 요소 */
+    data object ListWithIcon : IenSkeletonElement
+    /** 카드 형태의 커다란 스켈레톤 블록 */
+    data object Card : IenSkeletonElement
+    /** 요소들 사이의 여백을 나타내는 여백 스켈레톤 */
+    data class Spacer(val height: Dp) : IenSkeletonElement
+}
+
+private data class IenSkeletonColors(
+    val base: Color,
+)
+
+private const val IenSkeletonMotionDurationMillis = 1200L
+
+private val LocalIenSkeletonBlockMotionEnabled = staticCompositionLocalOf { true }
+
+private fun IenSkeletonPattern.elements(): List<IenSkeletonElement> = when (this) {
+    IenSkeletonPattern.TopList -> listOf(
+        IenSkeletonElement.Title,
+        IenSkeletonElement.Spacer(4.dp),
+        IenSkeletonElement.List,
+    )
+
+    IenSkeletonPattern.TopListWithIcon -> listOf(
+        IenSkeletonElement.Title,
+        IenSkeletonElement.Spacer(4.dp),
+        IenSkeletonElement.ListWithIcon,
+    )
+
+    IenSkeletonPattern.AmountTopList -> listOf(
+        IenSkeletonElement.Title,
+        IenSkeletonElement.Subtitle,
+        IenSkeletonElement.Spacer(8.dp),
+        IenSkeletonElement.List,
+    )
+
+    IenSkeletonPattern.AmountTopListWithIcon -> listOf(
+        IenSkeletonElement.Title,
+        IenSkeletonElement.Subtitle,
+        IenSkeletonElement.Spacer(8.dp),
+        IenSkeletonElement.ListWithIcon,
+    )
+
+    IenSkeletonPattern.SubtitleList -> listOf(
+        IenSkeletonElement.Subtitle,
+        IenSkeletonElement.Spacer(4.dp),
+        IenSkeletonElement.List,
+    )
+
+    IenSkeletonPattern.SubtitleListWithIcon -> listOf(
+        IenSkeletonElement.Subtitle,
+        IenSkeletonElement.Spacer(4.dp),
+        IenSkeletonElement.ListWithIcon,
+    )
+
+    IenSkeletonPattern.ListOnly -> listOf(IenSkeletonElement.List)
+    IenSkeletonPattern.ListWithIconOnly -> listOf(IenSkeletonElement.ListWithIcon)
+    IenSkeletonPattern.CardOnly -> listOf(IenSkeletonElement.Card)
+}
+
+private fun List<IenSkeletonElement>.withRepeatedLast(repeat: IenSkeletonRepeat): List<IenSkeletonElement> {
+    if (isEmpty()) {
+        return this
+    }
+    val repeatCount = when (repeat) {
+        is IenSkeletonRepeat.Count -> repeat.value.coerceAtLeast(1)
+        IenSkeletonRepeat.Infinite -> 30
+    }
+    return dropLast(1) + List(repeatCount) { last() }
+}
+
+@Composable
+private fun skeletonColors(background: IenSkeletonBackground): IenSkeletonColors = when (background) {
+    IenSkeletonBackground.White -> IenSkeletonColors(
+        base = Color.White,
+    )
+
+    IenSkeletonBackground.Grey -> IenSkeletonColors(
+        base = Color(0xFFF2F4F6),
+    )
+
+    IenSkeletonBackground.GreyOpacity100 -> IenSkeletonColors(
+        base = Color(0x0D022047),
+    )
+}
+
+@Composable
+private fun ColumnScope.IenSkeletonElementView(
+    element: IenSkeletonElement,
+    index: Int,
+    radius: Dp,
+    color: Color,
+    phase: Float,
+) {
+    when (element) {
+        IenSkeletonElement.Title -> IenSkeletonBlock(
+            modifier = Modifier.fillMaxWidth(0.42f),
+            height = 24.dp,
+            radius = radius,
+            color = color,
+            phase = phase,
+            animationIndex = index,
+        )
+
+        IenSkeletonElement.Subtitle -> IenSkeletonBlock(
+            modifier = Modifier.fillMaxWidth(0.34f),
+            height = 16.dp,
+            radius = radius,
+            color = color,
+            phase = phase,
+            animationIndex = index,
+        )
+
+        IenSkeletonElement.List -> IenSkeletonListRow(
+            index = index,
+            radius = radius,
+            color = color,
+            phase = phase,
+        )
+
+        IenSkeletonElement.ListWithIcon -> IenSkeletonListRowWithIcon(
+            index = index,
+            radius = radius,
+            color = color,
+            phase = phase,
+        )
+
+        IenSkeletonElement.Card -> IenSkeletonBlock(
+            modifier = Modifier.fillMaxWidth(),
+            height = 132.dp,
+            radius = IenTheme.radius.default,
+            color = color,
+            phase = phase,
+            animationIndex = index,
+        )
+
+        is IenSkeletonElement.Spacer -> Spacer(modifier = Modifier.height(element.height))
+    }
+}
+
+@Composable
+private fun IenSkeletonListRow(
+    index: Int,
+    radius: Dp,
+    color: Color,
+    phase: Float,
+) {
+    val widthFraction = when (index % 3) {
+        0 -> 0.92f
+        1 -> 0.78f
+        else -> 0.86f
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp),
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        IenSkeletonBlock(
+            modifier = Modifier.fillMaxWidth(widthFraction),
+            height = 18.dp,
+            radius = radius,
+            color = color,
+            phase = phase,
+            animationIndex = index,
+        )
+    }
+}
+
+@Composable
+private fun IenSkeletonListRowWithIcon(
+    index: Int,
+    radius: Dp,
+    color: Color,
+    phase: Float,
+) {
+    val primaryWidthFraction = when (index % 3) {
+        0 -> 0.70f
+        1 -> 0.56f
+        else -> 0.64f
+    }
+    val secondaryWidthFraction = when (index % 3) {
+        0 -> 0.38f
+        1 -> 0.44f
+        else -> 0.32f
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .ienSkeletonMotion(phase = phase, animationIndex = index)
+            .height(56.dp),
+        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(color),
+        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+        ) {
+            IenSkeletonBlock(
+                modifier = Modifier.fillMaxWidth(primaryWidthFraction),
+                height = 18.dp,
+                radius = radius,
+                color = color,
+                phase = phase,
+                animationIndex = index,
+                animate = false,
+            )
+            IenSkeletonBlock(
+                modifier = Modifier.fillMaxWidth(secondaryWidthFraction),
+                height = 14.dp,
+                radius = radius,
+                color = color,
+                phase = phase,
+                animationIndex = index,
+                animate = false,
+            )
+        }
+    }
+}
+
+@Composable
+private fun rememberIenSkeletonPhase(): Float {
+    var phase by remember { mutableStateOf(0f) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            withFrameMillis { frameMillis ->
+                val normalized = (frameMillis % IenSkeletonMotionDurationMillis).toFloat() / IenSkeletonMotionDurationMillis
+                phase = normalized * (PI * 2.0).toFloat()
+            }
+        }
+    }
+    return phase
+}
+
+@Composable
+private fun IenSkeletonBlock(
+    modifier: Modifier,
+    height: Dp,
+    radius: Dp,
+    color: Color,
+    phase: Float,
+    animationIndex: Int,
+    animate: Boolean = true,
+) {
+    val motionEnabled = LocalIenSkeletonBlockMotionEnabled.current
+    val motionModifier = if (animate && motionEnabled) {
+        Modifier.ienSkeletonMotion(phase = phase, animationIndex = animationIndex)
+    } else {
+        Modifier
+    }
+
+    Box(
+        modifier = modifier
+            .then(motionModifier)
+            .height(height)
+            .clip(ContinuousRoundedRectangle(radius))
+            .background(color),
+    )
+}
+
+private fun Modifier.ienSkeletonMotion(
+    phase: Float,
+    animationIndex: Int,
+): Modifier {
+    val delayedPhase = phase - animationIndex * 0.78f
+    val wave = ((sin(delayedPhase) + 1f) / 2f).coerceIn(0f, 1f)
+    val alpha = 0.2f + 0.8f * wave
+    val scale = 0.96f + 0.04f * wave
+
+    return graphicsLayer {
+        this.alpha = alpha
+        scaleX = scale
+        scaleY = scale
+    }
+}
+
+/**
+ * 진행율을 가로 바 형식으로 시각화하여 표현해 주는 프로그레스 바 컴포저블입니다.
+ *
+ * @param progress 0.0부터 1.0 사이의 진행율 값
+ * @param modifier 적용할 [Modifier]
+ * @param size 프로그레스 바의 굵기 레벨 ([IenProgressBarSize])
+ * @param color 프로그레스 채우기에 적용할 메인 색상
+ * @param animate 수치 변경 시 게이지가 차오르는 애니메이션을 적용할지 여부
+ * @param contentDescription 접근성을 위한 스크린 리더용 설명문
+ * @param showLabel 프로그레스 바 하단에 백분율(예: 50%)을 텍스트 레이블로 보여줄지 여부
+ */
+@Composable
+fun IenProgressBar(
+    progress: Float,
+    modifier: Modifier = Modifier,
+    size: IenProgressBarSize = IenProgressBarSize.Normal,
+    color: Color = IenTheme.colors.brand,
+    animate: Boolean = false,
+    contentDescription: String? = null,
+    showLabel: Boolean = false,
+) {
+    val safeProgress = progress.coerceIn(0f, 1f)
+    val displayedProgress by animateFloatAsState(
+        targetValue = safeProgress,
+        animationSpec = tween(
+            durationMillis = if (animate) IenTheme.motion.normalMillis else 0,
+            easing = IenTheme.motion.standardEasing,
+        ),
+        label = "ienProgressBar",
+    )
+    val barHeight = when (size) {
+        IenProgressBarSize.Light -> 2.dp
+        IenProgressBarSize.Normal -> 4.dp
+        IenProgressBarSize.Bold -> 8.dp
+    }
+
+    Column(
+        modifier = modifier.semantics {
+            if (contentDescription != null) this.contentDescription = contentDescription
+            progressBarRangeInfo = androidx.compose.ui.semantics.ProgressBarRangeInfo(safeProgress, 0f..1f)
+        },
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(barHeight)
+                .clip(ContinuousCapsule)
+                .background(color.copy(alpha = 0.16f)),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(displayedProgress)
+                    .fillMaxHeight()
+                    .clip(ContinuousCapsule)
+                    .background(
+                        brush = if (color == IenTheme.colors.brand) {
+                            toneGradientBrush(IenSemanticTone.Brand)
+                        } else {
+                            androidx.compose.ui.graphics.SolidColor(color)
+                        },
+                    ),
+            )
+        }
+        if (showLabel) {
+            IenText(
+                text = "${(safeProgress * 100).toInt()}%",
+                style = IenTheme.typography.caption,
+                color = IenTheme.colors.textSecondary,
+            )
+        }
+    }
+}
+
+/**
+ * 프로그레스 바의 수직 높이(굵기)를 지정하기 위한 Enum 클래스입니다.
+ */
+enum class IenProgressBarSize {
+    Light,
+    Normal,
+    Bold,
+}
+
+/**
+ * 로더([IenLoader]) 원형 회전 인디케이터 크기 단계를 지정하기 위한 Enum 클래스입니다.
+ */
+enum class IenLoaderSize { Small, Medium, Large }
+
+/**
+ * 화면 중앙 등에서 콘텐츠 대기 시에 돌면서 로딩 중임을 시각화하는 원형 로더 컴포저블입니다.
+ *
+ * @param modifier 적용할 [Modifier]
+ * @param size 로더 원형 인디케이터 크기 ([IenLoaderSize])
+ * @param label 인디케이터 밑에 표시할 안내 텍스트. 생략 시 원형 단독으로 렌더링됩니다.
+ */
+@Composable
+fun IenLoader(
+    modifier: Modifier = Modifier,
+    size: IenLoaderSize = IenLoaderSize.Medium,
+    label: String? = null,
+) {
+    val defaultLabel = stringResource(Res.string.loading)
+    Column(
+        modifier = modifier.semantics {
+            contentDescription = label ?: defaultLabel
+            liveRegion = LiveRegionMode.Polite
+        },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+    ) {
+        IenLoaderPrimitive(
+            modifier = Modifier.size(
+                when (size) {
+                    IenLoaderSize.Small -> IenTheme.icon.sm
+                    IenLoaderSize.Medium -> IenTheme.icon.lg
+                    IenLoaderSize.Large -> IenTheme.icon.xl
+                },
+            ),
+            color = IenTheme.colors.brand,
+        )
+        if (label != null) {
+            IenText(label, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
+        }
+    }
+}
+
+/**
+ * 단계별 진행 바([IenProgressStepper]) 내 개별 단계의 상태값을 표현하는 Enum 클래스입니다.
+ */
+enum class IenStepStatus { Pending, Current, Done, Error }
+
+/**
+ * 단계별 진행 바의 디자인 레이아웃 방식을 지정하는 Enum 클래스입니다.
+ */
+enum class IenProgressStepperVariant {
+    Compact,
+    Icon,
+}
+
+/**
+ * 단계별 진행 바 내부 상단 여백 수준을 정의하는 Enum 클래스입니다.
+ */
+enum class IenProgressStepperPaddingTop {
+    Default,
+    Wide,
+}
+
+/**
+ * [IenProgressStepper]에 노출할 단계 데이터를 나타내는 데이터 모델입니다.
+ *
+ * @property title 단계의 명칭/라벨
+ * @property status 단계를 활성화하여 표현할 진행 상태 ([IenStepStatus])
+ * @property icon 커스텀 아이콘을 표시하고 싶을 때 정의하는 컴포저블 블록
+ */
+data class IenProgressStep(
+    val title: String? = null,
+    val status: IenStepStatus? = null,
+    val icon: (@Composable () -> Unit)? = null,
+) {
+    /**
+     * 간편하게 라벨과 상태만 지정하여 단계를 구성하는 보조 생성자입니다.
+     *
+     * @param label 단계 라벨 텍스트
+     * @param status 단계 진행 상태 ([IenStepStatus])
+     */
+    constructor(label: String, status: IenStepStatus) : this(
+        title = label,
+        status = status,
+        icon = null,
+    )
+}
+
+/**
+ * 여러 과정의 단계를 순차적으로 표시하며 현재 진행 단계를 알려주는 스텝 인디케이터 컴포저블입니다.
+ *
+ * @param steps 구성할 단계 목록 ([IenProgressStep])
+ * @param modifier 적용할 [Modifier]
+ * @param variant 스텝 표시 스타일 형태 ([IenProgressStepperVariant])
+ * @param paddingTop 상단 여백 단계 수준 ([IenProgressStepperPaddingTop])
+ * @param activeStepIndex 현재 진행 중인 스텝의 0-based 인덱스
+ * @param checkForFinish 완료된 스텝들을 체크 아이콘으로 변경하여 보여줄지 여부
+ */
+@Composable
+fun IenProgressStepper(
+    steps: List<IenProgressStep>,
+    modifier: Modifier = Modifier,
+    variant: IenProgressStepperVariant = IenProgressStepperVariant.Compact,
+    paddingTop: IenProgressStepperPaddingTop = IenProgressStepperPaddingTop.Default,
+    activeStepIndex: Int = 0,
+    checkForFinish: Boolean = false,
+) {
+    val safeActiveStepIndex = activeStepIndex.coerceIn(0, (steps.size - 1).coerceAtLeast(0))
+    val topPadding = when (paddingTop) {
+        IenProgressStepperPaddingTop.Default -> IenTheme.spacing.md
+        IenProgressStepperPaddingTop.Wide -> IenTheme.spacing.xl
+    }
+    val contentDescription = stringResource(Res.string.progress_stepper_step, safeActiveStepIndex + 1, steps.size)
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = topPadding)
+            .semantics {
+                this.contentDescription = contentDescription
+            },
+        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.none),
+        verticalAlignment = Alignment.Top,
+    ) {
+        steps.forEachIndexed { index, step ->
+            val status = step.status ?: when {
+                index < safeActiveStepIndex -> IenStepStatus.Done
+                index == safeActiveStepIndex -> IenStepStatus.Current
+                else -> IenStepStatus.Pending
+            }
+            val color = when (status) {
+                IenStepStatus.Pending -> IenTheme.colors.borderStrong
+                IenStepStatus.Current -> IenTheme.colors.brand
+                IenStepStatus.Done -> IenTheme.colors.brand
+                IenStepStatus.Error -> IenTheme.colors.danger
+            }
+            val titleColor = when (status) {
+                IenStepStatus.Pending -> IenTheme.colors.textTertiary
+                IenStepStatus.Current -> IenTheme.colors.textPrimary
+                IenStepStatus.Done -> IenTheme.colors.textSecondary
+                IenStepStatus.Error -> IenTheme.colors.danger
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(progressStepMarkerSize(variant)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (index > 0) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterStart)
+                                .fillMaxWidth(0.5f)
+                                .height(IenTheme.stroke.thin)
+                                .background(
+                                    brush = if (index <= safeActiveStepIndex) {
+                                        toneGradientBrush(IenSemanticTone.Brand)
+                                    } else {
+                                        androidx.compose.ui.graphics.SolidColor(IenTheme.colors.border)
+                                    },
+                                ),
+                        )
+                    }
+                    if (index < steps.lastIndex) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .fillMaxWidth(0.5f)
+                                .height(IenTheme.stroke.thin)
+                                .background(
+                                    brush = if (index < safeActiveStepIndex) {
+                                        toneGradientBrush(IenSemanticTone.Brand)
+                                    } else {
+                                        androidx.compose.ui.graphics.SolidColor(IenTheme.colors.border)
+                                    },
+                                ),
+                        )
+                    }
+                    ProgressStepMarker(
+                        variant = variant,
+                        status = status,
+                        color = color,
+                        icon = step.icon,
+                        showFinishedCheck = variant == IenProgressStepperVariant.Icon &&
+                            checkForFinish &&
+                            index < safeActiveStepIndex,
+                    )
+                }
+                if (step.title != null) {
+                    Spacer(Modifier.height(IenTheme.spacing.xs))
+                    IenText(
+                        text = step.title,
+                        style = IenTheme.typography.caption,
+                        color = titleColor,
+                        maxLines = 2,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun progressStepMarkerSize(variant: IenProgressStepperVariant): Dp =
+    when (variant) {
+        IenProgressStepperVariant.Compact -> 10.dp
+        IenProgressStepperVariant.Icon -> 28.dp
+    }
+
+@Composable
+private fun ProgressStepMarker(
+    variant: IenProgressStepperVariant,
+    status: IenStepStatus,
+    color: Color,
+    icon: (@Composable () -> Unit)?,
+    showFinishedCheck: Boolean,
+) {
+    val markerSize = progressStepMarkerSize(variant)
+    val backgroundColor = when {
+        status == IenStepStatus.Pending -> IenTheme.colors.surfaceVariant
+        variant == IenProgressStepperVariant.Icon -> color
+        else -> color
+    }
+
+    Box(
+        modifier = Modifier
+            .size(markerSize)
+            .clip(CircleShape)
+            .background(
+                brush = when {
+                    status == IenStepStatus.Pending -> androidx.compose.ui.graphics.SolidColor(backgroundColor)
+                    status == IenStepStatus.Error -> toneGradientBrush(IenSemanticTone.Danger)
+                    else -> toneGradientBrush(IenSemanticTone.Brand)
+                },
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        when {
+            showFinishedCheck -> IenIcon(
+                imageVector = RemixIcons.Fill.Check,
+                contentDescription = null,
+                tint = IenTheme.colors.onBrand,
+                size = IenTheme.icon.sm,
+            )
+            variant == IenProgressStepperVariant.Icon && icon != null -> icon()
+            variant == IenProgressStepperVariant.Icon && status == IenStepStatus.Current -> Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(IenTheme.colors.onBrand),
+            )
+        }
+    }
+}
+
+/**
+ * 결과 카드([IenResult])의 결과 유형(성공, 실패 등) 및 테마 톤을 결정하는 Enum 클래스입니다.
+ */
+enum class IenResultTone { Success, Failure, Empty, Info }
+
+/**
+ * 특정 액션 또는 작업의 결과 화면(예: 빈 페이지, 오류 안내, 성공 알림 등)을 레이아웃으로 렌더링하는 범용 결과 표시 컴포저블입니다.
+ *
+ * @param title 결과 화면에 보여줄 메인 제목 문구
+ * @param modifier 적용할 [Modifier]
+ * @param description 메인 제목 하단에 배치할 보조 상세 설명문
+ * @param tone 결과의 상태 유형 테마 ([IenResultTone])
+ * @param icon 상단 서클 내부에 렌더링할 아이콘 등 추가 요소 컴포저블
+ * @param primaryAction 주요 클릭 이벤트/액션 버튼 컴포저블
+ * @param secondaryAction 보조 클릭 이벤트/액션 버튼 컴포저블
+ */
+@Composable
+fun IenResult(
+    title: String,
+    modifier: Modifier = Modifier,
+    description: String? = null,
+    tone: IenResultTone = IenResultTone.Info,
+    icon: (@Composable BoxScope.() -> Unit)? = null,
+    primaryAction: (@Composable () -> Unit)? = null,
+    secondaryAction: (@Composable () -> Unit)? = null,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(IenTheme.spacing.xl),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+    ) {
+        val iconColor = when (tone) {
+            IenResultTone.Success -> IenTheme.colors.successWeak
+            IenResultTone.Failure -> IenTheme.colors.dangerWeak
+            IenResultTone.Empty -> IenTheme.colors.surfaceWeak
+            IenResultTone.Info -> IenTheme.colors.infoWeak
+        }
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .clip(CircleShape)
+                .background(iconColor),
+            contentAlignment = Alignment.Center,
+        ) {
+            icon?.invoke(this)
+        }
+        IenText(title, style = IenTheme.typography.title2)
+        if (description != null) {
+            IenText(description, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
+        }
+        primaryAction?.invoke()
+        secondaryAction?.invoke()
+    }
+}

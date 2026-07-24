@@ -3,40 +3,52 @@ package zone.ien.utils.ui.section.lazy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
 
+/**
+ * 섹션의 제목을 표시하는 컴포저블
+ *
+ * @param modifier 적용할 Modifier
+ * @param content 제목의 내용을 구성하는 컴포저블 블록
+ */
 @Composable
 internal fun SectionTitle(
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    ProvideTextStyle(
-        value = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.primary)
+    IenProvideTextStyle(
+        style = IenTheme.typography.label1,
+        color = IenTheme.colors.textSecondary,
     ) {
         Box(
             modifier = modifier
-                .padding(bottom = 8.dp)
-                .padding(horizontal = 22.dp),
-        ) { content(PaddingValues(0.dp)) }
+                .padding(bottom = IenTheme.spacing.xs)
+                .padding(horizontal = IenTheme.spacing.xl),
+        ) { content(PaddingValues()) }
     }
 }
 
+/**
+ * 섹션의 설명이나 캡션을 표시하는 컴포저블
+ *
+ * @param content 캡션의 내용을 구성하는 컴포저블 블록
+ */
 @Composable
 internal fun SectionCaption(
     content: @Composable () -> Unit,
 ) {
-    ProvideTextStyle(
-        value = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.primary)
+    IenProvideTextStyle(
+        style = IenTheme.typography.caption,
+        color = IenTheme.colors.textTertiary,
     ) {
         content.let {
             Box(
                 modifier = Modifier
-                    .padding(top = 8.dp)
-                    .padding(horizontal = 22.dp),
+                    .padding(top = IenTheme.spacing.xs)
+                    .padding(horizontal = IenTheme.spacing.xl),
             ) { it() }
         }
     }

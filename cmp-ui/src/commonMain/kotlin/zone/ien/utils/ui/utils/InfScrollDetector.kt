@@ -14,7 +14,7 @@ import androidx.compose.runtime.remember
  * 이 함수는 LazyList 또는 LazyGrid에서 스크롤이 끝에 도달했을 때 
  * 다음 데이터를 로드하는 콜백 함수를 호출합니다.
  * 
- * @param listState 빈 리스트 상태
+ * @param listState LazyList의 스크롤 상태
  * @param isLoading 로딩 중 여부
  * @param hasMore 더 있음 여부
  * @param onLoadNext 다음 데이터 로드 시 호출되는 콜백 함수
@@ -51,7 +51,7 @@ fun InfScrollDetector(
  * 이 함수는 LazyList 또는 LazyGrid에서 스크롤이 끝에 도달했을 때 
  * 다음 데이터를 로드하는 콜백 함수를 호출합니다.
  * 
- * @param listState 그리드 리스트 상태
+ * @param listState LazyGrid의 스크롤 상태
  * @param isLoading 로딩 중 여부
  * @param hasMore 더 있음 여부
  * @param onLoadNext 다음 데이터 로드 시 호출되는 콜백 함수

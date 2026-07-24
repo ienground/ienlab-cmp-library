@@ -7,63 +7,61 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.clearText
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.section.SectionScope
-import zone.ien.utils.ui.view.M3AsteriskTextWrapper
-import zone.ien.utils.ui.view.textfield.M3TextFieldClearButton
+import zone.ien.utils.ui.feedback.IenLinearProgressIndicator
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenButtonContainer
+import zone.ien.utils.ui.interactive.IenButtonState
+import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenCircleCheckbox
+import zone.ien.utils.ui.interactive.IenSlider
+import zone.ien.utils.ui.interactive.IenSwitch
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.view.IenAsteriskTextWrapper
+import zone.ien.utils.ui.view.textfield.IenTextFieldClearButton
 import zone.ien.utils.ui.view.textfield.PlaceholderBasicSecureTextField
 import zone.ien.utils.ui.view.textfield.PlaceholderBasicTextField
 
@@ -82,25 +80,62 @@ import zone.ien.utils.ui.view.textfield.PlaceholderBasicTextField
  * @param title 제목
  */
 @Composable
-fun SectionScope.M3SectionItem(
+fun SectionScope.IenSectionItem(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     leadingContent: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
-    colors: M3SectionColors = M3SectionLinkDefault.colors(),
+    colors: IenSectionColors = IenSectionLinkDefault.colors(),
     title: @Composable () -> Unit
 ) {
-    ListItem(
-        headlineContent = title,
-        supportingContent = supportingContent,
-        leadingContent = leadingContent,
-        trailingContent = trailingContent,
-        colors = colors.toListItemColors(enabled),
+    IenSurface(
         modifier = Modifier
-            .clip(RoundedCornerShape(4.dp))
-            .then(modifier)
-    )
+            .then(modifier),
+        color = colors.containerColor(),
+        contentColor = colors.headlineColor(enabled),
+        shape = RectangleShape,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 56.dp)
+                .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (leadingContent != null) {
+                CompositionLocalProvider(LocalContentColor provides colors.leadingIconColor(enabled)) {
+                    Box(
+                        modifier = Modifier.heightIn(min = IenTheme.icon.lg),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        leadingContent()
+                    }
+                }
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxxs),
+            ) {
+                IenProvideTextStyle(IenTheme.typography.body2, colors.headlineColor(enabled)) {
+                    title()
+                }
+                if (supportingContent != null) {
+                    IenProvideTextStyle(IenTheme.typography.caption, colors.supportingColor(enabled)) {
+                        supportingContent()
+                    }
+                }
+            }
+            if (trailingContent != null) {
+                CompositionLocalProvider(LocalContentColor provides colors.trailingIconColor(enabled)) {
+                    Box(contentAlignment = Alignment.Center) {
+                        trailingContent()
+                    }
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -118,7 +153,7 @@ fun SectionScope.M3SectionItem(
  * @param title 제목
  */
 @Composable
-fun SectionScope.M3SectionSwitchItem(
+fun SectionScope.IenSectionSwitchItem(
     modifier: Modifier = Modifier,
     leadingContent: (@Composable () -> Unit)? = null,
     checked: Boolean,
@@ -127,10 +162,10 @@ fun SectionScope.M3SectionSwitchItem(
     supportingContent: @Composable (() -> Unit)? = null,
     title: @Composable () -> Unit
 ) {
-    M3SectionItem(
+    IenSectionItem(
         leadingContent = leadingContent,
         trailingContent = {
-            Switch(
+            IenSwitch(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = enabled,
@@ -138,7 +173,7 @@ fun SectionScope.M3SectionSwitchItem(
         },
         supportingContent = supportingContent,
         title = title,
-        modifier = modifier.clickable { onCheckedChange(!checked) }
+        modifier = modifier.clickable(enabled = enabled) { onCheckedChange(!checked) }
     )
 }
 
@@ -152,29 +187,32 @@ fun SectionScope.M3SectionSwitchItem(
  * @param leadingContent 앞쪽 콘텐츠
  * @param checked 체크박스의 현재 상태 (선택됨/해제됨)
  * @param onCheckedChange 체크박스 상태가 변경될 때 호출되는 함수
+ * @param enabled 활성화 상태
  * @param supportingContent 지원 콘텐츠
  * @param title 제목
  */
 @Composable
-fun SectionScope.M3SectionCheckboxItem(
+fun SectionScope.IenSectionCheckboxItem(
     modifier: Modifier = Modifier,
     leadingContent: (@Composable () -> Unit)? = null,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
     supportingContent: @Composable (() -> Unit)? = null,
     title: @Composable () -> Unit
 ) {
-    M3SectionItem(
+    IenSectionItem(
         leadingContent = leadingContent,
         trailingContent = {
-            Checkbox(
+            IenCircleCheckbox(
                 checked = checked,
-                onCheckedChange = onCheckedChange
+                onCheckedChange = onCheckedChange,
+                enabled = enabled,
             )
         },
         supportingContent = supportingContent,
         title = title,
-        modifier = modifier.clickable { onCheckedChange(!checked) }
+        modifier = modifier.clickable(enabled = enabled) { onCheckedChange(!checked) }
     )
 }
 
@@ -202,10 +240,9 @@ fun SectionScope.M3SectionCheckboxItem(
  * @param maxLines 최대 라인 수
  * @param minLines 최소 라인 수
  * @param interactionSource 상호작용 소스
- * @param colors 텍스트 필드 색상
  */
 @Composable
-fun SectionScope.M3SectionTextField(
+fun SectionScope.IenSectionTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -219,7 +256,7 @@ fun SectionScope.M3SectionTextField(
         val focused by it.collectIsFocusedAsState()
         val updatedValueChange by rememberUpdatedState(onValueChange)
 
-        M3TextFieldClearButton(
+        IenTextFieldClearButton(
             visible = focused && value.isNotEmpty(),
             onClick = { updatedValueChange.invoke("") }
         )
@@ -232,25 +269,17 @@ fun SectionScope.M3SectionTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    colors: TextFieldColors = TextFieldDefaults.colors(),
 ) {
+    val focused by interactionSource.collectIsFocusedAsState()
+    val fieldColor = ienSectionTextFieldColor(
+        enabled = enabled,
+        focused = focused,
+        isError = isError,
+    )
     ProvideTextStyle(
-        (textStyle ?: LocalTextStyle.current).copy(
-            color =
-                if (isError) colors.errorTextColor
-                else {
-                    val focused by interactionSource.collectIsFocusedAsState()
-
-                    if (enabled) {
-                        if (focused) colors.focusedTextColor
-                        else colors.unfocusedTextColor
-                    } else {
-                        colors.disabledTextColor
-                    }
-                }
-        )
+        (textStyle ?: LocalTextStyle.current).copy(color = fieldColor)
     ) {
-        M3SectionItem(
+        IenSectionItem(
             title = {
                 PlaceholderBasicTextField(
                     value = value,
@@ -272,8 +301,8 @@ fun SectionScope.M3SectionTextField(
                     minLines = minLines,
                     interactionSource = interactionSource,
                     cursorBrush = SolidColor(
-                        if (isError) colors.errorCursorColor
-                        else colors.cursorColor
+                        if (isError) IenTheme.colors.danger
+                        else IenTheme.colors.brand
                     ),
                     modifier = modifier
                         .heightIn(min = 48.dp)
@@ -306,10 +335,9 @@ fun SectionScope.M3SectionTextField(
  * @param maxLines 최대 라인 수
  * @param minLines 최소 라인 수
  * @param interactionSource 상호작용 소스
- * @param colors 텍스트 필드 색상
  */
 @Composable
-fun SectionScope.M3SectionTextField(
+fun SectionScope.IenSectionTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
@@ -322,7 +350,7 @@ fun SectionScope.M3SectionTextField(
         val focused by it.collectIsFocusedAsState()
         val updatedValueChange by rememberUpdatedState(onValueChange)
 
-        M3TextFieldClearButton(
+        IenTextFieldClearButton(
             visible = focused && value.text.isNotEmpty(),
             onClick = {
                 updatedValueChange.invoke(TextFieldValue(""))
@@ -337,25 +365,17 @@ fun SectionScope.M3SectionTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    colors: TextFieldColors = TextFieldDefaults.colors(),
 ) {
+    val focused by interactionSource.collectIsFocusedAsState()
+    val fieldColor = ienSectionTextFieldColor(
+        enabled = enabled,
+        focused = focused,
+        isError = isError,
+    )
     ProvideTextStyle(
-        (textStyle ?: LocalTextStyle.current).copy(
-            color =
-                if (isError) colors.errorTextColor
-                else {
-                    val focused by interactionSource.collectIsFocusedAsState()
-
-                    if (enabled) {
-                        if (focused) colors.focusedTextColor
-                        else colors.unfocusedTextColor
-                    } else {
-                        colors.disabledTextColor
-                    }
-                }
-        )
+        (textStyle ?: LocalTextStyle.current).copy(color = fieldColor)
     ) {
-        M3SectionItem(
+        IenSectionItem(
             title = {
                 PlaceholderBasicTextField(
                     value = value,
@@ -364,7 +384,7 @@ fun SectionScope.M3SectionTextField(
                     enabled = enabled,
                     readOnly = readOnly,
                     textStyle = (textStyle ?: LocalTextStyle.current),
-                    placeholder = placeholder?.let { { if (isRequired) M3AsteriskTextWrapper { it() } else it() } },
+                    placeholder = placeholder?.let { { if (isRequired) IenAsteriskTextWrapper { it() } else it() } },
                     trailingIcon = {
                         trailingIcon?.invoke(interactionSource)
                     },
@@ -376,8 +396,8 @@ fun SectionScope.M3SectionTextField(
                     minLines = minLines,
                     interactionSource = interactionSource,
                     cursorBrush = SolidColor(
-                        if (isError) colors.errorCursorColor
-                        else colors.cursorColor
+                        if (isError) IenTheme.colors.danger
+                        else IenTheme.colors.brand
                     )
                 )
             },
@@ -403,12 +423,11 @@ fun SectionScope.M3SectionTextField(
  * @param isError 오류 상태
  * @param keyboardOptions 키보드 설정
  * @param interactionSource 상호작용 소스
- * @param colors 텍스트 필드 색상
  * @param textObfuscationMode 텍스트 가려짐 모드
  * @param textObfuscationCharacter 가려질 때 사용할 문자
  */
 @Composable
-fun SectionScope.M3SectionSecureTextField(
+fun SectionScope.IenSectionSecureTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -420,7 +439,7 @@ fun SectionScope.M3SectionSecureTextField(
     trailingIcon: @Composable ((InteractionSource) -> Unit)? = {
         val focused by it.collectIsFocusedAsState()
 
-        M3TextFieldClearButton(
+        IenTextFieldClearButton(
             visible = focused && state.text.isNotEmpty(),
             onClick = {
                 state.clearText()
@@ -430,27 +449,19 @@ fun SectionScope.M3SectionSecureTextField(
     isError: Boolean = false,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    colors: TextFieldColors = TextFieldDefaults.colors(),
     textObfuscationMode: TextObfuscationMode = TextObfuscationMode.RevealLastTyped,
     textObfuscationCharacter: Char = '\u2022',
 ) {
+    val focused by interactionSource.collectIsFocusedAsState()
+    val fieldColor = ienSectionTextFieldColor(
+        enabled = enabled,
+        focused = focused,
+        isError = isError,
+    )
     ProvideTextStyle(
-        (textStyle ?: LocalTextStyle.current).copy(
-            color =
-                if (isError) colors.errorTextColor
-                else {
-                    val focused by interactionSource.collectIsFocusedAsState()
-
-                    if (enabled) {
-                        if (focused) colors.focusedTextColor
-                        else colors.unfocusedTextColor
-                    } else {
-                        colors.disabledTextColor
-                    }
-                }
-        )
+        (textStyle ?: LocalTextStyle.current).copy(color = fieldColor)
     ) {
-        M3SectionItem(
+        IenSectionItem(
             title = {
                 PlaceholderBasicSecureTextField(
                     state = state,
@@ -460,7 +471,7 @@ fun SectionScope.M3SectionSecureTextField(
                     enabled = enabled,
                     readOnly = readOnly,
                     textStyle = (textStyle ?: LocalTextStyle.current),
-                    placeholder = placeholder?.let { { if (isRequired) M3AsteriskTextWrapper { it() } else it() } },
+                    placeholder = placeholder?.let { { if (isRequired) IenAsteriskTextWrapper { it() } else it() } },
                     leadingIcon = leadingIcon,
                     trailingIcon = {
                         trailingIcon?.invoke(interactionSource)
@@ -494,7 +505,7 @@ fun SectionScope.M3SectionSecureTextField(
  * @param title 제목
  */
 @Composable
-fun SectionScope.M3SectionLink(
+fun SectionScope.IenSectionLink(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -503,11 +514,11 @@ fun SectionScope.M3SectionLink(
     onClickLabel: String? = null,
     indication: Indication? = LocalIndication.current,
     interactionSource: MutableInteractionSource? = null,
-    colors: M3SectionColors = M3SectionLinkDefault.colors(),
+    colors: IenSectionColors = IenSectionLinkDefault.colors(),
     caption: @Composable (() -> Unit)? = null,
     title: @Composable () -> Unit,
 ) {
-    M3SectionItem(
+    IenSectionItem(
         modifier =
             modifier
                 .clickable(
@@ -528,8 +539,23 @@ fun SectionScope.M3SectionLink(
 }
 
 
+/**
+ * 섹션 항목의 배경 및 텍스트/아이콘 색상 값을 정의하는 데이터 클래스
+ *
+ * @property containerColor 컨테이너 배경 색상
+ * @property headlineColor 활성화 상태의 제목 텍스트 색상
+ * @property leadingIconColor 활성화 상태의 좌측 아이콘 색상
+ * @property overlineColor 활성화 상태의 오버라인 텍스트 색상
+ * @property supportingTextColor 활성화 상태의 지원 텍스트 색상
+ * @property trailingIconColor 활성화 상태의 우측 아이콘 색상
+ * @property disabledHeadlineColor 비활성화 상태의 제목 텍스트 색상
+ * @property disabledLeadingIconColor 비활성화 상태의 좌측 아이콘 색상
+ * @property disabledOverlineColor 비활성화 상태의 오버라인 텍스트 색상
+ * @property disabledSupportingTextColor 비활성화 상태의 지원 텍스트 색상
+ * @property disabledTrailingIconColor 비활성화 상태의 우측 아이콘 색상
+ */
 @Immutable
-class M3SectionColors(
+class IenSectionColors(
     val containerColor: Color,
     val headlineColor: Color,
     val leadingIconColor: Color,
@@ -543,8 +569,7 @@ class M3SectionColors(
     val disabledTrailingIconColor: Color,
 ) {
     /**
-     * Returns a copy of this ListItemColors, optionally overriding some of the values. This uses
-     * the Color.Unspecified to mean “use the value from the source”
+     * 일부 색상 값을 선택적으로 오버라이드하여 새로운 [IenSectionColors] 복사본을 생성합니다.
      */
     fun copy(
         containerColor: Color = this.containerColor,
@@ -559,7 +584,7 @@ class M3SectionColors(
         disabledSupportingTextColor: Color = this.disabledSupportingTextColor,
         disabledTrailingIconColor: Color = this.disabledTrailingIconColor,
     ) =
-        M3SectionColors(
+        IenSectionColors(
             containerColor = containerColor.takeOrElse { this.containerColor },
             headlineColor = headlineColor.takeOrElse { this.headlineColor },
             leadingIconColor = leadingIconColor.takeOrElse { this.leadingIconColor },
@@ -573,6 +598,11 @@ class M3SectionColors(
             disabledTrailingIconColor = disabledTrailingIconColor.takeOrElse { this.disabledTrailingIconColor },
         )
 
+    /**
+     * Material3의 [ListItemColors] 객체로 변환합니다.
+     *
+     * @param enabled 활성화 상태 여부
+     */
     fun toListItemColors(enabled: Boolean) = ListItemColors(
         containerColor = containerColor(),
         headlineColor = headlineColor(enabled),
@@ -604,52 +634,95 @@ class M3SectionColors(
     @Stable internal fun trailingIconColor(enabled: Boolean): Color = if (enabled) trailingIconColor else disabledTrailingIconColor
 }
 
-object M3SectionLinkDefault {
+/**
+ * 링크 형식의 섹션 항목에 적용되는 기본 색상 제공 오브젝트
+ */
+object IenSectionLinkDefault {
+    /**
+     * 기본 섹션 링크 색상 테마를 생성하여 반환합니다.
+     */
     @Composable
-    fun colors() = M3SectionColors(
-        containerColor = MaterialTheme.colorScheme.surface,
-        headlineColor = MaterialTheme.colorScheme.onSurface,
-        leadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        overlineColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        supportingTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        trailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        disabledHeadlineColor = MaterialTheme.colorScheme.onSurface.copy(0.35f),
-        disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f),
-        disabledSupportingTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f),
-        disabledOverlineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f),
-        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.35f)
+    fun colors() = IenSectionColors(
+        containerColor = IenTheme.colors.surface,
+        headlineColor = IenTheme.colors.textPrimary,
+        leadingIconColor = IenTheme.colors.textSecondary,
+        overlineColor = IenTheme.colors.textSecondary,
+        supportingTextColor = IenTheme.colors.textSecondary,
+        trailingIconColor = IenTheme.colors.textSecondary,
+        disabledHeadlineColor = IenTheme.colors.textDisabled,
+        disabledLeadingIconColor = IenTheme.colors.textDisabled,
+        disabledSupportingTextColor = IenTheme.colors.textDisabled,
+        disabledOverlineColor = IenTheme.colors.textDisabled,
+        disabledTrailingIconColor = IenTheme.colors.textDisabled,
     )
 }
 
+/**
+ * 섹션 영역에 단추(Button)를 배치하기 위한 컴포저블
+ *
+ * @param modifier 적용할 Modifier
+ * @param onClick 단추 클릭 시 호출되는 콜백 함수
+ * @param icon 단추에 표시할 아이콘 컴포저블 (선택 사항)
+ * @param enabled 단추의 활성화 여부
+ * @param label 단추 내에 들어갈 라벨 컴포저블
+ */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun SectionScope.M3SectionButton(
+fun SectionScope.IenSectionButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     icon: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
-    colors: ButtonColors = ButtonDefaults.buttonColors(),
     label: @Composable () -> Unit,
 ) {
-    Button(
+    IenButtonContainer(
         onClick = onClick,
-        shapes = ButtonDefaults.shapes(),
-        enabled = enabled,
-        colors = colors,
+        state = IenButtonState(enabled = enabled),
+        variant = IenButtonVariant.Fill,
+        tone = IenSemanticTone.Brand,
+        shape = ContinuousRoundedRectangle(IenTheme.radius.default),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
         modifier = modifier
     ) {
-        icon?.let {
-            it.invoke()
-            Spacer(Modifier.width(8.dp))
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            icon?.invoke()
+            label.invoke()
         }
-        label.invoke()
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun SectionScope.M3SectionSlider(
+private fun ienSectionTextFieldColor(
+    enabled: Boolean,
+    focused: Boolean,
+    isError: Boolean,
+): Color {
+    return when {
+        isError -> IenTheme.colors.danger
+        !enabled -> IenTheme.colors.textDisabled
+        focused -> IenTheme.colors.textPrimary
+        else -> IenTheme.colors.textPrimary
+    }
+}
+
+/**
+ * 섹션 영역에 슬라이더(Slider) 항목을 배치하기 위한 컴포저블
+ *
+ * @param modifier 적용할 Modifier
+ * @param value 슬라이더의 현재 값
+ * @param onValueChange 값이 변경될 때 호출되는 콜백 함수
+ * @param enabled 슬라이더의 활성화 여부
+ * @param valueRange 슬라이더의 최소/최대 값 범위
+ * @param steps 슬라이더 내 눈금의 개수 (0이면 연속적인 슬라이더)
+ * @param title 슬라이더 위에 표시할 제목 (선택 사항)
+ * @param icon 슬라이더에 사용할 이미지 벡터 아이콘 (선택 사항)
+ */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun SectionScope.IenSectionSlider(
     modifier: Modifier = Modifier,
     value: Float,
     onValueChange: (Float) -> Unit,
@@ -659,71 +732,16 @@ fun SectionScope.M3SectionSlider(
     title: String? = null,
     icon: ImageVector? = null
 ) {
-    M3SectionItem(
+    IenSectionItem(
         title = { title?.let { Text(text = it) } },
         supportingContent = {
-            Slider(
+            IenSlider(
                 value = value,
                 onValueChange = onValueChange,
-                enabled = enabled,
+                modifier = Modifier.fillMaxWidth(),
                 valueRange = valueRange,
                 steps = steps,
-                thumb = { sliderState ->
-                    SliderDefaults.Thumb(
-                        interactionSource = remember { MutableInteractionSource() },
-                        sliderState = sliderState,
-                        enabled = enabled,
-                        thumbSize = DpSize(4.dp, 52.dp)
-                    )
-                },
-                track = { sliderState ->
-                    val icon = icon?.let { rememberVectorPainter(it) }
-                    val iconSize = DpSize(24.dp, 24.dp)
-                    val iconPadding = 10.dp
-                    val thumbTrackGapSize = 6.dp
-                    val activeIconColor = SliderDefaults.colors().activeTickColor
-                    val inactiveIconColor = SliderDefaults.colors().inactiveTickColor
-                    val trackIcon: (DrawScope.(Offset, Color) -> Unit)? = icon?.let { { offset, color ->
-                        translate(offset.x - iconPadding.toPx() - iconSize.toSize().width, offset.y) {
-                            with (it) {
-                                draw(iconSize.toSize(), colorFilter = ColorFilter.tint(color))
-                            }
-                        }
-                    } }
-
-
-                    SliderDefaults.Track(
-                        enabled = enabled,
-                        sliderState = sliderState,
-                        trackCornerSize = 12.dp,
-                        drawStopIndicator = {
-
-                        },
-                        modifier = Modifier
-                            .height(40.dp)
-                            .drawWithContent {
-                                drawContent()
-
-                                val yOffset = size.height / 2 - iconSize.toSize().height / 2
-                                val activeTrackEnd =
-                                    size.width * sliderState.coercedValueAsFraction -
-                                            thumbTrackGapSize.toPx()
-                                val inactiveTrackStart = activeTrackEnd + thumbTrackGapSize.toPx() * 2
-                                val inactiveTrackEnd = size.width
-
-                                val inactiveTrackWidth = inactiveTrackEnd - inactiveTrackStart
-
-                                if (
-                                    iconSize.toSize().width <
-                                    inactiveTrackWidth - iconPadding.toPx() * 2
-                                ) {
-                                    trackIcon?.invoke(this, Offset(inactiveTrackEnd, yOffset), inactiveIconColor)
-                                } else {
-                                    trackIcon?.invoke(this, Offset(activeTrackEnd, yOffset), activeIconColor)
-                                }
-                            },
-                    )
-                },
+                enabled = enabled,
             )
         },
         modifier = modifier
@@ -734,9 +752,9 @@ fun SectionScope.M3SectionSlider(
 private fun SectionScope.AdaptiveSectionProgressBar(
     modifier: Modifier = Modifier
 ) {
-    M3SectionItem(
+    IenSectionItem(
         title = {},
-        supportingContent = { LinearProgressIndicator() },
+        supportingContent = { IenLinearProgressIndicator() },
         modifier = modifier
     )
 }

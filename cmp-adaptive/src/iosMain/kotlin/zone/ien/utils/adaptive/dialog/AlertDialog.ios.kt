@@ -14,6 +14,7 @@ import platform.UIKit.UIAlertActionStyleDefault
 import platform.UIKit.UIAlertActionStyleDestructive
 import platform.UIKit.UIAlertController
 import platform.UIKit.UIAlertControllerStyleAlert
+import zone.ien.utils.ui.dialog.IenDialogButtonLayout
 
 /**
  * 알림 다이얼로그 버튼 스타일을 UIKit 스타일로 변환하는 함수
@@ -124,6 +125,7 @@ actual fun AlertDialog(
  * @param styleConfirm 확인 버튼 스타일
  * @param onConfirm 확인 버튼 클릭 시 실행할 함수
  * @param enabledConfirm 확인 버튼 활성화 여부
+ * @param buttonLayout 버튼 배치 방향 (iOS UIKit UIAlertController 자체 레이아웃을 사용하므로 생략됨)
  * @return 알림 다이얼로그 컴포저블 (iOS)
  */
 @Composable
@@ -139,7 +141,8 @@ actual fun AlertDialog(
     textConfirm: String,
     styleConfirm: UIAlertActionStyle,
     onConfirm: () -> Unit,
-    enabledConfirm: Boolean
+    enabledConfirm: Boolean,
+    buttonLayout: IenDialogButtonLayout
 ) {
     HigBaseAlertDialog(
         visible = visible,
@@ -208,7 +211,8 @@ actual fun AlertDialog(
     textPositive: String,
     stylePositive: UIAlertActionStyle,
     onPositive: () -> Unit,
-    enabledPositive: Boolean
+    enabledPositive: Boolean,
+    buttonLayout: IenDialogButtonLayout
 ) {
     HigBaseAlertDialog(
         visible = visible,

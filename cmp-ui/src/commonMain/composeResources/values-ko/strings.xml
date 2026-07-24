@@ -5,6 +5,8 @@
     <string name="retry">다시 시도</string>
     <string name="previous">이전</string>
     <string name="next">다음</string>
+    <string name="selected">선택됨</string>
+    <string name="loading">로딩 중</string>
 
     <!--Delete Dialog-->
     <string name="delete_dialog_title">삭제할까요?</string>
@@ -31,4 +33,46 @@
     <string name="back">뒤로</string>
     <string name="delete">삭제</string>
     <string name="edit">수정</string>
+
+    <!--Components-->
+    <string name="state_collapsed">접힘</string>
+    <string name="state_expanded">펼쳐짐</string>
+    <string name="progress_stepper_step">진행 단계 %1$d / %2$d</string>
+    <string name="agreement_required">필수</string>
+    <string name="agreement_optional">선택</string>
+    <string name="agreement_terms">약관 동의</string>
+    <string name="stepper_step_list">단계 목록</string>
+    <string name="tab_list">탭 목록</string>
+    <string name="tab_update_indicator_desc">%1$s, 업데이트 있음</string>
+
+    <string name="decrease">빼기</string>
+    <string name="increase">더하기</string>
+    <string name="number_spinner">숫자 스피너</string>
+    <string name="current_value">현재 값 %1$d</string>
+    <string name="current_rating_status">현재 별점 현황</string>
+    <string name="rate_stars">별점 평가</string>
+    <string name="rating_score">%1$d점</string>
+    <string name="rating_value">%1$d점 만점 중 %2$s점</string>
+    <string name="clear_input">입력값 지우기</string>
+    <string name="show_password">비밀번호 보이기</string>
+    <string name="hide_password">비밀번호 숨기기</string>
+    <string name="move">이동</string>
+    <string name="hide">숨김</string>
+    <string name="show">보기</string>
+
+    <!-- Secure Keyboard -->
+    <string name="submit">입력 완료</string>
+    <string name="special">특수</string>
+    <string name="korean">한글</string>
+    <string name="english">EN</string>
+    <string name="space">공백</string>
+    <string name="clear">초기화</string>
+    <string name="done">완료</string>
+
+    <!-- TextField -->
+    <string name="segmented_input">분할 입력 %1$d / %2$d</string>
+    <string name="search">검색</string>
+    <string name="search_input">검색어 입력</string>
+    <string name="clear_search">검색어 삭제</string>
+
 </resources>

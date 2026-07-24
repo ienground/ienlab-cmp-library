@@ -7,6 +7,7 @@ import zone.ien.utils.cmp_ui.generated.resources.cancel
 import zone.ien.utils.cmp_ui.generated.resources.close
 import zone.ien.utils.cmp_ui.generated.resources.ok
 import org.jetbrains.compose.resources.stringResource
+import zone.ien.utils.ui.dialog.IenDialogButtonLayout
 
 /**
  * 알림 다이얼로그 스타일 열거형
@@ -59,6 +60,7 @@ expect fun AlertDialog(
  * @param styleConfirm 확인 버튼 스타일
  * @param onConfirm 확인 버튼 클릭 시 실행할 함수
  * @param enabledConfirm 확인 버튼 활성화 여부
+ * @param buttonLayout 확인/취소 버튼의 배치 방향
  * @return 확인/취소 버튼 알림 다이얼로그 컴포저블
  */
 @Composable
@@ -74,7 +76,8 @@ expect fun AlertDialog(
     textConfirm: String = stringResource(Res.string.ok),
     styleConfirm: UIAlertActionStyle = UIAlertActionStyle.Default,
     onConfirm: () -> Unit,
-    enabledConfirm: Boolean = true
+    enabledConfirm: Boolean = true,
+    buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Horizontal,
 )
 
 /**
@@ -96,6 +99,7 @@ expect fun AlertDialog(
  * @param stylePositive 긍정 버튼 스타일
  * @param onPositive 긍정 버튼 클릭 시 실행할 함수
  * @param enabledPositive 긍정 버튼 활성화 여부
+ * @param buttonLayout 긍정/부정/중립 버튼의 배치 방향
  * @return 긍정/부정/중립 버튼 알림 다이얼로그 컴포저블
  */
 @Composable
@@ -115,5 +119,6 @@ expect fun AlertDialog(
     textPositive: String = stringResource(Res.string.ok),
     stylePositive: UIAlertActionStyle = UIAlertActionStyle.Default,
     onPositive: () -> Unit,
-    enabledPositive: Boolean = true
+    enabledPositive: Boolean = true,
+    buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Vertical,
 )

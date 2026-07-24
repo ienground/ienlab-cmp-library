@@ -1,19 +1,18 @@
 package zone.ien.utils.adaptive.select
 
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.ui.menu.M3DropdownMenuItem
-import zone.ien.utils.ui.view.textfield.M3TextFieldIconButton
+import zone.ien.utils.ui.menu.IenMenu
+import zone.ien.utils.ui.view.textfield.IenTextFieldIconButton
 
 /**
  * iOS와 Android 플랫폼 간에 서로 다른 구현을 제공하는 드롭다운 메뉴 박스 컴포저블.
  * 
  * 이 컴포저블은 Android와 iOS의 서로 다른 UI 디자인을 따르도록 구현되어 있습니다.
- * - Android: M3 (Material 3) 드롭다운 메뉴 구현
+ * - Android: cmp-ui 드롭다운 메뉴 구현
  * - iOS: 커스텀 선택 UI 구현
  * 
  * @param modifier 드롭다운 메뉴 박스에 적용할 수 있는 Modifier
@@ -36,7 +35,7 @@ expect fun <T> ExposedDropdownMenuBox(
         onClick: () -> Unit,
         expanded: Boolean
     ) -> Unit = { onClick, expanded ->
-        M3TextFieldIconButton(
+        IenTextFieldIconButton(
             onClick = onClick,
             icon = IconData.Vector(if (expanded) M3SystemIcons.ArrowDropUp else M3SystemIcons.ArrowDropDown)
         )
@@ -44,7 +43,7 @@ expect fun <T> ExposedDropdownMenuBox(
     dropdownMenuItem: @Composable (
         text: @Composable () -> Unit,
         onClick: () -> Unit,
-    ) -> Unit = { text, onClick -> DropdownMenuItem(text = text, onClick = onClick) },
+    ) -> Unit = { text, onClick -> IenMenu.DropdownItem(onClick = onClick, content = text) },
     textField: @Composable (value: String, trailingIcon: @Composable () -> Unit) -> Unit
 )
 
@@ -52,7 +51,7 @@ expect fun <T> ExposedDropdownMenuBox(
  * iOS와 Android 플랫폼 간에 서로 다른 구현을 제공하는 다중 선택 드롭다운 메뉴 박스 컴포저블.
  * 
  * 이 컴포저블은 Android와 iOS의 서로 다른 UI 디자인을 따르도록 구현되어 있습니다.
- * - Android: M3 (Material 3) 다중 선택 드롭다운 메뉴 구현
+ * - Android: cmp-ui 다중 선택 드롭다운 메뉴 구현
  * - iOS: 커스텀 다중 선택 UI 구현
  * 
  * @param modifier 드롭다운 메뉴 박스에 적용할 수 있는 Modifier
@@ -75,7 +74,7 @@ expect fun <T> ExposedDropdownMenuBox(
         onClick: () -> Unit,
         expanded: Boolean
     ) -> Unit = { onClick, expanded ->
-        M3TextFieldIconButton(
+        IenTextFieldIconButton(
             onClick = onClick,
             icon = IconData.Vector(if (expanded) M3SystemIcons.ArrowDropUp else M3SystemIcons.ArrowDropDown)
         )
@@ -85,10 +84,10 @@ expect fun <T> ExposedDropdownMenuBox(
         onClick: () -> Unit,
         checked: Boolean
     ) -> Unit = { text, onClick, checked ->
-        M3DropdownMenuItem(
-            text = text,
+        IenMenu.DropdownItem(
             onClick = onClick,
-            leadingIcon = if (checked) { { Icon(imageVector = M3SystemIcons.Check, contentDescription = null) } } else null
+            left = if (checked) { { Icon(imageVector = M3SystemIcons.Check, contentDescription = null) } } else null,
+            content = text,
         )
     },
     textField: @Composable (value: String, trailingIcon: @Composable () -> Unit) -> Unit

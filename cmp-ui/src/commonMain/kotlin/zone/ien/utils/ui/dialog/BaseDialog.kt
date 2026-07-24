@@ -7,11 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.TextAutoSize
-import androidx.compose.material3.AlertDialogDefaults.iconContentColor
-import androidx.compose.material3.AlertDialogDefaults.textContentColor
-import androidx.compose.material3.AlertDialogDefaults.titleContentColor
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import zone.ien.utils.ui.foundation.IenTheme
 
 /**
  * BaseDialog은 AlertDialog의 기본 구성 요소로, 기본적인 다이얼로그 레이아웃을 제공합니다.
@@ -65,7 +62,7 @@ fun BaseDialog(
                     .padding(vertical = 24.dp)
             ) {
                 icon?.let {
-                    CompositionLocalProvider(LocalContentColor provides iconContentColor) {
+                    CompositionLocalProvider(LocalContentColor provides IenTheme.colors.brand) {
                         Box(Modifier.padding(bottom = 16.dp).align(Alignment.CenterHorizontally)) {
                             icon()
                         }
@@ -73,7 +70,7 @@ fun BaseDialog(
                 }
                 title?.let {
                     ProvideTextStyle(
-                        value = MaterialTheme.typography.headlineSmall.copy(color = titleContentColor),
+                        value = IenTheme.typography.title2.copy(color = IenTheme.colors.textPrimary),
                     ) {
                         Box(
                             Modifier
@@ -96,7 +93,7 @@ fun BaseDialog(
                     }
                 }
                 ProvideTextStyle(
-                    value = MaterialTheme.typography.bodyMedium.copy(color = textContentColor),
+                    value = IenTheme.typography.body2.copy(color = IenTheme.colors.textSecondary),
                 ) {
                     Box(
                         Modifier.weight(weight = 1f, fill = false)

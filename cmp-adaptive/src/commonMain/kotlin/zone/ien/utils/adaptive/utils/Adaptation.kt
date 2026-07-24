@@ -1,16 +1,13 @@
 package zone.ien.utils.adaptive.utils
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.screen.HigTopAppBarScaffoldAdaptation
-import zone.ien.utils.adaptive.screen.M3TopAppBarScaffoldAdaptation
-import zone.ien.utils.ui.screen.TopBarSize
+import zone.ien.utils.adaptive.screen.IenTopAppBarScaffoldAdaptation
+import zone.ien.utils.ui.screen.TopBarMode
 
 /**
  * Surface 색상의 상단 앱 바 적응형 설정을 반환하는 함수
@@ -18,32 +15,24 @@ import zone.ien.utils.ui.screen.TopBarSize
  * Material과 Cupertino 플랫폼에 따라 다르게 동작하는 상단 앱 바의 적응형 설정을 제공합니다.
  * 
  * @param backdrop 상단 앱 바에 적용할 배경 레이어
- * @param showNavTitle 네비게이션 타이틀을 표시할지 여부
+ * @param mode 상단바 표시 방식
  * @param isCenterAligned 타이틀을 중앙 정렬할지 여부
  * @return 플랫폼별 적응형 설정을 위한 블록
  */
-@OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun getSurfaceTopAppBarAdaptation(
     backdrop: LayerBackdrop = rememberDefaultBackdrop(),
-    showNavTitle: Boolean = false,
+    mode: TopBarMode = TopBarMode.Static,
     isCenterAligned: Boolean = true
-): AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit = {
+): AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {
     material {
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        )
         this.isCenterAligned = isCenterAligned
-
-        if (showNavTitle) {
-            size = TopBarSize.Medium
-            scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-        }
+        this.mode = mode
     }
     cupertino {
         this.backdrop = backdrop
-        this.showNavTitle = showNavTitle
+        this.mode = mode
     }
 }
 
@@ -53,32 +42,24 @@ fun getSurfaceTopAppBarAdaptation(
  * Material과 Cupertino 플랫폼에 따라 다르게 동작하는 상단 앱 바의 적응형 설정을 제공합니다.
  * 
  * @param backdrop 상단 앱 바에 적용할 배경 레이어
- * @param showNavTitle 네비게이션 타이틀을 표시할지 여부
+ * @param mode 상단바 표시 방식
  * @param isCenterAligned 타이틀을 중앙 정렬할지 여부
  * @return 플랫폼별 적응형 설정을 위한 블록
  */
-@OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun getSurfaceContainerTopAppBarAdaptation(
     backdrop: LayerBackdrop = rememberDefaultBackdrop(),
-    showNavTitle: Boolean = false,
+    mode: TopBarMode = TopBarMode.Static,
     isCenterAligned: Boolean = true
-): AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit = {
+): AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {
     material {
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest
-        )
         this.isCenterAligned = isCenterAligned
-
-        if (showNavTitle) {
-            size = TopBarSize.Medium
-            scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-        }
+        this.mode = mode
     }
     cupertino {
         this.backdrop = backdrop
-        this.showNavTitle = showNavTitle
+        this.mode = mode
     }
 }
 
@@ -88,28 +69,24 @@ fun getSurfaceContainerTopAppBarAdaptation(
  * Material과 Cupertino 플랫폼에 따라 다르게 동작하는 상단 앱 바의 적응형 설정을 제공합니다.
  * 
  * @param backdrop 상단 앱 바에 적용할 배경 레이어
- * @param showNavTitle 네비게이션 타이틀을 표시할지 여부
+ * @param mode 상단바 표시 방식
  * @param isCenterAligned 타이틀을 중앙 정렬할지 여부
  * @return 플랫폼별 적응형 설정을 위한 블록
  */
-@OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun getNoTintTopAppBarAdaptation(
     backdrop: LayerBackdrop = rememberDefaultBackdrop(),
-    showNavTitle: Boolean = false,
+    mode: TopBarMode = TopBarMode.Static,
     isCenterAligned: Boolean = true
-): AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit = {
+): AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {
     material {
         isScrollTint = false
         this.isCenterAligned = isCenterAligned
-
-        if (showNavTitle) {
-            size = TopBarSize.Medium
-            scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-        }
+        this.mode = mode
     }
     cupertino {
         this.backdrop = backdrop
-        this.showNavTitle = showNavTitle
+        this.mode = mode
     }
 }

@@ -2,20 +2,12 @@ package zone.ien.utils.adaptive.component
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.FloatingActionButtonElevation
-import androidx.compose.material3.LargeFloatingActionButton
-import androidx.compose.material3.MediumFloatingActionButton
-import androidx.compose.material3.SmallFloatingActionButton
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import com.kyant.backdrop.Backdrop
 import zone.ien.hig.utils.rememberDefaultBackdrop
@@ -28,6 +20,11 @@ import zone.ien.hig.adaptive.Adaptation
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.interactive.IenButtonState
+import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenFab
+import zone.ien.utils.ui.interactive.IenFabSize
 
 /**
  * 적응형 소형 플로팅 액션 버튼 컴포저블
@@ -43,20 +40,21 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 fun AdaptiveSmallFloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    adaptation: AdaptationScope<HigFloatingActionButtonAdaptation, M3FloatingActionButtonAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<HigFloatingActionButtonAdaptation, IenFloatingActionButtonAdaptation>.() -> Unit = {},
     content: @Composable () -> Unit
 ) {
     AdaptiveWidget(
         adaptation = remember { SmallFloatingActionButtonAdaptation() },
         adaptationScope = adaptation,
         material = {
-            SmallFloatingActionButton(
+            IenFab(
                 onClick = onClick,
                 modifier = modifier,
+                size = it.size,
+                variant = it.variant,
+                tone = it.tone,
+                state = it.state,
                 shape = it.shape,
-                containerColor = it.containerColor,
-                contentColor = it.contentColor,
-                elevation = it.elevation,
                 interactionSource = it.interactionSource,
                 content = content
             )
@@ -85,25 +83,26 @@ fun AdaptiveSmallFloatingActionButton(
  * @param content 버튼 내부에 표시할 콘텐츠
  * @return 중형 플로팅 액션 버튼 컴포저블
  */
-@OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveMediumFloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    adaptation: AdaptationScope<HigFloatingActionButtonAdaptation, M3FloatingActionButtonAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<HigFloatingActionButtonAdaptation, IenFloatingActionButtonAdaptation>.() -> Unit = {},
     content: @Composable () -> Unit
 ) {
     AdaptiveWidget(
         adaptation = remember { MediumFloatingActionButtonAdaptation() },
         adaptationScope = adaptation,
         material = {
-            MediumFloatingActionButton(
+            IenFab(
                 onClick = onClick,
                 modifier = modifier,
+                size = it.size,
+                variant = it.variant,
+                tone = it.tone,
+                state = it.state,
                 shape = it.shape,
-                containerColor = it.containerColor,
-                contentColor = it.contentColor,
-                elevation = it.elevation,
                 interactionSource = it.interactionSource,
                 content = content
             )
@@ -137,20 +136,21 @@ fun AdaptiveMediumFloatingActionButton(
 fun AdaptiveLargeFloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    adaptation: AdaptationScope<HigFloatingActionButtonAdaptation, M3FloatingActionButtonAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<HigFloatingActionButtonAdaptation, IenFloatingActionButtonAdaptation>.() -> Unit = {},
     content: @Composable () -> Unit
 ) {
     AdaptiveWidget(
         adaptation = remember { LargeFloatingActionButtonAdaptation() },
         adaptationScope = adaptation,
         material = {
-            LargeFloatingActionButton(
+            IenFab(
                 onClick = onClick,
                 modifier = modifier,
+                size = it.size,
+                variant = it.variant,
+                tone = it.tone,
+                state = it.state,
                 shape = it.shape,
-                containerColor = it.containerColor,
-                contentColor = it.contentColor,
-                elevation = it.elevation,
                 interactionSource = it.interactionSource,
                 content = content
             )
@@ -171,27 +171,30 @@ fun AdaptiveLargeFloatingActionButton(
 }
 
 /**
- * M3 플로팅 액션 버튼 적응 데이터 클래스
+ * IEN 플로팅 액션 버튼 적응 데이터 클래스
  *
+ * @param size 버튼 크기
+ * @param variant 버튼 표현 방식
+ * @param tone 버튼 의미 색상
+ * @param state 버튼 상태
  * @param shape 모양
- * @param containerColor 컨테이너 색상
- * @param contentColor 콘텐츠 색상
- * @param elevation 높이
  * @param interactionSource 상호작용 소스
- * @return M3 플로팅 액션 버튼 적응 데이터 객체
+ * @return IEN 플로팅 액션 버튼 적응 데이터 객체
  */
-class M3FloatingActionButtonAdaptation internal constructor(
+class IenFloatingActionButtonAdaptation internal constructor(
+    size: IenFabSize,
+    variant: IenButtonVariant,
+    tone: IenSemanticTone,
+    state: IenButtonState,
     shape: Shape,
-    containerColor: Color,
-    contentColor: Color,
-    elevation: FloatingActionButtonElevation,
-    interactionSource: MutableInteractionSource? = null
+    interactionSource: MutableInteractionSource
 ) {
+    var size: IenFabSize by mutableStateOf(size)
+    var variant: IenButtonVariant by mutableStateOf(variant)
+    var tone: IenSemanticTone by mutableStateOf(tone)
+    var state: IenButtonState by mutableStateOf(state)
     var shape: Shape by mutableStateOf(shape)
-    var containerColor: Color by mutableStateOf(containerColor)
-    var contentColor: Color by mutableStateOf(contentColor)
-    var elevation: FloatingActionButtonElevation by mutableStateOf(elevation)
-    var interactionSource: MutableInteractionSource? by mutableStateOf(interactionSource)
+    var interactionSource: MutableInteractionSource by mutableStateOf(interactionSource)
 }
 
 /**
@@ -224,7 +227,7 @@ class HigFloatingActionButtonAdaptation internal constructor(
  * @return 소형 플로팅 액션 버튼 적응 객체
  */
 @OptIn(ExperimentalAdaptiveApi::class)
-private class SmallFloatingActionButtonAdaptation: Adaptation<HigFloatingActionButtonAdaptation, M3FloatingActionButtonAdaptation>() {
+private class SmallFloatingActionButtonAdaptation: Adaptation<HigFloatingActionButtonAdaptation, IenFloatingActionButtonAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): HigFloatingActionButtonAdaptation {
         val colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
@@ -245,19 +248,21 @@ private class SmallFloatingActionButtonAdaptation: Adaptation<HigFloatingActionB
     }
 
     @Composable
-    override fun rememberMaterialAdaptation(): M3FloatingActionButtonAdaptation {
-        val shape = FloatingActionButtonDefaults.smallShape
-        val containerColor = FloatingActionButtonDefaults.containerColor
-        val contentColor = contentColorFor(containerColor)
-        val elevation = FloatingActionButtonDefaults.elevation()
-        val interactionSource: MutableInteractionSource? = null
+    override fun rememberMaterialAdaptation(): IenFloatingActionButtonAdaptation {
+        val size = IenFabSize.Small
+        val variant = IenButtonVariant.Fill
+        val tone = IenSemanticTone.Brand
+        val state = IenButtonState()
+        val shape = CircleShape
+        val interactionSource = remember { MutableInteractionSource() }
 
-        return remember(shape, containerColor, contentColor, elevation, interactionSource) {
-            M3FloatingActionButtonAdaptation(
+        return remember(size, variant, tone, state, shape, interactionSource) {
+            IenFloatingActionButtonAdaptation(
+                size = size,
+                variant = variant,
+                tone = tone,
+                state = state,
                 shape = shape,
-                containerColor = containerColor,
-                contentColor = contentColor,
-                elevation = elevation,
                 interactionSource = interactionSource
             )
         }
@@ -270,7 +275,7 @@ private class SmallFloatingActionButtonAdaptation: Adaptation<HigFloatingActionB
  * @return 중형 플로팅 액션 버튼 적응 객체
  */
 @OptIn(ExperimentalAdaptiveApi::class)
-private class MediumFloatingActionButtonAdaptation: Adaptation<HigFloatingActionButtonAdaptation, M3FloatingActionButtonAdaptation>() {
+private class MediumFloatingActionButtonAdaptation: Adaptation<HigFloatingActionButtonAdaptation, IenFloatingActionButtonAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): HigFloatingActionButtonAdaptation {
         val colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
@@ -290,21 +295,22 @@ private class MediumFloatingActionButtonAdaptation: Adaptation<HigFloatingAction
         }
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
-    override fun rememberMaterialAdaptation(): M3FloatingActionButtonAdaptation {
-        val shape = FloatingActionButtonDefaults.mediumShape
-        val containerColor = FloatingActionButtonDefaults.containerColor
-        val contentColor = contentColorFor(containerColor)
-        val elevation = FloatingActionButtonDefaults.elevation()
-        val interactionSource: MutableInteractionSource? = null
+    override fun rememberMaterialAdaptation(): IenFloatingActionButtonAdaptation {
+        val size = IenFabSize.Regular
+        val variant = IenButtonVariant.Fill
+        val tone = IenSemanticTone.Brand
+        val state = IenButtonState()
+        val shape = CircleShape
+        val interactionSource = remember { MutableInteractionSource() }
 
-        return remember(shape, containerColor, contentColor, elevation, interactionSource) {
-            M3FloatingActionButtonAdaptation(
+        return remember(size, variant, tone, state, shape, interactionSource) {
+            IenFloatingActionButtonAdaptation(
+                size = size,
+                variant = variant,
+                tone = tone,
+                state = state,
                 shape = shape,
-                containerColor = containerColor,
-                contentColor = contentColor,
-                elevation = elevation,
                 interactionSource = interactionSource
             )
         }
@@ -317,7 +323,7 @@ private class MediumFloatingActionButtonAdaptation: Adaptation<HigFloatingAction
  * @return 대형 플로팅 액션 버튼 적응 객체
  */
 @OptIn(ExperimentalAdaptiveApi::class)
-private class LargeFloatingActionButtonAdaptation: Adaptation<HigFloatingActionButtonAdaptation, M3FloatingActionButtonAdaptation>() {
+private class LargeFloatingActionButtonAdaptation: Adaptation<HigFloatingActionButtonAdaptation, IenFloatingActionButtonAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): HigFloatingActionButtonAdaptation {
         val colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
@@ -338,19 +344,21 @@ private class LargeFloatingActionButtonAdaptation: Adaptation<HigFloatingActionB
     }
 
     @Composable
-    override fun rememberMaterialAdaptation(): M3FloatingActionButtonAdaptation {
-        val shape = FloatingActionButtonDefaults.largeShape
-        val containerColor = FloatingActionButtonDefaults.containerColor
-        val contentColor = contentColorFor(containerColor)
-        val elevation = FloatingActionButtonDefaults.elevation()
-        val interactionSource: MutableInteractionSource? = null
+    override fun rememberMaterialAdaptation(): IenFloatingActionButtonAdaptation {
+        val size = IenFabSize.Large
+        val variant = IenButtonVariant.Fill
+        val tone = IenSemanticTone.Brand
+        val state = IenButtonState()
+        val shape = CircleShape
+        val interactionSource = remember { MutableInteractionSource() }
 
-        return remember(shape, containerColor, contentColor, elevation, interactionSource) {
-            M3FloatingActionButtonAdaptation(
+        return remember(size, variant, tone, state, shape, interactionSource) {
+            IenFloatingActionButtonAdaptation(
+                size = size,
+                variant = variant,
+                tone = tone,
+                state = state,
                 shape = shape,
-                containerColor = containerColor,
-                contentColor = contentColor,
-                elevation = elevation,
                 interactionSource = interactionSource
             )
         }

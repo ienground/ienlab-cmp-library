@@ -3,10 +3,6 @@ package zone.ien.utils.example.ui.screens.settings
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,13 +16,13 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import org.koin.compose.koinInject
 import org.koin.core.qualifier.named
-import zone.ien.hig.adaptive.AdaptiveSwitch
+import zone.ien.utils.adaptive.component.AdaptiveSwitch
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
-import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
+import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.example.di.KoinKey.DEFAULT_DATASTORE
 import zone.ien.utils.example.isIos
 import zone.ien.utils.icon.material.M3SystemIcons
@@ -36,6 +32,10 @@ import zone.ien.utils.pref.PrefsScreen
 import zone.ien.utils.pref.item.SwitchPref
 import zone.ien.utils.pref.item.TextFieldPref
 import zone.ien.utils.pref.item.TextPref
+import zone.ien.utils.ui.interactive.IenTextField
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.utils.sendEmail
 
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -47,12 +47,17 @@ fun SettingsScreen(
     val backdrop = rememberDefaultBackdrop()
     val dataStore: DataStore<Preferences> = koinInject(named(DEFAULT_DATASTORE))
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
+    var textFieldValue by remember { mutableStateOf("") }
+    val scrollState = rememberScrollState()
 
-    GeneratedAdaptiveTheme(
+    IenAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
         AdaptiveTopAppBarScaffold(
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
+            contentEdge = IenScaffoldContentEdge(
+                scrollState = scrollState,
+            ),
             actions = {
                 AdaptiveSwitch(
                     checked = isMaterialTheme,
@@ -64,12 +69,12 @@ fun SettingsScreen(
             PrefsScreen(
                 dataStore = dataStore,
                 title = title,
-                scrollState = rememberScrollState(),
+                scrollState = scrollState,
                 backdrop = backdrop,
                 modifier = Modifier.padding(pv)
             ) {
                 PrefsGroup(
-                    title = { Text(text = "Pref Group") }
+                    title = { IenText(text = "Pref Group") }
                 ) {
                     SwitchPref(
                         title = "Hi",
@@ -97,7 +102,7 @@ fun SettingsScreen(
                     )
                 }
                 PrefsGroup(
-                    title = { Text(text = "Pref Group") }
+                    title = { IenText(text = "Pref Group") }
                 ) {
                     TextPref(
                         title = "Title OnClick",
@@ -111,13 +116,14 @@ fun SettingsScreen(
                             }
                         }
                     )
-                    TextField(
-                        state = rememberTextFieldState(),
+                    IenTextField(
+                        value = textFieldValue,
+                        onValueChange = { textFieldValue = it },
                         modifier = Modifier.fillMaxWidth()
                     )
                     TextFieldPref(
                         leadingIcon = {
-                            Icon(
+                            IenIcon(
                                 imageVector = M3SystemIcons.Rounded.Delete,
                                 contentDescription = null
                             )
@@ -130,7 +136,7 @@ fun SettingsScreen(
                     )
                     TextFieldPref(
                         leadingIcon = {
-                            Icon(
+                            IenIcon(
                                 imageVector = M3SystemIcons.Rounded.Delete,
                                 contentDescription = null
                             )
@@ -143,7 +149,7 @@ fun SettingsScreen(
                     )
                     TextFieldPref(
                         leadingIcon = {
-                            Icon(
+                            IenIcon(
                                 imageVector = M3SystemIcons.Rounded.Delete,
                                 contentDescription = null
                             )
@@ -156,7 +162,7 @@ fun SettingsScreen(
                     )
                     TextFieldPref(
                         leadingIcon = {
-                            Icon(
+                            IenIcon(
                                 imageVector = M3SystemIcons.Rounded.Delete,
                                 contentDescription = null
                             )
@@ -169,10 +175,10 @@ fun SettingsScreen(
                     )
                 }
                 PrefsGroup(
-                    title = { Text(text = "Pref Group") }
+                    title = { IenText(text = "Pref Group") }
                 ) {
                     TextFieldPref(
-                        leadingIcon = { Icon(imageVector = M3SystemIcons.Rounded.Delete, contentDescription = null) },
+                        leadingIcon = { IenIcon(imageVector = M3SystemIcons.Rounded.Delete, contentDescription = null) },
                         title = "Title OnClick",
                         summary = { "내 숫자는 ${it}" },
                         key = intPreferencesKey("real_num"),
@@ -180,7 +186,7 @@ fun SettingsScreen(
                         defaultValue = 1254
                     )
                     TextFieldPref(
-                        leadingIcon = { Icon(imageVector = M3SystemIcons.Rounded.Delete, contentDescription = null) },
+                        leadingIcon = { IenIcon(imageVector = M3SystemIcons.Rounded.Delete, contentDescription = null) },
                         title = "Title OnClick",
                         summary = { "내 숫자는 ${it}" },
                         key = intPreferencesKey("real_num"),

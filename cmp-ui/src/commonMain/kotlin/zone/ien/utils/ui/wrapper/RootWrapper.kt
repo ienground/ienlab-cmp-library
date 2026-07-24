@@ -5,11 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.utils.dragToKeyboardClose
 import zone.ien.utils.ui.utils.keyboardAsState
 
@@ -23,13 +23,13 @@ import zone.ien.utils.ui.utils.keyboardAsState
  * @param content 내부 콘텐츠를 지정하는 컴포저블 블록
  */
 @Composable
-fun M3RootWrapper(
+fun IenRootWrapper(
     modifier: Modifier = Modifier,
     content: @Composable (Modifier) -> Unit
 ) {
     val isKeyboardVisible by keyboardAsState()
 
-    Scaffold(
+    IenScaffold(
         contentWindowInsets = WindowInsets(0.dp),
         modifier = modifier
     ) {
