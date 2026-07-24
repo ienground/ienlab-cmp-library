@@ -1,42 +1,88 @@
 package zone.ien.utils.ui.utils
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.foundation.IenTypography
 
 /**
- * getM3Typography은 Material Design 3 타이포그래피를 반환하는 함수입니다.
+ * getIenTypography은 현재 Ien 타이포그래피를 반환하는 함수입니다.
  * 
- * 이 함수는 MaterialTheme.typography를 기반으로 제공된 폰트 패밀리를 적용하여
- * 타이포그래피를 반환합니다.
+ * 이 함수는 IenTheme.typography를 기반으로 제공된 폰트 패밀리를 적용하여
+ * Ien 타이포그래피를 반환합니다.
  * 
+ * @param fontFamily 폰트 패밀리
+ * @return Ien 타이포그래피
+ */
+@Composable
+fun getIenTypography(fontFamily: FontFamily? = null): IenTypography {
+    return IenTheme.typography.withFontFamily(fontFamily)
+}
+
+/**
+ * getMaterialTypography은 Material Design 3 타이포그래피를 반환하는 함수입니다.
+ *
+ * 이 함수는 IenTheme.typography를 기반으로 제공된 폰트 패밀리를 적용한 뒤
+ * Material Design 3 타이포그래피로 변환합니다.
+ *
  * @param fontFamily 폰트 패밀리
  * @return M3 타이포그래피
  */
 @Composable
-fun getM3Typography(fontFamily: FontFamily? = null): Typography =
-    MaterialTheme.typography.let {
-        it.copy(
-            displayLarge = fontFamily?.let { f -> it.displayLarge.copy(fontFamily = f) } ?: it.displayLarge,
-            displayMedium = fontFamily?.let { f -> it.displayMedium.copy(fontFamily = f) } ?: it.displayMedium,
-            displaySmall = fontFamily?.let { f -> it.displaySmall.copy(fontFamily = f) } ?: it.displaySmall,
-            headlineLarge = fontFamily?.let { f -> it.headlineLarge.copy(fontFamily = f) } ?: it.headlineLarge,
-            headlineMedium = fontFamily?.let { f -> it.headlineMedium.copy(fontFamily = f) } ?: it.headlineMedium,
-            headlineSmall = fontFamily?.let { f -> it.headlineSmall.copy(fontFamily = f) } ?: it.headlineSmall,
-            titleLarge = fontFamily?.let { f -> it.titleLarge.copy(fontFamily = f) } ?: it.titleLarge,
-            titleMedium = fontFamily?.let { f -> it.titleMedium.copy(fontFamily = f) } ?: it.titleMedium,
-            titleSmall = fontFamily?.let { f -> it.titleSmall.copy(fontFamily = f) } ?: it.titleSmall,
-            bodyLarge = fontFamily?.let { f -> it.bodyLarge.copy(fontFamily = f) } ?: it.bodyLarge,
-            bodyMedium = fontFamily?.let { f -> it.bodyMedium.copy(fontFamily = f) } ?: it.bodyMedium,
-            bodySmall = fontFamily?.let { f -> it.bodySmall.copy(fontFamily = f) } ?: it.bodySmall,
-            labelLarge = fontFamily?.let { f -> it.labelLarge.copy(fontFamily = f) } ?: it.labelLarge,
-            labelMedium = fontFamily?.let { f -> it.labelMedium.copy(fontFamily = f) } ?: it.labelMedium,
-            labelSmall = fontFamily?.let { f -> it.labelSmall.copy(fontFamily = f) } ?: it.labelSmall
-        )
-    }
+fun getMaterialTypography(fontFamily: FontFamily? = null): Typography {
+    return getIenTypography(fontFamily).toMaterialTypography()
+}
+
+/**
+ * IenTypography의 모든 TextStyle에 폰트 패밀리를 적용합니다.
+ *
+ * @param fontFamily 적용할 폰트 패밀리
+ * @return 폰트 패밀리가 적용된 Ien 타이포그래피
+ */
+fun IenTypography.withFontFamily(fontFamily: FontFamily? = null): IenTypography {
+    fun TextStyle.withFontFamily(): TextStyle =
+        fontFamily?.let { copy(fontFamily = it) } ?: this
+
+    return IenTypography(
+        display = display.withFontFamily(),
+        title1 = title1.withFontFamily(),
+        title2 = title2.withFontFamily(),
+        title3 = title3.withFontFamily(),
+        body1 = body1.withFontFamily(),
+        body2 = body2.withFontFamily(),
+        label1 = label1.withFontFamily(),
+        label2 = label2.withFontFamily(),
+        caption = caption.withFontFamily(),
+    )
+}
+
+/**
+ * IenTypography를 Material Design 3 타이포그래피로 변환합니다.
+ *
+ * @return M3 타이포그래피
+ */
+fun IenTypography.toMaterialTypography(): Typography {
+    return Typography(
+        displayLarge = display,
+        displayMedium = display,
+        displaySmall = title1,
+        headlineLarge = title1,
+        headlineMedium = title2,
+        headlineSmall = title3,
+        titleLarge = title2,
+        titleMedium = title3,
+        titleSmall = label1,
+        bodyLarge = body1,
+        bodyMedium = body2,
+        bodySmall = caption,
+        labelLarge = label1,
+        labelMedium = label2,
+        labelSmall = caption,
+    )
+}
 
 /**
  * TextStyle을 Thin 폰트 웨이트로 변환하는 확장 함수

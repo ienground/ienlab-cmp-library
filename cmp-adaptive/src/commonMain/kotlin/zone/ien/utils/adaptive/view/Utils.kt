@@ -7,7 +7,7 @@ import androidx.compose.ui.text.TextStyle
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.utils.hig.view.HigAsteriskTextWrapper
-import zone.ien.utils.ui.view.M3AsteriskTextWrapper
+import zone.ien.utils.ui.view.IenAsteriskTextWrapper
 
 /**
  * 별표 텍스트 래퍼 컴포저블
@@ -27,7 +27,7 @@ fun AsteriskTextWrapper(
 ) {
     AdaptiveWidget(
         material = {
-            M3AsteriskTextWrapper(
+            IenAsteriskTextWrapper(
                 modifier = modifier,
                 style = style,
                 content = content

@@ -20,6 +20,12 @@ import androidx.compose.ui.text.input.VisualTransformation
  * 입력된 전화번호는 숫자 이외의 문자는 무시됩니다.
  */
 class PhoneVisualTransformation : VisualTransformation {
+    /**
+     * 입력된 전화번호 텍스트에 하이픈(-) 포맷팅을 적용하고 입력 오프셋을 매핑합니다.
+     *
+     * @param text 원본 입력 텍스트
+     * @return 변형된 텍스트와 오프셋 매퍼가 포함된 [TransformedText]
+     */
     override fun filter(text: AnnotatedString): TransformedText {
         val raw = text.text.filter { it.isDigit() }
         val trimmed = if (raw.length > 11) raw.substring(0, 11) else raw

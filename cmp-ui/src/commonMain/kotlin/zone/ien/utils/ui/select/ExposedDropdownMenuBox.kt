@@ -1,9 +1,6 @@
 package zone.ien.utils.ui.select
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,11 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.fastForEach
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
-import zone.ien.utils.ui.menu.M3DropdownMenuItem
-import zone.ien.utils.ui.view.textfield.M3TextFieldIconButton
+import zone.ien.utils.ui.menu.IenMenu
+import zone.ien.utils.ui.view.textfield.IenTextFieldIconButton
 
 /**
- * M3ExposedDropdownMenuBox은 노출된 드롭다운 메뉴 박스를 표시하기 위한 컴포저블입니다.
+ * IenExposedDropdownMenuBox은 노출된 드롭다운 메뉴 박스를 표시하기 위한 컴포저블입니다.
  *
  * @param modifier 적용할 Modifier
  * @param itemsWithLabels 아이템과 라벨의 매핑
@@ -29,9 +26,8 @@ import zone.ien.utils.ui.view.textfield.M3TextFieldIconButton
  * @param dropdownMenuItem 드롭다운 메뉴 항목
  * @param textField 텍스트 필드
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T> M3ExposedDropdownMenuBox(
+fun <T> IenExposedDropdownMenuBox(
     modifier: Modifier = Modifier,
     itemsWithLabels: Map<T, String>,
     currentItem: T?,
@@ -40,7 +36,7 @@ fun <T> M3ExposedDropdownMenuBox(
         onClick: () -> Unit,
         expanded: Boolean
     ) -> Unit = { onClick, expanded ->
-        M3TextFieldIconButton(
+        IenTextFieldIconButton(
             onClick = onClick,
             icon = IconData.Vector(if (expanded) M3SystemIcons.ArrowDropUp else M3SystemIcons.ArrowDropDown)
         )
@@ -48,38 +44,38 @@ fun <T> M3ExposedDropdownMenuBox(
     dropdownMenuItem: @Composable (
         text: @Composable () -> Unit,
         onClick: () -> Unit,
-    ) -> Unit = { text, onClick -> DropdownMenuItem(text = text, onClick = onClick) },
+    ) -> Unit = { text, onClick -> IenMenu.DropdownItem(onClick = onClick, content = text) },
     textField: @Composable (value: String, trailingIcon: @Composable () -> Unit) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = it },
-        modifier = modifier
+    IenMenu(
+        open = expanded,
+        onClose = { expanded = false },
+        modifier = modifier,
+        placement = IenMenu.Placement.BottomStart,
+        dropdown = {
+            IenMenu.Dropdown {
+                itemsWithLabels.entries.toList().fastForEach { (item, label) ->
+                    dropdownMenuItem(
+                        { Text(text = label) },
+                        {
+                            onItemSelected(item)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        },
     ) {
         textField(itemsWithLabels[currentItem].orEmpty()) {
             trailingIconButton({ expanded = !expanded }, expanded)
-        }
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            itemsWithLabels.entries.toList().fastForEach { (item, label) ->
-                dropdownMenuItem(
-                    { Text(text = label) },
-                    {
-                        onItemSelected(item)
-                        expanded = false
-                    }
-                )
-            }
         }
     }
 }
 
 /**
- * M3ExposedDropdownMenuBox은 다중 선택 가능한 노출된 드롭다운 메뉴 박스를 표시하기 위한 컴포저블입니다.
+ * IenExposedDropdownMenuBox은 다중 선택 가능한 노출된 드롭다운 메뉴 박스를 표시하기 위한 컴포저블입니다.
  *
  * @param modifier 적용할 Modifier
  * @param itemsWithLabels 아이템과 라벨의 매핑
@@ -89,9 +85,8 @@ fun <T> M3ExposedDropdownMenuBox(
  * @param dropdownMenuItem 드롭다운 메뉴 항목
  * @param textField 텍스트 필드
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T> M3ExposedDropdownMenuBox(
+fun <T> IenExposedDropdownMenuBox(
     modifier: Modifier = Modifier,
     itemsWithLabels: Map<T, String>,
     currentItems: List<T>,
@@ -100,7 +95,7 @@ fun <T> M3ExposedDropdownMenuBox(
         onClick: () -> Unit,
         expanded: Boolean,
     ) -> Unit = { onClick, expanded ->
-        M3TextFieldIconButton(
+        IenTextFieldIconButton(
             onClick = onClick,
             icon = IconData.Vector(if (expanded) M3SystemIcons.ArrowDropUp else M3SystemIcons.ArrowDropDown)
         )
@@ -110,46 +105,46 @@ fun <T> M3ExposedDropdownMenuBox(
         onClick: () -> Unit,
         checked: Boolean
     ) -> Unit = { text, onClick, checked ->
-        M3DropdownMenuItem(
-            text = text,
+        IenMenu.DropdownItem(
             onClick = onClick,
-            leadingIcon = if (checked) { { Icon(imageVector = M3SystemIcons.Check, contentDescription = null) } } else null
+            left = if (checked) { { Icon(imageVector = M3SystemIcons.Check, contentDescription = null) } } else null,
+            content = text,
         )
     },
     textField: @Composable (value: String, trailingIcon: @Composable () -> Unit) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = it },
-        modifier = modifier
+    IenMenu(
+        open = expanded,
+        onClose = { expanded = false },
+        modifier = modifier,
+        placement = IenMenu.Placement.BottomStart,
+        dropdown = {
+            IenMenu.Dropdown {
+                itemsWithLabels.entries.toList().fastForEach { (item, label) ->
+                    AnimatedContent(
+                        targetState = item in currentItems,
+                        label = "Animate the selected item"
+                    ) { isSelected ->
+                        dropdownMenuItem(
+                            { Text(text = label) },
+                            {
+                                if (item in currentItems) {
+                                    onItemsSelected(currentItems - item)
+                                } else {
+                                    onItemsSelected(currentItems + item)
+                                }
+                            },
+                            isSelected
+                        )
+                    }
+                }
+            }
+        },
     ) {
         textField(currentItems.map { itemsWithLabels[it] }.joinToString(", ")) {
             trailingIconButton({ expanded = !expanded }, expanded)
-        }
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            itemsWithLabels.entries.toList().fastForEach { (item, label) ->
-                AnimatedContent(
-                    targetState = item in currentItems,
-                    label = "Animate the selected item"
-                ) { isSelected ->
-                    dropdownMenuItem(
-                        { Text(text = label) },
-                        {
-                            if (item in currentItems) {
-                                onItemsSelected(currentItems - item)
-                            } else {
-                                onItemsSelected(currentItems + item)
-                            }
-                        },
-                        isSelected
-                    )
-                }
-            }
         }
     }
 }

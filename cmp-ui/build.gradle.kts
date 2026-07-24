@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.invoke
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
@@ -10,7 +8,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "zone.ien.utils.ui"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -29,6 +27,9 @@ kotlin {
     }
     iosArm64()
     iosSimulatorArm64()
+    wasmJs {
+        browser()
+    }
 
     sourceSets {
         commonMain.dependencies {
@@ -36,11 +37,11 @@ kotlin {
             implementation(libs.compose.preview)
             implementation(libs.compose.resources)
             implementation(libs.hig.core)
-            implementation(libs.placeholder)
+            implementation(libs.backdrop)
+            implementation(libs.capsule)
 
             implementation(projects.cmpCommon)
             implementation(projects.cmpIcon)
-            implementation(projects.cmpUtils)
         }
 
         commonTest.dependencies {
@@ -49,6 +50,7 @@ kotlin {
 
         androidMain.dependencies {
             implementation(libs.activity.compose)
+            implementation(projects.cmpUtils)
         }
 
         getByName("androidDeviceTest").dependencies {
@@ -58,6 +60,7 @@ kotlin {
         }
 
         iosMain.dependencies {
+            implementation(projects.cmpUtils)
         }
     }
 }

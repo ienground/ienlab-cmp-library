@@ -9,6 +9,7 @@ import zone.ien.utils.cmp_ui.generated.resources.save
 import zone.ien.utils.cmp_ui.generated.resources.save_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.save_dialog_title
 import org.jetbrains.compose.resources.stringResource
+import zone.ien.utils.ui.dialog.IenDialogButtonLayout
 
 /**
  * 저장 다이얼로그 컴포저블 (iOS 플랫폼 구현)
@@ -30,7 +31,8 @@ actual fun SaveAlertDialog(
     onUnsave: () -> Unit,
     enabledUnsave: Boolean,
     onSave: () -> Unit,
-    enabledSave: Boolean
+    enabledSave: Boolean,
+    buttonLayout: IenDialogButtonLayout
 ) {
     AlertDialog(
         visible = visible,
@@ -47,6 +49,7 @@ actual fun SaveAlertDialog(
         textPositive = stringResource(Res.string.save),
         stylePositive = UIAlertActionStyle.Default,
         onPositive = onSave,
-        enabledPositive = enabledSave
+        enabledPositive = enabledSave,
+        buttonLayout = buttonLayout,
     )
 }

@@ -2,7 +2,7 @@ package zone.ien.utils.adaptive.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import zone.ien.utils.ui.dialog.M3ProgressDialog
+import zone.ien.utils.ui.dialog.IenProgressDialog
 
 /**
  * 진행 상태 다이얼로그 컴포저블 (안드로이드 플랫폼 구현)
@@ -20,7 +20,7 @@ actual fun ProgressDialog(
     isLoadingIndicator: Boolean,
     isWavyIndicator: Boolean
 ) {
-    M3ProgressDialog(
+    IenProgressDialog(
         modifier = modifier,
         visible = visible,
         isLoadingIndicator = isLoadingIndicator,
@@ -44,7 +44,7 @@ actual fun ProgressDialog(
     progress: () -> Float,
     isWavyIndicator: Boolean
 ) {
-    M3ProgressDialog(
+    IenProgressDialog(
         modifier = modifier,
         visible = visible,
         progress = progress,

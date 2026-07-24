@@ -4,7 +4,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
-import zone.ien.utils.utils.DecimalFormat
+import zone.ien.utils.ui.utils.IenDecimalFormat
 
 /**
  * MoneyCommaVisualTransformation은 금액에 콤마를 추가하여 표시하는 VisualTransformation입니다.
@@ -15,8 +15,14 @@ import zone.ien.utils.utils.DecimalFormat
  * @param symbol 표시할 통화 기호 (기본값은 "₩")
  */
 open class MoneyCommaVisualTransformation(private val symbol: String) : VisualTransformation {
-    private val decimalFormat = DecimalFormat()
+    private val decimalFormat = IenDecimalFormat()
 
+    /**
+     * 입력된 숫자 텍스트에 천 단위 콤마와 통화 기호를 추가하고 오프셋을 매핑합니다.
+     *
+     * @param text 원본 입력 텍스트
+     * @return 통화 기호와 천 단위 콤마가 적용된 텍스트와 오프셋 매퍼가 포함된 [TransformedText]
+     */
     override fun filter(text: AnnotatedString): TransformedText {
         // 숫자만 추출 (숫자 이외는 무시)
         val raw = text.text.filter { it.isDigit() }

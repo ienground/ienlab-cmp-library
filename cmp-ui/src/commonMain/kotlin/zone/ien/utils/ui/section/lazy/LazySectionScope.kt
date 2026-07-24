@@ -4,30 +4,41 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.ui.section.M3SectionColors
-import zone.ien.utils.ui.section.M3SectionLinkDefault
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenSwitch
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.section.IenSectionColors
+import zone.ien.utils.ui.section.IenSectionLinkDefault
 
+/**
+ * Lazy 리스트 섹션의 스코프를 정의하는 인터페이스
+ *
+ * 이 인터페이스는 Lazy 리스트 섹션 내부에 항목을 동적으로 추가할 수 있는 컨텍스트를 제공합니다.
+ */
 sealed interface LazySectionScope {
     /**
-     * Lazy 섹션 스코프 인터페이스
-     *
-     * 이 인터페이스는 Lazy 리스트 섹션의 컨텍스트를 제공하여,
-     * 섹션 내부에 항목을 추가할 수 있도록 합니다.
+     * 섹션 내부에 단일 항목을 추가합니다.
      *
      * @param key 항목의 고유 키
      * @param contentType 항목의 타입
@@ -116,7 +127,7 @@ fun LazySectionScope.switch(
     title = title,
     supportingContent = supportingContent,
     trailingContent = {
-        Switch(
+        IenSwitch(
             modifier = modifier,
             enabled = enabled,
             checked = checked,
@@ -148,17 +159,25 @@ fun LazySectionScope.empty(
     ) {
         Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(4.dp))
                 .then(modifier)
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(16.dp)
+                .background(IenTheme.colors.surface)
+                .padding(IenTheme.spacing.md)
         ) {
             content()
         }
     }
 }
 
+/**
+ * 섹션 내부에 컬렉션 데이터를 기반으로 여러 항목을 동적으로 추가합니다.
+ *
+ * @param items 추가할 데이터 컬렉션
+ * @param key 각 항목의 고유 키를 정의하는 함수
+ * @param contentType 각 항목의 타입을 정의하는 함수
+ * @param dividerPadding 항목 사이의 구분선 패딩
+ * @param content 각 항목의 콘텐츠를 표시하는 컴포저블 블록
+ */
 inline fun <T> LazySectionScope.items(
     items: Collection<T>,
     key: (T) -> Any? = { null },
@@ -217,23 +236,62 @@ private fun LazySectionScope.row(
     leadingContent: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
-    colors: @Composable () -> M3SectionColors = { M3SectionLinkDefault.colors() },
+    colors: @Composable () -> IenSectionColors = { IenSectionLinkDefault.colors() },
     title: @Composable () -> Unit,
 ) = item(
     key = key,
     contentType = contentType,
     dividerPadding = dividerPadding,
 ) {
-    ListItem(
-        headlineContent = title,
-        supportingContent = supportingContent,
-        leadingContent = leadingContent,
-        trailingContent = trailingContent,
-        colors = colors().toListItemColors(enabled),
+    val itemColors = colors()
+
+    IenSurface(
         modifier = Modifier
-            .clip(RoundedCornerShape(4.dp))
-            .then(modifier())
-    )
+            .then(modifier()),
+        color = itemColors.containerColor(),
+        contentColor = itemColors.headlineColor(enabled),
+        shape = RectangleShape,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 56.dp)
+                .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (leadingContent != null) {
+                CompositionLocalProvider(LocalContentColor provides itemColors.leadingIconColor(enabled)) {
+                    Box(
+                        modifier = Modifier.heightIn(min = IenTheme.icon.lg),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        leadingContent()
+                    }
+                }
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxxs),
+            ) {
+                IenProvideTextStyle(IenTheme.typography.body2, itemColors.headlineColor(enabled)) {
+                    title()
+                }
+                if (supportingContent != null) {
+                    IenProvideTextStyle(IenTheme.typography.caption, itemColors.supportingColor(enabled)) {
+                        supportingContent()
+                    }
+                }
+            }
+            if (trailingContent != null) {
+                CompositionLocalProvider(LocalContentColor provides itemColors.trailingIconColor(enabled)) {
+                    Box(contentAlignment = Alignment.Center) {
+                        trailingContent()
+                    }
+                }
+            }
+        }
+    }
 }
 
 

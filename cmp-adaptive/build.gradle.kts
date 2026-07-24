@@ -8,7 +8,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "zone.ien.utils.adaptive"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()

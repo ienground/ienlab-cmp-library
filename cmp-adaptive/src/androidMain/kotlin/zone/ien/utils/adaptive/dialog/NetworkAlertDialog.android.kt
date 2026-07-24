@@ -2,7 +2,7 @@ package zone.ien.utils.adaptive.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import zone.ien.utils.ui.dialog.M3NetworkAlertDialog
+import zone.ien.utils.ui.dialog.IenNetworkAlertDialog
 
 @Composable
 actual fun NetworkAlertDialog(
@@ -10,7 +10,7 @@ actual fun NetworkAlertDialog(
     visible: Boolean,
     onDismiss: (() -> Unit)?,
 ) {
-    M3NetworkAlertDialog(
+    IenNetworkAlertDialog(
         modifier = modifier,
         visible = visible,
         onDismiss = onDismiss,

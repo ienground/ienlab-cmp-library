@@ -13,7 +13,7 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.icon.material.M3SystemIcons
 
 /**
- * M3SaveAlertDialog은 데이터 저장 확인을 위한 다이얼로그 컴포저블입니다.
+ * IenSaveAlertDialog은 데이터 저장 확인을 위한 다이얼로그 컴포저블입니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
@@ -22,9 +22,10 @@ import zone.ien.utils.icon.material.M3SystemIcons
  * @param enabledUnsave 저장하지 않고 닫기 버튼의 활성화 여부
  * @param onSave 저장 버튼을 누를 때 호출되는 콜백 함수
  * @param enabledSave 저장 버튼의 활성화 여부
+ * @param buttonLayout 저장/취소/미저장 버튼의 배치 방향
  */
 @Composable
-fun M3SaveAlertDialog(
+fun IenSaveAlertDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     onCancel: () -> Unit,
@@ -32,8 +33,9 @@ fun M3SaveAlertDialog(
     enabledUnsave: Boolean = true,
     onSave: () -> Unit,
     enabledSave: Boolean = true,
+    buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Vertical,
 ) {
-    M3AlertDialog(
+    IenAlertDialog(
         modifier = modifier,
         visible = visible,
         icon = { Icon(imageVector = M3SystemIcons.Save, contentDescription = null) },
@@ -42,10 +44,14 @@ fun M3SaveAlertDialog(
         textNeutral = stringResource(Res.string.not_save),
         onNeutral = onUnsave,
         enabledNeutral = enabledUnsave,
+        styleNeutral = IenDialogActionStyle.Destructive,
         textNegative = stringResource(Res.string.cancel),
         onNegative = onCancel,
+        styleNegative = IenDialogActionStyle.Cancel,
         textPositive = stringResource(Res.string.save),
         onPositive = onSave,
-        enabledPositive = enabledSave
+        enabledPositive = enabledSave,
+        stylePositive = IenDialogActionStyle.Default,
+        buttonLayout = buttonLayout,
     )
 }

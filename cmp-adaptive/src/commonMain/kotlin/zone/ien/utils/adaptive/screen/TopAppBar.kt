@@ -3,9 +3,7 @@ package zone.ien.utils.adaptive.screen
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -26,9 +24,9 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.utils.ui.screen.LocalIsHigTopBarCenterAligned
 import zone.ien.utils.ui.screen.LocalIsM3TopBarCenterAligned
 import zone.ien.utils.ui.screen.LocalIsScrollTint
-import zone.ien.utils.ui.screen.LocalM3TopBarSize
-import zone.ien.utils.ui.screen.M3TopAppBar
-import zone.ien.utils.ui.screen.TopBarSize
+import zone.ien.utils.ui.screen.LocalTopBarMode
+import zone.ien.utils.ui.screen.IenTopAppBar
+import zone.ien.utils.ui.screen.TopBarMode
 
 /**
  * 적응형 상단바 컴포저블
@@ -48,33 +46,31 @@ import zone.ien.utils.ui.screen.TopBarSize
 fun AdaptiveTopAppBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable (RowScope.() -> Unit) = {},
-    adaptation: AdaptationScope<HigTopAppBarAdaptation, M3TopAppBarAdaptation>.() -> Unit = {}
+    navigationIcon: (@Composable () -> Unit)? = null,
+    actions: (@Composable (RowScope.() -> Unit))? = null,
+    adaptation: AdaptationScope<HigTopAppBarAdaptation, IenTopAppBarAdaptation>.() -> Unit = {}
 ) {
     AdaptiveWidget(
         adaptation = remember { TopAppBarAdaptation() },
         adaptationScope = adaptation,
         material = {
-            M3TopAppBar(
+            IenTopAppBar(
                 title = title,
                 modifier = modifier,
                 navigationIcon = navigationIcon,
                 actions = actions,
                 windowInsets = it.windowInsets,
-                scrollBehavior = it.scrollBehavior,
                 isScrollTint = it.isScrollTint,
                 isCenterAligned = it.isCenterAligned,
-                colors = it.colors,
-                size = it.size
+                mode = it.mode
             )
         },
         cupertino = {
             CupertinoTopAppBar(
                 title = title,
                 modifier = modifier,
-                navigationIcon = navigationIcon,
-                actions = actions,
+                navigationIcon = { navigationIcon?.invoke() },
+                actions = { actions?.invoke(this) },
                 windowInsets = it.windowInsets,
                 isCenterAligned = it.isCenterAligned,
                 isBackgroundAdaptive = it.isBackgroundAdaptive,
@@ -90,28 +86,22 @@ fun AdaptiveTopAppBar(
  * M3 상단바 어댑테이션 클래스
  *
  * @param windowInsets 윈도우 인셋
- * @param scrollBehavior 스크롤 행동
  * @param isScrollTint 스크롤 틴트 여부
- * @param colors 상단바 색상
  * @param isCenterAligned 중앙 정렬 여부
- * @param size 상단바 크기
+ * @param mode 상단바 표시 방식
  */
 @Stable
 @OptIn(ExperimentalMaterial3Api::class)
-class M3TopAppBarAdaptation internal constructor(
+class IenTopAppBarAdaptation internal constructor(
     windowInsets: WindowInsets,
-    scrollBehavior: TopAppBarScrollBehavior,
     isScrollTint: Boolean,
-    colors: TopAppBarColors,
     isCenterAligned: Boolean,
-    size: TopBarSize
+    mode: TopBarMode,
 ) {
     var windowInsets by mutableStateOf(windowInsets)
-    var scrollBehavior by mutableStateOf(scrollBehavior)
     var isScrollTint by mutableStateOf(isScrollTint)
-    var colors by mutableStateOf(colors)
     var isCenterAligned by mutableStateOf(isCenterAligned)
-    var size by mutableStateOf(size)
+    var mode by mutableStateOf(mode)
 }
 
 /**
@@ -143,7 +133,7 @@ class HigTopAppBarAdaptation internal constructor(
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
-internal class TopAppBarAdaptation: Adaptation<HigTopAppBarAdaptation, M3TopAppBarAdaptation>() {
+internal class TopAppBarAdaptation: Adaptation<HigTopAppBarAdaptation, IenTopAppBarAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): HigTopAppBarAdaptation {
         val windowInsets = CupertinoTopAppBarDefaults.windowInsets
@@ -167,24 +157,19 @@ internal class TopAppBarAdaptation: Adaptation<HigTopAppBarAdaptation, M3TopAppB
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    override fun rememberMaterialAdaptation(): M3TopAppBarAdaptation {
+    override fun rememberMaterialAdaptation(): IenTopAppBarAdaptation {
         val windowInsets = TopAppBarDefaults.windowInsets
-        val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
         val isScrollTint = LocalIsScrollTint.current
-        val colors = TopAppBarDefaults.topAppBarColors()
         val isCenterAligned = LocalIsM3TopBarCenterAligned.current
-        val size = LocalM3TopBarSize.current
+        val mode = LocalTopBarMode.current
 
-        return remember(windowInsets, isScrollTint, colors, isCenterAligned, size) {
-            M3TopAppBarAdaptation(
+        return remember(windowInsets, isScrollTint, isCenterAligned, mode) {
+            IenTopAppBarAdaptation(
                 windowInsets = windowInsets,
-                scrollBehavior = scrollBehavior,
                 isScrollTint = isScrollTint,
-                colors = colors,
                 isCenterAligned = isCenterAligned,
-                size = size
+                mode = mode,
             )
         }
     }
 }
-

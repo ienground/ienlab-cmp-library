@@ -2,9 +2,11 @@ package zone.ien.utils.adaptive.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -12,12 +14,14 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.ScrollState
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -28,22 +32,19 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,9 +52,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
@@ -77,14 +82,17 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.menu.HigActionMenu
 import zone.ien.utils.adaptive.menu.HigActionsMenu
 import zone.ien.utils.ui.menu.ActionMenuItem
-import zone.ien.utils.ui.menu.M3ActionsMenu
-import zone.ien.utils.ui.screen.LocalHigShowNavTitle
+import zone.ien.utils.ui.menu.IenActionsMenu
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.LocalIsHigTopBarCenterAligned
 import zone.ien.utils.ui.screen.LocalIsM3TopBarCenterAligned
 import zone.ien.utils.ui.screen.LocalIsScrollTint
-import zone.ien.utils.ui.screen.LocalM3TopBarSize
-import zone.ien.utils.ui.screen.M3TopAppBarScaffold
-import zone.ien.utils.ui.screen.TopBarSize
+import zone.ien.utils.ui.screen.LocalTopBarMode
+import zone.ien.utils.ui.screen.IenScaffold
+import zone.ien.utils.ui.screen.IenTopAppBar
+import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
 /**
@@ -115,16 +123,24 @@ fun AdaptiveTopAppBarScaffold(
     title: @Composable () -> Unit = {},
     subtitle: @Composable (() -> Unit)? = null,
     showTopBar: Boolean = true,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable (RowScope.() -> Unit) = {},
-    bottomBar: @Composable () -> Unit = {},
+    navigationIcon: (@Composable () -> Unit)? = null,
+    actions: (@Composable (RowScope.() -> Unit))? = null,
+    bottomBar: (@Composable () -> Unit)? = null,
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
-    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
+    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
+    val defaultScrollState = rememberScrollState()
+    val effectiveContentEdge = if (contentEdge.scrollState == null && contentEdge.lazyListState == null) {
+        contentEdge.copy(scrollState = defaultScrollState)
+    } else {
+        contentEdge
+    }
+
     fun FabPosition.transform(): androidx.compose.material3.FabPosition {
         return when (this) {
             FabPosition.Center -> androidx.compose.material3.FabPosition.Center
@@ -136,45 +152,15 @@ fun AdaptiveTopAppBarScaffold(
         adaptation = remember { TopAppBarScaffoldAdaptation() },
         adaptationScope = adaptation,
         material = {
-            M3TopAppBarScaffold(
-                modifier = modifier,
-                topBarModifier = topBarModifier,
-                title = title,
-                subtitle = subtitle,
-                showTopBar = showTopBar,
-                navigationIcon = navigationIcon,
-                actions = actions,
-                topBarWindowInsets = it.topBarWindowInsets,
-                bottomBar = bottomBar,
-                snackbarHost = snackbarHost,
-                floatingActionButton = floatingActionButton,
-                floatingActionButtonPosition = fabPosition.transform(),
-                topAppBarColors = it.colors,
-                isCenterAligned = it.isCenterAligned,
-                scaffoldContainerColor = it.scaffoldContainerColor,
-                scaffoldContentColor = it.scaffoldContentColor,
-                contentWindowInsets = it.contentWindowInsets,
-                scrollBehavior = it.scrollBehavior,
-                isScrollTint = it.isScrollTint,
-                size = it.size,
-                content = { content(it, {}) }
-            )
-        },
-        cupertino = {
-            val isScrolled by remember {
-                val state = it.scrollableState
-                derivedStateOf {
-                    when (state) {
-                        is ScrollState -> state.value > 20
-                        is LazyListState -> state.firstVisibleItemIndex > 0 || state.firstVisibleItemScrollOffset > 0
-                        is LazyGridState -> state.firstVisibleItemIndex > 0 || state.firstVisibleItemScrollOffset > 0
-                        else -> false
-                    }
-                }
-            }
+            val materialAdaptation = it
+            val scaffoldCoordinates = remember { mutableStateOf<LayoutCoordinates?>(null) }
+            val topBarHeight = remember { mutableStateOf(0f) }
+            var navigationTitleVisible by remember { mutableStateOf(true) }
 
-            CupertinoScaffold(
-                modifier = modifier,
+            IenScaffold(
+                modifier = modifier.onGloballyPositioned {
+                    scaffoldCoordinates.value = it
+                },
                 topBar = {
                     Box {
                         AnimatedVisibility(
@@ -182,27 +168,38 @@ fun AdaptiveTopAppBarScaffold(
                             enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
                             exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
                         ) {
-                            CupertinoTopAppBar(
-                                title = title,
-                                subtitle = subtitle,
-                                modifier = topBarModifier,
-                                navigationIcon = navigationIcon,
-                                actions = {
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        content = actions,
-                                        modifier = Modifier
-                                            .animateContentSizeWithoutClipping()
-                                            .heightIn(min = 48.dp)
-                                    )
+                            IenTopAppBar(
+                                title = {
+                                    AnimatedVisibility(
+                                        visible = materialAdaptation.mode == TopBarMode.Static ||
+                                            !navigationTitleVisible,
+                                        enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
+                                        exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
+                                    ) {
+                                        title()
+                                    }
                                 },
-                                windowInsets = it.topBarWindowInsets,
-                                isCenterAligned = it.isCenterAligned,
-                                isBackgroundAdaptive = it.isBackgroundAdaptive,
-                                isBackgroundGradient = it.isBackgroundGradient && isScrolled,
-                                backdrop = it.backdrop,
-                                colors = it.colors
+                                subtitle = subtitle?.let {
+                                    {
+                                        AnimatedVisibility(
+                                            visible = materialAdaptation.mode == TopBarMode.Static ||
+                                                !navigationTitleVisible,
+                                            enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
+                                            exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
+                                        ) {
+                                            it()
+                                        }
+                                    }
+                                },
+                                modifier = topBarModifier.onGloballyPositioned {
+                                    topBarHeight.value = it.size.height.toFloat()
+                                },
+                                navigationIcon = navigationIcon,
+                                actions = actions,
+                                windowInsets = materialAdaptation.topBarWindowInsets,
+                                isCenterAligned = materialAdaptation.isCenterAligned,
+                                isScrollTint = materialAdaptation.isScrollTint,
+                                mode = TopBarMode.Static,
                             )
                         }
                         AnimatedVisibility(
@@ -221,22 +218,101 @@ fun AdaptiveTopAppBarScaffold(
                 },
                 bottomBar = bottomBar,
                 snackbarHost = snackbarHost,
+                floating = floatingActionButton,
+                floatingActionButtonPosition = fabPosition.transform(),
+                containerColor = materialAdaptation.scaffoldContainerColor,
+                contentColor = materialAdaptation.scaffoldContentColor,
+                contentWindowInsets = materialAdaptation.contentWindowInsets,
+                contentEdge = effectiveContentEdge,
+                content = { contentPadding ->
+                    CompositionLocalProvider(LocalTopBarScaffoldScrollState provides effectiveContentEdge.scrollState) {
+                        content(
+                            contentPadding,
+                            {
+                                if (materialAdaptation.mode == TopBarMode.Expanded) {
+                                    IenNavigationTitle(
+                                        title = title,
+                                        subtitle = subtitle,
+                                        topBarHeight = topBarHeight.value,
+                                        scaffoldCoordinates = scaffoldCoordinates.value,
+                                        onVisibilityChange = { navigationTitleVisible = it },
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
+            )
+        },
+        cupertino = {
+            CupertinoScaffold(
+                modifier = modifier,
+                topBar = {
+                    Box {
+                        AnimatedVisibility(
+                            visible = showTopBar,
+                            enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
+                            exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
+                        ) {
+                            CupertinoTopAppBar(
+                                title = title,
+                                subtitle = subtitle,
+                                modifier = topBarModifier,
+                                navigationIcon = { navigationIcon?.invoke() },
+                                actions = {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        content = { actions?.invoke(this) },
+                                        modifier = Modifier
+                                            .animateContentSizeWithoutClipping()
+                                            .heightIn(min = 48.dp)
+                                    )
+                                },
+                                windowInsets = it.topBarWindowInsets,
+                                isCenterAligned = it.isCenterAligned,
+                                isBackgroundAdaptive = it.isBackgroundAdaptive,
+                                isBackgroundGradient = it.isBackgroundGradient,
+                                backdrop = it.backdrop,
+                                colors = it.colors
+                            )
+                        }
+                        AnimatedVisibility(
+                            visible = !showTopBar,
+                            enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
+                            exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
+                        ) {
+                            Box(
+                                modifier = Modifier.height(IntrinsicSize.Min)
+                            ) {
+                                Box(modifier = Modifier.statusBarsPadding())
+                                Box(modifier = Modifier.fillMaxSize())
+                            }
+                        }
+                    }
+                },
+                bottomBar = { bottomBar?.invoke() },
+                snackbarHost = snackbarHost,
                 floatingActionButton = floatingActionButton,
                 floatingActionButtonPosition = higFabPosition,
                 containerColor = it.scaffoldContainerColor,
                 contentColor = it.scaffoldContentColor,
                 contentWindowInsets = it.contentWindowInsets,
-                hasNavigationTitle = it.showNavTitle,
-                content = {
-                    content(
-                        it,
-                        {
-                            CupertinoNavigationTitle(
-                                title = title,
-                                subtitle = subtitle
-                            )
-                        }
-                    )
+                hasNavigationTitle = it.mode == TopBarMode.Expanded,
+                content = { contentPadding ->
+                    CompositionLocalProvider(LocalTopBarScaffoldScrollState provides effectiveContentEdge.scrollState) {
+                        content(
+                            contentPadding,
+                            {
+                                if (it.mode == TopBarMode.Expanded) {
+                                    CupertinoNavigationTitle(
+                                        title = title,
+                                        subtitle = subtitle
+                                    )
+                                }
+                            }
+                        )
+                    }
                 }
             )
         }
@@ -270,19 +346,20 @@ fun AdaptiveTopAppBarScaffold(
     title: @Composable () -> Unit = {},
     subtitle: @Composable (() -> Unit)? = null,
     showTopBar: Boolean = true,
-    navigationIcon: @Composable () -> Unit = {},
+    navigationIcon: (@Composable () -> Unit)? = null,
     actions: List<ActionMenuItem> = listOf(),
     primaryAction: ActionMenuItem.IconMenuItem? = null,
-    bottomBar: @Composable () -> Unit = {},
+    bottomBar: (@Composable () -> Unit)? = null,
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
-    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
+    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
-    val scaffold: @Composable (@Composable (RowScope.() -> Unit)) -> Unit = { actions ->
+    val scaffold: @Composable ((@Composable (RowScope.() -> Unit))?) -> Unit = { actions ->
         AdaptiveTopAppBarScaffold(
             modifier = modifier,
             topBarModifier = topBarModifier,
@@ -296,6 +373,7 @@ fun AdaptiveTopAppBarScaffold(
             floatingActionButton = floatingActionButton,
             fabPosition = fabPosition,
             higFabPosition = higFabPosition,
+            contentEdge = contentEdge,
             adaptation = adaptation,
             content = content
         )
@@ -304,21 +382,22 @@ fun AdaptiveTopAppBarScaffold(
         adaptation = remember { TopAppBarScaffoldAdaptation() },
         adaptationScope = adaptation,
         material = {
-            scaffold {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxHeight()
-                ) {
-                    M3ActionsMenu(
-                        items = primaryAction?.let { actions + it } ?: actions,
-                        isOpen = menuExpanded,
-                        closeDropdown = { menuExpanded = false },
-                        onToggleOverflow = { menuExpanded = !menuExpanded },
-                        maxVisibleItems = 3,
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
+            val menuItems = primaryAction?.let { actions + it } ?: actions
+            scaffold(menuItems.takeIf { it.isNotEmpty() }?.let {
+                {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        IenActionsMenu(
+                            items = it,
+                            isOpen = menuExpanded,
+                            closeDropdown = { menuExpanded = false },
+                            onToggleOverflow = { menuExpanded = !menuExpanded },
+                            maxVisibleItems = 3,
+                        )
+                    }
                 }
-            }
+            })
         },
         cupertino = {
             scaffold {
@@ -434,34 +513,28 @@ fun AdaptiveTopAppBarScaffold(
  * @param topBarWindowInsets 상단바 윈도우 인셋
  * @param contentWindowInsets 콘텐츠 윈도우 인셋
  * @param isScrollTint 스크롤 틴트 여부
- * @param colors 상단바 색상
  * @param isCenterAligned 중앙 정렬 여부
  * @param scaffoldContainerColor 스크라프트 컨테이너 색상
  * @param scaffoldContentColor 스크라프트 콘텐츠 색상
- * @param size 상단바 크기
- * @param scrollBehavior 스크롤 행동
+ * @param mode 상단바 표시 방식
  */
 @OptIn(ExperimentalMaterial3Api::class)
-class M3TopAppBarScaffoldAdaptation internal constructor(
+class IenTopAppBarScaffoldAdaptation internal constructor(
     topBarWindowInsets: WindowInsets,
     contentWindowInsets: WindowInsets,
     isScrollTint: Boolean,
-    colors: TopAppBarColors,
     isCenterAligned: Boolean,
     scaffoldContainerColor: Color,
     scaffoldContentColor: Color,
-    size: TopBarSize,
-    scrollBehavior: TopAppBarScrollBehavior,
+    mode: TopBarMode,
 ) {
     var topBarWindowInsets by mutableStateOf(topBarWindowInsets)
     var contentWindowInsets by mutableStateOf(contentWindowInsets)
     var isScrollTint by mutableStateOf(isScrollTint)
-    var colors by mutableStateOf(colors)
     var isCenterAligned by mutableStateOf(isCenterAligned)
     var scaffoldContainerColor by mutableStateOf(scaffoldContainerColor)
     var scaffoldContentColor by mutableStateOf(scaffoldContentColor)
-    var size by mutableStateOf(size)
-    var scrollBehavior by mutableStateOf(scrollBehavior)
+    var mode by mutableStateOf(mode)
 }
 
 /**
@@ -477,8 +550,7 @@ class M3TopAppBarScaffoldAdaptation internal constructor(
  * @param colors 상단바 색상
  * @param scaffoldContainerColor 스크라프트 컨테이너 색상
  * @param scaffoldContentColor 스크라프트 콘텐츠 색상
- * @param scrollableState 스크롤 가능한 상태
- * @param showNavTitle 네비게이션 타이틀 표시 여부
+ * @param mode 상단바 표시 방식
  */
 class HigTopAppBarScaffoldAdaptation internal constructor(
     topBarWindowInsets: WindowInsets,
@@ -491,8 +563,7 @@ class HigTopAppBarScaffoldAdaptation internal constructor(
     colors: CupertinoTopAppBarColors,
     scaffoldContainerColor: Color,
     scaffoldContentColor: Color,
-    scrollableState: ScrollableState,
-    showNavTitle: Boolean,
+    mode: TopBarMode,
 ) {
     var topBarWindowInsets by mutableStateOf(topBarWindowInsets)
     var contentWindowInsets by mutableStateOf(contentWindowInsets)
@@ -504,12 +575,11 @@ class HigTopAppBarScaffoldAdaptation internal constructor(
     var colors by mutableStateOf(colors)
     var scaffoldContainerColor by mutableStateOf(scaffoldContainerColor)
     var scaffoldContentColor by mutableStateOf(scaffoldContentColor)
-    var scrollableState by mutableStateOf(scrollableState)
-    var showNavTitle by mutableStateOf(showNavTitle)
+    var mode by mutableStateOf(mode)
 }
 
 @OptIn(ExperimentalAdaptiveApi::class)
-internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdaptation, M3TopAppBarScaffoldAdaptation>() {
+internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): HigTopAppBarScaffoldAdaptation {
         val topBarWindowInsets = CupertinoTopAppBarDefaults.windowInsets
@@ -522,10 +592,9 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
         val colors = CupertinoTopAppBarDefaults.topAppBarColors()
         val scaffoldContainerColor = MaterialTheme.colorScheme.background// CupertinoScaffoldDefaults.containerColor
         val scaffoldContentColor = contentColorFor(scaffoldContainerColor) // CupertinoScaffoldDefaults.contentColor
-        val scrollableState = rememberScrollState()
-        val showNavTitle = LocalHigShowNavTitle.current
+        val mode = LocalTopBarMode.current
 
-        return remember(topBarWindowInsets, contentWindowInsets, backdrop,isDropdownNative, isCenterAligned, isBackgroundAdaptive, isBackgroundGradient, colors, scaffoldContainerColor, scaffoldContentColor, scrollableState, showNavTitle) {
+        return remember(topBarWindowInsets, contentWindowInsets, backdrop,isDropdownNative, isCenterAligned, isBackgroundAdaptive, isBackgroundGradient, colors, scaffoldContainerColor, scaffoldContentColor, mode) {
             HigTopAppBarScaffoldAdaptation(
                 topBarWindowInsets = topBarWindowInsets,
                 contentWindowInsets = contentWindowInsets,
@@ -537,37 +606,87 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
                 colors = colors,
                 scaffoldContainerColor = scaffoldContainerColor,
                 scaffoldContentColor = scaffoldContentColor,
-                scrollableState = scrollableState,
-                showNavTitle = showNavTitle
+                mode = mode,
             )
         }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    override fun rememberMaterialAdaptation(): M3TopAppBarScaffoldAdaptation {
+    override fun rememberMaterialAdaptation(): IenTopAppBarScaffoldAdaptation {
         val topBarWindowInsets = TopAppBarDefaults.windowInsets
         val contentWindowInsets = ScaffoldDefaults.contentWindowInsets
         val isScrollTint = LocalIsScrollTint.current
-        val colors = TopAppBarDefaults.topAppBarColors()
         val isCenterAligned = LocalIsM3TopBarCenterAligned.current
         val scaffoldContainerColor = MaterialTheme.colorScheme.background
         val scaffoldContentColor = contentColorFor(scaffoldContainerColor)
-        val size = LocalM3TopBarSize.current
-        val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+        val mode = LocalTopBarMode.current
 
-        return remember(topBarWindowInsets, contentWindowInsets, isScrollTint, colors, isCenterAligned, scaffoldContainerColor, scaffoldContentColor, size, scrollBehavior) {
-            M3TopAppBarScaffoldAdaptation(
+        return remember(topBarWindowInsets, contentWindowInsets, isScrollTint, isCenterAligned, scaffoldContainerColor, scaffoldContentColor, mode) {
+            IenTopAppBarScaffoldAdaptation(
                 topBarWindowInsets = topBarWindowInsets,
                 contentWindowInsets = contentWindowInsets,
                 isScrollTint = isScrollTint,
-                colors = colors,
                 isCenterAligned = isCenterAligned,
                 scaffoldContainerColor = scaffoldContainerColor,
                 scaffoldContentColor = scaffoldContentColor,
-                size = size,
-                scrollBehavior = scrollBehavior,
+                mode = mode,
             )
+        }
+    }
+}
+
+@Composable
+private fun IenNavigationTitle(
+    title: @Composable () -> Unit,
+    subtitle: (@Composable () -> Unit)?,
+    topBarHeight: Float,
+    scaffoldCoordinates: LayoutCoordinates?,
+    onVisibilityChange: (Boolean) -> Unit,
+) {
+    var offsetDifference by remember { mutableStateOf(0f) }
+    var actualTitleHeight by remember { mutableStateOf(0f) }
+    val topAppBarExists = topBarHeight > 0f
+    val titleAlpha by remember {
+        derivedStateOf {
+            if (!topAppBarExists) {
+                1f
+            } else {
+                val d = offsetDifference - actualTitleHeight + 50f
+                if (d <= 0f) {
+                    1f
+                } else {
+                    (1f - (d / 100f)).coerceIn(0f, 1f)
+                }
+            }
+        }
+    }
+    val animatedAlpha by animateFloatAsState(
+        targetValue = titleAlpha,
+        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+        label = "IenNavigationTitleAlpha",
+    )
+
+    Column(
+        modifier = Modifier
+            .animateContentSize()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .alpha(animatedAlpha)
+            .onGloballyPositioned {
+                actualTitleHeight = it.size.height.toFloat()
+                val scaffoldTop = scaffoldCoordinates?.boundsInWindow()?.top ?: 0f
+                offsetDifference = (topBarHeight - it.boundsInWindow().top) + scaffoldTop
+                onVisibilityChange(!topAppBarExists || offsetDifference < it.size.height)
+            },
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
+        IenProvideTextStyle(IenTheme.typography.display, IenTheme.colors.textPrimary) {
+            title()
+        }
+        if (subtitle != null) {
+            IenProvideTextStyle(IenTheme.typography.body1, IenTheme.colors.textSecondary) {
+                subtitle()
+            }
         }
     }
 }

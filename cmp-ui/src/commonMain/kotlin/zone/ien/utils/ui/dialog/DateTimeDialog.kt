@@ -1,62 +1,54 @@
 package zone.ien.utils.ui.dialog
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SelectableDates
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
+import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastForEachIndexed
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
 import zone.ien.utils.cmp_ui.generated.resources.ok
 import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.ui.dialog.IenAlertDialogTitle
+import zone.ien.utils.ui.dialog.IenConfirmDialogCancelButton
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenButton
+import zone.ien.utils.ui.interactive.IenButtonDisplay
+import zone.ien.utils.ui.interactive.IenButtonSize
+import zone.ien.utils.ui.interactive.IenButtonState
+import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenIconButton
+import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.rememberMyDatePickerState
-import kotlin.math.max
 
 /**
- * M3DatePickerDialog은 날짜 선택 다이얼로그를 제공하는 컴포저블입니다.
+ * IenDatePickerDialog은 날짜 선택 다이얼로그를 제공하는 컴포저블입니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
@@ -71,7 +63,7 @@ import kotlin.math.max
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun M3DatePickerDialog(
+fun IenDatePickerDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     initialSelectedDateMillis: Long? = null,
@@ -83,11 +75,6 @@ fun M3DatePickerDialog(
     onDismiss: () -> Unit,
     onConfirm: (Long) -> Unit,
 ) {
-    val dialogShape = LocalDialogShape.current ?: LocalDialogProviderDefault.Shape
-    val dialogBorder = LocalDialogBorder.current
-    val dialogBackgroundColor = LocalDialogBackgroundColor.current ?: LocalDialogProviderDefault.BackgroundColor
-    val dialogContentColor = LocalDialogContentColor.current ?: LocalDialogProviderDefault.ContentColor
-
     if (visible) {
         val datePickerState = rememberMyDatePickerState(
             initialSelectedDateMillis = initialSelectedDateMillis,
@@ -97,64 +84,53 @@ fun M3DatePickerDialog(
             selectableDates = selectableDates
         )
 
-        BasicAlertDialog(
-            onDismissRequest = onDismiss,
-            modifier = modifier.wrapContentHeight(),
-            properties = DialogProperties(usePlatformDefaultWidth = true)
+        IenDialogFrame(
+            visible = visible,
+            onDismiss = onDismiss,
+            modifier = modifier,
+            maxWidth = 360.dp,
+            fixedWidth = 360.dp,
+            contentPadding = PaddingValues(0.dp),
+            usePlatformDefaultWidth = false,
+            horizontalMargin = 16.dp,
         ) {
-            Surface(
-                shape = dialogShape,
-                color = dialogBackgroundColor,
-                border = dialogBorder,
+            Column(
                 modifier = Modifier
-                    .requiredWidth(360.dp)
-                    .heightIn(max = 568.dp)
+                    .fillMaxWidth()
+                    .heightIn(max = 568.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
             ) {
-                Column(
-                    verticalArrangement = Arrangement.SpaceBetween
+                Box(
+                    modifier = Modifier.weight(1f, fill = false)
                 ) {
-                    Box(
-                        modifier = Modifier.weight(1f, fill = false)
+                    IenDatePicker(
+                        state = datePickerState,
+                        title = title,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .padding(top = 8.dp, bottom = 24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                ) {
+                    IenConfirmDialogCancelButton(
+                        text = stringResource(Res.string.cancel),
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f),
+                    )
+                    IenButton(
+                        onClick = { onConfirm(datePickerState.selectedDateMillis ?: 0L) },
+                        modifier = Modifier.weight(1f),
+                        size = IenButtonSize.Large,
+                        variant = IenButtonVariant.Fill,
+                        tone = IenSemanticTone.Brand,
+                        state = IenButtonState(enabled = datePickerState.selectedDateMillis != null),
+                        display = IenButtonDisplay.Block,
                     ) {
-                        DatePicker(
-                            state = datePickerState,
-                            colors = DatePickerDefaults.colors(containerColor = dialogBackgroundColor),
-                            title = {
-                                Text(
-                                    text = title,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(start = 24.dp, end = 24.dp, top = 16.dp)
-                                )
-                            },
-                            modifier = Modifier
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.End)
-                            .padding(DialogButtonsPadding)
-                    ) {
-                        val mergedStyle = LocalTextStyle.current.merge(MaterialTheme.typography.labelLarge)
-                        CompositionLocalProvider(
-                            LocalContentColor provides dialogContentColor,
-                            LocalTextStyle provides mergedStyle,
-                        ) {
-                            AlertDialogFlowRow(
-                                mainAxisSpacing = DialogButtonsMainAxisSpacing,
-                                crossAxisSpacing = DialogButtonsCrossAxisSpacing
-                            ) {
-                                TextButton(onClick = onDismiss) {
-                                    Text(text = stringResource(Res.string.cancel))
-                                }
-                                TextButton(
-                                    enabled = datePickerState.selectedDateMillis != null,
-                                    onClick = { onConfirm(datePickerState.selectedDateMillis ?: 0L) }
-                                ) {
-                                    Text(text = stringResource(Res.string.ok))
-                                }
-                            }
-                        }
+                        IenText(stringResource(Res.string.ok))
                     }
                 }
             }
@@ -163,7 +139,7 @@ fun M3DatePickerDialog(
 }
 
 /**
- * M3TimePickerDialog은 시간 선택 다이얼로그를 제공하는 컴포저블입니다.
+ * IenTimePickerDialog은 시간 선택 다이얼로그를 제공하는 컴포저블입니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
@@ -176,7 +152,7 @@ fun M3DatePickerDialog(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun M3TimePickerDialog(
+fun IenTimePickerDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     initialHour: Int,
@@ -194,152 +170,153 @@ fun M3TimePickerDialog(
         )
         var isTimePickerDial by remember { mutableStateOf(true) }
 
-        Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = true)) {
-            Surface(
-                shape = MaterialTheme.shapes.extraLarge,
-                tonalElevation = 6.dp,
-                modifier = modifier
-                    .height(IntrinsicSize.Min)
-                    .background(
-                        shape = MaterialTheme.shapes.extraLarge,
-                        color = MaterialTheme.colorScheme.surface
-                    ),
+        IenDialogFrame(
+            visible = visible,
+            onDismiss = onDismiss,
+            modifier = modifier,
+            maxWidth = 360.dp,
+            fixedWidth = 360.dp,
+            usePlatformDefaultWidth = false,
+            horizontalMargin = 16.dp,
+        ) {
+            IenAlertDialogTitle(text = title)
+            if (isTimePickerDial) {
+                IenTimePicker(
+                    state = timePickerState,
+                    isDial = true,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                )
+            } else {
+                IenTimePicker(
+                    state = timePickerState,
+                    isDial = false,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Column {
-                    Text(text = title, modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 24.dp, end = 24.dp, top = 16.dp))
-                    if (isTimePickerDial) {
-                        TimePicker(state = timePickerState, modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp))
-                    } else {
-                        TimeInput(state = timePickerState, modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp))
+                IenIconButton(
+                    onClick = { isTimePickerDial = !isTimePickerDial },
+                    variant = IenButtonVariant.Ghost,
+                    tone = IenSemanticTone.Neutral,
+                ) {
+                    AnimatedContent(
+                        targetState = if (isTimePickerDial) M3SystemIcons.Keyboard else M3SystemIcons.Schedule,
+                        label = "time_picker_dial"
+                    ) {
+                        Icon(
+                            imageVector = it,
+                            contentDescription = "",
+                            tint = IenTheme.colors.textPrimary
+                        )
                     }
-                    Row(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        androidx.compose.material3.IconButton(onClick = {
-                            isTimePickerDial = !isTimePickerDial
-                        }) {
-                            AnimatedContent(
-                                targetState = if (isTimePickerDial) M3SystemIcons.Keyboard else M3SystemIcons.Schedule,
-                                label = "time_picker_dial"
-                            ) {
-                                Icon(imageVector = it, contentDescription = "", tint = MaterialTheme.colorScheme.onSurface)
-                            }
-                        }
-                        Spacer(modifier = Modifier.weight(1f))
-                        TextButton(onClick = onDismiss) {
-                            Text(text = stringResource(Res.string.cancel))
-                        }
-                        TextButton(onClick = { onConfirm(timePickerState.hour, timePickerState.minute) }) {
-                            Text(text = stringResource(Res.string.ok))
-                        }
-                    }
+                }
+                IenConfirmDialogCancelButton(
+                    text = stringResource(Res.string.cancel),
+                    onClick = onDismiss,
+                    modifier = Modifier.weight(1f),
+                )
+                IenButton(
+                    onClick = { onConfirm(timePickerState.hour, timePickerState.minute) },
+                    modifier = Modifier.weight(1f),
+                    size = IenButtonSize.Large,
+                    variant = IenButtonVariant.Fill,
+                    tone = IenSemanticTone.Brand,
+                    display = IenButtonDisplay.Block,
+                ) {
+                    IenText(stringResource(Res.string.ok))
                 }
             }
         }
     }
 }
-
 
 /**
- * AlertDialogFlowRow은 AlertDialog 내부의 버튼들을 정렬하는 내부 컴포저블입니다.
+ * IenDatePicker는 IEN 색상 체계를 적용한 날짜 선택 컴포넌트입니다.
  *
- * @param mainAxisSpacing 메인 축 간격
- * @param crossAxisSpacing 크로스 축 간격
- * @param content 버튼들로 구성된 내용
+ * @param state 날짜 선택 상태
+ * @param modifier 적용할 Modifier
+ * @param title 상단 제목
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun AlertDialogFlowRow(
-    mainAxisSpacing: Dp,
-    crossAxisSpacing: Dp,
-    content: @Composable () -> Unit
+fun IenDatePicker(
+    state: DatePickerState,
+    modifier: Modifier = Modifier,
+    title: String,
 ) {
-    Layout(content) { measurables, constraints ->
-        val sequences = mutableListOf<List<Placeable>>()
-        val crossAxisSizes = mutableListOf<Int>()
-        val crossAxisPositions = mutableListOf<Int>()
-
-        var mainAxisSpace = 0
-        var crossAxisSpace = 0
-
-        val currentSequence = mutableListOf<Placeable>()
-        var currentMainAxisSize = 0
-        var currentCrossAxisSize = 0
-
-        // Return whether the placeable can be added to the current sequence.
-        fun canAddToCurrentSequence(placeable: Placeable) =
-            currentSequence.isEmpty() ||
-                    currentMainAxisSize + mainAxisSpacing.roundToPx() + placeable.width <=
-                    constraints.maxWidth
-
-        // Store current sequence information and start a new sequence.
-        fun startNewSequence() {
-            if (sequences.isNotEmpty()) {
-                crossAxisSpace += crossAxisSpacing.roundToPx()
-            }
-            // Ensures that confirming actions appear above dismissive actions.
-            @Suppress("ListIterator") sequences.add(0, currentSequence.toList())
-            crossAxisSizes += currentCrossAxisSize
-            crossAxisPositions += crossAxisSpace
-
-            crossAxisSpace += currentCrossAxisSize
-            mainAxisSpace = max(mainAxisSpace, currentMainAxisSize)
-
-            currentSequence.clear()
-            currentMainAxisSize = 0
-            currentCrossAxisSize = 0
-        }
-
-        measurables.fastForEach { measurable ->
-            // Ask the child for its preferred size.
-            val placeable = measurable.measure(constraints)
-
-            // Start a new sequence if there is not enough space.
-            if (!canAddToCurrentSequence(placeable)) startNewSequence()
-
-            // Add the child to the current sequence.
-            if (currentSequence.isNotEmpty()) {
-                currentMainAxisSize += mainAxisSpacing.roundToPx()
-            }
-            currentSequence.add(placeable)
-            currentMainAxisSize += placeable.width
-            currentCrossAxisSize = max(currentCrossAxisSize, placeable.height)
-        }
-
-        if (currentSequence.isNotEmpty()) startNewSequence()
-
-        val mainAxisLayoutSize = max(mainAxisSpace, constraints.minWidth)
-
-        val crossAxisLayoutSize = max(crossAxisSpace, constraints.minHeight)
-
-        val layoutWidth = mainAxisLayoutSize
-
-        val layoutHeight = crossAxisLayoutSize
-
-        layout(layoutWidth, layoutHeight) {
-            sequences.fastForEachIndexed { i, placeables ->
-                val childrenMainAxisSizes =
-                    IntArray(placeables.size) { j ->
-                        placeables[j].width +
-                                if (j < placeables.lastIndex) mainAxisSpacing.roundToPx() else 0
-                    }
-                val arrangement = Arrangement.End
-                val mainAxisPositions = IntArray(childrenMainAxisSizes.size)
-                with(arrangement) {
-                    arrange(
-                        mainAxisLayoutSize,
-                        childrenMainAxisSizes,
-                        layoutDirection,
-                        mainAxisPositions
-                    )
-                }
-                placeables.fastForEachIndexed { j, placeable ->
-                    placeable.place(x = mainAxisPositions[j], y = crossAxisPositions[i])
-                }
-            }
-        }
-    }
+    DatePicker(
+        state = state,
+        colors = DatePickerDefaults.colors(
+            containerColor = IenTheme.colors.surfaceRaised,
+            titleContentColor = IenTheme.colors.textPrimary,
+            headlineContentColor = IenTheme.colors.textPrimary,
+            weekdayContentColor = IenTheme.colors.textSecondary,
+            subheadContentColor = IenTheme.colors.textSecondary,
+            navigationContentColor = IenTheme.colors.textPrimary,
+            currentYearContentColor = IenTheme.colors.brand,
+            selectedYearContentColor = IenTheme.colors.onBrand,
+            selectedYearContainerColor = IenTheme.colors.brand,
+            selectedDayContentColor = IenTheme.colors.onBrand,
+            selectedDayContainerColor = IenTheme.colors.brand,
+            todayContentColor = IenTheme.colors.brand,
+            todayDateBorderColor = IenTheme.colors.brand,
+            dividerColor = IenTheme.colors.border,
+        ),
+        title = {
+            IenAlertDialogTitle(
+                text = title,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 24.dp, end = 24.dp, top = 16.dp)
+            )
+        },
+        modifier = modifier,
+    )
 }
 
-internal val DialogButtonsPadding = PaddingValues(bottom = 8.dp, end = 6.dp)
-internal val DialogButtonsMainAxisSpacing = 8.dp
-internal val DialogButtonsCrossAxisSpacing = 12.dp
+/**
+ * IenTimePicker는 IEN 색상 체계를 적용한 시간 선택 컴포넌트입니다.
+ *
+ * @param state 시간 선택 상태
+ * @param modifier 적용할 Modifier
+ * @param isDial 다이얼 방식 사용 여부
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun IenTimePicker(
+    state: TimePickerState,
+    modifier: Modifier = Modifier,
+    isDial: Boolean = true,
+) {
+    val timePickerColors = TimePickerDefaults.colors(
+        selectorColor = IenTheme.colors.brand,
+        clockDialSelectedContentColor = IenTheme.colors.onBrand,
+        clockDialUnselectedContentColor = IenTheme.colors.textPrimary,
+        timeSelectorSelectedContainerColor = IenTheme.colors.brandWeak,
+        timeSelectorSelectedContentColor = IenTheme.colors.brand,
+        timeSelectorUnselectedContainerColor = IenTheme.colors.surfaceWeak,
+        timeSelectorUnselectedContentColor = IenTheme.colors.textPrimary,
+        periodSelectorSelectedContainerColor = IenTheme.colors.brandWeak,
+        periodSelectorSelectedContentColor = IenTheme.colors.brand,
+        periodSelectorUnselectedContainerColor = IenTheme.colors.surfaceRaised,
+        periodSelectorUnselectedContentColor = IenTheme.colors.textPrimary,
+    )
+
+    if (isDial) {
+        TimePicker(
+            state = state,
+            modifier = modifier,
+            colors = timePickerColors,
+        )
+    } else {
+        TimeInput(
+            state = state,
+            modifier = modifier,
+            colors = timePickerColors,
+        )
+    }
+}

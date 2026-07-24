@@ -1,5 +1,6 @@
 package zone.ien.utils.ui.section
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -8,13 +9,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
@@ -26,7 +23,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastSumBy
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.section.SectionScope
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.screen.LocalIenScaffoldScrollState
 import zone.ien.utils.ui.utils.conditional
 
 /**
@@ -48,7 +50,7 @@ internal object SectionScopeImpl: SectionScope
  */
 @Composable
 fun Modifier.m3SectionBackground(): Modifier {
-    return this.background(MaterialTheme.colorScheme.surfaceContainer)
+    return this.background(IenTheme.colors.surfaceWeak)
 }
 
 /**
@@ -65,10 +67,10 @@ fun Modifier.m3SectionBackground(): Modifier {
  * @param content 섹션의 내용을 표시하는 컴포저블 블록
  */
 @Composable
-fun M3ProvideSectionStyle(
+fun IenProvideSectionStyle(
     modifier: Modifier = Modifier,
     fullHeight: Boolean = true,
-    scrollState: ScrollState? = rememberScrollState(),
+    scrollState: ScrollState? = LocalIenScaffoldScrollState.current ?: rememberScrollState(),
     shape: Shape = RectangleShape,
     title: @Composable (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
@@ -106,7 +108,7 @@ fun M3ProvideSectionStyle(
  * @param content 섹션의 내용을 정의하는 SectionScope 블록
  */
 @Composable
-fun M3Section(
+fun IenSection(
     modifier: Modifier = Modifier,
     title: (@Composable () -> Unit)? = null,
     caption: (@Composable () -> Unit)? = null,
@@ -115,49 +117,57 @@ fun M3Section(
     Column(
         modifier = modifier
     ) {
-        ProvideTextStyle(
-            value = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.primary)
+        IenProvideTextStyle(
+            style = IenTheme.typography.label1,
+            color = IenTheme.colors.textSecondary,
         ) {
             title?.let {
                 Box(
                     modifier = Modifier
-                        .padding(bottom = 8.dp)
-                        .padding(horizontal = 22.dp),
+                        .padding(bottom = IenTheme.spacing.xs)
+                        .padding(horizontal = IenTheme.spacing.xl),
                 ) { it() }
             }
         }
-        SubcomposeLayout(
+        val itemGap = IenTheme.stroke.hairline
+        IenSurface(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
-                .clip(RoundedCornerShape(16.dp))
-        ) { constraints ->
-            val gap = 2.dp.toPx().toInt()
-            val measurables = subcompose(null) { content(SectionScopeImpl) }
+                .clip(ContinuousRoundedRectangle(IenTheme.radius.lg)),
+            color = IenTheme.colors.surfaceRaised,
+            shape = ContinuousRoundedRectangle(IenTheme.radius.lg),
+            border = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border.copy(alpha = 0.72f)),
+        ) {
+            SubcomposeLayout { constraints ->
+                val gap = itemGap.toPx().toInt()
+                val measurables = subcompose(null) { content(SectionScopeImpl) }
 
-            val placeables = measurables.fastMap { it.measure(constraints) }
+                val placeables = measurables.fastMap { it.measure(constraints) }
 
-            layout(
-                width = constraints.maxWidth,
-                height = (placeables.fastSumBy { it.height } + gap * (placeables.size - 1)).coerceAtLeast(0)
-            ) {
-                var h = 0
-                placeables.fastForEachIndexed { i, p ->
-                    p.place(0, h)
-                    h += p.height
-                    if (i < placeables.lastIndex) {
-                        h += gap
+                layout(
+                    width = constraints.maxWidth,
+                    height = (placeables.fastSumBy { it.height } + gap * (placeables.size - 1)).coerceAtLeast(0)
+                ) {
+                    var h = 0
+                    placeables.fastForEachIndexed { i, p ->
+                        p.place(0, h)
+                        h += p.height
+                        if (i < placeables.lastIndex) {
+                            h += gap
+                        }
                     }
                 }
             }
         }
-        ProvideTextStyle(
-            value = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.primary)
+        IenProvideTextStyle(
+            style = IenTheme.typography.caption,
+            color = IenTheme.colors.textTertiary,
         ) {
             caption?.let {
                 Box(
                     modifier = Modifier
-                        .padding(top = 8.dp)
-                        .padding(horizontal = 22.dp),
+                        .padding(top = IenTheme.spacing.xs)
+                        .padding(horizontal = IenTheme.spacing.xl),
                 ) { it() }
             }
         }

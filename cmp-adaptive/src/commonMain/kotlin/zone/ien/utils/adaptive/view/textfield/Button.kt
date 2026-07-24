@@ -17,7 +17,7 @@ import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.utils.hig.view.textfield.HigTextFieldIconButton
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.ui.view.textfield.M3TextFieldIconButton
+import zone.ien.utils.ui.view.textfield.IenTextFieldIconButton
 
 /**
  * 적응형 텍스트 필드 아이콘 버튼 컴포저블
@@ -47,7 +47,7 @@ fun AdaptiveTextFieldIconButton(
 ) {
     AdaptiveWidget(
         material = {
-            M3TextFieldIconButton(
+            IenTextFieldIconButton(
                 modifier = modifier,
                 onClick = onClick,
                 onLongClick = onLongClick,

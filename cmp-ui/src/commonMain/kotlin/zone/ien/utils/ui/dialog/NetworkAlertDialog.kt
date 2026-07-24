@@ -12,19 +12,19 @@ import zone.ien.utils.cmp_ui.generated.resources.retry
 import zone.ien.utils.icon.material.M3SystemIcons
 
 /**
- * M3NetworkAlertDialog은 네트워크 연결이 되지 않았을 때 표시하는 다이얼로그를 제공하는 컴포저블입니다.
+ * IenNetworkAlertDialog은 네트워크 연결이 되지 않았을 때 표시하는 다이얼로그를 제공하는 컴포저블입니다.
  *
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
  * @param onDismiss 다이얼로그를 닫기 위한 콜백 함수
  */
 @Composable
-fun M3NetworkAlertDialog(
+fun IenNetworkAlertDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     onDismiss: (() -> Unit)?,
 ) {
-    M3AlertDialog(
+    IenAlertDialog(
         modifier = modifier,
         visible = visible,
         icon = { Icon(imageVector = M3SystemIcons.CloudOff, contentDescription = null) },

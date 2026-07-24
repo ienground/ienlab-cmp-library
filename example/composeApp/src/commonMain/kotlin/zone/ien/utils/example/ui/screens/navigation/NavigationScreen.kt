@@ -1,19 +1,20 @@
 package zone.ien.utils.example.ui.screens.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,19 +23,21 @@ import com.kyant.backdrop.backdrops.layerBackdrop
 import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationBarItem
 import zone.ien.hig.ExperimentalCupertinoApi
-import zone.ien.hig.adaptive.AdaptiveSwitch
+import zone.ien.utils.adaptive.component.AdaptiveSwitch
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
-import zone.ien.utils.adaptive.theme.GeneratedAdaptiveTheme
+import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.adaptive.utils.getSurfaceTopAppBarAdaptation
 import zone.ien.utils.adaptive.view.AdaptiveNavigationBar
 import zone.ien.utils.adaptive.view.NavigationBarItem
 import zone.ien.utils.icon.Adaptive
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.view.CustomNavigationBarItemDirection
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
@@ -46,8 +49,35 @@ fun NavigationScreen(
     var selected by remember { mutableStateOf(false) }
     var isMaterialTheme by remember { mutableStateOf(true) }
     var isNative by remember { mutableStateOf(true) }
+    var isVerticalDirection by remember { mutableStateOf(false) }
+    val itemDirection = if (isVerticalDirection) {
+        CustomNavigationBarItemDirection.Vertical
+    } else {
+        CustomNavigationBarItemDirection.Horizontal
+    }
 
-    GeneratedAdaptiveTheme(
+    @Composable
+    fun OptionSwitch(
+        text: String,
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IenText(text)
+            AdaptiveSwitch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+            )
+        }
+    }
+
+    IenAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
         AdaptiveTopAppBarScaffold(
@@ -59,6 +89,9 @@ fun NavigationScreen(
                     onTabSelected = { selected = it == 0 },
                     isNative = isNative,
                     adaptation = {
+                        material {
+                            this.alwaysShowLabel = false
+                        }
                         cupertino { this.backdrop = backdrop }
                     },
                     items = listOf(
@@ -68,7 +101,8 @@ fun NavigationScreen(
                                 material = { M3SystemIcons.Delete },
                                 cupertino = { "trash.fill" }
                             ),
-                            label = "Delete"
+                            label = "Delete",
+                            direction = itemDirection,
                         ),
                         NavigationBarItem(
                             onClick = { selected = false },
@@ -76,7 +110,8 @@ fun NavigationScreen(
                                 material = { M3SystemIcons.Save },
                                 cupertino = { "checkmark" }
                             ),
-                            label = "Save"
+                            label = "Save",
+                            direction = itemDirection,
                         )
                     ),
                 )
@@ -88,15 +123,30 @@ fun NavigationScreen(
                 modifier = Modifier.layerBackdrop(backdrop)
             ) {
                 item {
-                    AdaptiveSwitch(
+                    OptionSwitch(
+                        text = "Material 테마",
                         checked = isMaterialTheme,
                         onCheckedChange = { isMaterialTheme = it }
                     )
                 }
                 item {
-                    AdaptiveSwitch(
+                    OptionSwitch(
+                        text = "네이티브 바",
                         checked = isNative,
                         onCheckedChange = { isNative = it }
+                    )
+                }
+                item {
+                    OptionSwitch(
+                        text = "세로 방향",
+                        checked = isVerticalDirection,
+                        onCheckedChange = {
+                            isVerticalDirection = it
+                            if (it) {
+                                isMaterialTheme = true
+                                isNative = false
+                            }
+                        }
                     )
                 }
                 items(items = (0 until 20).toList(), key = null) {
@@ -106,7 +156,7 @@ fun NavigationScreen(
                             .background(if (it % 2 == 0) Color.Cyan else Color.Green)
                             .fillMaxWidth()
                     ) {
-                        Text(
+                        IenText(
                             text = "${it}"
                         )
                     }
@@ -120,10 +170,9 @@ fun NavigationScreen(
 @Preview(showBackground = true)
 @Composable
 private fun ScreenPreview() {
-    GeneratedAdaptiveTheme(Theme.Material3) {
+    IenAdaptiveTheme(Theme.Material3) {
         NavigationScreen(
             navigateBack = {}
         )
     }
 }
-

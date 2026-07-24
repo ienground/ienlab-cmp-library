@@ -4,13 +4,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemColors
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
@@ -43,12 +38,14 @@ import zone.ien.utils.ui.view.CustomNavigationBar
 import zone.ien.utils.ui.view.CustomNavigationBarColors
 import zone.ien.utils.ui.view.CustomNavigationBarDefaults
 import zone.ien.utils.ui.view.CustomNavigationBarItem
+import zone.ien.utils.ui.view.CustomNavigationBarItemDirection
 
 data class NavigationBarItem(
     val onClick: () -> Unit,
     val icon: IconData,
     val selectedIcon: IconData? = null,
-    val label: String
+    val label: String,
+    val direction: CustomNavigationBarItemDirection = CustomNavigationBarItemDirection.Horizontal,
 )
 
 internal data class NavigationBarState(
@@ -56,6 +53,7 @@ internal data class NavigationBarState(
     val onTabSelected: (Int) -> Unit,
 )
 internal val LocalNavigationBarState = compositionLocalOf<NavigationBarState?> { null }
+private val LocalNavigationBarAlwaysShowLabel = compositionLocalOf { true }
 
 /**
  * 적응형 네비게이션 바 컴포저블
@@ -75,7 +73,7 @@ fun AdaptiveNavigationBar(
     modifier: Modifier = Modifier,
     selectedTabIndex: () -> Int,
     onTabSelected: (index: Int) -> Unit,
-    adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, MaterialNavigationBarAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, IenNavigationBarAdaptation>.() -> Unit = {},
     isNative: Boolean = true,
     items: List<NavigationBarItem>
 ) {
@@ -121,7 +119,8 @@ fun AdaptiveNavigationBar(
                             icon = if (selected && currentTheme == Theme.Material3 && item.selectedIcon != null) item.selectedIcon else item.icon
                         )
                     },
-                    label = { Text(text = item.label) }
+                    label = { Text(text = item.label) },
+                    direction = item.direction,
                 )
             }
         }
@@ -136,7 +135,7 @@ private fun AdaptiveNavigationBar(
     selectedTabIndex: () -> Int,
     onTabSelected: (index: Int) -> Unit,
     tabsCount: Int,
-    adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, MaterialNavigationBarAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, IenNavigationBarAdaptation>.() -> Unit = {},
     content: @Composable RowScope.() -> Unit
 ) {
     CompositionLocalProvider(
@@ -169,7 +168,13 @@ private fun AdaptiveNavigationBar(
                     selectedIndex = selectedTabIndex(),
                     itemCount = tabsCount,
                     windowInsets = it.windowInsets,
-                    content = content
+                    content = {
+                        CompositionLocalProvider(
+                            LocalNavigationBarAlwaysShowLabel provides it.alwaysShowLabel
+                        ) {
+                            content()
+                        }
+                    }
                 )
             }
         )
@@ -182,7 +187,7 @@ private fun AdaptiveNavigationBarNative(
     modifier: Modifier = Modifier,
     selectedTabIndex: () -> Int,
     onTabSelected: (index: Int) -> Unit,
-    adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, MaterialNavigationBarAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, IenNavigationBarAdaptation>.() -> Unit = {},
     items: List<CupertinoNavigationBarItemData>
 ) {
     CompositionLocalProvider(
@@ -246,8 +251,9 @@ fun RowScope.AdaptiveNavigationBarItem(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     label: @Composable (() -> Unit)? = null,
+    direction: CustomNavigationBarItemDirection = CustomNavigationBarItemDirection.Horizontal,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    adaptation: AdaptationScope<CupertinoNavigationBarItemAdaptation, MaterialNavigationBarItemAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<CupertinoNavigationBarItemAdaptation, IenNavigationBarItemAdaptation>.() -> Unit = {},
 ) {
     val navState = LocalNavigationBarState.current
     val resolvedOnClick: () -> Unit = {
@@ -276,6 +282,7 @@ fun RowScope.AdaptiveNavigationBarItem(
                 onClick = resolvedOnClick,
                 icon = icon,
                 label = label ?: {},
+                direction = direction,
                 alwaysShowLabel = it.alwaysShowLabel,
                 enabled = enabled,
                 modifier = modifier
@@ -284,7 +291,7 @@ fun RowScope.AdaptiveNavigationBarItem(
     )
 }
 
-class MaterialNavigationBarAdaptation internal constructor(
+class IenNavigationBarAdaptation internal constructor(
     colors: CustomNavigationBarColors,
     alwaysShowLabel: Boolean,
     windowInsets: WindowInsets,
@@ -306,7 +313,7 @@ class CupertinoNavigationBarAdaptation internal constructor(
 }
 
 @Stable
-class MaterialNavigationBarItemAdaptation internal constructor(
+class IenNavigationBarItemAdaptation internal constructor(
     alwaysShowLabel: Boolean
 ) {
     var alwaysShowLabel by mutableStateOf(alwaysShowLabel)
@@ -318,7 +325,7 @@ class CupertinoNavigationBarItemAdaptation internal constructor()
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
-private class NavigationBarAdaptation: Adaptation<CupertinoNavigationBarAdaptation, MaterialNavigationBarAdaptation>() {
+private class NavigationBarAdaptation: Adaptation<CupertinoNavigationBarAdaptation, IenNavigationBarAdaptation>() {
     @OptIn(ExperimentalCupertinoApi::class)
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoNavigationBarAdaptation {
@@ -336,13 +343,13 @@ private class NavigationBarAdaptation: Adaptation<CupertinoNavigationBarAdaptati
     }
 
     @Composable
-    override fun rememberMaterialAdaptation(): MaterialNavigationBarAdaptation {
+    override fun rememberMaterialAdaptation(): IenNavigationBarAdaptation {
         val colors = CustomNavigationBarDefaults.colors()
         val alwaysShowLabel = true
         val windowInsets = NavigationBarDefaults.windowInsets
 
         return remember(colors, alwaysShowLabel, windowInsets) {
-            MaterialNavigationBarAdaptation(
+            IenNavigationBarAdaptation(
                 colors = colors,
                 alwaysShowLabel = alwaysShowLabel,
                 windowInsets = windowInsets
@@ -353,7 +360,7 @@ private class NavigationBarAdaptation: Adaptation<CupertinoNavigationBarAdaptati
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
-private class NavigationBarItemAdaptation: Adaptation<CupertinoNavigationBarItemAdaptation, MaterialNavigationBarItemAdaptation>() {
+private class NavigationBarItemAdaptation: Adaptation<CupertinoNavigationBarItemAdaptation, IenNavigationBarItemAdaptation>() {
 
     @OptIn(ExperimentalCupertinoApi::class)
     @Composable
@@ -362,11 +369,11 @@ private class NavigationBarItemAdaptation: Adaptation<CupertinoNavigationBarItem
     }
 
     @Composable
-    override fun rememberMaterialAdaptation(): MaterialNavigationBarItemAdaptation {
-        val alwaysShowLabel = true
+    override fun rememberMaterialAdaptation(): IenNavigationBarItemAdaptation {
+        val alwaysShowLabel = LocalNavigationBarAlwaysShowLabel.current
 
         return remember(alwaysShowLabel) {
-            MaterialNavigationBarItemAdaptation(
+            IenNavigationBarItemAdaptation(
                 alwaysShowLabel = alwaysShowLabel
             )
         }

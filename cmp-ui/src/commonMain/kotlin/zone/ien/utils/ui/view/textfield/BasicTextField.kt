@@ -16,9 +16,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TextFieldLabelPosition
 import androidx.compose.material3.TextFieldLabelScope
@@ -27,6 +25,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextLayoutResult
@@ -36,7 +35,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.ui.view.M3AsteriskTextWrapper
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.view.IenAsteriskTextWrapper
 
 /**
  * PlaceHolder가 적용된 기본 텍스트 필드 컴포저블
@@ -72,7 +72,7 @@ fun PlaceholderBasicTextField(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     readOnly: Boolean = false,
-    textStyle: TextStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSurface),
+    textStyle: TextStyle = LocalTextStyle.current.copy(color = IenTheme.colors.textPrimary),
     placeholder: @Composable (() -> Unit)? = null,
     isRequired: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -85,7 +85,7 @@ fun PlaceholderBasicTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     interactionSource: MutableInteractionSource? = null,
-    cursorBrush: Brush = SolidColor(MaterialTheme.colorScheme.onSurface),
+    cursorBrush: Brush = SolidColor(IenTheme.colors.textPrimary),
     contentPadding: PaddingValues? = null
 ) {
     val iS = interactionSource ?: remember { MutableInteractionSource() }
@@ -111,7 +111,7 @@ fun PlaceholderBasicTextField(
                 value = value,
                 visualTransformation = visualTransformation,
                 innerTextField = innerTextField,
-                placeholder = { ProvideTextStyle(textStyle.copy(color = textStyle.color.copy(0.55f))) { placeholder?.let { if (isRequired) M3AsteriskTextWrapper { it() } else it() } } },
+                placeholder = { ProvideTextStyle(textStyle.copy(color = textStyle.color.copy(0.55f))) { placeholder?.let { if (isRequired) IenAsteriskTextWrapper { it() } else it() } } },
                 leadingIcon = leadingIcon,
                 trailingIcon = trailingIcon,
                 singleLine = singleLine,
@@ -156,7 +156,7 @@ fun PlaceholderBasicTextField(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     readOnly: Boolean = false,
-    textStyle: TextStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSurface),
+    textStyle: TextStyle = LocalTextStyle.current.copy(color = IenTheme.colors.textPrimary),
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
@@ -168,7 +168,7 @@ fun PlaceholderBasicTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     interactionSource: MutableInteractionSource? = null,
-    cursorBrush: Brush = SolidColor(MaterialTheme.colorScheme.onSurface),
+    cursorBrush: Brush = SolidColor(IenTheme.colors.textPrimary),
     contentPadding: PaddingValues? = null
 ) {
     val iS = interactionSource ?: remember { MutableInteractionSource() }
@@ -233,7 +233,6 @@ fun PlaceholderBasicTextField(
  * @param keyboardOptions 키보드 설정
  * @param onKeyboardAction 키보드 액션 처리
  * @param onTextLayout 텍스트 레이아웃 변경 시 호출되는 함수
- * @param colors 텍스트 필드 색상
  * @param contentPadding 내용에 대한 패딩
  * @param interactionSource 상호작용 소스
  */
@@ -262,11 +261,11 @@ fun PlaceholderBasicSecureTextField(
     ),
     onKeyboardAction: KeyboardActionHandler? = null,
     onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
-    colors: TextFieldColors = TextFieldDefaults.colors(),
     contentPadding: PaddingValues? = null,
     interactionSource: MutableInteractionSource? = null,
 ) {
     val iS = interactionSource ?: remember { MutableInteractionSource() }
+    val colors = ienTextFieldColors()
     val textColor =
         textStyle.color.takeOrElse {
             val focused = iS.collectIsFocusedAsState().value
@@ -324,3 +323,50 @@ fun PlaceholderBasicSecureTextField(
         )
     }
 }
+
+@Composable
+private fun ienTextFieldColors() =
+    TextFieldDefaults.colors(
+        focusedTextColor = IenTheme.colors.textPrimary,
+        unfocusedTextColor = IenTheme.colors.textPrimary,
+        disabledTextColor = IenTheme.colors.textDisabled,
+        errorTextColor = IenTheme.colors.danger,
+        focusedContainerColor = Color.Transparent,
+        unfocusedContainerColor = Color.Transparent,
+        disabledContainerColor = Color.Transparent,
+        errorContainerColor = Color.Transparent,
+        cursorColor = IenTheme.colors.brand,
+        errorCursorColor = IenTheme.colors.danger,
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent,
+        disabledIndicatorColor = Color.Transparent,
+        errorIndicatorColor = Color.Transparent,
+        focusedLabelColor = IenTheme.colors.textSecondary,
+        unfocusedLabelColor = IenTheme.colors.textSecondary,
+        disabledLabelColor = IenTheme.colors.textDisabled,
+        errorLabelColor = IenTheme.colors.danger,
+        focusedPlaceholderColor = IenTheme.colors.textSecondary,
+        unfocusedPlaceholderColor = IenTheme.colors.textSecondary,
+        disabledPlaceholderColor = IenTheme.colors.textDisabled,
+        errorPlaceholderColor = IenTheme.colors.danger,
+        focusedLeadingIconColor = IenTheme.colors.textSecondary,
+        unfocusedLeadingIconColor = IenTheme.colors.textSecondary,
+        disabledLeadingIconColor = IenTheme.colors.textDisabled,
+        errorLeadingIconColor = IenTheme.colors.danger,
+        focusedTrailingIconColor = IenTheme.colors.textSecondary,
+        unfocusedTrailingIconColor = IenTheme.colors.textSecondary,
+        disabledTrailingIconColor = IenTheme.colors.textDisabled,
+        errorTrailingIconColor = IenTheme.colors.danger,
+        focusedSupportingTextColor = IenTheme.colors.textSecondary,
+        unfocusedSupportingTextColor = IenTheme.colors.textSecondary,
+        disabledSupportingTextColor = IenTheme.colors.textDisabled,
+        errorSupportingTextColor = IenTheme.colors.danger,
+        focusedPrefixColor = IenTheme.colors.textSecondary,
+        unfocusedPrefixColor = IenTheme.colors.textSecondary,
+        disabledPrefixColor = IenTheme.colors.textDisabled,
+        errorPrefixColor = IenTheme.colors.danger,
+        focusedSuffixColor = IenTheme.colors.textSecondary,
+        unfocusedSuffixColor = IenTheme.colors.textSecondary,
+        disabledSuffixColor = IenTheme.colors.textDisabled,
+        errorSuffixColor = IenTheme.colors.danger,
+    )

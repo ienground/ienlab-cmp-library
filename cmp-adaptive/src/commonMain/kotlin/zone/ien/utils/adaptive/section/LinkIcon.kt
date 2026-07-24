@@ -30,8 +30,8 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.section.CupertinoLabelIconDefaults
 import zone.ien.hig.section.CupertinoLinkIcon
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.ui.section.M3LinkIcon
-import zone.ien.utils.ui.section.M3LinkIconText
+import zone.ien.utils.ui.section.IenLinkIcon
+import zone.ien.utils.ui.section.IenLinkIconText
 import zone.ien.utils.ui.section.MaterialLabelIconDefaults
 
 /**
@@ -47,7 +47,7 @@ import zone.ien.utils.ui.section.MaterialLabelIconDefaults
 fun AdaptiveLinkIcon(
     icon: IconData,
     modifier: Modifier = Modifier,
-    adaptation: AdaptationScope<CupertinoLinkIconAdaptation, MaterialLinkIconAdaptation>.() -> Unit = { },
+    adaptation: AdaptationScope<CupertinoLinkIconAdaptation, IenLinkIconAdaptation>.() -> Unit = { },
     contentDescription: String? = null
 ) {
     when (icon) {
@@ -83,7 +83,7 @@ fun AdaptiveLinkIcon(
 fun AdaptiveLinkIcon(
     imageVector: ImageVector,
     modifier: Modifier = Modifier,
-    adaptation: AdaptationScope<CupertinoLinkIconAdaptation, MaterialLinkIconAdaptation>.() -> Unit = { },
+    adaptation: AdaptationScope<CupertinoLinkIconAdaptation, IenLinkIconAdaptation>.() -> Unit = { },
     contentDescription: String? = null,
 ) {
     AdaptiveWidget(
@@ -100,7 +100,7 @@ fun AdaptiveLinkIcon(
             )
         },
         material = {
-            M3LinkIcon(
+            IenLinkIcon(
                 imageVector = imageVector,
                 containerColor = it.containerColor,
                 tint = it.tint,
@@ -124,7 +124,7 @@ fun AdaptiveLinkIcon(
 fun AdaptiveLinkIconText(
     text: String,
     modifier: Modifier = Modifier,
-    adaptation: AdaptationScope<CupertinoLinkIconAdaptation, MaterialLinkIconAdaptation>.() -> Unit = { },
+    adaptation: AdaptationScope<CupertinoLinkIconAdaptation, IenLinkIconAdaptation>.() -> Unit = { },
 ) {
     AdaptiveWidget(
         adaptation = remember { LinkIconAdaptation() },
@@ -139,7 +139,7 @@ fun AdaptiveLinkIconText(
             )
         },
         material = {
-            M3LinkIconText(
+            IenLinkIconText(
                 text = text,
                 containerColor = it.containerColor,
                 tint = it.tint,
@@ -155,7 +155,7 @@ fun AdaptiveLinkIconText(
 fun AdaptiveLinkIcon(
     painter: Painter,
     modifier: Modifier = Modifier,
-    adaptation: AdaptationScope<CupertinoLinkIconAdaptation, MaterialLinkIconAdaptation>.() -> Unit = { },
+    adaptation: AdaptationScope<CupertinoLinkIconAdaptation, IenLinkIconAdaptation>.() -> Unit = { },
     contentDescription: String? = null,
 ) {
     AdaptiveWidget(
@@ -172,7 +172,7 @@ fun AdaptiveLinkIcon(
             )
         },
         material = {
-            M3LinkIcon(
+            IenLinkIcon(
                 painter = painter,
                 containerColor = it.containerColor,
                 tint = it.tint,
@@ -202,13 +202,13 @@ class CupertinoLinkIconAdaptation(
 }
 
 /**
- * Material 링크 아이콘 적응성 클래스
+ * IEN 링크 아이콘 적응성 클래스
  *
  * @param containerColor 컨테이너 색상
  * @param tint 틴트 색상
  * @param shape 모양
  */
-class MaterialLinkIconAdaptation(
+class IenLinkIconAdaptation(
     containerColor: Color,
     tint: Color,
     shape: Shape,
@@ -223,7 +223,7 @@ class MaterialLinkIconAdaptation(
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
-private class LinkIconAdaptation: Adaptation<CupertinoLinkIconAdaptation, MaterialLinkIconAdaptation>() {
+private class LinkIconAdaptation: Adaptation<CupertinoLinkIconAdaptation, IenLinkIconAdaptation>() {
     /**
      * Cupertino 적응성 설정 메서드
      *
@@ -243,18 +243,18 @@ private class LinkIconAdaptation: Adaptation<CupertinoLinkIconAdaptation, Materi
     }
 
     /**
-     * Material 적응성 설정 메서드
+     * IEN 적응성 설정 메서드
      *
-     * @return Material 링크 아이콘 적응성 객체
+     * @return IEN 링크 아이콘 적응성 객체
      */
     @Composable
-    override fun rememberMaterialAdaptation(): MaterialLinkIconAdaptation {
+    override fun rememberMaterialAdaptation(): IenLinkIconAdaptation {
         val containerColor = MaterialLabelIconDefaults.ContainerColor
         val tint = MaterialLabelIconDefaults.Tint
         val shape = MaterialLabelIconDefaults.Shape
 
         return remember(containerColor, tint, shape) {
-            MaterialLinkIconAdaptation(
+            IenLinkIconAdaptation(
                 containerColor, tint, shape
             )
         }

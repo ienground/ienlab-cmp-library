@@ -5,6 +5,8 @@
     <string name="retry">Retry</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>
+    <string name="selected">Selected</string>
+    <string name="loading">Loading</string>
 
     <!--Delete Dialog-->
     <string name="delete_dialog_title">Delete?</string>
@@ -31,4 +33,45 @@
     <string name="back">Back</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
+
+    <!--Components-->
+    <string name="state_collapsed">Collapsed</string>
+    <string name="state_expanded">Expanded</string>
+    <string name="progress_stepper_step">Progress Step %1$d / %2$d</string>
+    <string name="agreement_required">Required</string>
+    <string name="agreement_optional">Optional</string>
+    <string name="agreement_terms">Terms Agreement</string>
+    <string name="stepper_step_list">Step List</string>
+    <string name="tab_list">Tap List</string>
+    <string name="tab_update_indicator_desc">%1$s, update available</string>
+
+    <string name="decrease">Decrease</string>
+    <string name="increase">Increase</string>
+    <string name="number_spinner">Number spinner</string>
+    <string name="current_value">Current value: %1$d</string>
+    <string name="current_rating_status">Current rating</string>
+    <string name="rate_stars">Rate with stars</string>
+    <string name="rating_score">%1$d stars</string>
+    <string name="rating_value">%2$s out of %1$d</string>
+    <string name="clear_input">Clear input</string>
+    <string name="show_password">Show password</string>
+    <string name="hide_password">Hide password</string>
+    <string name="move">Move</string>
+    <string name="hide">Hide</string>
+    <string name="show">Show</string>
+
+    <!-- Secure Keyboard -->
+    <string name="submit">Submit</string>
+    <string name="special">Special</string>
+    <string name="korean">한국어</string>
+    <string name="english">EN</string>
+    <string name="space">Space</string>
+    <string name="clear">Clear</string>
+    <string name="done">Done</string>
+
+    <!-- TextField -->
+    <string name="segmented_input">Segmented input %1$d / %2$d</string>
+    <string name="search">Search</string>
+    <string name="search_input">Search input</string>
+    <string name="clear_search">Clear search</string>
 </resources>

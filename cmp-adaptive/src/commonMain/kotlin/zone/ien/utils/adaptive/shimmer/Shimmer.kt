@@ -37,7 +37,7 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.adaptiveComponent
 import zone.ien.hig.adaptive.currentTheme
-import zone.ien.utils.ui.shimmer.LocalM3ShimmerShape
+import zone.ien.utils.ui.shimmer.LocalIenShimmerShape
 
 /**
  * 플랫폼에 따라 다른 Placeholder 구현을 제공하는 확장 함수
@@ -196,7 +196,7 @@ private class PlaceholderAdaptation: Adaptation<PlatformPlaceholderAdaptation, P
      */
     @Composable
     override fun rememberMaterialAdaptation(): PlatformPlaceholderAdaptation {
-        val shape = LocalM3ShimmerShape.current
+        val shape = LocalIenShimmerShape.current
 
         return remember(shape) {
             PlatformPlaceholderAdaptation(
