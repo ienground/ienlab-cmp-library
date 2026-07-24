@@ -156,8 +156,8 @@ class IenSectionItemAdaptation internal constructor(
  * @param paddingValues 패딩 값
  */
 class HigSectionItemAdaptation internal constructor(
-    showLeadingContent: Boolean = false,
-    showSupportingContent: Boolean = false,
+    showLeadingContent: Boolean = true,
+    showSupportingContent: Boolean = true,
     paddingValues: PaddingValues,
 ) {
     var showLeadingContent by mutableStateOf(showLeadingContent)
@@ -797,7 +797,7 @@ class IenSectionLinkAdaptation internal constructor(
  */
 class HigSectionLinkAdaptation internal constructor(
     isCaption: Boolean = true,
-    showSupportingContent: Boolean = false
+    showSupportingContent: Boolean = true
 ) {
     var isCaption by mutableStateOf(isCaption)
     var showSupportingContent by mutableStateOf(showSupportingContent)

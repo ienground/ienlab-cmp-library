@@ -69,7 +69,7 @@ fun IenTopAppBarScaffold(
     scaffoldContainerColor: Color = IenTheme.colors.background,
     scaffoldContentColor: Color = IenTheme.colors.textPrimary,
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
-    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
     isScrollTint: Boolean = LocalIsScrollTint.current,
     mode: TopBarMode = LocalTopBarMode.current,
     content: @Composable (PaddingValues) -> Unit
@@ -149,7 +149,7 @@ fun IenTopAppBarScaffold(
     scaffoldContainerColor: Color = IenTheme.colors.background,
     scaffoldContentColor: Color = IenTheme.colors.textPrimary,
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
-    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
     isScrollTint: Boolean = LocalIsScrollTint.current,
     mode: TopBarMode = LocalTopBarMode.current,
     content: @Composable (PaddingValues) -> Unit

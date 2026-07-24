@@ -276,7 +276,7 @@ fun IenScaffold(
     containerColor: Color = IenTheme.colors.background,
     contentColor: Color = IenTheme.colors.textPrimary,
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
-    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val defaultScrollState = rememberScrollState()

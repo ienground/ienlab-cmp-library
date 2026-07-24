@@ -130,7 +130,7 @@ fun AdaptiveTopAppBarScaffold(
     floatingActionButton: @Composable () -> Unit = {},
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
-    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
     adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
@@ -354,7 +354,7 @@ fun AdaptiveTopAppBarScaffold(
     floatingActionButton: @Composable () -> Unit = {},
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
-    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(),
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
     adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
