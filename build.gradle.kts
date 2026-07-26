@@ -55,3 +55,9 @@ subprojects {
         }
     }
 }
+
+tasks.register<Exec>("installGitHooks") {
+    description = "Installs git hooks from .githooks directory."
+    group = "build setup"
+    commandLine("git", "config", "core.hooksPath", ".githooks")
+}
