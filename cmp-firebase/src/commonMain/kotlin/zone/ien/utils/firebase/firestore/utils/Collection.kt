@@ -1,8 +1,11 @@
 package zone.ien.utils.firebase.firestore.utils
 
-import dev.gitlive.firebase.firestore.CollectionReference
-import dev.gitlive.firebase.firestore.Query
 import kotlinx.coroutines.flow.filter
+import zone.ien.firebase.firestore.CollectionReference
+import zone.ien.firebase.firestore.Query
+import zone.ien.firebase.firestore.metadata
+import zone.ien.firebase.firestore.snapshots
+
 
 /**
  * CollectionReference에서 스냅샷을 구독하는 함수
