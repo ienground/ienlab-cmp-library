@@ -15,11 +15,12 @@ import kotlinx.serialization.modules.polymorphic
  * @throws IllegalStateException 백스택이 비어 있는 경우
  */
 fun <T : NavKey> NavBackStack<T>.navigateBack(): T {
-    check(isNotEmpty()) {
-        "비어 있는 백스택에서는 뒤로 이동할 수 없습니다."
+    return Snapshot.withMutableSnapshot {
+        check(isNotEmpty()) {
+            "비어 있는 백스택에서는 뒤로 이동할 수 없습니다."
+        }
+        removeAt(lastIndex)
     }
-
-    return removeAt(lastIndex)
 }
 
 /**
@@ -53,25 +54,25 @@ fun <T : NavKey> NavBackStack<T>.popUpTo(
     route: T,
     inclusive: Boolean = false,
 ): Boolean {
-    val targetIndex = indexOfLast { it == route }
+    return Snapshot.withMutableSnapshot {
+        val targetIndex = indexOfLast { it == route }
 
-    if (targetIndex == -1) {
-        return false
-    }
+        if (targetIndex == -1) {
+            return@withMutableSnapshot false
+        }
 
-    val destinationIndex = if (inclusive) {
-        targetIndex - 1
-    } else {
-        targetIndex
-    }
+        val destinationIndex = if (inclusive) {
+            targetIndex - 1
+        } else {
+            targetIndex
+        }
 
-    Snapshot.withMutableSnapshot {
         while (lastIndex > destinationIndex) {
             removeAt(lastIndex)
         }
-    }
 
-    return true
+        true
+    }
 }
 
 /**
@@ -109,8 +110,10 @@ fun <T : NavKey> NavBackStack<T>.resetTo(
 fun <T : NavKey> NavBackStack<T>.navigateSingleTop(
     route: T,
 ) {
-    if (lastOrNull() != route) {
-        add(route)
+    Snapshot.withMutableSnapshot {
+        if (lastOrNull() != route) {
+            add(route)
+        }
     }
 }
 
@@ -118,11 +121,11 @@ fun <T : NavKey> NavBackStack<T>.navigateSingleTop(
  * 첫 번째 Route만 남기고 모두 제거합니다.
  */
 fun <T : NavKey> NavBackStack<T>.popUpToRoot() {
-    if (size <= 1) {
-        return
-    }
-
     Snapshot.withMutableSnapshot {
+        if (size <= 1) {
+            return@withMutableSnapshot
+        }
+
         while (size > 1) {
             removeAt(lastIndex)
         }
