@@ -13,7 +13,9 @@ import zone.ien.utils.firebase.auth.ZoneFirebaseAuthGateway
 @Composable
 expect fun rememberFirebaseGoogleSignInState(
     linkAccount: Boolean = false,
+    /** Android Credential Manager 전용 (iOS는 무시됨) */
     filterByAuthorizedAccounts: Boolean = false,
+    /** Android Credential Manager 전용 (iOS는 무시됨) */
     isAutoSelectEnabled: Boolean = true,
     scopes: List<String> = listOf("email", "profile"),
     gateway: FirebaseAuthGateway = ZoneFirebaseAuthGateway(),

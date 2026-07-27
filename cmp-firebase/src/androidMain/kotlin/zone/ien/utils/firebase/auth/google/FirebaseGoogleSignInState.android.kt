@@ -78,7 +78,14 @@ actual fun rememberFirebaseGoogleSignInState(
                         idToken = realIdToken,
                     )
                     gateway.signIn(firebaseCredential, currentLinkAccount)
-                    currentOnResult(Result.success(Firebase.auth.currentUser))
+                    val signedInUser = Firebase.auth.currentUser
+                    if (signedInUser != null) {
+                        currentOnResult(Result.success(signedInUser))
+                    } else {
+                        currentOnResult(Result.failure(IllegalStateException(
+                            "Sign-in succeeded but currentUser is null"
+                        )))
+                    }
                 } else {
                     currentOnResult(Result.failure(IllegalStateException("Unexpected credential type: ${cred.type}")))
                 }

@@ -136,9 +136,23 @@ private suspend fun signInToFirebaseApple(
     val handleResult: (FIRAuthDataResult?, NSError?) -> Unit = { result, error ->
         if (continuation.isActive) {
             if (error != null || result == null) {
-                continuation.resume(Result.failure(IllegalStateException(error?.localizedDescription ?: "Apple Sign-In failed")))
+                val message = buildString {
+                    append("Apple Sign-In failed")
+                    error?.let { e ->
+                        append(" [domain=${e.domain}:code=${e.code}]")
+                        e.localizedDescription.let { append(": $it") }
+                    }
+                }
+                continuation.resume(Result.failure(IllegalStateException(message)))
             } else {
-                continuation.resume(Result.success(Firebase.auth.currentUser))
+                val currentUser = Firebase.auth.currentUser
+                if (currentUser != null) {
+                    continuation.resume(Result.success(currentUser))
+                } else {
+                    continuation.resume(Result.failure(IllegalStateException(
+                        "Apple Sign-In succeeded but currentUser is null"
+                    )))
+                }
             }
         }
     }

@@ -30,7 +30,9 @@ import kotlin.coroutines.resume
 @Composable
 actual fun rememberFirebaseGoogleSignInState(
     linkAccount: Boolean,
+    /** Android Credential Manager 전용 (iOS는 무시됨) */
     filterByAuthorizedAccounts: Boolean,
+    /** Android Credential Manager 전용 (iOS는 무시됨) */
     isAutoSelectEnabled: Boolean,
     scopes: List<String>,
     gateway: FirebaseAuthGateway,
@@ -93,9 +95,23 @@ private suspend fun signInWithGoogleIos(
     val handleResult: (FIRAuthDataResult?, NSError?) -> Unit = { result, error ->
         if (continuation.isActive) {
             if (error != null || result == null) {
-                continuation.resume(Result.failure(IllegalStateException(error?.localizedDescription ?: "Google Sign-In failed")))
+                val message = buildString {
+                    append("Google Sign-In failed")
+                    error?.let { e ->
+                        append(" [domain=${e.domain}:code=${e.code}]")
+                        e.localizedDescription.let { append(": $it") }
+                    }
+                }
+                continuation.resume(Result.failure(IllegalStateException(message)))
             } else {
-                continuation.resume(Result.success(Firebase.auth.currentUser))
+                val currentUser = Firebase.auth.currentUser
+                if (currentUser != null) {
+                    continuation.resume(Result.success(currentUser))
+                } else {
+                    continuation.resume(Result.failure(IllegalStateException(
+                        "Sign-in succeeded but currentUser is null"
+                    )))
+                }
             }
         }
     }
@@ -104,7 +120,14 @@ private suspend fun signInWithGoogleIos(
     provider.getCredentialWithUIDelegate(uiDelegate) { credential, error ->
         if (error != null || credential == null) {
             if (continuation.isActive) {
-                continuation.resume(Result.failure(IllegalStateException(error?.localizedDescription ?: "Failed to get Google credential")))
+                val message = buildString {
+                    append("Failed to get Google credential")
+                    error?.let { e ->
+                        append(" [domain=${e.domain}:code=${e.code}]")
+                        e.localizedDescription.let { append(": $it") }
+                    }
+                }
+                continuation.resume(Result.failure(IllegalStateException(message)))
             }
             return@getCredentialWithUIDelegate
         }
