@@ -84,11 +84,3 @@ hotfix/* → main → dev
   - `fix 버그 수정` (`:` 구분자 누락)
   - `🐛 fix:` (설명 누락)
 
-### 커밋 메시지 검증 (Git Hooks)
-프로젝트 내 `.githooks/commit-msg` Hook이 구성되어 있습니다. 아래 명령을 실행하여 커밋 메시지 검증 Hook을 활성화할 수 있습니다.
-
-```bash
-git config core.hooksPath .githooks
-# 또는 Gradle Task 실행
-./gradlew installGitHooks
-```
