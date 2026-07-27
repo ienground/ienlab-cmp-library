@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -18,24 +17,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import zone.ien.firebase.auth.FirebaseUser
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
-import zone.ien.utils.firebase.auth.AuthCredential
-import zone.ien.utils.firebase.auth.AuthProvider
-import zone.ien.utils.firebase.auth.AuthProviderIds
-import zone.ien.utils.firebase.auth.AuthProviderResult
-import zone.ien.utils.firebase.auth.FirebaseAuthResult
-import zone.ien.utils.firebase.auth.FirebaseAuthUser
-import zone.ien.utils.firebase.auth.rememberFirebaseSignInState
+import zone.ien.utils.firebase.auth.apple.rememberFirebaseAppleSignInState
+import zone.ien.utils.firebase.auth.google.GoogleAuthCredentials
+import zone.ien.utils.firebase.auth.google.GoogleAuthProvider
+import zone.ien.utils.firebase.auth.google.rememberFirebaseGoogleSignInState
+import zone.ien.utils.example.BuildKonfig
 import zone.ien.utils.ui.interactive.IenButton
 import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.TopBarMode
+
+import zone.ien.utils.utils.Dlog
+import zone.ien.utils.example.TAG
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -44,50 +45,30 @@ fun FirebaseAuthScreen(
     navigateBack: () -> Unit,
 ) {
     val backdrop = rememberDefaultBackdrop()
-    var lastResult by remember { mutableStateOf<FirebaseAuthResult?>(null) }
-    var simulatedUser by remember { mutableStateOf<FirebaseAuthUser?>(null) }
+    var lastResult by remember { mutableStateOf<Result<FirebaseUser?>?>(null) }
+    var currentUser by remember { mutableStateOf<FirebaseUser?>(null) }
 
-    val googleProvider = remember {
-        AuthProvider {
-            AuthProviderResult.Authenticated(
-                AuthCredential.IdToken(
-                    providerId = AuthProviderIds.Google,
-                    idToken = "sample-google-id-token",
-                    accessToken = "sample-google-access-token",
-                )
-            )
-        }
+    Dlog.d(TAG, "Client ${BuildKonfig.GCP_WEB_CLIENT_ID}")
+    remember {
+        // 1. BuildKonfig를 통한 GCP_WEB_CLIENT_ID 등록 (앱 시작 시 1회 호출)
+        GoogleAuthProvider.create(
+            credentials = GoogleAuthCredentials(serverId = BuildKonfig.GCP_WEB_CLIENT_ID)
+        )
     }
 
-    val appleProvider = remember {
-        AuthProvider {
-            AuthProviderResult.Authenticated(
-                AuthCredential.IdToken(
-                    providerId = AuthProviderIds.Apple,
-                    idToken = "sample-apple-id-token",
-                    rawNonce = "sample-raw-nonce",
-                )
-            )
-        }
-    }
-
-    val googleSignInState = rememberFirebaseSignInState(
-        provider = googleProvider,
+    // 2. KMPAuth 호환 구글 로그인 State
+    val googleSignInState = rememberFirebaseGoogleSignInState(
         onResult = { result ->
             lastResult = result
-            if (result is FirebaseAuthResult.Success) {
-                simulatedUser = result.user
-            }
+            currentUser = result.getOrNull()
         }
     )
 
-    val appleSignInState = rememberFirebaseSignInState(
-        provider = appleProvider,
+    // 3. KMPAuth 호환 애플 로그인 State (iOS 전용/서버 ID 불필요)
+    val appleSignInState = rememberFirebaseAppleSignInState(
         onResult = { result ->
             lastResult = result
-            if (result is FirebaseAuthResult.Success) {
-                simulatedUser = result.user
-            }
+            currentUser = result.getOrNull()
         }
     )
 
@@ -110,7 +91,7 @@ fun FirebaseAuthScreen(
             ) {
                 title()
 
-                IenText("Firebase Kotlin Auth 대체 라이브러리 연동 샘플입니다.")
+                IenText("KMPAuth 스타일 Google 및 Apple Sign-In 연동 샘플입니다.")
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -146,16 +127,15 @@ fun FirebaseAuthScreen(
                     }
                 }
 
-                simulatedUser?.let { user ->
+                currentUser?.let { user ->
                     Spacer(modifier = Modifier.height(16.dp))
                     IenText("현재 로그인된 사용자:")
                     IenText("UID: ${user.uid}")
                     IenText("Email: ${user.email ?: "N/A"}")
-                    IenText("Provider: ${user.providerId ?: "N/A"}")
 
                     IenButton(
                         onClick = {
-                            simulatedUser = null
+                            currentUser = null
                             lastResult = null
                         },
                         variant = IenButtonVariant.Fill,
@@ -167,10 +147,12 @@ fun FirebaseAuthScreen(
 
                 lastResult?.let { res ->
                     Spacer(modifier = Modifier.height(8.dp))
-                    when (res) {
-                        is FirebaseAuthResult.Success -> IenText("로그인 성공: ${res.user.uid}")
-                        FirebaseAuthResult.Canceled -> IenText("로그인 취소됨")
-                        is FirebaseAuthResult.Failure -> IenText("로그인 실패: ${res.cause.message}")
+                    val user = res.getOrNull()
+                    val error = res.exceptionOrNull()
+                    if (user != null) {
+                        IenText("로그인 성공: ${user.uid}")
+                    } else if (error != null) {
+                        IenText("로그인 결과: ${error.message}")
                     }
                 }
             }

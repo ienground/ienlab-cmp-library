@@ -10,13 +10,15 @@ lib-version-name = "3.1.0-alpha01"
 compose-plugin = "1.11.1"
 compose-plugin-experimental = "1.11.0-alpha07"
 compose-navigation3 = "1.1.1"
+buildkonfig = "0.22.0"
 
 # firebase
 kmp-firebase = "1.0.0-beta08"
 firebase-firestore = "26.4.1"
 firebase-storage = "22.0.1"
 firebase-common = "22.1.0"
-firebase-auth = "24.1.0"
+firebase-auth = "24.2.0"
+google-services = "4.5.0"
 
 # ui
 activity-compose = "1.13.0"
@@ -33,6 +35,8 @@ kotlin-coroutine = "1.11.0"
 startup-runtime = "1.2.0"
 kotlinx-io-core = "0.9.1"
 filekit = "0.14.2"
+androidx-credentials = "1.3.0"
+googleid = "1.1.1"
 
 # backend
 vanniktechMavenPublish = "0.37.0"
@@ -104,6 +108,9 @@ koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = 
 serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "androidx-credentials" }
+androidx-credentials-play-services = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "androidx-credentials" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
 
 # test
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -126,3 +133,5 @@ kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref 
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
 vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktechMavenPublish" }
 android-lint = { id = "com.android.lint", version.ref = "agp" }
+google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
+buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }

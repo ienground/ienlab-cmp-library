@@ -2,7 +2,6 @@ package zone.ien.utils.example.ui.screens.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +18,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import com.kyant.capsule.ContinuousRoundedRectangle
+import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.foundation.IenTheme
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -71,6 +79,26 @@ import zone.ien.utils.utils.moveToBackground
 import zone.ien.utils.utils.shareText
 import zone.ien.utils.utils.ui.enableNativeInput
 import zone.ien.utils.utils.ui.rememberRepeatClick
+
+
+private data class HomeMenuItem(
+    val name: String,
+    val route: RootRoute,
+    val color: Color,
+)
+
+private val menuItems = listOf(
+    HomeMenuItem("Design System", RootRoute.DesignSystem, Color(0xFFE91E63)),
+    HomeMenuItem("Color Tokens", RootRoute.ColorTokens, Color(0xFF3182F6)),
+    HomeMenuItem("Section", RootRoute.Section, Color(0xFFE53935)),
+    HomeMenuItem("Settings", RootRoute.Settings, Color(0xFF1E88E5)),
+    HomeMenuItem("Lazy Section", RootRoute.LazySection, Color(0xFF43A047)),
+    HomeMenuItem("Playground", RootRoute.Playground, Color(0xFF00ACC1)),
+    HomeMenuItem("Ien Playground", RootRoute.IenPlayground, Color(0xFF8B5CF6)),
+    HomeMenuItem("Adaptive Playground", RootRoute.AdaptivePlayground, Color(0xFF0F766E)),
+    HomeMenuItem("Navigation", RootRoute.Navigation, Color(0xFFFDD835)),
+    HomeMenuItem("Firebase Auth", RootRoute.FirebaseAuth, Color(0xFFE65100)),
+)
 
 @Suppress("FrequentlyChangingValue")
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
@@ -392,95 +420,36 @@ fun HomeScreen(
                         onCheckedChange = { allInvisible = it }
                     )
                 }
-                Box(
+
+                // --- 2-column grid menu ---
+                Column(
                     modifier = Modifier
-                        .clickable { backStack.add(RootRoute.DesignSystem) }
-                        .fillMaxWidth()
-                        .height(400.dp)
-                        .background(Color.Magenta)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    IenText(text = "Design System")
-                }
-                Box(
-                    modifier = Modifier
-                        .clickable { backStack.add(RootRoute.ColorTokens) }
-                        .fillMaxWidth()
-                        .height(400.dp)
-                        .background(Color(0xFF3182F6))
-                ) {
-                    IenText(text = "Color Tokens")
-                }
-                Box(
-                    modifier = Modifier
-                        .clickable { backStack.add(RootRoute.Section) }
-                        .fillMaxWidth()
-                        .height(400.dp)
-                        .background(Color.Red)
-                ) {
-                    IenText(text = "Section")
-                }
-                Box(
-                    modifier = Modifier
-                        .clickable { backStack.add(RootRoute.Settings) }
-                        .fillMaxWidth()
-                        .height(400.dp)
-                        .background(Color.Blue)
-                ) {
-                    IenText(text = "Settings")
-                }
-                Box(
-                    modifier = Modifier
-                        .clickable { backStack.add(RootRoute.LazySection) }
-                        .fillMaxWidth()
-                        .height(400.dp)
-                        .background(Color.Green)
-                ) {
-                    IenText(text = "Lazy")
-                }
-                Box(
-                    modifier = Modifier
-                        .clickable { backStack.add(RootRoute.Playground) }
-                        .fillMaxWidth()
-                        .height(400.dp)
-                        .background(Color.Cyan)
-                ) {
-                    IenText(text = "Playground")
-                }
-                Box(
-                    modifier = Modifier
-                        .clickable { backStack.add(RootRoute.IenPlayground) }
-                        .fillMaxWidth()
-                        .height(400.dp)
-                        .background(Color(0xFF8B5CF6))
-                ) {
-                    IenText(text = "Ien Playground")
-                }
-                Box(
-                    modifier = Modifier
-                        .clickable { backStack.add(RootRoute.AdaptivePlayground) }
-                        .fillMaxWidth()
-                        .height(400.dp)
-                        .background(Color(0xFF0F766E))
-                ) {
-                    IenText(text = "Adaptive Playground")
-                }
-                Box(
-                    modifier = Modifier
-                        .clickable { backStack.add(RootRoute.Navigation) }
-                        .fillMaxWidth()
-                        .height(400.dp)
-                        .background(Color.Yellow)
-                ) {
-                    IenText(text = "Navigation")
-                }
-                Box(
-                    modifier = Modifier
-                        .clickable { backStack.add(RootRoute.FirebaseAuth) }
-                        .fillMaxWidth()
-                        .height(400.dp)
-                        .background(Color(0xFFE65100))
-                ) {
-                    IenText(text = "Firebase Auth")
+                    IenText(
+                        text = "MENU",
+                        style = IenTheme.typography.title2.copy(fontWeight = FontWeight.Bold),
+                        color = IenTheme.colors.textPrimary,
+                    )
+                    menuItems.chunked(2).forEach { rowItems ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            rowItems.forEach { item ->
+                                HomeMenuCard(
+                                    name = item.name,
+                                    color = item.color,
+                                    onClick = { backStack.add(item.route) },
+                                    modifier = Modifier.weight(1f),
+                                )
+                            }
+                            if (rowItems.size == 1) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        }
+                    }
                 }
                 IenTextField(
                     value = nativeInputText,
@@ -518,6 +487,36 @@ fun HomeScreen(
                 )
                 Spacer(modifier = Modifier.height(96.dp))
             }
+        }
+    }
+
+}
+
+@Composable
+private fun HomeMenuCard(
+    name: String,
+    color: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    IenSurface(
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .height(100.dp),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.lg),
+        color = IenTheme.colors.surfaceRaised,
+        border = BorderStroke(IenTheme.stroke.thin, color.copy(alpha = 0.35f)),
+    ) {
+        Box(
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            IenText(
+                text = name,
+                style = IenTheme.typography.body1.copy(fontWeight = FontWeight.Bold),
+                color = IenTheme.colors.textPrimary,
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }

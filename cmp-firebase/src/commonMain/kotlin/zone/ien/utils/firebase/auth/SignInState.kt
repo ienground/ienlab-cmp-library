@@ -40,7 +40,7 @@ internal class LaunchingSignInState(
     }
 }
 
-private object NoOpSignInState : SignInState {
+internal object NoOpSignInState : SignInState {
     override val isInProgress: Boolean = false
     override fun launch() = Unit
 }

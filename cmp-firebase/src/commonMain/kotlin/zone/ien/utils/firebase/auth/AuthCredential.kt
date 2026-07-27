@@ -34,4 +34,14 @@ sealed interface AuthCredential {
 
         private fun String?.redacted(): String = if (this == null) "null" else "<redacted>"
     }
+
+    companion object {
+        /** Google 로그인 결과 OIDC 토큰을 생성합니다. */
+        fun google(idToken: String, accessToken: String? = null): AuthCredential =
+            IdToken(providerId = AuthProviderIds.Google, idToken = idToken, accessToken = accessToken)
+
+        /** Apple Sign-In 결과 OIDC 토큰을 생성합니다. */
+        fun apple(idToken: String, rawNonce: String? = null, accessToken: String? = null): AuthCredential =
+            IdToken(providerId = AuthProviderIds.Apple, idToken = idToken, rawNonce = rawNonce, accessToken = accessToken)
+    }
 }
