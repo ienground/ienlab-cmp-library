@@ -36,6 +36,7 @@ import platform.Security.SecRandomCopyBytes
 import platform.Security.errSecSuccess
 import platform.Security.kSecRandomDefault
 import platform.UIKit.UIApplication
+import platform.UIKit.UIViewController
 import platform.UIKit.UIWindowScene
 import platform.darwin.NSObject
 import swiftPMImport.zone.ien.firebase.firebase.auth.FIRAuth
