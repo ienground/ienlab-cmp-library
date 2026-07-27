@@ -6,7 +6,7 @@ import com.sunnychung.lib.multiplatform.kdatetime.KZoneOffset
 import com.sunnychung.lib.multiplatform.kdatetime.KZonedDateTime
 import com.sunnychung.lib.multiplatform.kdatetime.serializer.KInstantAsLong
 import com.sunnychung.lib.multiplatform.kdatetime.toKZonedDateTime
-import dev.gitlive.firebase.firestore.Timestamp
+import zone.ien.firebase.firestore.Timestamp
 
 /**
  * Timestamp를 KDate로 변환하는 확장 함수

@@ -1,7 +1,7 @@
 package zone.ien.utils.firebase.firestore.model
 
 import com.sunnychung.lib.multiplatform.kdatetime.KZonedDateTime
-import dev.gitlive.firebase.firestore.DocumentReference
+import zone.ien.firebase.firestore.DocumentReference
 
 interface BaseFirestoreItem {
     /**

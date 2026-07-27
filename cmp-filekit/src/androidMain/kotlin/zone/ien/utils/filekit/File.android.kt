@@ -1,9 +1,9 @@
 package zone.ien.utils.filekit
 
 import android.net.Uri
-import dev.gitlive.firebase.storage.File
 import io.github.vinceglb.filekit.AndroidFile
 import io.github.vinceglb.filekit.PlatformFile
+import zone.ien.firebase.storage.File
 
 /**
  * PlatformFile을 Android File 객체로 변환합니다.

@@ -1,7 +1,9 @@
 package zone.ien.utils.firebase.firestore.utils
 
-import dev.gitlive.firebase.firestore.DocumentReference
 import kotlinx.coroutines.flow.filter
+import zone.ien.firebase.firestore.DocumentReference
+import zone.ien.firebase.firestore.metadata
+import zone.ien.firebase.firestore.snapshots
 
 /**
  * DocumentReference에서 스냅샷을 구독하는 함수
@@ -10,5 +12,5 @@ import kotlinx.coroutines.flow.filter
  */
 fun DocumentReference.getSnapshots(cache: Boolean = true) =
     snapshots(includeMetadataChanges = !cache)
-        .filter { !it.metadata.isFromCache || cache }
+        .filter { it?.metadata?.isFromCache == false || cache }
 
