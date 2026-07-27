@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -39,13 +40,15 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_21)
         }
     }
+}
 
-    dependencies {
-        implementation(projects.example.composeApp)
-        implementation(libs.activity.compose)
-        implementation(libs.compose.ui.tooling)
+dependencies {
+    implementation(projects.example.composeApp)
+    implementation(libs.activity.compose)
+    implementation(libs.compose.ui.tooling)
 
-        implementation(libs.koin.android)
-        implementation(projects.cmpUtils)
-    }
+    implementation(libs.koin.android)
+    implementation(projects.cmpUtils)
+    implementation(projects.cmpFirebase)
+    implementation(libs.firebase.common.android)
 }

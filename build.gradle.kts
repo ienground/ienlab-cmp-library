@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.vanniktech.mavenPublish) apply false
     alias(libs.plugins.android.lint) apply false
     alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.google.services) apply false
+    alias(libs.plugins.buildkonfig) apply false
 }
 
 val isReleaseVersion = !version.toString().endsWith("SNAPSHOT")

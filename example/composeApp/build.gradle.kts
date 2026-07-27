@@ -1,4 +1,8 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import java.util.Properties
+import kotlin.apply
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -6,7 +10,11 @@ plugins {
     alias(libs.plugins.serialization)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.buildkonfig)
 }
+
+val localProps = Properties().apply { rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) } }
+
 
 kotlin {
     android {
@@ -65,9 +73,10 @@ kotlin {
             implementation(projects.cmpIcon)
             implementation(projects.cmpUtils)
             implementation(projects.cmpNavigation)
-            implementation(projects.cmpPref)
-            implementation(projects.cmpFilekit)
-        }
+           implementation(projects.cmpPref)
+           implementation(projects.cmpFilekit)
+           implementation(projects.cmpFirebase)
+       }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
@@ -76,4 +85,15 @@ kotlin {
 
 dependencies {
     androidRuntimeClasspath(libs.compose.ui.tooling)
+}
+
+buildkonfig {
+    packageName = "zone.ien.utils.example"
+    defaultConfigs {
+        val clientId = localProps.getProperty("GCP_WEB_CLIENT_ID")
+            ?: project.findProperty("GCP_WEB_CLIENT_ID") as? String
+            ?: System.getenv("GCP_WEB_CLIENT_ID")
+            ?: ""
+        buildConfigField(STRING, "GCP_WEB_CLIENT_ID", clientId)
+    }
 }

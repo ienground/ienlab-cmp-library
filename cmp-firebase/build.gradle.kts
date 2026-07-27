@@ -40,6 +40,8 @@ kotlin {
             implementation(libs.compose.material3)
 
             implementation(libs.kdatetime)
+            implementation(libs.kotlin.coroutine)
+            api(libs.firebase.auth)
             implementation(libs.firebase.firestore)
         }
 
@@ -49,7 +51,11 @@ kotlin {
 
         androidMain.dependencies {
             implementation(libs.firebase.common.android)
+            api(libs.firebase.auth.android)
             implementation(libs.firebase.firestore.android)
+            implementation(libs.androidx.credentials)
+            implementation(libs.androidx.credentials.play.services)
+            implementation(libs.googleid)
         }
 
         getByName("androidDeviceTest").dependencies {
