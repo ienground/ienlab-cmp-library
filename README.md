@@ -50,9 +50,12 @@ your-android-app/
     ...>
 ```
 
-            initKoin {
-                androidContext(this@MyApplication.applicationContext)
-            }
+```kotlin
+class MyApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        initKoin {
+            androidContext(this@MyApplication.applicationContext)
         }
     }
 }
@@ -128,7 +131,6 @@ Firebase Console → Project settings → 일반 → 내 앱 (iOS) → `GoogleSe
 ```
 your-ios-app/
   └── GoogleService-Info.plist    <-- Xcode 프로젝트의 iosApp 그룹 아래에 배치
-```
 
 `.gitignore`에 포함하여 커밋되지 않도록 합니다.
 
@@ -283,7 +285,7 @@ Xcode 프로젝트에 "Compile Kotlin Framework" 빌드 페이즈가 있어야 K
 
 ```sh
 cd "$SRCROOT/.."
-./gradlew :example:composeApp:embedAndSignAppleFrameworkForXcode
+../gradlew :example:composeApp:embedAndSignAppleFrameworkForXcode
 ```
 
 ---

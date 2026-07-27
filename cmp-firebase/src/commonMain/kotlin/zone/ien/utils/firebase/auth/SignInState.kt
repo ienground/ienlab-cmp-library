@@ -60,11 +60,12 @@ fun rememberFirebaseSignInState(
     if (LocalInspectionMode.current) return NoOpSignInState
 
     val scope = rememberCoroutineScope()
-    val resolvedAuthenticator = authenticator ?: remember { FirebaseAuthenticator() }
+    val rememberedAuthenticator = remember { FirebaseAuthenticator() }
+    val resolvedAuthenticator = authenticator ?: rememberedAuthenticator
     val currentProvider by rememberUpdatedState(provider)
     val currentLinkAccount by rememberUpdatedState(linkAccount)
     val currentOnResult by rememberUpdatedState(onResult)
-
+ 
     return remember(scope, resolvedAuthenticator) {
         LaunchingSignInState(scope) {
             currentOnResult(

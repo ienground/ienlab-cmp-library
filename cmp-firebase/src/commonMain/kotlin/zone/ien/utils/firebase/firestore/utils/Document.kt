@@ -12,5 +12,5 @@ import zone.ien.firebase.firestore.snapshots
  */
 fun DocumentReference.getSnapshots(cache: Boolean = true) =
     snapshots(includeMetadataChanges = !cache)
-        .filter { it?.metadata?.isFromCache == false || cache }
+        .filter { it != null && (it.metadata.isFromCache == false || cache) }
 
