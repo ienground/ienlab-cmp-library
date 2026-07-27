@@ -1,7 +1,8 @@
 package zone.ien.utils.firebase.firestore.utils
 
-import dev.gitlive.firebase.firestore.DocumentReference
-import dev.gitlive.firebase.firestore.FieldValue
+import zone.ien.firebase.firestore.DocumentReference
+import zone.ien.firebase.firestore.FieldValue
+
 
 /**
  * 문서를 삭제 상태로 변경하는 함수
@@ -25,8 +26,8 @@ suspend fun DocumentReference.undel() {
  * @property deletedAt 삭제 서버 타임스탬프
  */
 private val DeleteHashMap = hashMapOf(
-    "updateAt" to FieldValue.serverTimestamp,
-    "deletedAt" to FieldValue.serverTimestamp
+    "updateAt" to FieldValue.serverTimestamp(),
+    "deletedAt" to FieldValue.serverTimestamp()
 )
 
 /**
@@ -35,7 +36,7 @@ private val DeleteHashMap = hashMapOf(
  * @property deletedAt 삭제 일시 (null)
  */
 private val UndeleteHashMap = hashMapOf(
-    "updateAt" to FieldValue.serverTimestamp,
+    "updateAt" to FieldValue.serverTimestamp(),
     "deletedAt" to null
 )
 

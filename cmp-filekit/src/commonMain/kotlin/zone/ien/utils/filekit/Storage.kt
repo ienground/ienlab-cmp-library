@@ -1,9 +1,8 @@
 package zone.ien.utils.filekit
 
-import dev.gitlive.firebase.storage.Data
-import dev.gitlive.firebase.storage.FirebaseStorageMetadata
-import dev.gitlive.firebase.storage.StorageReference
 import io.github.vinceglb.filekit.PlatformFile
+import zone.ien.firebase.storage.FirebaseStorageMetadata
+import zone.ien.firebase.storage.StorageReference
 
 /**
  * Firebase Storage에 파일을 업로드하는 예상 함수

@@ -1,9 +1,9 @@
 package zone.ien.utils.filekit
 
-import dev.gitlive.firebase.storage.File
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.path
 import platform.Foundation.NSURL
+import zone.ien.firebase.storage.File
 
 /**
  * PlatformFile을 Apple File 객체로 변환합니다.

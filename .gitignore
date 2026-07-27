@@ -11,3 +11,9 @@ xcuserdata
 .kotlin
 #So we don't accidentally commit our private keys
 *.gpg
+
+example/androidApp/google-services.json
+example/iosApp/iosApp/GoogleService-Info.plist
+# KMP iOS linked package (build generated)
+example/iosApp/KotlinMultiplatformLinkedPackage/
+example/iosApp/iosApp.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/

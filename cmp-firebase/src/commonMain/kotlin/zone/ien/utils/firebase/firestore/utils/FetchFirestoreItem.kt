@@ -1,17 +1,22 @@
 package zone.ien.utils.firebase.firestore.utils
 
-import dev.gitlive.firebase.firestore.CollectionReference
-import dev.gitlive.firebase.firestore.DocumentSnapshot
-import dev.gitlive.firebase.firestore.FieldPath
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import zone.ien.firebase.firestore.CollectionReference
+import zone.ien.firebase.firestore.DocumentSnapshot
+import zone.ien.firebase.firestore.FieldPath
+import zone.ien.firebase.firestore.documentId
+import zone.ien.firebase.firestore.documents
+import zone.ien.firebase.firestore.where
 import zone.ien.utils.firebase.firestore.model.BaseFirestoreItem
+import kotlin.collections.associateBy
 
 suspend fun <T : BaseFirestoreItem> fetchItems(
     collection: CollectionReference,

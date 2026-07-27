@@ -19,6 +19,7 @@ import zone.ien.utils.example.ui.screens.playground.PlaygroundScreen
 import zone.ien.utils.example.ui.screens.playground.IenPlaygroundScreen
 import zone.ien.utils.example.ui.screens.section.SectionScreen
 import zone.ien.utils.example.ui.screens.settings.SettingsScreen
+import zone.ien.utils.example.ui.screens.auth.FirebaseAuthScreen
 import zone.ien.utils.navigation.BaseNavDisplay
 import zone.ien.utils.navigation.getConfig
 import zone.ien.utils.navigation.navigateBack
@@ -36,6 +37,7 @@ sealed interface RootRoute: NavKey {
     @Serializable data object Navigation: RootRoute
     @Serializable data object DesignSystem: RootRoute
     @Serializable data object ColorTokens: RootRoute
+    @Serializable data object FirebaseAuth: RootRoute
 }
 
 @Composable
@@ -99,6 +101,11 @@ fun RootNavigationGraph(
             }
             entry<RootRoute.ColorTokens> {
                 ColorTokenScreen(
+                    navigateBack = { backStack.navigateBack() }
+                )
+            }
+            entry<RootRoute.FirebaseAuth> {
+                FirebaseAuthScreen(
                     navigateBack = { backStack.navigateBack() }
                 )
             }

@@ -1,6 +1,6 @@
 package zone.ien.utils.firebase.firestore.model
 
-import dev.gitlive.firebase.firestore.DocumentSnapshot
+import zone.ien.firebase.firestore.DocumentSnapshot
 
 /**
  * 무한 스크롤 상태 리스트 인터페이스

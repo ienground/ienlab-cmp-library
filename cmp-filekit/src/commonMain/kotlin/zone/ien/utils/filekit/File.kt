@@ -1,11 +1,11 @@
 package zone.ien.utils.filekit
 
-import dev.gitlive.firebase.storage.File
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.ImageFormat
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.compressImage
 import io.github.vinceglb.filekit.readBytes
+import zone.ien.firebase.storage.File
 
 /**
  * PlatformFile을 파일 객체로 변환하는 Expect 함수입니다.

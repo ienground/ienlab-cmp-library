@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0EE606C716D804BE9970674E /* KotlinMultiplatformLinkedPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 9957BB43F9DEDC9B88D34991 /* KotlinMultiplatformLinkedPackage */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		3A70B7FFD2EF9475B39878DC /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -41,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0EE606C716D804BE9970674E /* KotlinMultiplatformLinkedPackage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +90,7 @@
 			);
 			name = iosApp;
 			packageProductDependencies = (
+				9957BB43F9DEDC9B88D34991 /* KotlinMultiplatformLinkedPackage */,
 			);
 			productName = iosApp;
 			productReference = 3A70B7FFD2EF9475B39878DC /* Example.app */;
@@ -114,6 +120,9 @@
 			);
 			mainGroup = E0D5208EC197DC2AAFCBD5F8;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CB60BFA712E5053C30B9C655 /* XCLocalSwiftPackageReference "KotlinMultiplatformLinkedPackage" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9A4064F9F00428CC8A74D355 /* Products */;
 			projectDirPath = "";
@@ -173,6 +182,7 @@
 				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = iosApp/iosApp.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
@@ -259,6 +269,7 @@
 				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = iosApp/iosApp.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
@@ -368,6 +379,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		CB60BFA712E5053C30B9C655 /* XCLocalSwiftPackageReference "KotlinMultiplatformLinkedPackage" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = KotlinMultiplatformLinkedPackage;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9957BB43F9DEDC9B88D34991 /* KotlinMultiplatformLinkedPackage */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = KotlinMultiplatformLinkedPackage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A8E4552D1C27948C03A84D99 /* Project object */;
 }
