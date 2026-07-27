@@ -40,6 +40,8 @@ kotlin {
             implementation(libs.compose.material3)
 
             implementation(libs.kdatetime)
+            implementation(libs.kotlin.coroutine)
+            implementation(libs.firebase.auth)
             implementation(libs.firebase.firestore)
         }
 
@@ -49,6 +51,7 @@ kotlin {
 
         androidMain.dependencies {
             implementation(libs.firebase.common.android)
+            implementation(libs.firebase.auth.android)
             implementation(libs.firebase.firestore.android)
         }
 

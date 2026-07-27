@@ -65,9 +65,10 @@ kotlin {
             implementation(projects.cmpIcon)
             implementation(projects.cmpUtils)
             implementation(projects.cmpNavigation)
-            implementation(projects.cmpPref)
-            implementation(projects.cmpFilekit)
-        }
+           implementation(projects.cmpPref)
+           implementation(projects.cmpFilekit)
+           implementation(projects.cmpFirebase)
+       }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }

@@ -16,6 +16,7 @@ kmp-firebase = "1.0.0-beta08"
 firebase-firestore = "26.4.1"
 firebase-storage = "22.0.1"
 firebase-common = "22.1.0"
+firebase-auth = "24.1.0"
 
 # ui
 activity-compose = "1.13.0"
@@ -51,8 +52,10 @@ androidx-core = "1.19.0"
 
 # firebase
 firebase-firestore = { group = "zone.ien.firebase", name = "firebase-firestore", version.ref = "kmp-firebase" }
+firebase-auth = { group = "zone.ien.firebase", name = "firebase-auth", version.ref = "kmp-firebase" }
 firebase-storage = { group = "zone.ien.firebase", name = "firebase-storage", version.ref = "kmp-firebase" }
 firebase-firestore-android = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebase-firestore" }
+firebase-auth-android = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebase-auth" }
 firebase-storage-android = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebase-storage" }
 firebase-common-android = { group = "com.google.firebase", name = "firebase-common", version.ref = "firebase-common" }
 

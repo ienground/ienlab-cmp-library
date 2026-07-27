@@ -473,6 +473,15 @@ fun HomeScreen(
                 ) {
                     IenText(text = "Navigation")
                 }
+                Box(
+                    modifier = Modifier
+                        .clickable { backStack.add(RootRoute.FirebaseAuth) }
+                        .fillMaxWidth()
+                        .height(400.dp)
+                        .background(Color(0xFFE65100))
+                ) {
+                    IenText(text = "Firebase Auth")
+                }
                 IenTextField(
                     value = nativeInputText,
                     onValueChange = { nativeInputText = it },
