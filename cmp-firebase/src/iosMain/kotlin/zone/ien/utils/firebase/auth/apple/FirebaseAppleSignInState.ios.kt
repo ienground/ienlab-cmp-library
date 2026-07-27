@@ -36,6 +36,7 @@ import platform.Security.SecRandomCopyBytes
 import platform.Security.errSecSuccess
 import platform.Security.kSecRandomDefault
 import platform.UIKit.UIApplication
+import platform.UIKit.UIWindowScene
 import platform.darwin.NSObject
 import swiftPMImport.zone.ien.firebase.firebase.auth.FIRAuth
 import swiftPMImport.zone.ien.firebase.firebase.auth.FIRAuthDataResult
@@ -172,8 +173,7 @@ private class ApplePresentationContextProvider :
     override fun presentationAnchorForAuthorizationController(
         controller: ASAuthorizationController,
     ): ASPresentationAnchor {
-        val rootViewController = UIApplication.sharedApplication.keyWindow?.rootViewController
-        return rootViewController?.view?.window
+        return findRootViewController()?.view?.window
     }
 }
 
@@ -257,3 +257,16 @@ private fun sha256Hex(input: String): String {
     }
     return hashedData.toByteArray().toHexString(HexFormat.Default)
 }
+
+
+/** iOS 13.0+에서는 connectedScenes, 이전 버전에서는 keyWindow 폴백 */
+private fun findRootViewController(): UIViewController? {
+    val scenes = UIApplication.sharedApplication.connectedScenes
+    for (scene in scenes) {
+        val windowScene = scene as? UIWindowScene ?: continue
+        val vc = windowScene.keyWindow?.rootViewController ?: continue
+        return vc
+    }
+    return UIApplication.sharedApplication.keyWindow?.rootViewController
+}
+

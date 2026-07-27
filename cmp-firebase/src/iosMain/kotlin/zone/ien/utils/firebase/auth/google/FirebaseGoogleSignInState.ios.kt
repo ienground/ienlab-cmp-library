@@ -10,6 +10,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.Foundation.NSError
 import platform.UIKit.UIApplication
+import platform.UIKit.UIWindowScene
 import platform.UIKit.UIViewController
 import platform.darwin.NSObject
 import swiftPMImport.zone.ien.firebase.firebase.auth.FIRAuth
@@ -65,7 +66,7 @@ internal class IosAuthUIDelegate : FIRAuthUIDelegateProtocol, NSObject() {
         animated: Boolean,
         completion: (() -> Unit)?,
     ) {
-        val rootViewController = UIApplication.sharedApplication.keyWindow?.rootViewController
+        val rootViewController = findRootViewController()
         rootViewController?.presentViewController(viewControllerToPresent, animated = animated, completion = completion)
     }
 
@@ -73,8 +74,21 @@ internal class IosAuthUIDelegate : FIRAuthUIDelegateProtocol, NSObject() {
         flag: Boolean,
         completion: (() -> Unit)?,
     ) {
-        val rootViewController = UIApplication.sharedApplication.keyWindow?.rootViewController
+        val rootViewController = findRootViewController()
         rootViewController?.dismissViewControllerAnimated(flag, completion = completion)
+    }
+
+    companion object {
+        /** iOS 13.0+에서는 connectedScenes, 이전 버전에서는 keyWindow 폴백 */
+        private fun findRootViewController(): UIViewController? {
+            val scenes = UIApplication.sharedApplication.connectedScenes
+            for (scene in scenes) {
+                val windowScene = scene as? UIWindowScene ?: continue
+                val vc = windowScene.keyWindow?.rootViewController ?: continue
+                return vc
+            }
+            return UIApplication.sharedApplication.keyWindow?.rootViewController
+        }
     }
 }
 

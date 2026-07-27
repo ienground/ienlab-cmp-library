@@ -25,17 +25,13 @@ import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.firebase.auth.apple.rememberFirebaseAppleSignInState
-import zone.ien.utils.firebase.auth.google.GoogleAuthCredentials
-import zone.ien.utils.firebase.auth.google.GoogleAuthProvider
 import zone.ien.utils.firebase.auth.google.rememberFirebaseGoogleSignInState
-import zone.ien.utils.example.BuildKonfig
 import zone.ien.utils.ui.interactive.IenButton
 import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.TopBarMode
 
-import zone.ien.utils.utils.Dlog
 import zone.ien.utils.example.TAG
 
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -48,15 +44,7 @@ fun FirebaseAuthScreen(
     var lastResult by remember { mutableStateOf<Result<FirebaseUser?>?>(null) }
     var currentUser by remember { mutableStateOf<FirebaseUser?>(null) }
 
-    Dlog.d(TAG, "Client ${BuildKonfig.GCP_WEB_CLIENT_ID}")
-    remember {
-        // 1. BuildKonfig를 통한 GCP_WEB_CLIENT_ID 등록 (앱 시작 시 1회 호출)
-        GoogleAuthProvider.create(
-            credentials = GoogleAuthCredentials(serverId = BuildKonfig.GCP_WEB_CLIENT_ID)
-        )
-    }
-
-    // 2. KMPAuth 호환 구글 로그인 State
+    // 1. KMPAuth 호환 구글 로그인 State
     val googleSignInState = rememberFirebaseGoogleSignInState(
         onResult = { result ->
             lastResult = result
@@ -64,7 +52,7 @@ fun FirebaseAuthScreen(
         }
     )
 
-    // 3. KMPAuth 호환 애플 로그인 State (iOS 전용/서버 ID 불필요)
+    // 2. KMPAuth 호환 애플 로그인 State (iOS 전용/서버 ID 불필요)
     val appleSignInState = rememberFirebaseAppleSignInState(
         onResult = { result ->
             lastResult = result
