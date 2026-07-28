@@ -12,6 +12,8 @@ xcuserdata
 #So we don't accidentally commit our private keys
 *.gpg
 
+.swiftpm-locks
+
 example/androidApp/google-services.json
 example/iosApp/iosApp/GoogleService-Info.plist
 # KMP iOS linked package (build generated)
