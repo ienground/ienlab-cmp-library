@@ -499,7 +499,7 @@ private fun IenAnimatedChipSlot(
     val instantAnimationMillis = IenTheme.motion.instantMillis
     AnimatedContent(
         targetState = content,
-        contentKey = { it != null },
+        contentKey = { it },
         transitionSpec = {
             (fadeIn(tween(fastAnimationMillis)) +
                 scaleIn(tween(fastAnimationMillis), initialScale = 0.82f)) togetherWith
