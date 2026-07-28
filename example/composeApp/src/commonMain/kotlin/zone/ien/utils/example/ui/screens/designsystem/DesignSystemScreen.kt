@@ -182,6 +182,15 @@ import zone.ien.utils.ui.interactive.IenButtonDefault
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenAssistChip
+import zone.ien.utils.ui.interactive.IenChipDefault
+import zone.ien.utils.ui.interactive.IenChipState
+import zone.ien.utils.ui.interactive.IenElevatedAssistChip
+import zone.ien.utils.ui.interactive.IenElevatedFilterChip
+import zone.ien.utils.ui.interactive.IenElevatedSuggestionChip
+import zone.ien.utils.ui.interactive.IenFilterChip
+import zone.ien.utils.ui.interactive.IenInputChip
+import zone.ien.utils.ui.interactive.IenSuggestionChip
 import zone.ien.utils.ui.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.interactive.IenClearableTextField
 import zone.ien.utils.ui.interactive.IenFullSecureKeyboard
@@ -319,6 +328,7 @@ fun DesignSystemScreen(
                 BottomSheetSection()
                 BubbleSection()
                 ButtonSection()
+                ChipSection()
                 CheckboxSection()
                 FabSection()
                 HighlightSection()
@@ -786,6 +796,95 @@ fun ButtonSection() {
                         contentDescription = null,
                     )
                 }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ChipSection() {
+    IenTheme {
+        var filterSelected by remember { mutableStateOf(false) }
+        var elevatedFilterSelected by remember { mutableStateOf(true) }
+        var inputSelected by remember { mutableStateOf(true) }
+
+        ComponentSection(title = "Chip") {
+            IenText("Assist", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+            ) {
+                IenAssistChip(
+                    onClick = {},
+                    leadingIcon = { IenIcon(M3SystemIcons.Filled.Check, contentDescription = null) },
+                ) { IenText("Assist") }
+                IenElevatedAssistChip(onClick = {}) { IenText("Elevated") }
+                IenAssistChip(onClick = {}, state = IenChipState(loading = true)) { IenText("Loading") }
+                IenAssistChip(onClick = {}, state = IenChipState(enabled = false)) { IenText("Disabled") }
+            }
+
+            IenText("Filter", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+            ) {
+                IenFilterChip(
+                    selected = filterSelected,
+                    onSelectedChange = { filterSelected = it },
+                    colors = IenChipDefault.colors(
+                        tone = if (filterSelected) IenSemanticTone.Success else IenSemanticTone.Brand,
+                    ),
+                    leadingIcon = if (filterSelected) {
+                        { IenIcon(M3SystemIcons.Filled.Check, contentDescription = null) }
+                    } else {
+                        null
+                    },
+                ) { IenText("Filter") }
+                IenElevatedFilterChip(
+                    selected = elevatedFilterSelected,
+                    onSelectedChange = { elevatedFilterSelected = it },
+                ) { IenText("Elevated") }
+            }
+
+            IenText("Input", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            IenInputChip(
+                selected = inputSelected,
+                onSelectedChange = { inputSelected = it },
+                avatar = {
+                    Box(
+                        modifier = Modifier
+                            .size(IenTheme.icon.md)
+                            .clip(CircleShape)
+                            .background(IenTheme.colors.surfaceRaised),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        IenText("I", style = IenTheme.typography.caption)
+                    }
+                },
+                trailingIcon = { IenIcon(M3SystemIcons.Filled.Close, contentDescription = "입력 제거") },
+            ) { IenText("Input") }
+
+            IenText("Suggestion", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+            ) {
+                IenSuggestionChip(onClick = {}) { IenText("Suggestion") }
+                IenElevatedSuggestionChip(
+                    onClick = {},
+                    icon = { IenIcon(M3SystemIcons.Filled.Check, contentDescription = null) },
+                ) { IenText("Elevated") }
+                IenSuggestionChip(
+                    onClick = {},
+                    colors = IenChipDefault.colors(
+                        container = Color(0xFF7C3AED),
+                        content = Color.White,
+                        containerBrush = Brush.linearGradient(
+                            listOf(Color(0xFF7C3AED), Color(0xFFEC4899)),
+                        ),
+                    ),
+                ) { IenText("Gradient") }
             }
         }
     }
