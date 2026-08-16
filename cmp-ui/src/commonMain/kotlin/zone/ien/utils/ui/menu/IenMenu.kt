@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +44,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -97,7 +99,6 @@ internal fun IenAnimatedPopup(
                 )
             }
             keepPopupVisible = false
-            popupPositioned = false
         }
     }
 
@@ -107,6 +108,9 @@ internal fun IenAnimatedPopup(
             onDismissRequest = onDismissRequest,
             properties = properties,
         ) {
+            DisposableEffect(Unit) {
+                onDispose { popupPositioned = false }
+            }
             Box(
                 modifier = Modifier
                     .onGloballyPositioned { popupPositioned = true }
@@ -122,6 +126,35 @@ internal fun IenAnimatedPopup(
                 content()
             }
         }
+    }
+}
+
+internal fun createPopupPositionProvider(
+    density: Density,
+    shadowPadding: Dp,
+    offset: DpOffset,
+    cardPosition: (anchorBounds: IntRect, cardSize: IntSize, offsetX: Int, offsetY: Int) -> IntOffset,
+): PopupPositionProvider = object : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize,
+    ): IntOffset {
+        val offsetX = with(density) { offset.x.roundToPx() }
+        val offsetY = with(density) { offset.y.roundToPx() }
+        val shadowPaddingPx = with(density) { shadowPadding.roundToPx() }
+        val cardSize = IntSize(
+            width = (popupContentSize.width - shadowPaddingPx * 2).coerceAtLeast(0),
+            height = (popupContentSize.height - shadowPaddingPx * 2).coerceAtLeast(0),
+        )
+        val cardOffset = cardPosition(anchorBounds, cardSize, offsetX, offsetY)
+        val clampedCardX = cardOffset.x.coerceIn(8, maxOf(8, windowSize.width - cardSize.width - 8))
+        val clampedCardY = cardOffset.y.coerceIn(8, maxOf(8, windowSize.height - cardSize.height - 8))
+        return IntOffset(
+            x = clampedCardX - shadowPaddingPx,
+            y = clampedCardY - shadowPaddingPx,
+        )
     }
 }
 
@@ -436,35 +469,15 @@ object IenMenu {
             expanded = expanded,
             onDismissRequest = onDismissRequest,
             popupPositionProvider = remember(offset, placement, density) {
-                object : PopupPositionProvider {
-                    override fun calculatePosition(
-                        anchorBounds: IntRect,
-                        windowSize: IntSize,
-                        layoutDirection: LayoutDirection,
-                        popupContentSize: IntSize,
-                    ): IntOffset {
-                        val offsetX = with(density) { offset.x.roundToPx() }
-                        val offsetY = with(density) { offset.y.roundToPx() }
-                        val shadowPadding = with(density) { ShadowPadding.roundToPx() }
-                        val cardSize = IntSize(
-                            width = (popupContentSize.width - shadowPadding * 2).coerceAtLeast(0),
-                            height = (popupContentSize.height - shadowPadding * 2).coerceAtLeast(0),
-                        )
-                        val cardX = placement.menuX(anchorBounds, cardSize, offsetX)
-                        val cardY = placement.menuY(anchorBounds, cardSize, offsetY)
-                        val clampedCardX = cardX.coerceIn(
-                            8,
-                            maxOf(8, windowSize.width - cardSize.width - 8),
-                        )
-                        val clampedCardY = cardY.coerceIn(
-                            8,
-                            maxOf(8, windowSize.height - cardSize.height - 8),
-                        )
-                        return IntOffset(
-                            x = clampedCardX - shadowPadding,
-                            y = clampedCardY - shadowPadding,
-                        )
-                    }
+                createPopupPositionProvider(
+                    density = density,
+                    shadowPadding = ShadowPadding,
+                    offset = offset,
+                ) { anchorBounds, cardSize, offsetX, offsetY ->
+                    IntOffset(
+                        x = placement.menuX(anchorBounds, cardSize, offsetX),
+                        y = placement.menuY(anchorBounds, cardSize, offsetY),
+                    )
                 }
             },
             properties = properties,
@@ -585,35 +598,15 @@ object IenMenu {
                 expanded = expanded,
                 onDismissRequest = requestClose,
                 popupPositionProvider = remember(offset, placement, density) {
-                    object : PopupPositionProvider {
-                        override fun calculatePosition(
-                            anchorBounds: IntRect,
-                            windowSize: IntSize,
-                            layoutDirection: LayoutDirection,
-                            popupContentSize: IntSize,
-                        ): IntOffset {
-                            val offsetX = with(density) { offset.x.roundToPx() }
-                            val offsetY = with(density) { offset.y.roundToPx() }
-                            val shadowPadding = with(density) { ShadowPadding.roundToPx() }
-                            val cardSize = IntSize(
-                                width = (popupContentSize.width - shadowPadding * 2).coerceAtLeast(0),
-                                height = (popupContentSize.height - shadowPadding * 2).coerceAtLeast(0),
-                            )
-                            val cardX = placement.menuX(anchorBounds, cardSize, offsetX)
-                            val cardY = placement.menuY(anchorBounds, cardSize, offsetY)
-                            val clampedCardX = cardX.coerceIn(
-                                8,
-                                maxOf(8, windowSize.width - cardSize.width - 8),
-                            )
-                            val clampedCardY = cardY.coerceIn(
-                                8,
-                                maxOf(8, windowSize.height - cardSize.height - 8),
-                            )
-                            return IntOffset(
-                                x = clampedCardX - shadowPadding,
-                                y = clampedCardY - shadowPadding,
-                            )
-                        }
+                    createPopupPositionProvider(
+                        density = density,
+                        shadowPadding = ShadowPadding,
+                        offset = offset,
+                    ) { anchorBounds, cardSize, offsetX, offsetY ->
+                        IntOffset(
+                            x = placement.menuX(anchorBounds, cardSize, offsetX),
+                            y = placement.menuY(anchorBounds, cardSize, offsetY),
+                        )
                     }
                 },
                 properties = properties,

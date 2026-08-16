@@ -29,11 +29,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenTheme
@@ -90,33 +86,19 @@ fun IenDropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest,
         popupPositionProvider = remember(offset, density, shadowPadding, matchAnchorTop) {
-            object : PopupPositionProvider {
-                override fun calculatePosition(
-                    anchorBounds: IntRect,
-                    windowSize: IntSize,
-                    layoutDirection: LayoutDirection,
-                    popupContentSize: IntSize,
-                ): IntOffset {
-                    val offsetX = with(density) { offset.x.roundToPx() }
-                    val offsetY = with(density) { offset.y.roundToPx() }
-                    val shadowPaddingPx = with(density) { shadowPadding.roundToPx() }
-                    val cardSize = IntSize(
-                        width = (popupContentSize.width - shadowPaddingPx * 2).coerceAtLeast(0),
-                        height = (popupContentSize.height - shadowPaddingPx * 2).coerceAtLeast(0),
-                    )
-                    val cardX = anchorBounds.right - cardSize.width + offsetX
-                    val cardY = if (matchAnchorTop) {
+            createPopupPositionProvider(
+                density = density,
+                shadowPadding = shadowPadding,
+                offset = offset,
+            ) { anchorBounds, cardSize, offsetX, offsetY ->
+                IntOffset(
+                    x = anchorBounds.right - cardSize.width + offsetX,
+                    y = if (matchAnchorTop) {
                         anchorBounds.top + offsetY
                     } else {
                         anchorBounds.bottom + offsetY
-                    }
-                    val clampedCardX = cardX.coerceIn(8, maxOf(8, windowSize.width - cardSize.width - 8))
-                    val clampedCardY = cardY.coerceIn(8, maxOf(8, windowSize.height - cardSize.height - 8))
-                    return IntOffset(
-                        x = clampedCardX - shadowPaddingPx,
-                        y = clampedCardY - shadowPaddingPx,
-                    )
-                }
+                    },
+                )
             }
         },
         properties = properties,
