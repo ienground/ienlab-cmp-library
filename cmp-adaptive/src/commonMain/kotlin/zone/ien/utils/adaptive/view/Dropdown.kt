@@ -76,7 +76,7 @@ fun AdaptiveDropdownBox(
         modifier = modifier.graphicsLayer { clip = false }
     ) {
         val alpha by animateFloatAsState(
-            targetValue = if (expanded) 0.001f else 1f,
+            targetValue = dropdownTriggerVisibilityScale(expanded),
             animationSpec = spring(1.2f)
         )
 
@@ -90,7 +90,12 @@ fun AdaptiveDropdownBox(
         ) {
             trigger()
         }
-        dropdown()
+        Box(
+            modifier = Modifier.matchParentSize(),
+            propagateMinConstraints = true,
+        ) {
+            dropdown()
+        }
     }
 //    AdaptiveWidget(
 //        material = {
@@ -127,6 +132,9 @@ fun AdaptiveDropdownBox(
 //        }
 //    )
 }
+
+internal fun dropdownTriggerVisibilityScale(expanded: Boolean): Float =
+    if (expanded) 0.001f else 1f
 
 /**
  * 적응형 드롭다운 메뉴 컴포저블

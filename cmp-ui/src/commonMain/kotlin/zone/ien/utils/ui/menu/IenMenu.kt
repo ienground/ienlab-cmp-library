@@ -1,13 +1,8 @@
 package zone.ien.utils.ui.menu
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -42,6 +37,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -63,6 +59,71 @@ import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.instantPress
+
+@Composable
+internal fun IenAnimatedPopup(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    popupPositionProvider: PopupPositionProvider,
+    properties: PopupProperties,
+    transformOrigin: TransformOrigin,
+    content: @Composable () -> Unit,
+) {
+    val motion = IenTheme.motion
+    var keepPopupVisible by remember { mutableStateOf(expanded) }
+    var popupPositioned by remember { mutableStateOf(false) }
+    val progress = remember { Animatable(0f) }
+
+    LaunchedEffect(expanded, popupPositioned) {
+        if (expanded) {
+            keepPopupVisible = true
+            if (popupPositioned) {
+                progress.animateTo(
+                    targetValue = 1f,
+                    animationSpec = tween(
+                        durationMillis = motion.normalMillis,
+                        easing = motion.standardEasing,
+                    ),
+                )
+            }
+        } else {
+            if (keepPopupVisible) {
+                progress.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(
+                        durationMillis = motion.fastMillis,
+                        easing = motion.standardEasing,
+                    ),
+                )
+            }
+            keepPopupVisible = false
+            popupPositioned = false
+        }
+    }
+
+    if (keepPopupVisible) {
+        Popup(
+            popupPositionProvider = popupPositionProvider,
+            onDismissRequest = onDismissRequest,
+            properties = properties,
+        ) {
+            Box(
+                modifier = Modifier
+                    .onGloballyPositioned { popupPositioned = true }
+                    .graphicsLayer {
+                        val scale = 0.92f + 0.08f * progress.value
+                        scaleX = scale
+                        scaleY = scale
+                        alpha = progress.value
+                        this.transformOrigin = transformOrigin
+                        clip = false
+                    },
+            ) {
+                content()
+            }
+        }
+    }
+}
 
 /**
  * 앵커 컴포저블을 감싸서 팝업 메뉴를 표시하는 유틸리티 오브젝트입니다.
@@ -371,74 +432,55 @@ object IenMenu {
         content: @Composable ColumnScope.() -> Unit,
     ) {
         val density = LocalDensity.current
-        val visibilityState = remember { MutableTransitionState(false) }
-        LaunchedEffect(expanded) {
-            visibilityState.targetState = expanded
-        }
-
-        if (visibilityState.currentState || visibilityState.targetState) {
-            Popup(
-                popupPositionProvider = remember(offset, placement, density) {
-                    object : PopupPositionProvider {
-                        override fun calculatePosition(
-                            anchorBounds: IntRect,
-                            windowSize: IntSize,
-                            layoutDirection: LayoutDirection,
-                            popupContentSize: IntSize,
-                        ): IntOffset {
-                            val offsetX = with(density) { offset.x.roundToPx() }
-                            val offsetY = with(density) { offset.y.roundToPx() }
-                            val shadowPadding = with(density) { ShadowPadding.roundToPx() }
-                            val cardSize = IntSize(
-                                width = (popupContentSize.width - shadowPadding * 2).coerceAtLeast(0),
-                                height = (popupContentSize.height - shadowPadding * 2).coerceAtLeast(0),
-                            )
-                            val cardX = placement.menuX(anchorBounds, cardSize, offsetX)
-                            val cardY = placement.menuY(anchorBounds, cardSize, offsetY)
-                            val clampedCardX = cardX.coerceIn(
-                                8,
-                                maxOf(8, windowSize.width - cardSize.width - 8),
-                            )
-                            val clampedCardY = cardY.coerceIn(
-                                8,
-                                maxOf(8, windowSize.height - cardSize.height - 8),
-                            )
-                            return IntOffset(
-                                x = clampedCardX - shadowPadding,
-                                y = clampedCardY - shadowPadding,
-                            )
-                        }
+        IenAnimatedPopup(
+            expanded = expanded,
+            onDismissRequest = onDismissRequest,
+            popupPositionProvider = remember(offset, placement, density) {
+                object : PopupPositionProvider {
+                    override fun calculatePosition(
+                        anchorBounds: IntRect,
+                        windowSize: IntSize,
+                        layoutDirection: LayoutDirection,
+                        popupContentSize: IntSize,
+                    ): IntOffset {
+                        val offsetX = with(density) { offset.x.roundToPx() }
+                        val offsetY = with(density) { offset.y.roundToPx() }
+                        val shadowPadding = with(density) { ShadowPadding.roundToPx() }
+                        val cardSize = IntSize(
+                            width = (popupContentSize.width - shadowPadding * 2).coerceAtLeast(0),
+                            height = (popupContentSize.height - shadowPadding * 2).coerceAtLeast(0),
+                        )
+                        val cardX = placement.menuX(anchorBounds, cardSize, offsetX)
+                        val cardY = placement.menuY(anchorBounds, cardSize, offsetY)
+                        val clampedCardX = cardX.coerceIn(
+                            8,
+                            maxOf(8, windowSize.width - cardSize.width - 8),
+                        )
+                        val clampedCardY = cardY.coerceIn(
+                            8,
+                            maxOf(8, windowSize.height - cardSize.height - 8),
+                        )
+                        return IntOffset(
+                            x = clampedCardX - shadowPadding,
+                            y = clampedCardY - shadowPadding,
+                        )
                     }
-                },
-                onDismissRequest = onDismissRequest,
-                properties = properties,
-            ) {
-                AnimatedVisibility(
-                    visibleState = visibilityState,
-                    enter = fadeIn(animationSpec = tween(120)) + scaleIn(
-                        initialScale = 0.96f,
-                        transformOrigin = placement.transformOrigin(),
-                        animationSpec = tween(160),
-                    ),
-                    exit = fadeOut(animationSpec = tween(90)) + scaleOut(
-                        targetScale = 0.98f,
-                        transformOrigin = placement.transformOrigin(),
-                        animationSpec = tween(90),
-                    ),
-                ) {
-                    Dropdown(
-                        modifier = modifier,
-                        shape = shape,
-                        containerColor = containerColor,
-                        shadowElevation = shadowElevation,
-                        border = border,
-                        scrollState = scrollState,
-                        minWidth = minWidth,
-                        maxWidth = maxWidth,
-                        content = content,
-                    )
                 }
-            }
+            },
+            properties = properties,
+            transformOrigin = placement.transformOrigin(),
+        ) {
+            Dropdown(
+                modifier = modifier,
+                shape = shape,
+                containerColor = containerColor,
+                shadowElevation = shadowElevation,
+                border = border,
+                scrollState = scrollState,
+                minWidth = minWidth,
+                maxWidth = maxWidth,
+                content = content,
+            )
         }
     }
 
@@ -530,11 +572,6 @@ object IenMenu {
             onClose?.invoke()
         }
 
-        val visibilityState = remember { MutableTransitionState(false) }
-        LaunchedEffect(expanded) {
-            visibilityState.targetState = expanded
-        }
-
         Box(
             modifier = modifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
@@ -544,59 +581,45 @@ object IenMenu {
             ),
         ) {
             children()
-            if (visibilityState.currentState || visibilityState.targetState) {
-                Popup(
-                    popupPositionProvider = remember(offset, placement, density) {
-                        object : PopupPositionProvider {
-                            override fun calculatePosition(
-                                anchorBounds: IntRect,
-                                windowSize: IntSize,
-                                layoutDirection: LayoutDirection,
-                                popupContentSize: IntSize,
-                            ): IntOffset {
-                                val offsetX = with(density) { offset.x.roundToPx() }
-                                val offsetY = with(density) { offset.y.roundToPx() }
-                                val shadowPadding = with(density) { ShadowPadding.roundToPx() }
-                                val cardSize = IntSize(
-                                    width = (popupContentSize.width - shadowPadding * 2).coerceAtLeast(0),
-                                    height = (popupContentSize.height - shadowPadding * 2).coerceAtLeast(0),
-                                )
-                                val cardX = placement.menuX(anchorBounds, cardSize, offsetX)
-                                val cardY = placement.menuY(anchorBounds, cardSize, offsetY)
-                                val clampedCardX = cardX.coerceIn(
-                                    8,
-                                    maxOf(8, windowSize.width - cardSize.width - 8),
-                                )
-                                val clampedCardY = cardY.coerceIn(
-                                    8,
-                                    maxOf(8, windowSize.height - cardSize.height - 8),
-                                )
-                                return IntOffset(
-                                    x = clampedCardX - shadowPadding,
-                                    y = clampedCardY - shadowPadding,
-                                )
-                            }
+            IenAnimatedPopup(
+                expanded = expanded,
+                onDismissRequest = requestClose,
+                popupPositionProvider = remember(offset, placement, density) {
+                    object : PopupPositionProvider {
+                        override fun calculatePosition(
+                            anchorBounds: IntRect,
+                            windowSize: IntSize,
+                            layoutDirection: LayoutDirection,
+                            popupContentSize: IntSize,
+                        ): IntOffset {
+                            val offsetX = with(density) { offset.x.roundToPx() }
+                            val offsetY = with(density) { offset.y.roundToPx() }
+                            val shadowPadding = with(density) { ShadowPadding.roundToPx() }
+                            val cardSize = IntSize(
+                                width = (popupContentSize.width - shadowPadding * 2).coerceAtLeast(0),
+                                height = (popupContentSize.height - shadowPadding * 2).coerceAtLeast(0),
+                            )
+                            val cardX = placement.menuX(anchorBounds, cardSize, offsetX)
+                            val cardY = placement.menuY(anchorBounds, cardSize, offsetY)
+                            val clampedCardX = cardX.coerceIn(
+                                8,
+                                maxOf(8, windowSize.width - cardSize.width - 8),
+                            )
+                            val clampedCardY = cardY.coerceIn(
+                                8,
+                                maxOf(8, windowSize.height - cardSize.height - 8),
+                            )
+                            return IntOffset(
+                                x = clampedCardX - shadowPadding,
+                                y = clampedCardY - shadowPadding,
+                            )
                         }
-                    },
-                    onDismissRequest = requestClose,
-                    properties = properties,
-                ) {
-                    AnimatedVisibility(
-                        visibleState = visibilityState,
-                        enter = fadeIn(animationSpec = tween(120)) + scaleIn(
-                            initialScale = 0.96f,
-                            transformOrigin = placement.transformOrigin(),
-                            animationSpec = tween(160),
-                        ),
-                        exit = fadeOut(animationSpec = tween(90)) + scaleOut(
-                            targetScale = 0.98f,
-                            transformOrigin = placement.transformOrigin(),
-                            animationSpec = tween(90),
-                        ),
-                    ) {
-                        dropdown()
                     }
-                }
+                },
+                properties = properties,
+                transformOrigin = placement.transformOrigin(),
+            ) {
+                dropdown()
             }
         }
     }

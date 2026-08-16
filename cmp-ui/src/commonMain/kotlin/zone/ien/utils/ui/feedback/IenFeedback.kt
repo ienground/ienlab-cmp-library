@@ -81,6 +81,7 @@ import zone.ien.utils.cmp_ui.generated.resources.selected
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.fill.Check
 import zone.ien.utils.icon.remix.fill.Close
+import zone.ien.utils.ui.foundation.IenColorScheme
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.toneGradientBrush
@@ -831,14 +832,14 @@ fun IenSkeleton(
     }
 
     val phase = rememberIenSkeletonPhase()
-    val colors = skeletonColors(background)
+    val color = resolveIenSkeletonColor(background, IenTheme.colors)
 
     if (height != null) {
         IenSkeletonBlock(
             modifier = modifier.fillMaxWidth(),
             height = height,
             radius = radius,
-            color = colors.base,
+            color = color,
             phase = phase,
             animationIndex = 0,
         )
@@ -859,7 +860,7 @@ fun IenSkeleton(
                 element = element,
                 index = index,
                 radius = radius,
-                color = colors.base,
+                color = color,
                 phase = phase,
             )
         }
@@ -953,10 +954,6 @@ sealed interface IenSkeletonElement {
     data class Spacer(val height: Dp) : IenSkeletonElement
 }
 
-private data class IenSkeletonColors(
-    val base: Color,
-)
-
 private const val IenSkeletonMotionDurationMillis = 1200L
 
 private val LocalIenSkeletonBlockMotionEnabled = staticCompositionLocalOf { true }
@@ -1016,19 +1013,13 @@ private fun List<IenSkeletonElement>.withRepeatedLast(repeat: IenSkeletonRepeat)
     return dropLast(1) + List(repeatCount) { last() }
 }
 
-@Composable
-private fun skeletonColors(background: IenSkeletonBackground): IenSkeletonColors = when (background) {
-    IenSkeletonBackground.White -> IenSkeletonColors(
-        base = Color.White,
-    )
-
-    IenSkeletonBackground.Grey -> IenSkeletonColors(
-        base = Color(0xFFF2F4F6),
-    )
-
-    IenSkeletonBackground.GreyOpacity100 -> IenSkeletonColors(
-        base = Color(0x0D022047),
-    )
+internal fun resolveIenSkeletonColor(
+    background: IenSkeletonBackground,
+    colors: IenColorScheme,
+): Color = when (background) {
+    IenSkeletonBackground.White -> colors.surfaceRaised
+    IenSkeletonBackground.Grey -> colors.surfaceVariant
+    IenSkeletonBackground.GreyOpacity100 -> colors.textPrimary.copy(alpha = 0.05f)
 }
 
 @Composable
