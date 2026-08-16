@@ -1,7 +1,5 @@
 package zone.ien.utils.ui.menu
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,12 +17,7 @@ import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -36,15 +29,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import com.kyant.capsule.ContinuousRoundedRectangle
-import kotlinx.coroutines.delay
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
@@ -95,96 +82,52 @@ fun IenDropdownMenu(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val density = LocalDensity.current
-    val motion = IenTheme.motion
-    var keepPopupVisible by remember { mutableStateOf(expanded) }
-    var animatePopupVisible by remember { mutableStateOf(expanded) }
-    val scale by animateFloatAsState(
-        targetValue = if (animatePopupVisible) 1f else 0.96f,
-        animationSpec = tween(
-            durationMillis = if (animatePopupVisible) motion.fastMillis else motion.instantMillis,
-            easing = motion.standardEasing,
-        ),
-        label = "dropdown_scale",
-    )
-    LaunchedEffect(expanded) {
-        if (expanded) {
-            keepPopupVisible = true
-            animatePopupVisible = false
-            withFrameNanos { }
-            animatePopupVisible = true
-        } else {
-            animatePopupVisible = false
-            delay(motion.instantMillis.toLong())
-            keepPopupVisible = false
-        }
-    }
-
-    if (keepPopupVisible) {
-        Popup(
-            popupPositionProvider = remember(offset, density, shadowPadding, matchAnchorTop) {
-                object : PopupPositionProvider {
-                    override fun calculatePosition(
-                        anchorBounds: IntRect,
-                        windowSize: IntSize,
-                        layoutDirection: LayoutDirection,
-                        popupContentSize: IntSize,
-                    ): IntOffset {
-                        val offsetX = with(density) { offset.x.roundToPx() }
-                        val offsetY = with(density) { offset.y.roundToPx() }
-                        val shadowPaddingPx = with(density) { shadowPadding.roundToPx() }
-                        val cardSize = IntSize(
-                            width = (popupContentSize.width - shadowPaddingPx * 2).coerceAtLeast(0),
-                            height = (popupContentSize.height - shadowPaddingPx * 2).coerceAtLeast(0),
-                        )
-                        val cardX = anchorBounds.right - cardSize.width + offsetX
-                        val cardY = if (matchAnchorTop) {
-                            anchorBounds.top + offsetY
-                        } else {
-                            anchorBounds.bottom + offsetY
-                        }
-                        val clampedCardX = cardX.coerceIn(8, maxOf(8, windowSize.width - cardSize.width - 8))
-                        val clampedCardY = cardY.coerceIn(8, maxOf(8, windowSize.height - cardSize.height - 8))
-                        return IntOffset(
-                            x = clampedCardX - shadowPaddingPx,
-                            y = clampedCardY - shadowPaddingPx,
-                        )
-                    }
-                }
-            },
-            onDismissRequest = onDismissRequest,
-            properties = properties,
-        ) {
-            Box(
-                modifier = modifier
-                    .padding(shadowPadding)
-                    .animateContentSizeWithoutClipping()
-                    .graphicsLayer {
-                        clip = false
+    IenAnimatedPopup(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        popupPositionProvider = remember(offset, density, shadowPadding, matchAnchorTop) {
+            createPopupPositionProvider(
+                density = density,
+                shadowPadding = shadowPadding,
+                offset = offset,
+            ) { anchorBounds, cardSize, offsetX, offsetY ->
+                IntOffset(
+                    x = anchorBounds.right - cardSize.width + offsetX,
+                    y = if (matchAnchorTop) {
+                        anchorBounds.top + offsetY
+                    } else {
+                        anchorBounds.bottom + offsetY
                     },
+                )
+            }
+        },
+        properties = properties,
+        transformOrigin = TransformOrigin(1f, 0f),
+    ) {
+        Box(
+            modifier = modifier
+                .padding(shadowPadding)
+                .animateContentSizeWithoutClipping()
+                .graphicsLayer {
+                    clip = false
+                },
+        ) {
+            Surface(
+                modifier = Modifier
+                    .shadow(elevation = shadowElevation, shape = shape, clip = false),
+                shape = shape,
+                color = containerColor,
+                tonalElevation = tonalElevation,
+                shadowElevation = 0.dp,
+                border = border,
             ) {
-                Surface(
+                Column(
                     modifier = Modifier
-                        .graphicsLayer {
-                            scaleX = scale
-                            scaleY = scale
-                            transformOrigin = TransformOrigin(1f, 0f)
-                            clip = false
-                        }
-                        .shadow(elevation = shadowElevation, shape = shape, clip = false),
-                    shape = shape,
-                    color = containerColor,
-                    tonalElevation = tonalElevation,
-                    shadowElevation = 0.dp,
-                    border = border,
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .widthIn(min = 112.dp, max = 280.dp)
-                            .width(IntrinsicSize.Max)
-                            .padding(innerPadding),
-                        content = content,
-                    )
-                }
+                        .widthIn(min = 112.dp, max = 280.dp)
+                        .width(IntrinsicSize.Max)
+                        .padding(innerPadding),
+                    content = content,
+                )
             }
         }
     }
