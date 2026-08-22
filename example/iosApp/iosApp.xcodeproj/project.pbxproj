@@ -11,7 +11,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3A70B7FFD2EF9475B39878DC /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3A70B7FFD2EF9475B39878DC /* "IENLAB Example".app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "\"IENLAB Example\".app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -55,7 +55,7 @@
 		9A4064F9F00428CC8A74D355 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3A70B7FFD2EF9475B39878DC /* Example.app */,
+				3A70B7FFD2EF9475B39878DC /* "IENLAB Example".app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -93,7 +93,7 @@
 				9957BB43F9DEDC9B88D34991 /* KotlinMultiplatformLinkedPackage */,
 			);
 			productName = iosApp;
-			productReference = 3A70B7FFD2EF9475B39878DC /* Example.app */;
+			productReference = 3A70B7FFD2EF9475B39878DC /* "IENLAB Example".app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
