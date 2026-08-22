@@ -6,38 +6,28 @@
     {
       "layers" : [
         {
-          "image-name" : "자산 19.png",
-          "name" : "자산 19"
+          "image-name" : "자산 25.png",
+          "name" : "자산 25"
         },
         {
-          "glass" : true,
-          "hidden" : false,
-          "image-name" : "자산 14.png",
-          "name" : "자산 14"
+          "image-name" : "자산 20.png",
+          "name" : "자산 20"
         },
         {
-          "glass" : true,
-          "hidden" : false,
-          "image-name" : "자산 18.png",
-          "name" : "자산 18"
+          "image-name" : "자산 21.png",
+          "name" : "자산 21"
         },
         {
-          "glass" : true,
-          "hidden" : false,
-          "image-name" : "자산 17.png",
-          "name" : "자산 17"
+          "image-name" : "자산 22.png",
+          "name" : "자산 22"
         },
         {
-          "glass" : true,
-          "hidden" : false,
-          "image-name" : "자산 16.png",
-          "name" : "자산 16"
+          "image-name" : "자산 23.png",
+          "name" : "자산 23"
         },
         {
-          "glass" : true,
-          "hidden" : false,
-          "image-name" : "자산 15.png",
-          "name" : "자산 15"
+          "image-name" : "자산 24.png",
+          "name" : "자산 24"
         }
       ],
       "shadow" : {
