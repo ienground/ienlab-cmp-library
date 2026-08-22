@@ -91,6 +91,7 @@ fun AdaptiveDropdownBox(
             trigger()
         }
         Box(
+            contentAlignment = dropdownContentAlignment(contentAlignment),
             modifier = Modifier.matchParentSize(),
             propagateMinConstraints = true,
         ) {
@@ -135,6 +136,8 @@ fun AdaptiveDropdownBox(
 
 internal fun dropdownTriggerVisibilityScale(expanded: Boolean): Float =
     if (expanded) 0.001f else 1f
+
+internal fun dropdownContentAlignment(contentAlignment: Alignment): Alignment = contentAlignment
 
 /**
  * 적응형 드롭다운 메뉴 컴포저블
