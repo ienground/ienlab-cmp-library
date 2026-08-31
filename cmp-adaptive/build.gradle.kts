@@ -39,6 +39,7 @@ kotlin {
             implementation(libs.bundles.hig)
 
             implementation(libs.placeholder)
+            implementation(libs.compose.inputactions)
 
             implementation(projects.cmpUi)
             implementation(projects.cmpCommon)
@@ -67,5 +68,4 @@ kotlin {
 dependencies {
     androidRuntimeClasspath(libs.compose.ui.tooling)
 }
-
 

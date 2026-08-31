@@ -79,6 +79,9 @@ import zone.ien.utils.utils.moveToBackground
 import zone.ien.utils.utils.shareText
 import zone.ien.utils.utils.ui.enableNativeInput
 import zone.ien.utils.utils.ui.rememberRepeatClick
+import zone.ien.inputactions.InputAction
+import zone.ien.inputactions.InputActionStyle
+import zone.ien.inputactions.inputActions
 
 
 private data class HomeMenuItem(
@@ -98,6 +101,7 @@ private val menuItems = listOf(
     HomeMenuItem("Adaptive Playground", RootRoute.AdaptivePlayground, Color(0xFF0F766E)),
     HomeMenuItem("Navigation", RootRoute.Navigation, Color(0xFFFDD835)),
     HomeMenuItem("Firebase Auth", RootRoute.FirebaseAuth, Color(0xFFE65100)),
+    HomeMenuItem("Scrolling Bubble", RootRoute.ScrollingBubble, Color(0xFF3949AB)),
 )
 
 @Suppress("FrequentlyChangingValue")
@@ -292,7 +296,15 @@ fun HomeScreen(
                     IenTextField(
                         value = bottomText,
                         onValueChange = { bottomText = it },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .inputActions(
+                                InputAction(
+                                    title = "Done",
+                                    style = InputActionStyle.Done,
+                                    onClick = {}
+                                )
+                            )
                     )
                 }
             },

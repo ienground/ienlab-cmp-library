@@ -65,6 +65,7 @@ kotlin {
             implementation(libs.placeholder)
 
             implementation(libs.bundles.koin)
+            implementation(libs.compose.inputactions)
 
             implementation(projects.cmpCommon)
             implementation(projects.cmpAdaptive)
