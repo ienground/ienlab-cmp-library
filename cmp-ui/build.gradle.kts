@@ -39,6 +39,7 @@ kotlin {
             implementation(libs.hig.core)
             implementation(libs.backdrop)
             implementation(libs.capsule)
+            implementation(libs.compose.inputactions)
 
             implementation(projects.cmpCommon)
             implementation(projects.cmpIcon)

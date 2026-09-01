@@ -23,7 +23,7 @@ kotlin {
         minSdk = libs.versions.android.minSdk.get().toInt()
 
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_25)
+            jvmTarget.set(JvmTarget.JVM_21)
         }
 
         androidResources {
@@ -65,6 +65,7 @@ kotlin {
             implementation(libs.placeholder)
 
             implementation(libs.bundles.koin)
+            implementation(libs.compose.inputactions)
 
             implementation(projects.cmpCommon)
             implementation(projects.cmpAdaptive)
