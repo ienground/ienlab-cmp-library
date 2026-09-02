@@ -467,12 +467,28 @@ fun HomeScreen(
                     value = nativeInputText,
                     onValueChange = { nativeInputText = it },
                     keyboardOptions = KeyboardOptions.Default.enableNativeInput(),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .inputActions(
+                            InputAction(
+                                title = "Done",
+                                style = InputActionStyle.Done,
+                                onClick = {}
+                            )
+                        )
                 )
                 IenTextField(
                     value = textFieldText,
                     onValueChange = { textFieldText = it },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .inputActions(
+                            InputAction(
+                                title = "Done",
+                                style = InputActionStyle.Done,
+                                onClick = {}
+                            )
+                        )
                 )
                 BasicTextField(
                     state = rememberTextFieldState(),
@@ -484,7 +500,15 @@ fun HomeScreen(
                             innerTextField()
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .inputActions(
+                            InputAction(
+                                title = "Done",
+                                style = InputActionStyle.Done,
+                                onClick = {}
+                            )
+                        )
                 )
                 BasicTextField(
                     state = rememberTextFieldState(),
@@ -495,7 +519,15 @@ fun HomeScreen(
                             innerTextField()
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .inputActions(
+                            InputAction(
+                                title = "Done",
+                                style = InputActionStyle.Done,
+                                onClick = {}
+                            )
+                        )
                 )
                 Spacer(modifier = Modifier.height(96.dp))
             }
