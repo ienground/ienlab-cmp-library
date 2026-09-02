@@ -34,19 +34,3 @@ val LocalIsM3TopBarCenterAligned: ProvidableCompositionLocal<Boolean> = staticCo
  * 기본 값은 true로 설정되어 있습니다.
  */
 val LocalIsHigTopBarCenterAligned: ProvidableCompositionLocal<Boolean> = staticCompositionLocalOf { true }
-
-/**
- * IME 패딩 활성화 여부를 제어하는 CompositionLocal
- *
- * 이 CompositionLocal은 IME (입력 방법 편집기) 패딩이 UI에 적용되는지를 제어합니다.
- * 기본 값은 true로 설정되어 있습니다.
- */
-val LocalEnableImePadding: ProvidableCompositionLocal<Boolean> = staticCompositionLocalOf { true }
-
-/**
- * IME 패딩 설정을 제공하는 CompositionLocal
- *
- * 이 CompositionLocal은 UI의 IME 패딩을 설정하는 함수를 제공합니다.
- * 기본 값은 빈 람다입니다.
- */
-val LocalSetEnableImePadding: ProvidableCompositionLocal<(Boolean) -> Unit> = staticCompositionLocalOf { {} }

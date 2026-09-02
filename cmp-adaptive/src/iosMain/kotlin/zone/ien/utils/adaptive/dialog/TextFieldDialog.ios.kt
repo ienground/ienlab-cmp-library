@@ -48,10 +48,7 @@ import platform.darwin.NSObject
 import platform.darwin.nil
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.close
-import zone.ien.utils.ui.screen.LocalEnableImePadding
-import zone.ien.utils.ui.screen.LocalSetEnableImePadding
 import zone.ien.utils.ui.utils.TextFieldDialogData
-import zone.ien.utils.utils.UpdateEffect
 
 internal fun KeyboardType.toHig() = when (this) {
     KeyboardType.Text -> UIKeyboardTypeDefault
@@ -114,18 +111,6 @@ actual fun TextFieldDialog(
     }
 
     var confirmActionRef by remember { mutableStateOf<UIAlertAction?>(null) }
-    val setEnableImePadding = LocalSetEnableImePadding.current
-    val enableImePadding = LocalEnableImePadding.current
-    var lastEnableImePadding by remember { mutableStateOf(enableImePadding) }
-
-    UpdateEffect(visible) {
-        if (visible) {
-            lastEnableImePadding = enableImePadding
-            setEnableImePadding(false)
-        } else {
-            setEnableImePadding(lastEnableImePadding)
-        }
-    }
 
     LaunchedEffect(enabledConfirm) {
         confirmActionRef?.enabled = enabledConfirm

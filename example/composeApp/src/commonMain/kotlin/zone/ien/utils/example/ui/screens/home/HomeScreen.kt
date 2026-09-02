@@ -6,11 +6,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
@@ -27,7 +25,6 @@ import androidx.compose.ui.text.style.TextAlign
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.foundation.IenTheme
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHost
@@ -82,6 +79,7 @@ import zone.ien.utils.utils.ui.rememberRepeatClick
 import zone.ien.inputactions.InputAction
 import zone.ien.inputactions.InputActionStyle
 import zone.ien.inputactions.inputActions
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 
 
 private data class HomeMenuItem(
@@ -126,6 +124,7 @@ fun HomeScreen(
     var bottomText by remember { mutableStateOf("") }
     var nativeInputText by remember { mutableStateOf("") }
     var textFieldText by remember { mutableStateOf("") }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     IenAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
@@ -291,33 +290,31 @@ fun HomeScreen(
                     mode = TopBarMode.Expanded
                 }
             },
-            bottomBar = {
-                BottomAppBar {
-                    IenTextField(
-                        value = bottomText,
-                        onValueChange = { bottomText = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .inputActions(
-                                InputAction(
-                                    title = "Done",
-                                    style = InputActionStyle.Done,
-                                    onClick = {}
-                                )
-                            )
-                    )
-                }
-            },
-
             modifier = modifier
         ) { pv, title ->
             Column(
                 modifier = Modifier
-                    .layerBackdrop(backdrop).consumeWindowInsets(WindowInsets.ime)
+                    .layerBackdrop(backdrop)
                     .verticalScroll(scrollState)
                     .padding(pv)
+                    .imePadding()
             ) {
                 title()
+                IenTextField(
+                    value = bottomText,
+                    onValueChange = { bottomText = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .inputActions(
+                            InputAction(
+                                title = "Done",
+                                style = InputActionStyle.Done,
+                                onClick = {
+                                    keyboardController?.hide()
+                                }
+                            )
+                        )
+                )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
