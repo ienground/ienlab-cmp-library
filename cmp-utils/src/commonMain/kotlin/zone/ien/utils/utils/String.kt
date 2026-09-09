@@ -50,3 +50,22 @@ inline fun CharSequence?.ifEmptyOrNull(defaultValue: () -> String): String {
     }
     return if (isNullOrEmpty()) defaultValue() else this.toString()
 }
+
+/**
+ * 문자열이 비어 있거나 공백만 포함하면 지정한 메시지와 함께 예외를 발생시킵니다.
+ *
+ * 메시지를 suspend 람다로 받아 Compose Resources의 [org.jetbrains.compose.resources.getString]
+ * 같은 비동기 문자열 리소스도 검증 시점에 해석할 수 있습니다.
+ *
+ * @param value 검증할 문자열
+ * @param message 값이 비어 있을 때 사용할 예외 메시지
+ * @throws IllegalArgumentException 문자열이 비어 있거나 공백만 포함하는 경우
+ */
+suspend fun requireNotBlank(
+    value: String,
+    message: suspend () -> String,
+) {
+    if (value.isBlank()) {
+        throw IllegalArgumentException(message())
+    }
+}
