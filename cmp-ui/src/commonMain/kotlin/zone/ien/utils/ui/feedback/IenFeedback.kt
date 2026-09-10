@@ -68,7 +68,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.kyant.capsule.ContinuousCapsule
 import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlinx.coroutines.delay
@@ -96,6 +95,9 @@ import zone.ien.utils.ui.dialog.IenConfirmDialogCancelButton
 import zone.ien.utils.ui.dialog.IenConfirmDialogConfirmButton
 import zone.ien.utils.ui.dialog.IenConfirmDialogDescription
 import zone.ien.utils.ui.dialog.IenConfirmDialogTitle
+import zone.ien.utils.ui.window.disablePlatformDialogDim
+import zone.ien.utils.ui.window.ienOverlayDialogProperties
+import zone.ien.utils.ui.window.ienOverlayWindowSize
 import kotlin.math.PI
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -108,6 +110,11 @@ import kotlin.math.sin
  * - [Full]: 화면 높이의 92%만큼 펼쳐집니다.
  */
 enum class IenSheetDetent { Content, Medium, Full }
+
+internal fun shouldKeepIenOverlayMounted(
+    visible: Boolean,
+    mounted: Boolean,
+): Boolean = visible || mounted
 
 /**
  * [IenBottomSheet]의 상태(표시 여부 및 높이 단계)를 제어하고 관리하는 상태 객체입니다.
@@ -194,6 +201,11 @@ fun IenBottomSheet(
     val motion = IenTheme.motion
     val normalMillis = motion.normalMillis
     val standardEasing = motion.standardEasing
+    val overlayAlpha by animateFloatAsState(
+        targetValue = if (state.visible) 1f else 0f,
+        animationSpec = tween(motion.fastMillis),
+        label = "bottom_sheet_overlay_alpha",
+    )
 
     LaunchedEffect(state.visible) {
         if (state.visible) {
@@ -205,7 +217,7 @@ fun IenBottomSheet(
         }
     }
 
-    if (!mounted) return
+    if (!shouldKeepIenOverlayMounted(state.visible, mounted)) return
 
     val dragModifier = Modifier.pointerInput(Unit) {
         detectVerticalDragGestures(
@@ -239,117 +251,117 @@ fun IenBottomSheet(
 
     Dialog(
         onDismissRequest = { state.hide() },
-        properties = DialogProperties(
+        properties = ienOverlayDialogProperties(
             dismissOnBackPress = true,
             dismissOnClickOutside = false,
-            usePlatformDefaultWidth = false,
         ),
     ) {
-        AnimatedVisibility(
-            visible = state.visible,
-            enter = fadeIn(tween(IenTheme.motion.fastMillis)),
-            exit = fadeOut(tween(IenTheme.motion.fastMillis)),
+        disablePlatformDialogDim()
+        val overlayColor = if (disableDimmer) Color.Transparent else IenTheme.colors.overlay
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .ienOverlayWindowSize(),
+            contentAlignment = Alignment.BottomCenter,
         ) {
-            val overlayColor = if (disableDimmer) Color.Transparent else IenTheme.colors.overlay
             Box(
-                modifier = modifier
-                    .fillMaxSize()
-                    .background(overlayColor)
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(overlayColor.copy(alpha = overlayColor.alpha * overlayAlpha))
                     .clickable(
-                        enabled = dismissOnScrimClick,
+                        enabled = dismissOnScrimClick && state.visible,
                         indication = null,
                         interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
                     ) { state.hide() },
-                contentAlignment = Alignment.BottomCenter,
+            )
+
+            AnimatedVisibility(
+                visible = state.visible,
+                enter = slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing)
+                ) + fadeIn(tween(IenTheme.motion.fastMillis)),
+                exit = slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing)
+                ) + fadeOut(tween(IenTheme.motion.fastMillis)),
+                modifier = Modifier
+                    .widthIn(max = 520.dp)
+                    .fillMaxWidth()
+                    .offset { IntOffset(0, dragOffsetY.value.roundToInt()) }
             ) {
-                AnimatedVisibility(
-                    visible = state.visible,
-                    enter = slideInVertically(
-                        initialOffsetY = { it },
-                        animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing)
-                    ) + fadeIn(tween(IenTheme.motion.fastMillis)),
-                    exit = slideOutVertically(
-                        targetOffsetY = { it },
-                        animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing)
-                    ) + fadeOut(tween(IenTheme.motion.fastMillis)),
+                IenSurface(
                     modifier = Modifier
-                        .widthIn(max = 520.dp)
                         .fillMaxWidth()
-                        .offset { IntOffset(0, dragOffsetY.value.roundToInt()) }
+                        .then(state.detent.sheetHeightModifier())
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                        ) { },
+                    color = IenTheme.colors.surfaceRaised,
+                    shape = ContinuousRoundedRectangle(topStart = IenTheme.radius.lg, topEnd = IenTheme.radius.lg),
                 ) {
-                    IenSurface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .then(state.detent.sheetHeightModifier())
-                            .clickable(
-                                indication = null,
-                                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                            ) { },
-                        color = IenTheme.colors.surfaceRaised,
-                        shape = ContinuousRoundedRectangle(topStart = IenTheme.radius.lg, topEnd = IenTheme.radius.lg),
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(0.dp),
                     ) {
                         Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(0.dp),
+                            modifier = dragModifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Column(
-                                modifier = dragModifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                if (showDragHandle) {
-                                    Box(
-                                        modifier = Modifier
-                                            .padding(vertical = 12.dp)
-                                            .width(36.dp)
-                                            .height(4.dp)
-                                            .clip(ContinuousCapsule)
-                                            .background(IenTheme.colors.borderStrong),
-                                    )
-                                } else {
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                }
-
-                                if (header != null || headerDescription != null) {
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(horizontal = 24.dp, vertical = 8.dp),
-                                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                                    ) {
-                                        header?.invoke()
-                                        headerDescription?.invoke()
-                                    }
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                }
-                            }
-
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f, fill = false)
-                                    .padding(contentPadding)
-                            ) {
-                                content()
-                            }
-
-                            if (cta != null) {
-                                Spacer(modifier = Modifier.height(8.dp))
+                            if (showDragHandle) {
                                 Box(
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .navigationBarsPadding()
-                                        .padding(horizontal = 24.dp)
-                                        .padding(bottom = 16.dp)
-                                ) {
-                                    cta()
-                                }
-                            } else {
-                                Spacer(
-                                    modifier = Modifier
-                                        .navigationBarsPadding()
-                                        .height(16.dp)
+                                        .padding(vertical = 12.dp)
+                                        .width(36.dp)
+                                        .height(4.dp)
+                                        .clip(ContinuousCapsule)
+                                        .background(IenTheme.colors.borderStrong),
                                 )
+                            } else {
+                                Spacer(modifier = Modifier.height(16.dp))
                             }
+
+                            if (header != null || headerDescription != null) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 24.dp, vertical = 8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    header?.invoke()
+                                    headerDescription?.invoke()
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f, fill = false)
+                                .padding(contentPadding)
+                        ) {
+                            content()
+                        }
+
+                        if (cta != null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .navigationBarsPadding()
+                                    .padding(horizontal = 24.dp)
+                                    .padding(bottom = 16.dp)
+                            ) {
+                                cta()
+                            }
+                        } else {
+                            Spacer(
+                                modifier = Modifier
+                                    .navigationBarsPadding()
+                                    .height(16.dp)
+                            )
                         }
                     }
                 }
@@ -616,6 +628,195 @@ private fun SnackbarDuration.ienSnackbarDurationMillis(): Long? = when (this) {
     SnackbarDuration.Short -> 4_000L
     SnackbarDuration.Long -> 10_000L
     SnackbarDuration.Indefinite -> null
+}
+
+/**
+ * IEN 토스트가 화면에 머무르는 시간을 정의합니다.
+ */
+enum class IenToastDuration(
+    val durationMillis: Long?,
+) {
+    Short(4_000L),
+    Long(10_000L),
+    Indefinite(null),
+}
+
+/**
+ * IEN 토스트에 표시할 메시지와 시각 정보를 담는 데이터입니다.
+ */
+@Immutable
+class IenToastData internal constructor(
+    val message: String,
+    val tone: IenSemanticTone,
+    val duration: IenToastDuration,
+    internal val id: Long,
+)
+
+/**
+ * 전역 토스트의 표시 상태를 관리합니다.
+ */
+@Stable
+class IenToastState internal constructor() {
+    var currentToast by mutableStateOf<IenToastData?>(null)
+        private set
+
+    private var nextToastId = 0L
+
+    /**
+     * 새 토스트를 표시합니다. 이미 표시 중인 토스트는 새 토스트로 교체됩니다.
+     */
+    fun show(
+        message: String,
+        tone: IenSemanticTone = IenSemanticTone.Neutral,
+        duration: IenToastDuration = IenToastDuration.Short,
+    ) {
+        currentToast = IenToastData(
+            message = message,
+            tone = tone,
+            duration = duration,
+            id = nextToastId++,
+        )
+    }
+
+    /**
+     * 현재 토스트를 즉시 닫습니다.
+     */
+    fun dismiss() {
+        currentToast = null
+    }
+}
+
+/**
+ * [IenToastState]를 생성하고 기억합니다.
+ */
+@Composable
+fun rememberIenToastState(): IenToastState = remember { IenToastState() }
+
+/**
+ * 하위 화면에서 전역 토스트 상태를 읽기 위한 CompositionLocal입니다.
+ */
+val LocalIenToastState = staticCompositionLocalOf<IenToastState?> { null }
+
+/**
+ * [IenToastState]에 IEN 토스트를 표시합니다.
+ */
+fun IenToastState.showIenToast(
+    message: String,
+    tone: IenSemanticTone = IenSemanticTone.Neutral,
+    duration: IenToastDuration = IenToastDuration.Short,
+) {
+    show(message = message, tone = tone, duration = duration)
+}
+
+/**
+ * 하위 콘텐츠 어디서나 토스트를 표시할 수 있도록 상태와 호스트를 연결합니다.
+ */
+@Composable
+fun IenToastProvider(
+    state: IenToastState = rememberIenToastState(),
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        CompositionLocalProvider(LocalIenToastState provides state) {
+            content()
+        }
+        IenToastHost(
+            state = state,
+            modifier = Modifier.matchParentSize(),
+        )
+    }
+}
+
+/**
+ * 전역 토스트를 화면 하단에 표시하는 호스트입니다.
+ */
+@Composable
+fun IenToastHost(
+    state: IenToastState,
+    modifier: Modifier = Modifier,
+) {
+    var displayedToast by remember { mutableStateOf<IenToastData?>(null) }
+    val currentToast = state.currentToast
+    val normalMillis = IenTheme.motion.normalMillis
+    val fastMillis = IenTheme.motion.fastMillis
+    val standardEasing = IenTheme.motion.standardEasing
+
+    LaunchedEffect(currentToast) {
+        if (currentToast != null) {
+            displayedToast = currentToast
+        } else {
+            withFrameMillis { }
+            if (state.currentToast == null) {
+                displayedToast = null
+            }
+        }
+    }
+
+    LaunchedEffect(currentToast?.id) {
+        val toast = currentToast ?: return@LaunchedEffect
+        val durationMillis = toast.duration.durationMillis ?: return@LaunchedEffect
+        delay(durationMillis)
+        if (state.currentToast === toast) {
+            state.dismiss()
+        }
+    }
+
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.BottomCenter,
+    ) {
+        AnimatedContent(
+            targetState = displayedToast,
+            transitionSpec = {
+                val enter = slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = tween(normalMillis, easing = standardEasing),
+                ) + fadeIn(animationSpec = tween(fastMillis))
+                val exit = slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = tween(normalMillis, easing = standardEasing),
+                ) + fadeOut(animationSpec = tween(normalMillis, easing = standardEasing))
+                (enter togetherWith exit).using(SizeTransform(clip = false))
+            },
+            label = "IenToastHost",
+        ) { toast ->
+            if (toast == null) {
+                Box(modifier = Modifier.fillMaxWidth())
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding()
+                        .padding(
+                            horizontal = IenTheme.spacing.lg,
+                            vertical = IenTheme.spacing.lg,
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    IenToast(data = toast)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * IEN 스타일 토스트 카드를 렌더링합니다.
+ */
+@Composable
+fun IenToast(
+    data: IenToastData,
+    modifier: Modifier = Modifier,
+) {
+    IenSnackbarContent(
+        text = data.message,
+        modifier = modifier,
+        leftAddon = if (data.tone == IenSemanticTone.Neutral) null else {
+            { IenSnackbarIcon(tone = data.tone) }
+        },
+        maxWidth = IenSnackbarDefaults.MaxWidth,
+    )
 }
 
 /**

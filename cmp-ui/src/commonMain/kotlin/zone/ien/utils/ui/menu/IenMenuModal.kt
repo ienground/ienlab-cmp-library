@@ -1,5 +1,7 @@
 package zone.ien.utils.ui.menu
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +14,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +35,15 @@ import zone.ien.utils.ui.interactive.toneColor
 import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.window.disablePlatformDialogDim
+import zone.ien.utils.ui.window.ienOverlayDialogProperties
+import zone.ien.utils.ui.window.ienOverlayWindowSize
+
+private val LocalIenModalOverlayAlpha = staticCompositionLocalOf { 1f }
+
+internal fun Color.withIenModalOverlayProgress(progress: Float): Color = copy(
+    alpha = alpha * progress.coerceIn(0f, 1f),
+)
 
 /**
  * [IenMenu]에서 사용하는 메뉴 항목의 데이터를 정의하는 불변(Immutable) 데이터 클래스입니다.
@@ -131,21 +149,47 @@ fun IenModal(
     onOpenChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     onExited: (() -> Unit)? = null,
-    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    properties: DialogProperties = ienOverlayDialogProperties(),
     content: @Composable BoxScope.() -> Unit,
 ) {
-    if (!open) {
-        onExited?.invoke()
-        return
+    val motion = IenTheme.motion
+    var mounted by remember { mutableStateOf(open) }
+    val overlayAlpha by animateFloatAsState(
+        targetValue = if (open) 1f else 0f,
+        animationSpec = tween(
+            durationMillis = if (open) motion.normalMillis else motion.fastMillis,
+            easing = motion.standardEasing,
+        ),
+        label = "modal_overlay_alpha",
+    )
+
+    LaunchedEffect(open) {
+        if (open) {
+            mounted = true
+        } else if (mounted) {
+            kotlinx.coroutines.delay(motion.fastMillis.toLong())
+            mounted = false
+            onExited?.invoke()
+        } else {
+            onExited?.invoke()
+        }
     }
+
+    if (!mounted) return
+
     Dialog(
         onDismissRequest = { onOpenChange(false) },
         properties = properties,
     ) {
-        Box(
-            modifier = modifier.fillMaxSize(),
-            content = content,
-        )
+        disablePlatformDialogDim()
+        CompositionLocalProvider(LocalIenModalOverlayAlpha provides overlayAlpha) {
+            Box(
+                modifier = modifier
+                    .fillMaxSize()
+                    .ienOverlayWindowSize(),
+                content = content,
+            )
+        }
     }
 }
 
@@ -177,8 +221,8 @@ object IenModal {
         ) {
             IenSurface(
                 modifier = Modifier.fillMaxSize(),
-                color = color,
-                contentColor = color,
+                color = color.withIenModalOverlayProgress(LocalIenModalOverlayAlpha.current),
+                contentColor = color.withIenModalOverlayProgress(LocalIenModalOverlayAlpha.current),
             ) {}
         }
     }

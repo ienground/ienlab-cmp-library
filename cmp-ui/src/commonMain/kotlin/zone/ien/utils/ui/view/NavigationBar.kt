@@ -1,10 +1,16 @@
 package zone.ien.utils.ui.view
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -171,6 +177,7 @@ object CustomNavigationBarDefaults {
  * @param modifier 적용할 Modifier
  * @param colors 색상
  * @param windowInsets 윈도우 인셋
+ * @param visible 네비게이션 바 표시 여부
  * @param content 항목 내용
  */
 @Composable
@@ -180,6 +187,7 @@ fun CustomNavigationBar(
     modifier: Modifier = Modifier,
     colors: CustomNavigationBarColors = CustomNavigationBarDefaults.colors(),
     windowInsets: WindowInsets = WindowInsets.navigationBars,
+    visible: Boolean = true,
     content: @Composable RowScope.() -> Unit
 ) {
     val navBarPadding = windowInsets.asPaddingValues()
@@ -207,56 +215,85 @@ fun CustomNavigationBar(
         LocalNavigationBarColors provides colors,
         LocalNavigationBarItemBoundsUpdater provides { index, bounds -> itemBounds[index] = bounds },
     ) {
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(bottom = navBarPadding.calculateBottomPadding())
+        AnimatedVisibility(
+            visible = visible,
+            enter = fadeIn(
+                animationSpec = tween(
+                    durationMillis = IenTheme.motion.fastMillis,
+                    easing = IenTheme.motion.standardEasing,
+                )
+            ) + slideInVertically(
+                animationSpec = tween(
+                    durationMillis = IenTheme.motion.normalMillis,
+                    easing = IenTheme.motion.standardEasing,
+                ),
+                initialOffsetY = { it },
+            ),
+            exit = fadeOut(
+                animationSpec = tween(
+                    durationMillis = IenTheme.motion.fastMillis,
+                    easing = IenTheme.motion.standardEasing,
+                )
+            ) + slideOutVertically(
+                animationSpec = tween(
+                    durationMillis = IenTheme.motion.normalMillis,
+                    easing = IenTheme.motion.standardEasing,
+                ),
+                targetOffsetY = { it },
+            ),
+            modifier = modifier.fillMaxWidth(),
         ) {
             Box(
                 modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                    .fillMaxWidth()
+                    .padding(bottom = navBarPadding.calculateBottomPadding()),
             ) {
-                val containerShape = ContinuousCapsule()
-                Surface(
-                    color = Color.Transparent,
-                    shape = containerShape,
-                    tonalElevation = 0.dp,
-                    shadowElevation = 18.dp,
+                Box(
                     modifier = Modifier
-                        .height(78.dp)
-                        .background(
-                            brush = if (colors.containerColor == IenTheme.colors.brand) {
-                                toneGradientBrush(IenSemanticTone.Brand)
-                            } else {
-                                androidx.compose.ui.graphics.SolidColor(colors.containerColor)
-                            },
-                            shape = containerShape,
-                        )
+                        .align(Alignment.Center)
+                        .padding(horizontal = 16.dp, vertical = 16.dp),
                 ) {
-                    Box(
+                    val containerShape = ContinuousCapsule()
+                    Surface(
+                        color = Color.Transparent,
+                        shape = containerShape,
+                        tonalElevation = 0.dp,
+                        shadowElevation = 18.dp,
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(horizontal = 8.dp, vertical = 8.dp),
-                    ) {
-                        if (selectedBounds != null) {
-                            Box(
-                                modifier = Modifier
-                                    .offset(x = indicatorOffset)
-                                    .width(indicatorWidth)
-                                    .fillMaxHeight()
-                                    .background(
-                                        color = colors.selectedItemBackgroundColor,
-                                        shape = ContinuousCapsule(),
-                                    )
+                            .height(78.dp)
+                            .background(
+                                brush = if (colors.containerColor == IenTheme.colors.brand) {
+                                    toneGradientBrush(IenSemanticTone.Brand)
+                                } else {
+                                    androidx.compose.ui.graphics.SolidColor(colors.containerColor)
+                                },
+                                shape = containerShape,
                             )
-                        }
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxHeight(),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .padding(horizontal = 8.dp, vertical = 8.dp),
                         ) {
-                            content()
+                            if (selectedBounds != null) {
+                                Box(
+                                    modifier = Modifier
+                                        .offset(x = indicatorOffset)
+                                        .width(indicatorWidth)
+                                        .fillMaxHeight()
+                                        .background(
+                                            color = colors.selectedItemBackgroundColor,
+                                            shape = ContinuousCapsule(),
+                                        )
+                                )
+                            }
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxHeight(),
+                            ) {
+                                content()
+                            }
                         }
                     }
                 }

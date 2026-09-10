@@ -1,5 +1,11 @@
 package zone.ien.utils.adaptive.view
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
@@ -34,6 +40,7 @@ import zone.ien.hig.adaptive.currentTheme
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.view.CustomNavigationBar
 import zone.ien.utils.ui.view.CustomNavigationBarColors
 import zone.ien.utils.ui.view.CustomNavigationBarDefaults
@@ -66,6 +73,7 @@ private val LocalNavigationBarAlwaysShowLabel = compositionLocalOf { true }
  * @param adaptation 플랫폼별 적응형 설정을 위한 블록
  * @param isNative 네이티브 방식 사용 여부 (기본값: true)
  * @param items 네비게이션 바에 표시할 아이템 목록
+ * @param visible 네비게이션 바 표시 여부
  */
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
@@ -75,53 +83,83 @@ fun AdaptiveNavigationBar(
     onTabSelected: (index: Int) -> Unit,
     adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, IenNavigationBarAdaptation>.() -> Unit = {},
     isNative: Boolean = true,
-    items: List<NavigationBarItem>
+    items: List<NavigationBarItem>,
+    visible: Boolean = true,
 ) {
-    if (isNative) {
-        AdaptiveNavigationBarNative(
-            modifier = modifier,
-            selectedTabIndex = selectedTabIndex,
-            onTabSelected = onTabSelected,
-            adaptation = adaptation,
-            items = items.map {
-                CupertinoNavigationBarItemData(
-                    onClick = it.onClick,
-                    icon = when (it.icon) {
-                        is IconData.Vector -> rememberVectorPainter(it.icon.imageVector)
-                        is IconData.Paint -> it.icon.painter
-                    },
-                    selectedIcon = it.selectedIcon?.let {
-                        when (it) {
-                            is IconData.Vector -> rememberVectorPainter(it.imageVector)
-                            is IconData.Paint -> it.painter
-                        }
-                    },
-                    label = it.label
-                )
-            }
-        )
-    } else {
-        AdaptiveNavigationBar(
-            modifier = modifier,
-            selectedTabIndex = selectedTabIndex,
-            onTabSelected = onTabSelected,
-            tabsCount = items.size,
-            adaptation = adaptation,
-        ) {
-            items.forEachIndexed { index, item ->
-                val selected = selectedTabIndex() == index
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(
+            animationSpec = tween(
+                durationMillis = IenTheme.motion.fastMillis,
+                easing = IenTheme.motion.standardEasing,
+            )
+        ) + slideInVertically(
+            animationSpec = tween(
+                durationMillis = IenTheme.motion.normalMillis,
+                easing = IenTheme.motion.standardEasing,
+            ),
+            initialOffsetY = { it },
+        ),
+        exit = fadeOut(
+            animationSpec = tween(
+                durationMillis = IenTheme.motion.fastMillis,
+                easing = IenTheme.motion.standardEasing,
+            )
+        ) + slideOutVertically(
+            animationSpec = tween(
+                durationMillis = IenTheme.motion.normalMillis,
+                easing = IenTheme.motion.standardEasing,
+            ),
+            targetOffsetY = { it },
+        ),
+        modifier = modifier,
+    ) {
+        if (isNative) {
+            AdaptiveNavigationBarNative(
+                modifier = Modifier,
+                selectedTabIndex = selectedTabIndex,
+                onTabSelected = onTabSelected,
+                adaptation = adaptation,
+                items = items.map {
+                    CupertinoNavigationBarItemData(
+                        onClick = it.onClick,
+                        icon = when (it.icon) {
+                            is IconData.Vector -> rememberVectorPainter(it.icon.imageVector)
+                            is IconData.Paint -> it.icon.painter
+                        },
+                        selectedIcon = it.selectedIcon?.let {
+                            when (it) {
+                                is IconData.Vector -> rememberVectorPainter(it.imageVector)
+                                is IconData.Paint -> it.painter
+                            }
+                        },
+                        label = it.label
+                    )
+                }
+            )
+        } else {
+            AdaptiveNavigationBar(
+                modifier = Modifier,
+                selectedTabIndex = selectedTabIndex,
+                onTabSelected = onTabSelected,
+                tabsCount = items.size,
+                adaptation = adaptation,
+            ) {
+                items.forEachIndexed { index, item ->
+                    val selected = selectedTabIndex() == index
 
-                AdaptiveNavigationBarItem(
-                    index = index,
-                    onClick = item.onClick,
-                    icon = {
-                        ComplexIcon(
-                            icon = if (selected && currentTheme == Theme.Material3 && item.selectedIcon != null) item.selectedIcon else item.icon
-                        )
-                    },
-                    label = { Text(text = item.label) },
-                    direction = item.direction,
-                )
+                    AdaptiveNavigationBarItem(
+                        index = index,
+                        onClick = item.onClick,
+                        icon = {
+                            ComplexIcon(
+                                icon = if (selected && currentTheme == Theme.Material3 && item.selectedIcon != null) item.selectedIcon else item.icon
+                            )
+                        },
+                        label = { Text(text = item.label) },
+                        direction = item.direction,
+                    )
+                }
             }
         }
     }
