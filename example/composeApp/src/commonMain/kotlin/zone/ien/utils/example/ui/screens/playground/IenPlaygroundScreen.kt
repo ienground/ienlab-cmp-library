@@ -79,6 +79,7 @@ fun IenPlaygroundScreen(
 
     // Navigation Bar State
     var selectedNavIndex by remember { mutableStateOf(0) }
+    var navigationBarVisible by remember { mutableStateOf(true) }
     var darkTheme by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
@@ -100,7 +101,8 @@ fun IenPlaygroundScreen(
             bottomBar = {
                 CustomNavigationBar(
                     selectedIndex = selectedNavIndex,
-                    itemCount = 3
+                    itemCount = 3,
+                    visible = navigationBarVisible,
                 ) {
                     CustomNavigationBarItem(
                         index = 0,
@@ -235,6 +237,11 @@ fun IenPlaygroundScreen(
                 IenSection(
                     title = { IenText("Section Items & Inputs") }
                 ) {
+                    IenSectionSwitchItem(
+                        checked = navigationBarVisible,
+                        onCheckedChange = { navigationBarVisible = it },
+                        title = { IenText("Bottom Navigation Visible") }
+                    )
                     IenSectionSwitchItem(
                         checked = switchChecked,
                         onCheckedChange = { switchChecked = it },

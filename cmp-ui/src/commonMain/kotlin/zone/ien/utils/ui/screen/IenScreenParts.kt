@@ -3,6 +3,7 @@ package zone.ien.utils.ui.screen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -83,6 +84,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
@@ -244,10 +246,15 @@ data class IenScaffoldContentEdge(
     val lazyListState: LazyListState? = null,
     val scrollFadeDistance: Dp = 48.dp,
     val topHeight: Dp = 168.dp,
-    val bottomHeight: Dp = 96.dp,
+    val bottomHeight: Dp = 64.dp,
     val radius: Dp = 18.dp,
     val color: Color? = null,
 )
+
+internal fun resolveBottomBlurHeight(
+    bottomHeight: Dp,
+    bottomBarHeight: Dp,
+): Dp = bottomHeight + bottomBarHeight
 
 /**
  * IEN 라이브러리의 기본 스크래프트(Scaffold) 컴포저블입니다.
@@ -301,11 +308,35 @@ fun IenScaffold(
         ?: 0f
     val effectiveTopProgress = effectiveContentEdge.topProgress.coerceIn(0f, 1f) * scrollTopProgress
     val effectiveBottomProgress = effectiveContentEdge.bottomProgress.coerceIn(0f, 1f) * scrollBottomProgress
+    var bottomBarHeightPx by remember { mutableStateOf(0) }
+    val targetBottomBarHeight = if (bottomBar == null) {
+        0.dp
+    } else {
+        with(LocalDensity.current) { bottomBarHeightPx.toDp() }
+    }
+    val bottomBarHeight by animateDpAsState(
+        targetValue = targetBottomBarHeight,
+        animationSpec = tween(
+            durationMillis = IenTheme.motion.normalMillis,
+            easing = IenTheme.motion.standardEasing,
+        ),
+        label = "bottom_bar_blur_height",
+    )
 
     Scaffold(
         modifier = modifier,
         topBar = topBar,
-        bottomBar = { bottomBar?.invoke() },
+        bottomBar = {
+            if (bottomBar != null) {
+                Box(
+                    modifier = Modifier.onSizeChanged { size ->
+                        bottomBarHeightPx = size.height
+                    },
+                ) {
+                    bottomBar()
+                }
+            }
+        },
         snackbarHost = snackbarHost,
         floatingActionButton = floating,
         floatingActionButtonPosition = floatingActionButtonPosition,
@@ -332,7 +363,10 @@ fun IenScaffold(
                     topProgress = effectiveTopProgress,
                     bottomProgress = effectiveBottomProgress,
                     topHeight = effectiveContentEdge.topHeight,
-                    bottomHeight = effectiveContentEdge.bottomHeight,
+                    bottomHeight = resolveBottomBlurHeight(
+                        bottomHeight = effectiveContentEdge.bottomHeight,
+                        bottomBarHeight = bottomBarHeight,
+                    ),
                     radius = effectiveContentEdge.radius,
                     color = contentEdgeColor,
                 )
