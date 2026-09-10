@@ -3,6 +3,7 @@ package zone.ien.utils.ui.screen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -308,11 +309,19 @@ fun IenScaffold(
     val effectiveTopProgress = effectiveContentEdge.topProgress.coerceIn(0f, 1f) * scrollTopProgress
     val effectiveBottomProgress = effectiveContentEdge.bottomProgress.coerceIn(0f, 1f) * scrollBottomProgress
     var bottomBarHeightPx by remember { mutableStateOf(0) }
-    val bottomBarHeight = if (bottomBar == null) {
+    val targetBottomBarHeight = if (bottomBar == null) {
         0.dp
     } else {
         with(LocalDensity.current) { bottomBarHeightPx.toDp() }
     }
+    val bottomBarHeight by animateDpAsState(
+        targetValue = targetBottomBarHeight,
+        animationSpec = tween(
+            durationMillis = IenTheme.motion.normalMillis,
+            easing = IenTheme.motion.standardEasing,
+        ),
+        label = "bottom_bar_blur_height",
+    )
 
     Scaffold(
         modifier = modifier,
