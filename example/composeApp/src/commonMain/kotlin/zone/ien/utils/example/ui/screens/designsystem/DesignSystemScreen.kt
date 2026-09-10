@@ -142,7 +142,10 @@ import zone.ien.utils.ui.feedback.IenSkeletonRepeat
 import zone.ien.utils.ui.list.IenTableRow
 import zone.ien.utils.ui.list.IenTableRowAlign
 import zone.ien.utils.ui.feedback.IenSnackbarHost
+import zone.ien.utils.ui.feedback.IenToastDuration
+import zone.ien.utils.ui.feedback.LocalIenToastState
 import zone.ien.utils.ui.feedback.showIenSnackbar
+import zone.ien.utils.ui.feedback.showIenToast
 import zone.ien.utils.ui.screen.IenTooltip
 import zone.ien.utils.ui.screen.IenTooltipClipToEnd
 import zone.ien.utils.ui.screen.IenTooltipMessageAlign
@@ -267,6 +270,7 @@ fun DesignSystemScreen(
 ) {
     IenTheme {
         val snackbarHostState = remember { SnackbarHostState() }
+        val toastState = LocalIenToastState.current
         val coroutineScope = rememberCoroutineScope()
         val scrollState = rememberScrollState()
 
@@ -428,6 +432,26 @@ fun DesignSystemScreen(
                                 duration = SnackbarDuration.Indefinite,
                             )
                         }
+                    },
+                )
+                ToastSection(
+                    onShowBasic = {
+                        toastState?.showIenToast("기본 토스트 메시지예요")
+                    },
+                    onShowSuccess = {
+                        toastState?.showIenToast(
+                            message = "성공 상태 토스트예요",
+                            tone = IenSemanticTone.Success,
+                        )
+                    },
+                    onShowLong = {
+                        toastState?.showIenToast(
+                            message = "오래 표시되는 토스트예요",
+                            duration = IenToastDuration.Long,
+                        )
+                    },
+                    onDismiss = {
+                        toastState?.dismiss()
                     },
                 )
                 TooltipSection()
@@ -1971,6 +1995,45 @@ fun SnackbarSection(
                     size = IenButtonSize.Small,
                     variant = IenButtonVariant.Weak,
                 ) { IenText("Indefinite") }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ToastSection(
+    onShowBasic: () -> Unit = {},
+    onShowSuccess: () -> Unit = {},
+    onShowLong: () -> Unit = {},
+    onDismiss: () -> Unit = {},
+) {
+    IenTheme {
+        ComponentSection(title = "Toast") {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+            ) {
+                IenButton(
+                    onClick = onShowBasic,
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                ) { IenText("기본") }
+                IenButton(
+                    onClick = onShowSuccess,
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                ) { IenText("성공") }
+                IenButton(
+                    onClick = onShowLong,
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                ) { IenText("Long") }
+                IenButton(
+                    onClick = onDismiss,
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                ) { IenText("닫기") }
             }
         }
     }
