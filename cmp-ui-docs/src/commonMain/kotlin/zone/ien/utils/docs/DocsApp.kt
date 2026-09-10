@@ -82,10 +82,15 @@ import zone.ien.utils.example.ui.screens.designsystem.TextAreaSection
 import zone.ien.utils.example.ui.screens.designsystem.TextButtonSection
 import zone.ien.utils.example.ui.screens.designsystem.TextFieldSection
 import zone.ien.utils.example.ui.screens.designsystem.SnackbarSection
+import zone.ien.utils.example.ui.screens.designsystem.ToastSection
 import zone.ien.utils.example.ui.screens.designsystem.TooltipSection
 import zone.ien.utils.example.ui.screens.designsystem.TopSection
 import zone.ien.utils.ui.feedback.IenSnackbarHost
+import zone.ien.utils.ui.feedback.IenToastDuration
+import zone.ien.utils.ui.feedback.IenToastProvider
+import zone.ien.utils.ui.feedback.rememberIenToastState
 import zone.ien.utils.ui.feedback.showIenSnackbar
+import zone.ien.utils.ui.feedback.showIenToast
 import zone.ien.utils.ui.foundation.IenColorScheme
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
@@ -107,13 +112,15 @@ fun DocsApp() {
         darkTheme = false,
     ) {
         val snackbarHostState = remember { SnackbarHostState() }
+        val toastState = rememberIenToastState()
         val coroutineScope = rememberCoroutineScope()
         val scrollState = rememberScrollState()
 
-        IenProvideTextStyle(
-            style = IenTheme.typography.body2,
-            color = IenTheme.colors.textPrimary,
-        ) {
+        IenToastProvider(state = toastState) {
+            IenProvideTextStyle(
+                style = IenTheme.typography.body2,
+                color = IenTheme.colors.textPrimary,
+            ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -244,6 +251,24 @@ fun DocsApp() {
                                 }
                             },
                         )
+                        ToastSection(
+                            onShowBasic = {
+                                toastState.showIenToast("기본 토스트 메시지예요")
+                            },
+                            onShowSuccess = {
+                                toastState.showIenToast(
+                                    message = "성공 상태 토스트예요",
+                                    tone = IenSemanticTone.Success,
+                                )
+                            },
+                            onShowLong = {
+                                toastState.showIenToast(
+                                    message = "오래 표시되는 토스트예요",
+                                    duration = IenToastDuration.Long,
+                                )
+                            },
+                            onDismiss = toastState::dismiss,
+                        )
                         TooltipSection()
                         TopSection()
                         AgreementSection()
@@ -265,6 +290,7 @@ fun DocsApp() {
                         .align(Alignment.BottomCenter)
                         .padding(24.dp),
                 )
+                }
             }
         }
     }

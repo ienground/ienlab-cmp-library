@@ -15,6 +15,7 @@ import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.inputactions.InputActionsHost
+import zone.ien.utils.ui.feedback.IenToastProvider
 import zone.ien.utils.ui.utils.dragToKeyboardClose
 import zone.ien.utils.ui.utils.keyboardAsState
 
@@ -38,32 +39,33 @@ fun RootWrapper(
     val isKeyboardVisible by keyboardAsState()
     val backdrop = rememberDefaultBackdrop()
 
-    InputActionsHost {
-        AdaptiveScaffold(
-            contentWindowInsets = WindowInsets(0.dp),
-            modifier = modifier
-        ) {
-            Box(
-                modifier = Modifier
-                    .dragToKeyboardClose(isKeyboardVisible)
-                    .padding(it)
+    IenToastProvider(modifier = modifier) {
+        InputActionsHost {
+            AdaptiveScaffold(
+                contentWindowInsets = WindowInsets(0.dp),
             ) {
                 Box(
-                    contentAlignment = Alignment.BottomCenter,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .dragToKeyboardClose(isKeyboardVisible)
+                        .padding(it)
                 ) {
-                    content(
-                        Modifier
-                            .layerBackdrop(backdrop)
+                    Box(
+                        contentAlignment = Alignment.BottomCenter,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        content(
+                            Modifier
+                                .layerBackdrop(backdrop)
+                        )
+                    }
+
+                    AdaptiveWidget(
+                        material = {},
+                        cupertino = {
+                            notification()
+                        }
                     )
                 }
-
-                AdaptiveWidget(
-                    material = {},
-                    cupertino = {
-                        notification()
-                    }
-                )
             }
         }
     }
