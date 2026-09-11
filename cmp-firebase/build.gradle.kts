@@ -36,6 +36,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            api(projects.cmpCommon)
             implementation(libs.compose.resources)
             implementation(libs.compose.material3)
 
@@ -43,6 +44,7 @@ kotlin {
             implementation(libs.kotlin.coroutine)
             api(libs.firebase.auth)
             implementation(libs.firebase.firestore)
+            api(libs.firebase.functions)
         }
 
         commonTest.dependencies {

@@ -4,7 +4,7 @@ kotlin = "2.4.20"
 android-minSdk = "29"
 android-compileSdk = "37"
 android-targetSdk = "37"
-lib-version-name = "3.5.0"
+lib-version-name = "3.5.1"
 
 # plugin
 compose-plugin = "1.12.0"
@@ -58,6 +58,7 @@ androidx-core = "1.19.0"
 # firebase
 firebase-firestore = { group = "zone.ien.firebase", name = "firebase-firestore", version.ref = "kmp-firebase" }
 firebase-auth = { group = "zone.ien.firebase", name = "firebase-auth", version.ref = "kmp-firebase" }
+firebase-functions = { group = "zone.ien.firebase", name = "firebase-functions", version.ref = "kmp-firebase" }
 firebase-storage = { group = "zone.ien.firebase", name = "firebase-storage", version.ref = "kmp-firebase" }
 firebase-firestore-android = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebase-firestore" }
 firebase-auth-android = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebase-auth" }
