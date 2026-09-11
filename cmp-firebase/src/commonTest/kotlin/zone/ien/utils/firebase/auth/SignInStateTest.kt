@@ -1,9 +1,11 @@
 package zone.ien.utils.firebase.auth
 
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
+import kotlin.coroutines.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -14,7 +16,9 @@ class SignInStateTest {
     fun `진행 중인 인증은 중복 실행하지 않는다`() = runBlocking {
         val release = CompletableDeferred<Unit>()
         var launchCount = 0
-        val state = LaunchingSignInState(this + Dispatchers.Unconfined) {
+        val state = LaunchingSignInState(
+            CoroutineScope(coroutineContext + Dispatchers.Unconfined),
+        ) {
             launchCount += 1
             release.await()
         }
