@@ -41,6 +41,8 @@
     <string name="agreement_required">Required</string>
     <string name="agreement_optional">Optional</string>
     <string name="agreement_terms">Terms Agreement</string>
+    <string name="permission_required_section_title">Required permissions</string>
+    <string name="permission_optional_section_title">Optional permissions</string>
     <string name="stepper_step_list">Step List</string>
     <string name="tab_list">Tap List</string>
     <string name="tab_update_indicator_desc">%1$s, update available</string>

@@ -100,6 +100,7 @@ private val menuItems = listOf(
     HomeMenuItem("Navigation", RootRoute.Navigation, Color(0xFFFDD835)),
     HomeMenuItem("Firebase Auth", RootRoute.FirebaseAuth, Color(0xFFE65100)),
     HomeMenuItem("Scrolling Bubble", RootRoute.ScrollingBubble, Color(0xFF3949AB)),
+    HomeMenuItem("Permission Screen", RootRoute.Permission, Color(0xFF00897B)),
 )
 
 @Suppress("FrequentlyChangingValue")
