@@ -1,27 +1,35 @@
 package zone.ien.utils.ui.screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
-import com.kyant.capsule.ContinuousRoundedRectangle
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.permission_optional_section_title
 import zone.ien.utils.cmp_ui.generated.resources.permission_required_section_title
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.list.IenListHeaderDefaults
+import zone.ien.utils.ui.list.IenListRow
+import zone.ien.utils.ui.list.IenListRowAssetFrame
+import zone.ien.utils.ui.list.IenListRowAssetShape
+import zone.ien.utils.ui.list.IenListRowAssetSize
+import zone.ien.utils.ui.list.IenListRowBorder
+import zone.ien.utils.ui.list.IenListRowPadding
+import zone.ien.utils.ui.primitives.IenAssetFrame
+import zone.ien.utils.ui.primitives.IenAssetFrameShape
+import zone.ien.utils.ui.primitives.IenAssetFrameSize
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.toBold
@@ -76,36 +84,40 @@ fun IenPermissionScreen(
             .fillMaxSize()
             .padding(horizontal = IenTheme.spacing.xxl),
     ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .padding(top = IenTheme.spacing.xxl)
-                .size(84.dp)
-                .background(
-                    color = IenTheme.colors.brand,
-                    shape = ContinuousRoundedRectangle(IenTheme.radius.lg),
-                ),
-        ) {
-            IenIcon(
-                imageVector = headerIcon,
-                contentDescription = headerIconContentDescription,
-                tint = IenTheme.colors.onBrand,
-                size = 48.dp,
-            )
-        }
-
-        IenText(
-            text = title,
-            style = IenTheme.typography.title1.toBold(),
-            modifier = Modifier
-                .padding(top = IenTheme.spacing.xxl)
-                .fillMaxWidth(),
-        )
-        IenText(
-            text = description,
-            style = IenTheme.typography.body2,
-            color = IenTheme.colors.textTertiary,
-            modifier = Modifier.padding(top = IenTheme.spacing.md),
+        IenTop(
+            upperGap = IenTheme.spacing.xxl,
+            lowerGap = 0.dp,
+            upper = {
+                IenTopUpperAssetContent {
+                    IenAssetFrame(
+                        size = IenAssetFrameSize.Large,
+                        tone = IenSemanticTone.Brand,
+                        shape = IenAssetFrameShape.Circle,
+                        contentDescription = headerIconContentDescription,
+                    ) {
+                        IenIcon(
+                            imageVector = headerIcon,
+                            contentDescription = null,
+                        )
+                    }
+                }
+            },
+            title = {
+                IenTopTitleParagraph(
+                    text = title,
+                    size = IenTopTitleSize.Large,
+                )
+            },
+            subtitleBottom = {
+                IenTopSubtitleParagraph(
+                    text = description,
+                    size = IenTopSubtitleSize.Small,
+                    style = IenTheme.typography.body2,
+                    color = IenTheme.colors.textTertiary,
+                    modifier = Modifier.padding(top = IenTheme.spacing.md),
+                )
+            },
+            contentPadding = PaddingValues(0.dp),
         )
 
         IenPermissionSection(
@@ -132,9 +144,8 @@ private fun IenPermissionSection(
             .fillMaxWidth()
             .padding(top = IenTheme.spacing.xxl),
     ) {
-        IenText(
+        IenListHeaderDefaults.Title(
             text = title,
-            style = IenTheme.typography.title3.toBold(),
         )
         Column(
             verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
@@ -149,31 +160,38 @@ private fun IenPermissionSection(
 
 @Composable
 private fun IenPermissionItemRow(item: IenPermissionItem) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        IenIcon(
-            imageVector = item.icon,
-            contentDescription = item.iconContentDescription,
-            tint = IenTheme.colors.onBrandWeak,
-            modifier = Modifier
-                .background(IenTheme.colors.brandWeak, CircleShape)
-                .padding(IenTheme.spacing.md),
-        )
-        Column(
-            modifier = Modifier.weight(1f),
-        ) {
-            IenText(
-                text = item.title,
-                style = IenTheme.typography.title3.toBold(),
-            )
-            IenText(
-                text = item.description,
-                style = IenTheme.typography.label2,
-                color = IenTheme.colors.textTertiary,
-            )
-        }
-    }
+    IenListRow(
+        left = {
+            IenListRowAssetFrame(
+                shape = IenListRowAssetShape.Circle,
+                size = IenListRowAssetSize.Medium,
+                backgroundColor = IenTheme.colors.brandWeak,
+            ) {
+                IenIcon(
+                    imageVector = item.icon,
+                    contentDescription = item.iconContentDescription,
+                    tint = IenTheme.colors.onBrandWeak,
+                    size = 24.dp,
+                )
+            }
+        },
+        contents = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxxs),
+            ) {
+                IenText(
+                    text = item.title,
+                    style = IenTheme.typography.title3.toBold(),
+                )
+                IenText(
+                    text = item.description,
+                    style = IenTheme.typography.label2,
+                    color = IenTheme.colors.textTertiary,
+                )
+            }
+        },
+        border = IenListRowBorder.None,
+        verticalPadding = IenListRowPadding.ExtraSmall,
+        horizontalPadding = IenListRowPadding.ExtraSmall,
+    )
 }

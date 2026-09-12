@@ -126,6 +126,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
+import androidx.compose.ui.text.style.LineBreak
 import com.kyant.backdrop.drawPlainBackdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
@@ -1005,7 +1006,7 @@ fun IenTopTitleParagraph(
     IenText(
         text = text,
         modifier = modifier.semantics { heading() },
-        style = style.copy(fontWeight = fontWeight),
+        style = style.copy(fontWeight = fontWeight, lineBreak = LineBreak.Heading),
         color = color,
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,

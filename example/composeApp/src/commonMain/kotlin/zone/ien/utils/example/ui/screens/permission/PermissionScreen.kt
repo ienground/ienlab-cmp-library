@@ -9,9 +9,8 @@ import zone.ien.hig.icons.filled.Bell
 import zone.ien.hig.icons.filled.Lock
 import zone.ien.hig.icons.filled.Mic
 import zone.ien.utils.ui.foundation.IenTheme
-import zone.ien.utils.ui.interactive.IenTextButton
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.IenBottomCTA
+import zone.ien.utils.ui.screen.IenCloseButton
 import zone.ien.utils.ui.screen.IenPermissionItem
 import zone.ien.utils.ui.screen.IenPermissionScreen
 import zone.ien.utils.ui.screen.IenScaffold
@@ -27,11 +26,9 @@ fun PermissionScreen(
             modifier = modifier,
             topBar = {
                 IenTopBar(
-                    title = { IenText("Permission Screen") },
+                    title = "Permission Screen",
                     navigationIcon = {
-                        IenTextButton(onClick = navigateBack) {
-                            IenText("닫기")
-                        }
+                        IenCloseButton(onClick = navigateBack)
                     },
                 )
             },
