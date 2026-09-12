@@ -1092,7 +1092,7 @@ private fun IenSearchFieldInput(
         shape = ContinuousRoundedRectangle(IenTheme.radius.lg),
     ) {
         Row(
-            modifier = Modifier.padding(start = 14.dp, end = 8.dp),
+            modifier = Modifier.padding(start = 16.dp, end = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             leading?.invoke()

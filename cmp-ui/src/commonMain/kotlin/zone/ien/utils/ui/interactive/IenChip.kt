@@ -118,7 +118,7 @@ object IenChipDefault {
     )
 
     /** Chip의 기본 내부 여백입니다. */
-    val ContentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+    val ContentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
 }
 
 /** 작업을 실행하는 Assist Chip입니다. */

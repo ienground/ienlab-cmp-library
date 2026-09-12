@@ -47,10 +47,10 @@ data class IenTypography(
  * @property xs 작은 여백 (8.dp)
  * @property sm 조금 작은 여백 (12.dp)
  * @property md 중간 크기 여백 (16.dp)
- * @property lg 조금 큰 여백 (20.dp)
- * @property xl 큰 여백 (24.dp)
- * @property xxl 매우 큰 여백 (32.dp)
- * @property xxxl 극대 여백 (40.dp)
+ * @property lg 조금 큰 여백 (24.dp)
+ * @property xl 큰 여백 (32.dp)
+ * @property xxl 매우 큰 여백 (48.dp)
+ * @property xxxl 극대 여백 (64.dp)
  */
 @Immutable
 data class IenSpacing(
@@ -60,10 +60,10 @@ data class IenSpacing(
     val xs: Dp = 8.dp,
     val sm: Dp = 12.dp,
     val md: Dp = 16.dp,
-    val lg: Dp = 20.dp,
-    val xl: Dp = 24.dp,
-    val xxl: Dp = 32.dp,
-    val xxxl: Dp = 40.dp,
+    val lg: Dp = 24.dp,
+    val xl: Dp = 32.dp,
+    val xxl: Dp = 48.dp,
+    val xxxl: Dp = 64.dp,
 )
 
 /**
@@ -72,8 +72,8 @@ data class IenSpacing(
  * @property none 둥글기 없음 (직각, 0.dp)
  * @property xs 매우 작은 둥글기 (4.dp)
  * @property sm 작은 둥글기 (8.dp)
- * @property default 기본 둥글기 (12.dp)
- * @property md 중간 크기 둥글기 (12.dp)
+ * @property default 기본 둥글기 (16.dp)
+ * @property md 중간 크기 둥글기 (16.dp)
  * @property lg 큰 둥글기 (16.dp)
  * @property xl 매우 큰 둥글기 (24.dp)
  * @property full 완전한 원형 형태를 위한 둥글기 (999.dp)
@@ -83,8 +83,8 @@ data class IenRadius(
     val none: Dp = 0.dp,
     val xs: Dp = 4.dp,
     val sm: Dp = 8.dp,
-    val default: Dp = 12.dp,
-    val md: Dp = 12.dp,
+    val default: Dp = 16.dp,
+    val md: Dp = 16.dp,
     val lg: Dp = 16.dp,
     val xl: Dp = 24.dp,
     val full: Dp = 999.dp,
