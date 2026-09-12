@@ -21,6 +21,7 @@ import zone.ien.utils.example.ui.screens.section.SectionScreen
 import zone.ien.utils.example.ui.screens.settings.SettingsScreen
 import zone.ien.utils.example.ui.screens.auth.FirebaseAuthScreen
 import zone.ien.utils.example.ui.screens.scrollingbubble.ScrollingBubbleScreen
+import zone.ien.utils.example.ui.screens.permission.PermissionScreen
 import zone.ien.utils.navigation.BaseNavDisplay
 import zone.ien.utils.navigation.getConfig
 import zone.ien.utils.navigation.navigateBack
@@ -40,6 +41,7 @@ sealed interface RootRoute: NavKey {
     @Serializable data object ColorTokens: RootRoute
     @Serializable data object FirebaseAuth: RootRoute
     @Serializable data object ScrollingBubble: RootRoute
+    @Serializable data object Permission: RootRoute
 }
 
 @Composable
@@ -113,6 +115,11 @@ fun RootNavigationGraph(
             }
             entry<RootRoute.ScrollingBubble> {
                 ScrollingBubbleScreen(
+                    navigateBack = { backStack.navigateBack() },
+                )
+            }
+            entry<RootRoute.Permission> {
+                PermissionScreen(
                     navigateBack = { backStack.navigateBack() },
                 )
             }

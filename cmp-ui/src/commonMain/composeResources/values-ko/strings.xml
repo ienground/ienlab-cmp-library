@@ -41,6 +41,8 @@
     <string name="agreement_required">필수</string>
     <string name="agreement_optional">선택</string>
     <string name="agreement_terms">약관 동의</string>
+    <string name="permission_required_section_title">필수 권한</string>
+    <string name="permission_optional_section_title">선택 권한</string>
     <string name="stepper_step_list">단계 목록</string>
     <string name="tab_list">탭 목록</string>
     <string name="tab_update_indicator_desc">%1$s, 업데이트 있음</string>
