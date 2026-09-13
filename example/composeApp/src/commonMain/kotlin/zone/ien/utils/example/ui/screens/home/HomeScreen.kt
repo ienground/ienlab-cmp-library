@@ -99,6 +99,7 @@ private val menuItems = listOf(
     HomeMenuItem("Adaptive Playground", RootRoute.AdaptivePlayground, Color(0xFF0F766E)),
     HomeMenuItem("Navigation", RootRoute.Navigation, Color(0xFFFDD835)),
     HomeMenuItem("Firebase Auth", RootRoute.FirebaseAuth, Color(0xFFE65100)),
+    HomeMenuItem("Auth Form", RootRoute.AuthForm, Color(0xFF3182F6)),
     HomeMenuItem("Scrolling Bubble", RootRoute.ScrollingBubble, Color(0xFF3949AB)),
     HomeMenuItem("Permission Screen", RootRoute.Permission, Color(0xFF00897B)),
 )
