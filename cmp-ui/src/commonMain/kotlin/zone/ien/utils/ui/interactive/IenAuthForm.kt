@@ -1,11 +1,13 @@
 package zone.ien.utils.ui.interactive
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -164,21 +166,31 @@ fun IenAuthForm(
     ) {
         IenTop(
             title = {
-                IenTopTitleParagraph(
-                    text = modeCopy.title,
-                    size = IenTopTitleSize.Large,
-                )
+                AuthFormAnimatedContent(
+                    targetState = modeCopy.title,
+                    label = "auth_form_title",
+                ) { title ->
+                    IenTopTitleParagraph(
+                        text = title,
+                        size = IenTopTitleSize.Large,
+                    )
+                }
             },
             subtitleBottom = modeCopy.description
                 ?.takeIf { it.isNotBlank() }
                 ?.let { description ->
                     {
-                        IenTopSubtitleParagraph(
-                            text = description,
-                            style = IenTheme.typography.body2,
-                            color = IenTheme.colors.textSecondary,
-                            fontWeight = FontWeight.Normal,
-                        )
+                        AuthFormAnimatedContent(
+                            targetState = description,
+                            label = "auth_form_description",
+                        ) { subtitle ->
+                            IenTopSubtitleParagraph(
+                                text = subtitle,
+                                style = IenTheme.typography.body2,
+                                color = IenTheme.colors.textSecondary,
+                                fontWeight = FontWeight.Normal,
+                            )
+                        }
                     }
                 },
             upperGap = 0.dp,
@@ -187,33 +199,45 @@ fun IenAuthForm(
         )
 
         Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-            IenTextField(
-                value = email,
-                onValueChange = onEmailChange,
-                label = copy.emailLabel,
-                labelOption = IenTextFieldLabelOption.Sustain,
-                placeholder = copy.emailPlaceholder,
-                state = state.email,
-                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next,
-                ),
+            AuthFormAnimatedContent(
+                targetState = copy.emailLabel to copy.emailPlaceholder,
                 modifier = Modifier.fillMaxWidth(),
-            )
+                label = "auth_form_email_copy",
+            ) { (label, placeholder) ->
+                IenTextField(
+                    value = email,
+                    onValueChange = onEmailChange,
+                    label = label,
+                    labelOption = IenTextFieldLabelOption.Sustain,
+                    placeholder = placeholder,
+                    state = state.email,
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next,
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
-            IenPasswordTextField(
-                value = password,
-                onValueChange = onPasswordChange,
-                label = copy.passwordLabel,
-                labelOption = IenTextFieldLabelOption.Sustain,
-                placeholder = copy.passwordPlaceholder,
-                state = state.password,
-                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = if (showConfirmPassword) ImeAction.Next else ImeAction.Done,
-                ),
+            AuthFormAnimatedContent(
+                targetState = copy.passwordLabel to copy.passwordPlaceholder,
                 modifier = Modifier.fillMaxWidth(),
-            )
+                label = "auth_form_password_copy",
+            ) { (label, placeholder) ->
+                IenPasswordTextField(
+                    value = password,
+                    onValueChange = onPasswordChange,
+                    label = label,
+                    labelOption = IenTextFieldLabelOption.Sustain,
+                    placeholder = placeholder,
+                    state = state.password,
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = if (showConfirmPassword) ImeAction.Next else ImeAction.Done,
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
         }
 
         AnimatedVisibility(
@@ -242,19 +266,25 @@ fun IenAuthForm(
             ),
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
-                IenPasswordTextField(
-                    value = confirmPassword,
-                    onValueChange = onConfirmPasswordChange,
-                    label = copy.confirmPasswordLabel,
-                    labelOption = IenTextFieldLabelOption.Sustain,
-                    placeholder = copy.confirmPasswordPlaceholder,
-                    state = state.confirmPassword,
-                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Done,
-                    ),
+                AuthFormAnimatedContent(
+                    targetState = copy.confirmPasswordLabel to copy.confirmPasswordPlaceholder,
                     modifier = Modifier.fillMaxWidth(),
-                )
+                    label = "auth_form_confirm_password_copy",
+                ) { (label, placeholder) ->
+                    IenPasswordTextField(
+                        value = confirmPassword,
+                        onValueChange = onConfirmPasswordChange,
+                        label = label,
+                        labelOption = IenTextFieldLabelOption.Sustain,
+                        placeholder = placeholder,
+                        state = state.confirmPassword,
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Done,
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
                 if (showRules) {
                     PasswordRules(
                         title = copy.passwordRulesTitle,
@@ -274,7 +304,12 @@ fun IenAuthForm(
             state = state.submit,
             display = IenButtonDisplay.Block,
         ) {
-            IenText(text = modeCopy.submitLabel)
+            AuthFormAnimatedContent(
+                targetState = modeCopy.submitLabel,
+                label = "auth_form_submit_label",
+            ) { label ->
+                IenText(text = label)
+            }
         }
 
         modeCopy.modePrompt?.takeIf { it.isNotBlank() }?.let { prompt ->
@@ -284,11 +319,16 @@ fun IenAuthForm(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    IenText(
-                        text = prompt,
-                        style = IenTheme.typography.body2,
-                        color = IenTheme.colors.textSecondary,
-                    )
+                    AuthFormAnimatedContent(
+                        targetState = prompt,
+                        label = "auth_form_mode_prompt",
+                    ) { text ->
+                        IenText(
+                            text = text,
+                            style = IenTheme.typography.body2,
+                            color = IenTheme.colors.textSecondary,
+                        )
+                    }
                     IenTextButton(
                         onClick = {
                             onModeChange(
@@ -301,7 +341,12 @@ fun IenAuthForm(
                         size = IenTextButtonSize.XLarge,
                         state = IenButtonState(enabled = !state.submit.loading),
                     ) {
-                        IenText(text = actionLabel)
+                        AuthFormAnimatedContent(
+                            targetState = actionLabel,
+                            label = "auth_form_mode_action_label",
+                        ) { label ->
+                            IenText(text = label)
+                        }
                     }
                 }
             }
@@ -309,12 +354,18 @@ fun IenAuthForm(
 
         providers?.let { providerContent ->
             if (!copy.socialLoginTitle.isNullOrBlank()) {
-                IenText(
-                    text = copy.socialLoginTitle,
+                AuthFormAnimatedContent(
+                    targetState = copy.socialLoginTitle,
                     modifier = Modifier.fillMaxWidth(),
-                    style = IenTheme.typography.label2,
-                    color = IenTheme.colors.textSecondary,
-                )
+                    label = "auth_form_social_login_title",
+                ) { title ->
+                    IenText(
+                        text = title,
+                        modifier = Modifier.fillMaxWidth(),
+                        style = IenTheme.typography.label2,
+                        color = IenTheme.colors.textSecondary,
+                    )
+                }
             }
             providerContent()
         }
@@ -334,6 +385,39 @@ fun IenAuthForm(
 }
 
 @Composable
+private fun <T> AuthFormAnimatedContent(
+    targetState: T,
+    label: String,
+    modifier: Modifier = Modifier,
+    content: @Composable (T) -> Unit,
+) {
+    val normalMillis = IenTheme.motion.normalMillis
+    val fastMillis = IenTheme.motion.fastMillis
+    val standardEasing = IenTheme.motion.standardEasing
+
+    AnimatedContent(
+        targetState = targetState,
+        modifier = modifier,
+        transitionSpec = {
+            fadeIn(
+                animationSpec = tween(
+                    durationMillis = normalMillis,
+                    easing = standardEasing,
+                ),
+            ) togetherWith fadeOut(
+                animationSpec = tween(
+                    durationMillis = fastMillis,
+                    easing = standardEasing,
+                ),
+            )
+        },
+        label = label,
+    ) { state ->
+        content(state)
+    }
+}
+
+@Composable
 private fun PasswordRules(
     title: String?,
     rules: List<IenPasswordRule>,
@@ -349,11 +433,16 @@ private fun PasswordRules(
             verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
         ) {
             title?.takeIf { it.isNotBlank() }?.let {
-                IenText(
-                    text = it,
-                    style = IenTheme.typography.label1,
-                    color = IenTheme.colors.textPrimary,
-                )
+                AuthFormAnimatedContent(
+                    targetState = it,
+                    label = "auth_form_password_rules_title",
+                ) { titleText ->
+                    IenText(
+                        text = titleText,
+                        style = IenTheme.typography.label1,
+                        color = IenTheme.colors.textPrimary,
+                    )
+                }
             }
             rules.forEach { rule ->
                 val color = if (rule.satisfied) IenTheme.colors.success else IenTheme.colors.textTertiary

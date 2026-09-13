@@ -3,9 +3,12 @@ package zone.ien.utils.example.ui.screens.auth
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -133,90 +136,105 @@ fun AuthFormScreen(
         ) { paddingValues, title ->
             Column(
                 modifier = Modifier
-                    .verticalScroll(rememberScrollState())
+                    .fillMaxSize()
                     .padding(paddingValues)
                     .padding(horizontal = IenTheme.spacing.xl),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xl),
             ) {
                 title()
-                IenAuthForm(
-                    mode = mode,
-                    email = email,
-                    password = password,
-                    confirmPassword = confirmPassword,
-                    copy = copy,
-                    passwordRules = passwordRules,
-                    providers = {
-                        Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                            AuthProviderButton(
-                                label = "Google",
-                                enabled = !formState.submit.loading,
-                                onClick = {
-                                    status = IenAuthFormStatus.Success("Google 로그인을 준비했습니다")
-                                },
-                            ) {
-                                AuthProviderMark("G")
-                            }
-                            AuthProviderButton(
-                                label = "Apple",
-                                enabled = !formState.submit.loading,
-                                onClick = {
-                                    status = IenAuthFormStatus.Success("Apple 로그인을 준비했습니다")
-                                },
-                            ) {
-                                IenIcon(
-                                    imageVector = CupertinoIcons.Outlined.AppleLogo,
-                                    contentDescription = null,
-                                    tint = IenTheme.colors.textPrimary,
+                BoxWithConstraints(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                            .heightIn(min = maxHeight),
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        IenAuthForm(
+                            mode = mode,
+                            email = email,
+                            password = password,
+                            confirmPassword = confirmPassword,
+                            copy = copy,
+                            passwordRules = passwordRules,
+                            providers = {
+                                Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
+                                    AuthProviderButton(
+                                        label = "Google",
+                                        enabled = !formState.submit.loading,
+                                        onClick = {
+                                            status = IenAuthFormStatus.Success("Google 로그인을 준비했습니다")
+                                        },
+                                    ) {
+                                        AuthProviderMark("G")
+                                    }
+                                    AuthProviderButton(
+                                        label = "Apple",
+                                        enabled = !formState.submit.loading,
+                                        onClick = {
+                                            status = IenAuthFormStatus.Success("Apple 로그인을 준비했습니다")
+                                        },
+                                    ) {
+                                        IenIcon(
+                                            imageVector = CupertinoIcons.Outlined.AppleLogo,
+                                            contentDescription = null,
+                                            tint = IenTheme.colors.textPrimary,
+                                        )
+                                    }
+                                    AuthProviderButton(
+                                        label = "네이버",
+                                        enabled = !formState.submit.loading,
+                                        onClick = {
+                                            status = IenAuthFormStatus.Success("네이버 로그인을 준비했습니다")
+                                        },
+                                    ) {
+                                        AuthProviderMark("N")
+                                    }
+                                    AuthProviderButton(
+                                        label = "카카오",
+                                        enabled = !formState.submit.loading,
+                                        onClick = {
+                                            status = IenAuthFormStatus.Success("카카오 로그인을 준비했습니다")
+                                        },
+                                    ) {
+                                        AuthProviderMark("K")
+                                    }
+                                }
+                            },
+                            state = formState,
+                            guestAction = IenAuthGuestAction("게스트로 계속하기") {
+                                status = IenAuthFormStatus.Success("게스트 모드로 시작합니다")
+                            },
+                            onEmailChange = {
+                                email = it
+                                status = IenAuthFormStatus.Idle
+                            },
+                            onPasswordChange = {
+                                password = it
+                                status = IenAuthFormStatus.Idle
+                            },
+                            onConfirmPasswordChange = {
+                                confirmPassword = it
+                                status = IenAuthFormStatus.Idle
+                            },
+                            onSubmit = {
+                                status = IenAuthFormStatus.Success(
+                                    if (mode == IenAuthFormMode.Login) "로그인 요청을 준비했습니다"
+                                    else "회원가입 요청을 준비했습니다",
                                 )
-                            }
-                            AuthProviderButton(
-                                label = "네이버",
-                                enabled = !formState.submit.loading,
-                                onClick = {
-                                    status = IenAuthFormStatus.Success("네이버 로그인을 준비했습니다")
-                                },
-                            ) {
-                                AuthProviderMark("N")
-                            }
-                            AuthProviderButton(
-                                label = "카카오",
-                                enabled = !formState.submit.loading,
-                                onClick = {
-                                    status = IenAuthFormStatus.Success("카카오 로그인을 준비했습니다")
-                                },
-                            ) {
-                                AuthProviderMark("K")
-                            }
-                        }
-                    },
-                    state = formState,
-                    guestAction = IenAuthGuestAction("게스트로 계속하기") {
-                        status = IenAuthFormStatus.Success("게스트 모드로 시작합니다")
-                    },
-                    onEmailChange = {
-                        email = it
-                        status = IenAuthFormStatus.Idle
-                    },
-                    onPasswordChange = {
-                        password = it
-                        status = IenAuthFormStatus.Idle
-                    },
-                    onConfirmPasswordChange = {
-                        confirmPassword = it
-                        status = IenAuthFormStatus.Idle
-                    },
-                    onSubmit = {
-                        status = IenAuthFormStatus.Success(
-                            if (mode == IenAuthFormMode.Login) "로그인 요청을 준비했습니다"
-                            else "회원가입 요청을 준비했습니다",
+                            },
+                            onModeChange = {
+                                mode = it
+                                status = IenAuthFormStatus.Idle
+                            },
+                            modifier = Modifier.fillMaxWidth(),
                         )
-                    },
-                    onModeChange = {
-                        mode = it
-                        status = IenAuthFormStatus.Idle
-                    },
-                )
+                    }
+                }
             }
         }
     }
