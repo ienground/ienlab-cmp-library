@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -32,8 +34,11 @@ import zone.ien.utils.ui.interactive.IenAuthFormModeCopy
 import zone.ien.utils.ui.interactive.IenAuthFormState
 import zone.ien.utils.ui.interactive.IenAuthFormStatus
 import zone.ien.utils.ui.interactive.IenAuthGuestAction
-import zone.ien.utils.ui.interactive.IenAuthProvider
+import zone.ien.utils.ui.interactive.IenButton
+import zone.ien.utils.ui.interactive.IenButtonDisplay
+import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
+import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenFieldStatus
 import zone.ien.utils.ui.interactive.IenPasswordRule
 import zone.ien.utils.ui.interactive.IenTextFieldState
@@ -141,34 +146,50 @@ fun AuthFormScreen(
                     confirmPassword = confirmPassword,
                     copy = copy,
                     passwordRules = passwordRules,
-                    providers = listOf(
-                        IenAuthProvider(
-                            id = "google",
-                            label = "Google",
-                            icon = { AuthProviderMark("G") },
-                        ),
-                        IenAuthProvider(
-                            id = "apple",
-                            label = "Apple",
-                            icon = {
+                    providers = {
+                        Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
+                            AuthProviderButton(
+                                label = "Google",
+                                enabled = !formState.submit.loading,
+                                onClick = {
+                                    status = IenAuthFormStatus.Success("Google 로그인을 준비했습니다")
+                                },
+                            ) {
+                                AuthProviderMark("G")
+                            }
+                            AuthProviderButton(
+                                label = "Apple",
+                                enabled = !formState.submit.loading,
+                                onClick = {
+                                    status = IenAuthFormStatus.Success("Apple 로그인을 준비했습니다")
+                                },
+                            ) {
                                 IenIcon(
                                     imageVector = CupertinoIcons.Outlined.AppleLogo,
                                     contentDescription = null,
                                     tint = IenTheme.colors.textPrimary,
                                 )
-                            },
-                        ),
-                        IenAuthProvider(
-                            id = "naver",
-                            label = "네이버",
-                            icon = { AuthProviderMark("N") },
-                        ),
-                        IenAuthProvider(
-                            id = "kakao",
-                            label = "카카오",
-                            icon = { AuthProviderMark("K") },
-                        ),
-                    ),
+                            }
+                            AuthProviderButton(
+                                label = "네이버",
+                                enabled = !formState.submit.loading,
+                                onClick = {
+                                    status = IenAuthFormStatus.Success("네이버 로그인을 준비했습니다")
+                                },
+                            ) {
+                                AuthProviderMark("N")
+                            }
+                            AuthProviderButton(
+                                label = "카카오",
+                                enabled = !formState.submit.loading,
+                                onClick = {
+                                    status = IenAuthFormStatus.Success("카카오 로그인을 준비했습니다")
+                                },
+                            ) {
+                                AuthProviderMark("K")
+                            }
+                        }
+                    },
                     state = formState,
                     guestAction = IenAuthGuestAction("게스트로 계속하기") {
                         status = IenAuthFormStatus.Success("게스트 모드로 시작합니다")
@@ -195,9 +216,6 @@ fun AuthFormScreen(
                         mode = it
                         status = IenAuthFormStatus.Idle
                     },
-                    onProviderClick = { provider ->
-                        status = IenAuthFormStatus.Success("${provider.label} 로그인을 준비했습니다")
-                    },
                 )
             }
         }
@@ -208,6 +226,36 @@ fun AuthFormScreen(
 @Composable
 private fun AuthFormPreview() {
     AuthFormScreen(navigateBack = {})
+}
+
+@Composable
+private fun AuthProviderButton(
+    label: String,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    icon: @Composable () -> Unit,
+) {
+    IenButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        size = IenButtonSize.Medium,
+        variant = IenButtonVariant.Line,
+        state = IenButtonState(enabled = enabled),
+        display = IenButtonDisplay.Block,
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier.size(IenTheme.icon.md),
+                contentAlignment = Alignment.Center,
+            ) {
+                icon()
+            }
+            IenText(text = label)
+        }
+    }
 }
 
 @Composable

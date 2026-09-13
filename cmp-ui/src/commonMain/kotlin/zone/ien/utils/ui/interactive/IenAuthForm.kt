@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,6 +26,7 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -32,6 +34,10 @@ import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.screen.IenTop
+import zone.ien.utils.ui.screen.IenTopSubtitleParagraph
+import zone.ien.utils.ui.screen.IenTopTitleParagraph
+import zone.ien.utils.ui.screen.IenTopTitleSize
 
 /** 인증 폼에서 현재 편집 중인 인증 흐름입니다. */
 enum class IenAuthFormMode {
@@ -73,13 +79,6 @@ data class IenPasswordRule(
     val label: String,
     val satisfied: Boolean,
     val statusDescription: String? = null,
-)
-
-/** 소셜 로그인 provider의 식별자, 표시 이름, 아이콘 슬롯입니다. */
-data class IenAuthProvider(
-    val id: String,
-    val label: String,
-    val icon: @Composable () -> Unit,
 )
 
 /** 인증 폼 아래에 선택적으로 표시하는 게스트 진입 동작입니다. */
@@ -125,11 +124,10 @@ sealed interface IenAuthFormStatus {
  * @param onPasswordChange 비밀번호 변경 콜백
  * @param onSubmit 제출 콜백
  * @param onModeChange 모드 전환 콜백
- * @param onProviderClick provider 클릭 콜백
  * @param modifier 루트 레이아웃에 적용할 [Modifier]
  * @param confirmPassword 회원가입 모드의 비밀번호 확인 입력값
  * @param passwordRules 회원가입 모드에 표시할 비밀번호 조건 목록
- * @param providers 표시할 소셜 로그인 provider 목록
+ * @param providers 소셜 로그인 버튼·아이콘·클릭을 호출자가 구성하는 슬롯. null이면 표시하지 않습니다.
  * @param state 필드·제출·결과 상태
  * @param onConfirmPasswordChange 비밀번호 확인 변경 콜백
  * @param guestAction 선택적 게스트 진입 동작. null이면 표시하지 않습니다.
@@ -144,11 +142,10 @@ fun IenAuthForm(
     onPasswordChange: (String) -> Unit,
     onSubmit: () -> Unit,
     onModeChange: (IenAuthFormMode) -> Unit,
-    onProviderClick: (IenAuthProvider) -> Unit,
     modifier: Modifier = Modifier,
     confirmPassword: String = "",
     passwordRules: List<IenPasswordRule> = emptyList(),
-    providers: List<IenAuthProvider> = emptyList(),
+    providers: (@Composable () -> Unit)? = null,
     state: IenAuthFormState = IenAuthFormState(),
     onConfirmPasswordChange: (String) -> Unit = {},
     guestAction: IenAuthGuestAction? = null,
@@ -159,50 +156,64 @@ fun IenAuthForm(
     }
     val showConfirmPassword = mode == IenAuthFormMode.SignUp
     val showRules = showConfirmPassword && passwordRules.isNotEmpty()
-    val showSocialProviders = providers.isNotEmpty()
 
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
     ) {
-        IenText(
-            text = modeCopy.title,
-            style = IenTheme.typography.title1,
-            color = IenTheme.colors.textPrimary,
+        IenTop(
+            title = {
+                IenTopTitleParagraph(
+                    text = modeCopy.title,
+                    size = IenTopTitleSize.Large,
+                )
+            },
+            subtitleBottom = modeCopy.description
+                ?.takeIf { it.isNotBlank() }
+                ?.let { description ->
+                    {
+                        IenTopSubtitleParagraph(
+                            text = description,
+                            style = IenTheme.typography.body2,
+                            color = IenTheme.colors.textSecondary,
+                            fontWeight = FontWeight.Normal,
+                        )
+                    }
+                },
+            upperGap = 0.dp,
+            lowerGap = 0.dp,
+            contentPadding = PaddingValues(0.dp),
         )
-        modeCopy.description?.takeIf { it.isNotBlank() }?.let {
-            IenText(
-                text = it,
-                style = IenTheme.typography.body2,
-                color = IenTheme.colors.textSecondary,
+
+        Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
+            IenTextField(
+                value = email,
+                onValueChange = onEmailChange,
+                label = copy.emailLabel,
+                labelOption = IenTextFieldLabelOption.Sustain,
+                placeholder = copy.emailPlaceholder,
+                state = state.email,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next,
+                ),
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            IenPasswordTextField(
+                value = password,
+                onValueChange = onPasswordChange,
+                label = copy.passwordLabel,
+                labelOption = IenTextFieldLabelOption.Sustain,
+                placeholder = copy.passwordPlaceholder,
+                state = state.password,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = if (showConfirmPassword) ImeAction.Next else ImeAction.Done,
+                ),
+                modifier = Modifier.fillMaxWidth(),
             )
         }
-
-        IenTextField(
-            value = email,
-            onValueChange = onEmailChange,
-            label = copy.emailLabel,
-            placeholder = copy.emailPlaceholder,
-            state = state.email,
-            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Next,
-            ),
-            modifier = Modifier.fillMaxWidth(),
-        )
-
-        IenPasswordTextField(
-            value = password,
-            onValueChange = onPasswordChange,
-            label = copy.passwordLabel,
-            placeholder = copy.passwordPlaceholder,
-            state = state.password,
-            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = if (showConfirmPassword) ImeAction.Next else ImeAction.Done,
-            ),
-            modifier = Modifier.fillMaxWidth(),
-        )
 
         AnimatedVisibility(
             visible = showConfirmPassword,
@@ -234,6 +245,7 @@ fun IenAuthForm(
                     value = confirmPassword,
                     onValueChange = onConfirmPasswordChange,
                     label = copy.confirmPasswordLabel,
+                    labelOption = IenTextFieldLabelOption.Sustain,
                     placeholder = copy.confirmPasswordPlaceholder,
                     state = state.confirmPassword,
                     keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
@@ -299,7 +311,7 @@ fun IenAuthForm(
             }
         }
 
-        if (showSocialProviders) {
+        providers?.let { providerContent ->
             if (!copy.socialLoginTitle.isNullOrBlank()) {
                 IenText(
                     text = copy.socialLoginTitle,
@@ -308,31 +320,7 @@ fun IenAuthForm(
                     color = IenTheme.colors.textSecondary,
                 )
             }
-            Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                providers.forEach { provider ->
-                    IenButton(
-                        onClick = { onProviderClick(provider) },
-                        modifier = Modifier.fillMaxWidth(),
-                        size = IenButtonSize.Medium,
-                        variant = IenButtonVariant.Line,
-                        state = IenButtonState(enabled = !state.submit.loading),
-                        display = IenButtonDisplay.Block,
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Box(
-                                modifier = Modifier.size(IenTheme.icon.md),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                provider.icon()
-                            }
-                            IenText(text = provider.label)
-                        }
-                    }
-                }
-            }
+            providerContent()
         }
 
         guestAction?.let { action ->

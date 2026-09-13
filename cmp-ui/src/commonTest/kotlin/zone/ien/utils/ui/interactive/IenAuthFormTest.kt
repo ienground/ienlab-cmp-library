@@ -31,16 +31,4 @@ class IenAuthFormTest {
         guestAction.onClick()
         assertTrue(clicked)
     }
-
-    @Test
-    fun `provider 모델은 호출자가 공급한 식별자와 이름을 보존한다`() {
-        val provider = IenAuthProvider(
-            id = "google",
-            label = "Google",
-            icon = {},
-        )
-
-        assertEquals("google", provider.id)
-        assertEquals("Google", provider.label)
-    }
 }
