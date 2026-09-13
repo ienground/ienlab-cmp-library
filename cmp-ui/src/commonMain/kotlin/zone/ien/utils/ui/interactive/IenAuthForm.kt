@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
@@ -272,11 +273,6 @@ fun IenAuthForm(
             variant = IenButtonVariant.Fill,
             state = state.submit,
             display = IenButtonDisplay.Block,
-            colors = IenButtonDefault.colors(
-                variant = IenButtonVariant.Fill,
-                tone = zone.ien.utils.ui.foundation.IenSemanticTone.Brand,
-                useGradient = false,
-            ),
         ) {
             IenText(text = modeCopy.submitLabel)
         }
