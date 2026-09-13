@@ -113,7 +113,7 @@ fun IenPlaygroundScreen(
                                 contentDescription = null
                             )
                         },
-                        label = { IenText("Save") }
+                        label = { IenText("저장") }
                     )
                     CustomNavigationBarItem(
                         index = 1,
@@ -124,7 +124,7 @@ fun IenPlaygroundScreen(
                                 contentDescription = null
                             )
                         },
-                        label = { IenText("Edit") }
+                        label = { IenText("수정") }
                     )
                     CustomNavigationBarItem(
                         index = 2,
@@ -135,7 +135,7 @@ fun IenPlaygroundScreen(
                                 contentDescription = null
                             )
                         },
-                        label = { IenText("Schedule") }
+                        label = { IenText("스케쥴") }
                     )
                 }
             }

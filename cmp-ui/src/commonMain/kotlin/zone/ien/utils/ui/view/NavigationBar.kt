@@ -413,7 +413,7 @@ fun RowScope.CustomNavigationBarItem(
                     if (showLabel) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.width(IntrinsicSize.Min),
+                            modifier = Modifier.width(IntrinsicSize.Max),
                         ) {
                             Spacer(modifier = Modifier.width(8.dp))
                             ProvideTextStyle(
