@@ -1,12 +1,17 @@
 package zone.ien.utils.ui.layout
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +26,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
+
+/**
+ * 상태가 바뀔 때 콘텐츠를 교체하며 진입·종료 애니메이션을 적용합니다.
+ *
+ * [content]는 바깥에서 캡처한 상태가 아니라 전달받은 [targetState]로 콘텐츠를 그려야
+ * 종료 중인 콘텐츠가 새 상태를 잘못 표시하지 않습니다.
+ *
+ * @param targetState 현재 표시할 콘텐츠를 식별하는 상태
+ * @param modifier 레이아웃에 적용할 [Modifier]
+ * @param enter 새 콘텐츠에 적용할 진입 애니메이션
+ * @param exit 이전 콘텐츠에 적용할 종료 애니메이션
+ * @param content 상태별 콘텐츠
+ */
+@Composable
+fun <T> IenAnimatedContent(
+    targetState: T,
+    modifier: Modifier = Modifier,
+    enter: EnterTransition = fadeIn(animationSpec = spring(dampingRatio = 1.2f)),
+    exit: ExitTransition = fadeOut(animationSpec = spring(dampingRatio = 1.2f)),
+    content: @Composable (T) -> Unit,
+) {
+    AnimatedContent(
+        targetState = targetState,
+        modifier = modifier,
+        transitionSpec = { enter togetherWith exit },
+        label = "IenAnimatedContent",
+    ) { state ->
+        content(state)
+    }
+}
 
 /**
  * 항목이 추가되거나 제거될 때 수직으로 나타나고 사라지는 레이아웃입니다.

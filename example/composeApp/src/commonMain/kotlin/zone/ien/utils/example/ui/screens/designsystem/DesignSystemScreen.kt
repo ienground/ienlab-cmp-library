@@ -1,5 +1,8 @@
 package zone.ien.utils.example.ui.screens.designsystem
 
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -77,6 +80,7 @@ import zone.ien.utils.ui.list.IenBoardRow
 import zone.ien.utils.ui.layout.IenBorder
 import zone.ien.utils.ui.layout.IenBorderVariant
 import zone.ien.utils.ui.layout.IenAnimatedColumn
+import zone.ien.utils.ui.layout.IenAnimatedContent
 import zone.ien.utils.ui.layout.IenAnimatedRow
 import zone.ien.utils.ui.screen.IenBottomCTA
 import zone.ien.utils.ui.screen.IenBottomCTAAnimation
@@ -332,6 +336,7 @@ fun DesignSystemScreen(
                     .padding(contentPadding),
             ) {
                 AnimatedLayoutSection()
+                AnimatedContentSection()
                 BadgeSection()
                 BoardRowSection()
                 BorderSection()
@@ -569,6 +574,104 @@ fun AnimatedLayoutSection() {
                     ) {
                         IenText(text = "가로 $item")
                     }
+                }
+            }
+        }
+    }
+}
+
+private enum class AnimatedContentSampleState {
+    Loading,
+    Error,
+    Content,
+}
+
+@Preview
+@Composable
+fun AnimatedContentSection() {
+    IenTheme {
+        var state by remember { mutableStateOf(AnimatedContentSampleState.Loading) }
+
+        ComponentSection(title = "AnimatedContent") {
+            IenText(
+                text = "분기만 작성하고 진입·종료 애니메이션은 한 번만 지정합니다.",
+                style = IenTheme.typography.body2,
+                color = IenTheme.colors.textSecondary,
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+            ) {
+                IenButton(
+                    onClick = { state = AnimatedContentSampleState.Loading },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                ) {
+                    IenText("Loading")
+                }
+                IenButton(
+                    onClick = { state = AnimatedContentSampleState.Error },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                ) {
+                    IenText("Error")
+                }
+                IenButton(
+                    onClick = { state = AnimatedContentSampleState.Content },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                ) {
+                    IenText("Content")
+                }
+            }
+            IenAnimatedContent(
+                targetState = state,
+                modifier = Modifier.fillMaxWidth(),
+                enter = fadeIn(animationSpec = spring(dampingRatio = 1.2f)),
+                exit = fadeOut(animationSpec = spring(dampingRatio = 1.2f)),
+            ) { targetState ->
+                when (targetState) {
+                    AnimatedContentSampleState.Loading ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(96.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            IenLoader(label = "데이터를 불러오는 중")
+                        }
+
+                    AnimatedContentSampleState.Error ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(96.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            IenText(text = "데이터를 불러오지 못했어요")
+                            IenButton(
+                                onClick = { state = AnimatedContentSampleState.Loading },
+                                size = IenButtonSize.Small,
+                            ) {
+                                IenText("다시 시도")
+                            }
+                        }
+
+                    AnimatedContentSampleState.Content ->
+                        IenSurface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(96.dp),
+                            color = IenTheme.colors.surfaceWeak,
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                IenText(text = "콘텐츠가 표시됐어요")
+                            }
+                        }
                 }
             }
         }
