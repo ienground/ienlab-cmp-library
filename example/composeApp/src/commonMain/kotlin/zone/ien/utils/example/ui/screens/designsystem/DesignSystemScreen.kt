@@ -76,6 +76,8 @@ import zone.ien.utils.ui.primitives.IenAssetFrameSize
 import zone.ien.utils.ui.list.IenBoardRow
 import zone.ien.utils.ui.layout.IenBorder
 import zone.ien.utils.ui.layout.IenBorderVariant
+import zone.ien.utils.ui.layout.IenAnimatedColumn
+import zone.ien.utils.ui.layout.IenAnimatedRow
 import zone.ien.utils.ui.screen.IenBottomCTA
 import zone.ien.utils.ui.screen.IenBottomCTAAnimation
 import zone.ien.utils.ui.screen.IenBottomCTABackground
@@ -329,6 +331,7 @@ fun DesignSystemScreen(
                     .verticalScroll(scrollState)
                     .padding(contentPadding),
             ) {
+                AnimatedLayoutSection()
                 BadgeSection()
                 BoardRowSection()
                 BorderSection()
@@ -473,6 +476,100 @@ fun DesignSystemScreen(
                 PrimitivesSection()
 
                 Spacer(modifier = Modifier.height(IenTheme.spacing.md))
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun AnimatedLayoutSection() {
+    IenTheme {
+        var columnItems by remember { mutableStateOf(listOf(1, 2)) }
+        var rowItems by remember { mutableStateOf(listOf(1, 2)) }
+        var nextColumnItem by remember { mutableIntStateOf(3) }
+        var nextRowItem by remember { mutableIntStateOf(3) }
+
+        ComponentSection(title = "AnimatedLayout") {
+            IenText(
+                text = "항목을 추가하거나 제거하면 레이아웃 크기와 콘텐츠가 함께 애니메이션됩니다.",
+                style = IenTheme.typography.body2,
+                color = IenTheme.colors.textSecondary,
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+            ) {
+                IenButton(
+                    onClick = {
+                        columnItems = columnItems + nextColumnItem
+                        nextColumnItem++
+                    },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                ) {
+                    IenText("세로 추가")
+                }
+                IenButton(
+                    onClick = { columnItems = columnItems.dropLast(1) },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                    state = IenButtonState(enabled = columnItems.isNotEmpty()),
+                ) {
+                    IenText("세로 제거")
+                }
+                IenButton(
+                    onClick = {
+                        rowItems = rowItems + nextRowItem
+                        nextRowItem++
+                    },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                ) {
+                    IenText("가로 추가")
+                }
+                IenButton(
+                    onClick = { rowItems = rowItems.dropLast(1) },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                    state = IenButtonState(enabled = rowItems.isNotEmpty()),
+                ) {
+                    IenText("가로 제거")
+                }
+            }
+            IenAnimatedColumn(
+                items = columnItems,
+                key = { it },
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+            ) { item ->
+                IenSurface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = IenTheme.colors.surfaceWeak,
+                ) {
+                    IenText(
+                        text = "세로 항목 $item",
+                        modifier = Modifier.padding(IenTheme.spacing.md),
+                    )
+                }
+            }
+            IenAnimatedRow(
+                items = rowItems,
+                key = { it },
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                verticalAlignment = Alignment.CenterVertically,
+            ) { item ->
+                IenSurface(
+                    modifier = Modifier.size(88.dp, 48.dp),
+                    color = IenTheme.colors.brandWeak,
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        IenText(text = "가로 $item")
+                    }
+                }
             }
         }
     }
