@@ -87,6 +87,10 @@ import zone.ien.utils.ui.feedback.IenBottomSheetOption
 import zone.ien.utils.ui.feedback.IenBottomSheetSelect
 import zone.ien.utils.ui.content.IenBubble
 import zone.ien.utils.ui.content.IenBubbleBackground
+import zone.ien.utils.ui.content.IenCard
+import zone.ien.utils.ui.content.IenCardDefaults
+import zone.ien.utils.ui.content.IenCardToneVariant
+import zone.ien.utils.ui.content.IenCardVariant
 import zone.ien.utils.ui.dialog.IenAlertDialogAlertButton
 import zone.ien.utils.ui.dialog.IenAlertDialogDescription
 import zone.ien.utils.ui.dialog.IenAlertDialogTitle
@@ -332,6 +336,7 @@ fun DesignSystemScreen(
                 BottomSheetSection()
                 BubbleSection()
                 ButtonSection()
+                CardSection()
                 ChipSection()
                 CheckboxSection()
                 FabSection()
@@ -821,6 +826,80 @@ fun ButtonSection() {
                     )
                 }
             }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun CardSection() {
+    IenTheme {
+        var clickedCard by remember { mutableStateOf("없음") }
+
+        ComponentSection(title = "Card") {
+            IenCard(
+                onClick = { clickedCard = "Filled · Solid" },
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
+                    IenText("Filled · Solid", style = IenTheme.typography.title3)
+                    IenText(
+                        text = "중립 표면과 고도로 컨테이너를 구분합니다.",
+                        style = IenTheme.typography.body2,
+                        color = IenTheme.colors.textSecondary,
+                    )
+                }
+            }
+            IenCard(
+                tone = IenSemanticTone.Brand,
+                toneVariant = IenCardToneVariant.Weak,
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
+                    IenText("Filled · Weak", style = IenTheme.typography.title3)
+                    IenText(
+                        text = "브랜드의 약한 배경색을 정보 영역에 사용할 수 있습니다.",
+                        style = IenTheme.typography.body2,
+                        color = IenTheme.colors.brand,
+                    )
+                }
+            }
+            IenCard(
+                variant = IenCardVariant.Outlined,
+                tone = IenSemanticTone.Brand,
+            ) {
+                IenText(
+                    text = "Outlined · Solid",
+                    style = IenTheme.typography.title3,
+                )
+            }
+            IenCard(
+                variant = IenCardVariant.Outlined,
+                tone = IenSemanticTone.Danger,
+                toneVariant = IenCardToneVariant.Weak,
+            ) {
+                IenText(
+                    text = "Outlined · Weak",
+                    style = IenTheme.typography.title3,
+                )
+            }
+            IenCard(
+                variant = IenCardVariant.Outlined,
+                colors = IenCardDefaults.colors(
+                    variant = IenCardVariant.Outlined,
+                    container = IenTheme.colors.surfaceVariant,
+                    content = IenTheme.colors.textPrimary,
+                    border = IenTheme.colors.borderStrong,
+                ),
+            ) {
+                IenText(
+                    text = "색상 직접 재정의",
+                    style = IenTheme.typography.title3,
+                )
+            }
+            IenText(
+                text = "마지막 클릭 카드: $clickedCard",
+                style = IenTheme.typography.caption,
+                color = IenTheme.colors.textTertiary,
+            )
         }
     }
 }

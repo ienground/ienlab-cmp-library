@@ -6,6 +6,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -213,6 +214,12 @@ val LocalIenTokens = staticCompositionLocalOf { defaultIenTokens() }
  * 현재 IenTheme가 다크 색상 스키마를 사용 중인지 전달하는 CompositionLocal입니다.
  */
 val LocalIenDarkTheme = staticCompositionLocalOf { false }
+
+internal fun resolveThemeColor(
+    isDarkTheme: Boolean,
+    lightColor: Color,
+    darkColor: Color,
+): Color = if (isDarkTheme) darkColor else lightColor
 
 /**
  * 앱 전반의 테마 정보에 쉽게 접근할 수 있도록 해주는 싱글톤 테마 객체입니다.

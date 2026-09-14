@@ -72,6 +72,8 @@ import zone.ien.utils.icon.remix.line.EyeOff
 import zone.ien.utils.icon.remix.line.Search
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.foundation.LocalIenDarkTheme
+import zone.ien.utils.ui.foundation.resolveThemeColor
 import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
@@ -1223,36 +1225,36 @@ fun IenSearchFieldDeleteButton(
 
 @Composable
 private fun searchFieldContainerColor(): Color {
-    return if (IenTheme.colors.background == Color(0xFFFFFFFF)) {
-        Color(0xFFF2F4F6)
-    } else {
-        Color(0xFF20252B)
-    }
+    return resolveThemeColor(
+        isDarkTheme = LocalIenDarkTheme.current,
+        lightColor = Color(0xFFF2F4F6),
+        darkColor = Color(0xFF20252B),
+    )
 }
 
 @Composable
 private fun searchFieldIconColor(): Color {
-    return if (IenTheme.colors.background == Color(0xFFFFFFFF)) {
-        Color(0xFF8B95A1)
-    } else {
-        Color(0xFF6B7684)
-    }
+    return resolveThemeColor(
+        isDarkTheme = LocalIenDarkTheme.current,
+        lightColor = Color(0xFF8B95A1),
+        darkColor = Color(0xFF6B7684),
+    )
 }
 
 @Composable
 private fun searchFieldDeleteButtonColor(): Color {
-    return if (IenTheme.colors.background == Color(0xFFFFFFFF)) {
-        Color(0xFFD1D6DB)
-    } else {
-        Color(0xFF3A414A)
-    }
+    return resolveThemeColor(
+        isDarkTheme = LocalIenDarkTheme.current,
+        lightColor = Color(0xFFD1D6DB),
+        darkColor = Color(0xFF3A414A),
+    )
 }
 
 @Composable
 private fun searchFieldDeleteIconColor(): Color {
-    return if (IenTheme.colors.background == Color(0xFFFFFFFF)) {
-        Color(0xFFFFFFFF)
-    } else {
-        Color(0xFFB0B8C1)
-    }
+    return resolveThemeColor(
+        isDarkTheme = LocalIenDarkTheme.current,
+        lightColor = Color(0xFFFFFFFF),
+        darkColor = Color(0xFFB0B8C1),
+    )
 }
