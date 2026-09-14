@@ -2,11 +2,69 @@ package zone.ien.utils.ui.content
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.defaultLightIenColorScheme
 
 class IenCardTest {
     private val colors = defaultLightIenColorScheme()
+
+    @Test
+    fun `Filled Solid 브랜드 카드는 그라데이션 브러시를 사용한다`() {
+        assertNotNull(
+            resolveIenCardContainerBrush(
+                variant = IenCardVariant.Filled,
+                toneVariant = IenCardToneVariant.Solid,
+                tone = IenSemanticTone.Brand,
+                container = colors.brand,
+                content = colors.onBrand,
+                useGradient = true,
+            ),
+        )
+    }
+
+    @Test
+    fun `Filled Weak 브랜드 카드는 그라데이션 브러시를 사용한다`() {
+        assertNotNull(
+            resolveIenCardContainerBrush(
+                variant = IenCardVariant.Filled,
+                toneVariant = IenCardToneVariant.Weak,
+                tone = IenSemanticTone.Brand,
+                container = colors.brandWeak,
+                content = colors.brand,
+                useGradient = true,
+            ),
+        )
+    }
+
+    @Test
+    fun `Filled 중립 카드도 약한 그라데이션 브러시를 사용한다`() {
+        assertNotNull(
+            resolveIenCardContainerBrush(
+                variant = IenCardVariant.Filled,
+                toneVariant = IenCardToneVariant.Solid,
+                tone = IenSemanticTone.Neutral,
+                container = colors.surfaceRaised,
+                content = colors.textPrimary,
+                useGradient = true,
+            ),
+        )
+    }
+
+    @Test
+    fun `Outlined 카드는 그라데이션 브러시를 사용하지 않는다`() {
+        assertNull(
+            resolveIenCardContainerBrush(
+                variant = IenCardVariant.Outlined,
+                toneVariant = IenCardToneVariant.Solid,
+                tone = IenSemanticTone.Brand,
+                container = colors.surface,
+                content = colors.textPrimary,
+                useGradient = true,
+            ),
+        )
+    }
 
     @Test
     fun `Filled Solid 브랜드 카드는 원래 톤 색상과 대비 콘텐츠 색상을 사용한다`() {

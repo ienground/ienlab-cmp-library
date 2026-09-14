@@ -8,8 +8,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -17,6 +20,8 @@ import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenColorScheme
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.containerGradientBrush
+import zone.ien.utils.ui.interactive.weakContainerGradientBrush
 import zone.ien.utils.ui.primitives.IenSurface
 
 /** 카드 컨테이너의 표현 방식을 정의합니다. */
@@ -46,11 +51,17 @@ data class IenCardColors(
     val content: Color,
     /** 카드 테두리 색상입니다. 투명하면 테두리를 그리지 않습니다. */
     val border: Color,
+    /** 카드 배경에 적용할 브러시입니다. null이면 [container] 색상을 사용합니다. */
+    val containerBrush: Brush? = null,
 )
 
 /** [IenCard]에서 사용하는 기본 색상과 스타일을 제공합니다. */
 object IenCardDefaults {
-    /** 현재 테마와 변형에 맞는 카드 색상 묶음을 생성합니다. */
+    /** 현재 테마와 변형에 맞는 카드 색상 묶음을 생성합니다.
+     *
+     * Filled 카드에는 기본적으로 컨테이너 그라데이션을 적용하며,
+     * [useGradient] 또는 [containerBrush]로 조정할 수 있습니다.
+     */
     @Composable
     fun colors(
         variant: IenCardVariant = IenCardVariant.Filled,
@@ -59,10 +70,20 @@ object IenCardDefaults {
         container: Color = resolveIenCardColors(variant, toneVariant, tone, IenTheme.colors).container,
         content: Color = resolveIenCardColors(variant, toneVariant, tone, IenTheme.colors).content,
         border: Color = resolveIenCardColors(variant, toneVariant, tone, IenTheme.colors).border,
+        useGradient: Boolean = true,
+        containerBrush: Brush? = resolveIenCardContainerBrush(
+            variant = variant,
+            tone = tone,
+            toneVariant = toneVariant,
+            container = container,
+            content = content,
+            useGradient = useGradient,
+        ),
     ): IenCardColors = IenCardColors(
         container = container,
         content = content,
         border = border,
+        containerBrush = containerBrush,
     )
 }
 
@@ -97,15 +118,18 @@ fun IenCard(
     val cardModifier = if (onClick == null) {
         modifier
     } else {
-        modifier.clickable(
-            role = Role.Button,
-            onClick = { onClick() },
-        )
+        modifier
+            .clip(shape)
+            .clickable(
+                role = Role.Button,
+                onClick = { onClick() },
+            )
     }
 
     IenSurface(
         modifier = cardModifier,
         color = colors.container,
+        backgroundBrush = colors.containerBrush,
         contentColor = colors.content,
         shape = shape,
         border = colors.border
@@ -116,6 +140,33 @@ fun IenCard(
         Box(modifier = Modifier.padding(contentPadding)) {
             content()
         }
+    }
+}
+
+internal fun resolveIenCardContainerBrush(
+    variant: IenCardVariant,
+    tone: IenSemanticTone,
+    toneVariant: IenCardToneVariant,
+    container: Color,
+    content: Color,
+    useGradient: Boolean,
+): Brush? {
+    if (!useGradient || variant != IenCardVariant.Filled) return null
+    if (tone == IenSemanticTone.Neutral) {
+        val start = lerp(container, content, if (toneVariant == IenCardToneVariant.Solid) 0.02f else 0.01f)
+        val end = lerp(container, content, if (toneVariant == IenCardToneVariant.Solid) 0.04f else 0.02f)
+        return Brush.linearGradient(colors = listOf(start, container, end))
+    }
+    return when (toneVariant) {
+        IenCardToneVariant.Solid -> containerGradientBrush(
+            container = container,
+            content = content,
+        )
+        IenCardToneVariant.Weak -> weakContainerGradientBrush(
+            container = container,
+            content = content,
+            border = Color.Transparent,
+        )
     }
 }
 
@@ -164,6 +215,7 @@ internal fun resolveIenCardColors(
             container = container,
             content = if (toneVariant == IenCardToneVariant.Solid) solidContent else toneContent,
             border = container,
+            containerBrush = null,
         )
 
         IenCardVariant.Outlined -> IenCardColors(
@@ -174,6 +226,7 @@ internal fun resolveIenCardColors(
                 toneVariant == IenCardToneVariant.Weak -> weakContainer
                 else -> solidContainer
             },
+            containerBrush = null,
         )
     }
 }

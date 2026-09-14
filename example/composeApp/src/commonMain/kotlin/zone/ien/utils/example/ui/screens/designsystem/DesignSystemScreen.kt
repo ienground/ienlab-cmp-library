@@ -851,6 +851,19 @@ fun CardSection() {
             }
             IenCard(
                 tone = IenSemanticTone.Brand,
+                onClick = { clickedCard = "Filled · Solid Brand" },
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
+                    IenText("Filled · Solid Brand", style = IenTheme.typography.title3)
+                    IenText(
+                        text = "브랜드 Solid 컨테이너에는 기본 그라데이션이 적용됩니다.",
+                        style = IenTheme.typography.body2,
+                        color = IenTheme.colors.onBrand.copy(alpha = 0.86f),
+                    )
+                }
+            }
+            IenCard(
+                tone = IenSemanticTone.Brand,
                 toneVariant = IenCardToneVariant.Weak,
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
