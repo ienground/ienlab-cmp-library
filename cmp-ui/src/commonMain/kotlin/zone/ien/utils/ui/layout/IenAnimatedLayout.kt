@@ -183,6 +183,7 @@ private fun <T> IenAnimatedItems(
                 durationMillis = motion.normalMillis,
                 easing = motion.standardEasing,
             ),
+            initialAlpha = 0.8f,
         ) + expandVertically(
             animationSpec = tween(
                 durationMillis = motion.normalMillis,
@@ -195,6 +196,7 @@ private fun <T> IenAnimatedItems(
                 durationMillis = motion.normalMillis,
                 easing = motion.standardEasing,
             ),
+            initialAlpha = 0.8f,
         ) + expandHorizontally(
             animationSpec = tween(
                 durationMillis = motion.normalMillis,
