@@ -1,11 +1,8 @@
 package zone.ien.utils.ui.layout
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
@@ -23,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 
 /**
  * 항목이 추가되거나 제거될 때 수직으로 나타나고 사라지는 레이아웃입니다.
@@ -177,33 +175,12 @@ private fun <T> IenAnimatedItems(
     }
 
     val motion = IenTheme.motion
-    val enterTransition = if (orientation == AnimatedLayoutOrientation.Vertical) {
-        fadeIn(
-            animationSpec = tween(
-                durationMillis = motion.normalMillis,
-                easing = motion.standardEasing,
-            ),
-            initialAlpha = 0.8f,
-        ) + expandVertically(
-            animationSpec = tween(
-                durationMillis = motion.normalMillis,
-                easing = motion.standardEasing,
-            ),
-        )
-    } else {
-        fadeIn(
-            animationSpec = tween(
-                durationMillis = motion.normalMillis,
-                easing = motion.standardEasing,
-            ),
-            initialAlpha = 0.8f,
-        ) + expandHorizontally(
-            animationSpec = tween(
-                durationMillis = motion.normalMillis,
-                easing = motion.standardEasing,
-            ),
-        )
-    }
+    val enterTransition = fadeIn(
+        animationSpec = tween(
+            durationMillis = motion.normalMillis,
+            easing = motion.standardEasing,
+        ),
+    )
     val exitTransition = if (orientation == AnimatedLayoutOrientation.Vertical) {
         fadeOut(
             animationSpec = tween(
@@ -230,7 +207,7 @@ private fun <T> IenAnimatedItems(
         )
     }
     layout(
-        modifier.animateContentSize(
+        modifier.animateContentSizeWithoutClipping(
             animationSpec = tween(
                 durationMillis = motion.normalMillis,
                 easing = motion.standardEasing,
