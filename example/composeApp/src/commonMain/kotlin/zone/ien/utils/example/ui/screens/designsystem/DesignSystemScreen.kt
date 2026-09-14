@@ -1,5 +1,8 @@
 package zone.ien.utils.example.ui.screens.designsystem
 
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -76,6 +79,9 @@ import zone.ien.utils.ui.primitives.IenAssetFrameSize
 import zone.ien.utils.ui.list.IenBoardRow
 import zone.ien.utils.ui.layout.IenBorder
 import zone.ien.utils.ui.layout.IenBorderVariant
+import zone.ien.utils.ui.layout.IenAnimatedColumn
+import zone.ien.utils.ui.layout.IenAnimatedContent
+import zone.ien.utils.ui.layout.IenAnimatedRow
 import zone.ien.utils.ui.screen.IenBottomCTA
 import zone.ien.utils.ui.screen.IenBottomCTAAnimation
 import zone.ien.utils.ui.screen.IenBottomCTABackground
@@ -87,6 +93,10 @@ import zone.ien.utils.ui.feedback.IenBottomSheetOption
 import zone.ien.utils.ui.feedback.IenBottomSheetSelect
 import zone.ien.utils.ui.content.IenBubble
 import zone.ien.utils.ui.content.IenBubbleBackground
+import zone.ien.utils.ui.content.IenCard
+import zone.ien.utils.ui.content.IenCardDefaults
+import zone.ien.utils.ui.content.IenCardToneVariant
+import zone.ien.utils.ui.content.IenCardVariant
 import zone.ien.utils.ui.dialog.IenAlertDialogAlertButton
 import zone.ien.utils.ui.dialog.IenAlertDialogDescription
 import zone.ien.utils.ui.dialog.IenAlertDialogTitle
@@ -325,6 +335,8 @@ fun DesignSystemScreen(
                     .verticalScroll(scrollState)
                     .padding(contentPadding),
             ) {
+                AnimatedLayoutSection()
+                AnimatedContentSection()
                 BadgeSection()
                 BoardRowSection()
                 BorderSection()
@@ -332,6 +344,7 @@ fun DesignSystemScreen(
                 BottomSheetSection()
                 BubbleSection()
                 ButtonSection()
+                CardSection()
                 ChipSection()
                 CheckboxSection()
                 FabSection()
@@ -468,6 +481,198 @@ fun DesignSystemScreen(
                 PrimitivesSection()
 
                 Spacer(modifier = Modifier.height(IenTheme.spacing.md))
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun AnimatedLayoutSection() {
+    IenTheme {
+        var columnItems by remember { mutableStateOf(listOf(1, 2)) }
+        var rowItems by remember { mutableStateOf(listOf(1, 2)) }
+        var nextColumnItem by remember { mutableIntStateOf(3) }
+        var nextRowItem by remember { mutableIntStateOf(3) }
+
+        ComponentSection(title = "AnimatedLayout") {
+            IenText(
+                text = "항목을 추가하거나 제거하면 레이아웃 크기와 콘텐츠가 함께 애니메이션됩니다.",
+                style = IenTheme.typography.body2,
+                color = IenTheme.colors.textSecondary,
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+            ) {
+                IenButton(
+                    onClick = {
+                        columnItems = columnItems + nextColumnItem
+                        nextColumnItem++
+                    },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                ) {
+                    IenText("세로 추가")
+                }
+                IenButton(
+                    onClick = { columnItems = columnItems.dropLast(1) },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                    state = IenButtonState(enabled = columnItems.isNotEmpty()),
+                ) {
+                    IenText("세로 제거")
+                }
+                IenButton(
+                    onClick = {
+                        rowItems = rowItems + nextRowItem
+                        nextRowItem++
+                    },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                ) {
+                    IenText("가로 추가")
+                }
+                IenButton(
+                    onClick = { rowItems = rowItems.dropLast(1) },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                    state = IenButtonState(enabled = rowItems.isNotEmpty()),
+                ) {
+                    IenText("가로 제거")
+                }
+            }
+            IenAnimatedColumn(
+                items = columnItems,
+                key = { it },
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+            ) { item ->
+                IenSurface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = IenTheme.colors.surfaceWeak,
+                ) {
+                    IenText(
+                        text = "세로 항목 $item",
+                        modifier = Modifier.padding(IenTheme.spacing.md),
+                    )
+                }
+            }
+            IenAnimatedRow(
+                items = rowItems,
+                key = { it },
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                verticalAlignment = Alignment.CenterVertically,
+            ) { item ->
+                IenSurface(
+                    modifier = Modifier.size(88.dp, 48.dp),
+                    color = IenTheme.colors.brandWeak,
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        IenText(text = "가로 $item")
+                    }
+                }
+            }
+        }
+    }
+}
+
+private enum class AnimatedContentSampleState {
+    Loading,
+    Error,
+    Content,
+}
+
+@Preview
+@Composable
+fun AnimatedContentSection() {
+    IenTheme {
+        var state by remember { mutableStateOf(AnimatedContentSampleState.Loading) }
+
+        ComponentSection(title = "AnimatedContent") {
+            IenText(
+                text = "분기만 작성하고 진입·종료 애니메이션은 한 번만 지정합니다.",
+                style = IenTheme.typography.body2,
+                color = IenTheme.colors.textSecondary,
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+            ) {
+                IenButton(
+                    onClick = { state = AnimatedContentSampleState.Loading },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                ) {
+                    IenText("Loading")
+                }
+                IenButton(
+                    onClick = { state = AnimatedContentSampleState.Error },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                ) {
+                    IenText("Error")
+                }
+                IenButton(
+                    onClick = { state = AnimatedContentSampleState.Content },
+                    size = IenButtonSize.Small,
+                    variant = IenButtonVariant.Weak,
+                ) {
+                    IenText("Content")
+                }
+            }
+            IenAnimatedContent(
+                targetState = state,
+                modifier = Modifier.fillMaxWidth(),
+                enter = fadeIn(animationSpec = spring(dampingRatio = 1.2f)),
+                exit = fadeOut(animationSpec = spring(dampingRatio = 1.2f)),
+            ) { targetState ->
+                when (targetState) {
+                    AnimatedContentSampleState.Loading ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(96.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            IenLoader(label = "데이터를 불러오는 중")
+                        }
+
+                    AnimatedContentSampleState.Error ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(96.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            IenText(text = "데이터를 불러오지 못했어요")
+                            IenButton(
+                                onClick = { state = AnimatedContentSampleState.Loading },
+                                size = IenButtonSize.Small,
+                            ) {
+                                IenText("다시 시도")
+                            }
+                        }
+
+                    AnimatedContentSampleState.Content ->
+                        IenSurface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(96.dp),
+                            color = IenTheme.colors.surfaceWeak,
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                IenText(text = "콘텐츠가 표시됐어요")
+                            }
+                        }
+                }
             }
         }
     }
@@ -821,6 +1026,93 @@ fun ButtonSection() {
                     )
                 }
             }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun CardSection() {
+    IenTheme {
+        var clickedCard by remember { mutableStateOf("없음") }
+
+        ComponentSection(title = "Card") {
+            IenCard(
+                onClick = { clickedCard = "Filled · Solid" },
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
+                    IenText("Filled · Solid", style = IenTheme.typography.title3)
+                    IenText(
+                        text = "중립 표면과 고도로 컨테이너를 구분합니다.",
+                        style = IenTheme.typography.body2,
+                        color = IenTheme.colors.textSecondary,
+                    )
+                }
+            }
+            IenCard(
+                tone = IenSemanticTone.Brand,
+                onClick = { clickedCard = "Filled · Solid Brand" },
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
+                    IenText("Filled · Solid Brand", style = IenTheme.typography.title3)
+                    IenText(
+                        text = "브랜드 Solid 컨테이너에는 기본 그라데이션이 적용됩니다.",
+                        style = IenTheme.typography.body2,
+                        color = IenTheme.colors.onBrand.copy(alpha = 0.86f),
+                    )
+                }
+            }
+            IenCard(
+                tone = IenSemanticTone.Brand,
+                toneVariant = IenCardToneVariant.Weak,
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
+                    IenText("Filled · Weak", style = IenTheme.typography.title3)
+                    IenText(
+                        text = "브랜드의 약한 배경색을 정보 영역에 사용할 수 있습니다.",
+                        style = IenTheme.typography.body2,
+                        color = IenTheme.colors.brand,
+                    )
+                }
+            }
+            IenCard(
+                variant = IenCardVariant.Outlined,
+                tone = IenSemanticTone.Brand,
+            ) {
+                IenText(
+                    text = "Outlined · Solid",
+                    style = IenTheme.typography.title3,
+                )
+            }
+            IenCard(
+                variant = IenCardVariant.Outlined,
+                tone = IenSemanticTone.Danger,
+                toneVariant = IenCardToneVariant.Weak,
+            ) {
+                IenText(
+                    text = "Outlined · Weak",
+                    style = IenTheme.typography.title3,
+                )
+            }
+            IenCard(
+                variant = IenCardVariant.Outlined,
+                colors = IenCardDefaults.colors(
+                    variant = IenCardVariant.Outlined,
+                    container = IenTheme.colors.surfaceVariant,
+                    content = IenTheme.colors.textPrimary,
+                    border = IenTheme.colors.borderStrong,
+                ),
+            ) {
+                IenText(
+                    text = "색상 직접 재정의",
+                    style = IenTheme.typography.title3,
+                )
+            }
+            IenText(
+                text = "마지막 클릭 카드: $clickedCard",
+                style = IenTheme.typography.caption,
+                color = IenTheme.colors.textTertiary,
+            )
         }
     }
 }

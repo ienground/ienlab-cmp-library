@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -48,6 +49,7 @@ import zone.ien.utils.ui.foundation.IenTheme
  * @param shape 모서리를 깎아줄 둥글기 모양 정의 ([Shape])
  * @param border 테두리에 적용할 외곽선 선 두께 및 색상 정보 ([BorderStroke])
  * @param tonalElevation 음영을 더해주는 톤 입체감 깊이 수준 ([Dp])
+ * @param backgroundBrush 배경 판에 적용할 배경 브러시. 지정하면 [color] 대신 사용합니다.
  * @param content 배경 판 내부에 배치할 자식 컴포저블 블록
  */
 @Composable
@@ -58,11 +60,17 @@ fun IenSurface(
     shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
     border: BorderStroke? = null,
     tonalElevation: Dp = IenTheme.elevation.none,
+    backgroundBrush: Brush? = null,
     content: @Composable () -> Unit,
 ) {
+    val surfaceModifier = if (backgroundBrush == null) {
+        modifier
+    } else {
+        modifier.background(backgroundBrush, shape)
+    }
     Surface(
-        modifier = modifier,
-        color = color,
+        modifier = surfaceModifier,
+        color = if (backgroundBrush == null) color else Color.Transparent,
         contentColor = contentColor,
         shape = shape,
         border = border,

@@ -61,6 +61,8 @@ import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.fill.Check
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.foundation.LocalIenDarkTheme
+import zone.ien.utils.ui.foundation.resolveThemeColor
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
@@ -420,20 +422,20 @@ private fun IenSegmentedControlSize.segmentedControlTextStyle(): TextStyle {
 
 @Composable
 private fun segmentedControlContainerColor(): Color {
-    return if (IenTheme.colors.background == Color(0xFFFFFFFF)) {
-        Color(0xFFF2F4F6)
-    } else {
-        Color(0xFF20252B)
-    }
+    return resolveThemeColor(
+        isDarkTheme = LocalIenDarkTheme.current,
+        lightColor = Color(0xFFF2F4F6),
+        darkColor = Color(0xFF20252B),
+    )
 }
 
 @Composable
 private fun segmentedControlIndicatorColor(): Color {
-    return if (IenTheme.colors.background == Color(0xFFFFFFFF)) {
-        Color(0xFFFFFFFF)
-    } else {
-        Color(0xFF343A42)
-    }
+    return resolveThemeColor(
+        isDarkTheme = LocalIenDarkTheme.current,
+        lightColor = Color(0xFFFFFFFF),
+        darkColor = Color(0xFF343A42),
+    )
 }
 
 /**
