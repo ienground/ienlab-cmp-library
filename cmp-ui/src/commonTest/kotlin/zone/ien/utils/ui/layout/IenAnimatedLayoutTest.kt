@@ -53,6 +53,41 @@ class IenAnimatedLayoutTest {
         assertEquals(false, result.last().visible)
     }
 
+    @Test
+    fun `새 상태가 추가되면 이전 상태는 종료 대기 상태가 된다`() {
+        val result = mergeAnimatedContentItems(
+            currentItems = listOf(
+                AnimatedContentItem(value = "a", visible = true),
+            ),
+            targetState = "b",
+        )
+
+        assertEquals(
+            listOf("a", "b"),
+            result.map { it.value },
+        )
+        assertEquals(
+            listOf(false, true),
+            result.map { it.visible },
+        )
+    }
+
+    @Test
+    fun `종료 중인 기존 상태로 돌아오면 상태 항목을 재사용한다`() {
+        val currentItems = listOf(
+            AnimatedContentItem(value = "a", visible = false),
+            AnimatedContentItem(value = "b", visible = true),
+        )
+
+        val result = mergeAnimatedContentItems(
+            currentItems = currentItems,
+            targetState = "a",
+        )
+
+        assertEquals(listOf("a", "b"), result.map { it.value })
+        assertEquals(listOf(true, false), result.map { it.visible })
+    }
+
     @Composable
     private fun compileIenAnimatedContentWithContentAlignment() {
         IenAnimatedContent(

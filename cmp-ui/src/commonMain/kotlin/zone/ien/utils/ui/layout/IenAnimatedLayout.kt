@@ -1,6 +1,5 @@
 package zone.ien.utils.ui.layout
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -10,8 +9,8 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
@@ -28,7 +27,8 @@ import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 
 /**
- * 상태가 바뀔 때 콘텐츠를 교체하며 진입·종료 애니메이션을 적용합니다.
+ * 상태가 바뀔 때 현재 콘텐츠와 이전 콘텐츠를 같은 컨테이너에 유지하며
+ * 각각 진입·종료 애니메이션을 적용합니다.
  *
  * [content]는 바깥에서 캡처한 상태가 아니라 전달받은 [targetState]로 콘텐츠를 그려야
  * 종료 중인 콘텐츠가 새 상태를 잘못 표시하지 않습니다.
@@ -49,14 +49,54 @@ fun <T> IenAnimatedContent(
     exit: ExitTransition = fadeOut(animationSpec = spring(dampingRatio = 1.2f)),
     content: @Composable (T) -> Unit,
 ) {
-    AnimatedContent(
-        targetState = targetState,
+    var animatedItems by remember {
+        mutableStateOf(
+            listOf(
+                AnimatedContentItem(
+                    value = targetState,
+                    visible = true,
+                ),
+            ),
+        )
+    }
+
+    LaunchedEffect(targetState) {
+        animatedItems = mergeAnimatedContentItems(
+            currentItems = animatedItems,
+            targetState = targetState,
+        )
+    }
+
+    Box(
         modifier = modifier,
         contentAlignment = contentAlignment,
-        transitionSpec = { enter togetherWith exit },
-        label = "IenAnimatedContent",
-    ) { state ->
-        content(state)
+    ) {
+        animatedItems.forEach { animatedItem ->
+            key(animatedItem.value) {
+                val visibleState = remember {
+                    MutableTransitionState(false)
+                }
+
+                LaunchedEffect(animatedItem.visible) {
+                    visibleState.targetState = animatedItem.visible
+                }
+                LaunchedEffect(animatedItem.visible, visibleState.isIdle) {
+                    if (!animatedItem.visible && visibleState.isIdle && !visibleState.currentState) {
+                        animatedItems = animatedItems.filterNot { item ->
+                            item.value == animatedItem.value && !item.visible
+                        }
+                    }
+                }
+
+                AnimatedVisibility(
+                    visibleState = visibleState,
+                    enter = enter,
+                    exit = exit,
+                ) {
+                    content(animatedItem.value)
+                }
+            }
+        }
     }
 }
 
@@ -147,6 +187,37 @@ internal data class AnimatedLayoutItem<T>(
     val value: T,
     val visible: Boolean,
 )
+
+internal data class AnimatedContentItem<T>(
+    val value: T,
+    val visible: Boolean,
+)
+
+internal fun <T> mergeAnimatedContentItems(
+    currentItems: List<AnimatedContentItem<T>>,
+    targetState: T,
+): List<AnimatedContentItem<T>> {
+    val targetItemExists = currentItems.any { it.value == targetState }
+
+    return if (targetItemExists) {
+        currentItems.map { item ->
+            if (item.value == targetState) {
+                item.copy(visible = true)
+            } else {
+                item.copy(visible = false)
+            }
+        }
+    } else {
+        currentItems
+            .map { it.copy(visible = false) }
+            .plus(
+                AnimatedContentItem(
+                    value = targetState,
+                    visible = true,
+                ),
+            )
+    }
+}
 
 internal fun <T> mergeAnimatedLayoutItems(
     currentItems: List<AnimatedLayoutItem<T>>,
