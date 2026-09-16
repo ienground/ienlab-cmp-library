@@ -4,13 +4,12 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LookaheadScope
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 
@@ -35,6 +35,7 @@ import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
  *
  * @param targetState 현재 표시할 콘텐츠를 식별하는 상태
  * @param modifier 레이아웃에 적용할 [Modifier]
+ * @param contentAlignment 전환 중인 콘텐츠를 배치할 정렬 방식
  * @param enter 새 콘텐츠에 적용할 진입 애니메이션
  * @param exit 이전 콘텐츠에 적용할 종료 애니메이션
  * @param content 상태별 콘텐츠
@@ -43,6 +44,7 @@ import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 fun <T> IenAnimatedContent(
     targetState: T,
     modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.TopStart,
     enter: EnterTransition = fadeIn(animationSpec = spring(dampingRatio = 1.2f)),
     exit: ExitTransition = fadeOut(animationSpec = spring(dampingRatio = 1.2f)),
     content: @Composable (T) -> Unit,
@@ -50,6 +52,7 @@ fun <T> IenAnimatedContent(
     AnimatedContent(
         targetState = targetState,
         modifier = modifier,
+        contentAlignment = contentAlignment,
         transitionSpec = { enter togetherWith exit },
         label = "IenAnimatedContent",
     ) { state ->
@@ -85,7 +88,6 @@ fun <T> IenAnimatedColumn(
         items = items,
         itemKey = key,
         modifier = modifier,
-        orientation = AnimatedLayoutOrientation.Vertical,
         layout = { animatedModifier, animatedContent ->
             Column(
                 modifier = animatedModifier,
@@ -127,7 +129,6 @@ fun <T> IenAnimatedRow(
         items = items,
         itemKey = key,
         modifier = modifier,
-        orientation = AnimatedLayoutOrientation.Horizontal,
         layout = { animatedModifier, animatedContent ->
             Row(
                 modifier = animatedModifier,
@@ -146,11 +147,6 @@ internal data class AnimatedLayoutItem<T>(
     val value: T,
     val visible: Boolean,
 )
-
-private enum class AnimatedLayoutOrientation {
-    Vertical,
-    Horizontal,
-}
 
 internal fun <T> mergeAnimatedLayoutItems(
     currentItems: List<AnimatedLayoutItem<T>>,
@@ -185,7 +181,6 @@ private fun <T> IenAnimatedItems(
     items: List<T>,
     itemKey: (T) -> Any,
     modifier: Modifier,
-    orientation: AnimatedLayoutOrientation,
     layout: @Composable (Modifier, @Composable () -> Unit) -> Unit,
     content: @Composable (T) -> Unit,
 ) {
@@ -216,62 +211,51 @@ private fun <T> IenAnimatedItems(
             easing = motion.standardEasing,
         ),
     )
-    val exitTransition = if (orientation == AnimatedLayoutOrientation.Vertical) {
-        fadeOut(
-            animationSpec = tween(
-                durationMillis = motion.fastMillis,
-                easing = motion.standardEasing,
-            ),
-        ) + shrinkVertically(
-            animationSpec = tween(
-                durationMillis = motion.fastMillis,
-                easing = motion.standardEasing,
-            ),
-        )
-    } else {
-        fadeOut(
-            animationSpec = tween(
-                durationMillis = motion.fastMillis,
-                easing = motion.standardEasing,
-            ),
-        ) + shrinkHorizontally(
-            animationSpec = tween(
-                durationMillis = motion.fastMillis,
-                easing = motion.standardEasing,
-            ),
-        )
-    }
-    layout(
-        modifier.animateContentSizeWithoutClipping(
-            animationSpec = tween(
-                durationMillis = motion.normalMillis,
-                easing = motion.standardEasing,
-            ),
+    val exitTransition = fadeOut(
+        animationSpec = tween(
+            durationMillis = motion.fastMillis,
+            easing = motion.standardEasing,
         ),
-    ) {
-        animatedItems.forEach { animatedItem ->
-            key(animatedItem.key) {
-                val visibleState = remember {
-                    MutableTransitionState(false)
-                }
+    )
+    LookaheadScope {
+        val lookaheadScope = this
+        layout(
+            modifier.animateContentSizeWithoutClipping(
+                animationSpec = tween(
+                    durationMillis = motion.normalMillis,
+                    easing = motion.standardEasing,
+                ),
+            ),
+        ) {
+            animatedItems.forEach { animatedItem ->
+                key(animatedItem.key) {
+                    val visibleState = remember {
+                        MutableTransitionState(false)
+                    }
 
-                LaunchedEffect(animatedItem.visible) {
-                    visibleState.targetState = animatedItem.visible
-                }
-                LaunchedEffect(animatedItem.visible, visibleState.isIdle) {
-                    if (!animatedItem.visible && visibleState.isIdle && !visibleState.currentState) {
-                        animatedItems = animatedItems.filterNot { item ->
-                            item.key == animatedItem.key && !item.visible
+                    LaunchedEffect(animatedItem.visible) {
+                        visibleState.targetState = animatedItem.visible
+                    }
+                    LaunchedEffect(animatedItem.visible, visibleState.isIdle) {
+                        if (!animatedItem.visible && visibleState.isIdle && !visibleState.currentState) {
+                            animatedItems = animatedItems.filterNot { item ->
+                                item.key == animatedItem.key && !item.visible
+                            }
                         }
                     }
-                }
 
-                AnimatedVisibility(
-                    visibleState = visibleState,
-                    enter = enterTransition,
-                    exit = exitTransition,
-                ) {
-                    content(animatedItem.value)
+                    AnimatedVisibility(
+                        modifier = if (animatedItem.visible && visibleState.currentState) {
+                            Modifier.animateBounds(lookaheadScope = lookaheadScope)
+                        } else {
+                            Modifier
+                        },
+                        visibleState = visibleState,
+                        enter = enterTransition,
+                        exit = exitTransition,
+                    ) {
+                        content(animatedItem.value)
+                    }
                 }
             }
         }

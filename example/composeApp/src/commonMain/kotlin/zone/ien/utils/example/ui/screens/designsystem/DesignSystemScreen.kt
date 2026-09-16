@@ -627,6 +627,7 @@ fun AnimatedContentSection() {
             IenAnimatedContent(
                 targetState = state,
                 modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
                 enter = fadeIn(animationSpec = spring(dampingRatio = 1.2f)),
                 exit = fadeOut(animationSpec = spring(dampingRatio = 1.2f)),
             ) { targetState ->

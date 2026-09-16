@@ -1,5 +1,9 @@
 package zone.ien.utils.ui.layout
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -47,5 +51,19 @@ class IenAnimatedLayoutTest {
 
         assertEquals(listOf("first", "second"), result.map { it.key })
         assertEquals(false, result.last().visible)
+    }
+
+    @Composable
+    private fun compileIenAnimatedContentWithContentAlignment() {
+        IenAnimatedContent(
+            targetState = true,
+            contentAlignment = Alignment.Center,
+        ) { state ->
+            if (state) {
+                Box(modifier = Modifier)
+            } else {
+                Box(modifier = Modifier)
+            }
+        }
     }
 }
