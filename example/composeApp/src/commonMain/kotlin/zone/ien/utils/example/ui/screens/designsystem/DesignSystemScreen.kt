@@ -2087,10 +2087,36 @@ fun StepperSection() {
 fun SwitchSection() {
     IenTheme {
         var switched by remember { mutableStateOf(true) }
+        var switchedWithTrackIcon by remember { mutableStateOf(true) }
         ComponentSection(title = "Switch") {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IenText("자동 적용", modifier = Modifier.weight(1f))
-                IenSwitch(checked = switched, onCheckedChange = { switched = it })
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IenText("자동 적용", modifier = Modifier.weight(1f))
+                    IenSwitch(checked = switched, onCheckedChange = { switched = it })
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IenText("트랙 아이콘", modifier = Modifier.weight(1f))
+                    IenSwitch(
+                        checked = switchedWithTrackIcon,
+                        onCheckedChange = { switchedWithTrackIcon = it },
+                        onTrackContent = {
+                            IenIcon(
+                                imageVector = M3SystemIcons.Filled.Check,
+                                contentDescription = null,
+                                size = 16.dp,
+                                tint = IenTheme.colors.surface,
+                            )
+                        },
+                        offTrackContent = {
+                            IenIcon(
+                                imageVector = M3SystemIcons.Filled.Close,
+                                contentDescription = null,
+                                size = 16.dp,
+                                tint = IenTheme.colors.surface,
+                            )
+                        },
+                    )
+                }
             }
         }
     }

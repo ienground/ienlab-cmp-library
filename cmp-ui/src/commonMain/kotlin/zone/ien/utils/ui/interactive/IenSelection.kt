@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -78,6 +79,9 @@ import kotlin.math.roundToInt
  * @param enabled 활성화 여부. false일 경우 상호작용이 불가능하며 클릭 시 흔들림 애니메이션 효과가 발생합니다.
  * @param thumbContent 스위치 손잡이(Thumb) 내부에 커스텀하게 표시될 컴포저블.
  * @param interactionSource 스위치 인터랙션 정보를 전달할 [MutableInteractionSource].
+ * @param trackContent 스위치 트랙 내부에 표시될 단일 콘텐츠. [onTrackContent], [offTrackContent]가 없을 때 양쪽 콘텐츠로 사용됩니다.
+ * @param onTrackContent 켜짐 상태에서 썸의 왼쪽에 표시될 선택적 콘텐츠.
+ * @param offTrackContent 꺼짐 상태에서 썸의 오른쪽에 표시될 선택적 콘텐츠.
  */
 @Composable
 fun IenSwitch(
@@ -87,6 +91,9 @@ fun IenSwitch(
     enabled: Boolean = true,
     thumbContent: @Composable (() -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
+    trackContent: @Composable (() -> Unit)? = null,
+    onTrackContent: @Composable (() -> Unit)? = null,
+    offTrackContent: @Composable (() -> Unit)? = null,
 ) {
     val checkedTrackColor = if (enabled) {
         IenTheme.colors.brand
@@ -101,6 +108,14 @@ fun IenSwitch(
     val density = LocalDensity.current
     val shakeOffset = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
+    val trackContentOffset by animateDpAsState(
+        targetValue = if (checked) 0.dp else (-20).dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+        label = "ienSwitchTrackContentOffset",
+    )
 
     fun shakeDisabledSwitch() {
         coroutineScope.launch {
@@ -120,15 +135,7 @@ fun IenSwitch(
         }
     }
 
-    Switch(
-        checked = checked,
-        onCheckedChange = {
-            if (enabled) {
-                onCheckedChange(it)
-            } else {
-                shakeDisabledSwitch()
-            }
-        },
+    Box(
         modifier = modifier
             .then(
                 if (enabled) {
@@ -148,22 +155,73 @@ fun IenSwitch(
                 }
             )
             .offset { IntOffset(x = shakeOffset.value.roundToInt(), y = 0) },
-        enabled = true,
-        thumbContent = thumbContent,
-        interactionSource = interactionSource,
-        colors = SwitchDefaults.colors(
-            checkedThumbColor = IenTheme.colors.surface,
-            checkedTrackColor = checkedTrackColor,
-            checkedBorderColor = checkedTrackColor,
-            uncheckedThumbColor = IenTheme.colors.surface,
-            uncheckedTrackColor = uncheckedTrackColor,
-            uncheckedBorderColor = uncheckedTrackColor,
-            disabledCheckedThumbColor = IenTheme.colors.surface,
-            disabledCheckedTrackColor = checkedTrackColor,
-            disabledUncheckedThumbColor = IenTheme.colors.surface,
-            disabledUncheckedTrackColor = uncheckedTrackColor,
-        ),
-    )
+    ) {
+        Switch(
+            checked = checked,
+            onCheckedChange = {
+                if (enabled) {
+                    onCheckedChange(it)
+                } else {
+                    shakeDisabledSwitch()
+                }
+            },
+            enabled = true,
+            thumbContent = thumbContent,
+            interactionSource = interactionSource,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = IenTheme.colors.surface,
+                checkedTrackColor = checkedTrackColor,
+                checkedBorderColor = checkedTrackColor,
+                uncheckedThumbColor = IenTheme.colors.surface,
+                uncheckedTrackColor = uncheckedTrackColor,
+                uncheckedBorderColor = uncheckedTrackColor,
+                disabledCheckedThumbColor = IenTheme.colors.surface,
+                disabledCheckedTrackColor = checkedTrackColor,
+                disabledUncheckedThumbColor = IenTheme.colors.surface,
+                disabledUncheckedTrackColor = uncheckedTrackColor,
+            ),
+        )
+        val resolvedOnTrackContent = onTrackContent ?: trackContent
+        val resolvedOffTrackContent = offTrackContent ?: trackContent
+        if (resolvedOnTrackContent != null || resolvedOffTrackContent != null) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .size(width = 52.dp, height = 16.dp)
+                    .clipToBounds(),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .size(width = 52.dp, height = 16.dp)
+                        .offset(x = trackContentOffset),
+                ) {
+                    resolvedOnTrackContent?.let { content ->
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterStart)
+                                .offset(x = 4.dp)
+                                .size(16.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            content()
+                        }
+                    }
+                    resolvedOffTrackContent?.let { content ->
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterStart)
+                                .offset(x = 52.dp)
+                                .size(16.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            content()
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /**
