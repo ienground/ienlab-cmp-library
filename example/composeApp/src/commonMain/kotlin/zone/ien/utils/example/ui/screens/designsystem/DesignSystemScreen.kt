@@ -127,6 +127,8 @@ import zone.ien.utils.ui.list.IenListRowLoaderType
 import zone.ien.utils.ui.list.IenListRowPadding
 import zone.ien.utils.ui.list.IenListRowTexts
 import zone.ien.utils.ui.list.IenListRowTextsType
+import zone.ien.utils.ui.list.IenSwipeBox
+import zone.ien.utils.ui.list.IenSwipeBoxItem
 import zone.ien.utils.ui.feedback.IenLoader
 import zone.ien.utils.ui.menu.IenMenu
 import zone.ien.utils.ui.menu.IenModal
@@ -367,6 +369,7 @@ fun DesignSystemScreen(
                 SegmentedControlSection()
                 SkeletonSection()
                 SliderSection()
+                SwipeBoxSection()
                 StepperSection()
                 SwitchSection()
                 TabSection()
@@ -2015,6 +2018,134 @@ fun SliderSection() {
                 valueLabel = "${(sliderValue * 100).toInt()}%",
             )
         }
+    }
+}
+
+@Preview
+@Composable
+fun SwipeBoxSection() {
+    IenTheme {
+        var swipeActionCount by remember { mutableIntStateOf(0) }
+        ComponentSection(title = "SwipeBox") {
+            Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
+                IenText(
+                    text = "끝 방향 단일 액션 · 왼쪽으로 밀기",
+                    style = IenTheme.typography.label2,
+                    color = IenTheme.colors.textSecondary,
+                )
+                IenSwipeBox(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(72.dp),
+                    actionItemBuilder = {
+                        end(key = "end-delete") {
+                            IenSwipeBoxItem(
+                                color = IenTheme.colors.danger,
+                                onClick = { swipeActionCount += 1 },
+                                onClickLabel = "삭제",
+                                icon = M3SystemIcons.Filled.Close,
+                                label = "삭제",
+                            )
+                        }
+                    },
+                ) {
+                    SwipeBoxSampleContent(title = "끝 액션 하나")
+                }
+
+                IenText(
+                    text = "시작 방향 단일 액션 · 오른쪽으로 밀기",
+                    style = IenTheme.typography.label2,
+                    color = IenTheme.colors.textSecondary,
+                )
+                IenSwipeBox(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(72.dp),
+                    actionItemBuilder = {
+                        start(key = "start-complete") {
+                            IenSwipeBoxItem(
+                                color = IenTheme.colors.success,
+                                onClick = { swipeActionCount += 1 },
+                                onClickLabel = "완료",
+                                icon = M3SystemIcons.Filled.Check,
+                                label = "완료",
+                            )
+                        }
+                    },
+                ) {
+                    SwipeBoxSampleContent(title = "시작 액션 하나")
+                }
+
+                IenText(
+                    text = "양방향 · 여러 액션",
+                    style = IenTheme.typography.label2,
+                    color = IenTheme.colors.textSecondary,
+                )
+                IenSwipeBox(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(72.dp),
+                    actionItemBuilder = {
+                        start(key = "start-complete") {
+                            IenSwipeBoxItem(
+                                color = IenTheme.colors.success,
+                                onClick = { swipeActionCount += 1 },
+                                onClickLabel = "완료",
+                                icon = M3SystemIcons.Filled.Check,
+                                label = "완료",
+                            )
+                        }
+                        start(key = "start-save") {
+                            IenSwipeBoxItem(
+                                color = IenTheme.colors.brand,
+                                onClick = { swipeActionCount += 1 },
+                                onClickLabel = "보관",
+                                icon = M3SystemIcons.Filled.FilledSave,
+                                label = "보관",
+                            )
+                        }
+                        end(key = "end-more") {
+                            IenSwipeBoxItem(
+                                color = IenTheme.colors.warning,
+                                onClick = { swipeActionCount += 1 },
+                                onClickLabel = "더보기",
+                                icon = M3SystemIcons.Filled.FilledMoreVert,
+                                label = "더보기",
+                            )
+                        }
+                        end(key = "end-delete") {
+                            IenSwipeBoxItem(
+                                color = IenTheme.colors.danger,
+                                onClick = { swipeActionCount += 1 },
+                                onClickLabel = "삭제",
+                                icon = M3SystemIcons.Filled.Close,
+                                label = "삭제",
+                            )
+                        }
+                    },
+                ) {
+                    SwipeBoxSampleContent(title = "시작 2개 · 끝 2개")
+                }
+
+                IenText(
+                    text = "액션 실행 ${swipeActionCount}회",
+                    style = IenTheme.typography.caption,
+                    color = IenTheme.colors.textTertiary,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SwipeBoxSampleContent(title: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = IenTheme.spacing.md),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IenText(title)
     }
 }
 
