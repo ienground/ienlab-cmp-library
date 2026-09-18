@@ -303,12 +303,14 @@ fun IenPlaygroundScreen(
                     IenSectionItem(
                         title = {
                             Empty(
-                                icon = { modifier ->
-                                    IenIcon(
-                                        imageVector = M3SystemIcons.Edit,
-                                        contentDescription = null,
-                                        modifier = modifier
-                                    )
+                                icon = {
+                                    content { modifier ->
+                                        IenIcon(
+                                            imageVector = M3SystemIcons.Edit,
+                                            contentDescription = null,
+                                            modifier = modifier,
+                                        )
+                                    }
                                 },
                                 title = { IenText("No Data Available") },
                                 content = { IenText("Try configuring settings or refreshing the screen to load samples.") }

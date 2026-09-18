@@ -269,6 +269,7 @@ import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.dialog.IenAlertDialog
+import zone.ien.utils.ui.view.Empty
 import kotlinx.coroutines.launch
 
 @Preview
@@ -2808,6 +2809,29 @@ fun AssetSection() {
                     )
                 }
             }
+            Empty(
+                modifier = Modifier.fillMaxWidth(),
+                icon = {
+                    this.size = IenAssetFrameSize.Large
+                    this.tone = IenSemanticTone.Success
+                    this.shape = IenAssetFrameShape.Circle
+                    this.contentDescription = "빈 상태 아이콘"
+                    content { contentModifier ->
+                        IenIcon(
+                            imageVector = M3SystemIcons.Filled.FilledSave,
+                            contentDescription = null,
+                            modifier = contentModifier,
+                        )
+                    }
+                },
+                title = { IenText("표시할 데이터가 없어요") },
+                content = { IenText("새로운 데이터가 추가되면 이곳에 표시됩니다.") },
+                buttons = {
+                    IenButton(onClick = {}) {
+                        IenText("새로고침")
+                    }
+                },
+            )
         }
     }
 }
