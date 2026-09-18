@@ -2810,7 +2810,10 @@ fun AssetSection() {
                 }
             }
             Empty(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(400.dp)
+                ,
                 icon = {
                     this.size = IenAssetFrameSize.Large
                     this.tone = IenSemanticTone.Success
