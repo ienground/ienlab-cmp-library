@@ -23,18 +23,18 @@ import zone.ien.utils.ui.interactive.IenSegmentedControlSize
  */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
-fun AdaptiveSegmentedControl(
-    items: List<IenSegmentedControlItem>,
+fun <T : Any> AdaptiveSegmentedControl(
+    items: List<IenSegmentedControlItem<T>>,
     modifier: Modifier = Modifier,
-    value: String? = null,
-    defaultValue: String? = null,
-    onChange: (String) -> Unit = {},
+    value: T? = null,
+    defaultValue: T? = null,
+    onChange: (T) -> Unit = {},
     size: IenSegmentedControlSize = IenSegmentedControlSize.Small,
     alignment: IenSegmentedControlAlignment = IenSegmentedControlAlignment.Fixed,
     enabled: Boolean = true,
 ) {
     var localValue by remember(items, defaultValue) {
-        mutableStateOf(defaultValue ?: items.firstOrNull { it.enabled }?.value ?: items.firstOrNull()?.value.orEmpty())
+        mutableStateOf<T?>(defaultValue ?: items.firstOrNull { it.enabled }?.value ?: items.firstOrNull()?.value)
     }
     val selectedValue = value ?: localValue
 

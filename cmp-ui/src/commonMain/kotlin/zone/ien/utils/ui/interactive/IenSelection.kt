@@ -247,13 +247,13 @@ enum class IenSegmentedControlAlignment {
 /**
  * 세그먼티드 컨트롤의 개별 아이템 속성을 정의하는 데이터 클래스.
  *
- * @property value 아이템의 실제 식별 값.
+ * @property value 아이템의 실제 식별 값. 문자열뿐 아니라 Boolean, Int 등 null이 아닌 모든 타입을 사용할 수 있습니다.
  * @property label 아이템에 표시될 라벨 텍스트.
  * @property enabled 개별 아이템의 활성화 여부.
  * @property size 개별 아이템에 적용할 오버라이드 크기 규격. null인 경우 컨트롤 기본 크기를 따릅니다.
  */
-data class IenSegmentedControlItem(
-    val value: String,
+data class IenSegmentedControlItem<T : Any>(
+    val value: T,
     val label: String,
     val enabled: Boolean = true,
     val size: IenSegmentedControlSize? = null,
@@ -277,28 +277,28 @@ private data class IenSegmentedControlItemBounds(
  * @param enabled 활성화 여부. false일 경우 상호작용할 수 없습니다.
  */
 @Composable
-fun IenSegmentedControl(
-    items: List<IenSegmentedControlItem>,
+fun <T : Any> IenSegmentedControl(
+    items: List<IenSegmentedControlItem<T>>,
     modifier: Modifier = Modifier,
-    value: String? = null,
-    defaultValue: String? = null,
-    onChange: (String) -> Unit = {},
+    value: T? = null,
+    defaultValue: T? = null,
+    onChange: (T) -> Unit = {},
     size: IenSegmentedControlSize = IenSegmentedControlSize.Small,
     alignment: IenSegmentedControlAlignment = IenSegmentedControlAlignment.Fixed,
     enabled: Boolean = true,
 ) {
     var localValue by remember(items, defaultValue) {
-        mutableStateOf(defaultValue ?: items.firstOrNull { it.enabled }?.value ?: items.firstOrNull()?.value.orEmpty())
+        mutableStateOf<T?>(defaultValue ?: items.firstOrNull { it.enabled }?.value ?: items.firstOrNull()?.value)
     }
     val selectedValue = value ?: localValue
     val density = LocalDensity.current
     val scrollState = rememberScrollState()
-    var pressedValue by remember { mutableStateOf<String?>(null) }
-    var itemBounds by remember(items) { mutableStateOf<Map<String, IenSegmentedControlItemBounds>>(emptyMap()) }
+    var pressedValue by remember { mutableStateOf<T?>(null) }
+    var itemBounds by remember(items) { mutableStateOf<Map<T, IenSegmentedControlItemBounds>>(emptyMap()) }
     var viewportWidthPx by remember { mutableStateOf(0) }
     val height = size.segmentedControlHeight()
     val itemHeight = height - IenTheme.spacing.xxs * 2
-    val selectedBounds = itemBounds[selectedValue]
+    val selectedBounds = selectedValue?.let(itemBounds::get)
     val indicatorOffset by animateDpAsState(
         targetValue = selectedBounds?.left ?: 0.dp,
         animationSpec = spring(

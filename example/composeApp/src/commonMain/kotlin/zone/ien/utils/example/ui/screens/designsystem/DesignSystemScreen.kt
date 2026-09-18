@@ -3545,6 +3545,7 @@ fun TextAreaSection() {
             IenTextArea(
                 value = textArea,
                 onValueChange = { textArea = it },
+                modifier = Modifier.height(320.dp),
                 label = "메모 · LengthLimit.Block",
                 placeholder = "여러 줄 텍스트를 입력하세요",
                 supportingText = "TextArea는 TextField 토큰과 상태 모델을 공유합니다.",
