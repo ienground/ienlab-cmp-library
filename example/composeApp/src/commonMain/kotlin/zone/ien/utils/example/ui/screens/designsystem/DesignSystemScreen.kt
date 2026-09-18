@@ -3506,8 +3506,8 @@ fun ListRowSection() {
                 contents = {
                     IenListRowTexts(
                         type = IenListRowTextsType.TwoRowTypeA,
-                        top = "ListRow.Texts",
-                        bottom = "left / contents / right 슬롯 구성",
+                        top = { IenText("ListRow.Texts") },
+                        bottom = { IenText("left / contents / right 슬롯 구성") },
                     )
                 },
                 right = {
@@ -3527,16 +3527,16 @@ fun ListRowSection() {
                 contents = {
                     IenListRowTexts(
                         type = IenListRowTextsType.ThreeRowTypeC,
-                        top = "긴 정보가 들어가는 행",
-                        middle = "중간 설명 텍스트",
-                        bottom = "아래 보조 텍스트",
+                        top = { IenText("긴 정보가 들어가는 행") },
+                        middle = { IenText("중간 설명 텍스트") },
+                        bottom = { IenText("아래 보조 텍스트") },
                     )
                 },
                 right = {
                     IenListRowTexts(
                         type = IenListRowTextsType.RightTwoRowTypeA,
-                        top = "28,000원",
-                        bottom = "오늘",
+                        top = { IenText("28,000원") },
+                        bottom = { IenText("오늘") },
                     )
                 },
                 leftAlignment = IenListRowAlignment.Top,
@@ -3547,7 +3547,7 @@ fun ListRowSection() {
                 contents = {
                     IenListRowTexts(
                         type = IenListRowTextsType.OneRowTypeA,
-                        top = "비활성 Type2",
+                        top = { IenText("비활성 Type2") },
                     )
                 },
                 right = {
@@ -3561,7 +3561,7 @@ fun ListRowSection() {
                 contents = {
                     IenListRowTexts(
                         type = IenListRowTextsType.OneRowTypeA,
-                        top = "작은 좌우 패딩과 border 없음",
+                        top = { IenText("작은 좌우 패딩과 border 없음") },
                     )
                 },
                 horizontalPadding = IenListRowPadding.Small,
