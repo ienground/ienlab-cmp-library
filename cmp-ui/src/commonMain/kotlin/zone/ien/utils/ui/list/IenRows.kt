@@ -41,6 +41,7 @@ import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.line.ArrowRightS
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenText
 
 /**
@@ -320,8 +321,8 @@ fun IenListRow(
         contents = {
             IenListRowTexts(
                 type = if (subtitle == null) IenListRowTextsType.OneRowTypeA else IenListRowTextsType.TwoRowTypeA,
-                top = title,
-                bottom = subtitle,
+                top = { IenText(title) },
+                bottom = subtitle?.let { value -> { IenText(value) } },
                 topColor = if (selected) IenTheme.colors.brand else null,
             )
         },
@@ -329,29 +330,27 @@ fun IenListRow(
 }
 
 /**
- * 리스트 행 내부에서 최대 3개의 텍스트 요소를 정의된 조합 스타일([IenListRowTextsType])에 따라 수직 배치하는 컴포저블입니다.
+ * 리스트 행 내부에서 최대 3개의 콘텐츠 요소를 정의된 조합 스타일([IenListRowTextsType])에 따라 수직 배치하는 컴포저블입니다.
  *
- * @param top 가장 상단(혹은 첫 번째 행)에 들어갈 텍스트
+ * @param top 가장 상단(혹은 첫 번째 행)에 들어갈 콘텐츠
  * @param modifier 적용할 Modifier
  * @param type 행의 구성 및 정렬 방식을 지정하는 타입 ([IenListRowTextsType])
- * @param middle 중간 행에 들어갈 텍스트 (타입이 3행 스타일일 때 활성화)
- * @param bottom 하단 행에 들어갈 텍스트 (타입이 2행 이상 스타일일 때 활성화)
- * @param topColor 상단 텍스트 색상 (null인 경우 타입 기본 색상 사용)
- * @param middleColor 중간 텍스트 색상 (null인 경우 타입 기본 색상 사용)
- * @param bottomColor 하단 텍스트 색상 (null인 경우 타입 기본 색상 사용)
- * @param maxLines 상단 및 중간 텍스트의 최대 줄 수
+ * @param middle 중간 행에 들어갈 콘텐츠 (타입이 3행 스타일일 때 활성화)
+ * @param bottom 하단 행에 들어갈 콘텐츠 (타입이 2행 이상 스타일일 때 활성화)
+ * @param topColor 상단 콘텐츠에 주입할 기본 색상 (null인 경우 타입 기본 색상 사용)
+ * @param middleColor 중간 콘텐츠에 주입할 기본 색상 (null인 경우 타입 기본 색상 사용)
+ * @param bottomColor 하단 콘텐츠에 주입할 기본 색상 (null인 경우 타입 기본 색상 사용)
  */
 @Composable
 fun IenListRowTexts(
-    top: String,
+    top: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     type: IenListRowTextsType = IenListRowTextsType.OneRowTypeA,
-    middle: String? = null,
-    bottom: String? = null,
+    middle: (@Composable () -> Unit)? = null,
+    bottom: (@Composable () -> Unit)? = null,
     topColor: Color? = null,
     middleColor: Color? = null,
     bottomColor: Color? = null,
-    maxLines: Int = 1,
 ) {
     val rightAligned = type.name.startsWith("Right")
     val textAlign = if (rightAligned) TextAlign.End else TextAlign.Start
@@ -360,33 +359,27 @@ fun IenListRowTexts(
         horizontalAlignment = if (rightAligned) Alignment.End else Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxxs),
     ) {
-        IenText(
-            text = top,
-            style = type.topStyle(),
+        IenProvideTextStyle(
+            style = type.topStyle().copy(textAlign = textAlign),
             color = topColor ?: type.topColor(),
-            textAlign = textAlign,
-            maxLines = maxLines,
-            overflow = TextOverflow.Ellipsis,
-        )
+        ) {
+            top()
+        }
         if (middle != null && type.rowCount >= 3) {
-            IenText(
-                text = middle,
-                style = type.middleStyle(),
+            IenProvideTextStyle(
+                style = type.middleStyle().copy(textAlign = textAlign),
                 color = middleColor ?: type.middleColor(),
-                textAlign = textAlign,
-                maxLines = maxLines,
-                overflow = TextOverflow.Ellipsis,
-            )
+            ) {
+                middle()
+            }
         }
         if (bottom != null && type.rowCount >= 2) {
-            IenText(
-                text = bottom,
-                style = type.bottomStyle(),
+            IenProvideTextStyle(
+                style = type.bottomStyle().copy(textAlign = textAlign),
                 color = bottomColor ?: type.bottomColor(),
-                textAlign = textAlign,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
+            ) {
+                bottom()
+            }
         }
     }
 }
