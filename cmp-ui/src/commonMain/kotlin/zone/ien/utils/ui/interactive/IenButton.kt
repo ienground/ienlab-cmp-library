@@ -969,7 +969,7 @@ internal fun toneWeakGradientBrush(tone: IenSemanticTone): Brush {
     )
 }
 
-private fun containerGradientBrush(
+internal fun containerGradientBrush(
     container: Color,
     content: Color,
 ): Brush {
@@ -980,7 +980,7 @@ private fun containerGradientBrush(
     )
 }
 
-private fun weakContainerGradientBrush(
+internal fun weakContainerGradientBrush(
     container: Color,
     content: Color,
     border: Color,

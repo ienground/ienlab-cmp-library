@@ -1,0 +1,334 @@
+package zone.ien.utils.ui.layout
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.animateBounds
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LookaheadScope
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
+
+/**
+ * 상태가 바뀔 때 현재 콘텐츠와 이전 콘텐츠를 같은 컨테이너에 유지하며
+ * 각각 진입·종료 애니메이션을 적용합니다.
+ *
+ * [content]는 바깥에서 캡처한 상태가 아니라 전달받은 [targetState]로 콘텐츠를 그려야
+ * 종료 중인 콘텐츠가 새 상태를 잘못 표시하지 않습니다.
+ *
+ * @param targetState 현재 표시할 콘텐츠를 식별하는 상태
+ * @param modifier 레이아웃에 적용할 [Modifier]
+ * @param contentAlignment 전환 중인 콘텐츠를 배치할 정렬 방식
+ * @param enter 새 콘텐츠에 적용할 진입 애니메이션
+ * @param exit 이전 콘텐츠에 적용할 종료 애니메이션
+ * @param content 상태별 콘텐츠
+ */
+@Composable
+fun <T> IenAnimatedContent(
+    targetState: T,
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.TopStart,
+    enter: EnterTransition = fadeIn(animationSpec = spring(dampingRatio = 1.2f)),
+    exit: ExitTransition = fadeOut(animationSpec = spring(dampingRatio = 1.2f)),
+    content: @Composable (T) -> Unit,
+) {
+    var animatedItems by remember {
+        mutableStateOf(
+            listOf(
+                AnimatedContentItem(
+                    value = targetState,
+                    visible = true,
+                ),
+            ),
+        )
+    }
+
+    LaunchedEffect(targetState) {
+        animatedItems = mergeAnimatedContentItems(
+            currentItems = animatedItems,
+            targetState = targetState,
+        )
+    }
+
+    Box(
+        modifier = modifier,
+        contentAlignment = contentAlignment,
+    ) {
+        animatedItems.forEach { animatedItem ->
+            key(animatedItem.value) {
+                val visibleState = remember {
+                    MutableTransitionState(false)
+                }
+
+                LaunchedEffect(animatedItem.visible) {
+                    visibleState.targetState = animatedItem.visible
+                }
+                LaunchedEffect(animatedItem.visible, visibleState.isIdle) {
+                    if (!animatedItem.visible && visibleState.isIdle && !visibleState.currentState) {
+                        animatedItems = animatedItems.filterNot { item ->
+                            item.value == animatedItem.value && !item.visible
+                        }
+                    }
+                }
+
+                AnimatedVisibility(
+                    visibleState = visibleState,
+                    enter = enter,
+                    exit = exit,
+                ) {
+                    content(animatedItem.value)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 항목이 추가되거나 제거될 때 수직으로 나타나고 사라지는 레이아웃입니다.
+ *
+ * 항목은 [key]가 반환하는 고유 키로 식별됩니다. 항목을 제거할 때는
+ * 사라지는 애니메이션이 끝난 뒤 컴포지션에서 제거되므로, [LazyColumn] 없이도
+ * 콘텐츠 높이가 자연스럽게 줄어듭니다. [key]는 목록 내에서 서로 다른 값을
+ * 반환해야 합니다.
+ *
+ * @param items 표시할 항목 목록
+ * @param key 각 항목의 고유 키를 반환하는 함수
+ * @param modifier 레이아웃에 적용할 [Modifier]
+ * @param verticalArrangement 항목을 수직으로 배치하는 방식
+ * @param horizontalAlignment 항목의 수평 정렬 방식
+ * @param content 각 항목을 표시하는 컴포저블
+ */
+@Composable
+fun <T> IenAnimatedColumn(
+    items: List<T>,
+    key: (T) -> Any,
+    modifier: Modifier = Modifier,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    content: @Composable (T) -> Unit,
+) {
+    IenAnimatedItems(
+        items = items,
+        itemKey = key,
+        modifier = modifier,
+        layout = { animatedModifier, animatedContent ->
+            Column(
+                modifier = animatedModifier,
+                verticalArrangement = verticalArrangement,
+                horizontalAlignment = horizontalAlignment,
+            ) {
+                animatedContent()
+            }
+        },
+        content = content,
+    )
+}
+
+/**
+ * 항목이 추가되거나 제거될 때 수평으로 나타나고 사라지는 레이아웃입니다.
+ *
+ * 항목은 [key]가 반환하는 고유 키로 식별됩니다. 항목을 제거할 때는
+ * 사라지는 애니메이션이 끝난 뒤 컴포지션에서 제거되므로, [LazyRow] 없이도
+ * 콘텐츠 너비가 자연스럽게 줄어듭니다. [key]는 목록 내에서 서로 다른 값을
+ * 반환해야 합니다.
+ *
+ * @param items 표시할 항목 목록
+ * @param key 각 항목의 고유 키를 반환하는 함수
+ * @param modifier 레이아웃에 적용할 [Modifier]
+ * @param horizontalArrangement 항목을 수평으로 배치하는 방식
+ * @param verticalAlignment 항목의 수직 정렬 방식
+ * @param content 각 항목을 표시하는 컴포저블
+ */
+@Composable
+fun <T> IenAnimatedRow(
+    items: List<T>,
+    key: (T) -> Any,
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    verticalAlignment: Alignment.Vertical = Alignment.Top,
+    content: @Composable (T) -> Unit,
+) {
+    IenAnimatedItems(
+        items = items,
+        itemKey = key,
+        modifier = modifier,
+        layout = { animatedModifier, animatedContent ->
+            Row(
+                modifier = animatedModifier,
+                horizontalArrangement = horizontalArrangement,
+                verticalAlignment = verticalAlignment,
+            ) {
+                animatedContent()
+            }
+        },
+        content = content,
+    )
+}
+
+internal data class AnimatedLayoutItem<T>(
+    val key: Any,
+    val value: T,
+    val visible: Boolean,
+)
+
+internal data class AnimatedContentItem<T>(
+    val value: T,
+    val visible: Boolean,
+)
+
+internal fun <T> mergeAnimatedContentItems(
+    currentItems: List<AnimatedContentItem<T>>,
+    targetState: T,
+): List<AnimatedContentItem<T>> {
+    val targetItemExists = currentItems.any { it.value == targetState }
+
+    return if (targetItemExists) {
+        currentItems.map { item ->
+            if (item.value == targetState) {
+                item.copy(visible = true)
+            } else {
+                item.copy(visible = false)
+            }
+        }
+    } else {
+        currentItems
+            .map { it.copy(visible = false) }
+            .plus(
+                AnimatedContentItem(
+                    value = targetState,
+                    visible = true,
+                ),
+            )
+    }
+}
+
+internal fun <T> mergeAnimatedLayoutItems(
+    currentItems: List<AnimatedLayoutItem<T>>,
+    incomingItems: List<T>,
+    itemKey: (T) -> Any,
+): List<AnimatedLayoutItem<T>> {
+    val nextItems = incomingItems.map { item ->
+        AnimatedLayoutItem(
+            key = itemKey(item),
+            value = item,
+            visible = true,
+        )
+    }
+    val incomingKeys = nextItems.mapTo(mutableSetOf()) { it.key }
+    val currentItemsByKey = currentItems.associateBy { it.key }
+
+    return buildList {
+        nextItems.forEach { incomingItem ->
+            add(currentItemsByKey[incomingItem.key]?.copy(
+                value = incomingItem.value,
+                visible = true,
+            ) ?: incomingItem)
+        }
+        currentItems
+            .filter { it.key !in incomingKeys }
+            .forEach { add(it.copy(visible = false)) }
+    }
+}
+
+@Composable
+private fun <T> IenAnimatedItems(
+    items: List<T>,
+    itemKey: (T) -> Any,
+    modifier: Modifier,
+    layout: @Composable (Modifier, @Composable () -> Unit) -> Unit,
+    content: @Composable (T) -> Unit,
+) {
+    var animatedItems by remember {
+        mutableStateOf(
+            items.map { item ->
+                AnimatedLayoutItem(
+                    key = itemKey(item),
+                    value = item,
+                    visible = true,
+                )
+            },
+        )
+    }
+
+    LaunchedEffect(items) {
+        animatedItems = mergeAnimatedLayoutItems(
+            currentItems = animatedItems,
+            incomingItems = items,
+            itemKey = itemKey,
+        )
+    }
+
+    val motion = IenTheme.motion
+    val enterTransition = fadeIn(
+        animationSpec = tween(
+            durationMillis = motion.normalMillis,
+            easing = motion.standardEasing,
+        ),
+    )
+    val exitTransition = fadeOut(
+        animationSpec = tween(
+            durationMillis = motion.fastMillis,
+            easing = motion.standardEasing,
+        ),
+    )
+    LookaheadScope {
+        val lookaheadScope = this
+        layout(
+            modifier.animateContentSizeWithoutClipping(
+                animationSpec = tween(
+                    durationMillis = motion.normalMillis,
+                    easing = motion.standardEasing,
+                ),
+            ),
+        ) {
+            animatedItems.forEach { animatedItem ->
+                key(animatedItem.key) {
+                    val visibleState = remember {
+                        MutableTransitionState(false)
+                    }
+
+                    LaunchedEffect(animatedItem.visible) {
+                        visibleState.targetState = animatedItem.visible
+                    }
+                    LaunchedEffect(animatedItem.visible, visibleState.isIdle) {
+                        if (!animatedItem.visible && visibleState.isIdle && !visibleState.currentState) {
+                            animatedItems = animatedItems.filterNot { item ->
+                                item.key == animatedItem.key && !item.visible
+                            }
+                        }
+                    }
+
+                    AnimatedVisibility(
+                        modifier = if (animatedItem.visible && visibleState.currentState) {
+                            Modifier.animateBounds(lookaheadScope = lookaheadScope)
+                        } else {
+                            Modifier
+                        },
+                        visibleState = visibleState,
+                        enter = enterTransition,
+                        exit = exitTransition,
+                    ) {
+                        content(animatedItem.value)
+                    }
+                }
+            }
+        }
+    }
+}

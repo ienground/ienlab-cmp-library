@@ -16,15 +16,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import com.kyant.capsule.ContinuousRoundedRectangle
-import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.content.IenCard
+import zone.ien.utils.ui.content.IenCardDefaults
+import zone.ien.utils.ui.content.IenCardVariant
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHost
@@ -99,6 +99,7 @@ private val menuItems = listOf(
     HomeMenuItem("Adaptive Playground", RootRoute.AdaptivePlayground, Color(0xFF0F766E)),
     HomeMenuItem("Navigation", RootRoute.Navigation, Color(0xFFFDD835)),
     HomeMenuItem("Firebase Auth", RootRoute.FirebaseAuth, Color(0xFFE65100)),
+    HomeMenuItem("Auth Form", RootRoute.AuthForm, Color(0xFF3182F6)),
     HomeMenuItem("Scrolling Bubble", RootRoute.ScrollingBubble, Color(0xFF3949AB)),
     HomeMenuItem("Permission Screen", RootRoute.Permission, Color(0xFF00897B)),
 )
@@ -541,16 +542,19 @@ private fun HomeMenuCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    IenSurface(
-        modifier = modifier
-            .clickable(onClick = onClick)
-            .height(100.dp),
-        shape = ContinuousRoundedRectangle(IenTheme.radius.lg),
-        color = IenTheme.colors.surfaceRaised,
-        border = BorderStroke(IenTheme.stroke.thin, color.copy(alpha = 0.35f)),
+    IenCard(
+        modifier = modifier.height(100.dp),
+        variant = IenCardVariant.Outlined,
+        colors = IenCardDefaults.colors(
+            variant = IenCardVariant.Outlined,
+            container = IenTheme.colors.surfaceRaised,
+            border = color.copy(alpha = 0.35f),
+        ),
+        onClick = onClick,
+        contentPadding = PaddingValues(12.dp),
     ) {
         Box(
-            modifier = Modifier.fillMaxWidth().padding(12.dp),
+            modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center,
         ) {
             IenText(

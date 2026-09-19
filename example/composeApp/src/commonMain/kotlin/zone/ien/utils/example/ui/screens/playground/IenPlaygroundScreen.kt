@@ -113,7 +113,7 @@ fun IenPlaygroundScreen(
                                 contentDescription = null
                             )
                         },
-                        label = { IenText("Save") }
+                        label = { IenText("저장") }
                     )
                     CustomNavigationBarItem(
                         index = 1,
@@ -124,7 +124,7 @@ fun IenPlaygroundScreen(
                                 contentDescription = null
                             )
                         },
-                        label = { IenText("Edit") }
+                        label = { IenText("수정") }
                     )
                     CustomNavigationBarItem(
                         index = 2,
@@ -135,7 +135,7 @@ fun IenPlaygroundScreen(
                                 contentDescription = null
                             )
                         },
-                        label = { IenText("Schedule") }
+                        label = { IenText("스케쥴") }
                     )
                 }
             }
@@ -303,12 +303,14 @@ fun IenPlaygroundScreen(
                     IenSectionItem(
                         title = {
                             Empty(
-                                icon = { modifier ->
-                                    IenIcon(
-                                        imageVector = M3SystemIcons.Edit,
-                                        contentDescription = null,
-                                        modifier = modifier
-                                    )
+                                icon = {
+                                    content { modifier ->
+                                        IenIcon(
+                                            imageVector = M3SystemIcons.Edit,
+                                            contentDescription = null,
+                                            modifier = modifier,
+                                        )
+                                    }
                                 },
                                 title = { IenText("No Data Available") },
                                 content = { IenText("Try configuring settings or refreshing the screen to load samples.") }

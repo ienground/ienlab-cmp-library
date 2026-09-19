@@ -35,6 +35,15 @@ fun String.checkDouble() = matches(Regex("^\\d*(\\.\\d*)?$"))
 fun String.toSafeInt(): Int = toIntOrNull() ?: 0
 
 /**
+ * 문자열이 null 또는 비어 있으면 기본값을 반환하고, 그렇지 않으면 원본 문자열을 반환합니다.
+ *
+ * @param defaultValue null 또는 빈 문자열일 때 반환할 기본값
+ * @return 원본 문자열 또는 기본값
+ */
+inline fun String?.ifNullOrEmpty(defaultValue: () -> String): String =
+    orEmpty().ifEmpty(defaultValue)
+
+/**
  * 문자열이 null 또는 비어 있지 않으면 원본 문자열을 반환하고, 그렇지 않으면 defaultValue의 결과를 반환합니다.
  *
  * 이 유틸리티 함수는 문자열을 다룰 때 null 또는 빈 문자열 검사를 피하는 데 도움을 줍니다.

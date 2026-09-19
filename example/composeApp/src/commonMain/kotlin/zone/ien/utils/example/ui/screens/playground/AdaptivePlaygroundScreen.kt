@@ -32,6 +32,8 @@ import com.kyant.capsule.ContinuousCapsule
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
+import zone.ien.hig.theme.CupertinoColors
+import zone.ien.hig.theme.systemRed
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.component.AdaptiveButton
@@ -66,6 +68,8 @@ import zone.ien.utils.ui.interactive.IenToggleButton
 import zone.ien.utils.ui.interactive.IenToggleButtonDefault
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.list.IenSwipeBox
+import zone.ien.utils.ui.list.IenSwipeBoxItem
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.TopBarMode
 
@@ -88,6 +92,7 @@ fun AdaptivePlaygroundScreen(
     var iconToggleChecked by remember { mutableStateOf(false) }
     var sliderValue by remember { mutableFloatStateOf(0.64f) }
     var segmentedIndex by remember { mutableIntStateOf(0) }
+    var swipeActionCount by remember { mutableIntStateOf(0) }
     var topBarMode by remember { mutableStateOf(TopBarMode.Expanded) }
 
     IenAdaptiveTheme(
@@ -364,6 +369,34 @@ fun AdaptivePlaygroundScreen(
                         enabled = enabled,
                         label = "Line checkbox",
                     )
+                }
+
+                PlaygroundGroup(title = "SwipeBox") {
+                    IenSwipeBox(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(72.dp),
+                        actionItemBuilder = {
+                            end {
+                                IenSwipeBoxItem(
+                                    color = CupertinoColors.systemRed,
+                                    onClick = { swipeActionCount += 1 },
+                                    onClickLabel = "삭제",
+                                    label = "삭제",
+                                )
+                            }
+                        },
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            IenText("왼쪽으로 밀어 액션을 확인하세요")
+                        }
+                    }
+                    IenText("액션 실행 ${swipeActionCount}회")
                 }
 
                 PlaygroundGroup(title = "Feedback") {
