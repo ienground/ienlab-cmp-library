@@ -387,7 +387,7 @@ fun IenSwipeBox(
                 ) {
                     Box(
                         modifier = Modifier
-                            .fillMaxSize()
+                            .fillMaxWidth()
                             .height(height)
                             .clip(ContinuousRoundedRectangle(foregroundCornerRadius))
                             .background(foregroundColor)
