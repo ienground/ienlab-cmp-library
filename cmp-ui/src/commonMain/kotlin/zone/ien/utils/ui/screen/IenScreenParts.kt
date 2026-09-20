@@ -1479,7 +1479,18 @@ class IenTooltipPositionProvider(
 
         val minX = (-paddingPx + safeMarginPx).toInt()
         val maxX = (windowSize.width - popupContentSize.width + paddingPx - safeMarginPx).toInt()
-        val x = preferredX.coerceIn(minX, maxX)
+        val x = when (placement) {
+            IenTooltipPlacement.Top,
+            IenTooltipPlacement.Bottom -> preferredX.coerceIn(minX, maxX)
+            IenTooltipPlacement.Left -> {
+                (anchorBounds.left - popupContentSize.width + paddingPx.toInt() - offsetPx)
+                    .coerceIn(minX, maxX)
+            }
+            IenTooltipPlacement.Right -> {
+                (anchorBounds.right - paddingPx.toInt() + offsetPx)
+                    .coerceIn(minX, maxX)
+            }
+        }
 
         val y = when (placement) {
             IenTooltipPlacement.Top -> {
@@ -1488,17 +1499,38 @@ class IenTooltipPositionProvider(
             IenTooltipPlacement.Bottom -> {
                 anchorBounds.bottom - paddingPx.toInt() + offsetPx
             }
+            IenTooltipPlacement.Left,
+            IenTooltipPlacement.Right -> {
+                val centeredY = anchorBounds.top + (anchorBounds.height - popupContentSize.height) / 2
+                val minY = (-paddingPx + safeMarginPx).toInt()
+                val maxY = (windowSize.height - popupContentSize.height + paddingPx - safeMarginPx).toInt()
+                centeredY.coerceIn(minY, maxY)
+            }
         }
 
         val anchorCenterX = anchorBounds.left + anchorBounds.width / 2f
-        val relativeAnchorCenterX = anchorCenterX - x
         val bodyWidth = popupContentSize.width - 2 * paddingPx
-        val arrowOffsetInBody = relativeAnchorCenterX - paddingPx
-
-        val arrowRatio = if (bodyWidth > 0) {
-            (arrowOffsetInBody / bodyWidth).coerceIn(0.12f, 0.88f)
-        } else {
-            0.5f
+        val anchorCenterY = anchorBounds.top + anchorBounds.height / 2f
+        val bodyHeight = popupContentSize.height - 2 * paddingPx
+        val arrowRatio = when (placement) {
+            IenTooltipPlacement.Top,
+            IenTooltipPlacement.Bottom -> {
+                val arrowOffsetInBody = anchorCenterX - x - paddingPx
+                if (bodyWidth > 0) {
+                    (arrowOffsetInBody / bodyWidth).coerceIn(0.12f, 0.88f)
+                } else {
+                    0.5f
+                }
+            }
+            IenTooltipPlacement.Left,
+            IenTooltipPlacement.Right -> {
+                val arrowOffsetInBody = anchorCenterY - y - paddingPx
+                if (bodyHeight > 0) {
+                    (arrowOffsetInBody / bodyHeight).coerceIn(0.12f, 0.88f)
+                } else {
+                    0.5f
+                }
+            }
         }
 
         onArrowRatioCalculated(arrowRatio)
@@ -1534,10 +1566,12 @@ class IenTooltipShape(
         val h = size.height
 
         val path = Path().apply {
+            val bodyLeft = if (placement == IenTooltipPlacement.Right) arrowSizePx / 2f else 0f
             val bodyTop = if (placement == IenTooltipPlacement.Bottom) arrowSizePx / 2f else 0f
+            val bodyRight = if (placement == IenTooltipPlacement.Left) w - arrowSizePx / 2f else w
             val bodyBottom = if (placement == IenTooltipPlacement.Top) h - arrowSizePx / 2f else h
 
-            val rect = Rect(0f, bodyTop, w, bodyBottom)
+            val rect = Rect(bodyLeft, bodyTop, bodyRight, bodyBottom)
             addRoundRect(RoundRect(rect, CornerRadius(radiusPx)))
 
             val arrowWidth = arrowSizePx
@@ -1554,6 +1588,18 @@ class IenTooltipShape(
                     moveTo(arrowX, bodyBottom)
                     lineTo(arrowX + arrowWidth / 2f, bodyBottom + arrowHeight)
                     lineTo(arrowX + arrowWidth, bodyBottom)
+                }
+                IenTooltipPlacement.Left -> {
+                    val arrowY = h * arrowRatio.coerceIn(0.1f, 0.9f)
+                    moveTo(bodyRight, arrowY - arrowWidth / 2f)
+                    lineTo(bodyRight + arrowHeight, arrowY)
+                    lineTo(bodyRight, arrowY + arrowWidth / 2f)
+                }
+                IenTooltipPlacement.Right -> {
+                    val arrowY = h * arrowRatio.coerceIn(0.1f, 0.9f)
+                    moveTo(bodyLeft, arrowY - arrowWidth / 2f)
+                    lineTo(bodyLeft - arrowHeight, arrowY)
+                    lineTo(bodyLeft, arrowY + arrowWidth / 2f)
                 }
             }
             close()
@@ -1721,11 +1767,13 @@ enum class IenTooltipMessageAlign {
 }
 
 /**
- * 앵커 컴포저블을 기준으로 툴팁이 노출될 방향(위, 아래)을 정의하는 열거형 클래스입니다.
+ * 앵커 컴포저블을 기준으로 툴팁이 노출될 방향(위, 아래, 왼쪽, 오른쪽)을 정의하는 열거형 클래스입니다.
  */
 enum class IenTooltipPlacement {
     Top,
     Bottom,
+    Left,
+    Right,
 }
 
 /**
@@ -1812,9 +1860,17 @@ private fun IenTooltipPopup(
                     scaleX = scale
                     scaleY = scale
                     this.alpha = alpha
+                    translationX = when (placement) {
+                        IenTooltipPlacement.Left -> if (visible) 0f else 4f
+                        IenTooltipPlacement.Right -> if (visible) 0f else -4f
+                        IenTooltipPlacement.Top,
+                        IenTooltipPlacement.Bottom -> 0f
+                    }
                     translationY = when (placement) {
                         IenTooltipPlacement.Top -> if (visible) 0f else 4f
                         IenTooltipPlacement.Bottom -> if (visible) 0f else -4f
+                        IenTooltipPlacement.Left,
+                        IenTooltipPlacement.Right -> 0f
                     }
                 }
                 .then(if (width != null) Modifier.width(width) else Modifier.widthIn(max = 280.dp)),
@@ -1834,14 +1890,16 @@ private fun IenTooltipPopup(
             ) {
                 val topPadding = if (placement == IenTooltipPlacement.Bottom) 16.dp else 10.dp
                 val bottomPadding = if (placement == IenTooltipPlacement.Top) 16.dp else 10.dp
+                val startPadding = if (placement == IenTooltipPlacement.Right) 16.dp else 10.dp
+                val endPadding = if (placement == IenTooltipPlacement.Left) 16.dp else 10.dp
 
                 IenText(
                     text = text,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
-                            start = 16.dp,
-                            end = 16.dp,
+                            start = startPadding,
+                            end = endPadding,
                             top = topPadding,
                             bottom = bottomPadding
                         ),
@@ -1882,8 +1940,17 @@ private fun IenTooltipArrow(
 ) {
     Canvas(
         modifier = Modifier
-            .width(size)
-            .height(size / 2),
+            .then(
+                if (placement == IenTooltipPlacement.Left || placement == IenTooltipPlacement.Right) {
+                    Modifier
+                        .width(size / 2)
+                        .height(size)
+                } else {
+                    Modifier
+                        .width(size)
+                        .height(size / 2)
+                }
+            ),
     ) {
         val w = this.size.width
         val h = this.size.height
@@ -1898,6 +1965,16 @@ private fun IenTooltipArrow(
                     moveTo(if (clipToEnd == IenTooltipClipToEnd.Right) w / 2f else 0f, 0f)
                     lineTo(w / 2f, h)
                     lineTo(if (clipToEnd == IenTooltipClipToEnd.Left) w / 2f else w, 0f)
+                }
+                IenTooltipPlacement.Left -> {
+                    moveTo(0f, 0f)
+                    lineTo(w, h / 2f)
+                    lineTo(0f, h)
+                }
+                IenTooltipPlacement.Right -> {
+                    moveTo(w, 0f)
+                    lineTo(0f, h / 2f)
+                    lineTo(w, h)
                 }
             }
             close()
