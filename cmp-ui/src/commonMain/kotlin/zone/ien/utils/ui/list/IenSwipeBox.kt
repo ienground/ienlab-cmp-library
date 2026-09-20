@@ -405,8 +405,7 @@ fun IenSwipeBox(
                             contentHeightPx = coordinates.size.height
                         }
                         .clip(ContinuousRoundedRectangle(foregroundCornerRadius))
-                        .background(foregroundColor)
-                        .padding(horizontal = IenTheme.spacing.md),
+                        .background(foregroundColor),
                 ) {
                     content()
                 }

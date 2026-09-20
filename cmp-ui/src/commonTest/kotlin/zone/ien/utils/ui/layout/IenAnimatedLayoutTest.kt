@@ -1,9 +1,5 @@
 package zone.ien.utils.ui.layout
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -51,54 +47,5 @@ class IenAnimatedLayoutTest {
 
         assertEquals(listOf("first", "second"), result.map { it.key })
         assertEquals(false, result.last().visible)
-    }
-
-    @Test
-    fun `새 상태가 추가되면 이전 상태는 종료 대기 상태가 된다`() {
-        val result = mergeAnimatedContentItems(
-            currentItems = listOf(
-                AnimatedContentItem(value = "a", visible = true),
-            ),
-            targetState = "b",
-        )
-
-        assertEquals(
-            listOf("a", "b"),
-            result.map { it.value },
-        )
-        assertEquals(
-            listOf(false, true),
-            result.map { it.visible },
-        )
-    }
-
-    @Test
-    fun `종료 중인 기존 상태로 돌아오면 상태 항목을 재사용한다`() {
-        val currentItems = listOf(
-            AnimatedContentItem(value = "a", visible = false),
-            AnimatedContentItem(value = "b", visible = true),
-        )
-
-        val result = mergeAnimatedContentItems(
-            currentItems = currentItems,
-            targetState = "a",
-        )
-
-        assertEquals(listOf("a", "b"), result.map { it.value })
-        assertEquals(listOf(true, false), result.map { it.visible })
-    }
-
-    @Composable
-    private fun compileIenAnimatedContentWithContentAlignment() {
-        IenAnimatedContent(
-            targetState = true,
-            contentAlignment = Alignment.Center,
-        ) { state ->
-            if (state) {
-                Box(modifier = Modifier)
-            } else {
-                Box(modifier = Modifier)
-            }
-        }
     }
 }

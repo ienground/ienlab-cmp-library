@@ -1,8 +1,10 @@
 package zone.ien.utils.example.ui.screens.designsystem
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -80,7 +82,6 @@ import zone.ien.utils.ui.list.IenBoardRow
 import zone.ien.utils.ui.layout.IenBorder
 import zone.ien.utils.ui.layout.IenBorderVariant
 import zone.ien.utils.ui.layout.IenAnimatedColumn
-import zone.ien.utils.ui.layout.IenAnimatedContent
 import zone.ien.utils.ui.layout.IenAnimatedRow
 import zone.ien.utils.ui.screen.IenBottomCTA
 import zone.ien.utils.ui.screen.IenBottomCTAAnimation
@@ -628,12 +629,15 @@ fun AnimatedContentSection() {
                     IenText("Content")
                 }
             }
-            IenAnimatedContent(
+            AnimatedContent(
                 targetState = state,
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center,
-                enter = fadeIn(animationSpec = spring(dampingRatio = 1.2f)),
-                exit = fadeOut(animationSpec = spring(dampingRatio = 1.2f)),
+                transitionSpec = {
+                    fadeIn(animationSpec = spring(dampingRatio = 1.2f)) togetherWith
+                        fadeOut(animationSpec = spring(dampingRatio = 1.2f))
+                },
+                label = "animated_content",
             ) { targetState ->
                 when (targetState) {
                     AnimatedContentSampleState.Loading ->
