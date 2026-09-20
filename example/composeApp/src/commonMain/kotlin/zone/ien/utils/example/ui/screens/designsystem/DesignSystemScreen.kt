@@ -2036,12 +2036,13 @@ fun SwipeBoxSection() {
                 IenSwipeBox(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(72.dp),
+//                        .height(72.dp)
+                    ,
                     actionItemBuilder = {
                         end(key = "end-delete") {
                             IenSwipeBoxItem(
-                                color = IenTheme.colors.danger,
                                 onClick = { swipeActionCount += 1 },
+                                tone = IenSemanticTone.Danger,
                                 onClickLabel = "삭제",
                                 icon = M3SystemIcons.Filled.Close,
                                 label = "삭제",
@@ -2060,12 +2061,13 @@ fun SwipeBoxSection() {
                 IenSwipeBox(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(72.dp),
+//                        .height(72.dp)
+                    ,
                     actionItemBuilder = {
                         start(key = "start-complete") {
                             IenSwipeBoxItem(
-                                color = IenTheme.colors.success,
                                 onClick = { swipeActionCount += 1 },
+                                tone = IenSemanticTone.Success,
                                 onClickLabel = "완료",
                                 icon = M3SystemIcons.Filled.Check,
                                 label = "완료",
@@ -2084,12 +2086,13 @@ fun SwipeBoxSection() {
                 IenSwipeBox(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(72.dp),
+//                        .height(72.dp)
+                    ,
                     actionItemBuilder = {
                         start(key = "start-complete") {
                             IenSwipeBoxItem(
-                                color = IenTheme.colors.success,
                                 onClick = { swipeActionCount += 1 },
+                                tone = IenSemanticTone.Success,
                                 onClickLabel = "완료",
                                 icon = M3SystemIcons.Filled.Check,
                                 label = "완료",
@@ -2097,8 +2100,8 @@ fun SwipeBoxSection() {
                         }
                         start(key = "start-save") {
                             IenSwipeBoxItem(
-                                color = IenTheme.colors.brand,
                                 onClick = { swipeActionCount += 1 },
+                                tone = IenSemanticTone.Brand,
                                 onClickLabel = "보관",
                                 icon = M3SystemIcons.Filled.FilledSave,
                                 label = "보관",
@@ -2106,8 +2109,8 @@ fun SwipeBoxSection() {
                         }
                         end(key = "end-more") {
                             IenSwipeBoxItem(
-                                color = IenTheme.colors.warning,
                                 onClick = { swipeActionCount += 1 },
+                                tone = IenSemanticTone.Warning,
                                 onClickLabel = "더보기",
                                 icon = M3SystemIcons.Filled.FilledMoreVert,
                                 label = "더보기",
@@ -2115,8 +2118,8 @@ fun SwipeBoxSection() {
                         }
                         end(key = "end-delete") {
                             IenSwipeBoxItem(
-                                color = IenTheme.colors.danger,
                                 onClick = { swipeActionCount += 1 },
+                                tone = IenSemanticTone.Danger,
                                 onClickLabel = "삭제",
                                 icon = M3SystemIcons.Filled.Close,
                                 label = "삭제",

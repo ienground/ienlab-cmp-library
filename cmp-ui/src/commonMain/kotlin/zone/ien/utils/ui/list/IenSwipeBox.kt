@@ -6,16 +6,16 @@
 package zone.ien.utils.ui.list
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
@@ -26,18 +26,20 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -46,6 +48,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -57,25 +60,20 @@ import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.kyant.capsule.ContinuousCapsule
 import com.kyant.capsule.ContinuousRoundedRectangle
@@ -83,16 +81,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import zone.ien.hig.CupertinoHapticFeedback
-import zone.ien.hig.CupertinoIcon
-import zone.ien.hig.CupertinoText
-import zone.ien.hig.LocalContainerColor
-import zone.ien.hig.LocalContentColor
-import zone.ien.hig.ProvideTextStyle
-import zone.ien.hig.cupertinoTween
-import zone.ien.hig.section.CupertinoSectionDefaults
-import zone.ien.hig.theme.CupertinoColors
-import zone.ien.hig.theme.CupertinoTheme
-import zone.ien.hig.theme.White
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenButtonColors
+import zone.ien.utils.ui.interactive.IenButtonContainer
+import zone.ien.utils.ui.interactive.IenButtonDefault
+import zone.ien.utils.ui.interactive.IenButtonState
+import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.primitives.IenLoaderPrimitive
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.primitives.IenText
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -178,13 +177,15 @@ class IenSwipeBoxActionsBuilder {
  *
  * 시작 액션은 왼쪽에서, 끝 액션은 오른쪽에서 노출됩니다. 전체 스와이프 실행, 햅틱 피드백,
  * 액션 확장 애니메이션은 이 컴포넌트가 직접 처리합니다.
+ * `height`가 [Dp.Unspecified]이면 콘텐츠 높이를 사용하며, 액션이 있는 경우 액션 아이템의
+ * 최소 높이를 보장합니다.
  */
 @Composable
 fun IenSwipeBox(
     state: AnchoredDraggableState<IenSwipeBoxStates> = rememberIenSwipeBoxState(),
     modifier: Modifier = Modifier,
     itemWidth: Dp = IenSwipeBoxDefaults.actionItemWidth,
-    height: Dp = IenSwipeBoxDefaults.actionItemHeight,
+    height: Dp = Dp.Unspecified,
     startToEndFullSwipeEnabled: Boolean = IenSwipeBoxDefaults.allowFullSwipe,
     endToStartFullSwipeEnabled: Boolean = IenSwipeBoxDefaults.allowFullSwipe,
     actionItemBuilder: IenSwipeBoxActionsBuilder.() -> Unit,
@@ -197,8 +198,16 @@ fun IenSwipeBox(
     val endActionsSize = actionItems.endActions.size
     val isStartActionItemSupplied = startActionsSize != 0
     val isEndActionItemSupplied = endActionsSize != 0
+    val hasActions = isStartActionItemSupplied || isEndActionItemSupplied
     val startFullSwipeAction = actionItems.startActions.firstOrNull()?.onClick
     val endFullSwipeAction = actionItems.endActions.lastOrNull()?.onClick
+    var contentHeightPx by remember { mutableIntStateOf(0) }
+    val contentHeight = with(density) { contentHeightPx.toDp() }
+    val actionHeight = resolveSwipeBoxHeight(
+        height = height,
+        contentHeight = contentHeight,
+        hasActions = hasActions,
+    )
 
     val hapticFeedback = LocalHapticFeedback.current
     var hasTriggeredHapticFeedback by remember { mutableStateOf(false) }
@@ -246,9 +255,6 @@ fun IenSwipeBox(
                 parentWidth = coordinates.size.width
             },
         ) {
-            val containerColor = LocalContainerColor.current.takeOrElse {
-                CupertinoTheme.colorScheme.systemBackground
-            }
             val offset by remember {
                 derivedStateOf {
                     if (anchorsInitialized) state.offset else 0f
@@ -258,15 +264,15 @@ fun IenSwipeBox(
             val isSwiping = offset != 0f
             val foregroundColor by animateColorAsState(
                 targetValue = if (isSwiping) {
-                    CupertinoTheme.colorScheme.secondarySystemFill
+                    IenTheme.colors.surfaceVariant
                 } else {
-                    containerColor
+                    IenTheme.colors.surface
                 },
-                animationSpec = cupertinoTween(),
+                animationSpec = ienSwipeAnimationSpec(),
             )
             val foregroundCornerRadius by animateDpAsState(
-                targetValue = if (isSwiping) 18.dp else 0.dp,
-                animationSpec = cupertinoTween(),
+                targetValue = if (isSwiping) IenTheme.radius.lg else IenTheme.radius.none,
+                animationSpec = ienSwipeAnimationSpec(),
             )
 
             if (offset > 0 && isStartActionItemSupplied) {
@@ -275,7 +281,7 @@ fun IenSwipeBox(
                 ) {
                     Box(
                         modifier = Modifier
-                            .height(height)
+                            .height(actionHeight)
                             .width(revealedWidth)
                             .clipToBounds()
                             .align(Alignment.CenterStart),
@@ -324,7 +330,7 @@ fun IenSwipeBox(
                 ) {
                     Box(
                         modifier = Modifier
-                            .height(height)
+                            .height(actionHeight)
                             .width(revealedWidth)
                             .clipToBounds()
                             .align(Alignment.CenterEnd),
@@ -369,52 +375,69 @@ fun IenSwipeBox(
                 }
             }
 
-            if (anchorsInitialized) {
+            Box(
+                modifier = Modifier
+                    .offset { IntOffset(offset.roundToInt(), 0) }
+                    .then(
+                        if (anchorsInitialized) {
+                            Modifier.anchoredDraggable(
+                                state = state,
+                                orientation = Orientation.Horizontal,
+                            )
+                        } else {
+                            Modifier
+                        },
+                    ),
+            ) {
                 Box(
                     modifier = Modifier
-                        .offset { IntOffset(state.requireOffset().roundToInt(), 0) }
-                        .anchoredDraggable(
-                            state = state,
-                            orientation = Orientation.Horizontal,
-                        ),
+                        .fillMaxWidth()
+                        .then(
+                            if (!height.value.isNaN()) {
+                                Modifier.height(height)
+                            } else if (hasActions) {
+                                Modifier.heightIn(min = IenSwipeBoxDefaults.actionItemHeight)
+                            } else {
+                                Modifier
+                            },
+                        )
+                        .onGloballyPositioned { coordinates ->
+                            contentHeightPx = coordinates.size.height
+                        }
+                        .clip(ContinuousRoundedRectangle(foregroundCornerRadius))
+                        .background(foregroundColor)
+                        .padding(horizontal = IenTheme.spacing.md),
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(height)
-                            .clip(ContinuousRoundedRectangle(foregroundCornerRadius))
-                            .background(foregroundColor)
-                            .padding(
-                                start = CupertinoSectionDefaults.PaddingValues
-                                    .calculateStartPadding(LocalLayoutDirection.current),
-                                end = CupertinoSectionDefaults.PaddingValues
-                                    .calculateStartPadding(LocalLayoutDirection.current),
-                            ),
-                    ) {
-                        content()
-                    }
+                    content()
                 }
             }
         }
     }
 }
 
-/** `IenSwipeBox` 안에 표시하는 액션 아이템입니다. */
+/**
+ * `IenSwipeBox` 안에 표시하는 액션 아이템입니다.
+ *
+ * 액션 버튼은 `IenButton`과 동일하게 [variant], [tone], [state], [colors]로 시각 스타일과
+ * 상호작용 상태를 구성합니다. [colors]를 지정하지 않으면 기본 그라데이션이 적용됩니다.
+ */
 @Composable
 fun RowScope.IenSwipeBoxItem(
-    color: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
+    variant: IenButtonVariant = IenButtonVariant.Fill,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
+    state: IenButtonState = IenButtonState(),
+    shape: Shape = ContinuousCapsule(),
+    colors: IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone),
     restoreOnClick: Boolean = true,
     onClickLabel: String? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     icon: ImageVector? = null,
     label: String? = null,
     weight: Float = 1f,
-    shape: Shape = ContinuousCapsule(),
 ) {
-    val state = LocalIenSwipeBoxState.current
+    val swipeBoxState = LocalIenSwipeBoxState.current
     val actionPosition = LocalIenSwipeActionPosition.current
     val isFullSwipeActionItem = LocalIenSwipeBoxItemFullSwipe.current
     val itemWidth = LocalIenSwipeBoxItemWidth.current
@@ -424,11 +447,11 @@ fun RowScope.IenSwipeBoxItem(
         (itemWidth - IenSwipeBoxDefaults.actionItemHorizontalPadding * 2)
             .coerceAtLeast(0.dp)
     val isFullSwipeSettled =
-        state.settledValue == IenSwipeBoxStates.EndFullyExpanded ||
-            state.settledValue == IenSwipeBoxStates.StartFullyExpanded
+        swipeBoxState.settledValue == IenSwipeBoxStates.EndFullyExpanded ||
+            swipeBoxState.settledValue == IenSwipeBoxStates.StartFullyExpanded
     val isFullSwipeTarget =
-        state.targetValue == IenSwipeBoxStates.EndFullyExpanded ||
-            state.targetValue == IenSwipeBoxStates.StartFullyExpanded
+        swipeBoxState.targetValue == IenSwipeBoxStates.EndFullyExpanded ||
+            swipeBoxState.targetValue == IenSwipeBoxStates.StartFullyExpanded
     val shouldRenderItem = !isFullSwipeSettled || isFullSwipeActionItem
     val zIndex = if (isFullSwipeActionItem) 1f else 0f
 
@@ -436,7 +459,7 @@ fun RowScope.IenSwipeBoxItem(
     val currentOnClick by rememberUpdatedState(onClick)
     val animatedItemWidth by animateDpAsState(
         targetValue = if (shouldRenderItem) itemWidth * weight else 0.dp,
-        animationSpec = cupertinoTween(),
+        animationSpec = ienSwipeAnimationSpec(),
     )
     val animatedRevealScale by animateFloatAsState(
         targetValue = revealScale,
@@ -444,104 +467,126 @@ fun RowScope.IenSwipeBoxItem(
     )
     val animatedItemAlpha by animateFloatAsState(
         targetValue = if (isFullSwipeTarget && !isFullSwipeActionItem) 0.35f else revealScale,
-        animationSpec = cupertinoTween(),
+        animationSpec = ienSwipeAnimationSpec(),
     )
     val animHorizontalBias by animateFloatAsState(
         targetValue = when {
             isFullSwipeActionItem &&
-                state.targetValue == IenSwipeBoxStates.EndFullyExpanded &&
+                swipeBoxState.targetValue == IenSwipeBoxStates.EndFullyExpanded &&
                 actionPosition == IenSwipeActionPosition.End -> -1f
             isFullSwipeActionItem &&
-                state.targetValue == IenSwipeBoxStates.StartFullyExpanded &&
+                swipeBoxState.targetValue == IenSwipeBoxStates.StartFullyExpanded &&
                 actionPosition == IenSwipeActionPosition.Start -> 1f
             else -> 0f
         },
-        animationSpec = cupertinoTween(),
+        animationSpec = ienSwipeAnimationSpec(),
     )
 
-    CompositionLocalProvider(LocalContentColor provides CupertinoColors.White) {
-        ProvideTextStyle(CupertinoTheme.typography.footnote) {
-            Box(
-                modifier = modifier
-                    .then(
-                        if (isFullSwipeActionItem) {
-                            Modifier.weight(weight)
-                        } else {
-                            Modifier.width(animatedItemWidth)
-                        },
+    Box(
+        modifier = modifier
+            .then(
+                if (isFullSwipeActionItem) {
+                    Modifier.weight(weight)
+                } else {
+                    Modifier.width(animatedItemWidth)
+                },
+            )
+            .zIndex(zIndex)
+            .fillMaxHeight()
+            .padding(
+                horizontal = IenSwipeBoxDefaults.actionItemHorizontalPadding,
+                vertical = IenSwipeBoxDefaults.actionItemVerticalPadding,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        IenButtonContainer(
+            onClick = {
+                currentOnClick()
+                if (restoreOnClick) {
+                    coroutineScope.launch {
+                        swipeBoxState.animateTo(IenSwipeBoxStates.Resting)
+                    }
+                }
+            },
+            modifier = Modifier
+                .then(
+                    if (isExpanding) {
+                        Modifier
+                            .fillMaxWidth()
+                            .requiredHeight(collapsedItemSize)
+                    } else {
+                        Modifier.requiredSize(collapsedItemSize)
+                    },
+                )
+                .graphicsLayer {
+                    val buttonScale = maxOf(revealScale, animatedRevealScale).coerceIn(0f, 1f)
+                    scaleX = buttonScale
+                    scaleY = buttonScale
+                    alpha = animatedItemAlpha
+                    transformOrigin = TransformOrigin(
+                        pivotFractionX = if (actionPosition == IenSwipeActionPosition.End) 1f else 0f,
+                        pivotFractionY = 0.5f,
                     )
-                    .zIndex(zIndex)
-                    .fillMaxHeight()
-                    .padding(
-                        horizontal = IenSwipeBoxDefaults.actionItemHorizontalPadding,
-                        vertical = IenSwipeBoxDefaults.actionItemVerticalPadding,
-                    ),
-                contentAlignment = Alignment.Center,
+                },
+            variant = variant,
+            tone = tone,
+            state = state,
+            shape = shape,
+            contentPadding = PaddingValues(horizontal = IenTheme.spacing.sm),
+            colors = colors,
+            interactionSource = interactionSource,
+            onClickLabel = onClickLabel,
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = BiasAlignment(
+                    verticalBias = 0f,
+                    horizontalBias = animHorizontalBias,
+                ),
             ) {
-                Box(
-                    modifier = Modifier
-                        .then(
-                            if (isExpanding) {
-                                Modifier
-                                    .fillMaxWidth()
-                                    .requiredHeight(collapsedItemSize)
-                            } else {
-                                Modifier.requiredSize(collapsedItemSize)
-                            },
-                        )
-                        .graphicsLayer {
-                            val buttonScale = maxOf(revealScale, animatedRevealScale).coerceIn(0f, 1f)
-                            scaleX = buttonScale
-                            scaleY = buttonScale
-                            alpha = animatedItemAlpha
-                            transformOrigin = TransformOrigin(
-                                pivotFractionX = if (actionPosition == IenSwipeActionPosition.End) 1f else 0f,
-                                pivotFractionY = 0.5f,
-                            )
-                        }
-                        .clip(shape)
-                        .background(color)
-                        .clickable(
-                            enabled = enabled,
-                            indication = LocalIndication.current,
-                            interactionSource = interactionSource,
-                            onClick = {
-                                currentOnClick()
-                                if (restoreOnClick) {
-                                    coroutineScope.launch {
-                                        state.animateTo(IenSwipeBoxStates.Resting)
-                                    }
-                                }
-                            },
-                            onClickLabel = onClickLabel,
-                            role = Role.Button,
-                        )
-                        .padding(horizontal = 10.dp),
-                    contentAlignment = BiasAlignment(
-                        verticalBias = 0f,
-                        horizontalBias = animHorizontalBias,
-                    ),
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        icon?.let {
-                            CupertinoIcon(
-                                imageVector = it,
-                                contentDescription = onClickLabel,
-                                tint = CupertinoColors.White,
-                                modifier = Modifier.requiredSize(16.dp),
-                            )
-                        }
-                        label?.let {
-                            CupertinoText(it, fontSize = 12.sp, maxLines = 1)
+                if (state.loading) {
+                    IenLoaderPrimitive(color = LocalContentColor.current)
+                } else {
+                    IenProvideTextStyle(IenTheme.typography.label2) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
+                        ) {
+                            icon?.let {
+                                IenIcon(
+                                    imageVector = it,
+                                    contentDescription = onClickLabel,
+                                    size = IenTheme.icon.sm,
+                                )
+                            }
+                            label?.let {
+                                IenText(
+                                    text = it,
+                                    maxLines = 1,
+                                )
+                            }
                         }
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun <T> ienSwipeAnimationSpec(): AnimationSpec<T> = tween(
+    durationMillis = IenTheme.motion.fastMillis,
+    easing = IenTheme.motion.standardEasing,
+)
+
+internal fun resolveSwipeBoxHeight(
+    height: Dp,
+    contentHeight: Dp,
+    hasActions: Boolean,
+): Dp = when {
+    !height.value.isNaN() -> height
+    hasActions -> maxOf(contentHeight, IenSwipeBoxDefaults.actionItemHeight)
+    else -> contentHeight
 }
 
 /** `IenSwipeBox` 상태를 생성하고 스크롤 중 열린 액션을 닫습니다. */

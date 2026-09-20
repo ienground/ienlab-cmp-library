@@ -32,8 +32,6 @@ import com.kyant.capsule.ContinuousCapsule
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
-import zone.ien.hig.theme.CupertinoColors
-import zone.ien.hig.theme.systemRed
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.component.AdaptiveButton
@@ -379,8 +377,8 @@ fun AdaptivePlaygroundScreen(
                         actionItemBuilder = {
                             end {
                                 IenSwipeBoxItem(
-                                    color = CupertinoColors.systemRed,
                                     onClick = { swipeActionCount += 1 },
+                                    tone = IenSemanticTone.Danger,
                                     onClickLabel = "삭제",
                                     label = "삭제",
                                 )
