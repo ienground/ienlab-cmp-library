@@ -99,10 +99,10 @@ import kotlin.time.Duration.Companion.milliseconds
 /** `IenSwipeBox`에 사용하는 기본 크기와 스프링 설정입니다. */
 object IenSwipeBoxDefaults {
     /** 전체 스와이프 동작을 기본으로 허용할지 여부입니다. */
-    val allowFullSwipe: Boolean = true
+    const val allowFullSwipe: Boolean = true
 
     /** 속도 기준값입니다. */
-    val velocityThreshold: Float = Float.POSITIVE_INFINITY
+    const val velocityThreshold: Float = Float.POSITIVE_INFINITY
 
     /** 액션 아이템 좌우 여백입니다. */
     val actionItemHorizontalPadding: Dp = 4.dp
@@ -139,16 +139,13 @@ enum class IenSwipeBoxStates {
 
 /** `IenSwipeBox`의 시작/끝 액션을 선언하는 DSL입니다. */
 class IenSwipeBoxActionsBuilder {
-    private val _startActions = mutableListOf<SwipeAction>()
-    private val _endActions = mutableListOf<SwipeAction>()
-
     /** 왼쪽에서 노출되는 액션 목록입니다. */
     val startActions: List<SwipeAction>
-        get() = _startActions
+        field = mutableListOf<SwipeAction>()
 
     /** 오른쪽에서 노출되는 액션 목록입니다. */
     val endActions: List<SwipeAction>
-        get() = _endActions
+        field = mutableListOf<SwipeAction>()
 
     /** 시작 방향 액션을 추가합니다. */
     fun start(
@@ -156,7 +153,7 @@ class IenSwipeBoxActionsBuilder {
         onClick: (() -> Unit)? = null,
         content: @Composable RowScope.() -> Unit,
     ) {
-        _startActions.add(SwipeAction(key, onClick, content))
+        startActions.add(SwipeAction(key, onClick, content))
     }
 
     /** 끝 방향 액션을 추가합니다. */
@@ -165,7 +162,7 @@ class IenSwipeBoxActionsBuilder {
         onClick: (() -> Unit)? = null,
         content: @Composable RowScope.() -> Unit,
     ) {
-        _endActions.add(SwipeAction(key, onClick, content))
+        endActions.add(SwipeAction(key, onClick, content))
     }
 
     /** 하나의 스와이프 액션 정의입니다. */
@@ -245,13 +242,9 @@ fun IenSwipeBox(
 
     CompositionLocalProvider(LocalIenSwipeBoxState provides state) {
         Box(
-            modifier = modifier.then(
-                Modifier
-                    .fillMaxSize()
-                    .onGloballyPositioned { coordinates ->
-                        parentWidth = coordinates.size.width
-                    },
-            ),
+            modifier = modifier.onGloballyPositioned { coordinates ->
+                parentWidth = coordinates.size.width
+            },
         ) {
             val containerColor = LocalContainerColor.current.takeOrElse {
                 CupertinoTheme.colorScheme.systemBackground
