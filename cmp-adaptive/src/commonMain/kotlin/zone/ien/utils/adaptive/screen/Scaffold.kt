@@ -3,7 +3,6 @@ package zone.ien.utils.adaptive.screen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -33,11 +32,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScaffoldDefaults
@@ -59,6 +57,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
@@ -66,6 +65,7 @@ import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonColors
 import zone.ien.hig.CupertinoLiquidButtonDefaults.glassButtonColors
 import zone.ien.hig.CupertinoLiquidButtonDefaults.glassProminentButtonColors
+import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoScaffold
 import zone.ien.hig.CupertinoScaffoldDefaults
@@ -94,6 +94,9 @@ import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.screen.IenTopAppBar
 import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
+
+internal fun cupertinoActionsEndSpacing(hasActions: Boolean): Dp =
+    if (hasActions) 8.dp else 0.dp
 
 /**
  * 적응형 상단바 스캐폴드 컴포저블
@@ -263,7 +266,10 @@ fun AdaptiveTopAppBarScaffold(
                                     Row(
                                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                                         verticalAlignment = Alignment.CenterVertically,
-                                        content = { actions?.invoke(this) },
+                                        content = {
+                                            actions?.invoke(this)
+                                            Spacer(modifier = Modifier.width(cupertinoActionsEndSpacing(actions != null)))
+                                        },
                                         modifier = Modifier
                                             .animateContentSizeWithoutClipping()
                                             .heightIn(min = 48.dp)
@@ -414,26 +420,29 @@ fun AdaptiveTopAppBarScaffold(
                     isBackgroundAdaptive: Boolean = true,
                     content: @Composable () -> Unit
                 ) {
-                    val horizontalPadding by animateDpAsState(
-                        targetValue = if (isIconButton) 8.dp else 16.dp
-                    )
-                    val verticalPadding by animateDpAsState(
-                        targetValue = if (isIconButton) 8.dp else 10.dp
-                    )
-                    val maxWidth by animateDpAsState(
-                        targetValue = if (isIconButton) 48.dp else 360.dp
-                    )
-
-                    CupertinoLiquidButton(
-                        onClick = onClick,
-                        enabled = enabled,
-                        colors = colors,
-                        backdrop = backdrop,
-                        isBackgroundAdaptive = isBackgroundAdaptive,
-                        contentPadding = PaddingValues(horizontalPadding, verticalPadding),
-                        modifier = modifier.widthIn(min = 48.dp, max = maxWidth)
-                    ) {
-                        content()
+                    if (isIconButton) {
+                        CupertinoLiquidIconButton(
+                            onClick = onClick,
+                            enabled = enabled,
+                            colors = colors,
+                            backdrop = backdrop,
+                            isBackgroundAdaptive = isBackgroundAdaptive,
+                            modifier = modifier.requiredSize(48.dp),
+                        ) {
+                            content()
+                        }
+                    } else {
+                        CupertinoLiquidButton(
+                            onClick = onClick,
+                            enabled = enabled,
+                            colors = colors,
+                            backdrop = backdrop,
+                            isBackgroundAdaptive = isBackgroundAdaptive,
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+                            modifier = modifier.widthIn(min = 48.dp, max = 360.dp),
+                        ) {
+                            content()
+                        }
                     }
                 }
 
@@ -501,7 +510,6 @@ fun AdaptiveTopAppBarScaffold(
                         }
                     }
                 }
-                Spacer(modifier = Modifier.width(8.dp))
             }
         }
     )
