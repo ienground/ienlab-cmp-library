@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -61,6 +62,8 @@ import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.fill.Check
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.foundation.LocalIenDarkTheme
+import zone.ien.utils.ui.foundation.resolveThemeColor
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
@@ -76,6 +79,9 @@ import kotlin.math.roundToInt
  * @param enabled 활성화 여부. false일 경우 상호작용이 불가능하며 클릭 시 흔들림 애니메이션 효과가 발생합니다.
  * @param thumbContent 스위치 손잡이(Thumb) 내부에 커스텀하게 표시될 컴포저블.
  * @param interactionSource 스위치 인터랙션 정보를 전달할 [MutableInteractionSource].
+ * @param trackContent 스위치 트랙 내부에 표시될 단일 콘텐츠. [onTrackContent], [offTrackContent]가 없을 때 양쪽 콘텐츠로 사용됩니다.
+ * @param onTrackContent 켜짐 상태에서 썸의 왼쪽에 표시될 선택적 콘텐츠.
+ * @param offTrackContent 꺼짐 상태에서 썸의 오른쪽에 표시될 선택적 콘텐츠.
  */
 @Composable
 fun IenSwitch(
@@ -85,6 +91,9 @@ fun IenSwitch(
     enabled: Boolean = true,
     thumbContent: @Composable (() -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
+    trackContent: @Composable (() -> Unit)? = null,
+    onTrackContent: @Composable (() -> Unit)? = null,
+    offTrackContent: @Composable (() -> Unit)? = null,
 ) {
     val checkedTrackColor = if (enabled) {
         IenTheme.colors.brand
@@ -99,6 +108,14 @@ fun IenSwitch(
     val density = LocalDensity.current
     val shakeOffset = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
+    val trackContentOffset by animateDpAsState(
+        targetValue = if (checked) 0.dp else (-20).dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+        label = "ienSwitchTrackContentOffset",
+    )
 
     fun shakeDisabledSwitch() {
         coroutineScope.launch {
@@ -118,15 +135,7 @@ fun IenSwitch(
         }
     }
 
-    Switch(
-        checked = checked,
-        onCheckedChange = {
-            if (enabled) {
-                onCheckedChange(it)
-            } else {
-                shakeDisabledSwitch()
-            }
-        },
+    Box(
         modifier = modifier
             .then(
                 if (enabled) {
@@ -146,22 +155,73 @@ fun IenSwitch(
                 }
             )
             .offset { IntOffset(x = shakeOffset.value.roundToInt(), y = 0) },
-        enabled = true,
-        thumbContent = thumbContent,
-        interactionSource = interactionSource,
-        colors = SwitchDefaults.colors(
-            checkedThumbColor = IenTheme.colors.surface,
-            checkedTrackColor = checkedTrackColor,
-            checkedBorderColor = checkedTrackColor,
-            uncheckedThumbColor = IenTheme.colors.surface,
-            uncheckedTrackColor = uncheckedTrackColor,
-            uncheckedBorderColor = uncheckedTrackColor,
-            disabledCheckedThumbColor = IenTheme.colors.surface,
-            disabledCheckedTrackColor = checkedTrackColor,
-            disabledUncheckedThumbColor = IenTheme.colors.surface,
-            disabledUncheckedTrackColor = uncheckedTrackColor,
-        ),
-    )
+    ) {
+        Switch(
+            checked = checked,
+            onCheckedChange = {
+                if (enabled) {
+                    onCheckedChange(it)
+                } else {
+                    shakeDisabledSwitch()
+                }
+            },
+            enabled = true,
+            thumbContent = thumbContent,
+            interactionSource = interactionSource,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = IenTheme.colors.surface,
+                checkedTrackColor = checkedTrackColor,
+                checkedBorderColor = checkedTrackColor,
+                uncheckedThumbColor = IenTheme.colors.surface,
+                uncheckedTrackColor = uncheckedTrackColor,
+                uncheckedBorderColor = uncheckedTrackColor,
+                disabledCheckedThumbColor = IenTheme.colors.surface,
+                disabledCheckedTrackColor = checkedTrackColor,
+                disabledUncheckedThumbColor = IenTheme.colors.surface,
+                disabledUncheckedTrackColor = uncheckedTrackColor,
+            ),
+        )
+        val resolvedOnTrackContent = onTrackContent ?: trackContent
+        val resolvedOffTrackContent = offTrackContent ?: trackContent
+        if (resolvedOnTrackContent != null || resolvedOffTrackContent != null) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .size(width = 52.dp, height = 16.dp)
+                    .clipToBounds(),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .size(width = 52.dp, height = 16.dp)
+                        .offset(x = trackContentOffset),
+                ) {
+                    resolvedOnTrackContent?.let { content ->
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterStart)
+                                .offset(x = 4.dp)
+                                .size(16.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            content()
+                        }
+                    }
+                    resolvedOffTrackContent?.let { content ->
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterStart)
+                                .offset(x = 52.dp)
+                                .size(16.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            content()
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -187,13 +247,13 @@ enum class IenSegmentedControlAlignment {
 /**
  * 세그먼티드 컨트롤의 개별 아이템 속성을 정의하는 데이터 클래스.
  *
- * @property value 아이템의 실제 식별 값.
+ * @property value 아이템의 실제 식별 값. 문자열뿐 아니라 Boolean, Int 등 null이 아닌 모든 타입을 사용할 수 있습니다.
  * @property label 아이템에 표시될 라벨 텍스트.
  * @property enabled 개별 아이템의 활성화 여부.
  * @property size 개별 아이템에 적용할 오버라이드 크기 규격. null인 경우 컨트롤 기본 크기를 따릅니다.
  */
-data class IenSegmentedControlItem(
-    val value: String,
+data class IenSegmentedControlItem<T : Any>(
+    val value: T,
     val label: String,
     val enabled: Boolean = true,
     val size: IenSegmentedControlSize? = null,
@@ -217,28 +277,28 @@ private data class IenSegmentedControlItemBounds(
  * @param enabled 활성화 여부. false일 경우 상호작용할 수 없습니다.
  */
 @Composable
-fun IenSegmentedControl(
-    items: List<IenSegmentedControlItem>,
+fun <T : Any> IenSegmentedControl(
+    items: List<IenSegmentedControlItem<T>>,
     modifier: Modifier = Modifier,
-    value: String? = null,
-    defaultValue: String? = null,
-    onChange: (String) -> Unit = {},
+    value: T? = null,
+    defaultValue: T? = null,
+    onChange: (T) -> Unit = {},
     size: IenSegmentedControlSize = IenSegmentedControlSize.Small,
     alignment: IenSegmentedControlAlignment = IenSegmentedControlAlignment.Fixed,
     enabled: Boolean = true,
 ) {
     var localValue by remember(items, defaultValue) {
-        mutableStateOf(defaultValue ?: items.firstOrNull { it.enabled }?.value ?: items.firstOrNull()?.value.orEmpty())
+        mutableStateOf<T?>(defaultValue ?: items.firstOrNull { it.enabled }?.value ?: items.firstOrNull()?.value)
     }
     val selectedValue = value ?: localValue
     val density = LocalDensity.current
     val scrollState = rememberScrollState()
-    var pressedValue by remember { mutableStateOf<String?>(null) }
-    var itemBounds by remember(items) { mutableStateOf<Map<String, IenSegmentedControlItemBounds>>(emptyMap()) }
+    var pressedValue by remember { mutableStateOf<T?>(null) }
+    var itemBounds by remember(items) { mutableStateOf<Map<T, IenSegmentedControlItemBounds>>(emptyMap()) }
     var viewportWidthPx by remember { mutableStateOf(0) }
     val height = size.segmentedControlHeight()
     val itemHeight = height - IenTheme.spacing.xxs * 2
-    val selectedBounds = itemBounds[selectedValue]
+    val selectedBounds = selectedValue?.let(itemBounds::get)
     val indicatorOffset by animateDpAsState(
         targetValue = selectedBounds?.left ?: 0.dp,
         animationSpec = spring(
@@ -420,20 +480,20 @@ private fun IenSegmentedControlSize.segmentedControlTextStyle(): TextStyle {
 
 @Composable
 private fun segmentedControlContainerColor(): Color {
-    return if (IenTheme.colors.background == Color(0xFFFFFFFF)) {
-        Color(0xFFF2F4F6)
-    } else {
-        Color(0xFF20252B)
-    }
+    return resolveThemeColor(
+        isDarkTheme = LocalIenDarkTheme.current,
+        lightColor = Color(0xFFF2F4F6),
+        darkColor = Color(0xFF20252B),
+    )
 }
 
 @Composable
 private fun segmentedControlIndicatorColor(): Color {
-    return if (IenTheme.colors.background == Color(0xFFFFFFFF)) {
-        Color(0xFFFFFFFF)
-    } else {
-        Color(0xFF343A42)
-    }
+    return resolveThemeColor(
+        isDarkTheme = LocalIenDarkTheme.current,
+        lightColor = Color(0xFFFFFFFF),
+        darkColor = Color(0xFF343A42),
+    )
 }
 
 /**

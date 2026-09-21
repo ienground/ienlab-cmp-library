@@ -969,7 +969,7 @@ internal fun toneWeakGradientBrush(tone: IenSemanticTone): Brush {
     )
 }
 
-private fun containerGradientBrush(
+internal fun containerGradientBrush(
     container: Color,
     content: Color,
 ): Brush {
@@ -980,7 +980,7 @@ private fun containerGradientBrush(
     )
 }
 
-private fun weakContainerGradientBrush(
+internal fun weakContainerGradientBrush(
     container: Color,
     content: Color,
     border: Color,
@@ -1196,6 +1196,7 @@ internal fun IenButtonContainer(
     shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
     contentPadding: PaddingValues = PaddingValues(0.dp),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    onClickLabel: String? = null,
     scalePressed: Float = 0.975f,
     colors: IenButtonColors? = null,
     border: BorderStroke? = null,
@@ -1279,6 +1280,7 @@ internal fun IenButtonContainer(
                 indication = null,
                 enabled = interactiveEnabled,
                 role = Role.Button,
+                onClickLabel = onClickLabel,
                 onClick = handleOnClick,
             ),
         contentAlignment = Alignment.Center,

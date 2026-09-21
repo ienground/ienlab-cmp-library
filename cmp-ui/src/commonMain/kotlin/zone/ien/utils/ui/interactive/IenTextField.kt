@@ -59,18 +59,21 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.clear_input
 import zone.ien.utils.cmp_ui.generated.resources.clear_search
-import zone.ien.utils.cmp_ui.generated.resources.hide
 import zone.ien.utils.cmp_ui.generated.resources.hide_password
 import zone.ien.utils.cmp_ui.generated.resources.search
 import zone.ien.utils.cmp_ui.generated.resources.search_input
 import zone.ien.utils.cmp_ui.generated.resources.segmented_input
-import zone.ien.utils.cmp_ui.generated.resources.show
 import zone.ien.utils.cmp_ui.generated.resources.show_password
 import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.fill.Close
 import zone.ien.utils.icon.remix.line.ArrowDownWide
+import zone.ien.utils.icon.remix.line.Eye
+import zone.ien.utils.icon.remix.line.EyeOff
 import zone.ien.utils.icon.remix.line.Search
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.foundation.LocalIenDarkTheme
+import zone.ien.utils.ui.foundation.resolveThemeColor
 import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
@@ -321,6 +324,12 @@ fun IenTextField(
         IenTheme.colors.textTertiary
     }
     val textColor = if (state.enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled
+    val hasTrailingContent = trailing != null || right != null
+    val fieldVerticalPadding = if (variant == IenTextFieldVariant.Box && hasTrailingContent) {
+        IenTheme.spacing.xxs
+    } else {
+        fieldDefaultVerticalPadding(variant)
+    }
 
     Column(modifier = modifier.semantics {
         if (effectiveStatus is IenFieldStatus.Error) error(effectiveStatus.message)
@@ -342,15 +351,26 @@ fun IenTextField(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .defaultMinSize(minHeight = 28.dp)
+                    .then(
+                        if (
+                            singleLine &&
+                            variant == IenTextFieldVariant.Box &&
+                            paddingTop == null &&
+                            paddingBottom == null
+                        ) {
+                            Modifier.height(52.dp)
+                        } else {
+                            Modifier.defaultMinSize(minHeight = 28.dp)
+                        },
+                    )
                     .padding(
                         PaddingValues(
                             start = if (variant == IenTextFieldVariant.Line) 0.dp else 14.dp,
-                            top = fieldTopPadding(variant, paddingTop),
+                            top = paddingTop ?: fieldVerticalPadding,
                             end = if (variant == IenTextFieldVariant.Line) 0.dp else 14.dp,
-                        bottom = fieldBottomPadding(variant, paddingBottom),
+                            bottom = paddingBottom ?: fieldVerticalPadding,
+                        ),
                     ),
-                ),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 leading?.invoke()
@@ -652,6 +672,7 @@ fun IenPasswordTextField(
         right = {
             IenTextFieldPasswordButton(
                 visible = resolvedVisible,
+                enabled = state.enabled && !state.readOnly,
                 onClick = {
                     val next = !resolvedVisible
                     if (visible == null) internalVisible = next
@@ -789,14 +810,6 @@ private fun fieldDefaultVerticalPadding(variant: IenTextFieldVariant): Dp {
     }
 }
 
-private fun fieldTopPadding(variant: IenTextFieldVariant, paddingTop: Dp?): Dp {
-    return paddingTop ?: fieldDefaultVerticalPadding(variant)
-}
-
-private fun fieldBottomPadding(variant: IenTextFieldVariant, paddingBottom: Dp?): Dp {
-    return paddingBottom ?: fieldDefaultVerticalPadding(variant)
-}
-
 private fun fieldContentMinHeight(variant: IenTextFieldVariant): Dp {
     return when (variant) {
         IenTextFieldVariant.Box,
@@ -866,19 +879,25 @@ private fun IenTextFieldClearButton(
 @Composable
 private fun IenTextFieldPasswordButton(
     visible: Boolean,
+    enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val contentDescription = stringResource(if (visible) Res.string.hide_password else Res.string.show_password)
-    IenText(
-        text = stringResource(if (visible) Res.string.hide else Res.string.show),
-        modifier = modifier
-            .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = IenTheme.spacing.xs, vertical = IenTheme.spacing.xxs)
-            .semantics { this.contentDescription = contentDescription },
-        style = IenTheme.typography.label1,
-        color = IenTheme.colors.brand,
-    )
+    IenIconButton(
+        onClick = onClick,
+        modifier = modifier,
+        size = IenButtonSize.Medium,
+        variant = IenButtonVariant.Ghost,
+        tone = IenSemanticTone.Brand,
+        state = IenButtonState(enabled = enabled),
+    ) {
+        IenIcon(
+            imageVector = if (visible) RemixIcons.Line.EyeOff else RemixIcons.Line.Eye,
+            contentDescription = contentDescription,
+            tint = IenTheme.colors.brand,
+        )
+    }
 }
 
 @Composable
@@ -1206,36 +1225,36 @@ fun IenSearchFieldDeleteButton(
 
 @Composable
 private fun searchFieldContainerColor(): Color {
-    return if (IenTheme.colors.background == Color(0xFFFFFFFF)) {
-        Color(0xFFF2F4F6)
-    } else {
-        Color(0xFF20252B)
-    }
+    return resolveThemeColor(
+        isDarkTheme = LocalIenDarkTheme.current,
+        lightColor = Color(0xFFF2F4F6),
+        darkColor = Color(0xFF20252B),
+    )
 }
 
 @Composable
 private fun searchFieldIconColor(): Color {
-    return if (IenTheme.colors.background == Color(0xFFFFFFFF)) {
-        Color(0xFF8B95A1)
-    } else {
-        Color(0xFF6B7684)
-    }
+    return resolveThemeColor(
+        isDarkTheme = LocalIenDarkTheme.current,
+        lightColor = Color(0xFF8B95A1),
+        darkColor = Color(0xFF6B7684),
+    )
 }
 
 @Composable
 private fun searchFieldDeleteButtonColor(): Color {
-    return if (IenTheme.colors.background == Color(0xFFFFFFFF)) {
-        Color(0xFFD1D6DB)
-    } else {
-        Color(0xFF3A414A)
-    }
+    return resolveThemeColor(
+        isDarkTheme = LocalIenDarkTheme.current,
+        lightColor = Color(0xFFD1D6DB),
+        darkColor = Color(0xFF3A414A),
+    )
 }
 
 @Composable
 private fun searchFieldDeleteIconColor(): Color {
-    return if (IenTheme.colors.background == Color(0xFFFFFFFF)) {
-        Color(0xFFFFFFFF)
-    } else {
-        Color(0xFFB0B8C1)
-    }
+    return resolveThemeColor(
+        isDarkTheme = LocalIenDarkTheme.current,
+        lightColor = Color(0xFFFFFFFF),
+        darkColor = Color(0xFFB0B8C1),
+    )
 }

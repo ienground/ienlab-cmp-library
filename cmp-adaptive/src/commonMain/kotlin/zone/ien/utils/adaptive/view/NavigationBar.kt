@@ -38,6 +38,7 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.currentTheme
 import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.utils.adaptive.theme.ienCupertinoNavigationBarColors
 import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.foundation.IenTheme
@@ -249,6 +250,7 @@ private fun AdaptiveNavigationBarNative(
                     onTabSelected = onTabSelected,
                     items = items
                 )
+                IenNativeNavigationBarColors(selectedColor = IenTheme.colors.brand)
             },
             material = {
                 CustomNavigationBar(
@@ -367,7 +369,7 @@ private class NavigationBarAdaptation: Adaptation<CupertinoNavigationBarAdaptati
     @OptIn(ExperimentalCupertinoApi::class)
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoNavigationBarAdaptation {
-        val colors = CupertinoNavigationBarDefaults.colors()
+        val colors = ienCupertinoNavigationBarColors()
         val windowInsets = CupertinoNavigationBarDefaults.windowInsets
         val backdrop = rememberLayerBackdrop()
 

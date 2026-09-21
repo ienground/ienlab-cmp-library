@@ -53,6 +53,10 @@ import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.adaptive.view.AdaptiveCircularProgressIndicator
 import zone.ien.utils.adaptive.view.AdaptiveLoadingIndicator
+import zone.ien.utils.adaptive.view.AdaptiveNavigationBar
+import zone.ien.utils.adaptive.view.NavigationBarItem
+import zone.ien.utils.icon.Adaptive
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
@@ -66,6 +70,8 @@ import zone.ien.utils.ui.interactive.IenToggleButton
 import zone.ien.utils.ui.interactive.IenToggleButtonDefault
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.list.IenSwipeBox
+import zone.ien.utils.ui.list.IenSwipeBoxItem
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.TopBarMode
 
@@ -88,7 +94,10 @@ fun AdaptivePlaygroundScreen(
     var iconToggleChecked by remember { mutableStateOf(false) }
     var sliderValue by remember { mutableFloatStateOf(0.64f) }
     var segmentedIndex by remember { mutableIntStateOf(0) }
+    var swipeActionCount by remember { mutableIntStateOf(0) }
     var topBarMode by remember { mutableStateOf(TopBarMode.Expanded) }
+    var selectedNavigationIndex by remember { mutableIntStateOf(0) }
+    var isNativeNavigationBar by remember { mutableStateOf(true) }
 
     IenAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino,
@@ -107,6 +116,42 @@ fun AdaptivePlaygroundScreen(
             contentEdge = IenScaffoldContentEdge(
                 scrollState = scrollState,
             ),
+            bottomBar = {
+                AdaptiveNavigationBar(
+                    selectedTabIndex = { selectedNavigationIndex },
+                    onTabSelected = { selectedNavigationIndex = it },
+                    isNative = isNativeNavigationBar,
+                    adaptation = {
+                        cupertino { this.backdrop = backdrop }
+                    },
+                    items = listOf(
+                        NavigationBarItem(
+                            onClick = { selectedNavigationIndex = 0 },
+                            icon = IconData.Adaptive(
+                                material = { M3SystemIcons.Save },
+                                cupertino = { "checkmark" },
+                            ),
+                            label = "Save",
+                        ),
+                        NavigationBarItem(
+                            onClick = { selectedNavigationIndex = 1 },
+                            icon = IconData.Adaptive(
+                                material = { M3SystemIcons.Edit },
+                                cupertino = { "pencil" },
+                            ),
+                            label = "Edit",
+                        ),
+                        NavigationBarItem(
+                            onClick = { selectedNavigationIndex = 2 },
+                            icon = IconData.Adaptive(
+                                material = { M3SystemIcons.Schedule },
+                                cupertino = { "calendar" },
+                            ),
+                            label = "Schedule",
+                        ),
+                    ),
+                )
+            },
             adaptation = {
                 material {
                     mode = topBarMode
@@ -144,6 +189,11 @@ fun AdaptivePlaygroundScreen(
                         text = "Components enabled",
                         checked = enabled,
                         onCheckedChange = { enabled = it },
+                    )
+                    PlaygroundSwitchRow(
+                        text = "Native navigation bar",
+                        checked = isNativeNavigationBar,
+                        onCheckedChange = { isNativeNavigationBar = it },
                     )
                     AdaptiveSegmentedControl(
                         items = listOf(
@@ -364,6 +414,34 @@ fun AdaptivePlaygroundScreen(
                         enabled = enabled,
                         label = "Line checkbox",
                     )
+                }
+
+                PlaygroundGroup(title = "SwipeBox") {
+                    IenSwipeBox(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(72.dp),
+                        actionItemBuilder = {
+                            end {
+                                IenSwipeBoxItem(
+                                    onClick = { swipeActionCount += 1 },
+                                    tone = IenSemanticTone.Danger,
+                                    onClickLabel = "삭제",
+                                    label = "삭제",
+                                )
+                            }
+                        },
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            IenText("왼쪽으로 밀어 액션을 확인하세요")
+                        }
+                    }
+                    IenText("액션 실행 ${swipeActionCount}회")
                 }
 
                 PlaygroundGroup(title = "Feedback") {

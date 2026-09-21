@@ -88,7 +88,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
-import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -122,6 +121,7 @@ import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.view.resolveIenTooltipColors
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.foundation.layout.fillMaxSize
@@ -143,6 +143,7 @@ import zone.ien.utils.icon.remix.line.ArrowDownWide
 import zone.ien.utils.ui.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.interactive.IenDotCheckbox
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
+import zone.ien.utils.ui.window.ienTooltipPopupProperties
 
 internal val LocalIenTopBarFloatingSlotHiddenRequester = staticCompositionLocalOf<((Boolean) -> Unit)?> { null }
 
@@ -1474,31 +1475,62 @@ class IenTooltipPositionProvider(
     ): IntOffset {
         val preferredX = anchorBounds.left + (anchorBounds.width - popupContentSize.width) / 2
         val offsetPx = with(density) { offset.toPx().toInt() }
-        val paddingPx = with(density) { 32.dp.toPx() }
         val safeMarginPx = with(density) { 16.dp.toPx() }
 
-        val minX = (-paddingPx + safeMarginPx).toInt()
-        val maxX = (windowSize.width - popupContentSize.width + paddingPx - safeMarginPx).toInt()
-        val x = preferredX.coerceIn(minX, maxX)
+        val minX = safeMarginPx.toInt()
+        val maxX = (windowSize.width - popupContentSize.width - safeMarginPx)
+            .toInt()
+            .coerceAtLeast(minX)
+        val x = when (placement) {
+            IenTooltipPlacement.Top,
+            IenTooltipPlacement.Bottom -> preferredX.coerceIn(minX, maxX)
+            IenTooltipPlacement.Left -> {
+                (anchorBounds.left - popupContentSize.width - offsetPx)
+                    .coerceIn(minX, maxX)
+            }
+            IenTooltipPlacement.Right -> {
+                (anchorBounds.right + offsetPx)
+                    .coerceIn(minX, maxX)
+            }
+        }
 
         val y = when (placement) {
             IenTooltipPlacement.Top -> {
-                anchorBounds.top - popupContentSize.height + paddingPx.toInt() - offsetPx
+                anchorBounds.top - popupContentSize.height - offsetPx
             }
             IenTooltipPlacement.Bottom -> {
-                anchorBounds.bottom - paddingPx.toInt() + offsetPx
+                anchorBounds.bottom + offsetPx
+            }
+            IenTooltipPlacement.Left,
+            IenTooltipPlacement.Right -> {
+                val centeredY = anchorBounds.top + (anchorBounds.height - popupContentSize.height) / 2
+                val minY = safeMarginPx.toInt()
+                val maxY = (windowSize.height - popupContentSize.height - safeMarginPx)
+                    .toInt()
+                    .coerceAtLeast(minY)
+                centeredY.coerceIn(minY, maxY)
             }
         }
 
         val anchorCenterX = anchorBounds.left + anchorBounds.width / 2f
-        val relativeAnchorCenterX = anchorCenterX - x
-        val bodyWidth = popupContentSize.width - 2 * paddingPx
-        val arrowOffsetInBody = relativeAnchorCenterX - paddingPx
-
-        val arrowRatio = if (bodyWidth > 0) {
-            (arrowOffsetInBody / bodyWidth).coerceIn(0.12f, 0.88f)
-        } else {
-            0.5f
+        val anchorCenterY = anchorBounds.top + anchorBounds.height / 2f
+        val arrowRatio = when (placement) {
+            IenTooltipPlacement.Top,
+            IenTooltipPlacement.Bottom -> {
+                if (popupContentSize.width > 0) {
+                    ((anchorCenterX - x) / popupContentSize.width).coerceIn(0.12f, 0.88f)
+                } else {
+                    0.5f
+                }
+            }
+            IenTooltipPlacement.Left,
+            IenTooltipPlacement.Right -> {
+                if (popupContentSize.height > 0) {
+                    ((anchorCenterY - y) / popupContentSize.height).coerceIn(0.12f, 0.88f)
+                } else {
+                    0.5f
+                }
+            }
         }
 
         onArrowRatioCalculated(arrowRatio)
@@ -1534,10 +1566,12 @@ class IenTooltipShape(
         val h = size.height
 
         val path = Path().apply {
+            val bodyLeft = if (placement == IenTooltipPlacement.Right) arrowSizePx / 2f else 0f
             val bodyTop = if (placement == IenTooltipPlacement.Bottom) arrowSizePx / 2f else 0f
+            val bodyRight = if (placement == IenTooltipPlacement.Left) w - arrowSizePx / 2f else w
             val bodyBottom = if (placement == IenTooltipPlacement.Top) h - arrowSizePx / 2f else h
 
-            val rect = Rect(0f, bodyTop, w, bodyBottom)
+            val rect = Rect(bodyLeft, bodyTop, bodyRight, bodyBottom)
             addRoundRect(RoundRect(rect, CornerRadius(radiusPx)))
 
             val arrowWidth = arrowSizePx
@@ -1554,6 +1588,18 @@ class IenTooltipShape(
                     moveTo(arrowX, bodyBottom)
                     lineTo(arrowX + arrowWidth / 2f, bodyBottom + arrowHeight)
                     lineTo(arrowX + arrowWidth, bodyBottom)
+                }
+                IenTooltipPlacement.Left -> {
+                    val arrowY = h * arrowRatio.coerceIn(0.1f, 0.9f)
+                    moveTo(bodyRight, arrowY - arrowWidth / 2f)
+                    lineTo(bodyRight + arrowHeight, arrowY)
+                    lineTo(bodyRight, arrowY + arrowWidth / 2f)
+                }
+                IenTooltipPlacement.Right -> {
+                    val arrowY = h * arrowRatio.coerceIn(0.1f, 0.9f)
+                    moveTo(bodyLeft, arrowY - arrowWidth / 2f)
+                    lineTo(bodyLeft - arrowHeight, arrowY)
+                    lineTo(bodyLeft, arrowY + arrowWidth / 2f)
                 }
             }
             close()
@@ -1583,6 +1629,7 @@ class IenTooltipShape(
  * @param strategy 팝업 배치 전략 ([IenTooltipStrategy])
  * @param clipToEnd 툴팁 클리핑 처리 방식 ([IenTooltipClipToEnd])
  * @param width 툴팁 가로 너비 지정 (선택사항)
+ * @param fitContentWidth 텍스트 또는 콘텐츠와 내부 패딩에 맞춰 툴팁 너비를 결정할지 여부
  * @param anchor 툴팁이 가리킬 기준이 되는 컴포저블 (토글 함수가 람다 인자로 전달됨)
  */
 @Composable
@@ -1605,7 +1652,132 @@ fun IenTooltip(
     strategy: IenTooltipStrategy = IenTooltipStrategy.Absolute,
     clipToEnd: IenTooltipClipToEnd = IenTooltipClipToEnd.None,
     width: Dp? = null,
+    fitContentWidth: Boolean = false,
     anchor: (@Composable BoxScope.(toggle: () -> Unit) -> Unit)? = null,
+) {
+    IenTooltipImpl(
+        contentDescription = text,
+        text = text,
+        content = null,
+        modifier = modifier,
+        tone = tone,
+        defaultOpen = defaultOpen,
+        open = open,
+        onOpenChange = onOpenChange,
+        messageAlign = messageAlign,
+        placement = placement,
+        motionVariant = motionVariant,
+        offset = offset,
+        anchorPositionByRatio = anchorPositionByRatio,
+        openOnHover = openOnHover,
+        openOnFocus = openOnFocus,
+        dismissible = dismissible,
+        autoFlip = autoFlip,
+        strategy = strategy,
+        clipToEnd = clipToEnd,
+        width = width,
+        fitContentWidth = fitContentWidth,
+        anchor = anchor,
+    )
+}
+
+/**
+ * 지정된 앵커 주변에 호출자가 구성한 콘텐츠를 말풍선 형태의 툴팁으로 표시합니다.
+ *
+ * @param text 툴팁에 표시할 Composable 콘텐츠
+ * @param modifier 적용할 Modifier
+ * @param tone 툴팁의 색상 톤 ([IenSemanticTone])
+ * @param defaultOpen 초기 오픈 여부 (상태 비제어 시 사용)
+ * @param open 오픈 상태 제어용 값 (제어 상태일 때 사용)
+ * @param onOpenChange 오픈 상태 변경 시 호출될 콜백 함수
+ * @param messageAlign 문자열 콘텐츠의 정렬 방식 ([IenTooltipMessageAlign])
+ * @param placement 툴팁 노출 방향 설정 ([IenTooltipPlacement])
+ * @param motionVariant 애니메이션 효과 종류 ([IenTooltipMotionVariant])
+ * @param offset 앵커와 툴팁 간의 오프셋 간격
+ * @param anchorPositionByRatio 화살표가 앵커 기준 몇 % 위치에 배치될지 지정하는 비율 (0.0 ~ 1.0)
+ * @param openOnHover 호버 시 툴팁을 노출할지 여부
+ * @param openOnFocus 포커스 시 툴팁을 노출할지 여부
+ * @param dismissible 다른 곳 클릭 시 닫기 가능 여부
+ * @param autoFlip 화면 영역 초과 시 위치 자동 반전 여부
+ * @param strategy 팝업 배치 전략 ([IenTooltipStrategy])
+ * @param clipToEnd 툴팁 클리핑 처리 방식 ([IenTooltipClipToEnd])
+ * @param width 툴팁 가로 너비 지정 (선택사항)
+ * @param fitContentWidth 콘텐츠와 내부 패딩에 맞춰 툴팁 너비를 결정할지 여부
+ * @param anchor 툴팁이 가리킬 기준이 되는 컴포저블 (토글 함수가 람다 인자로 전달됨)
+ */
+@Composable
+fun IenTooltip(
+    text: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    tone: IenSemanticTone = IenSemanticTone.Neutral,
+    defaultOpen: Boolean = false,
+    open: Boolean? = null,
+    onOpenChange: ((Boolean) -> Unit)? = null,
+    messageAlign: IenTooltipMessageAlign = IenTooltipMessageAlign.Left,
+    placement: IenTooltipPlacement = IenTooltipPlacement.Bottom,
+    motionVariant: IenTooltipMotionVariant = IenTooltipMotionVariant.Weak,
+    offset: Dp? = null,
+    anchorPositionByRatio: Float = 0.5f,
+    openOnHover: Boolean = false,
+    openOnFocus: Boolean = false,
+    dismissible: Boolean = false,
+    autoFlip: Boolean = false,
+    strategy: IenTooltipStrategy = IenTooltipStrategy.Absolute,
+    clipToEnd: IenTooltipClipToEnd = IenTooltipClipToEnd.None,
+    width: Dp? = null,
+    fitContentWidth: Boolean = false,
+    anchor: (@Composable BoxScope.(toggle: () -> Unit) -> Unit)? = null,
+) {
+    IenTooltipImpl(
+        contentDescription = null,
+        text = null,
+        content = text,
+        modifier = modifier,
+        tone = tone,
+        defaultOpen = defaultOpen,
+        open = open,
+        onOpenChange = onOpenChange,
+        messageAlign = messageAlign,
+        placement = placement,
+        motionVariant = motionVariant,
+        offset = offset,
+        anchorPositionByRatio = anchorPositionByRatio,
+        openOnHover = openOnHover,
+        openOnFocus = openOnFocus,
+        dismissible = dismissible,
+        autoFlip = autoFlip,
+        strategy = strategy,
+        clipToEnd = clipToEnd,
+        width = width,
+        fitContentWidth = fitContentWidth,
+        anchor = anchor,
+    )
+}
+
+@Composable
+private fun IenTooltipImpl(
+    contentDescription: String?,
+    text: String?,
+    content: (@Composable () -> Unit)?,
+    modifier: Modifier,
+    tone: IenSemanticTone,
+    defaultOpen: Boolean,
+    open: Boolean?,
+    onOpenChange: ((Boolean) -> Unit)?,
+    messageAlign: IenTooltipMessageAlign,
+    placement: IenTooltipPlacement,
+    motionVariant: IenTooltipMotionVariant,
+    offset: Dp?,
+    anchorPositionByRatio: Float,
+    openOnHover: Boolean,
+    openOnFocus: Boolean,
+    dismissible: Boolean,
+    autoFlip: Boolean,
+    strategy: IenTooltipStrategy,
+    clipToEnd: IenTooltipClipToEnd,
+    width: Dp?,
+    fitContentWidth: Boolean,
+    anchor: (@Composable BoxScope.(toggle: () -> Unit) -> Unit)?,
 ) {
     var internalOpen by remember { mutableStateOf(defaultOpen) }
     val isOpen = open ?: internalOpen
@@ -1668,7 +1840,9 @@ fun IenTooltip(
             }
             .then(if (openOnFocus) Modifier.focusable() else Modifier)
             .semantics {
-                contentDescription = text
+                contentDescription?.let { description ->
+                    this.contentDescription = description
+                }
             },
         contentAlignment = Alignment.Center,
     ) {
@@ -1685,16 +1859,12 @@ fun IenTooltip(
                     }
                 },
                 onDismissRequest = { updateOpen(false) },
-                properties = PopupProperties(
-                    focusable = false,
-                    dismissOnClickOutside = true,
-                    dismissOnBackPress = true,
-                    clippingEnabled = false
-                )
+                properties = ienTooltipPopupProperties()
             ) {
                 IenTooltipPopup(
                     visible = isOpen,
                     text = text,
+                    content = content,
                     tone = tone,
                     messageAlign = messageAlign,
                     anchorPositionByRatio = dynamicArrowRatio,
@@ -1703,6 +1873,7 @@ fun IenTooltip(
                     motionVariant = motionVariant,
                     scale = motionScale,
                     width = width,
+                    fitContentWidth = fitContentWidth,
                 )
             }
         }
@@ -1721,11 +1892,13 @@ enum class IenTooltipMessageAlign {
 }
 
 /**
- * 앵커 컴포저블을 기준으로 툴팁이 노출될 방향(위, 아래)을 정의하는 열거형 클래스입니다.
+ * 앵커 컴포저블을 기준으로 툴팁이 노출될 방향(위, 아래, 왼쪽, 오른쪽)을 정의하는 열거형 클래스입니다.
  */
 enum class IenTooltipPlacement {
     Top,
     Bottom,
+    Left,
+    Right,
 }
 
 /**
@@ -1756,7 +1929,8 @@ enum class IenTooltipClipToEnd {
 @Composable
 private fun IenTooltipPopup(
     visible: Boolean,
-    text: String,
+    text: String?,
+    content: (@Composable () -> Unit)?,
     tone: IenSemanticTone,
     messageAlign: IenTooltipMessageAlign,
     anchorPositionByRatio: Float,
@@ -1765,18 +1939,9 @@ private fun IenTooltipPopup(
     motionVariant: IenTooltipMotionVariant,
     scale: Float,
     width: Dp?,
+    fitContentWidth: Boolean,
 ) {
-    val isNeutral = tone == IenSemanticTone.Neutral
-    val backgroundColor = if (isNeutral) {
-        Color.White
-    } else {
-        zone.ien.utils.ui.interactive.toneColor(tone)
-    }
-    val contentColor = if (isNeutral) {
-        IenTheme.colors.textPrimary
-    } else {
-        Color.White
-    }
+    val tooltipColors = resolveIenTooltipColors(tone, IenTheme.colors)
     val arrowRatio = anchorPositionByRatio.coerceIn(0.05f, 0.95f)
     val alpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
@@ -1807,14 +1972,21 @@ private fun IenTooltipPopup(
     ) {
         Box(
             modifier = Modifier
-                .padding(32.dp)
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
                     this.alpha = alpha
+                    translationX = when (placement) {
+                        IenTooltipPlacement.Left -> if (visible) 0f else 4f
+                        IenTooltipPlacement.Right -> if (visible) 0f else -4f
+                        IenTooltipPlacement.Top,
+                        IenTooltipPlacement.Bottom -> 0f
+                    }
                     translationY = when (placement) {
                         IenTooltipPlacement.Top -> if (visible) 0f else 4f
                         IenTooltipPlacement.Bottom -> if (visible) 0f else -4f
+                        IenTooltipPlacement.Left,
+                        IenTooltipPlacement.Right -> 0f
                     }
                 }
                 .then(if (width != null) Modifier.width(width) else Modifier.widthIn(max = 280.dp)),
@@ -1828,31 +2000,46 @@ private fun IenTooltipPopup(
                     ambientColor = Color(0x80001D3A),
                     spotColor = Color(0x80001D3A)
                 ),
-                color = backgroundColor,
-                contentColor = contentColor,
+                color = tooltipColors.container,
+                contentColor = tooltipColors.content,
                 shape = tooltipShape,
             ) {
                 val topPadding = if (placement == IenTooltipPlacement.Bottom) 16.dp else 10.dp
                 val bottomPadding = if (placement == IenTooltipPlacement.Top) 16.dp else 10.dp
+                val startPadding = if (placement == IenTooltipPlacement.Left) 10.dp else 16.dp
+                val endPadding = if (placement == IenTooltipPlacement.Right) 10.dp else 16.dp
+                val contentWidthModifier = if (fitContentWidth && width == null) {
+                    Modifier
+                } else {
+                    Modifier.fillMaxWidth()
+                }
 
-                IenText(
-                    text = text,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            start = 16.dp,
-                            end = 16.dp,
-                            top = topPadding,
-                            bottom = bottomPadding
-                        ),
-                    style = IenTheme.typography.label2.copy(fontWeight = FontWeight.Bold),
-                    color = contentColor,
-                    textAlign = when (messageAlign) {
-                        IenTooltipMessageAlign.Left -> TextAlign.Start
-                        IenTooltipMessageAlign.Center -> TextAlign.Center
-                        IenTooltipMessageAlign.Right -> TextAlign.End
-                    },
+                val contentModifier = contentWidthModifier.padding(
+                    start = startPadding,
+                    end = endPadding,
+                    top = topPadding,
+                    bottom = bottomPadding,
                 )
+                if (text != null) {
+                    IenText(
+                        text = text,
+                        modifier = contentModifier,
+                        style = IenTheme.typography.label2.copy(fontWeight = FontWeight.Bold),
+                        color = tooltipColors.content,
+                        textAlign = when (messageAlign) {
+                            IenTooltipMessageAlign.Left -> TextAlign.Start
+                            IenTooltipMessageAlign.Center -> TextAlign.Center
+                            IenTooltipMessageAlign.Right -> TextAlign.End
+                        },
+                    )
+                } else {
+                    Box(
+                        modifier = contentModifier,
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        content?.invoke()
+                    }
+                }
             }
         }
     }
@@ -1882,8 +2069,17 @@ private fun IenTooltipArrow(
 ) {
     Canvas(
         modifier = Modifier
-            .width(size)
-            .height(size / 2),
+            .then(
+                if (placement == IenTooltipPlacement.Left || placement == IenTooltipPlacement.Right) {
+                    Modifier
+                        .width(size / 2)
+                        .height(size)
+                } else {
+                    Modifier
+                        .width(size)
+                        .height(size / 2)
+                }
+            ),
     ) {
         val w = this.size.width
         val h = this.size.height
@@ -1898,6 +2094,16 @@ private fun IenTooltipArrow(
                     moveTo(if (clipToEnd == IenTooltipClipToEnd.Right) w / 2f else 0f, 0f)
                     lineTo(w / 2f, h)
                     lineTo(if (clipToEnd == IenTooltipClipToEnd.Left) w / 2f else w, 0f)
+                }
+                IenTooltipPlacement.Left -> {
+                    moveTo(0f, 0f)
+                    lineTo(w, h / 2f)
+                    lineTo(0f, h)
+                }
+                IenTooltipPlacement.Right -> {
+                    moveTo(w, 0f)
+                    lineTo(0f, h / 2f)
+                    lineTo(w, h)
                 }
             }
             close()
