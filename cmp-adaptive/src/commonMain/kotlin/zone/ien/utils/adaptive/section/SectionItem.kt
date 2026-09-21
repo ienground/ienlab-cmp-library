@@ -54,11 +54,10 @@ import zone.ien.hig.section.SectionLink
 import zone.ien.hig.section.SectionScope
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
-import zone.ien.hig.theme.systemBlue
-import zone.ien.hig.theme.systemGray
 import zone.ien.hig.theme.systemRed
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.view.AsteriskTextWrapper
+import zone.ien.utils.adaptive.theme.ienCupertinoSwitchColors
 import zone.ien.utils.adaptive.view.textfield.AdaptiveTextFieldClearButton
 import zone.ien.utils.hig.section.SectionSecureTextField
 import zone.ien.utils.hig.section.SectionTextField
@@ -73,6 +72,7 @@ import zone.ien.utils.ui.section.IenSectionSlider
 import zone.ien.utils.ui.section.IenSectionSwitchItem
 import zone.ien.utils.ui.section.IenSectionTextField
 import zone.ien.utils.ui.feedback.IenLinearProgressIndicator
+import zone.ien.utils.ui.foundation.IenTheme
 
 /**
  * 적응형 섹션 항목 컴포저블
@@ -255,6 +255,7 @@ fun SectionScope.AdaptiveSectionSwitchItem(
                         checked = checked,
                         onCheckedChange = onCheckedChange,
                         enabled = enabled,
+                        colors = ienCupertinoSwitchColors(),
                         backdrop = backdrop
                     )
                 },
@@ -878,9 +879,9 @@ fun SectionScope.AdaptiveSectionButton(
                         value = TextStyle.Default.copy(
                             color =
                                 if (enabled) {
-                                    CupertinoColors.systemBlue
+                                    IenTheme.colors.brand
                                 } else {
-                                    CupertinoColors.systemGray
+                                    IenTheme.colors.textDisabled
                                 }
                         ),
                         content = label

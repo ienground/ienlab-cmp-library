@@ -13,13 +13,13 @@ import com.kyant.backdrop.Backdrop
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoLargeFloatingActionButton
 import zone.ien.hig.CupertinoLiquidButtonColors
-import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoMediumFloatingActionButton
 import zone.ien.hig.CupertinoSmallFloatingActionButton
 import zone.ien.hig.adaptive.Adaptation
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.utils.adaptive.theme.ienCupertinoGlassProminentButtonColors
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
@@ -230,7 +230,7 @@ class HigFloatingActionButtonAdaptation internal constructor(
 private class SmallFloatingActionButtonAdaptation: Adaptation<HigFloatingActionButtonAdaptation, IenFloatingActionButtonAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): HigFloatingActionButtonAdaptation {
-        val colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
+        val colors = ienCupertinoGlassProminentButtonColors()
         val shape = CircleShape
         val interactionSource = remember { MutableInteractionSource() }
         val backdrop = rememberDefaultBackdrop()
@@ -278,7 +278,7 @@ private class SmallFloatingActionButtonAdaptation: Adaptation<HigFloatingActionB
 private class MediumFloatingActionButtonAdaptation: Adaptation<HigFloatingActionButtonAdaptation, IenFloatingActionButtonAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): HigFloatingActionButtonAdaptation {
-        val colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
+        val colors = ienCupertinoGlassProminentButtonColors()
         val shape = CircleShape
         val interactionSource = remember { MutableInteractionSource() }
         val backdrop = rememberDefaultBackdrop()
@@ -326,7 +326,7 @@ private class MediumFloatingActionButtonAdaptation: Adaptation<HigFloatingAction
 private class LargeFloatingActionButtonAdaptation: Adaptation<HigFloatingActionButtonAdaptation, IenFloatingActionButtonAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): HigFloatingActionButtonAdaptation {
-        val colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
+        val colors = ienCupertinoGlassProminentButtonColors()
         val shape = CircleShape
         val interactionSource = remember { MutableInteractionSource() }
         val backdrop = rememberDefaultBackdrop()

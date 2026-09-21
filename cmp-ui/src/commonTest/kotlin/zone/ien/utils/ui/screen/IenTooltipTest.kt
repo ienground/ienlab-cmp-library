@@ -12,6 +12,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.defaultDarkIenColorScheme
+import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.view.IenTooltipColors
 import zone.ien.utils.ui.view.resolveIenTooltipColors
 
@@ -32,6 +33,11 @@ class IenTooltipTest {
     @Test
     fun `텍스트 너비에 맞추는 Tooltip 옵션을 사용할 수 있다`() {
         assertNotNull(fitContentTooltip)
+    }
+
+    @Test
+    fun `Composable Tooltip 콘텐츠 오버로드를 사용할 수 있다`() {
+        assertNotNull(composableTooltip)
     }
 
     @Test
@@ -94,6 +100,12 @@ class IenTooltipTest {
         IenTooltip(
             text = "도움말",
             fitContentWidth = true,
+        )
+    }
+
+    private val composableTooltip: @Composable () -> Unit = {
+        IenTooltip(
+            text = { IenText("도움말") },
         )
     }
 }

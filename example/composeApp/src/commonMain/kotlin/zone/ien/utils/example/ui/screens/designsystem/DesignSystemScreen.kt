@@ -2507,6 +2507,15 @@ fun TooltipSection() {
                 text = "툴팁은 짧은 보조 설명에 사용합니다.",
                 anchor = { toggle -> IenBadge("도움말", variant = IenBadgeVariant.Line) },
             )
+            IenTooltip(
+                text = {
+                    Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs)) {
+                        IenBadge("TIP", variant = IenBadgeVariant.Weak)
+                        IenText("Composable 콘텐츠도 사용할 수 있습니다.")
+                    }
+                },
+                anchor = { toggle -> IenBadge("콘텐츠", variant = IenBadgeVariant.Weak) },
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
                 IenTooltip(
                     text = "상단에 뜨는 도움말입니다.",
@@ -2534,6 +2543,21 @@ fun TooltipSection() {
                     anchorPositionByRatio = 0.15f,
                     clipToEnd = IenTooltipClipToEnd.Left,
                     anchor = { toggle -> IenBadge("Left", variant = IenBadgeVariant.Weak) },
+                )
+                IenTooltip(
+                    text = "강한 모션",
+                    open = controlledTooltipOpen,
+                    onOpenChange = { controlledTooltipOpen = it },
+                    motionVariant = IenTooltipMotionVariant.Strong,
+                    dismissible = true,
+                    anchor = { toggle ->
+                        IenButton(
+                            size = IenButtonSize.Small,
+                            onClick = { controlledTooltipOpen = !controlledTooltipOpen },
+                        ) {
+                            IenText("Toggle")
+                        }
+                    },
                 )
                 IenTooltip(
                     text = "강한 모션",

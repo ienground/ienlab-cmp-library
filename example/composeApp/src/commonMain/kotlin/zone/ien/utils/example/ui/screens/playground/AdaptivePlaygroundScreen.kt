@@ -53,6 +53,10 @@ import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.adaptive.view.AdaptiveCircularProgressIndicator
 import zone.ien.utils.adaptive.view.AdaptiveLoadingIndicator
+import zone.ien.utils.adaptive.view.AdaptiveNavigationBar
+import zone.ien.utils.adaptive.view.NavigationBarItem
+import zone.ien.utils.icon.Adaptive
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
@@ -92,6 +96,8 @@ fun AdaptivePlaygroundScreen(
     var segmentedIndex by remember { mutableIntStateOf(0) }
     var swipeActionCount by remember { mutableIntStateOf(0) }
     var topBarMode by remember { mutableStateOf(TopBarMode.Expanded) }
+    var selectedNavigationIndex by remember { mutableIntStateOf(0) }
+    var isNativeNavigationBar by remember { mutableStateOf(true) }
 
     IenAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino,
@@ -110,6 +116,42 @@ fun AdaptivePlaygroundScreen(
             contentEdge = IenScaffoldContentEdge(
                 scrollState = scrollState,
             ),
+            bottomBar = {
+                AdaptiveNavigationBar(
+                    selectedTabIndex = { selectedNavigationIndex },
+                    onTabSelected = { selectedNavigationIndex = it },
+                    isNative = isNativeNavigationBar,
+                    adaptation = {
+                        cupertino { this.backdrop = backdrop }
+                    },
+                    items = listOf(
+                        NavigationBarItem(
+                            onClick = { selectedNavigationIndex = 0 },
+                            icon = IconData.Adaptive(
+                                material = { M3SystemIcons.Save },
+                                cupertino = { "checkmark" },
+                            ),
+                            label = "Save",
+                        ),
+                        NavigationBarItem(
+                            onClick = { selectedNavigationIndex = 1 },
+                            icon = IconData.Adaptive(
+                                material = { M3SystemIcons.Edit },
+                                cupertino = { "pencil" },
+                            ),
+                            label = "Edit",
+                        ),
+                        NavigationBarItem(
+                            onClick = { selectedNavigationIndex = 2 },
+                            icon = IconData.Adaptive(
+                                material = { M3SystemIcons.Schedule },
+                                cupertino = { "calendar" },
+                            ),
+                            label = "Schedule",
+                        ),
+                    ),
+                )
+            },
             adaptation = {
                 material {
                     mode = topBarMode
@@ -147,6 +189,11 @@ fun AdaptivePlaygroundScreen(
                         text = "Components enabled",
                         checked = enabled,
                         onCheckedChange = { enabled = it },
+                    )
+                    PlaygroundSwitchRow(
+                        text = "Native navigation bar",
+                        checked = isNativeNavigationBar,
+                        onCheckedChange = { isNativeNavigationBar = it },
                     )
                     AdaptiveSegmentedControl(
                         items = listOf(

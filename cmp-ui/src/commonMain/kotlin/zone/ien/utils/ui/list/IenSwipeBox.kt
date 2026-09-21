@@ -1,11 +1,11 @@
 @file:OptIn(
     androidx.compose.foundation.ExperimentalFoundationApi::class,
-    zone.ien.hig.InternalCupertinoApi::class,
 )
 
 package zone.ien.utils.ui.list
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
@@ -13,6 +13,10 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -64,11 +68,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -80,7 +82,6 @@ import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import zone.ien.hig.CupertinoHapticFeedback
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButtonColors
@@ -92,6 +93,7 @@ import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -99,6 +101,9 @@ import kotlin.time.Duration.Companion.milliseconds
 object IenSwipeBoxDefaults {
     /** 전체 스와이프 동작을 기본으로 허용할지 여부입니다. */
     const val allowFullSwipe: Boolean = true
+
+    /** 액션 아이템이 확장되는 순간 햅틱 피드백을 기본으로 사용할지 여부입니다. */
+    const val expansionHapticEnabled: Boolean = true
 
     /** 속도 기준값입니다. */
     const val velocityThreshold: Float = Float.POSITIVE_INFINITY
@@ -177,6 +182,7 @@ class IenSwipeBoxActionsBuilder {
  *
  * 시작 액션은 왼쪽에서, 끝 액션은 오른쪽에서 노출됩니다. 전체 스와이프 실행, 햅틱 피드백,
  * 액션 확장 애니메이션은 이 컴포넌트가 직접 처리합니다.
+ * [expansionHapticEnabled]로 액션 아이템 확장 시 햅틱 피드백을 제어할 수 있습니다.
  * `height`가 [Dp.Unspecified]이면 콘텐츠 높이를 사용하며, 액션이 있는 경우 액션 아이템의
  * 최소 높이를 보장합니다.
  */
@@ -188,6 +194,7 @@ fun IenSwipeBox(
     height: Dp = Dp.Unspecified,
     startToEndFullSwipeEnabled: Boolean = IenSwipeBoxDefaults.allowFullSwipe,
     endToStartFullSwipeEnabled: Boolean = IenSwipeBoxDefaults.allowFullSwipe,
+    expansionHapticEnabled: Boolean = IenSwipeBoxDefaults.expansionHapticEnabled,
     actionItemBuilder: IenSwipeBoxActionsBuilder.() -> Unit,
     content: @Composable BoxScope.() -> Unit,
 ) {
@@ -209,11 +216,15 @@ fun IenSwipeBox(
         hasActions = hasActions,
     )
 
-    val hapticFeedback = LocalHapticFeedback.current
-    var hasTriggeredHapticFeedback by remember { mutableStateOf(false) }
+    val hapticFeedback = rememberIenSwipeBoxHapticFeedback()
     var anchorsInitialized by remember { mutableStateOf(false) }
-    val isFullyExpandedStart = remember { mutableStateOf(false) }
-    val isFullyExpandedEnd = remember { mutableStateOf(false) }
+    val actionRowOuterPadding = IenSwipeBoxDefaults.actionItemHorizontalPadding * 2
+    val startExpansionThresholdPx = with(density) {
+        (itemWidth * startActionsSize + actionRowOuterPadding).toPx()
+    }
+    val endExpansionThresholdPx = with(density) {
+        (itemWidth * endActionsSize + actionRowOuterPadding).toPx()
+    }
 
     AnchorsEffect(
         parentWidth = parentWidth,
@@ -226,18 +237,20 @@ fun IenSwipeBox(
         amountOfStartActionItems = startActionsSize,
         amountOfEndActionItems = endActionsSize,
         actionItemWidth = itemWidth,
-        actionRowOuterPadding = IenSwipeBoxDefaults.actionItemHorizontalPadding * 2,
+        actionRowOuterPadding = actionRowOuterPadding,
     ) { anchorsInitialized = it }
 
     HapticFeedbackEffect(
+        expansionHapticEnabled = expansionHapticEnabled,
         fullExpansionStart = startToEndFullSwipeEnabled,
         fullExpansionEnd = endToStartFullSwipeEnabled,
-        isFullyExpandedStart = isFullyExpandedStart,
-        isFullyExpandedEnd = isFullyExpandedEnd,
+        isStartActionItemSupplied = isStartActionItemSupplied,
+        isEndActionItemSupplied = isEndActionItemSupplied,
+        startExpansionThresholdPx = startExpansionThresholdPx,
+        endExpansionThresholdPx = endExpansionThresholdPx,
         swipeBoxState = state,
         hapticFeedback = hapticFeedback,
-        hasTriggeredHapticFeedback = hasTriggeredHapticFeedback,
-    ) { hasTriggeredHapticFeedback = it }
+    )
 
     DismissFullyExpandedEffect(
         swipeBoxState = state,
@@ -286,14 +299,18 @@ fun IenSwipeBox(
                             .clipToBounds()
                             .align(Alignment.CenterStart),
                     ) {
-                        val actionRowOuterPadding =
-                            IenSwipeBoxDefaults.actionItemHorizontalPadding * 2
                         val revealedActionContentWidth =
                             (revealedWidth - actionRowOuterPadding).coerceAtLeast(0.dp)
                         val normalActionRowWidth =
                             itemWidth * startActionsSize + actionRowOuterPadding
+                        val isActionRowExpanding = isSwipeBoxActionExpanding(
+                            revealedWidth = revealedWidth,
+                            itemWidth = itemWidth,
+                            actionCount = startActionsSize,
+                            actionRowOuterPadding = actionRowOuterPadding,
+                        )
                         val actionRowWidth =
-                            if (revealedWidth > normalActionRowWidth) {
+                            if (isActionRowExpanding) {
                                 revealedWidth
                             } else {
                                 normalActionRowWidth
@@ -307,7 +324,7 @@ fun IenSwipeBox(
                                     LocalIenSwipeBoxItemFullSwipe provides (index == 0),
                                     LocalIenSwipeBoxItemExpanding provides (
                                         index == 0 && (
-                                            revealedWidth > normalActionRowWidth ||
+                                            isActionRowExpanding ||
                                                 state.targetValue == IenSwipeBoxStates.StartFullyExpanded
                                             )
                                         ),
@@ -335,14 +352,18 @@ fun IenSwipeBox(
                             .clipToBounds()
                             .align(Alignment.CenterEnd),
                     ) {
-                        val actionRowOuterPadding =
-                            IenSwipeBoxDefaults.actionItemHorizontalPadding * 2
                         val revealedActionContentWidth =
                             (revealedWidth - actionRowOuterPadding).coerceAtLeast(0.dp)
                         val normalActionRowWidth =
                             itemWidth * endActionsSize + actionRowOuterPadding
+                        val isActionRowExpanding = isSwipeBoxActionExpanding(
+                            revealedWidth = revealedWidth,
+                            itemWidth = itemWidth,
+                            actionCount = endActionsSize,
+                            actionRowOuterPadding = actionRowOuterPadding,
+                        )
                         val actionRowWidth =
-                            if (revealedWidth > normalActionRowWidth) {
+                            if (isActionRowExpanding) {
                                 revealedWidth
                             } else {
                                 normalActionRowWidth
@@ -358,7 +379,7 @@ fun IenSwipeBox(
                                         (index == actionItems.endActions.lastIndex),
                                     LocalIenSwipeBoxItemExpanding provides (
                                         index == actionItems.endActions.lastIndex && (
-                                            revealedWidth > normalActionRowWidth ||
+                                            isActionRowExpanding ||
                                                 state.targetValue == IenSwipeBoxStates.EndFullyExpanded
                                             )
                                         ),
@@ -419,6 +440,7 @@ fun IenSwipeBox(
  *
  * 액션 버튼은 `IenButton`과 동일하게 [variant], [tone], [state], [colors]로 시각 스타일과
  * 상호작용 상태를 구성합니다. [colors]를 지정하지 않으면 기본 그라데이션이 적용됩니다.
+ * [showLabelOnExpansion]이 `true`인 경우에만 확장 상태에서 [label]을 표시합니다.
  */
 @Composable
 fun RowScope.IenSwipeBoxItem(
@@ -435,6 +457,84 @@ fun RowScope.IenSwipeBoxItem(
     icon: ImageVector? = null,
     label: String? = null,
     weight: Float = 1f,
+    showLabelOnExpansion: Boolean = true,
+) {
+    IenSwipeBoxItemImpl(
+        onClick = onClick,
+        modifier = modifier,
+        variant = variant,
+        tone = tone,
+        state = state,
+        shape = shape,
+        colors = colors,
+        restoreOnClick = restoreOnClick,
+        onClickLabel = onClickLabel,
+        interactionSource = interactionSource,
+        icon = icon,
+        labelContent = label?.let { labelText ->
+            { IenText(text = labelText, maxLines = 1) }
+        },
+        weight = weight,
+        showLabelOnExpansion = showLabelOnExpansion,
+    )
+}
+
+/**
+ * `IenSwipeBox` 안에 표시하는 액션 아이템입니다.
+ *
+ * 문자열 대신 호출자가 구성한 Composable 라벨을 확장 상태에서 표시할 수 있습니다.
+ */
+@Composable
+fun RowScope.IenSwipeBoxItem(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    variant: IenButtonVariant = IenButtonVariant.Fill,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
+    state: IenButtonState = IenButtonState(),
+    shape: Shape = ContinuousCapsule(),
+    colors: IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone),
+    restoreOnClick: Boolean = true,
+    onClickLabel: String? = null,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    icon: ImageVector? = null,
+    label: @Composable () -> Unit,
+    weight: Float = 1f,
+    showLabelOnExpansion: Boolean = true,
+) {
+    IenSwipeBoxItemImpl(
+        onClick = onClick,
+        modifier = modifier,
+        variant = variant,
+        tone = tone,
+        state = state,
+        shape = shape,
+        colors = colors,
+        restoreOnClick = restoreOnClick,
+        onClickLabel = onClickLabel,
+        interactionSource = interactionSource,
+        icon = icon,
+        labelContent = label,
+        weight = weight,
+        showLabelOnExpansion = showLabelOnExpansion,
+    )
+}
+
+@Composable
+private fun RowScope.IenSwipeBoxItemImpl(
+    onClick: () -> Unit,
+    modifier: Modifier,
+    variant: IenButtonVariant,
+    tone: IenSemanticTone,
+    state: IenButtonState,
+    shape: Shape,
+    colors: IenButtonColors,
+    restoreOnClick: Boolean,
+    onClickLabel: String?,
+    interactionSource: MutableInteractionSource,
+    icon: ImageVector?,
+    labelContent: (@Composable () -> Unit)?,
+    weight: Float,
+    showLabelOnExpansion: Boolean,
 ) {
     val swipeBoxState = LocalIenSwipeBoxState.current
     val actionPosition = LocalIenSwipeActionPosition.current
@@ -508,6 +608,12 @@ fun RowScope.IenSwipeBoxItem(
                 }
             },
             modifier = Modifier
+                .animateContentSizeWithoutClipping(
+                    animationSpec = tween(
+                        durationMillis = IenTheme.motion.fastMillis,
+                        easing = IenTheme.motion.standardEasing,
+                    ),
+                )
                 .then(
                     if (isExpanding) {
                         Modifier
@@ -558,11 +664,39 @@ fun RowScope.IenSwipeBoxItem(
                                     size = IenTheme.icon.sm,
                                 )
                             }
-                            label?.let {
-                                IenText(
-                                    text = it,
-                                    maxLines = 1,
-                                )
+                            labelContent?.let { content ->
+                                AnimatedVisibility(
+                                    visible = shouldRenderSwipeBoxLabel(
+                                        isExpanding = isExpanding,
+                                        showLabelOnExpansion = showLabelOnExpansion,
+                                    ),
+                                    enter = fadeIn(
+                                        animationSpec = tween(
+                                            durationMillis = IenTheme.motion.fastMillis,
+                                            easing = IenTheme.motion.standardEasing,
+                                        ),
+                                    ) + expandHorizontally(
+                                        animationSpec = tween(
+                                            durationMillis = IenTheme.motion.fastMillis,
+                                            easing = IenTheme.motion.standardEasing,
+                                        ),
+                                        expandFrom = Alignment.Start,
+                                    ),
+                                    exit = fadeOut(
+                                        animationSpec = tween(
+                                            durationMillis = IenTheme.motion.fastMillis,
+                                            easing = IenTheme.motion.standardEasing,
+                                        ),
+                                    ) + shrinkHorizontally(
+                                        animationSpec = tween(
+                                            durationMillis = IenTheme.motion.fastMillis,
+                                            easing = IenTheme.motion.standardEasing,
+                                        ),
+                                        shrinkTowards = Alignment.Start,
+                                    ),
+                                ) {
+                                    content()
+                                }
                             }
                         }
                     }
@@ -587,6 +721,33 @@ internal fun resolveSwipeBoxHeight(
     hasActions -> maxOf(contentHeight, IenSwipeBoxDefaults.actionItemHeight)
     else -> contentHeight
 }
+
+internal fun isSwipeBoxActionExpanding(
+    revealedWidth: Dp,
+    itemWidth: Dp,
+    actionCount: Int,
+    actionRowOuterPadding: Dp,
+): Boolean = revealedWidth > itemWidth * actionCount + actionRowOuterPadding
+
+internal fun isSwipeBoxExpansionThresholdReached(
+    offset: Float,
+    targetValue: IenSwipeBoxStates,
+    isStartActionItemSupplied: Boolean,
+    isEndActionItemSupplied: Boolean,
+    startExpansionThresholdPx: Float,
+    endExpansionThresholdPx: Float,
+    fullExpansionStart: Boolean,
+    fullExpansionEnd: Boolean,
+): Boolean =
+    (isStartActionItemSupplied && offset > startExpansionThresholdPx) ||
+        (isEndActionItemSupplied && offset < -endExpansionThresholdPx) ||
+        (fullExpansionStart && targetValue == IenSwipeBoxStates.StartFullyExpanded) ||
+        (fullExpansionEnd && targetValue == IenSwipeBoxStates.EndFullyExpanded)
+
+internal fun shouldRenderSwipeBoxLabel(
+    isExpanding: Boolean,
+    showLabelOnExpansion: Boolean,
+): Boolean = isExpanding && showLabelOnExpansion
 
 /** `IenSwipeBox` 상태를 생성하고 스크롤 중 열린 액션을 닫습니다. */
 @Composable
@@ -677,39 +838,51 @@ private fun AnchorsEffect(
 
 @Composable
 private fun HapticFeedbackEffect(
+    expansionHapticEnabled: Boolean,
     fullExpansionStart: Boolean,
     fullExpansionEnd: Boolean,
-    isFullyExpandedStart: MutableState<Boolean>,
-    isFullyExpandedEnd: MutableState<Boolean>,
+    isStartActionItemSupplied: Boolean,
+    isEndActionItemSupplied: Boolean,
+    startExpansionThresholdPx: Float,
+    endExpansionThresholdPx: Float,
     swipeBoxState: AnchoredDraggableState<IenSwipeBoxStates>,
-    hapticFeedback: HapticFeedback,
-    hasTriggeredHapticFeedback: Boolean,
-    onHapticFeedbackTriggered: (Boolean) -> Unit,
+    hapticFeedback: IenSwipeBoxHapticFeedback,
 ) {
-    LaunchedEffect(swipeBoxState.currentValue, swipeBoxState.targetValue) {
-        val isStartFullSwipeTarget =
-            fullExpansionStart && swipeBoxState.targetValue == IenSwipeBoxStates.StartFullyExpanded
-        val isEndFullSwipeTarget =
-            fullExpansionEnd && swipeBoxState.targetValue == IenSwipeBoxStates.EndFullyExpanded
-        when {
-            isStartFullSwipeTarget && !hasTriggeredHapticFeedback -> {
-                hapticFeedback.performHapticFeedback(CupertinoHapticFeedback.ImpactLight)
-                onHapticFeedbackTriggered(true)
-                isFullyExpandedStart.value = true
-                isFullyExpandedEnd.value = false
+    LaunchedEffect(
+        swipeBoxState,
+        expansionHapticEnabled,
+        fullExpansionStart,
+        fullExpansionEnd,
+        isStartActionItemSupplied,
+        isEndActionItemSupplied,
+        startExpansionThresholdPx,
+        endExpansionThresholdPx,
+    ) {
+        var hasTriggeredHapticFeedback = false
+        snapshotFlow { swipeBoxState.offset to swipeBoxState.targetValue }
+            .collect { (offset, targetValue) ->
+                val isExpansionThresholdReached = isSwipeBoxExpansionThresholdReached(
+                    offset = offset,
+                    targetValue = targetValue,
+                    isStartActionItemSupplied = isStartActionItemSupplied,
+                    isEndActionItemSupplied = isEndActionItemSupplied,
+                    startExpansionThresholdPx = startExpansionThresholdPx,
+                    endExpansionThresholdPx = endExpansionThresholdPx,
+                    fullExpansionStart = fullExpansionStart,
+                    fullExpansionEnd = fullExpansionEnd,
+                )
+                when {
+                    expansionHapticEnabled &&
+                        isExpansionThresholdReached &&
+                        !hasTriggeredHapticFeedback -> {
+                        hapticFeedback.performImpactLight()
+                        hasTriggeredHapticFeedback = true
+                    }
+                    !isExpansionThresholdReached -> {
+                        hasTriggeredHapticFeedback = false
+                    }
+                }
             }
-            isEndFullSwipeTarget && !hasTriggeredHapticFeedback -> {
-                hapticFeedback.performHapticFeedback(CupertinoHapticFeedback.ImpactLight)
-                onHapticFeedbackTriggered(true)
-                isFullyExpandedStart.value = false
-                isFullyExpandedEnd.value = true
-            }
-            !isStartFullSwipeTarget && !isEndFullSwipeTarget -> {
-                onHapticFeedbackTriggered(false)
-                isFullyExpandedStart.value = false
-                isFullyExpandedEnd.value = false
-            }
-        }
     }
 }
 

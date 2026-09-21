@@ -190,6 +190,7 @@ data class IenStateTokens(
  * @property icon 테마 아이콘 크기 규격
  * @property motion 테마 모션/애니메이션 규격
  * @property state 테마 상태값 규격
+ * @property switchColorPolicy Cupertino 스위치 선택 상태 색상 정책
  */
 @Immutable
 data class IenTokens(
@@ -203,6 +204,7 @@ data class IenTokens(
     val icon: IenIconSize = IenIconSize(),
     val motion: IenMotion = IenMotion(),
     val state: IenStateTokens = IenStateTokens(),
+    val switchColorPolicy: IenSwitchColorPolicy = IenSwitchColorPolicy.Platform,
 )
 
 /**

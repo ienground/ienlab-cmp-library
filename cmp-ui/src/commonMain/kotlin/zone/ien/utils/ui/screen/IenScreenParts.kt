@@ -1629,7 +1629,7 @@ class IenTooltipShape(
  * @param strategy 팝업 배치 전략 ([IenTooltipStrategy])
  * @param clipToEnd 툴팁 클리핑 처리 방식 ([IenTooltipClipToEnd])
  * @param width 툴팁 가로 너비 지정 (선택사항)
- * @param fitContentWidth 텍스트와 내부 패딩에 맞춰 툴팁 너비를 결정할지 여부
+ * @param fitContentWidth 텍스트 또는 콘텐츠와 내부 패딩에 맞춰 툴팁 너비를 결정할지 여부
  * @param anchor 툴팁이 가리킬 기준이 되는 컴포저블 (토글 함수가 람다 인자로 전달됨)
  */
 @Composable
@@ -1654,6 +1654,130 @@ fun IenTooltip(
     width: Dp? = null,
     fitContentWidth: Boolean = false,
     anchor: (@Composable BoxScope.(toggle: () -> Unit) -> Unit)? = null,
+) {
+    IenTooltipImpl(
+        contentDescription = text,
+        text = text,
+        content = null,
+        modifier = modifier,
+        tone = tone,
+        defaultOpen = defaultOpen,
+        open = open,
+        onOpenChange = onOpenChange,
+        messageAlign = messageAlign,
+        placement = placement,
+        motionVariant = motionVariant,
+        offset = offset,
+        anchorPositionByRatio = anchorPositionByRatio,
+        openOnHover = openOnHover,
+        openOnFocus = openOnFocus,
+        dismissible = dismissible,
+        autoFlip = autoFlip,
+        strategy = strategy,
+        clipToEnd = clipToEnd,
+        width = width,
+        fitContentWidth = fitContentWidth,
+        anchor = anchor,
+    )
+}
+
+/**
+ * 지정된 앵커 주변에 호출자가 구성한 콘텐츠를 말풍선 형태의 툴팁으로 표시합니다.
+ *
+ * @param text 툴팁에 표시할 Composable 콘텐츠
+ * @param modifier 적용할 Modifier
+ * @param tone 툴팁의 색상 톤 ([IenSemanticTone])
+ * @param defaultOpen 초기 오픈 여부 (상태 비제어 시 사용)
+ * @param open 오픈 상태 제어용 값 (제어 상태일 때 사용)
+ * @param onOpenChange 오픈 상태 변경 시 호출될 콜백 함수
+ * @param messageAlign 문자열 콘텐츠의 정렬 방식 ([IenTooltipMessageAlign])
+ * @param placement 툴팁 노출 방향 설정 ([IenTooltipPlacement])
+ * @param motionVariant 애니메이션 효과 종류 ([IenTooltipMotionVariant])
+ * @param offset 앵커와 툴팁 간의 오프셋 간격
+ * @param anchorPositionByRatio 화살표가 앵커 기준 몇 % 위치에 배치될지 지정하는 비율 (0.0 ~ 1.0)
+ * @param openOnHover 호버 시 툴팁을 노출할지 여부
+ * @param openOnFocus 포커스 시 툴팁을 노출할지 여부
+ * @param dismissible 다른 곳 클릭 시 닫기 가능 여부
+ * @param autoFlip 화면 영역 초과 시 위치 자동 반전 여부
+ * @param strategy 팝업 배치 전략 ([IenTooltipStrategy])
+ * @param clipToEnd 툴팁 클리핑 처리 방식 ([IenTooltipClipToEnd])
+ * @param width 툴팁 가로 너비 지정 (선택사항)
+ * @param fitContentWidth 콘텐츠와 내부 패딩에 맞춰 툴팁 너비를 결정할지 여부
+ * @param anchor 툴팁이 가리킬 기준이 되는 컴포저블 (토글 함수가 람다 인자로 전달됨)
+ */
+@Composable
+fun IenTooltip(
+    text: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    tone: IenSemanticTone = IenSemanticTone.Neutral,
+    defaultOpen: Boolean = false,
+    open: Boolean? = null,
+    onOpenChange: ((Boolean) -> Unit)? = null,
+    messageAlign: IenTooltipMessageAlign = IenTooltipMessageAlign.Left,
+    placement: IenTooltipPlacement = IenTooltipPlacement.Bottom,
+    motionVariant: IenTooltipMotionVariant = IenTooltipMotionVariant.Weak,
+    offset: Dp? = null,
+    anchorPositionByRatio: Float = 0.5f,
+    openOnHover: Boolean = false,
+    openOnFocus: Boolean = false,
+    dismissible: Boolean = false,
+    autoFlip: Boolean = false,
+    strategy: IenTooltipStrategy = IenTooltipStrategy.Absolute,
+    clipToEnd: IenTooltipClipToEnd = IenTooltipClipToEnd.None,
+    width: Dp? = null,
+    fitContentWidth: Boolean = false,
+    anchor: (@Composable BoxScope.(toggle: () -> Unit) -> Unit)? = null,
+) {
+    IenTooltipImpl(
+        contentDescription = null,
+        text = null,
+        content = text,
+        modifier = modifier,
+        tone = tone,
+        defaultOpen = defaultOpen,
+        open = open,
+        onOpenChange = onOpenChange,
+        messageAlign = messageAlign,
+        placement = placement,
+        motionVariant = motionVariant,
+        offset = offset,
+        anchorPositionByRatio = anchorPositionByRatio,
+        openOnHover = openOnHover,
+        openOnFocus = openOnFocus,
+        dismissible = dismissible,
+        autoFlip = autoFlip,
+        strategy = strategy,
+        clipToEnd = clipToEnd,
+        width = width,
+        fitContentWidth = fitContentWidth,
+        anchor = anchor,
+    )
+}
+
+@Composable
+private fun IenTooltipImpl(
+    contentDescription: String?,
+    text: String?,
+    content: (@Composable () -> Unit)?,
+    modifier: Modifier,
+    tone: IenSemanticTone,
+    defaultOpen: Boolean,
+    open: Boolean?,
+    onOpenChange: ((Boolean) -> Unit)?,
+    messageAlign: IenTooltipMessageAlign,
+    placement: IenTooltipPlacement,
+    motionVariant: IenTooltipMotionVariant,
+    offset: Dp?,
+    anchorPositionByRatio: Float,
+    openOnHover: Boolean,
+    openOnFocus: Boolean,
+    dismissible: Boolean,
+    autoFlip: Boolean,
+    strategy: IenTooltipStrategy,
+    clipToEnd: IenTooltipClipToEnd,
+    width: Dp?,
+    fitContentWidth: Boolean,
+    anchor: (@Composable BoxScope.(toggle: () -> Unit) -> Unit)?,
 ) {
     var internalOpen by remember { mutableStateOf(defaultOpen) }
     val isOpen = open ?: internalOpen
@@ -1716,7 +1840,9 @@ fun IenTooltip(
             }
             .then(if (openOnFocus) Modifier.focusable() else Modifier)
             .semantics {
-                contentDescription = text
+                contentDescription?.let { description ->
+                    this.contentDescription = description
+                }
             },
         contentAlignment = Alignment.Center,
     ) {
@@ -1738,6 +1864,7 @@ fun IenTooltip(
                 IenTooltipPopup(
                     visible = isOpen,
                     text = text,
+                    content = content,
                     tone = tone,
                     messageAlign = messageAlign,
                     anchorPositionByRatio = dynamicArrowRatio,
@@ -1802,7 +1929,8 @@ enum class IenTooltipClipToEnd {
 @Composable
 private fun IenTooltipPopup(
     visible: Boolean,
-    text: String,
+    text: String?,
+    content: (@Composable () -> Unit)?,
     tone: IenSemanticTone,
     messageAlign: IenTooltipMessageAlign,
     anchorPositionByRatio: Float,
@@ -1880,29 +2008,38 @@ private fun IenTooltipPopup(
                 val bottomPadding = if (placement == IenTooltipPlacement.Top) 16.dp else 10.dp
                 val startPadding = if (placement == IenTooltipPlacement.Left) 10.dp else 16.dp
                 val endPadding = if (placement == IenTooltipPlacement.Right) 10.dp else 16.dp
-                val textModifier = if (fitContentWidth && width == null) {
+                val contentWidthModifier = if (fitContentWidth && width == null) {
                     Modifier
                 } else {
                     Modifier.fillMaxWidth()
                 }
 
-                IenText(
-                    text = text,
-                    modifier = textModifier
-                        .padding(
-                            start = startPadding,
-                            end = endPadding,
-                            top = topPadding,
-                            bottom = bottomPadding
-                        ),
-                    style = IenTheme.typography.label2.copy(fontWeight = FontWeight.Bold),
-                    color = tooltipColors.content,
-                    textAlign = when (messageAlign) {
-                        IenTooltipMessageAlign.Left -> TextAlign.Start
-                        IenTooltipMessageAlign.Center -> TextAlign.Center
-                        IenTooltipMessageAlign.Right -> TextAlign.End
-                    },
+                val contentModifier = contentWidthModifier.padding(
+                    start = startPadding,
+                    end = endPadding,
+                    top = topPadding,
+                    bottom = bottomPadding,
                 )
+                if (text != null) {
+                    IenText(
+                        text = text,
+                        modifier = contentModifier,
+                        style = IenTheme.typography.label2.copy(fontWeight = FontWeight.Bold),
+                        color = tooltipColors.content,
+                        textAlign = when (messageAlign) {
+                            IenTooltipMessageAlign.Left -> TextAlign.Start
+                            IenTooltipMessageAlign.Center -> TextAlign.Center
+                            IenTooltipMessageAlign.Right -> TextAlign.End
+                        },
+                    )
+                } else {
+                    Box(
+                        modifier = contentModifier,
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        content?.invoke()
+                    }
+                }
             }
         }
     }

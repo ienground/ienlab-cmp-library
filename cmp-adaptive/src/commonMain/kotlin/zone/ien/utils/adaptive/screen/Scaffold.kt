@@ -64,7 +64,6 @@ import com.kyant.backdrop.backdrops.LayerBackdrop
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonColors
 import zone.ien.hig.CupertinoLiquidButtonDefaults.glassButtonColors
-import zone.ien.hig.CupertinoLiquidButtonDefaults.glassProminentButtonColors
 import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoScaffold
@@ -81,6 +80,7 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.menu.HigActionMenu
 import zone.ien.utils.adaptive.menu.HigActionsMenu
+import zone.ien.utils.adaptive.theme.ienCupertinoGlassProminentButtonColors
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.menu.IenActionsMenu
 import zone.ien.utils.ui.foundation.IenTheme
@@ -498,7 +498,7 @@ fun AdaptiveTopAppBarScaffold(
                             onClick = action.onClick,
                             isIconButton = action.icon != null,
                             enabled = action.enabled,
-                            colors = glassProminentButtonColors(),
+                            colors = ienCupertinoGlassProminentButtonColors(),
                             backdrop = it.backdrop,
                             isBackgroundAdaptive = it.isBackgroundAdaptive,
                             modifier = Modifier.graphicsLayer {
