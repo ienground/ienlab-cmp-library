@@ -18,22 +18,24 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -53,6 +55,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -186,11 +189,70 @@ fun CustomNavigationBar(
     itemCount: Int,
     modifier: Modifier = Modifier,
     colors: CustomNavigationBarColors = CustomNavigationBarDefaults.colors(),
-    windowInsets: WindowInsets = WindowInsets.navigationBars,
+    windowInsets: WindowInsets = NavigationBarDefaults.windowInsets,
     visible: Boolean = true,
     content: @Composable RowScope.() -> Unit
 ) {
+    CustomNavigationBarImpl(
+        selectedIndex = selectedIndex,
+        itemCount = itemCount,
+        modifier = modifier,
+        colors = colors,
+        windowInsets = windowInsets,
+        visible = visible,
+        railContent = null,
+        content = content,
+    )
+}
+
+/**
+ * 세로 navigation rail 배치도 제공하는 사용자 정의 navigation bar입니다.
+ *
+ * @param selectedIndex 선택된 항목 인덱스
+ * @param itemCount 항목 수
+ * @param modifier 적용할 Modifier
+ * @param colors 색상
+ * @param windowInsets 윈도우 인셋
+ * @param visible 표시 여부
+ * @param railContent 세로 레일로 표시할 항목 내용과 색상
+ * @param content 가로 바에 표시할 항목 내용
+ */
+@Composable
+fun CustomNavigationBar(
+    selectedIndex: Int,
+    itemCount: Int,
+    modifier: Modifier = Modifier,
+    colors: CustomNavigationBarColors = CustomNavigationBarDefaults.colors(),
+    windowInsets: WindowInsets = NavigationBarDefaults.windowInsets,
+    visible: Boolean = true,
+    railContent: @Composable ColumnScope.(CustomNavigationBarColors) -> Unit,
+    content: @Composable RowScope.() -> Unit,
+) {
+    CustomNavigationBarImpl(
+        selectedIndex = selectedIndex,
+        itemCount = itemCount,
+        modifier = modifier,
+        colors = colors,
+        windowInsets = windowInsets,
+        visible = visible,
+        railContent = railContent,
+        content = content,
+    )
+}
+
+@Composable
+private fun CustomNavigationBarImpl(
+    selectedIndex: Int,
+    itemCount: Int,
+    modifier: Modifier,
+    colors: CustomNavigationBarColors,
+    windowInsets: WindowInsets,
+    visible: Boolean,
+    railContent: (@Composable ColumnScope.(CustomNavigationBarColors) -> Unit)?,
+    content: @Composable RowScope.() -> Unit,
+) {
     val navBarPadding = windowInsets.asPaddingValues()
+    val layoutDirection = LocalLayoutDirection.current
     val itemBounds = remember { mutableStateMapOf<Int, NavigationBarItemBounds>() }
     val selectedBounds = itemBounds[selectedIndex]
     val indicatorOffset by animateDpAsState(
@@ -241,12 +303,16 @@ fun CustomNavigationBar(
                 ),
                 targetOffsetY = { it },
             ),
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier.fillMaxWidth()
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = navBarPadding.calculateBottomPadding()),
+                    .padding(
+                        start = navBarPadding.calculateStartPadding(layoutDirection),
+                        end = navBarPadding.calculateEndPadding(layoutDirection),
+                        bottom = navBarPadding.calculateBottomPadding(),
+                    ),
             ) {
                 Box(
                     modifier = Modifier
@@ -261,18 +327,18 @@ fun CustomNavigationBar(
                         shadowElevation = 18.dp,
                         modifier = Modifier
                             .height(78.dp)
-                            .background(
-                                brush = if (colors.containerColor == IenTheme.colors.brand) {
-                                    toneGradientBrush(IenSemanticTone.Brand)
-                                } else {
-                                    androidx.compose.ui.graphics.SolidColor(colors.containerColor)
-                                },
-                                shape = containerShape,
-                            )
                     ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxHeight()
+                                .background(
+                                    brush = if (colors.containerColor == IenTheme.colors.brand) {
+                                        toneGradientBrush(IenSemanticTone.Brand)
+                                    } else {
+                                        androidx.compose.ui.graphics.SolidColor(colors.containerColor)
+                                    },
+                                    shape = containerShape,
+                                )
                                 .padding(horizontal = 8.dp, vertical = 8.dp),
                         ) {
                             if (selectedBounds != null) {
@@ -396,10 +462,11 @@ fun RowScope.CustomNavigationBarItem(
             modifier = Modifier
                 .align(Alignment.Center)
                 .then(
-                    if (showLabel) {
-                        Modifier.padding(horizontal = 24.dp)
-                    } else {
-                        Modifier.width(48.dp)
+                    when {
+                        direction == CustomNavigationBarItemDirection.Vertical ->
+                            Modifier.fillMaxWidth().padding(horizontal = 4.dp)
+                        showLabel -> Modifier.padding(horizontal = 24.dp)
+                        else -> Modifier.width(48.dp)
                     }
                 )
                 .fillMaxHeight()
