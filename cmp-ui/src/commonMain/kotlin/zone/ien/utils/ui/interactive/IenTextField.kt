@@ -267,6 +267,15 @@ fun IenTextField(
         fieldValue = fieldValue,
         onFieldValueChange = { fieldValue = it },
     )
+    val displayedFieldValue = if (fieldValue.text == formattedValue) {
+        fieldValue
+    } else {
+        fieldValue.copy(
+            text = formattedValue,
+            selection = fieldValue.selection.constrainToText(formattedValue),
+            composition = null,
+        )
+    }
     val showLabel = label != null && (labelOption == IenTextFieldLabelOption.Sustain || value.isNotEmpty() || focused)
 
     val labelAlpha by animateFloatAsState(
@@ -383,7 +392,7 @@ fun IenTextField(
                     Spacer(Modifier.width(IenTheme.spacing.xs))
                 }
                 BasicTextField(
-                    value = fieldValue,
+                    value = displayedFieldValue,
                     onValueChange = { next ->
                         val nextValue = format?.reset?.invoke(next.text) ?: next.text
                         if (lengthLimit.blocks(nextValue)) return@BasicTextField

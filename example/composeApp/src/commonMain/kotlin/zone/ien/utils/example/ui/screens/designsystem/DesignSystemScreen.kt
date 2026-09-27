@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -37,6 +38,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -274,6 +277,7 @@ import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.dialog.IenAlertDialog
 import zone.ien.utils.ui.view.Empty
 import kotlinx.coroutines.launch
+import zone.ien.utils.utils.checkDecimal
 
 @Preview
 @Composable
@@ -3610,6 +3614,7 @@ fun ListRowSection() {
 fun TextFieldSection() {
     IenTheme {
         var text by remember { mutableStateOf("") }
+        var number by remember { mutableStateOf("") }
         var lineText by remember { mutableStateOf("서울") }
         var bigText by remember { mutableStateOf("") }
         var amountText by remember { mutableStateOf("1200000") }
@@ -3636,6 +3641,18 @@ fun TextFieldSection() {
                 placeholder = "이름을 입력하세요",
                 hasError = text.length >= 4,
                 help = if (text.length >= 4) "이름은 3글자 이하로 입력해주세요." else "값이 들어오거나 포커스되면 라벨이 나타납니다.",
+                lengthLimit = IenTextFieldLengthLimit.Error(3),
+            )
+            IenTextField(
+                value = number,
+                onValueChange = { if (it.checkDecimal()) number = it },
+                label = "이름 · Required · LengthLimit.Error",
+                required = true,
+                placeholder = "이름을 입력하세요",
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done,
+                ),
                 lengthLimit = IenTextFieldLengthLimit.Error(3),
             )
             IenTextField(
