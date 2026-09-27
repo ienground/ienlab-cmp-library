@@ -227,6 +227,7 @@ fun AdaptiveTopAppBarScaffold(
                 contentColor = materialAdaptation.scaffoldContentColor,
                 contentWindowInsets = materialAdaptation.contentWindowInsets,
                 contentEdge = effectiveContentEdge,
+                navigationBarAsRailOnIPhoneDuo = bottomBar != null,
                 content = { contentPadding ->
                     CompositionLocalProvider(LocalTopBarScaffoldScrollState provides effectiveContentEdge.scrollState) {
                         content(

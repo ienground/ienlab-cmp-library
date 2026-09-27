@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,11 +39,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -1103,12 +1106,45 @@ fun IenFloatingTabBar(
     ariaLabel: String? = null,
     onChange: ((index: Int, key: Any?) -> Unit)? = null,
 ) {
+    IenFloatingTabBar(
+        items = items,
+        selectedIndex = selectedIndex,
+        onSelectedIndexChange = onSelectedIndexChange,
+        windowInsets = NavigationBarDefaults.windowInsets,
+        modifier = modifier,
+        ariaLabel = ariaLabel,
+        onChange = onChange,
+    )
+}
+
+/**
+ * 윈도우 인셋을 지정할 수 있는 아이콘 중심의 고급 탭 바 컴포저블입니다.
+ *
+ * @param items 표시할 탭 항목 리스트 ([IenTabItem]).
+ * @param selectedIndex 현재 선택된 탭의 인덱스.
+ * @param onSelectedIndexChange 탭 선택이 바뀔 때 호출되는 콜백 함수.
+ * @param windowInsets 탭 바가 소비할 윈도우 인셋.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param ariaLabel 전체 탭 바에 대한 접근성 설명 텍스트.
+ * @param onChange 탭 인덱스가 변경될 때 키 값과 함께 호출되는 선택적 콜백 함수.
+ */
+@Composable
+fun IenFloatingTabBar(
+    items: List<IenTabItem>,
+    selectedIndex: Int,
+    onSelectedIndexChange: (Int) -> Unit,
+    windowInsets: WindowInsets,
+    modifier: Modifier = Modifier,
+    ariaLabel: String? = null,
+    onChange: ((index: Int, key: Any?) -> Unit)? = null,
+) {
     val shape = ContinuousCapsule()
     val contentDescription = stringResource(Res.string.tab_list)
 
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .windowInsetsPadding(windowInsets)
             .padding(horizontal = 8.dp, vertical = 18.dp)
             .semantics {
                 this.contentDescription = ariaLabel ?: contentDescription

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -2271,6 +2272,7 @@ fun TabSection() {
         var floatingTabSelected by remember { mutableIntStateOf(0) }
         ComponentSection(title = "Tab") {
             IenFloatingTabBar(
+                windowInsets = WindowInsets(0.dp),
                 items = listOf(
                     IenTabItem("홈", key = "home", icon = M3SystemIcons.Rounded.RoundedKeyboard, selectedIcon = M3SystemIcons.Filled.FilledKeyboard),
                     IenTabItem("혜택", key = "benefit", icon = M3SystemIcons.Rounded.RoundedCheck, selectedIcon = M3SystemIcons.Filled.Check),

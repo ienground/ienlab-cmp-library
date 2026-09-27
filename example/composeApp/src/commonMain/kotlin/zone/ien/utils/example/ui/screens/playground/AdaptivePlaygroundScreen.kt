@@ -6,11 +6,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.safeContent
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -25,6 +30,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
@@ -462,10 +470,51 @@ fun AdaptivePlaygroundScreen(
                     }
                 }
 
+                InsetsDebug()
+
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }
+}
+
+@Composable
+private fun InsetsDebug() {
+    val density = LocalDensity.current
+    val windowSize = LocalWindowInfo.current.containerSize
+    val windowWidth = with(density) { windowSize.width.toDp() }
+    val windowHeight = with(density) { windowSize.height.toDp() }
+
+    PlaygroundGroup(title = "Window Insets") {
+        IenText("창 크기: ${windowSize.width} × ${windowSize.height} px / $windowWidth × $windowHeight")
+        IenText("기기 자세나 방향을 바꾸면 inset 값이 실시간으로 갱신됩니다.")
+        InsetsDebugRow("safeDrawing", WindowInsets.safeDrawing)
+        InsetsDebugRow("safeContent", WindowInsets.safeContent)
+        InsetsDebugRow("statusBars", WindowInsets.statusBars)
+        InsetsDebugRow("navigationBars", WindowInsets.navigationBars)
+    }
+}
+
+@Composable
+private fun InsetsDebugRow(
+    name: String,
+    insets: WindowInsets,
+) {
+    val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
+    val left = insets.getLeft(density, layoutDirection)
+    val top = insets.getTop(density)
+    val right = insets.getRight(density, layoutDirection)
+    val bottom = insets.getBottom(density)
+
+    IenText(
+        text = "$name: left=${with(density) { left.toDp() }} ($left px), " +
+            "top=${with(density) { top.toDp() }} ($top px), " +
+            "right=${with(density) { right.toDp() }} ($right px), " +
+            "bottom=${with(density) { bottom.toDp() }} ($bottom px)",
+        style = IenTheme.typography.body2,
+        color = IenTheme.colors.textSecondary,
+    )
 }
 
 @Composable

@@ -31,7 +31,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,7 +43,8 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
@@ -60,6 +64,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
@@ -125,6 +130,7 @@ import zone.ien.utils.ui.view.resolveIenTooltipColors
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.material3.Icon
 import androidx.compose.ui.text.style.LineBreak
 import com.kyant.backdrop.drawPlainBackdrop
@@ -146,6 +152,12 @@ import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 import zone.ien.utils.ui.window.ienTooltipPopupProperties
 
 internal val LocalIenTopBarFloatingSlotHiddenRequester = staticCompositionLocalOf<((Boolean) -> Unit)?> { null }
+
+/** iPhone Duo 여부를 상단 앱 바 등 하위 컴포저블에 제공합니다. */
+val LocalIenScaffoldIPhoneDuo = staticCompositionLocalOf { false }
+
+/** 하단 navigation bar를 우측 세로 레일로 배치하는 화면인지 제공합니다. */
+val LocalIenScaffoldNavigationRail = staticCompositionLocalOf { false }
 
 /**
  * [IenScaffold]가 콘텐츠와 공유하는 기본 스크롤 상태입니다.
@@ -272,6 +284,7 @@ internal fun resolveBottomBlurHeight(
  * @param contentColor 스크래프트 콘텐츠 기본 색상
  * @param contentWindowInsets 콘텐츠 영역에 적용할 윈도우 인셋
  * @param contentEdge 콘텐츠 영역 모서리 블러 효과 설정
+ * @param navigationBarAsRailOnIPhoneDuo iPhone Duo에서 하단 navigation bar를 우측 세로 레일로 배치할지 여부
  * @param content 스크래프트 내부에 표시될 메인 콘텐츠
  */
 @Composable
@@ -286,92 +299,141 @@ fun IenScaffold(
     contentColor: Color = IenTheme.colors.textPrimary,
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
+    navigationBarAsRailOnIPhoneDuo: Boolean = false,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    val defaultScrollState = rememberScrollState()
-    val effectiveContentEdge = if (contentEdge.scrollState == null && contentEdge.lazyListState == null) {
-        contentEdge.copy(scrollState = defaultScrollState)
-    } else {
-        contentEdge
-    }
-    val contentEdgeColor = contentEdge.color ?: containerColor
-    val backdrop = rememberLayerBackdrop {
-        drawRect(contentEdgeColor)
-        drawContent()
-    }
-    val scrollFadeDistancePx = with(LocalDensity.current) {
-        effectiveContentEdge.scrollFadeDistance.toPx().coerceAtLeast(1f)
-    }
-    val scrollTopProgress = effectiveContentEdge.scrollState?.topEdgeProgress(scrollFadeDistancePx)
-        ?: effectiveContentEdge.lazyListState?.topEdgeProgress(scrollFadeDistancePx)
-        ?: 0f
-    val scrollBottomProgress = effectiveContentEdge.scrollState?.bottomEdgeProgress(scrollFadeDistancePx)
-        ?: effectiveContentEdge.lazyListState?.bottomEdgeProgress(scrollFadeDistancePx)
-        ?: 0f
-    val effectiveTopProgress = effectiveContentEdge.topProgress.coerceIn(0f, 1f) * scrollTopProgress
-    val effectiveBottomProgress = effectiveContentEdge.bottomProgress.coerceIn(0f, 1f) * scrollBottomProgress
-    var bottomBarHeightPx by remember { mutableStateOf(0) }
-    val targetBottomBarHeight = if (bottomBar == null) {
-        0.dp
-    } else {
-        with(LocalDensity.current) { bottomBarHeightPx.toDp() }
-    }
-    val bottomBarHeight by animateDpAsState(
-        targetValue = targetBottomBarHeight,
-        animationSpec = tween(
-            durationMillis = IenTheme.motion.normalMillis,
-            easing = IenTheme.motion.standardEasing,
-        ),
-        label = "bottom_bar_blur_height",
-    )
+    Box(modifier = modifier) {
+        val isIPhoneDuoDevice = remember { isIPhoneDuo() }
+        val useNavigationRail = isIPhoneDuoDevice && navigationBarAsRailOnIPhoneDuo && bottomBar != null
+        val navigationRailWidth = 80.dp
+        val layoutDirection = LocalLayoutDirection.current
+        val navigationRailEndInset = if (useNavigationRail && bottomBar != null) {
+            WindowInsets.safeDrawing.asPaddingValues().calculateEndPadding(layoutDirection)
+        } else {
+            0.dp
+        }
 
-    Scaffold(
-        modifier = modifier,
-        topBar = topBar,
-        bottomBar = {
-            if (bottomBar != null) {
-                Box(
-                    modifier = Modifier.onSizeChanged { size ->
-                        bottomBarHeightPx = size.height
-                    },
-                ) {
-                    bottomBar()
-                }
+        CompositionLocalProvider(
+            LocalIenScaffoldIPhoneDuo provides isIPhoneDuoDevice,
+            LocalIenScaffoldNavigationRail provides useNavigationRail,
+        ) {
+            val defaultScrollState = rememberScrollState()
+            val effectiveContentEdge = if (contentEdge.scrollState == null && contentEdge.lazyListState == null) {
+                contentEdge.copy(scrollState = defaultScrollState)
+            } else {
+                contentEdge
             }
-        },
-        snackbarHost = snackbarHost,
-        floatingActionButton = floating,
-        floatingActionButtonPosition = floatingActionButtonPosition,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        contentWindowInsets = contentWindowInsets,
-    ) { contentPadding ->
-        Box(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .layerBackdrop(backdrop),
-            ) {
-                CompositionLocalProvider(LocalIenScaffoldScrollState provides effectiveContentEdge.scrollState) {
-                    content(contentPadding)
-                }
+            val contentEdgeColor = contentEdge.color ?: containerColor
+            val backdrop = rememberLayerBackdrop {
+                drawRect(contentEdgeColor)
+                drawContent()
             }
-            if (effectiveContentEdge.enabled) {
-                IenScaffoldEdgeBlur(
-                    modifier = Modifier.matchParentSize(),
-                    backdrop = backdrop,
-                    showTop = effectiveContentEdge.topEnabled,
-                    showBottom = effectiveContentEdge.bottomEnabled,
-                    topProgress = effectiveTopProgress,
-                    bottomProgress = effectiveBottomProgress,
-                    topHeight = effectiveContentEdge.topHeight,
-                    bottomHeight = resolveBottomBlurHeight(
-                        bottomHeight = effectiveContentEdge.bottomHeight,
-                        bottomBarHeight = bottomBarHeight,
-                    ),
-                    radius = effectiveContentEdge.radius,
-                    color = contentEdgeColor,
-                )
+            val scrollFadeDistancePx = with(LocalDensity.current) {
+                effectiveContentEdge.scrollFadeDistance.toPx().coerceAtLeast(1f)
+            }
+            val scrollTopProgress = effectiveContentEdge.scrollState?.topEdgeProgress(scrollFadeDistancePx)
+                ?: effectiveContentEdge.lazyListState?.topEdgeProgress(scrollFadeDistancePx)
+                ?: 0f
+            val scrollBottomProgress = effectiveContentEdge.scrollState?.bottomEdgeProgress(scrollFadeDistancePx)
+                ?: effectiveContentEdge.lazyListState?.bottomEdgeProgress(scrollFadeDistancePx)
+                ?: 0f
+            val effectiveTopProgress = effectiveContentEdge.topProgress.coerceIn(0f, 1f) * scrollTopProgress
+            val effectiveBottomProgress = effectiveContentEdge.bottomProgress.coerceIn(0f, 1f) * scrollBottomProgress
+            var bottomBarHeightPx by remember { mutableStateOf(0) }
+            val targetBottomBarHeight = if (bottomBar == null || useNavigationRail) {
+                0.dp
+            } else {
+                with(LocalDensity.current) { bottomBarHeightPx.toDp() }
+            }
+            val bottomBarHeight by animateDpAsState(
+                targetValue = targetBottomBarHeight,
+                animationSpec = tween(
+                    durationMillis = IenTheme.motion.normalMillis,
+                    easing = IenTheme.motion.standardEasing,
+                ),
+                label = "bottom_bar_blur_height",
+            )
+
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                topBar = topBar,
+                bottomBar = {
+                    if (bottomBar != null && !useNavigationRail) {
+                        Box(
+                            modifier = Modifier.onSizeChanged { size ->
+                                bottomBarHeightPx = size.height
+                            },
+                        ) {
+                            bottomBar()
+                        }
+                    }
+                },
+                snackbarHost = snackbarHost,
+                floatingActionButton = floating,
+                floatingActionButtonPosition = floatingActionButtonPosition,
+                containerColor = containerColor,
+                contentColor = contentColor,
+                contentWindowInsets = contentWindowInsets,
+            ) { scaffoldContentPadding ->
+                val contentPadding = if (useNavigationRail && bottomBar != null) {
+                    PaddingValues(
+                        start = scaffoldContentPadding.calculateStartPadding(layoutDirection),
+                        top = scaffoldContentPadding.calculateTopPadding(),
+                        end = maxOf(
+                            scaffoldContentPadding.calculateEndPadding(layoutDirection),
+                            navigationRailEndInset,
+                        ) + navigationRailWidth,
+                        bottom = scaffoldContentPadding.calculateBottomPadding(),
+                    )
+                } else {
+                    scaffoldContentPadding
+                }
+
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .layerBackdrop(backdrop),
+                    ) {
+                        CompositionLocalProvider(LocalIenScaffoldScrollState provides effectiveContentEdge.scrollState) {
+                            content(contentPadding)
+                        }
+                    }
+                    if (effectiveContentEdge.enabled) {
+                        IenScaffoldEdgeBlur(
+                            modifier = Modifier.matchParentSize(),
+                            backdrop = backdrop,
+                            showTop = effectiveContentEdge.topEnabled,
+                            showBottom = effectiveContentEdge.bottomEnabled,
+                            topProgress = effectiveTopProgress,
+                            bottomProgress = effectiveBottomProgress,
+                            topHeight = effectiveContentEdge.topHeight,
+                            bottomHeight = resolveBottomBlurHeight(
+                                bottomHeight = effectiveContentEdge.bottomHeight,
+                                bottomBarHeight = bottomBarHeight,
+                            ),
+                            radius = effectiveContentEdge.radius,
+                            color = contentEdgeColor,
+                        )
+                    }
+                    if (useNavigationRail && bottomBar != null) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .fillMaxHeight()
+                                .width(navigationRailWidth + navigationRailEndInset),
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.CenterStart)
+                                    .fillMaxHeight()
+                                    .width(navigationRailWidth),
+                            ) {
+                                bottomBar()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -528,7 +590,9 @@ fun IenTopBar(
     actions: (@Composable RowScope.() -> Unit)? = null,
     titleAlignment: IenTopBarTitleAlignment = IenTopBarTitleAlignment.Start,
     showDivider: Boolean = false,
-    windowInsets: WindowInsets = WindowInsets.statusBars,
+    windowInsets: WindowInsets = WindowInsets.safeDrawing.only(
+        WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+    ),
     contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.md, vertical = 6.dp),
     contentHeight: Dp = 64.dp,
     containerColor: Color = Color.Transparent,
@@ -590,7 +654,9 @@ fun IenTopBar(
     actions: (@Composable RowScope.() -> Unit)? = null,
     titleAlignment: IenTopBarTitleAlignment = IenTopBarTitleAlignment.Start,
     showDivider: Boolean = false,
-    windowInsets: WindowInsets = WindowInsets.statusBars,
+    windowInsets: WindowInsets = WindowInsets.safeDrawing.only(
+        WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+    ),
     contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.md, vertical = 6.dp),
     contentHeight: Dp = 64.dp,
     containerColor: Color = Color.Transparent,
@@ -598,6 +664,15 @@ fun IenTopBar(
 ) {
     val insetPadding = windowInsets.asPaddingValues()
     val topPadding = insetPadding.calculateTopPadding()
+    val layoutDirection = LocalLayoutDirection.current
+    val safeContentPadding = PaddingValues(
+        start = contentPadding.calculateStartPadding(layoutDirection) +
+            insetPadding.calculateStartPadding(layoutDirection),
+        top = contentPadding.calculateTopPadding(),
+        end = contentPadding.calculateEndPadding(layoutDirection) +
+            insetPadding.calculateEndPadding(layoutDirection),
+        bottom = contentPadding.calculateBottomPadding(),
+    )
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -610,7 +685,7 @@ fun IenTopBar(
                 subtitle = subtitle,
                 navigationIcon = navigationIcon,
                 actions = actions,
-                contentPadding = contentPadding,
+                contentPadding = safeContentPadding,
                 topPadding = topPadding,
                 contentHeight = contentHeight,
                 floatingSlots = floatingSlots,
@@ -621,7 +696,7 @@ fun IenTopBar(
                 subtitle = subtitle,
                 navigationIcon = navigationIcon,
                 actions = actions,
-                contentPadding = contentPadding,
+                contentPadding = safeContentPadding,
                 topPadding = topPadding,
                 contentHeight = contentHeight,
                 floatingSlots = floatingSlots,
@@ -644,6 +719,8 @@ private fun IenStartAlignedTopBarContent(
     contentHeight: Dp,
     floatingSlots: Boolean,
 ) {
+    val useNavigationRail = LocalIenScaffoldIPhoneDuo.current
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -653,7 +730,7 @@ private fun IenStartAlignedTopBarContent(
         horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (navigationIcon != null) {
+        if (navigationIcon != null && !useNavigationRail) {
             IenTopBarNavigationIconSlot {
                 navigationIcon()
             }
@@ -664,7 +741,19 @@ private fun IenStartAlignedTopBarContent(
             horizontalAlignment = Alignment.Start,
             modifier = Modifier.weight(1f),
         )
-        if (actions != null) {
+        if (useNavigationRail && (navigationIcon != null || actions != null)) {
+            IenTopBarFloatingSlot(enabled = floatingSlots) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    navigationIcon?.let {
+                        IenTopBarNavigationIconSlot(it)
+                    }
+                    actions?.let { IenTopBarActionsRow(it) }
+                }
+            }
+        } else if (actions != null) {
             IenTopBarFloatingSlot(enabled = floatingSlots) {
                 IenTopBarActionsRow(actions)
             }
@@ -684,6 +773,7 @@ private fun IenCenterAlignedTopBarContent(
     floatingSlots: Boolean,
 ) {
     val sideSpacing = IenTheme.spacing.sm
+    val useNavigationRail = LocalIenScaffoldIPhoneDuo.current
 
     SubcomposeLayout(
         modifier = Modifier
@@ -693,20 +783,38 @@ private fun IenCenterAlignedTopBarContent(
             .padding(contentPadding),
     ) { constraints ->
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
-        val navigationPlaceables = navigationIcon?.let {
-            subcompose("navigation") {
-                IenTopBarNavigationIconSlot {
-                    it()
-                }
-            }.map { measurable -> measurable.measure(looseConstraints) }
-        }.orEmpty()
-        val actionsPlaceables = actions?.let {
+        val navigationPlaceables = if (useNavigationRail) {
+            emptyList()
+        } else {
+            navigationIcon?.let { icon ->
+                subcompose("navigation") {
+                    IenTopBarNavigationIconSlot {
+                        icon()
+                    }
+                }.map { measurable -> measurable.measure(looseConstraints) }
+            }.orEmpty()
+        }
+        val actionsPlaceables = if (actions != null || (useNavigationRail && navigationIcon != null)) {
             subcompose("actions") {
                 IenTopBarFloatingSlot(enabled = floatingSlots) {
-                    IenTopBarActionsRow(it)
+                    if (useNavigationRail) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(sideSpacing),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            navigationIcon?.let {
+                                IenTopBarNavigationIconSlot(it)
+                            }
+                            actions?.let { IenTopBarActionsRow(it) }
+                        }
+                    } else {
+                        actions?.let { IenTopBarActionsRow(it) }
+                    }
                 }
             }.map { measurable -> measurable.measure(looseConstraints) }
-        }.orEmpty()
+        } else {
+            emptyList()
+        }
 
         val navigationWidth = navigationPlaceables.maxOfOrNull { it.width } ?: 0
         val actionsWidth = actionsPlaceables.maxOfOrNull { it.width } ?: 0
@@ -3411,6 +3519,10 @@ private fun IenBottomCTAContainer(
         animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow),
     )
     val navigationBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val horizontalInsets = WindowInsets.safeDrawing
+        .only(WindowInsetsSides.Horizontal)
+        .asPaddingValues()
+    val layoutDirection = LocalLayoutDirection.current
     val keyboardBottom = if (fixedAboveKeyboard) WindowInsets.ime.asPaddingValues().calculateBottomPadding() else 0.dp
     val defaultBottom = 20.dp
     val safeBottom = when {
@@ -3434,9 +3546,17 @@ private fun IenBottomCTAContainer(
         ) {
             Column(
                 modifier = Modifier.padding(
-                    start = IenTheme.spacing.md,
+                    start = IenTheme.spacing.md + if (hasSafeAreaPadding) {
+                        horizontalInsets.calculateStartPadding(layoutDirection)
+                    } else {
+                        0.dp
+                    },
                     top = IenTheme.spacing.md,
-                    end = IenTheme.spacing.md,
+                    end = IenTheme.spacing.md + if (hasSafeAreaPadding) {
+                        horizontalInsets.calculateEndPadding(layoutDirection)
+                    } else {
+                        0.dp
+                    },
                     bottom = bottomPadding,
                 ),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),

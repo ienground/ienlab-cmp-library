@@ -6,9 +6,17 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Text
@@ -20,8 +28,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import zone.ien.hig.CupertinoNavigationBar
@@ -121,6 +132,7 @@ fun AdaptiveNavigationBar(
                 selectedTabIndex = selectedTabIndex,
                 onTabSelected = onTabSelected,
                 adaptation = adaptation,
+                railItems = items,
                 items = items.map {
                     CupertinoNavigationBarItemData(
                         onClick = it.onClick,
@@ -145,23 +157,31 @@ fun AdaptiveNavigationBar(
                 onTabSelected = onTabSelected,
                 tabsCount = items.size,
                 adaptation = adaptation,
-            ) {
-                items.forEachIndexed { index, item ->
-                    val selected = selectedTabIndex() == index
+                    railContent = { colors ->
+                        AdaptiveNavigationRailItems(
+                            items = items,
+                            selectedTabIndex = selectedTabIndex,
+                            selectedItemBackgroundColor = colors.selectedItemBackgroundColor,
+                        )
+                    },
+                content = {
+                    items.forEachIndexed { index, item ->
+                        val selected = selectedTabIndex() == index
 
-                    AdaptiveNavigationBarItem(
-                        index = index,
-                        onClick = item.onClick,
-                        icon = {
-                            ComplexIcon(
-                                icon = if (selected && currentTheme == Theme.Material3 && item.selectedIcon != null) item.selectedIcon else item.icon
-                            )
-                        },
-                        label = { Text(text = item.label) },
-                        direction = item.direction,
-                    )
-                }
-            }
+                        AdaptiveNavigationBarItem(
+                            index = index,
+                            onClick = item.onClick,
+                            icon = {
+                                ComplexIcon(
+                                    icon = if (selected && currentTheme == Theme.Material3 && item.selectedIcon != null) item.selectedIcon else item.icon
+                                )
+                            },
+                            label = { Text(text = item.label) },
+                            direction = item.direction,
+                        )
+                    }
+                },
+            )
         }
     }
 }
@@ -175,6 +195,7 @@ private fun AdaptiveNavigationBar(
     onTabSelected: (index: Int) -> Unit,
     tabsCount: Int,
     adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, IenNavigationBarAdaptation>.() -> Unit = {},
+    railContent: @Composable ColumnScope.(CustomNavigationBarColors) -> Unit,
     content: @Composable RowScope.() -> Unit
 ) {
     CompositionLocalProvider(
@@ -200,16 +221,23 @@ private fun AdaptiveNavigationBar(
                     content = content
                 )
             },
-            material = {
+            material = { materialAdaptation ->
                 CustomNavigationBar(
                     modifier = modifier,
-                    colors = it.colors,
+                    colors = materialAdaptation.colors,
                     selectedIndex = selectedTabIndex(),
                     itemCount = tabsCount,
-                    windowInsets = it.windowInsets,
+                    windowInsets = materialAdaptation.windowInsets,
+                    railContent = { colors ->
+                        CompositionLocalProvider(
+                            LocalNavigationBarAlwaysShowLabel provides materialAdaptation.alwaysShowLabel
+                        ) {
+                            railContent(colors)
+                        }
+                    },
                     content = {
                         CompositionLocalProvider(
-                            LocalNavigationBarAlwaysShowLabel provides it.alwaysShowLabel
+                            LocalNavigationBarAlwaysShowLabel provides materialAdaptation.alwaysShowLabel
                         ) {
                             content()
                         }
@@ -227,6 +255,7 @@ private fun AdaptiveNavigationBarNative(
     selectedTabIndex: () -> Int,
     onTabSelected: (index: Int) -> Unit,
     adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, IenNavigationBarAdaptation>.() -> Unit = {},
+    railItems: List<NavigationBarItem>,
     items: List<CupertinoNavigationBarItemData>
 ) {
     CompositionLocalProvider(
@@ -259,6 +288,17 @@ private fun AdaptiveNavigationBarNative(
                     colors = it.colors,
                     windowInsets = it.windowInsets,
                     itemCount = items.size,
+                    railContent = { colors ->
+                        CompositionLocalProvider(
+                            LocalNavigationBarAlwaysShowLabel provides it.alwaysShowLabel
+                        ) {
+                            AdaptiveNavigationRailItems(
+                                items = railItems,
+                                selectedTabIndex = selectedTabIndex,
+                                selectedItemBackgroundColor = colors.selectedItemBackgroundColor,
+                            )
+                        }
+                    },
                     content = {
                         items.forEachIndexed { index, item ->
                             val selected = index == selectedTabIndex()
@@ -279,6 +319,45 @@ private fun AdaptiveNavigationBarNative(
                 )
             }
         )
+    }
+}
+
+@Composable
+private fun ColumnScope.AdaptiveNavigationRailItems(
+    items: List<NavigationBarItem>,
+    selectedTabIndex: () -> Int,
+    selectedItemBackgroundColor: Color,
+) {
+    items.forEachIndexed { index, item ->
+        val selected = selectedTabIndex() == index
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(64.dp)
+                .clip(CircleShape)
+                .background(if (selected) selectedItemBackgroundColor else Color.Transparent),
+        ) {
+            Row(modifier = Modifier.fillMaxSize()) {
+                AdaptiveNavigationBarItem(
+                    index = index,
+                    onClick = item.onClick,
+                    icon = {
+                        ComplexIcon(
+                            icon = if (
+                                selected && currentTheme == Theme.Material3 && item.selectedIcon != null
+                            ) {
+                                item.selectedIcon
+                            } else {
+                                item.icon
+                            }
+                        )
+                    },
+                    label = { Text(text = item.label) },
+                    direction = CustomNavigationBarItemDirection.Vertical,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
     }
 }
 
