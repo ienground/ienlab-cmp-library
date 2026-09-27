@@ -250,7 +250,6 @@ private fun AdaptiveNavigationBarNative(
                     onTabSelected = onTabSelected,
                     items = items
                 )
-                IenNativeNavigationBarColors(selectedColor = IenTheme.colors.brand)
             },
             material = {
                 CustomNavigationBar(
