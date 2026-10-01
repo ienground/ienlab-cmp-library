@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.NavigationBarDefaults
@@ -393,7 +394,12 @@ fun RowScope.CustomNavigationBarItem(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .then(
-                if (selected || alwaysShowLabel) Modifier else Modifier.width(48.dp)
+                when {
+                    direction == CustomNavigationBarItemDirection.Vertical && (selected || alwaysShowLabel) ->
+                        Modifier.widthIn(min = 64.dp)
+                    selected || alwaysShowLabel -> Modifier
+                    else -> Modifier.width(48.dp)
+                }
             )
             .fillMaxHeight()
             .onGloballyPositioned { coordinates ->
@@ -426,7 +432,7 @@ fun RowScope.CustomNavigationBarItem(
                 .then(
                     when {
                         direction == CustomNavigationBarItemDirection.Vertical ->
-                            Modifier.fillMaxWidth().padding(horizontal = 4.dp)
+                            Modifier.padding(horizontal = 4.dp)
                         showLabel -> Modifier.padding(horizontal = 24.dp)
                         else -> Modifier.width(48.dp)
                     }
@@ -465,10 +471,12 @@ fun RowScope.CustomNavigationBarItem(
 
                         if (showLabel) {
                             Spacer(modifier = Modifier.height(3.dp))
-                            ProvideTextStyle(
-                                IenTheme.typography.label2.copy(color = textColor)
-                            ) {
-                                label()
+                            Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                                ProvideTextStyle(
+                                    IenTheme.typography.label2.copy(color = textColor)
+                                ) {
+                                    label()
+                                }
                             }
                         }
                     }
