@@ -110,7 +110,7 @@ fun NavigationScreen(
                                 material = { M3SystemIcons.Save },
                                 cupertino = { "checkmark" }
                             ),
-                            label = "Save",
+                            label = "Very Long Save",
                             direction = itemDirection,
                         )
                     ),
