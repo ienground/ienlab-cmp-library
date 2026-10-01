@@ -18,9 +18,46 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
+import zone.ien.utils.ui.foundation.IenColorScheme
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.IenText
+
+internal data class IenTooltipColors(
+    val container: Color,
+    val content: Color,
+)
+
+internal fun resolveIenTooltipColors(
+    tone: IenSemanticTone,
+    colors: IenColorScheme,
+): IenTooltipColors = when (tone) {
+    IenSemanticTone.Neutral -> IenTooltipColors(
+        container = colors.surfaceRaised,
+        content = colors.textPrimary,
+    )
+    IenSemanticTone.Brand -> IenTooltipColors(
+        container = colors.brand,
+        content = colors.onBrand,
+    )
+    IenSemanticTone.Success -> IenTooltipColors(
+        container = colors.success,
+        content = colors.onSuccess,
+    )
+    IenSemanticTone.Warning -> IenTooltipColors(
+        container = colors.warning,
+        content = colors.onWarning,
+    )
+    IenSemanticTone.Danger -> IenTooltipColors(
+        container = colors.danger,
+        content = colors.onDanger,
+    )
+    IenSemanticTone.Info -> IenTooltipColors(
+        container = colors.info,
+        content = colors.onInfo,
+    )
+}
 
 /**
  * BaseTooltipBox는 툴팁 박스를 표시하기 위한 내부 컴포저블입니다.
@@ -99,6 +136,7 @@ fun IenTooltipText(
     positioning: TooltipAnchorPosition = TooltipAnchorPosition.Below,
     label: String
 ) {
+    val colors = resolveIenTooltipColors(IenSemanticTone.Neutral, IenTheme.colors)
     val shape = ContinuousRoundedRectangle(12.dp)
     val outerPadding = when (positioning) {
         TooltipAnchorPosition.Above -> PaddingValues(start = 16.dp, end = 16.dp, top = 32.dp)
@@ -125,15 +163,15 @@ fun IenTooltipText(
                     ambientColor = Color(0x80001D3A),
                     spotColor = Color(0x80001D3A)
                 ),
-            color = Color.White,
-            contentColor = IenTheme.colors.textPrimary,
+            color = colors.container,
+            contentColor = colors.content,
             shape = shape,
         ) {
             IenText(
                 text = label,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
                 style = IenTheme.typography.label2.copy(fontWeight = FontWeight.Bold),
-                color = IenTheme.colors.textPrimary,
+                color = colors.content,
                 textAlign = TextAlign.Center,
             )
         }

@@ -70,7 +70,12 @@ fun PlaygroundScreen(
                     icon = IconData.Vector(Android),
                     onClick = { visible = !visible },
                     title = "d"
-                )
+                ),
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    icon = IconData.Vector(Android),
+                    onClick = { visible = !visible },
+                    title = "d"
+                ),
             ),
 //            actions = {
 //                AdaptiveSwitch(

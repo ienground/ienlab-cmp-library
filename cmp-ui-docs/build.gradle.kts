@@ -1,4 +1,16 @@
+import org.gradle.api.tasks.Sync
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
+val sharedDesignSystemSource = rootProject.file(
+    "example/composeApp/src/commonMain/kotlin/zone/ien/utils/example/ui/screens/designsystem/DesignSystemScreen.kt",
+)
+val generatedDesignSystemSource = layout.buildDirectory.dir(
+    "generated/sharedDesignSystem/kotlin/zone/ien/utils/example/ui/screens/designsystem",
+)
+val syncDesignSystemSource = tasks.register<Sync>("syncDesignSystemSource") {
+    from(sharedDesignSystemSource)
+    into(generatedDesignSystemSource)
+}
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -20,8 +32,7 @@ kotlin {
 
     sourceSets {
         commonMain {
-            kotlin.srcDir("../example/composeApp/src/commonMain/kotlin/zone/ien/utils/example/ui/screens/designsystem")
-            kotlin.exclude("**/ColorTokenScreen.kt")
+            kotlin.srcDir(syncDesignSystemSource)
 
             dependencies {
                 implementation(libs.compose.material3)

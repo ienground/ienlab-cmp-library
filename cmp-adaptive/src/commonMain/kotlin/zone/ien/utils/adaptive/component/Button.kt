@@ -46,6 +46,7 @@ import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.LocalBackButtonIcon
 import zone.ien.utils.icon.LocalButtonProviderDefault
+import zone.ien.utils.adaptive.theme.ienCupertinoGlassProminentButtonColors
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButton
@@ -904,7 +905,7 @@ private class ButtonAdaptation(
         val colors = when (type) {
             AdaptiveButtonType.Filled,
             AdaptiveButtonType.Text -> CupertinoLiquidButtonDefaults.glassButtonColors()
-            AdaptiveButtonType.Tonal -> CupertinoLiquidButtonDefaults.glassProminentButtonColors()
+            AdaptiveButtonType.Tonal -> ienCupertinoGlassProminentButtonColors()
         }
         val backdrop = rememberLayerBackdrop()
 
@@ -985,7 +986,7 @@ private class IconButtonAdaptation(
     @Composable
     override fun rememberCupertinoAdaptation(): HigIconButtonAdaptation {
         val colors = if (isFilled) {
-            CupertinoLiquidButtonDefaults.glassProminentButtonColors()
+            ienCupertinoGlassProminentButtonColors()
         } else {
             CupertinoLiquidButtonDefaults.glassButtonColors()
         }
@@ -1028,7 +1029,7 @@ private class ToggleButtonAdaptation(
 ) : Adaptation<HigToggleButtonAdaptation, IenToggleButtonAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): HigToggleButtonAdaptation {
-        val checkedColors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
+        val checkedColors = ienCupertinoGlassProminentButtonColors()
         val uncheckedColors = CupertinoLiquidButtonDefaults.glassButtonColors()
         val checkedBackdrop = rememberLayerBackdrop()
         val uncheckedBackdrop = rememberLayerBackdrop()
@@ -1078,7 +1079,7 @@ private class IconToggleButtonAdaptation(
 ) : Adaptation<HigIconToggleButtonAdaptation, IenIconToggleButtonAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): HigIconToggleButtonAdaptation {
-        val checkedColors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
+        val checkedColors = ienCupertinoGlassProminentButtonColors()
         val uncheckedColors = CupertinoLiquidButtonDefaults.glassButtonColors()
         val checkedBackdrop = rememberLayerBackdrop()
         val uncheckedBackdrop = rememberLayerBackdrop()
@@ -1127,7 +1128,7 @@ private class ExtendedFloatingActionButtonAdaptation(
 ) : Adaptation<HigButtonAdaptation, IenExtendedFloatingActionButtonAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): HigButtonAdaptation {
-        val colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
+        val colors = ienCupertinoGlassProminentButtonColors()
         val backdrop = rememberLayerBackdrop()
 
         return remember(state, colors, backdrop) {

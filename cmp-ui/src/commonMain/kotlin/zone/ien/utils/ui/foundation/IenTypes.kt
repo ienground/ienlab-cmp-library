@@ -19,6 +19,17 @@ enum class IenSemanticTone {
 }
 
 /**
+ * Cupertino 스위치의 선택 상태 색상 정책입니다.
+ */
+enum class IenSwitchColorPolicy {
+    /** 플랫폼 기본 색상을 사용합니다. Cupertino에서는 초록색을 유지합니다. */
+    Platform,
+
+    /** [IenTheme]의 브랜드 색상을 사용합니다. */
+    Brand,
+}
+
+/**
  * UI 콘텐츠의 강조도(Emphasis) 수준을 정의하는 열거형 클래스입니다.
  */
 enum class IenContentEmphasis {

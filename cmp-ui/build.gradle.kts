@@ -37,6 +37,7 @@ kotlin {
             implementation(libs.compose.preview)
             implementation(libs.compose.resources)
             implementation(libs.hig.core)
+            implementation(libs.hig)
             implementation(libs.backdrop)
             implementation(libs.capsule)
             implementation(libs.compose.inputactions)

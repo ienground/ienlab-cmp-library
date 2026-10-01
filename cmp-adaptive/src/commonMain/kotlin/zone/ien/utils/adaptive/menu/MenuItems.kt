@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -30,6 +31,7 @@ import zone.ien.utils.icon.hig.Ellipsis
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenBadge
 import zone.ien.utils.ui.interactive.IenBadgeSize
 import zone.ien.utils.ui.interactive.IenBadgeVariant
@@ -82,7 +84,9 @@ fun HigActionMenu(
                             ComplexIcon(
                                 icon = icon,
                                 contentDescription = item.title,
-                                modifier = Modifier.alpha(alpha)
+                                modifier = Modifier
+                                    .size(IenTheme.icon.lg)
+                                    .alpha(alpha)
                             )
                         }
                     }

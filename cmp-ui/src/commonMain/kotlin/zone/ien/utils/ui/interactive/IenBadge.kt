@@ -77,6 +77,11 @@ fun IenBadge(
     IenSurface(
         modifier = modifier,
         color = container,
+        backgroundBrush = when (variant) {
+            IenBadgeVariant.Fill -> toneGradientBrush(tone)
+            IenBadgeVariant.Weak -> toneWeakGradientBrush(tone)
+            IenBadgeVariant.Line -> null
+        },
         contentColor = content,
         shape = ContinuousCapsule(),
         border = border,

@@ -24,8 +24,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
@@ -48,6 +50,7 @@ import zone.ien.utils.ui.foundation.IenTheme
  * @param shape 모서리를 깎아줄 둥글기 모양 정의 ([Shape])
  * @param border 테두리에 적용할 외곽선 선 두께 및 색상 정보 ([BorderStroke])
  * @param tonalElevation 음영을 더해주는 톤 입체감 깊이 수준 ([Dp])
+ * @param backgroundBrush 배경 판에 적용할 배경 브러시. 지정하면 [color] 대신 사용합니다.
  * @param content 배경 판 내부에 배치할 자식 컴포저블 블록
  */
 @Composable
@@ -58,11 +61,17 @@ fun IenSurface(
     shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
     border: BorderStroke? = null,
     tonalElevation: Dp = IenTheme.elevation.none,
+    backgroundBrush: Brush? = null,
     content: @Composable () -> Unit,
 ) {
+    val surfaceModifier = if (backgroundBrush == null) {
+        modifier
+    } else {
+        modifier.background(backgroundBrush, shape)
+    }
     Surface(
-        modifier = modifier,
-        color = color,
+        modifier = surfaceModifier,
+        color = if (backgroundBrush == null) color else Color.Transparent,
         contentColor = contentColor,
         shape = shape,
         border = border,
@@ -143,6 +152,31 @@ fun IenIcon(
 ) {
     Icon(
         imageVector = imageVector,
+        contentDescription = contentDescription,
+        tint = tint,
+        modifier = modifier.size(size),
+    )
+}
+
+/**
+ * 지정된 페인터 이미지([painter])를 렌더링하는 기본 아이콘 컴포저블입니다.
+ *
+ * @param painter 화면에 그릴 페인터 이미지 ([Painter])
+ * @param contentDescription 시각장애인 접근성을 위한 스크린 리더용 설명문
+ * @param modifier 적용할 [Modifier]
+ * @param tint 아이콘 문양에 칠할 전경색
+ * @param size 아이콘의 전체 크기 ([Dp])
+ */
+@Composable
+fun IenIcon(
+    painter: Painter,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+    tint: Color = LocalContentColor.current,
+    size: Dp = IenTheme.icon.md,
+) {
+    Icon(
+        painter = painter,
         contentDescription = contentDescription,
         tint = tint,
         modifier = modifier.size(size),

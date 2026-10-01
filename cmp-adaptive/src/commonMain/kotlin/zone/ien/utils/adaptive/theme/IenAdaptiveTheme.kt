@@ -7,9 +7,18 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidedValue
+import zone.ien.hig.CupertinoLiquidButtonColors
+import zone.ien.hig.CupertinoLiquidButtonDefaults
+import zone.ien.hig.CupertinoNavigationBarColors
+import zone.ien.hig.CupertinoNavigationBarDefaults
+import zone.ien.hig.CupertinoSwitchColors
+import zone.ien.hig.CupertinoSwitchDefaults
+import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.utils.ui.foundation.IenColorScheme
+import zone.ien.utils.ui.foundation.IenSwitchColorPolicy
+import zone.ien.utils.ui.foundation.LocalIenTokens
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.foundation.IenTokens
 import zone.ien.utils.ui.foundation.IenTypography
@@ -52,6 +61,35 @@ fun IenAdaptiveTheme(
             content = content,
         )
     }
+}
+
+@Composable
+internal fun ienCupertinoGlassProminentButtonColors(): CupertinoLiquidButtonColors {
+    val tokens = LocalIenTokens.current
+    return CupertinoLiquidButtonDefaults.glassProminentButtonColors(
+        lightTintColor = tokens.lightColors.brand,
+        lightContentColor = tokens.lightColors.onBrand,
+        darkTintColor = tokens.darkColors.brand,
+        darkContentColor = tokens.darkColors.onBrand,
+    )
+}
+
+@Composable
+internal fun ienCupertinoSwitchColors(): CupertinoSwitchColors {
+    return when (LocalIenTokens.current.switchColorPolicy) {
+        IenSwitchColorPolicy.Platform -> CupertinoSwitchDefaults.colors()
+        IenSwitchColorPolicy.Brand -> CupertinoSwitchDefaults.colors(
+            checkedTrackColor = IenTheme.colors.brand,
+        )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalCupertinoApi::class)
+internal fun ienCupertinoNavigationBarColors(): CupertinoNavigationBarColors {
+    return CupertinoNavigationBarDefaults.colors(
+        accentColor = IenTheme.colors.brand,
+    )
 }
 
 private fun ColorScheme.toIenColorScheme(fallback: IenColorScheme): IenColorScheme {

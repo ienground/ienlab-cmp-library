@@ -1,0 +1,51 @@
+package zone.ien.utils.ui.layout
+
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+class IenAnimatedLayoutTest {
+    private data class Item(
+        val id: String,
+        val label: String,
+    )
+
+    @Test
+    fun `새 항목은 입력 순서로 추가되고 기존 항목은 최신 값으로 갱신된다`() {
+        val currentItems = listOf(
+            AnimatedLayoutItem("first", Item("first", "이전 값"), visible = true),
+        )
+
+        val result = mergeAnimatedLayoutItems(
+            currentItems = currentItems,
+            incomingItems = listOf(
+                Item("first", "최신 값"),
+                Item("second", "새 값"),
+            ),
+            itemKey = Item::id,
+        )
+
+        assertEquals(
+            listOf("first", "second"),
+            result.map { it.key },
+        )
+        assertEquals(Item("first", "최신 값"), result.first().value)
+        assertEquals(true, result.first().visible)
+    }
+
+    @Test
+    fun `삭제된 항목은 종료 애니메이션을 위해 보이지 않는 상태로 유지된다`() {
+        val currentItems = listOf(
+            AnimatedLayoutItem("first", Item("first", "첫 번째"), visible = true),
+            AnimatedLayoutItem("second", Item("second", "두 번째"), visible = true),
+        )
+
+        val result = mergeAnimatedLayoutItems(
+            currentItems = currentItems,
+            incomingItems = listOf(Item("first", "첫 번째")),
+            itemKey = Item::id,
+        )
+
+        assertEquals(listOf("first", "second"), result.map { it.key })
+        assertEquals(false, result.last().visible)
+    }
+}
