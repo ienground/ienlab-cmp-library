@@ -18,7 +18,6 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -200,42 +199,6 @@ fun CustomNavigationBar(
         colors = colors,
         windowInsets = windowInsets,
         visible = visible,
-        railContent = null,
-        content = content,
-    )
-}
-
-/**
- * 세로 navigation rail 배치도 제공하는 사용자 정의 navigation bar입니다.
- *
- * @param selectedIndex 선택된 항목 인덱스
- * @param itemCount 항목 수
- * @param modifier 적용할 Modifier
- * @param colors 색상
- * @param windowInsets 윈도우 인셋
- * @param visible 표시 여부
- * @param railContent 세로 레일로 표시할 항목 내용과 색상
- * @param content 가로 바에 표시할 항목 내용
- */
-@Composable
-fun CustomNavigationBar(
-    selectedIndex: Int,
-    itemCount: Int,
-    modifier: Modifier = Modifier,
-    colors: CustomNavigationBarColors = CustomNavigationBarDefaults.colors(),
-    windowInsets: WindowInsets = NavigationBarDefaults.windowInsets,
-    visible: Boolean = true,
-    railContent: @Composable ColumnScope.(CustomNavigationBarColors) -> Unit,
-    content: @Composable RowScope.() -> Unit,
-) {
-    CustomNavigationBarImpl(
-        selectedIndex = selectedIndex,
-        itemCount = itemCount,
-        modifier = modifier,
-        colors = colors,
-        windowInsets = windowInsets,
-        visible = visible,
-        railContent = railContent,
         content = content,
     )
 }
@@ -248,7 +211,6 @@ private fun CustomNavigationBarImpl(
     colors: CustomNavigationBarColors,
     windowInsets: WindowInsets,
     visible: Boolean,
-    railContent: (@Composable ColumnScope.(CustomNavigationBarColors) -> Unit)?,
     content: @Composable RowScope.() -> Unit,
 ) {
     val navBarPadding = windowInsets.asPaddingValues()

@@ -815,7 +815,13 @@ private fun AnchorsEffect(
     val totalEndActionItemWidth = actionItemWidth * amountOfEndActionItems + actionRowOuterPadding
     val startSwipeOffset = with(density) { totalStartActionItemWidth.toPx() }
     val endSwipeOffset = with(density) { totalEndActionItemWidth.toPx() }
-    LaunchedEffect(parentWidth, totalStartActionItemWidth, totalEndActionItemWidth) {
+    LaunchedEffect(
+        parentWidth,
+        totalStartActionItemWidth,
+        totalEndActionItemWidth,
+        fullExpansionStart,
+        fullExpansionEnd,
+    ) {
         if (parentWidth > 0) {
             val fullSwipeStartOffset = parentWidth * if (amountOfStartActionItems >= 2) 0.85f else 0.5f
             val fullSwipeEndOffset = parentWidth * if (amountOfEndActionItems >= 2) 0.85f else 0.5f

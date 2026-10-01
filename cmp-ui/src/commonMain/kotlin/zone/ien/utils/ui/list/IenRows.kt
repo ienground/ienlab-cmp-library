@@ -321,8 +321,8 @@ fun IenListRow(
         contents = {
             IenListRowTexts(
                 type = if (subtitle == null) IenListRowTextsType.OneRowTypeA else IenListRowTextsType.TwoRowTypeA,
-                top = { IenText(title) },
-                bottom = subtitle?.let { value -> { IenText(value) } },
+                top = title,
+                bottom = subtitle,
                 topColor = if (selected) IenTheme.colors.brand else null,
             )
         },
@@ -330,7 +330,66 @@ fun IenListRow(
 }
 
 /**
- * 리스트 행 내부에서 최대 3개의 콘텐츠 요소를 정의된 조합 스타일([IenListRowTextsType])에 따라 수직 배치하는 컴포저블입니다.
+ * 기존 문자열 기반 리스트 행 텍스트를 표시하는 편의 API입니다.
+ *
+ * @param top 가장 상단(혹은 첫 번째 행)에 표시할 텍스트
+ * @param modifier 적용할 Modifier
+ * @param type 행의 구성 및 정렬 방식을 지정하는 타입 ([IenListRowTextsType])
+ * @param middle 중간 행에 표시할 텍스트 (타입이 3행 스타일일 때 활성화)
+ * @param bottom 하단 행에 표시할 텍스트 (타입이 2행 이상 스타일일 때 활성화)
+ * @param topColor 상단 텍스트 색상 (null인 경우 타입 기본 색상 사용)
+ * @param middleColor 중간 텍스트 색상 (null인 경우 타입 기본 색상 사용)
+ * @param bottomColor 하단 텍스트 색상 (null인 경우 타입 기본 색상 사용)
+ * @param maxLines 상단 및 중간 텍스트의 최대 줄 수
+ */
+@Composable
+fun IenListRowTexts(
+    top: String,
+    modifier: Modifier = Modifier,
+    type: IenListRowTextsType = IenListRowTextsType.OneRowTypeA,
+    middle: String? = null,
+    bottom: String? = null,
+    topColor: Color? = null,
+    middleColor: Color? = null,
+    bottomColor: Color? = null,
+    maxLines: Int = 1,
+) {
+    IenListRowTexts(
+        top = {
+            IenText(
+                text = top,
+                maxLines = maxLines,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
+        modifier = modifier,
+        type = type,
+        middle = middle?.let { text ->
+            {
+                IenText(
+                    text = text,
+                    maxLines = maxLines,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        },
+        bottom = bottom?.let { text ->
+            {
+                IenText(
+                    text = text,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        },
+        topColor = topColor,
+        middleColor = middleColor,
+        bottomColor = bottomColor,
+    )
+}
+
+/**
+ * 리스트 행 내부에 호출자 소유의 콘텐츠 슬롯을 배치합니다.
  *
  * @param top 가장 상단(혹은 첫 번째 행)에 들어갈 콘텐츠
  * @param modifier 적용할 Modifier
