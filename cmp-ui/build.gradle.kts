@@ -34,7 +34,6 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(libs.kotlinx.datetime)
-            api(libs.kdatetime)
             implementation(libs.compose.material3)
             implementation(libs.compose.preview)
             implementation(libs.compose.resources)
