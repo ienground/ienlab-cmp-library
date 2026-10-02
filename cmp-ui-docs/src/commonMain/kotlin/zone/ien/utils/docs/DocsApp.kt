@@ -126,6 +126,7 @@ private fun ComponentPreview(
         "segmented-control" -> SegmentedControlSection()
         "skeleton" -> SkeletonSection()
         "slider" -> SliderSection()
+        "wheel-picker" -> WheelPickerSection()
         "swipe-box" -> SwipeBoxSection()
         "stepper" -> StepperSection()
         "switch" -> SwitchSection()

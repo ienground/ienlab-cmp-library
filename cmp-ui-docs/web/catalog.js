@@ -35,6 +35,7 @@ function component(
 }
 
 export const catalog = [
+  component("wheel-picker", "WheelPicker", "입력", "날짜·정확한 시각·시간/분/초 기간을 휠로 선택합니다.", ["IenDateWheelPicker", "IenTimeWheelPicker", "IenDurationWheelPicker"], "interactive/IenDateTimeWheelPicker.kt", 3846),
   component("animated-layout", "AnimatedLayout", "레이아웃", "목록 항목이 추가되거나 제거될 때 크기와 표시 상태를 전환합니다.", ["IenAnimatedColumn", "IenAnimatedRow"], "layout/IenAnimatedLayout.kt", 500),
   component("animated-content", "AnimatedContent", "레이아웃", "상태가 바뀔 때 콘텐츠 전환 애니메이션을 확인합니다.", ["AnimatedContent"], "", 600, "Compose UI"),
   component("badge", "Badge", "콘텐츠", "상태나 짧은 보조 정보를 작은 레이블로 표시합니다.", ["IenBadge"], "interactive/IenBadge.kt", 696),
