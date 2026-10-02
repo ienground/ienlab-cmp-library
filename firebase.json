@@ -1,7 +1,10 @@
 {
-  "hosting": {
-    "public": "cmp-ui-docs/build/site",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "rewrites": [{ "source": "**", "destination": "/index.html" }]
-  }
+  "hosting": [
+    {
+      "target": "cmp-ui-docs",
+      "public": "cmp-ui-docs/build/site",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    }
+  ]
 }

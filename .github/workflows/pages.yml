@@ -1,10 +1,29 @@
-name: Build UI Documentation
+name: Deploy UI Documentation
 
 on:
   push:
     branches: [ "main" ]
     paths:
       - ".github/workflows/pages.yml"
+      - ".firebaserc"
+      - "firebase.json"
+      - "cmp-ui-docs/**"
+      - "cmp-ui/**"
+      - "cmp-icon/**"
+      - "cmp-common/**"
+      - "cmp-adaptive/**"
+      - "example/composeApp/src/commonMain/kotlin/zone/ien/utils/example/ui/screens/designsystem/**"
+      - "gradle/**"
+      - "build.gradle.kts"
+      - "settings.gradle.kts"
+      - "gradle.properties"
+      - "gradlew"
+      - "gradlew.bat"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - ".github/workflows/pages.yml"
+      - ".firebaserc"
       - "firebase.json"
       - "cmp-ui-docs/**"
       - "cmp-ui/**"
@@ -21,16 +40,21 @@ on:
   workflow_dispatch:
 
 permissions:
+  checks: write
   contents: read
+  pull-requests: write
 
 concurrency:
-  group: ui-documentation
+  group: ui-documentation-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build React docs and Compose previews
+  build_and_deploy:
+    name: Build and deploy UI documentation
     runs-on: ubuntu-latest
+    if: >-
+      (github.event_name != 'workflow_dispatch' || github.ref == 'refs/heads/main') &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -62,8 +86,22 @@ jobs:
           npm ci --prefix cmp-ui-docs
           npm run build:site --prefix cmp-ui-docs
 
-      - name: Upload documentation artifact
-        uses: actions/upload-artifact@v4
+      - name: Deploy to Firebase Hosting
+        if: github.event_name != 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          name: ui-documentation
-          path: cmp-ui-docs/build/site
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_IENLAB_IENGROUND }}
+          projectId: ienlab-ienground
+          target: cmp-ui-docs
+          channelId: live
+
+      - name: Deploy pull request preview
+        if: github.event_name == 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_IENLAB_IENGROUND }}
+          projectId: ienlab-ienground
+          target: cmp-ui-docs
+          expires: 4h
