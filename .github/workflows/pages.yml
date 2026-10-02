@@ -1,10 +1,11 @@
-name: Deploy Sample App
+name: Build UI Documentation
 
 on:
   push:
     branches: [ "main" ]
     paths:
       - ".github/workflows/pages.yml"
+      - "firebase.json"
       - "cmp-ui-docs/**"
       - "cmp-ui/**"
       - "cmp-icon/**"
@@ -21,16 +22,14 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: ui-documentation
   cancel-in-progress: true
 
 jobs:
   build:
-    name: Build Wasm sample
+    name: Build React docs and Compose previews
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -48,29 +47,23 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build sample app
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: cmp-ui-docs/package-lock.json
+
+      - name: Build Compose preview
         run: ./gradlew :cmp-ui-docs:wasmJsBrowserDistribution --no-configuration-cache
 
-      - name: Prepare Pages artifact
+      - name: Build React documentation
         run: |
-          touch cmp-ui-docs/build/dist/wasmJs/productionExecutable/.nojekyll
+          npm ci --prefix cmp-ui-docs
+          npm run build:site --prefix cmp-ui-docs
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload documentation artifact
+        uses: actions/upload-artifact@v4
         with:
-          path: cmp-ui-docs/build/dist/wasmJs/productionExecutable
-
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
+          name: ui-documentation
+          path: cmp-ui-docs/build/site

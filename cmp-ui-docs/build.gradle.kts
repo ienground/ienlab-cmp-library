@@ -43,6 +43,12 @@ kotlin {
                 implementation(projects.cmpIcon)
             }
         }
+
+        wasmJsMain {
+            dependencies {
+                implementation(libs.kotlinx.browser)
+            }
+        }
     }
 }
 

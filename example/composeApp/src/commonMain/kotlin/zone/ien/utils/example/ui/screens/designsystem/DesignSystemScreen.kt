@@ -27,11 +27,13 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -3804,6 +3806,14 @@ private fun ComponentSection(
     title: String,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    if (!LocalComponentSectionChrome.current) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+            content = content,
+        )
+        return
+    }
+
     IenSurface(
         modifier = Modifier.fillMaxWidth(),
         color = IenTheme.colors.surface,
@@ -3819,3 +3829,5 @@ private fun ComponentSection(
         }
     }
 }
+
+internal val LocalComponentSectionChrome = staticCompositionLocalOf { true }

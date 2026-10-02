@@ -3,6 +3,9 @@
 .idea
 .DS_Store
 build
+node_modules
+cmp-ui-docs/web/generated-api-docs.json
+cmp-ui-docs/web/generated-color-scheme.json
 captures
 .externalNativeBuild
 .cxx
