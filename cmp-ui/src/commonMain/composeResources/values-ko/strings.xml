@@ -77,4 +77,17 @@
     <string name="search_input">검색어 입력</string>
     <string name="clear_search">검색어 삭제</string>
 
+    <!-- Date and time wheel picker -->
+    <string name="date_picker_year">%1$s년</string>
+    <string name="date_picker_month">%1$s월</string>
+    <string name="date_picker_day">%1$s일</string>
+    <string name="time_picker_am">오전</string>
+    <string name="time_picker_pm">오후</string>
+    <string name="time_picker_hour">%1$s시</string>
+    <string name="time_picker_minute">%1$s분</string>
+    <string name="time_picker_second">%1$s초</string>
+    <string name="duration_picker_hour">%1$s시간</string>
+    <string name="duration_picker_minute">%1$s분</string>
+    <string name="duration_picker_second">%1$s초</string>
+
 </resources>

@@ -1,5 +1,10 @@
 package zone.ien.utils.ui.interactive
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -16,6 +21,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -681,6 +687,79 @@ fun IenFab(
                     IenLoaderPrimitive(color = LocalContentColor.current)
                 } else {
                     content()
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 확장 상태에 따라 텍스트와 너비가 함께 애니메이션되는 플로팅 액션 버튼입니다.
+ * 축소 상태에서는 아이콘만 표시하며, 버튼의 너비와 높이가 [size]에 맞춰 같아집니다.
+ *
+ * @param onClick 버튼 클릭 시 실행할 콜백입니다.
+ * @param icon 버튼에 표시할 아이콘입니다.
+ * @param text 확장 상태에서 표시할 텍스트입니다.
+ * @param modifier 버튼에 적용할 [Modifier]입니다.
+ * @param isExtended 텍스트를 표시하고 버튼을 확장할지 여부입니다.
+ * @param size 버튼의 높이와 축소 상태의 너비, 아이콘 크기를 결정합니다.
+ * @param variant 버튼의 비주얼 스타일입니다.
+ * @param tone 버튼의 의미적 강조 색상입니다.
+ * @param state 버튼의 활성화 및 로딩 상태입니다.
+ * @param shape 버튼의 형태입니다.
+ * @param colors 버튼의 색상과 배경 브러시입니다.
+ * @param interactionSource 버튼의 인터랙션 정보를 전달합니다.
+ */
+@Composable
+fun IenFab(
+    onClick: () -> Unit,
+    icon: @Composable () -> Unit,
+    text: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    isExtended: Boolean = true,
+    size: IenFabSize = IenFabSize.Regular,
+    variant: IenButtonVariant = IenButtonVariant.Fill,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
+    state: IenButtonState = IenButtonState(),
+    shape: Shape = ContinuousCapsule(),
+    colors: IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+) {
+    val fabSize = size.fabSize()
+    val iconSize = size.fabIconSize()
+
+    IenButtonContainer(
+        onClick = onClick,
+        modifier = modifier.height(fabSize),
+        variant = variant,
+        tone = tone,
+        state = state,
+        shape = shape,
+        colors = colors,
+        contentPadding = PaddingValues(horizontal = (fabSize - iconSize) / 2),
+        interactionSource = interactionSource,
+        scalePressed = 0.95f,
+    ) {
+        IenProvideTextStyle(IenTheme.typography.body1, LocalContentColor.current) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier.size(iconSize),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (state.loading) {
+                        IenLoaderPrimitive(color = LocalContentColor.current)
+                    } else {
+                        icon()
+                    }
+                }
+                AnimatedVisibility(
+                    visible = isExtended,
+                    enter = expandHorizontally(expandFrom = Alignment.Start) + fadeIn(),
+                    exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
+                ) {
+                    Box(modifier = Modifier.padding(start = 12.dp)) {
+                        text()
+                    }
                 }
             }
         }
