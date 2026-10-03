@@ -241,11 +241,9 @@ import zone.ien.utils.ui.interactive.IenSlider
 import zone.ien.utils.ui.interactive.IenDateWheelPicker
 import zone.ien.utils.ui.interactive.IenTimeWheelPicker
 import zone.ien.utils.ui.interactive.IenDurationWheelPicker
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
+import com.sunnychung.lib.multiplatform.kdatetime.KDate
+import com.sunnychung.lib.multiplatform.kdatetime.KDuration
+import com.sunnychung.lib.multiplatform.kdatetime.KFixedTimeUnit
 import zone.ien.utils.ui.interactive.IenSplitTextField
 import zone.ien.utils.ui.interactive.IenStepper
 import zone.ien.utils.ui.interactive.IenStepperAssetFrame
@@ -3845,18 +3843,21 @@ internal val LocalComponentSectionChrome = staticCompositionLocalOf { true }
 @Composable
 fun WheelPickerSection() {
     IenTheme {
-        var date by remember { mutableStateOf(LocalDate(2024, 2, 29)) }
-        var time by remember { mutableStateOf(LocalTime(13, 5, 5)) }
-        var duration by remember { mutableStateOf(1.hours + 5.minutes + 5.seconds) }
+        var date by remember { mutableStateOf(KDate(2024, 2, 29)) }
+        var time by remember { mutableStateOf(KDuration.of(13 * 3600 + 5 * 60 + 5, KFixedTimeUnit.Second)) }
+        var duration by remember { mutableStateOf(KDuration.of(1 * 3600 + 5 * 60 + 5, KFixedTimeUnit.Second)) }
+        val dateLabel = "${date.year}-${date.month.toString().padStart(2, '0')}-${date.day.toString().padStart(2, '0')}"
+        val timeLabel = listOf(time.hourPart(), time.minutePart(), time.secondPart()).joinToString(":") { it.toString().padStart(2, '0') }
+        val durationLabel = "${duration.toHours().toString().padStart(2, '0')}:${duration.minutePart().toString().padStart(2, '0')}:${duration.secondPart().toString().padStart(2, '0')}"
         ComponentSection(title = "WheelPicker") {
             Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
-                IenText("날짜 · $date", style = IenTheme.typography.label1)
+                IenText("날짜 · $dateLabel", style = IenTheme.typography.label1)
                 IenDateWheelPicker(date, { date = it }, Modifier.fillMaxWidth())
-                IenText("정확한 시각 · $time", style = IenTheme.typography.label1)
+                IenText("정확한 시각 · $timeLabel", style = IenTheme.typography.label1)
                 IenTimeWheelPicker(time, { time = it }, Modifier.fillMaxWidth())
                 IenText("오전·오후 시각", style = IenTheme.typography.label1)
                 IenTimeWheelPicker(time, { time = it }, Modifier.fillMaxWidth(), use24HourFormat = false)
-                IenText("기간 · $duration", style = IenTheme.typography.label1)
+                IenText("기간 · $durationLabel", style = IenTheme.typography.label1)
                 IenDurationWheelPicker(duration, { duration = it }, Modifier.fillMaxWidth(), maxHours = 99)
             }
         }

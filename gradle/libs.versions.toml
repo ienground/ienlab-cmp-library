@@ -1,5 +1,5 @@
 [versions]
-agp = "9.2.1"
+agp = "9.3.1"
 kotlin = "2.4.20"
 android-minSdk = "29"
 android-compileSdk = "37"
@@ -32,7 +32,7 @@ placeholder = "1.0.4"
 compose-inputactions = "0.9.0-alpha06"
 
 # functionality
-kdatetime = "1.1.2"
+kdatetime = "1.2.0-dev01"
 kotlinx-datetime = "0.8.0"
 kotlin-coroutine = "1.11.0"
 startup-runtime = "1.2.0"
