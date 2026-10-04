@@ -27,11 +27,13 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -236,6 +238,12 @@ import zone.ien.utils.ui.interactive.IenSegmentedControlAlignment
 import zone.ien.utils.ui.interactive.IenSegmentedControlItem
 import zone.ien.utils.ui.interactive.IenSegmentedControlSize
 import zone.ien.utils.ui.interactive.IenSlider
+import zone.ien.utils.ui.interactive.IenDateWheelPicker
+import zone.ien.utils.ui.interactive.IenTimeWheelPicker
+import zone.ien.utils.ui.interactive.IenDurationWheelPicker
+import com.sunnychung.lib.multiplatform.kdatetime.KDate
+import com.sunnychung.lib.multiplatform.kdatetime.KDuration
+import com.sunnychung.lib.multiplatform.kdatetime.KFixedTimeUnit
 import zone.ien.utils.ui.interactive.IenSplitTextField
 import zone.ien.utils.ui.interactive.IenStepper
 import zone.ien.utils.ui.interactive.IenStepperAssetFrame
@@ -374,6 +382,7 @@ fun DesignSystemScreen(
                 SegmentedControlSection()
                 SkeletonSection()
                 SliderSection()
+                WheelPickerSection()
                 SwipeBoxSection()
                 StepperSection()
                 SwitchSection()
@@ -3804,6 +3813,14 @@ private fun ComponentSection(
     title: String,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    if (!LocalComponentSectionChrome.current) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+            content = content,
+        )
+        return
+    }
+
     IenSurface(
         modifier = Modifier.fillMaxWidth(),
         color = IenTheme.colors.surface,
@@ -3816,6 +3833,33 @@ private fun ComponentSection(
             IenText(title, style = IenTheme.typography.title3)
             IenDivider()
             content()
+        }
+    }
+}
+
+internal val LocalComponentSectionChrome = staticCompositionLocalOf { true }
+
+@Preview
+@Composable
+fun WheelPickerSection() {
+    IenTheme {
+        var date by remember { mutableStateOf(KDate(2024, 2, 29)) }
+        var time by remember { mutableStateOf(KDuration.of(13 * 3600 + 5 * 60 + 5, KFixedTimeUnit.Second)) }
+        var duration by remember { mutableStateOf(KDuration.of(1 * 3600 + 5 * 60 + 5, KFixedTimeUnit.Second)) }
+        val dateLabel = "${date.year}-${date.month.toString().padStart(2, '0')}-${date.day.toString().padStart(2, '0')}"
+        val timeLabel = listOf(time.hourPart(), time.minutePart(), time.secondPart()).joinToString(":") { it.toString().padStart(2, '0') }
+        val durationLabel = "${duration.toHours().toString().padStart(2, '0')}:${duration.minutePart().toString().padStart(2, '0')}:${duration.secondPart().toString().padStart(2, '0')}"
+        ComponentSection(title = "WheelPicker") {
+            Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
+                IenText("날짜 · $dateLabel", style = IenTheme.typography.label1)
+                IenDateWheelPicker(date, { date = it }, Modifier.fillMaxWidth())
+                IenText("정확한 시각 · $timeLabel", style = IenTheme.typography.label1)
+                IenTimeWheelPicker(time, { time = it }, Modifier.fillMaxWidth())
+                IenText("오전·오후 시각", style = IenTheme.typography.label1)
+                IenTimeWheelPicker(time, { time = it }, Modifier.fillMaxWidth(), use24HourFormat = false)
+                IenText("기간 · $durationLabel", style = IenTheme.typography.label1)
+                IenDurationWheelPicker(duration, { duration = it }, Modifier.fillMaxWidth(), maxHours = 99)
+            }
         }
     }
 }

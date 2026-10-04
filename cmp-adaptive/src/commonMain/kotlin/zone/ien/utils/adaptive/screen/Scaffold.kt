@@ -134,9 +134,14 @@ fun AdaptiveTopAppBarScaffold(
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
-    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
+    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {},
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
+    val localAdaptation = LocalTopBarScaffoldAdaptation.current
+    val effectiveAdaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {
+        localAdaptation()
+        adaptation()
+    }
     val defaultScrollState = rememberScrollState()
     val effectiveContentEdge = if (contentEdge.scrollState == null && contentEdge.lazyListState == null) {
         contentEdge.copy(scrollState = defaultScrollState)
@@ -153,7 +158,7 @@ fun AdaptiveTopAppBarScaffold(
 
     AdaptiveWidget(
         adaptation = remember { TopAppBarScaffoldAdaptation() },
-        adaptationScope = adaptation,
+        adaptationScope = effectiveAdaptation,
         material = {
             val materialAdaptation = it
             val scaffoldCoordinates = remember { mutableStateOf<LayoutCoordinates?>(null) }
@@ -361,9 +366,14 @@ fun AdaptiveTopAppBarScaffold(
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
-    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = LocalTopBarScaffoldAdaptation.current,
+    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {},
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
+    val localAdaptation = LocalTopBarScaffoldAdaptation.current
+    val effectiveAdaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {
+        localAdaptation()
+        adaptation()
+    }
     var menuExpanded by remember { mutableStateOf(false) }
     val scaffold: @Composable ((@Composable (RowScope.() -> Unit))?) -> Unit = { actions ->
         AdaptiveTopAppBarScaffold(
@@ -386,7 +396,7 @@ fun AdaptiveTopAppBarScaffold(
     }
     AdaptiveWidget(
         adaptation = remember { TopAppBarScaffoldAdaptation() },
-        adaptationScope = adaptation,
+        adaptationScope = effectiveAdaptation,
         material = {
             val menuItems = primaryAction?.let { actions + it } ?: actions
             scaffold(menuItems.takeIf { it.isNotEmpty() }?.let {
