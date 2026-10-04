@@ -2,6 +2,7 @@ package zone.ien.utils.ui.interactive
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -174,7 +175,11 @@ fun <T> IenWheelPicker(
                             translationY = (sin(offset * PI / 2) * (2 * radius / PI) * 1.24 - (position - center)).toFloat()
                         }
                         .semantics { selected = index == centerIndex }
-                        .clickable(enabled = enabled) { scope.launch { state.animateScrollToItem(index) } },
+                        .clickable(
+                            enabled = enabled,
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) { scope.launch { state.animateScrollToItem(index) } },
                     contentAlignment = Alignment.Center,
                 ) {
                     IenText(
