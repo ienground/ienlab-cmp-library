@@ -4,7 +4,7 @@ kotlin = "2.4.20"
 android-minSdk = "29"
 android-compileSdk = "37"
 android-targetSdk = "37"
-lib-version-name = "3.6.2-dev03"
+lib-version-name = "3.6.2-dev04"
 
 # plugin
 compose-plugin = "1.12.1"
@@ -92,7 +92,8 @@ placeholder = { group = "com.revenuecat.purchases", name = "placeholder", versio
 compose-inputactions = { group = "zone.ien.inputactions", name = "inputactions", version.ref = "compose-inputactions" }
 
 # functionality
-kdatetime = { group = "io.github.sunny-chung", name = "kdatetime-multiplatform", version.ref = "kdatetime" }
+kdatetime = { group = "zone.ien.kdatetime", name = "kdatetime-multiplatform", version.ref = "kdatetime" }
+#kdatetime = { group = "io.github.sunny-chung", name = "kdatetime-multiplatform", version.ref = "kdatetime" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
 kotlin-coroutine = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlin-coroutine" }
 startup-runtime = { group = "androidx.startup", name = "startup-runtime", version.ref = "startup-runtime" } # android only
