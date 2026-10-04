@@ -3242,12 +3242,12 @@ fun BottomCTASection() {
                         size = IenTheme.icon.md,
                     )
                 },
-                isLoading = isLoadingCTA,
+                state = IenButtonState(loading = isLoadingCTA),
             )
             IenBottomCTA(
                 text = "단일 CTA",
                 onClick = {},
-                isLoading = isLoadingCTA,
+                state = IenButtonState(loading = isLoadingCTA),
                 topAccessory = {
                     IenText(
                         text = "상단 액세서리: 결제 전 안내 문구",

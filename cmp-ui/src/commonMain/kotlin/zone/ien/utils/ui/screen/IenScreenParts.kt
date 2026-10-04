@@ -3121,8 +3121,6 @@ internal fun IenBottomCTAButtonContent(
  * @param text 버튼 텍스트
  * @param onClick 버튼 클릭 이벤트 콜백
  * @param modifier 적용할 Modifier
- * @param enabled 버튼 활성화 여부
- * @param isLoading 로딩 인디케이터 표시 및 사용자 인터랙션 차단 여부
  * @param state 버튼 상태 ([IenButtonState])
  * @param icon 버튼 왼쪽에 표시할 아이콘 컴포저블
  * @param variant 버튼 스타일 변형 ([IenButtonVariant])
@@ -3146,9 +3144,7 @@ fun IenBottomCTA(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    isLoading: Boolean = false,
-    state: IenButtonState = IenButtonState(enabled = enabled, loading = isLoading),
+    state: IenButtonState = IenButtonState(),
     icon: (@Composable () -> Unit)? = null,
     variant: IenButtonVariant = IenButtonVariant.Fill,
     tone: IenSemanticTone = IenSemanticTone.Brand,
@@ -3166,10 +3162,6 @@ fun IenBottomCTA(
     topAccessory: (@Composable () -> Unit)? = null,
     bottomAccessory: (@Composable () -> Unit)? = null,
 ) {
-    val resolvedState = state.copy(
-        enabled = if (!enabled) false else state.enabled,
-        loading = if (isLoading) true else state.loading,
-    )
     IenBottomCTAContainer(
         modifier = modifier,
         hasSafeAreaPadding = hasSafeAreaPadding,
@@ -3192,7 +3184,7 @@ fun IenBottomCTA(
                 .heightIn(min = IenButtonSize.Large.buttonHeight()),
             variant = variant,
             tone = tone,
-            state = resolvedState,
+            state = state,
             shape = ContinuousRoundedRectangle(IenTheme.radius.default),
             contentPadding = IenButtonSize.Large.buttonPadding(),
             colors = IenButtonDefault.colors(variant = variant, tone = tone),
@@ -3200,7 +3192,7 @@ fun IenBottomCTA(
         ) {
             IenBottomCTAButtonContent(
                 text = text,
-                loading = resolvedState.loading,
+                loading = state.loading,
                 icon = icon,
             )
         }
@@ -3215,8 +3207,6 @@ fun IenBottomCTA(
  * @param secondaryText 부 버튼 텍스트
  * @param onSecondaryClick 부 버튼 클릭 콜백
  * @param modifier 적용할 Modifier
- * @param primaryEnabled 주 버튼 활성화 여부
- * @param secondaryEnabled 부 버튼 활성화 여부
  * @param background 하단 바 배경 스타일 ([IenBottomCTABackground])
  * @param hasSafeAreaPadding 세이프 에어리어 패딩 계산 적용 여부
  * @param hasPaddingBottom 하단 여백 추가 여부
@@ -3237,12 +3227,8 @@ fun IenDoubleBottomCTA(
     secondaryText: String,
     onSecondaryClick: () -> Unit,
     modifier: Modifier = Modifier,
-    primaryEnabled: Boolean = true,
-    secondaryEnabled: Boolean = true,
-    primaryLoading: Boolean = false,
-    secondaryLoading: Boolean = false,
-    primaryState: IenButtonState = IenButtonState(enabled = primaryEnabled, loading = primaryLoading),
-    secondaryState: IenButtonState = IenButtonState(enabled = secondaryEnabled, loading = secondaryLoading),
+    primaryState: IenButtonState = IenButtonState(),
+    secondaryState: IenButtonState = IenButtonState(),
     primaryIcon: (@Composable () -> Unit)? = null,
     secondaryIcon: (@Composable () -> Unit)? = null,
     background: IenBottomCTABackground = IenBottomCTABackground.Default,
@@ -3277,8 +3263,6 @@ fun IenDoubleBottomCTA(
                 onClick = onSecondaryClick,
                 variant = IenButtonVariant.Weak,
                 tone = IenSemanticTone.Neutral,
-                enabled = secondaryEnabled,
-                isLoading = secondaryLoading,
                 state = secondaryState,
                 icon = secondaryIcon,
             )
@@ -3287,8 +3271,6 @@ fun IenDoubleBottomCTA(
             IenBottomCTAButton(
                 text = primaryText,
                 onClick = onPrimaryClick,
-                enabled = primaryEnabled,
-                isLoading = primaryLoading,
                 state = primaryState,
                 icon = primaryIcon,
             )
@@ -3365,8 +3347,6 @@ fun IenDoubleBottomCTA(
  * @param text 버튼 텍스트
  * @param onClick 클릭 이벤트 콜백
  * @param modifier 적용할 Modifier
- * @param enabled 버튼 활성화 여부
- * @param isLoading 로딩 인디케이터 표시 및 사용자 인터랙션 차단 여부
  * @param state 버튼 상태 ([IenButtonState])
  * @param icon 버튼 왼쪽에 표시할 아이콘 컴포저블
  * @param variant 버튼 스타일 변형 ([IenButtonVariant])
@@ -3377,17 +3357,11 @@ fun RowScope.IenBottomCTAButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    isLoading: Boolean = false,
-    state: IenButtonState = IenButtonState(enabled = enabled, loading = isLoading),
+    state: IenButtonState = IenButtonState(),
     icon: (@Composable () -> Unit)? = null,
     variant: IenButtonVariant = IenButtonVariant.Fill,
     tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
-    val resolvedState = state.copy(
-        enabled = if (!enabled) false else state.enabled,
-        loading = if (isLoading) true else state.loading,
-    )
     IenButtonContainer(
         onClick = onClick,
         modifier = modifier
@@ -3396,7 +3370,7 @@ fun RowScope.IenBottomCTAButton(
             .heightIn(min = IenButtonSize.Large.buttonHeight()),
         variant = variant,
         tone = tone,
-        state = resolvedState,
+        state = state,
         shape = ContinuousRoundedRectangle(IenTheme.radius.default),
         contentPadding = IenButtonSize.Large.buttonPadding(),
         colors = IenButtonDefault.colors(variant = variant, tone = tone),
@@ -3404,7 +3378,7 @@ fun RowScope.IenBottomCTAButton(
     ) {
         IenBottomCTAButtonContent(
             text = text,
-            loading = resolvedState.loading,
+            loading = state.loading,
             icon = icon,
         )
     }
@@ -3417,8 +3391,6 @@ fun RowScope.IenBottomCTAButton(
  * @param onClick 클릭 이벤트 콜백
  * @param modifier 적용할 Modifier
  * @param contentPadding 내부 패딩 (미사용 시 null)
- * @param enabled 버튼 활성화 여부
- * @param isLoading 로딩 인디케이터 표시 및 사용자 인터랙션 차단 여부
  * @param state 버튼 상태 ([IenButtonState])
  * @param icon 버튼 왼쪽에 표시할 아이콘 컴포저블
  * @param variant 버튼 스타일 변형 ([IenButtonVariant])
@@ -3441,9 +3413,7 @@ fun BoxScope.IenFixedBottomCTA(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues? = null,
-    enabled: Boolean = true,
-    isLoading: Boolean = false,
-    state: IenButtonState = IenButtonState(enabled = enabled, loading = isLoading),
+    state: IenButtonState = IenButtonState(),
     icon: (@Composable () -> Unit)? = null,
     variant: IenButtonVariant = IenButtonVariant.Fill,
     tone: IenSemanticTone = IenSemanticTone.Brand,
@@ -3463,8 +3433,6 @@ fun BoxScope.IenFixedBottomCTA(
         text = text,
         onClick = onClick,
         modifier = modifier.align(Alignment.BottomCenter),
-        enabled = enabled,
-        isLoading = isLoading,
         state = state,
         icon = icon,
         variant = variant,
