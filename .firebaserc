@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "ienlab-ienground"
+  },
+  "targets": {
+    "ienlab-ienground": {
+      "hosting": {
+        "cmp-ui-docs": [
+          "ienlab-cmp-library"
+        ]
+      }
+    }
+  }
+}
