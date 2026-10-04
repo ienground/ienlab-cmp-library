@@ -1192,13 +1192,13 @@ private fun IenToggleButtonColors.borderStroke(
     }
 }
 
-private fun IenButtonSize.buttonHeight(): Dp = when (this) {
+internal fun IenButtonSize.buttonHeight(): Dp = when (this) {
     IenButtonSize.Small -> 36.dp
     IenButtonSize.Medium -> 44.dp
     IenButtonSize.Large -> 52.dp
 }
 
-private fun IenButtonSize.buttonPadding(): PaddingValues = when (this) {
+internal fun IenButtonSize.buttonPadding(): PaddingValues = when (this) {
     IenButtonSize.Small -> PaddingValues(horizontal = 12.dp, vertical = 8.dp)
     IenButtonSize.Medium -> PaddingValues(horizontal = 16.dp, vertical = 10.dp)
     IenButtonSize.Large -> PaddingValues(horizontal = 20.dp, vertical = 14.dp)
