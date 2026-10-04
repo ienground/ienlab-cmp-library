@@ -1,6 +1,12 @@
 package zone.ien.utils.ui.screen
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -35,6 +41,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
@@ -105,6 +112,12 @@ import androidx.compose.ui.unit.dp
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButton
+import zone.ien.utils.ui.interactive.IenButtonContainer
+import zone.ien.utils.ui.interactive.IenButtonDefault
+import zone.ien.utils.ui.interactive.buttonHeight
+import zone.ien.utils.ui.interactive.buttonPadding
+import zone.ien.utils.ui.primitives.IenLoaderPrimitive
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenButtonDisplay
@@ -3017,6 +3030,91 @@ data class IenBottomCTAShowAfterDelay(
     val delayMillis: Int = 1_000,
 )
 
+private enum class CtaIconAreaState {
+    None,
+    Icon,
+    Spinner,
+}
+
+@Composable
+internal fun IenBottomCTAButtonContent(
+    text: String,
+    loading: Boolean,
+    icon: (@Composable () -> Unit)?,
+) {
+    val fastMillis = IenTheme.motion.fastMillis
+    val standardEasing = IenTheme.motion.standardEasing
+
+    val targetState = when {
+        loading -> CtaIconAreaState.Spinner
+        icon != null -> CtaIconAreaState.Icon
+        else -> CtaIconAreaState.None
+    }
+
+    IenProvideTextStyle(IenTheme.typography.body1, LocalContentColor.current) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            AnimatedContent(
+                targetState = targetState,
+                transitionSpec = {
+                    val isExpandingOrShrinking = initialState == CtaIconAreaState.None || targetState == CtaIconAreaState.None
+                    if (isExpandingOrShrinking) {
+                        (fadeIn(tween(fastMillis, easing = standardEasing)) +
+                            expandHorizontally(
+                                animationSpec = tween(fastMillis, easing = standardEasing),
+                                expandFrom = Alignment.CenterHorizontally,
+                            )
+                        ).togetherWith(
+                            fadeOut(tween(fastMillis, easing = standardEasing)) +
+                                shrinkHorizontally(
+                                    animationSpec = tween(fastMillis, easing = standardEasing),
+                                    shrinkTowards = Alignment.CenterHorizontally,
+                                )
+                        )
+                    } else {
+                        (fadeIn(tween(fastMillis, easing = standardEasing)) +
+                            scaleIn(tween(fastMillis, easing = standardEasing), initialScale = 0.8f)
+                        ).togetherWith(
+                            fadeOut(tween(fastMillis, easing = standardEasing)) +
+                                scaleOut(tween(fastMillis, easing = standardEasing), targetScale = 0.8f)
+                        )
+                    }
+                },
+                contentAlignment = Alignment.Center,
+                label = "IenBottomCTAIconArea",
+            ) { state ->
+                when (state) {
+                    CtaIconAreaState.None -> {
+                        Spacer(modifier = Modifier.size(0.dp))
+                    }
+                    CtaIconAreaState.Icon -> {
+                        Box(
+                            modifier = Modifier
+                                .padding(end = IenTheme.spacing.xs)
+                                .size(IenTheme.icon.md),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            icon?.invoke()
+                        }
+                    }
+                    CtaIconAreaState.Spinner -> {
+                        Box(
+                            modifier = Modifier
+                                .padding(end = IenTheme.spacing.xs)
+                                .size(IenTheme.icon.md),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            IenLoaderPrimitive(color = LocalContentColor.current)
+                        }
+                    }
+                }
+            }
+            IenText(text)
+        }
+    }
+}
+
 /**
  * 화면 하단에 고정되거나 스크롤 시 사라지는 등의 동작을 지원하는 기본 단일 CTA(Call To Action) 버튼 컴포저블입니다.
  *
@@ -3024,7 +3122,11 @@ data class IenBottomCTAShowAfterDelay(
  * @param onClick 버튼 클릭 이벤트 콜백
  * @param modifier 적용할 Modifier
  * @param enabled 버튼 활성화 여부
+ * @param isLoading 로딩 인디케이터 표시 및 사용자 인터랙션 차단 여부
+ * @param state 버튼 상태 ([IenButtonState])
+ * @param icon 버튼 왼쪽에 표시할 아이콘 컴포저블
  * @param variant 버튼 스타일 변형 ([IenButtonVariant])
+ * @param tone 버튼 색상 톤 ([IenSemanticTone])
  * @param background 하단 바 배경 스타일 ([IenBottomCTABackground])
  * @param hasSafeAreaPadding 하단 네비게이션 바 등의 세이프 에어리어 패딩을 계산하여 적용할지 여부
  * @param hasPaddingBottom 하단 여백 추가 여부
@@ -3045,7 +3147,11 @@ fun IenBottomCTA(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    isLoading: Boolean = false,
+    state: IenButtonState = IenButtonState(enabled = enabled, loading = isLoading),
+    icon: (@Composable () -> Unit)? = null,
     variant: IenButtonVariant = IenButtonVariant.Fill,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     background: IenBottomCTABackground = IenBottomCTABackground.Default,
     hasSafeAreaPadding: Boolean = true,
     hasPaddingBottom: Boolean = true,
@@ -3060,6 +3166,10 @@ fun IenBottomCTA(
     topAccessory: (@Composable () -> Unit)? = null,
     bottomAccessory: (@Composable () -> Unit)? = null,
 ) {
+    val resolvedState = state.copy(
+        enabled = if (!enabled) false else state.enabled,
+        loading = if (isLoading) true else state.loading,
+    )
     IenBottomCTAContainer(
         modifier = modifier,
         hasSafeAreaPadding = hasSafeAreaPadding,
@@ -3075,13 +3185,24 @@ fun IenBottomCTA(
         topAccessory = topAccessory,
         bottomAccessory = bottomAccessory,
     ) {
-        IenButton(
+        IenButtonContainer(
             onClick = onClick,
-            display = IenButtonDisplay.Block,
-            state = IenButtonState(enabled = enabled),
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = IenButtonSize.Large.buttonHeight()),
             variant = variant,
+            tone = tone,
+            state = resolvedState,
+            shape = ContinuousRoundedRectangle(IenTheme.radius.default),
+            contentPadding = IenButtonSize.Large.buttonPadding(),
+            colors = IenButtonDefault.colors(variant = variant, tone = tone),
+            scalePressed = 0.975f,
         ) {
-            IenText(text)
+            IenBottomCTAButtonContent(
+                text = text,
+                loading = resolvedState.loading,
+                icon = icon,
+            )
         }
     }
 }
@@ -3118,6 +3239,12 @@ fun IenDoubleBottomCTA(
     modifier: Modifier = Modifier,
     primaryEnabled: Boolean = true,
     secondaryEnabled: Boolean = true,
+    primaryLoading: Boolean = false,
+    secondaryLoading: Boolean = false,
+    primaryState: IenButtonState = IenButtonState(enabled = primaryEnabled, loading = primaryLoading),
+    secondaryState: IenButtonState = IenButtonState(enabled = secondaryEnabled, loading = secondaryLoading),
+    primaryIcon: (@Composable () -> Unit)? = null,
+    secondaryIcon: (@Composable () -> Unit)? = null,
     background: IenBottomCTABackground = IenBottomCTABackground.Default,
     hasSafeAreaPadding: Boolean = true,
     hasPaddingBottom: Boolean = true,
@@ -3151,6 +3278,9 @@ fun IenDoubleBottomCTA(
                 variant = IenButtonVariant.Weak,
                 tone = IenSemanticTone.Neutral,
                 enabled = secondaryEnabled,
+                isLoading = secondaryLoading,
+                state = secondaryState,
+                icon = secondaryIcon,
             )
         },
         rightButton = {
@@ -3158,6 +3288,9 @@ fun IenDoubleBottomCTA(
                 text = primaryText,
                 onClick = onPrimaryClick,
                 enabled = primaryEnabled,
+                isLoading = primaryLoading,
+                state = primaryState,
+                icon = primaryIcon,
             )
         },
     )
@@ -3233,6 +3366,9 @@ fun IenDoubleBottomCTA(
  * @param onClick 클릭 이벤트 콜백
  * @param modifier 적용할 Modifier
  * @param enabled 버튼 활성화 여부
+ * @param isLoading 로딩 인디케이터 표시 및 사용자 인터랙션 차단 여부
+ * @param state 버튼 상태 ([IenButtonState])
+ * @param icon 버튼 왼쪽에 표시할 아이콘 컴포저블
  * @param variant 버튼 스타일 변형 ([IenButtonVariant])
  * @param tone 버튼 색상 톤 ([IenSemanticTone])
  */
@@ -3242,19 +3378,35 @@ fun RowScope.IenBottomCTAButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    isLoading: Boolean = false,
+    state: IenButtonState = IenButtonState(enabled = enabled, loading = isLoading),
+    icon: (@Composable () -> Unit)? = null,
     variant: IenButtonVariant = IenButtonVariant.Fill,
     tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
-    IenButton(
+    val resolvedState = state.copy(
+        enabled = if (!enabled) false else state.enabled,
+        loading = if (isLoading) true else state.loading,
+    )
+    IenButtonContainer(
         onClick = onClick,
-        modifier = modifier.weight(1f),
-        size = IenButtonSize.Large,
-        display = IenButtonDisplay.Block,
+        modifier = modifier
+            .weight(1f)
+            .fillMaxWidth()
+            .heightIn(min = IenButtonSize.Large.buttonHeight()),
         variant = variant,
         tone = tone,
-        state = IenButtonState(enabled = enabled),
+        state = resolvedState,
+        shape = ContinuousRoundedRectangle(IenTheme.radius.default),
+        contentPadding = IenButtonSize.Large.buttonPadding(),
+        colors = IenButtonDefault.colors(variant = variant, tone = tone),
+        scalePressed = 0.975f,
     ) {
-        IenText(text)
+        IenBottomCTAButtonContent(
+            text = text,
+            loading = resolvedState.loading,
+            icon = icon,
+        )
     }
 }
 
@@ -3266,6 +3418,11 @@ fun RowScope.IenBottomCTAButton(
  * @param modifier 적용할 Modifier
  * @param contentPadding 내부 패딩 (미사용 시 null)
  * @param enabled 버튼 활성화 여부
+ * @param isLoading 로딩 인디케이터 표시 및 사용자 인터랙션 차단 여부
+ * @param state 버튼 상태 ([IenButtonState])
+ * @param icon 버튼 왼쪽에 표시할 아이콘 컴포저블
+ * @param variant 버튼 스타일 변형 ([IenButtonVariant])
+ * @param tone 버튼 색상 톤 ([IenSemanticTone])
  * @param background 하단 바 배경 스타일 ([IenBottomCTABackground])
  * @param hasSafeAreaPadding 세이프 에어리어 패딩 계산 적용 여부
  * @param hasPaddingBottom 하단 여백 추가 여부
@@ -3285,6 +3442,11 @@ fun BoxScope.IenFixedBottomCTA(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues? = null,
     enabled: Boolean = true,
+    isLoading: Boolean = false,
+    state: IenButtonState = IenButtonState(enabled = enabled, loading = isLoading),
+    icon: (@Composable () -> Unit)? = null,
+    variant: IenButtonVariant = IenButtonVariant.Fill,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     background: IenBottomCTABackground = IenBottomCTABackground.Default,
     hasSafeAreaPadding: Boolean = true,
     hasPaddingBottom: Boolean = true,
@@ -3302,6 +3464,11 @@ fun BoxScope.IenFixedBottomCTA(
         onClick = onClick,
         modifier = modifier.align(Alignment.BottomCenter),
         enabled = enabled,
+        isLoading = isLoading,
+        state = state,
+        icon = icon,
+        variant = variant,
+        tone = tone,
         background = background,
         hasSafeAreaPadding = hasSafeAreaPadding,
         hasPaddingBottom = hasPaddingBottom,
