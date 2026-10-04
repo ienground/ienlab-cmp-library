@@ -9,6 +9,7 @@ import com.sunnychung.lib.multiplatform.kdatetime.KDate
 import com.sunnychung.lib.multiplatform.kdatetime.KDuration
 import com.sunnychung.lib.multiplatform.kdatetime.KFixedTimeUnit
 import com.sunnychung.lib.multiplatform.kdatetime.KGregorianCalendar
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.date_picker_day
@@ -23,6 +24,24 @@ import zone.ien.utils.cmp_ui.generated.resources.time_picker_minute
 import zone.ien.utils.cmp_ui.generated.resources.time_picker_pm
 import zone.ien.utils.cmp_ui.generated.resources.time_picker_second
 import zone.ien.utils.ui.foundation.IenTheme
+
+/**
+ * 시각 휠 선택기에서 표시할 필드.
+ */
+enum class IenTimeWheelField {
+    Hour,
+    Minute,
+    Second,
+}
+
+/**
+ * 기간 휠 선택기에서 표시할 필드.
+ */
+enum class IenDurationWheelField {
+    Hour,
+    Minute,
+    Second,
+}
 
 /**
  * 연·월·일 휠 선택기. 월 또는 연도를 변경하면 일자를 해당 월의 마지막 날 이내로 보정합니다.
@@ -82,6 +101,9 @@ fun IenDateWheelPicker(
  * @param onValueChange 선택한 시각을 전달합니다.
  * @param modifier 루트 레이아웃에 적용할 Modifier.
  * @param use24HourFormat true이면 00..23시, false이면 오전·오후와 1..12시를 표시합니다.
+ * @param showHours 시 휠 표시 여부. false일 경우 12시간제의 오전/오후 휠도 함께 숨겨집니다.
+ * @param showMinutes 분 휠 표시 여부.
+ * @param showSeconds 초 휠 표시 여부.
  * @param enabled 선택 가능 여부.
  */
 @Composable
@@ -90,8 +112,12 @@ fun IenTimeWheelPicker(
     onValueChange: (KDuration) -> Unit,
     modifier: Modifier = Modifier,
     use24HourFormat: Boolean = true,
+    showHours: Boolean = true,
+    showMinutes: Boolean = true,
+    showSeconds: Boolean = true,
     enabled: Boolean = true,
 ) {
+    require(showHours || showMinutes || showSeconds) { "적어도 하나의 필드는 표시되어야 합니다." }
     val valueInMilliseconds = value.toMilliseconds()
     require(valueInMilliseconds >= 0L && valueInMilliseconds < KFixedTimeUnit.Day.ratioToMillis && valueInMilliseconds % KFixedTimeUnit.Second.ratioToMillis == 0L) {
         "시각은 24시간 미만의 음수가 아닌 정수 초여야 합니다."
@@ -106,7 +132,7 @@ fun IenTimeWheelPicker(
     val minuteLabel = stringResource(Res.string.time_picker_minute, WHEEL_VALUE_PLACEHOLDER)
     val secondLabel = stringResource(Res.string.time_picker_second, WHEEL_VALUE_PLACEHOLDER)
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs)) {
-        if (!use24HourFormat) {
+        if (showHours && !use24HourFormat) {
             IenWheelPicker(
                 items = listOf(stringResource(Res.string.time_picker_am), stringResource(Res.string.time_picker_pm)),
                 selectedIndex = if (hour < 12) 0 else 1,
@@ -115,41 +141,79 @@ fun IenTimeWheelPicker(
                 enabled = enabled,
             )
         }
-        IenWheelPicker(
-            items = hours,
-            selectedIndex = hours.indexOf(displayedHour),
-            onSelectedIndexChange = {
-                val selectedHour = if (use24HourFormat) hours[it] else wheelPickerHour(hours[it], hour >= 12)
-                onValueChange(wheelPickerDuration(selectedHour, minute, second))
-            },
-            modifier = Modifier.weight(1f),
-            enabled = enabled,
-            itemLabel = { hourLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString().padStart(2, '0')) },
-        )
-        IenWheelPicker(
-            items = sexagesimal,
-            selectedIndex = minute,
-            onSelectedIndexChange = { onValueChange(wheelPickerDuration(hour, it, second)) },
-            modifier = Modifier.weight(1f),
-            enabled = enabled,
-            itemLabel = { minuteLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString().padStart(2, '0')) },
-        )
-        IenWheelPicker(
-            items = sexagesimal,
-            selectedIndex = second,
-            onSelectedIndexChange = { onValueChange(wheelPickerDuration(hour, minute, it)) },
-            modifier = Modifier.weight(1f),
-            enabled = enabled,
-            itemLabel = { secondLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString().padStart(2, '0')) },
-        )
+        if (showHours) {
+            IenWheelPicker(
+                items = hours,
+                selectedIndex = hours.indexOf(displayedHour),
+                onSelectedIndexChange = {
+                    val selectedHour = if (use24HourFormat) hours[it] else wheelPickerHour(hours[it], hour >= 12)
+                    onValueChange(wheelPickerDuration(selectedHour, minute, second))
+                },
+                modifier = Modifier.weight(1f),
+                enabled = enabled,
+                itemLabel = { hourLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString().padStart(2, '0')) },
+            )
+        }
+        if (showMinutes) {
+            IenWheelPicker(
+                items = sexagesimal,
+                selectedIndex = minute,
+                onSelectedIndexChange = { onValueChange(wheelPickerDuration(hour, it, second)) },
+                modifier = Modifier.weight(1f),
+                enabled = enabled,
+                itemLabel = { minuteLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString().padStart(2, '0')) },
+            )
+        }
+        if (showSeconds) {
+            IenWheelPicker(
+                items = sexagesimal,
+                selectedIndex = second,
+                onSelectedIndexChange = { onValueChange(wheelPickerDuration(hour, minute, it)) },
+                modifier = Modifier.weight(1f),
+                enabled = enabled,
+                itemLabel = { secondLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString().padStart(2, '0')) },
+            )
+        }
     }
 }
+
+/**
+ * 시각 선택기에서 표시할 필드 집합을 지정하는 오버로드.
+ *
+ * @param value 현재 시각.
+ * @param onValueChange 선택한 시각을 전달합니다.
+ * @param fields 표시할 시·분·초 필드 집합.
+ * @param modifier 루트 레이아웃에 적용할 Modifier.
+ * @param use24HourFormat true이면 00..23시, false이면 오전·오후와 1..12시를 표시합니다.
+ * @param enabled 선택 가능 여부.
+ */
+@Composable
+fun IenTimeWheelPicker(
+    value: KDuration,
+    onValueChange: (KDuration) -> Unit,
+    fields: Set<IenTimeWheelField>,
+    modifier: Modifier = Modifier,
+    use24HourFormat: Boolean = true,
+    enabled: Boolean = true,
+) = IenTimeWheelPicker(
+    value = value,
+    onValueChange = onValueChange,
+    modifier = modifier,
+    use24HourFormat = use24HourFormat,
+    showHours = IenTimeWheelField.Hour in fields,
+    showMinutes = IenTimeWheelField.Minute in fields,
+    showSeconds = IenTimeWheelField.Second in fields,
+    enabled = enabled,
+)
 
 /**
  * 시각과 구분되는 기간 선택기. 24시간 이상의 기간도 지원합니다.
  * @param value 현재 기간. 음수가 아닌 정수 초여야 합니다.
  * @param onValueChange 선택한 기간을 전달합니다.
  * @param modifier 루트 레이아웃에 적용할 Modifier.
+ * @param showHours 시간 휠 표시 여부.
+ * @param showMinutes 분 휠 표시 여부.
+ * @param showSeconds 초 휠 표시 여부.
  * @param maxHours 선택 가능한 최대 시간 (0..9999). 분·초는 각각 0..59입니다.
  * @param enabled 선택 가능 여부.
  */
@@ -158,12 +222,22 @@ fun IenDurationWheelPicker(
     value: KDuration,
     onValueChange: (KDuration) -> Unit,
     modifier: Modifier = Modifier,
+    showHours: Boolean = true,
+    showMinutes: Boolean = true,
+    showSeconds: Boolean = true,
     maxHours: Int = 23,
     enabled: Boolean = true,
 ) {
-    require(maxHours in 0..9999) { "최대 시간은 0..9999 안이어야 합니다." }
+    require(showHours || showMinutes || showSeconds) { "적어도 하나의 필드는 표시되어야 합니다." }
+    if (showHours) {
+        require(maxHours in 0..9999) { "최대 시간은 0..9999 안이어야 합니다." }
+    }
     val valueInMilliseconds = value.toMilliseconds()
-    require(valueInMilliseconds >= 0L && valueInMilliseconds % KFixedTimeUnit.Second.ratioToMillis == 0L && value.toHours() <= maxHours.toLong()) {
+    require(
+        valueInMilliseconds >= 0L &&
+            valueInMilliseconds % KFixedTimeUnit.Second.ratioToMillis == 0L &&
+            (!showHours || value.toHours() <= maxHours.toLong()),
+    ) {
         "기간은 선택 범위 안의 음수가 아닌 정수 초여야 합니다."
     }
     val hour = value.toHours().toInt()
@@ -171,35 +245,85 @@ fun IenDurationWheelPicker(
     val second = value.secondPart()
     val hours = remember(maxHours) { (0..maxHours).toList() }
     val sexagesimal = remember { (0..59).toList() }
-    val hourLabel = stringResource(Res.string.duration_picker_hour, WHEEL_VALUE_PLACEHOLDER)
-    val minuteLabel = stringResource(Res.string.duration_picker_minute, WHEEL_VALUE_PLACEHOLDER)
-    val secondLabel = stringResource(Res.string.duration_picker_second, WHEEL_VALUE_PLACEHOLDER)
+    val hourZero = pluralStringResource(Res.plurals.duration_picker_hour, 0, WHEEL_VALUE_PLACEHOLDER)
+    val hourOne = pluralStringResource(Res.plurals.duration_picker_hour, 1, WHEEL_VALUE_PLACEHOLDER)
+    val hourOther = pluralStringResource(Res.plurals.duration_picker_hour, 2, WHEEL_VALUE_PLACEHOLDER)
+    val minuteZero = pluralStringResource(Res.plurals.duration_picker_minute, 0, WHEEL_VALUE_PLACEHOLDER)
+    val minuteOne = pluralStringResource(Res.plurals.duration_picker_minute, 1, WHEEL_VALUE_PLACEHOLDER)
+    val minuteOther = pluralStringResource(Res.plurals.duration_picker_minute, 2, WHEEL_VALUE_PLACEHOLDER)
+    val secondZero = pluralStringResource(Res.plurals.duration_picker_second, 0, WHEEL_VALUE_PLACEHOLDER)
+    val secondOne = pluralStringResource(Res.plurals.duration_picker_second, 1, WHEEL_VALUE_PLACEHOLDER)
+    val secondOther = pluralStringResource(Res.plurals.duration_picker_second, 2, WHEEL_VALUE_PLACEHOLDER)
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs)) {
-        IenWheelPicker(
-            items = hours,
-            selectedIndex = hour,
-            onSelectedIndexChange = { onValueChange(wheelPickerDuration(it, minute, second)) },
-            modifier = Modifier.weight(1.4f),
-            enabled = enabled,
-            itemLabel = { hourLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString()) },
-        )
-        IenWheelPicker(
-            items = sexagesimal,
-            selectedIndex = minute,
-            onSelectedIndexChange = { onValueChange(wheelPickerDuration(hour, it, second)) },
-            modifier = Modifier.weight(1f),
-            enabled = enabled,
-            itemLabel = { minuteLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString()) },
-        )
-        IenWheelPicker(
-            items = sexagesimal,
-            selectedIndex = second,
-            onSelectedIndexChange = { onValueChange(wheelPickerDuration(hour, minute, it)) },
-            modifier = Modifier.weight(1f),
-            enabled = enabled,
-            itemLabel = { secondLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString()) },
-        )
+        if (showHours) {
+            IenWheelPicker(
+                items = hours,
+                selectedIndex = hour.coerceIn(hours.indices),
+                onSelectedIndexChange = { onValueChange(wheelPickerDuration(hours[it], minute, second)) },
+                modifier = Modifier.weight(if (showMinutes || showSeconds) 1.4f else 1f),
+                enabled = enabled,
+                itemLabel = { formatWheelPlural(it, hourZero, hourOne, hourOther) },
+            )
+        }
+        if (showMinutes) {
+            IenWheelPicker(
+                items = sexagesimal,
+                selectedIndex = minute.coerceIn(sexagesimal.indices),
+                onSelectedIndexChange = { onValueChange(wheelPickerDuration(hour, it, second)) },
+                modifier = Modifier.weight(1f),
+                enabled = enabled,
+                itemLabel = { formatWheelPlural(it, minuteZero, minuteOne, minuteOther) },
+            )
+        }
+        if (showSeconds) {
+            IenWheelPicker(
+                items = sexagesimal,
+                selectedIndex = second.coerceIn(sexagesimal.indices),
+                onSelectedIndexChange = { onValueChange(wheelPickerDuration(hour, minute, it)) },
+                modifier = Modifier.weight(1f),
+                enabled = enabled,
+                itemLabel = { formatWheelPlural(it, secondZero, secondOne, secondOther) },
+            )
+        }
     }
+}
+
+/**
+ * 기간 선택기에서 표시할 필드 집합을 지정하는 오버로드.
+ *
+ * @param value 현재 기간.
+ * @param onValueChange 선택한 기간을 전달합니다.
+ * @param fields 표시할 시간·분·초 필드 집합.
+ * @param modifier 루트 레이아웃에 적용할 Modifier.
+ * @param maxHours 선택 가능한 최대 시간 (0..9999).
+ * @param enabled 선택 가능 여부.
+ */
+@Composable
+fun IenDurationWheelPicker(
+    value: KDuration,
+    onValueChange: (KDuration) -> Unit,
+    fields: Set<IenDurationWheelField>,
+    modifier: Modifier = Modifier,
+    maxHours: Int = 23,
+    enabled: Boolean = true,
+) = IenDurationWheelPicker(
+    value = value,
+    onValueChange = onValueChange,
+    modifier = modifier,
+    showHours = IenDurationWheelField.Hour in fields,
+    showMinutes = IenDurationWheelField.Minute in fields,
+    showSeconds = IenDurationWheelField.Second in fields,
+    maxHours = maxHours,
+    enabled = enabled,
+)
+
+internal fun formatWheelPlural(value: Int, zero: String, one: String, other: String): String {
+    val template = when (value) {
+        0 -> zero
+        1 -> one
+        else -> other
+    }
+    return template.replace(WHEEL_VALUE_PLACEHOLDER, value.toString())
 }
 
 internal fun wheelPickerDate(year: Int, month: Int, day: Int): KDate =

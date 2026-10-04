@@ -86,8 +86,14 @@
     <string name="time_picker_hour">%1$s시</string>
     <string name="time_picker_minute">%1$s분</string>
     <string name="time_picker_second">%1$s초</string>
-    <string name="duration_picker_hour">%1$s시간</string>
-    <string name="duration_picker_minute">%1$s분</string>
-    <string name="duration_picker_second">%1$s초</string>
+    <plurals name="duration_picker_hour">
+        <item quantity="other">%1$d시간</item>
+    </plurals>
+    <plurals name="duration_picker_minute">
+        <item quantity="other">%1$d분</item>
+    </plurals>
+    <plurals name="duration_picker_second">
+        <item quantity="other">%1$d초</item>
+    </plurals>
 
 </resources>

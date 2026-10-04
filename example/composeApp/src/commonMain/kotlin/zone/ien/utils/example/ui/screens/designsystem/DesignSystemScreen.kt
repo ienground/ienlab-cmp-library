@@ -3859,6 +3859,10 @@ fun WheelPickerSection() {
                 IenTimeWheelPicker(time, { time = it }, Modifier.fillMaxWidth(), use24HourFormat = false)
                 IenText("기간 · $durationLabel", style = IenTheme.typography.label1)
                 IenDurationWheelPicker(duration, { duration = it }, Modifier.fillMaxWidth(), maxHours = 99)
+                IenText("기간(시·분) · $durationLabel", style = IenTheme.typography.label1)
+                IenDurationWheelPicker(duration, { duration = it }, Modifier.fillMaxWidth(), showSeconds = false, maxHours = 99)
+                IenText("기간(분·초) · $durationLabel", style = IenTheme.typography.label1)
+                IenDurationWheelPicker(duration, { duration = it }, Modifier.fillMaxWidth(), showHours = false)
             }
         }
     }

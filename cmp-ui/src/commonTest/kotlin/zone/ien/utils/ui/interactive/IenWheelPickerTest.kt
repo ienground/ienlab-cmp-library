@@ -29,5 +29,15 @@ class IenWheelPickerTest {
         assertEquals(KDuration.of(25 * 3600L + 5 * 60L + 5, KFixedTimeUnit.Second), wheelPickerDuration(25, 5, 5))
         assertEquals(KDuration.of(0L, KFixedTimeUnit.Second), wheelPickerDuration(0, 0, 0))
     }
-}
 
+    @Test
+    fun formatWheelPluralHandlesZeroOneAndOther() {
+        val zero = "__WHEEL_VALUE__ hours"
+        val one = "__WHEEL_VALUE__ hour"
+        val other = "__WHEEL_VALUE__ hours"
+        assertEquals("0 hours", formatWheelPlural(0, zero, one, other))
+        assertEquals("1 hour", formatWheelPlural(1, zero, one, other))
+        assertEquals("2 hours", formatWheelPlural(2, zero, one, other))
+        assertEquals("23 hours", formatWheelPlural(23, zero, one, other))
+    }
+}
