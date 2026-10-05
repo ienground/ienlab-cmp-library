@@ -651,7 +651,7 @@ fun AnimatedContentSection() {
                 contentAlignment = Alignment.Center,
                 transitionSpec = {
                     fadeIn(animationSpec = spring(dampingRatio = 1.2f)) togetherWith
-                        fadeOut(animationSpec = spring(dampingRatio = 1.2f))
+                            fadeOut(animationSpec = spring(dampingRatio = 1.2f))
                 },
                 label = "animated_content",
             ) { targetState ->
@@ -711,7 +711,12 @@ fun BadgeSection() {
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
                 IenBadge("NEW", variant = IenBadgeVariant.Fill)
                 IenBadge("주의", tone = IenSemanticTone.Warning)
-                IenBadge("오류", size = IenBadgeSize.Large, variant = IenBadgeVariant.Line, tone = IenSemanticTone.Danger)
+                IenBadge(
+                    "오류",
+                    size = IenBadgeSize.Large,
+                    variant = IenBadgeVariant.Line,
+                    tone = IenSemanticTone.Danger
+                )
             }
 
             IenDivider()
@@ -726,7 +731,11 @@ fun BadgeSection() {
                         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                     ) {
                         IenBadge(size.name, size = size)
-                        Text(size.name, style = IenTheme.typography.caption, color = IenTheme.colors.textSecondary)
+                        Text(
+                            size.name,
+                            style = IenTheme.typography.caption,
+                            color = IenTheme.colors.textSecondary
+                        )
                     }
                 }
             }
@@ -744,13 +753,19 @@ fun BoardRowSection() {
                 initialOpened = true,
                 prefix = { IenBadge("배송", size = IenBadgeSize.Small) },
             ) {
-                Text("제한된 영역에서 상세 정보를 접고 펼치는 아코디언형 정보 구조입니다.", color = IenTheme.colors.textSecondary)
+                Text(
+                    "제한된 영역에서 상세 정보를 접고 펼치는 아코디언형 정보 구조입니다.",
+                    color = IenTheme.colors.textSecondary
+                )
             }
             IenBoardRow(
                 title = { Text("배송 정보 자세히 보기2", style = IenTheme.typography.label1) },
                 prefix = { IenBadge("배송", size = IenBadgeSize.Small) },
             ) {
-                Text("제한된 영역에서 상세 정보를 접고 펼치는 아코디언형 정보 구조입니다.", color = IenTheme.colors.textSecondary)
+                Text(
+                    "제한된 영역에서 상세 정보를 접고 펼치는 아코디언형 정보 구조입니다.",
+                    color = IenTheme.colors.textSecondary
+                )
             }
         }
     }
@@ -763,9 +778,17 @@ fun BorderSection() {
         ComponentSection(title = "Border") {
             Text("Full", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
             IenBorder()
-            Text("Padding24", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            Text(
+                "Padding24",
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.textSecondary
+            )
             IenBorder(variant = IenBorderVariant.Padding24)
-            Text("Height16", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            Text(
+                "Height16",
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.textSecondary
+            )
             IenBorder(variant = IenBorderVariant.Height())
         }
     }
@@ -927,7 +950,11 @@ fun ButtonSection() {
                 Text("Large")
             }
             IenBorder()
-            Text("Display", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            Text(
+                "Display",
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.textSecondary
+            )
             IenButton(onClick = {}, size = IenButtonSize.Large, display = IenButtonDisplay.Full) {
                 Text("Full")
             }
@@ -938,7 +965,11 @@ fun ButtonSection() {
                 Text("Inline")
             }
             IenBorder()
-            Text("Colors override", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            Text(
+                "Colors override",
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.textSecondary
+            )
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
@@ -1008,7 +1039,11 @@ fun ButtonSection() {
                 }
             }
             IenBorder()
-            Text("Toggle", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            Text(
+                "Toggle",
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.textSecondary
+            )
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
@@ -1168,21 +1203,40 @@ fun ChipSection() {
         var inputSelected by remember { mutableStateOf(true) }
 
         ComponentSection(title = "Chip") {
-            Text("Assist", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            Text(
+                "Assist",
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.textSecondary
+            )
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
             ) {
                 IenAssistChip(
                     onClick = {},
-                    leadingIcon = { IenIcon(M3SystemIcons.Filled.Check, contentDescription = null) },
+                    leadingIcon = {
+                        IenIcon(
+                            M3SystemIcons.Filled.Check,
+                            contentDescription = null
+                        )
+                    },
                 ) { Text("Assist") }
                 IenElevatedAssistChip(onClick = {}) { Text("Elevated") }
-                IenAssistChip(onClick = {}, state = IenChipState(loading = true)) { Text("Loading") }
-                IenAssistChip(onClick = {}, state = IenChipState(enabled = false)) { Text("Disabled") }
+                IenAssistChip(
+                    onClick = {},
+                    state = IenChipState(loading = true)
+                ) { Text("Loading") }
+                IenAssistChip(
+                    onClick = {},
+                    state = IenChipState(enabled = false)
+                ) { Text("Disabled") }
             }
 
-            Text("Filter", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            Text(
+                "Filter",
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.textSecondary
+            )
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
@@ -1220,10 +1274,19 @@ fun ChipSection() {
                         Text("I", style = IenTheme.typography.caption)
                     }
                 },
-                trailingIcon = { IenIcon(M3SystemIcons.Filled.Close, contentDescription = "입력 제거") },
+                trailingIcon = {
+                    IenIcon(
+                        M3SystemIcons.Filled.Close,
+                        contentDescription = "입력 제거"
+                    )
+                },
             ) { Text("Input") }
 
-            Text("Suggestion", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            Text(
+                "Suggestion",
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.textSecondary
+            )
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
@@ -1278,7 +1341,11 @@ fun FabSection() {
     IenTheme {
         ComponentSection(title = "FAB") {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Sizes", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                Text(
+                    "Sizes",
+                    style = IenTheme.typography.label2,
+                    color = IenTheme.colors.textSecondary
+                )
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
                     verticalAlignment = Alignment.CenterVertically,
@@ -1289,14 +1356,25 @@ fun FabSection() {
                             verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                         ) {
                             IenFab(onClick = {}, size = size) {
-                                IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                                IenIcon(
+                                    imageVector = M3SystemIcons.Filled.Check,
+                                    contentDescription = null
+                                )
                             }
-                            Text(size.name, style = IenTheme.typography.caption, color = IenTheme.colors.textSecondary)
+                            Text(
+                                size.name,
+                                style = IenTheme.typography.caption,
+                                color = IenTheme.colors.textSecondary
+                            )
                         }
                     }
                 }
                 IenBorder()
-                Text("Variants", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                Text(
+                    "Variants",
+                    style = IenTheme.typography.label2,
+                    color = IenTheme.colors.textSecondary
+                )
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
                     verticalAlignment = Alignment.CenterVertically,
@@ -1315,7 +1393,11 @@ fun FabSection() {
                     }
                 }
                 IenBorder()
-                Text("Extended / States", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                Text(
+                    "Extended / States",
+                    style = IenTheme.typography.label2,
+                    color = IenTheme.colors.textSecondary
+                )
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
                     verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
@@ -1327,7 +1409,10 @@ fun FabSection() {
                             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                            IenIcon(
+                                imageVector = M3SystemIcons.Filled.Check,
+                                contentDescription = null
+                            )
                             Text("작성하기")
                         }
                     }
@@ -1357,17 +1442,33 @@ fun CheckboxSection() {
         var checked by remember { mutableStateOf(true) }
         ComponentSection(title = "Checkbox") {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Circle Checkbox", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                Text(
+                    "Circle Checkbox",
+                    style = IenTheme.typography.label2,
+                    color = IenTheme.colors.textSecondary
+                )
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    IenCircleCheckbox(checked = checked, onCheckedChange = { checked = it }, label = "동의 (제어)")
+                    IenCircleCheckbox(
+                        checked = checked,
+                        onCheckedChange = { checked = it },
+                        label = "동의 (제어)"
+                    )
                     IenCircleCheckbox(defaultChecked = true, label = "비제어(초기참)")
                     IenCircleCheckbox(checked = true, label = "비활성(선택-흔들림)", enabled = false)
                     IenCircleCheckbox(checked = false, label = "비활성(해제-흔들림)", enabled = false)
                 }
                 IenBorder()
-                Text("Line Checkbox", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                Text(
+                    "Line Checkbox",
+                    style = IenTheme.typography.label2,
+                    color = IenTheme.colors.textSecondary
+                )
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    IenLineCheckbox(checked = checked, onCheckedChange = { checked = it }, label = "동의 (제어)")
+                    IenLineCheckbox(
+                        checked = checked,
+                        onCheckedChange = { checked = it },
+                        label = "동의 (제어)"
+                    )
                     IenLineCheckbox(defaultChecked = true, label = "비제어(초기참)")
                     IenLineCheckbox(checked = true, label = "비활성(선택-흔들림)", enabled = false)
                     IenLineCheckbox(checked = false, label = "비활성(해제-흔들림)", enabled = false)
@@ -1396,25 +1497,48 @@ fun IconButtonSection() {
     IenTheme {
         ComponentSection(title = "IconButton") {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Sizes", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                Text(
+                    "Sizes",
+                    style = IenTheme.typography.label2,
+                    color = IenTheme.colors.textSecondary
+                )
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    listOf(IenButtonSize.Large, IenButtonSize.Medium, IenButtonSize.Small).forEach { size ->
+                    listOf(
+                        IenButtonSize.Large,
+                        IenButtonSize.Medium,
+                        IenButtonSize.Small
+                    ).forEach { size ->
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                         ) {
-                            IenIconButton(onClick = {}, size = size, variant = IenButtonVariant.Fill) {
-                                IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                            IenIconButton(
+                                onClick = {},
+                                size = size,
+                                variant = IenButtonVariant.Fill
+                            ) {
+                                IenIcon(
+                                    imageVector = M3SystemIcons.Filled.Check,
+                                    contentDescription = null
+                                )
                             }
-                            Text(size.name, style = IenTheme.typography.caption, color = IenTheme.colors.textSecondary)
+                            Text(
+                                size.name,
+                                style = IenTheme.typography.caption,
+                                color = IenTheme.colors.textSecondary
+                            )
                         }
                     }
                 }
                 IenBorder()
-                Text("Variants / States", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                Text(
+                    "Variants / States",
+                    style = IenTheme.typography.label2,
+                    color = IenTheme.colors.textSecondary
+                )
                 IconButtonVariantStateSample("Fill", IenButtonVariant.Fill)
                 IconButtonVariantStateSample("Weak", IenButtonVariant.Weak)
                 IconButtonVariantStateSample("Line", IenButtonVariant.Line)
@@ -1441,7 +1565,11 @@ private fun IconButtonVariantStateSample(
             IenIconButton(onClick = {}, variant = variant, state = IenButtonState(loading = true)) {
                 IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
             }
-            IenIconButton(onClick = {}, variant = variant, state = IenButtonState(enabled = false)) {
+            IenIconButton(
+                onClick = {},
+                variant = variant,
+                state = IenButtonState(enabled = false)
+            ) {
                 IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
             }
         }
@@ -1541,7 +1669,11 @@ fun LoaderSection() {
                         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                     ) {
                         IenLoader(size = size)
-                        Text(size.name, style = IenTheme.typography.caption, color = IenTheme.colors.textSecondary)
+                        Text(
+                            size.name,
+                            style = IenTheme.typography.caption,
+                            color = IenTheme.colors.textSecondary
+                        )
                     }
                 }
             }
@@ -1672,7 +1804,11 @@ fun NumericSpinnerSection() {
         ComponentSection(title = "NumericSpinner") {
             IenNumericSpinnerSize.entries.forEach { size ->
                 Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                    Text(text = size.name, style = IenTheme.typography.caption, color = IenTheme.colors.textSecondary)
+                    Text(
+                        text = size.name,
+                        style = IenTheme.typography.caption,
+                        color = IenTheme.colors.textSecondary
+                    )
                     var value by remember { mutableIntStateOf(2) }
                     IenNumericSpinner(
                         number = value,
@@ -1729,7 +1865,11 @@ fun ProgressBarSection() {
         ComponentSection(title = "ProgressBar") {
             IenProgressBarSize.entries.forEach { size ->
                 Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                    Text(size.name, style = IenTheme.typography.caption, color = IenTheme.colors.textSecondary)
+                    Text(
+                        size.name,
+                        style = IenTheme.typography.caption,
+                        color = IenTheme.colors.textSecondary
+                    )
                     IenProgressBar(
                         progress = 0.64f,
                         size = size,
@@ -2017,7 +2157,11 @@ fun SegmentedControlSection() {
         var selected by remember { mutableStateOf("all") }
         ComponentSection(title = "SegmentedControl") {
             Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                Text("Small (Fixed)", style = IenTheme.typography.caption, color = IenTheme.colors.textSecondary)
+                Text(
+                    "Small (Fixed)",
+                    style = IenTheme.typography.caption,
+                    color = IenTheme.colors.textSecondary
+                )
                 IenSegmentedControl(
                     items = listOf(
                         IenSegmentedControlItem(value = "all", label = "전체"),
@@ -2032,7 +2176,11 @@ fun SegmentedControlSection() {
                 )
             }
             Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                Text("Large (Fluid)", style = IenTheme.typography.caption, color = IenTheme.colors.textSecondary)
+                Text(
+                    "Large (Fluid)",
+                    style = IenTheme.typography.caption,
+                    color = IenTheme.colors.textSecondary
+                )
                 IenSegmentedControl(
                     items = listOf(
                         IenSegmentedControlItem(value = "today", label = "오늘"),
@@ -2088,7 +2236,11 @@ fun SkeletonSection() {
             IenDivider()
             Text("IenSkeletonPattern (전체 패턴)", style = IenTheme.typography.label1)
             IenSkeletonPattern.entries.forEach { pattern ->
-                Text(pattern.name, style = IenTheme.typography.caption, color = IenTheme.colors.textSecondary)
+                Text(
+                    pattern.name,
+                    style = IenTheme.typography.caption,
+                    color = IenTheme.colors.textSecondary
+                )
                 IenSkeleton(
                     modifier = Modifier.fillMaxWidth(),
                     pattern = pattern,
@@ -2129,9 +2281,8 @@ fun SwipeBoxSection() {
                 )
                 IenSwipeBox(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
 //                        .height(72.dp)
-                    ,
                     actionItemBuilder = {
                         end(key = "end-delete") {
                             IenSwipeBoxItem(
@@ -2154,9 +2305,8 @@ fun SwipeBoxSection() {
                 )
                 IenSwipeBox(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
 //                        .height(72.dp)
-                    ,
                     actionItemBuilder = {
                         start(key = "start-complete") {
                             IenSwipeBoxItem(
@@ -2179,9 +2329,8 @@ fun SwipeBoxSection() {
                 )
                 IenSwipeBox(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
 //                        .height(72.dp)
-                    ,
                     actionItemBuilder = {
                         start(key = "start-complete") {
                             IenSwipeBoxItem(
@@ -2403,18 +2552,47 @@ fun TabSection() {
         ComponentSection(title = "Tab") {
             IenFloatingTabBar(
                 items = listOf(
-                    IenTabItem("홈", key = "home", icon = M3SystemIcons.Rounded.RoundedKeyboard, selectedIcon = M3SystemIcons.Filled.FilledKeyboard),
-                    IenTabItem("혜택", key = "benefit", icon = M3SystemIcons.Rounded.RoundedCheck, selectedIcon = M3SystemIcons.Filled.Check),
-                    IenTabItem("아이엔페이", key = "pay", icon = M3SystemIcons.Rounded.RoundedSave, selectedIcon = M3SystemIcons.Filled.FilledSave),
-                    IenTabItem("증권", key = "stock", icon = M3SystemIcons.Rounded.RoundedCloudOff, selectedIcon = M3SystemIcons.Filled.FilledCloudOff),
-                    IenTabItem("전체", key = "all", icon = M3SystemIcons.Rounded.RoundedMoreVert, selectedIcon = M3SystemIcons.Filled.FilledMoreVert),
+                    IenTabItem(
+                        "홈",
+                        key = "home",
+                        icon = M3SystemIcons.Rounded.RoundedKeyboard,
+                        selectedIcon = M3SystemIcons.Filled.FilledKeyboard
+                    ),
+                    IenTabItem(
+                        "혜택",
+                        key = "benefit",
+                        icon = M3SystemIcons.Rounded.RoundedCheck,
+                        selectedIcon = M3SystemIcons.Filled.Check
+                    ),
+                    IenTabItem(
+                        "아이엔페이",
+                        key = "pay",
+                        icon = M3SystemIcons.Rounded.RoundedSave,
+                        selectedIcon = M3SystemIcons.Filled.FilledSave
+                    ),
+                    IenTabItem(
+                        "증권",
+                        key = "stock",
+                        icon = M3SystemIcons.Rounded.RoundedCloudOff,
+                        selectedIcon = M3SystemIcons.Filled.FilledCloudOff
+                    ),
+                    IenTabItem(
+                        "전체",
+                        key = "all",
+                        icon = M3SystemIcons.Rounded.RoundedMoreVert,
+                        selectedIcon = M3SystemIcons.Filled.FilledMoreVert
+                    ),
                 ),
                 selectedIndex = floatingTabSelected,
                 onSelectedIndexChange = { floatingTabSelected = it },
                 ariaLabel = "모바일 하단 탭바",
             )
             Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                Text("Large", style = IenTheme.typography.caption, color = IenTheme.colors.textSecondary)
+                Text(
+                    "Large",
+                    style = IenTheme.typography.caption,
+                    color = IenTheme.colors.textSecondary
+                )
                 IenTab(
                     items = listOf(
                         IenTabItem("요약", key = "summary"),
@@ -2428,9 +2606,17 @@ fun TabSection() {
                 )
             }
             Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                Text("Small", style = IenTheme.typography.caption, color = IenTheme.colors.textSecondary)
+                Text(
+                    "Small",
+                    style = IenTheme.typography.caption,
+                    color = IenTheme.colors.textSecondary
+                )
                 IenTab(
-                    items = listOf(IenTabItem("작게"), IenTabItem("선택됨"), IenTabItem("비활성", enabled = false)),
+                    items = listOf(
+                        IenTabItem("작게"),
+                        IenTabItem("선택됨"),
+                        IenTabItem("비활성", enabled = false)
+                    ),
                     selectedIndex = smallTabSelected,
                     onSelectedIndexChange = { smallTabSelected = it },
                     size = IenTabSize.Small,
@@ -2484,7 +2670,13 @@ fun TableRowSection() {
             IenTableRow(
                 label = "최종 결제",
                 value = "28,000원",
-                trailing = { IenBadge("할인", size = IenBadgeSize.Small, tone = IenSemanticTone.Success) },
+                trailing = {
+                    IenBadge(
+                        "할인",
+                        size = IenBadgeSize.Small,
+                        tone = IenSemanticTone.Success
+                    )
+                },
             )
         }
     }
@@ -2887,8 +3079,18 @@ fun AgreementSection() {
         var agreements by remember {
             mutableStateOf(
                 listOf(
-                    IenAgreementItem(id = "service", title = "서비스 이용약관", checked = true, required = true),
-                    IenAgreementItem(id = "privacy", title = "개인정보 처리방침", checked = false, required = true),
+                    IenAgreementItem(
+                        id = "service",
+                        title = "서비스 이용약관",
+                        checked = true,
+                        required = true
+                    ),
+                    IenAgreementItem(
+                        id = "privacy",
+                        title = "개인정보 처리방침",
+                        checked = false,
+                        required = true
+                    ),
                     IenAgreementItem(
                         id = "marketing",
                         title = "마케팅 정보 수신",
@@ -2910,7 +3112,7 @@ fun AgreementSection() {
         }
         var singleChecked by remember { mutableStateOf(false) }
         var dotChecked by remember { mutableStateOf(true) }
-        
+
         var accordionOpen by remember { mutableStateOf(false) }
         var collapsibleChecked1 by remember { mutableStateOf(false) }
         var collapsibleChecked2 by remember { mutableStateOf(false) }
@@ -2920,8 +3122,12 @@ fun AgreementSection() {
         var indentChecked2 by remember { mutableStateOf(false) }
 
         ComponentSection(title = "Agreement (TDS v4 Spec)") {
-            Text(text = "1. 단일 동의 항목 (체크박스 / 도트 / 히든)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
-            
+            Text(
+                text = "1. 단일 동의 항목 (체크박스 / 도트 / 히든)",
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.textSecondary
+            )
+
             IenAgreement(
                 variant = IenAgreementVariant.Large,
                 onClick = { singleChecked = !singleChecked },
@@ -2965,8 +3171,12 @@ fun AgreementSection() {
 
             IenDivider()
 
-            Text(text = "2. 접었다 펼치는 아코디언 동의 (Collapsible)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
-            
+            Text(
+                text = "2. 접었다 펼치는 아코디언 동의 (Collapsible)",
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.textSecondary
+            )
+
             IenAgreementCollapsible(
                 collapsed = !accordionOpen,
                 onCollapsedChange = { accordionOpen = !it }
@@ -2987,7 +3197,9 @@ fun AgreementSection() {
                         variant = IenAgreementVariant.Small,
                         onClick = { collapsibleChecked1 = !collapsibleChecked1 },
                         left = {
-                            IenAgreementCheckbox(checked = collapsibleChecked1, onCheckedChange = { collapsibleChecked1 = it })
+                            IenAgreementCheckbox(
+                                checked = collapsibleChecked1,
+                                onCheckedChange = { collapsibleChecked1 = it })
                         },
                         middle = {
                             IenAgreementText(text = "이름, 전화번호 수집 동의")
@@ -2997,7 +3209,9 @@ fun AgreementSection() {
                         variant = IenAgreementVariant.Small,
                         onClick = { collapsibleChecked2 = !collapsibleChecked2 },
                         left = {
-                            IenAgreementCheckbox(checked = collapsibleChecked2, onCheckedChange = { collapsibleChecked2 = it })
+                            IenAgreementCheckbox(
+                                checked = collapsibleChecked2,
+                                onCheckedChange = { collapsibleChecked2 = it })
                         },
                         middle = {
                             IenAgreementText(text = "이메일, 배송지 주소 수집 동의")
@@ -3016,30 +3230,56 @@ fun AgreementSection() {
 
             IenDivider()
 
-            Text(text = "3. 여러 동의 항목 그룹화 (Group)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            Text(
+                text = "3. 여러 동의 항목 그룹화 (Group)",
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.textSecondary
+            )
 
             IenAgreementGroup {
                 IenAgreement(
                     variant = IenAgreementVariant.Large,
-                    left = { IenAgreementCheckbox(checked = false, onCheckedChange = {}, variant = IenAgreementCheckboxVariant.Hidden) },
+                    left = {
+                        IenAgreementCheckbox(
+                            checked = false,
+                            onCheckedChange = {},
+                            variant = IenAgreementCheckboxVariant.Hidden
+                        )
+                    },
                     middle = { IenAgreementText(text = "카드상품 이외의 부수서비스 안내 등을 위한 수집/이용") }
                 )
                 IenAgreement(
                     variant = IenAgreementVariant.Small,
-                    left = { IenAgreementCheckbox(checked = false, onCheckedChange = {}, variant = IenAgreementCheckboxVariant.Hidden) },
+                    left = {
+                        IenAgreementCheckbox(
+                            checked = false,
+                            onCheckedChange = {},
+                            variant = IenAgreementCheckboxVariant.Hidden
+                        )
+                    },
                     middle = { IenAgreementText(text = "개인(신용)정보 수집/이용") }
                 )
                 IenAgreement(
                     variant = IenAgreementVariant.SmallLast,
-                    left = { IenAgreementCheckbox(checked = false, onCheckedChange = {}, variant = IenAgreementCheckboxVariant.Hidden) },
+                    left = {
+                        IenAgreementCheckbox(
+                            checked = false,
+                            onCheckedChange = {},
+                            variant = IenAgreementCheckboxVariant.Hidden
+                        )
+                    },
                     middle = { IenAgreementText(text = "전자적 매체를 통한 광고성 정보 수신") }
                 )
             }
 
             IenDivider()
 
-            Text(text = "4. 동적 들여쓰기 동의 (IndentPushable)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
-            
+            Text(
+                text = "4. 동적 들여쓰기 동의 (IndentPushable)",
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.textSecondary
+            )
+
             IenAgreementIndentPushable(
                 pushed = indentPushed,
                 onPushedChange = { indentPushed = it },
@@ -3092,14 +3332,19 @@ fun AgreementSection() {
 
             IenDivider()
 
-            Text(text = "5. 기존 리스트형 어댑터 동의 (하위 호환용)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
-            
-           IenAgreement(
-               items = agreements,
-               onItemCheckedChange = { id, checked ->
-                   agreements = agreements.map { if (it.id == id) it.copy(checked = checked) else it }
-               }
-           )
+            Text(
+                text = "5. 기존 리스트형 어댑터 동의 (하위 호환용)",
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.textSecondary
+            )
+
+            IenAgreement(
+                items = agreements,
+                onItemCheckedChange = { id, checked ->
+                    agreements =
+                        agreements.map { if (it.id == id) it.copy(checked = checked) else it }
+                }
+            )
 
             IenDivider()
             Text(text = "6. IenAgreementVariant (전체 6종 크기 변형)", style = IenTheme.typography.label1)
@@ -3119,17 +3364,38 @@ fun AgreementSection() {
             }
 
             IenDivider()
-            Text(text = "7. IenAgreementBadgeVariant & CheckboxVariant", style = IenTheme.typography.label1)
-            Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "7. IenAgreementBadgeVariant & CheckboxVariant",
+                style = IenTheme.typography.label1
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 IenAgreementBadge(text = "Badge.Clear", variant = IenAgreementBadgeVariant.Clear)
                 IenAgreementBadge(text = "Badge.Fill", variant = IenAgreementBadgeVariant.Fill)
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md), verticalAlignment = Alignment.CenterVertically) {
-                IenAgreementCheckbox(checked = true, onCheckedChange = {}, variant = IenAgreementCheckboxVariant.Checkbox)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IenAgreementCheckbox(
+                    checked = true,
+                    onCheckedChange = {},
+                    variant = IenAgreementCheckboxVariant.Checkbox
+                )
                 Text("Checkbox", style = IenTheme.typography.caption)
-                IenAgreementCheckbox(checked = true, onCheckedChange = {}, variant = IenAgreementCheckboxVariant.Dot)
+                IenAgreementCheckbox(
+                    checked = true,
+                    onCheckedChange = {},
+                    variant = IenAgreementCheckboxVariant.Dot
+                )
                 Text("Dot", style = IenTheme.typography.caption)
-                IenAgreementCheckbox(checked = true, onCheckedChange = {}, variant = IenAgreementCheckboxVariant.Hidden)
+                IenAgreementCheckbox(
+                    checked = true,
+                    onCheckedChange = {},
+                    variant = IenAgreementCheckboxVariant.Hidden
+                )
                 Text("Hidden", style = IenTheme.typography.caption)
             }
         }
@@ -3142,7 +3408,11 @@ fun AssetSection() {
     IenTheme {
         ComponentSection(title = "Asset") {
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
-                IenAssetFrame(size = IenAssetFrameSize.Large, tone = IenSemanticTone.Brand, contentDescription = "카드 이모지") {
+                IenAssetFrame(
+                    size = IenAssetFrameSize.Large,
+                    tone = IenSemanticTone.Brand,
+                    contentDescription = "카드 이모지"
+                ) {
                     Text("💳", style = IenTheme.typography.title2)
                 }
                 IenAssetFrame(
@@ -3162,8 +3432,7 @@ fun AssetSection() {
             Empty(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(400.dp)
-                ,
+                    .height(400.dp),
                 icon = {
                     this.size = IenAssetFrameSize.Large
                     this.tone = IenSemanticTone.Success
@@ -3189,26 +3458,54 @@ fun AssetSection() {
             IenDivider()
             Text("IenAssetFrameSize & Shape", style = IenTheme.typography.label1)
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                    IenAssetFrame(size = IenAssetFrameSize.Small, shape = IenAssetFrameShape.Rounded, tone = IenSemanticTone.Brand) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)
+                ) {
+                    IenAssetFrame(
+                        size = IenAssetFrameSize.Small,
+                        shape = IenAssetFrameShape.Rounded,
+                        tone = IenSemanticTone.Brand
+                    ) {
                         Text("S")
                     }
                     Text("Small·Rounded", style = IenTheme.typography.caption)
                 }
-                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                    IenAssetFrame(size = IenAssetFrameSize.Medium, shape = IenAssetFrameShape.Circle, tone = IenSemanticTone.Brand) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)
+                ) {
+                    IenAssetFrame(
+                        size = IenAssetFrameSize.Medium,
+                        shape = IenAssetFrameShape.Circle,
+                        tone = IenSemanticTone.Brand
+                    ) {
                         Text("M")
                     }
                     Text("Medium·Circle", style = IenTheme.typography.caption)
                 }
-                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                    IenAssetFrame(size = IenAssetFrameSize.Large, shape = IenAssetFrameShape.Rounded, tone = IenSemanticTone.Brand) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)
+                ) {
+                    IenAssetFrame(
+                        size = IenAssetFrameSize.Large,
+                        shape = IenAssetFrameShape.Rounded,
+                        tone = IenSemanticTone.Brand
+                    ) {
                         Text("L")
                     }
                     Text("Large·Rounded", style = IenTheme.typography.caption)
                 }
-                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                    IenAssetFrame(size = IenAssetFrameSize.ExtraLarge, shape = IenAssetFrameShape.Circle, tone = IenSemanticTone.Brand) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)
+                ) {
+                    IenAssetFrame(
+                        size = IenAssetFrameSize.ExtraLarge,
+                        shape = IenAssetFrameShape.Circle,
+                        tone = IenSemanticTone.Brand
+                    ) {
                         Text("XL")
                     }
                     Text("ExtraLarge·Circle", style = IenTheme.typography.caption)
@@ -3776,7 +4073,7 @@ fun ListRowSection() {
                     IenListRowTexts(
                         type = IenListRowTextsType.TwoRowTypeA,
                         top = { Text("ListRow.Texts") },
-                        bottom = { Text("left / contents / right 슬롯 구성") },
+                        bottom = { Text("터치 색상: brandWeak") },
                     )
                 },
                 right = {
@@ -3790,6 +4087,7 @@ fun ListRowSection() {
                 },
                 withArrow = true,
                 withTouchEffect = true,
+                touchEffectColor = IenTheme.colors.brandWeak,
                 onClick = {},
             )
             IenListRow(
@@ -3837,7 +4135,10 @@ fun ListRowSection() {
                 border = IenListRowBorder.None,
                 withArrow = true,
             )
-            IenListRowLoader(type = IenListRowLoaderType.Circle, verticalPadding = IenListRowPadding.ExtraSmall)
+            IenListRowLoader(
+                type = IenListRowLoaderType.Circle,
+                verticalPadding = IenListRowPadding.ExtraSmall
+            )
             IenListRowLoader(type = IenListRowLoaderType.Bar)
 
             IenDivider()
@@ -3981,21 +4282,51 @@ fun ListRowSection() {
             IenDivider()
             Text("IenListRowAssetShape & Size", style = IenTheme.typography.label1)
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                IenListRowAssetText(text = "Square", shape = IenListRowAssetShape.Square, size = IenListRowAssetSize.XSmall)
-                IenListRowAssetText(text = "Card", shape = IenListRowAssetShape.Card, size = IenListRowAssetSize.Small)
-                IenListRowAssetText(text = "Squircle", shape = IenListRowAssetShape.Squircle, size = IenListRowAssetSize.Medium)
-                IenListRowAssetText(text = "Circle", shape = IenListRowAssetShape.Circle, size = IenListRowAssetSize.Medium)
-                IenListRowAssetText(text = "Original", shape = IenListRowAssetShape.Original, size = IenListRowAssetSize.Medium)
+                IenListRowAssetText(
+                    text = "Square",
+                    shape = IenListRowAssetShape.Square,
+                    size = IenListRowAssetSize.XSmall
+                )
+                IenListRowAssetText(
+                    text = "Card",
+                    shape = IenListRowAssetShape.Card,
+                    size = IenListRowAssetSize.Small
+                )
+                IenListRowAssetText(
+                    text = "Squircle",
+                    shape = IenListRowAssetShape.Squircle,
+                    size = IenListRowAssetSize.Medium
+                )
+                IenListRowAssetText(
+                    text = "Circle",
+                    shape = IenListRowAssetShape.Circle,
+                    size = IenListRowAssetSize.Medium
+                )
+                IenListRowAssetText(
+                    text = "Original",
+                    shape = IenListRowAssetShape.Original,
+                    size = IenListRowAssetSize.Medium
+                )
             }
 
             IenDivider()
             Text("IenListRowBorder", style = IenTheme.typography.label1)
             IenListRow(
-                contents = { IenListRowTexts(top = "IenListRowBorder.None", type = IenListRowTextsType.OneRowTypeA) },
+                contents = {
+                    IenListRowTexts(
+                        top = "IenListRowBorder.None",
+                        type = IenListRowTextsType.OneRowTypeA
+                    )
+                },
                 border = IenListRowBorder.None,
             )
             IenListRow(
-                contents = { IenListRowTexts(top = "IenListRowBorder.Indented", type = IenListRowTextsType.OneRowTypeA) },
+                contents = {
+                    IenListRowTexts(
+                        top = "IenListRowBorder.Indented",
+                        type = IenListRowTextsType.OneRowTypeA
+                    )
+                },
                 border = IenListRowBorder.Indented,
             )
         }
@@ -4228,11 +4559,33 @@ internal val LocalComponentSectionChrome = staticCompositionLocalOf { true }
 fun WheelPickerSection() {
     IenTheme {
         var date by remember { mutableStateOf(KDate(2024, 2, 29)) }
-        var time by remember { mutableStateOf(KDuration.of(13 * 3600 + 5 * 60 + 5, KFixedTimeUnit.Second)) }
-        var duration by remember { mutableStateOf(KDuration.of(1 * 3600 + 5 * 60 + 5, KFixedTimeUnit.Second)) }
-        val dateLabel = "${date.year}-${date.month.toString().padStart(2, '0')}-${date.day.toString().padStart(2, '0')}"
-        val timeLabel = listOf(time.hourPart(), time.minutePart(), time.secondPart()).joinToString(":") { it.toString().padStart(2, '0') }
-        val durationLabel = "${duration.toHours().toString().padStart(2, '0')}:${duration.minutePart().toString().padStart(2, '0')}:${duration.secondPart().toString().padStart(2, '0')}"
+        var time by remember {
+            mutableStateOf(
+                KDuration.of(
+                    13 * 3600 + 5 * 60 + 5,
+                    KFixedTimeUnit.Second
+                )
+            )
+        }
+        var duration by remember {
+            mutableStateOf(
+                KDuration.of(
+                    1 * 3600 + 5 * 60 + 5,
+                    KFixedTimeUnit.Second
+                )
+            )
+        }
+        val dateLabel = "${date.year}-${date.month.toString().padStart(2, '0')}-${
+            date.day.toString().padStart(2, '0')
+        }"
+        val timeLabel = listOf(
+            time.hourPart(),
+            time.minutePart(),
+            time.secondPart()
+        ).joinToString(":") { it.toString().padStart(2, '0') }
+        val durationLabel = "${duration.toHours().toString().padStart(2, '0')}:${
+            duration.minutePart().toString().padStart(2, '0')
+        }:${duration.secondPart().toString().padStart(2, '0')}"
         ComponentSection(title = "WheelPicker") {
             Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
                 Text("날짜 · $dateLabel", style = IenTheme.typography.label1)
@@ -4240,13 +4593,34 @@ fun WheelPickerSection() {
                 Text("정확한 시각 · $timeLabel", style = IenTheme.typography.label1)
                 IenTimeWheelPicker(time, { time = it }, Modifier.fillMaxWidth())
                 Text("오전·오후 시각", style = IenTheme.typography.label1)
-                IenTimeWheelPicker(time, { time = it }, Modifier.fillMaxWidth(), use24HourFormat = false)
+                IenTimeWheelPicker(
+                    time,
+                    { time = it },
+                    Modifier.fillMaxWidth(),
+                    use24HourFormat = false
+                )
                 Text("기간 · $durationLabel", style = IenTheme.typography.label1)
-                IenDurationWheelPicker(duration, { duration = it }, Modifier.fillMaxWidth(), maxHours = 99)
+                IenDurationWheelPicker(
+                    duration,
+                    { duration = it },
+                    Modifier.fillMaxWidth(),
+                    maxHours = 99
+                )
                 Text("기간(시·분) · $durationLabel", style = IenTheme.typography.label1)
-                IenDurationWheelPicker(duration, { duration = it }, Modifier.fillMaxWidth(), showSeconds = false, maxHours = 99)
+                IenDurationWheelPicker(
+                    duration,
+                    { duration = it },
+                    Modifier.fillMaxWidth(),
+                    showSeconds = false,
+                    maxHours = 99
+                )
                 Text("기간(분·초) · $durationLabel", style = IenTheme.typography.label1)
-                IenDurationWheelPicker(duration, { duration = it }, Modifier.fillMaxWidth(), showHours = false)
+                IenDurationWheelPicker(
+                    duration,
+                    { duration = it },
+                    Modifier.fillMaxWidth(),
+                    showHours = false
+                )
             }
         }
     }

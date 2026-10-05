@@ -169,6 +169,7 @@ enum class IenListRowTextsType {
  * @param rightAlignment 우측 영역 수직 정렬 ([IenListRowAlignment])
  * @param withArrow 우측 끝 화살표 아이콘 노출 여부
  * @param withTouchEffect 터치 효과(피드백) 적용 여부
+ * @param touchEffectColor 눌림 상태에서 적용할 배경색
  * @param onClick 클릭 이벤트 콜백
  */
 @Composable
@@ -186,6 +187,7 @@ fun IenListRow(
     rightAlignment: IenListRowAlignment = IenListRowAlignment.Center,
     withArrow: Boolean = false,
     withTouchEffect: Boolean = false,
+    touchEffectColor: Color = IenTheme.colors.surfaceVariant,
     onClick: (() -> Unit)? = null,
 ) {
     val enabled = !disabled
@@ -195,8 +197,8 @@ fun IenListRow(
     val rowBackground by animateColorAsState(
         targetValue = when {
             disabled && disabledStyle == IenListRowDisabledStyle.Type2 -> IenTheme.colors.surfaceWeak
-            pressed && hasTouchEffect && enabled -> IenTheme.colors.surfaceWeak
-            else -> Color.Transparent
+            pressed && hasTouchEffect && enabled -> touchEffectColor
+            else -> touchEffectColor.copy(alpha = 0f)
         },
         label = "ienListRowBackground",
     )
@@ -293,6 +295,7 @@ fun IenListRow(
  * @param verticalPadding 수직 여백 ([IenListRowPadding])
  * @param horizontalPadding 수평 여백 ([IenListRowPadding])
  * @param withArrow 우측 끝 화살표 아이콘 노출 여부
+ * @param touchEffectColor 눌림 상태에서 적용할 배경색
  */
 @Composable
 fun IenListRow(
@@ -308,6 +311,7 @@ fun IenListRow(
     verticalPadding: IenListRowPadding = IenListRowPadding.Medium,
     horizontalPadding: IenListRowPadding = IenListRowPadding.Medium,
     withArrow: Boolean = false,
+    touchEffectColor: Color = IenTheme.colors.surfaceVariant,
 ) {
     IenListRow(
         modifier = modifier,
@@ -318,6 +322,7 @@ fun IenListRow(
         verticalPadding = verticalPadding,
         horizontalPadding = horizontalPadding,
         withArrow = withArrow,
+        touchEffectColor = touchEffectColor,
         onClick = onClick,
         contents = {
             IenListRowTexts(
