@@ -9,6 +9,8 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Text
@@ -41,7 +43,11 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.theme.ienCupertinoNavigationBarColors
 import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenBadge
+import zone.ien.utils.ui.interactive.IenBadgeSize
+import zone.ien.utils.ui.interactive.IenBadgeVariant
 import zone.ien.utils.ui.view.CustomNavigationBar
 import zone.ien.utils.ui.view.CustomNavigationBarColors
 import zone.ien.utils.ui.view.CustomNavigationBarDefaults
@@ -54,6 +60,8 @@ data class NavigationBarItem(
     val selectedIcon: IconData? = null,
     val label: String,
     val direction: CustomNavigationBarItemDirection = CustomNavigationBarItemDirection.Horizontal,
+    /** 0이면 숨기고, 음수이면 숫자 없이 표시하는 배지 값입니다. */
+    val badge: Int = 0,
 )
 
 internal data class NavigationBarState(
@@ -72,7 +80,7 @@ private val LocalNavigationBarAlwaysShowLabel = compositionLocalOf { true }
  * @param selectedTabIndex 현재 선택된 탭 인덱스를 반환하는 함수
  * @param onTabSelected 탭이 선택되었을 때 호출되는 콜백
  * @param adaptation 플랫폼별 적응형 설정을 위한 블록
- * @param isNative 네이티브 방식 사용 여부 (기본값: true)
+ * @param isNative 네이티브 방식 사용 여부 (기본값: true). 배지가 있는 항목은 배지를 표시하는 컴포저블 방식을 사용합니다.
  * @param items 네비게이션 바에 표시할 아이템 목록
  * @param visible 네비게이션 바 표시 여부
  */
@@ -115,7 +123,7 @@ fun AdaptiveNavigationBar(
         ),
         modifier = modifier,
     ) {
-        if (isNative) {
+        if (isNative && items.none { it.badge != 0 }) {
             AdaptiveNavigationBarNative(
                 modifier = Modifier,
                 selectedTabIndex = selectedTabIndex,
@@ -160,6 +168,7 @@ fun AdaptiveNavigationBar(
                         },
                         label = { Text(text = item.label) },
                         direction = item.direction,
+                        badge = item.badge,
                     )
                 }
             }
@@ -284,6 +293,11 @@ private fun AdaptiveNavigationBarNative(
     }
 }
 
+/**
+ * 적응형 네비게이션 바 항목입니다.
+ *
+ * @param badge 0이면 숨기고, 음수이면 숫자 없이 표시하는 배지 값입니다.
+ */
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
 fun RowScope.AdaptiveNavigationBarItem(
@@ -295,6 +309,7 @@ fun RowScope.AdaptiveNavigationBarItem(
     label: @Composable (() -> Unit)? = null,
     direction: CustomNavigationBarItemDirection = CustomNavigationBarItemDirection.Horizontal,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    badge: Int = 0,
     adaptation: AdaptationScope<CupertinoNavigationBarItemAdaptation, IenNavigationBarItemAdaptation>.() -> Unit = {},
 ) {
     val navState = LocalNavigationBarState.current
@@ -311,7 +326,12 @@ fun RowScope.AdaptiveNavigationBarItem(
         cupertino = {
             CupertinoNavigationBarItem(
                 onClick = resolvedOnClick,
-                icon = icon,
+                icon = {
+                    NavigationBarItemIcon(
+                        badge = badge,
+                        icon = icon,
+                    )
+                },
                 modifier = modifier,
                 enabled = enabled,
                 label = label,
@@ -327,10 +347,34 @@ fun RowScope.AdaptiveNavigationBarItem(
                 direction = direction,
                 alwaysShowLabel = it.alwaysShowLabel,
                 enabled = enabled,
-                modifier = modifier
+                modifier = modifier,
+                badge = badge,
             )
         }
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NavigationBarItemIcon(
+    badge: Int,
+    icon: @Composable () -> Unit,
+) {
+    if (badge == 0) {
+        icon()
+    } else {
+        BadgedBox(
+            badge = {
+                IenBadge(
+                    text = if (badge > 0) badge.toString() else "",
+                    size = IenBadgeSize.Small,
+                    variant = IenBadgeVariant.Fill,
+                    tone = IenSemanticTone.Danger,
+                )
+            },
+            content = { icon() },
+        )
+    }
 }
 
 class IenNavigationBarAdaptation internal constructor(
