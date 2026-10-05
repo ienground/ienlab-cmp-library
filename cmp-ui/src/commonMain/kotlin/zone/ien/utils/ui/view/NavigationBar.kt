@@ -33,6 +33,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.NavigationBarDefaults
@@ -67,6 +69,9 @@ import zone.ien.utils.icon.material.filled.Save
 import zone.ien.utils.icon.material.filled.Schedule
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenBadge
+import zone.ien.utils.ui.interactive.IenBadgeSize
+import zone.ien.utils.ui.interactive.IenBadgeVariant
 import zone.ien.utils.ui.interactive.toneGradientBrush
 
 // ─── CompositionLocals ───────────────────────────────────────────────────────
@@ -344,6 +349,7 @@ private fun CustomNavigationBarImpl(
  * @param alwaysShowLabel 항상 라벨 표시 여부
  * @param enabled 활성화 여부
  * @param modifier 적용할 Modifier
+ * @param badge 표시할 배지 숫자. 0이면 숨기고, 음수이면 숫자 없이 표시합니다.
  */
 @Composable
 fun RowScope.CustomNavigationBarItem(
@@ -355,6 +361,7 @@ fun RowScope.CustomNavigationBarItem(
     alwaysShowLabel: Boolean = false,
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
+    badge: Int = 0,
 ) {
     val selectedIndex = LocalNavigationBarSelectedIndex.current
     val colors = LocalNavigationBarColors.current
@@ -442,7 +449,7 @@ fun RowScope.CustomNavigationBarItem(
             when (direction) {
                 CustomNavigationBarItemDirection.Horizontal -> {
                     CompositionLocalProvider(LocalContentColor provides iconColor) {
-                        icon()
+                        CustomNavigationBarItemIcon(badge = badge, icon = icon)
                     }
 
                     if (showLabel) {
@@ -466,7 +473,7 @@ fun RowScope.CustomNavigationBarItem(
                         verticalArrangement = Arrangement.Center,
                     ) {
                         CompositionLocalProvider(LocalContentColor provides iconColor) {
-                            icon()
+                            CustomNavigationBarItemIcon(badge = badge, icon = icon)
                         }
 
                         if (showLabel) {
@@ -483,6 +490,29 @@ fun RowScope.CustomNavigationBarItem(
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CustomNavigationBarItemIcon(
+    badge: Int,
+    icon: @Composable () -> Unit,
+) {
+    if (badge == 0) {
+        icon()
+    } else {
+        BadgedBox(
+            badge = {
+                IenBadge(
+                    text = if (badge > 0) badge.toString() else "",
+                    size = IenBadgeSize.Small,
+                    variant = IenBadgeVariant.Fill,
+                    tone = IenSemanticTone.Danger,
+                )
+            },
+            content = { icon() },
+        )
     }
 }
 
@@ -515,7 +545,8 @@ private fun CustomNavigationBarPreview() {
                 index = 2,
                 onClick = { selectedIndex = 2 },
                 icon = { Icon(M3SystemIcons.Filled.Schedule, contentDescription = null) },
-                label = { Text("통계") }
+                label = { Text("통계") },
+                badge = 3,
             )
             CustomNavigationBarItem(
                 index = 3,

@@ -112,6 +112,7 @@ fun NavigationScreen(
                             ),
                             label = "Very Long Save",
                             direction = itemDirection,
+                            badge = 3,
                         )
                     ),
                 )
