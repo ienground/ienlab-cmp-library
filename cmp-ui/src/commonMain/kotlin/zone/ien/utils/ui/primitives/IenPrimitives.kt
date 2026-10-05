@@ -16,10 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -31,9 +29,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
@@ -77,41 +72,6 @@ fun IenSurface(
         border = border,
         tonalElevation = tonalElevation,
         content = content,
-    )
-}
-
-/**
- * 라이브러리의 기본 타이포그래피 스타일을 기반으로 문구를 출력하는 기본 텍스트 컴포저블입니다.
- *
- * @param text 화면에 표시할 문자열
- * @param modifier 적용할 [Modifier]
- * @param style 적용할 글자 크기, 행간 등 스타일 명세 ([TextStyle])
- * @param color 글자 색상
- * @param fontWeight 글씨 두께 설정 ([FontWeight])
- * @param maxLines 줄 바꿈을 허용할 최대 라인 수
- * @param overflow 텍스트가 정해진 크기를 초과할 때 처리할 규칙 ([TextOverflow])
- * @param textAlign 텍스트 수평 정렬 방식 ([TextAlign])
- */
-@Composable
-fun IenText(
-    text: String,
-    modifier: Modifier = Modifier,
-    style: TextStyle = LocalTextStyle.current,
-    color: Color = Color.Unspecified,
-    fontWeight: FontWeight? = null,
-    maxLines: Int = Int.MAX_VALUE,
-    overflow: TextOverflow = TextOverflow.Clip,
-    textAlign: TextAlign? = null,
-) {
-    Text(
-        text = text,
-        modifier = modifier,
-        style = style,
-        color = color,
-        fontWeight = fontWeight,
-        maxLines = maxLines,
-        overflow = overflow,
-        textAlign = textAlign,
     )
 }
 

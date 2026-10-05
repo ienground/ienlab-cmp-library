@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -77,7 +78,6 @@ import zone.ien.utils.ui.foundation.resolveThemeColor
 import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
 
 /**
  * 텍스트 필드의 상태(정상, 오류, 성공)를 표현하는 실드 인터페이스.
@@ -384,7 +384,7 @@ fun IenTextField(
             ) {
                 leading?.invoke()
                 prefix?.let {
-                    IenText(
+                    Text(
                         text = it,
                         style = fieldTextStyle,
                         color = if (state.enabled) IenTheme.colors.textSecondary else IenTheme.colors.textDisabled,
@@ -449,7 +449,7 @@ fun IenTextField(
                             contentAlignment = if (singleLine) Alignment.CenterStart else Alignment.TopStart,
                         ) {
                             if (fieldValue.text.isEmpty() && placeholder != null) {
-                                IenText(
+                                Text(
                                     text = placeholder,
                                     style = fieldTextStyle,
                                     color = IenTheme.colors.textTertiary,
@@ -462,7 +462,7 @@ fun IenTextField(
                 )
                 suffix?.let {
                     Spacer(Modifier.width(IenTheme.spacing.xs))
-                    IenText(
+                    Text(
                         text = it,
                         style = fieldTextStyle,
                         color = if (state.enabled) IenTheme.colors.textSecondary else IenTheme.colors.textDisabled,
@@ -482,7 +482,7 @@ fun IenTextField(
                 verticalAlignment = Alignment.Top,
             ) {
                 if (!supporting.isNullOrBlank()) {
-                    IenText(
+                    Text(
                         text = supporting,
                         modifier = Modifier.weight(1f),
                         style = IenTheme.typography.caption,
@@ -492,7 +492,7 @@ fun IenTextField(
                     Spacer(modifier = Modifier.weight(1f))
                 }
                 lengthCounterText?.let {
-                    IenText(
+                    Text(
                         text = it,
                         style = IenTheme.typography.caption,
                         color = lengthCounterColor,
@@ -766,13 +766,13 @@ private fun IenTextFieldLabel(
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IenText(
+        Text(
             text = label,
             style = IenTheme.typography.label2,
             color = IenTheme.colors.textSecondary,
         )
         if (required) {
-            IenText(
+            Text(
                 text = "*",
                 style = IenTheme.typography.label2,
                 color = IenTheme.colors.danger,
@@ -983,7 +983,7 @@ fun IenSplitTextField(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Spacer(Modifier.weight(1f))
-                            IenText(
+                            Text(
                                 text = when {
                                     char == null -> placeholderChar.toString()
                                     mask -> placeholderChar.toString()
@@ -1004,7 +1004,7 @@ fun IenSplitTextField(
     )
     if (state.status is IenFieldStatus.Error) {
         Spacer(Modifier.height(IenTheme.spacing.xxs))
-        IenText(
+        Text(
             text = state.status.message,
             style = IenTheme.typography.caption,
             color = IenTheme.colors.danger,
@@ -1149,7 +1149,7 @@ private fun IenSearchFieldInput(
                         contentAlignment = Alignment.CenterStart,
                     ) {
                         if (fieldValue.text.isEmpty()) {
-                            IenText(
+                            Text(
                                 text = placeholder,
                                 style = textStyle,
                                 color = placeholderColor,

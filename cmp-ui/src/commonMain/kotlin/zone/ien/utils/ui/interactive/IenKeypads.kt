@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -35,7 +36,6 @@ import zone.ien.utils.cmp_ui.generated.resources.special
 import zone.ien.utils.cmp_ui.generated.resources.submit
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
 import kotlin.random.Random
 
 /**
@@ -553,7 +553,7 @@ fun IenFullSecureKeyboard(
                 horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                IenText(
+                Text(
                     text = if (state.maskValue) "•".repeat(state.value.length) else state.value,
                     modifier = Modifier.weight(1f),
                     style = IenTheme.typography.title3,
@@ -570,7 +570,7 @@ fun IenFullSecureKeyboard(
                         )
                     },
                 ) {
-                    IenText(stringResource(if (state.language == IenSecureKeyboardLanguage.English) Res.string.korean else Res.string.english))
+                    Text(stringResource(if (state.language == IenSecureKeyboardLanguage.English) Res.string.korean else Res.string.english))
                 }
             }
         }
@@ -730,7 +730,7 @@ private fun IenNumberKeypadDigitKey(
                 .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            IenText(
+            Text(
                 text = number.toString(),
                 style = IenTheme.typography.title2,
                 color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
@@ -760,7 +760,7 @@ private fun IenNumberKeypadActionKey(
                 .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            IenText(
+            Text(
                 text = label,
                 style = IenTheme.typography.title3,
                 color = if (enabled) IenTheme.colors.textSecondary else IenTheme.colors.textDisabled,
@@ -835,13 +835,13 @@ private fun IenFullSecureInputKey(
                 horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxxs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                IenText(
+                Text(
                     text = key.label,
                     style = IenTheme.typography.label1,
                     color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
                 )
                 key.secondaryLabel?.let {
-                    IenText(
+                    Text(
                         text = it,
                         style = IenTheme.typography.caption,
                         color = if (enabled) IenTheme.colors.textTertiary else IenTheme.colors.textDisabled,
@@ -884,7 +884,7 @@ private fun IenFullSecureActionKey(
                 .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            IenText(
+            Text(
                 text = label,
                 style = IenTheme.typography.label1.copy(fontWeight = FontWeight.Bold),
                 color = content,
@@ -913,7 +913,7 @@ private fun KeyboardKey(
                 .padding(vertical = IenTheme.spacing.sm),
             contentAlignment = Alignment.Center,
         ) {
-            IenText(
+            Text(
                 text = label,
                 style = IenTheme.typography.label1,
                 color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
@@ -943,7 +943,7 @@ private fun IenKeypadKey(
                 .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            IenText(
+            Text(
                 text = label,
                 style = IenTheme.typography.title3,
                 color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,

@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -33,7 +34,6 @@ import zone.ien.utils.ui.foundation.IenColorScheme
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.foundation.defaultIenTokens
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.getIenTypography
 
 @Composable
@@ -233,6 +233,6 @@ private fun ComponentPreview(
         "split-text-field" -> SplitTextFieldSection()
         "text-area" -> TextAreaSection()
         "primitives" -> PrimitivesSection()
-        else -> IenText("선택한 미리보기를 찾을 수 없습니다.")
+        else -> Text("선택한 미리보기를 찾을 수 없습니다.")
     }
 }

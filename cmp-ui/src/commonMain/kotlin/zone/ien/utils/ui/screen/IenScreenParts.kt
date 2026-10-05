@@ -26,6 +26,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material3.Text
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -133,7 +134,6 @@ import zone.ien.utils.ui.interactive.IenTextButtonVariant
 import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.view.resolveIenTooltipColors
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -549,7 +549,7 @@ fun IenTopBar(
 ) {
     IenTopBar(
         title = {
-            IenText(
+            Text(
                 text = title,
                 style = IenTheme.typography.title3,
                 textAlign = if (titleAlignment == IenTopBarTitleAlignment.Center) TextAlign.Center else null,
@@ -558,7 +558,7 @@ fun IenTopBar(
         modifier = modifier,
         subtitle = subtitle?.let {
             {
-                IenText(
+                Text(
                     text = it,
                     style = IenTheme.typography.caption,
                     color = IenTheme.colors.textSecondary,
@@ -1017,7 +1017,7 @@ fun IenTopTitleParagraph(
     fontWeight: FontWeight = FontWeight.Bold,
     maxLines: Int = Int.MAX_VALUE,
 ) {
-    IenText(
+    Text(
         text = text,
         modifier = modifier.semantics { heading() },
         style = style.copy(fontWeight = fontWeight, lineBreak = LineBreak.Heading),
@@ -1056,7 +1056,7 @@ fun IenTopTitleTextButton(
         tone = colorTone,
         state = state,
     ) {
-        IenText(text)
+        Text(text)
     }
 }
 
@@ -1116,7 +1116,7 @@ fun IenTopSubtitleParagraph(
     fontWeight: FontWeight = size.subtitleWeight(),
     maxLines: Int = Int.MAX_VALUE,
 ) {
-    IenText(
+    Text(
         text = text,
         modifier = modifier,
         style = style.copy(fontWeight = fontWeight),
@@ -1155,7 +1155,7 @@ fun IenTopSubtitleTextButton(
         tone = colorTone,
         state = state,
     ) {
-        IenText(text)
+        Text(text)
     }
 }
 
@@ -1253,7 +1253,7 @@ fun IenTopLowerButton(
         tone = tone,
         state = state,
     ) {
-        IenText(text)
+        Text(text)
     }
 }
 
@@ -1310,7 +1310,7 @@ fun RowScope.IenTopLowerCTAButton(
         state = state,
         display = IenButtonDisplay.Block,
     ) {
-        IenText(text)
+        Text(text)
     }
 }
 
@@ -1343,7 +1343,7 @@ fun IenTopRightButton(
         tone = tone,
         state = state,
     ) {
-        IenText(text)
+        Text(text)
     }
 }
 
@@ -1403,7 +1403,7 @@ private fun IenTopSelector(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IenProvideTextStyle(style, color) {
-            IenText(
+            Text(
                 text = text,
                 style = style,
                 color = LocalContentColor.current,
@@ -1861,7 +1861,7 @@ private fun IenTooltipImpl(
     ) {
         anchor?.invoke(this, toggle)
         if (anchor == null) {
-            IenText("?", style = IenTheme.typography.label1, color = IenTheme.colors.brand)
+            Text("?", style = IenTheme.typography.label1, color = IenTheme.colors.brand)
         }
 
         if (keepInComposition) {
@@ -2034,7 +2034,7 @@ private fun IenTooltipPopup(
                     bottom = bottomPadding,
                 )
                 if (text != null) {
-                    IenText(
+                    Text(
                         text = text,
                         modifier = contentModifier,
                         style = IenTheme.typography.label2.copy(fontWeight = FontWeight.Bold),
@@ -2398,7 +2398,7 @@ fun IenAgreementText(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         necessity?.invoke()
-        IenText(
+        Text(
             text = text,
             modifier = Modifier.weight(1f, fill = false),
             style = LocalIenAgreementVariant.current.agreementTextStyle(),
@@ -2424,7 +2424,7 @@ fun IenAgreementNecessity(
     text: String = if (variant == IenAgreementNecessityVariant.Mandatory) stringResource(Res.string.agreement_required) else stringResource(Res.string.agreement_optional)
 ) {
     val isMandatory = variant == IenAgreementNecessityVariant.Mandatory
-    IenText(
+    Text(
         text = text,
         modifier = modifier,
         style = IenTheme.typography.caption,
@@ -2466,7 +2466,7 @@ fun IenAgreementBadge(
             .background(resolvedBg)
             .padding(horizontal = 6.dp, vertical = 3.dp),
     ) {
-        IenText(text = text, style = IenTheme.typography.caption, color = resolvedText)
+        Text(text = text, style = IenTheme.typography.caption, color = resolvedText)
     }
 }
 
@@ -2527,14 +2527,14 @@ fun IenAgreementDescription(
                 .background(IenTheme.colors.surfaceWeak)
                 .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
         ) {
-            IenText(
+            Text(
                 text = text,
                 style = IenTheme.typography.caption,
                 color = IenTheme.colors.textSecondary
             )
         }
     } else {
-        IenText(
+        Text(
             text = text,
             modifier = modifier
                 .fillMaxWidth()
@@ -2562,7 +2562,7 @@ fun IenAgreementHeader(
 ) {
     val currentIndent = LocalIenAgreementIndent.current + indent
     val agreementVariant = variant.toAgreementVariant()
-    IenText(
+    Text(
         text = text,
         modifier = modifier
             .fillMaxWidth()
@@ -2952,7 +2952,7 @@ fun IenAgreement(
                     )
                 },
                 middle = {
-                    IenText(
+                    Text(
                         text = title,
                         style = IenTheme.typography.body1,
                         color = IenTheme.colors.textPrimary,
@@ -2987,7 +2987,7 @@ fun IenAgreement(
                                 } else null
                             )
                             if (item.description != null) {
-                                IenText(
+                                Text(
                                     text = item.description,
                                     style = IenTheme.typography.caption,
                                     color = if (item.enabled) IenTheme.colors.textTertiary else IenTheme.colors.textDisabled,
@@ -3110,7 +3110,7 @@ internal fun IenBottomCTAButtonContent(
                     }
                 }
             }
-            IenText(text)
+            Text(text)
         }
     }
 }

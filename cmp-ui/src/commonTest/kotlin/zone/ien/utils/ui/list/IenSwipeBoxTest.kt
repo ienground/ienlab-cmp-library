@@ -1,6 +1,7 @@
 package zone.ien.utils.ui.list
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.unit.Dp
@@ -13,7 +14,6 @@ import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.interactive.IenButtonDefault
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
-import zone.ien.utils.ui.primitives.IenText
 
 class IenSwipeBoxTest {
     @Test
@@ -201,7 +201,7 @@ class IenSwipeBoxTest {
         Row {
             IenSwipeBoxItem(
                 onClick = {},
-                label = { IenText("삭제") },
+                label = { Text("삭제") },
             )
         }
     }

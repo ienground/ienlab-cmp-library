@@ -37,7 +37,6 @@ import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.TextFieldDialogData
 
 /**
@@ -209,7 +208,7 @@ fun IenTextFieldDialog(
                     state = IenButtonState(enabled = enabledConfirm),
                     display = IenButtonDisplay.Block,
                 ) {
-                    IenText(textConfirm)
+                    Text(textConfirm)
                 }
             }
         }

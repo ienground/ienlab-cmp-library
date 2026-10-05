@@ -39,6 +39,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SnackbarVisuals
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -88,7 +89,6 @@ import zone.ien.utils.ui.list.IenListRow
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.dialog.IenAlertDialog
 import zone.ien.utils.ui.dialog.IenConfirmDialog
 import zone.ien.utils.ui.dialog.IenConfirmDialogCancelButton
@@ -925,7 +925,7 @@ private fun IenSnackbarContent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             leftAddon?.invoke()
-            IenText(
+            Text(
                 text = text,
                 modifier = Modifier.weight(1f, fill = false),
                 color = Color.White,
@@ -951,7 +951,7 @@ fun IenSnackbarActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    IenText(
+    Text(
         text = text,
         modifier = modifier
             .clip(ContinuousRoundedRectangle(IenTheme.radius.sm))
@@ -1484,7 +1484,7 @@ fun IenProgressBar(
             )
         }
         if (showLabel) {
-            IenText(
+            Text(
                 text = "${(safeProgress * 100).toInt()}%",
                 style = IenTheme.typography.caption,
                 color = IenTheme.colors.textSecondary,
@@ -1540,7 +1540,7 @@ fun IenLoader(
             color = IenTheme.colors.brand,
         )
         if (label != null) {
-            IenText(label, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
+            Text(label, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
         }
     }
 }
@@ -1698,7 +1698,7 @@ fun IenProgressStepper(
                 }
                 if (step.title != null) {
                     Spacer(Modifier.height(IenTheme.spacing.xs))
-                    IenText(
+                    Text(
                         text = step.title,
                         style = IenTheme.typography.caption,
                         color = titleColor,
@@ -1811,9 +1811,9 @@ fun IenResult(
         ) {
             icon?.invoke(this)
         }
-        IenText(title, style = IenTheme.typography.title2)
+        Text(title, style = IenTheme.typography.title2)
         if (description != null) {
-            IenText(description, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
+            Text(description, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
         }
         primaryAction?.invoke()
         secondaryAction?.invoke()

@@ -18,6 +18,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,7 +47,6 @@ import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.primitives.IenIcon
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.view.textfield.PlaceholderBasicTextField
@@ -103,7 +103,7 @@ fun TextFieldScreen(
                         PlaceholderBasicTextField(
                             value = text,
                             onValueChange = { text = it },
-                            placeholder = { IenText(text = stringResource(Res.string.save)) },
+                            placeholder = { Text(text = stringResource(Res.string.save)) },
                             cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
                             contentPadding = PaddingValues(vertical = 12.dp),
                             maxLines = 6,
@@ -137,7 +137,7 @@ fun TextFieldScreen(
             modifier = Modifier
         ) {
             itemsIndexed(items = listOf("1", "2", "3")) { index, item ->
-                IenText(
+                Text(
                     text = item,
                     modifier = Modifier
                         .fillMaxWidth()
