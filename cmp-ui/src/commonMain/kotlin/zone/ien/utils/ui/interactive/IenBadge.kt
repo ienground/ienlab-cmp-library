@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,7 +19,6 @@ import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
 
 /**
  * [IenBadge]의 텍스트 스타일 및 패딩 크기를 정의하는 열거형 클래스.
@@ -93,7 +93,7 @@ fun IenBadge(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 leadingIcon?.invoke()
-                IenText(text = text, style = size.textStyle(), color = LocalContentColor.current)
+                Text(text = text, style = size.textStyle(), color = LocalContentColor.current)
             }
         }
     }

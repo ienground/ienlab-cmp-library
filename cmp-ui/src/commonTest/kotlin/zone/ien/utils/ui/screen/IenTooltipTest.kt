@@ -1,5 +1,6 @@
 package zone.ien.utils.ui.screen
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -12,7 +13,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.defaultDarkIenColorScheme
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.view.IenTooltipColors
 import zone.ien.utils.ui.view.resolveIenTooltipColors
 
@@ -105,7 +105,7 @@ class IenTooltipTest {
 
     private val composableTooltip: @Composable () -> Unit = {
         IenTooltip(
-            text = { IenText("도움말") },
+            text = { Text("도움말") },
         )
     }
 }

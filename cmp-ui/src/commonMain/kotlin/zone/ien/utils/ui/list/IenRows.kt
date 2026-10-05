@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -42,7 +43,6 @@ import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.line.ArrowRightS
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
-import zone.ien.utils.ui.primitives.IenText
 
 /**
  * 리스트 행(Row)의 구분선 스타일을 정의하는 열거형 클래스입니다.
@@ -356,7 +356,7 @@ fun IenListRowTexts(
 ) {
     IenListRowTexts(
         top = {
-            IenText(
+            Text(
                 text = top,
                 maxLines = maxLines,
                 overflow = TextOverflow.Ellipsis,
@@ -366,7 +366,7 @@ fun IenListRowTexts(
         type = type,
         middle = middle?.let { text ->
             {
-                IenText(
+                Text(
                     text = text,
                     maxLines = maxLines,
                     overflow = TextOverflow.Ellipsis,
@@ -375,7 +375,7 @@ fun IenListRowTexts(
         },
         bottom = bottom?.let { text ->
             {
-                IenText(
+                Text(
                     text = text,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -469,7 +469,7 @@ fun IenListRowAssetText(
             .background(backgroundColor),
         contentAlignment = Alignment.Center,
     ) {
-        IenText(
+        Text(
             text = text,
             style = IenTheme.typography.label2.copy(fontWeight = FontWeight.Bold),
             color = contentColor,
@@ -715,14 +715,14 @@ fun IenTableRow(
                 ) {
                     leading?.invoke()
                     Column {
-                        IenText(resolvedLeft, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
+                        Text(resolvedLeft, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
                         if (description != null) {
-                            IenText(description, style = IenTheme.typography.caption, color = IenTheme.colors.textTertiary)
+                            Text(description, style = IenTheme.typography.caption, color = IenTheme.colors.textTertiary)
                         }
                     }
                 }
             } else {
-                IenText(
+                Text(
                     text = resolvedLeft,
                     style = IenTheme.typography.body2,
                     color = IenTheme.colors.textPrimary,
@@ -736,7 +736,7 @@ fun IenTableRow(
                 horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                IenText(
+                Text(
                     text = resolvedRight,
                     style = IenTheme.typography.body2,
                     color = if (hasLegacyAffordance) IenTheme.colors.textPrimary else IenTheme.colors.textSecondary,

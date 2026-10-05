@@ -44,6 +44,7 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -92,7 +93,6 @@ import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
@@ -472,7 +472,7 @@ fun RowScope.IenSwipeBoxItem(
         interactionSource = interactionSource,
         icon = icon,
         labelContent = label?.let { labelText ->
-            { IenText(text = labelText, maxLines = 1) }
+            { Text(text = labelText, maxLines = 1) }
         },
         weight = weight,
         showLabelOnExpansion = showLabelOnExpansion,

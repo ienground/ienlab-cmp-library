@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -92,7 +93,6 @@ import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.utils.instantPress
 import kotlin.math.PI
@@ -316,7 +316,7 @@ fun IenNumericSpinner(
                     .semantics { this.contentDescription = contentDescription },
                 contentAlignment = Alignment.Center,
             ) {
-                IenText(
+                Text(
                     text = currentNumber.toString(),
                     style = spec.numberTextStyle,
                     color = if (disable) IenTheme.colors.textDisabled else IenTheme.colors.textPrimary,
@@ -384,7 +384,7 @@ private fun SpinnerButton(
             },
         contentAlignment = Alignment.Center,
     ) {
-        IenText(
+        Text(
             text = text,
             style = textStyle,
             color = contentColor,
@@ -586,7 +586,7 @@ fun IenRating(
                     animationTrigger = animationTrigger,
                     clickedIndex = 0,
                 )
-                IenText(
+                Text(
                     text = resolvedValue.toRatingText(),
                     style = size.ratingLabelStyle(),
                     color = if (isDisabled) IenTheme.colors.textDisabled else IenTheme.colors.textSecondary,

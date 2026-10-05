@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -36,7 +37,6 @@ import zone.ien.utils.ui.interactive.IenSwitch
 import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
 
 @Composable
 fun ColorTokenScreen(
@@ -59,7 +59,7 @@ fun ColorTokenScreen(
                     subtitle = if (darkTheme) "Dark theme" else "Light theme",
                     navigationIcon = {
                         IenTextButton(onClick = navigateBack) {
-                            IenText("닫기")
+                            Text("닫기")
                         }
                     },
                 )
@@ -84,8 +84,8 @@ fun ColorTokenScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(Modifier.weight(1f)) {
-                            IenText("테마 모드", style = IenTheme.typography.label1)
-                            IenText(
+                            Text("테마 모드", style = IenTheme.typography.label1)
+                            Text(
                                 text = "색상 토큰이 라이트/다크에서 어떻게 바뀌는지 확인합니다.",
                                 style = IenTheme.typography.caption,
                                 color = IenTheme.colors.textSecondary,
@@ -184,7 +184,7 @@ private fun ColorTokenGroup(
             modifier = Modifier.padding(IenTheme.spacing.md),
             verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
         ) {
-            IenText(title, style = IenTheme.typography.title3)
+            Text(title, style = IenTheme.typography.title3)
             IenDivider()
             tokens.forEach { token ->
                 ColorTokenRow(token)
@@ -209,8 +209,8 @@ private fun ColorTokenRow(
                 .background(token.color, ContinuousRoundedRectangle(IenTheme.radius.default)),
         )
         Column(Modifier.weight(1f)) {
-            IenText(token.name, style = IenTheme.typography.label1)
-            IenText(
+            Text(token.name, style = IenTheme.typography.label1)
+            Text(
                 text = token.color.hexString(),
                 style = IenTheme.typography.caption,
                 color = IenTheme.colors.textSecondary,

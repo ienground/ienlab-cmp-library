@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -30,7 +31,6 @@ import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
-import zone.ien.utils.ui.primitives.IenText
 
 /**
  * 다이얼로그 액션 버튼의 의미 스타일입니다.
@@ -409,7 +409,7 @@ private fun IenDialogButton(
         state = IenButtonState(enabled = enabled),
         display = IenButtonDisplay.Block,
     ) {
-        IenText(text)
+        Text(text)
     }
 }
 

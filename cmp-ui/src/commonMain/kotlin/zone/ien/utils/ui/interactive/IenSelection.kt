@@ -29,6 +29,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -66,7 +67,6 @@ import zone.ien.utils.ui.foundation.LocalIenDarkTheme
 import zone.ien.utils.ui.foundation.resolveThemeColor
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.instantPress
 import kotlin.math.roundToInt
 
@@ -433,7 +433,7 @@ fun <T : Any> IenSegmentedControl(
                             .padding(horizontal = itemSize.segmentedControlItemHorizontalPadding()),
                         contentAlignment = Alignment.Center,
                     ) {
-                        IenText(
+                        Text(
                             text = item.label,
                             style = itemSize.segmentedControlTextStyle(),
                             color = textColor,
@@ -676,7 +676,7 @@ fun IenCircleCheckbox(
             )
         }
         if (label != null) {
-            IenText(
+            Text(
                 text = label,
                 style = IenTheme.typography.body2,
                 color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
@@ -813,7 +813,7 @@ fun IenDotCheckbox(
                 ),
         )
         if (label != null) {
-            IenText(
+            Text(
                 text = label,
                 style = IenTheme.typography.body2,
                 color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
@@ -926,7 +926,7 @@ fun IenLineCheckbox(
                 .size(size)
         )
         if (label != null) {
-            IenText(
+            Text(
                 text = label,
                 style = IenTheme.typography.body2,
                 color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,

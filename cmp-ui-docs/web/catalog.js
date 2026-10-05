@@ -87,7 +87,7 @@ export const catalog = [
   component("text-field", "TextField", "입력", "텍스트 입력과 입력 상태별 표현을 확인합니다.", ["IenTextField", "IenClearableTextField"], "interactive/IenTextField.kt"),
   component("split-text-field", "SplitTextField", "입력", "분할 입력 칸과 포커스 이동을 확인합니다.", ["IenSplitTextField"], "interactive/IenTextField.kt"),
   component("text-area", "TextArea", "입력", "여러 줄 입력과 높이 변형을 확인합니다.", ["IenTextArea"], "interactive/IenTextField.kt"),
-  component("primitives", "Primitives", "기초", "공통 표면·텍스트·아이콘 기본 요소입니다.", ["IenSurface", "IenText", "IenIcon"], "primitives/IenPrimitives.kt"),
+  component("primitives", "Primitives", "기초", "공통 표면과 아이콘 기본 요소입니다.", ["IenSurface", "IenIcon"], "primitives/IenPrimitives.kt"),
 ];
 
 export const categories = [...new Set(catalog.map((item) => item.category))];

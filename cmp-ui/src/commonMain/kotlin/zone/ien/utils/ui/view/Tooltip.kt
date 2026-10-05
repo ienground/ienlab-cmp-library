@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TooltipAnchorPosition
@@ -22,7 +23,6 @@ import zone.ien.utils.ui.foundation.IenColorScheme
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
 
 internal data class IenTooltipColors(
     val container: Color,
@@ -167,7 +167,7 @@ fun IenTooltipText(
             contentColor = colors.content,
             shape = shape,
         ) {
-            IenText(
+            Text(
                 text = label,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
                 style = IenTheme.typography.label2.copy(fontWeight = FontWeight.Bold),

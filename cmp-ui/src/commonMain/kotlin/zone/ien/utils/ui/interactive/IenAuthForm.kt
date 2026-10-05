@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
@@ -36,7 +37,6 @@ import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.IenTop
 import zone.ien.utils.ui.screen.IenTopSubtitleParagraph
 import zone.ien.utils.ui.screen.IenTopTitleParagraph
@@ -308,7 +308,7 @@ fun IenAuthForm(
                 targetState = modeCopy.submitLabel,
                 label = "auth_form_submit_label",
             ) { label ->
-                IenText(text = label)
+                Text(text = label)
             }
         }
 
@@ -323,7 +323,7 @@ fun IenAuthForm(
                         targetState = prompt,
                         label = "auth_form_mode_prompt",
                     ) { text ->
-                        IenText(
+                        Text(
                             text = text,
                             style = IenTheme.typography.body2,
                             color = IenTheme.colors.textSecondary,
@@ -345,7 +345,7 @@ fun IenAuthForm(
                             targetState = actionLabel,
                             label = "auth_form_mode_action_label",
                         ) { label ->
-                            IenText(text = label)
+                            Text(text = label)
                         }
                     }
                 }
@@ -359,7 +359,7 @@ fun IenAuthForm(
                     modifier = Modifier.fillMaxWidth(),
                     label = "auth_form_social_login_title",
                 ) { title ->
-                    IenText(
+                    Text(
                         text = title,
                         modifier = Modifier.fillMaxWidth(),
                         style = IenTheme.typography.label2,
@@ -378,7 +378,7 @@ fun IenAuthForm(
                 tone = zone.ien.utils.ui.foundation.IenSemanticTone.Neutral,
                 state = IenButtonState(enabled = !state.submit.loading),
             ) {
-                IenText(text = action.label)
+                Text(text = action.label)
             }
         }
     }
@@ -437,7 +437,7 @@ private fun PasswordRules(
                     targetState = it,
                     label = "auth_form_password_rules_title",
                 ) { titleText ->
-                    IenText(
+                    Text(
                         text = titleText,
                         style = IenTheme.typography.label1,
                         color = IenTheme.colors.textPrimary,
@@ -467,7 +467,7 @@ private fun PasswordRules(
                                 },
                             ),
                     )
-                    IenText(
+                    Text(
                         text = rule.label,
                         style = IenTheme.typography.caption,
                         color = color,
@@ -498,7 +498,7 @@ private fun AuthFormStatusMessage(status: IenAuthFormStatus) {
         shape = ContinuousRoundedRectangle(IenTheme.radius.default),
         border = BorderStroke(IenTheme.stroke.thin, color),
     ) {
-        IenText(
+        Text(
             text = message,
             modifier = Modifier.padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
             style = IenTheme.typography.body2,

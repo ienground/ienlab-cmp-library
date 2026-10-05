@@ -6,11 +6,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.list.ScrollingBubble
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
@@ -110,7 +110,7 @@ fun ScrollingBubbleScreen(
                     subtitle = "스크롤 위치를 따라 움직이는 버블",
                     navigationIcon = {
                         IenTextButton(onClick = navigateBack) {
-                            IenText("닫기")
+                            Text("닫기")
                         }
                     },
                 )
@@ -122,7 +122,7 @@ fun ScrollingBubbleScreen(
                     .fillMaxSize()
                     .padding(contentPadding),
                 bubbleContent = { index ->
-                    IenText(
+                    Text(
                         text = scrollingBubbleSampleItems[index].first().uppercase(),
                         style = IenTheme.typography.title1,
                     )
@@ -133,7 +133,7 @@ fun ScrollingBubbleScreen(
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     items(scrollingBubbleSampleItems) { item ->
-                        IenText(
+                        Text(
                             text = item,
                             modifier = Modifier
                                 .fillMaxWidth()

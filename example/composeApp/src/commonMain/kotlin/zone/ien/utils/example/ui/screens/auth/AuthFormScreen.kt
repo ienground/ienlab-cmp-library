@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,7 +48,6 @@ import zone.ien.utils.ui.interactive.IenPasswordRule
 import zone.ien.utils.ui.interactive.IenTextFieldState
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.TopBarMode
 
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -127,7 +127,7 @@ fun AuthFormScreen(
     IenAdaptiveTheme(target = Theme.Material3) {
         AdaptiveTopAppBarScaffold(
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
-            title = { IenText("Auth Form") },
+            title = { Text("Auth Form") },
             adaptation = {
                 material { this.mode = TopBarMode.Expanded }
                 cupertino { this.backdrop = backdrop }
@@ -271,7 +271,7 @@ private fun AuthProviderButton(
             ) {
                 icon()
             }
-            IenText(text = label)
+            Text(text = label)
         }
     }
 }
@@ -284,7 +284,7 @@ private fun AuthProviderMark(mark: String) {
             .background(IenTheme.colors.brand, CircleShape),
         contentAlignment = Alignment.Center,
     ) {
-        IenText(
+        Text(
             text = mark,
             style = IenTheme.typography.label1,
             color = IenTheme.colors.onBrand,

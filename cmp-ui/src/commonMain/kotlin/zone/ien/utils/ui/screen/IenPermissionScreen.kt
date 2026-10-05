@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
@@ -31,7 +32,6 @@ import zone.ien.utils.ui.primitives.IenAssetFrame
 import zone.ien.utils.ui.primitives.IenAssetFrameShape
 import zone.ien.utils.ui.primitives.IenAssetFrameSize
 import zone.ien.utils.ui.primitives.IenIcon
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.toBold
 
 /**
@@ -179,11 +179,11 @@ private fun IenPermissionItemRow(item: IenPermissionItem) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxxs),
             ) {
-                IenText(
+                Text(
                     text = item.title,
                     style = IenTheme.typography.title3.toBold(),
                 )
-                IenText(
+                Text(
                     text = item.description,
                     style = IenTheme.typography.label2,
                     color = IenTheme.colors.textTertiary,

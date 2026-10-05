@@ -43,6 +43,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -96,7 +97,6 @@ import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
@@ -134,7 +134,7 @@ fun IenSlider(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (label != null) {
-            IenText(label, modifier = Modifier.weight(0.8f), style = IenTheme.typography.body2)
+            Text(label, modifier = Modifier.weight(0.8f), style = IenTheme.typography.body2)
         }
         Slider(
             value = value.coerceIn(valueRange.start, valueRange.endInclusive),
@@ -167,7 +167,7 @@ fun IenSlider(
             },
         )
         if (valueLabel != null) {
-            IenText(
+            Text(
                 text = valueLabel,
                 modifier = Modifier.widthIn(min = IenSliderValueLabelMinWidth),
                 style = IenTheme.typography.label2,
@@ -380,14 +380,14 @@ fun IenStepper(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (label != null) {
-            IenText(label, modifier = Modifier.weight(1f), style = IenTheme.typography.body2)
+            Text(label, modifier = Modifier.weight(1f), style = IenTheme.typography.body2)
         }
         StepperAction(
             text = "-",
             enabled = enabled && value > range.min,
             onClick = { onValueChange((value - range.step).coerceAtLeast(range.min)) },
         )
-        IenText(value.toString(), style = IenTheme.typography.label1)
+        Text(value.toString(), style = IenTheme.typography.label1)
         StepperAction(
             text = "+",
             enabled = enabled && value < range.max,
@@ -615,13 +615,13 @@ fun IenStepperTexts(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(3.dp),
     ) {
-        IenText(
+        Text(
             text = title,
             style = titleStyle,
             color = IenTheme.colors.textPrimary,
         )
         if (description != null) {
-            IenText(
+            Text(
                 text = description,
                 style = descriptionStyle,
                 color = IenTheme.colors.textSecondary,
@@ -653,7 +653,7 @@ fun IenStepperNumberIcon(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
-            IenText(
+            Text(
                 text = safeNumber.toString(),
                 style = IenTheme.typography.label2,
                 color = IenTheme.colors.brand,
@@ -804,7 +804,7 @@ fun IenStepperRightButton(
         size = size,
         variant = variant,
     ) {
-        IenText(text)
+        Text(text)
     }
 }
 
@@ -829,7 +829,7 @@ private fun StepperAction(
                 .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            IenText(
+            Text(
                 text,
                 style = IenTheme.typography.title3,
                 color = if (enabled) IenTheme.colors.brand else IenTheme.colors.textDisabled
@@ -1055,7 +1055,7 @@ fun IenTab(
                         contentAlignment = Alignment.Center,
                     ) {
                         Box(contentAlignment = Alignment.TopEnd) {
-                            IenText(
+                            Text(
                                 text = item.text,
                                 style = textStyle,
                                 color = textColor,
@@ -1235,7 +1235,7 @@ fun IenFloatingTabBar(
                         }
                     }
                     if (selected) {
-                        IenText(
+                        Text(
                             text = item.text,
                             style = IenTheme.typography.label2,
                             color = contentColor,

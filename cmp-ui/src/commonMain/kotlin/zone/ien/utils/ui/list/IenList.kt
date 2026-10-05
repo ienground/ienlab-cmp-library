@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -34,7 +35,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenTheme
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.instantPress
 
 /**
@@ -55,7 +55,7 @@ object IenListHeaderDefaults {
         color: Color = IenTheme.colors.textPrimary,
         fontWeight: FontWeight = FontWeight.Bold
     ) {
-        IenText(
+        Text(
             text = text,
             modifier = modifier,
             style = IenTheme.typography.title3.copy(fontWeight = fontWeight),
@@ -69,7 +69,7 @@ object IenListHeaderDefaults {
         modifier: Modifier = Modifier,
         color: Color = IenTheme.colors.textSecondary,
     ) {
-        IenText(
+        Text(
             text = text,
             modifier = modifier,
             style = IenTheme.typography.caption,
@@ -173,7 +173,7 @@ object IenListFooterDefaults {
         color: Color = IenTheme.colors.brand,
         fontWeight: FontWeight = FontWeight.Medium
     ) {
-        IenText(
+        Text(
             text = text,
             modifier = modifier,
             style = IenTheme.typography.body2.copy(fontWeight = fontWeight),

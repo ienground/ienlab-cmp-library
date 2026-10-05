@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,7 +26,6 @@ import zone.ien.utils.ui.primitives.IenAssetFrameShape
 import zone.ien.utils.ui.primitives.IenAssetFrameSize
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
-import zone.ien.utils.ui.primitives.IenText
 
 /**
  * [Empty]의 아이콘과 아이콘을 감싸는 [IenAssetFrame]의 설정을 정의하는 스코프입니다.
@@ -151,13 +151,13 @@ private fun EmptyPreview() {
                         )
                     }
                 },
-                title = { IenText(text = "Title is Here") },
+                title = { Text(text = "Title is Here") },
                 content = {
-                    IenText(text = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolo")
+                    Text(text = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolo")
                 },
                 buttons = {
-                    IenButton(onClick = {}) { IenText("hi") }
-                    IenButton(onClick = {}) { IenText("hi") }
+                    IenButton(onClick = {}) { Text("hi") }
+                    IenButton(onClick = {}) { Text("hi") }
                 },
                 modifier = Modifier.fillMaxWidth(0.75f)
             )
