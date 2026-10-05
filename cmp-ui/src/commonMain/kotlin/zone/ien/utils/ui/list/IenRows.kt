@@ -68,6 +68,7 @@ enum class IenListRowDisabledStyle {
  * 리스트 행의 여백(패딩) 크기를 정의하는 열거형 클래스입니다.
  */
 enum class IenListRowPadding {
+    None,
     ExtraSmall,
     Small,
     Medium,
@@ -577,6 +578,7 @@ private fun IenListRowLoaderBlock(
 
 private val IenListRowPadding.value: Dp
     get() = when (this) {
+        IenListRowPadding.None -> 0.dp
         IenListRowPadding.ExtraSmall -> 4.dp
         IenListRowPadding.Small -> 8.dp
         IenListRowPadding.Medium -> 12.dp
