@@ -121,6 +121,7 @@ fun AdaptiveNavigationBar(
                 selectedTabIndex = selectedTabIndex,
                 onTabSelected = onTabSelected,
                 adaptation = adaptation,
+                directions = items.map { it.direction },
                 items = items.map {
                     CupertinoNavigationBarItemData(
                         onClick = it.onClick,
@@ -227,6 +228,7 @@ private fun AdaptiveNavigationBarNative(
     selectedTabIndex: () -> Int,
     onTabSelected: (index: Int) -> Unit,
     adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, IenNavigationBarAdaptation>.() -> Unit = {},
+    directions: List<CustomNavigationBarItemDirection>,
     items: List<CupertinoNavigationBarItemData>
 ) {
     CompositionLocalProvider(
@@ -271,6 +273,7 @@ private fun AdaptiveNavigationBarNative(
                                     )
                                 },
                                 label = { Text(text = item.label) },
+                                direction = directions[index],
                                 alwaysShowLabel = it.alwaysShowLabel
                             )
                         }
