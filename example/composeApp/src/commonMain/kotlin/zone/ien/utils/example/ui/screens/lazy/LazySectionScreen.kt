@@ -25,7 +25,7 @@ import zone.ien.utils.example.isIos
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.section.lazy.empty
 import zone.ien.utils.ui.section.lazy.link
-import zone.ien.utils.ui.section.lazy.m3Section
+import zone.ien.utils.ui.section.lazy.ienSection
 import zone.ien.utils.ui.section.lazy.switch
 import zone.ien.utils.ui.section.m3SectionBackground
 import zone.ien.utils.ui.screen.TopBarMode
@@ -81,7 +81,7 @@ fun LazySectionScreen(
                     title()
                 }
 //                /*
-                m3Section(
+                ienSection(
 //                    isMaterialTheme = isMaterialTheme,
                     title = { Text(text = "title") }
                 ) {
