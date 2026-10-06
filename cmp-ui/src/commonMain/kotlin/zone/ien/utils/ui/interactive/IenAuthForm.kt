@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.screen.IenTop
 import zone.ien.utils.ui.screen.IenTopSubtitleParagraph
@@ -49,9 +50,12 @@ enum class IenAuthFormMode {
 
     /** 새 계정을 등록합니다. */
     SignUp,
+
+    /** 이메일로 비밀번호 재설정 요청을 보냅니다. */
+    PasswordReset,
 }
 
-/** 로그인/회원가입 모드에 따라 표시할 제목과 설명입니다. */
+/** 각 인증 모드에 따라 표시할 제목과 설명입니다. */
 @Immutable
 data class IenAuthFormModeCopy(
     val title: String,
@@ -74,6 +78,8 @@ data class IenAuthFormCopy(
     val confirmPasswordPlaceholder: String? = null,
     val passwordRulesTitle: String? = null,
     val socialLoginTitle: String? = null,
+    /** 비밀번호 재설정 모드 문구. 지정하지 않으면 로그인 문구를 사용합니다. */
+    val passwordReset: IenAuthFormModeCopy = login,
 )
 
 /** 호출자가 전달하는 비밀번호 보안 조건과 현재 충족 여부입니다. */
@@ -90,7 +96,7 @@ data class IenAuthGuestAction(
     val onClick: () -> Unit,
 )
 
-/** 인증 폼의 제출 가능 여부, 필드 상태, 서버 결과를 호출자가 소유하도록 묶은 상태입니다. */
+/** 인증 폼의 필드·제출·진행·서버 결과 상태를 호출자가 소유하도록 묶은 클래스입니다. */
 @Immutable
 data class IenAuthFormState(
     val email: IenTextFieldState = IenTextFieldState(),
@@ -98,6 +104,8 @@ data class IenAuthFormState(
     val confirmPassword: IenTextFieldState = IenTextFieldState(),
     val submit: IenButtonState = IenButtonState(),
     val status: IenAuthFormStatus = IenAuthFormStatus.Idle,
+    /** 인증 요청 처리 중이며 입력 필드와 폼 버튼을 잠글지 여부입니다. */
+    val progress: Boolean = false,
 )
 
 /** 인증 제출 결과를 표시하기 위한 폼 수준 상태입니다. */
@@ -119,7 +127,7 @@ sealed interface IenAuthFormStatus {
  * 입력값과 검증·제출 상태는 호출자가 소유하고, 이 컴포저블은 전달받은 상태를 렌더링하며
  * 사용자 동작을 콜백으로 전달합니다. Firebase, ViewModel, Navigation에는 의존하지 않습니다.
  *
- * @param mode 현재 로그인 또는 회원가입 모드
+ * @param mode 현재 로그인, 회원가입 또는 비밀번호 재설정 모드
  * @param email 이메일 입력값
  * @param password 비밀번호 입력값
  * @param copy 앱에서 공급하는 제목·라벨·버튼 문구
@@ -134,6 +142,8 @@ sealed interface IenAuthFormStatus {
  * @param state 필드·제출·결과 상태
  * @param onConfirmPasswordChange 비밀번호 확인 변경 콜백
  * @param guestAction 선택적 게스트 진입 동작. null이면 표시하지 않습니다.
+ * @param modePromptActionLabel 모드 안내 옆 버튼의 문구. null이면 모드별 기본 문구를 사용합니다.
+ * @param onModePromptActionClick 모드 안내 옆 버튼의 동작. null이면 기본 모드 전환을 수행합니다.
  */
 @Composable
 fun IenAuthForm(
@@ -152,11 +162,24 @@ fun IenAuthForm(
     state: IenAuthFormState = IenAuthFormState(),
     onConfirmPasswordChange: (String) -> Unit = {},
     guestAction: IenAuthGuestAction? = null,
+    modePromptActionLabel: String? = null,
+    onModePromptActionClick: (() -> Unit)? = null,
 ) {
     val modeCopy = when (mode) {
         IenAuthFormMode.Login -> copy.login
         IenAuthFormMode.SignUp -> copy.signUp
+        IenAuthFormMode.PasswordReset -> copy.passwordReset
     }
+    val progress = state.progress || state.submit.loading
+    val emailState = state.email.copy(enabled = state.email.enabled && !progress)
+    val passwordState = state.password.copy(enabled = state.password.enabled && !progress)
+    val confirmPasswordState = state.confirmPassword.copy(
+        enabled = state.confirmPassword.enabled && !progress,
+    )
+    val submitState = state.submit.copy(loading = progress)
+    val promptActionLabel = (modePromptActionLabel ?: modeCopy.modeActionLabel)
+        ?.takeIf { it.isNotBlank() }
+    val showPassword = mode != IenAuthFormMode.PasswordReset
     val showConfirmPassword = mode == IenAuthFormMode.SignUp
     val showRules = showConfirmPassword && passwordRules.isNotEmpty()
 
@@ -210,7 +233,7 @@ fun IenAuthForm(
                     label = label,
                     labelOption = IenTextFieldLabelOption.Sustain,
                     placeholder = placeholder,
-                    state = state.email,
+                    state = emailState,
                     keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                         keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Next,
@@ -219,24 +242,26 @@ fun IenAuthForm(
                 )
             }
 
-            AuthFormAnimatedContent(
-                targetState = copy.passwordLabel to copy.passwordPlaceholder,
-                modifier = Modifier.fillMaxWidth(),
-                label = "auth_form_password_copy",
-            ) { (label, placeholder) ->
-                IenPasswordTextField(
-                    value = password,
-                    onValueChange = onPasswordChange,
-                    label = label,
-                    labelOption = IenTextFieldLabelOption.Sustain,
-                    placeholder = placeholder,
-                    state = state.password,
-                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = if (showConfirmPassword) ImeAction.Next else ImeAction.Done,
-                    ),
+            AnimatedVisibility(visible = showPassword) {
+                AuthFormAnimatedContent(
+                    targetState = copy.passwordLabel to copy.passwordPlaceholder,
                     modifier = Modifier.fillMaxWidth(),
-                )
+                    label = "auth_form_password_copy",
+                ) { (label, placeholder) ->
+                    IenPasswordTextField(
+                        value = password,
+                        onValueChange = onPasswordChange,
+                        label = label,
+                        labelOption = IenTextFieldLabelOption.Sustain,
+                        placeholder = placeholder,
+                        state = passwordState,
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = if (showConfirmPassword) ImeAction.Next else ImeAction.Done,
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
 
@@ -277,7 +302,7 @@ fun IenAuthForm(
                         label = label,
                         labelOption = IenTextFieldLabelOption.Sustain,
                         placeholder = placeholder,
-                        state = state.confirmPassword,
+                        state = confirmPasswordState,
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                             keyboardType = KeyboardType.Password,
                             imeAction = ImeAction.Done,
@@ -301,7 +326,7 @@ fun IenAuthForm(
             modifier = Modifier.fillMaxWidth(),
             size = IenButtonSize.Large,
             variant = IenButtonVariant.Fill,
-            state = state.submit,
+            state = submitState,
             display = IenButtonDisplay.Block,
         ) {
             AuthFormAnimatedContent(
@@ -312,8 +337,37 @@ fun IenAuthForm(
             }
         }
 
+        providers?.let { providerContent ->
+            if (!copy.socialLoginTitle.isNullOrBlank()) {
+                AuthFormAnimatedContent(
+                    targetState = copy.socialLoginTitle,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "auth_form_social_login_title",
+                ) { title ->
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        IenDivider(
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = title,
+                            style = IenTheme.typography.label2,
+                            color = IenTheme.colors.textSecondary,
+                        )
+                        IenDivider(
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+            providerContent()
+        }
+
         modeCopy.modePrompt?.takeIf { it.isNotBlank() }?.let { prompt ->
-            modeCopy.modeActionLabel?.takeIf { it.isNotBlank() }?.let { actionLabel ->
+            promptActionLabel?.let { actionLabel ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
@@ -330,16 +384,17 @@ fun IenAuthForm(
                         )
                     }
                     IenTextButton(
-                        onClick = {
+                        onClick = onModePromptActionClick ?: {
                             onModeChange(
                                 when (mode) {
                                     IenAuthFormMode.Login -> IenAuthFormMode.SignUp
-                                    IenAuthFormMode.SignUp -> IenAuthFormMode.Login
+                                    IenAuthFormMode.SignUp,
+                                    IenAuthFormMode.PasswordReset -> IenAuthFormMode.Login
                                 },
                             )
                         },
                         size = IenTextButtonSize.XLarge,
-                        state = IenButtonState(enabled = !state.submit.loading),
+                        state = IenButtonState(enabled = !progress),
                     ) {
                         AuthFormAnimatedContent(
                             targetState = actionLabel,
@@ -352,31 +407,13 @@ fun IenAuthForm(
             }
         }
 
-        providers?.let { providerContent ->
-            if (!copy.socialLoginTitle.isNullOrBlank()) {
-                AuthFormAnimatedContent(
-                    targetState = copy.socialLoginTitle,
-                    modifier = Modifier.fillMaxWidth(),
-                    label = "auth_form_social_login_title",
-                ) { title ->
-                    Text(
-                        text = title,
-                        modifier = Modifier.fillMaxWidth(),
-                        style = IenTheme.typography.label2,
-                        color = IenTheme.colors.textSecondary,
-                    )
-                }
-            }
-            providerContent()
-        }
-
         guestAction?.let { action ->
             IenTextButton(
                 onClick = action.onClick,
                 modifier = Modifier.fillMaxWidth(),
                 size = IenTextButtonSize.XLarge,
                 tone = zone.ien.utils.ui.foundation.IenSemanticTone.Neutral,
-                state = IenButtonState(enabled = !state.submit.loading),
+                state = IenButtonState(enabled = !progress),
             ) {
                 Text(text = action.label)
             }
