@@ -44,9 +44,9 @@ import zone.ien.utils.ui.section.IenSectionSwitchItem
 import zone.ien.utils.ui.section.IenSectionTextField
 import zone.ien.utils.ui.select.IenExposedDropdownMenuBox
 import zone.ien.utils.ui.utils.TextFieldDialogData
-import zone.ien.utils.ui.view.CustomNavigationBar
-import zone.ien.utils.ui.view.CustomNavigationBarItem
-import zone.ien.utils.ui.view.Empty
+import zone.ien.utils.ui.view.IenNavigationBar
+import zone.ien.utils.ui.view.IenNavigationBarItem
+import zone.ien.utils.ui.view.IenEmpty
 import zone.ien.utils.ui.view.IenAsteriskTextWrapper
 import zone.ien.utils.ui.view.IenTooltipBox
 import zone.ien.utils.ui.menu.ActionMenuItem
@@ -99,12 +99,12 @@ fun IenPlaygroundScreen(
             subtitle = { Text("Testing all migrated Material3 wrapper components") },
             actions = listOf<ActionMenuItem>(),
             bottomBar = {
-                CustomNavigationBar(
+                IenNavigationBar(
                     selectedIndex = selectedNavIndex,
                     itemCount = 3,
                     visible = navigationBarVisible,
                 ) {
-                    CustomNavigationBarItem(
+                    IenNavigationBarItem(
                         index = 0,
                         onClick = { selectedNavIndex = 0 },
                         icon = {
@@ -115,7 +115,7 @@ fun IenPlaygroundScreen(
                         },
                         label = { Text("저장") }
                     )
-                    CustomNavigationBarItem(
+                    IenNavigationBarItem(
                         index = 1,
                         onClick = { selectedNavIndex = 1 },
                         icon = {
@@ -126,7 +126,7 @@ fun IenPlaygroundScreen(
                         },
                         label = { Text("수정") }
                     )
-                    CustomNavigationBarItem(
+                    IenNavigationBarItem(
                         index = 2,
                         onClick = { selectedNavIndex = 2 },
                         icon = {
@@ -302,7 +302,7 @@ fun IenPlaygroundScreen(
                 ) {
                     IenSectionItem(
                         title = {
-                            Empty(
+                            IenEmpty(
                                 icon = {
                                     content { modifier ->
                                         IenIcon(

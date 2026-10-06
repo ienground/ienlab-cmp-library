@@ -209,9 +209,10 @@ import zone.ien.utils.ui.screen.IenTopUpperAssetContent
 import zone.ien.utils.ui.feedback.rememberIenBottomSheetState
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
-import zone.ien.utils.ui.view.CustomNavigationBar
-import zone.ien.utils.ui.view.CustomNavigationBarItem
-import zone.ien.utils.ui.view.CustomNavigationBarItemDirection
+import zone.ien.utils.ui.view.IenNavigationBar
+import zone.ien.utils.ui.view.IenNavigationBar2
+import zone.ien.utils.ui.view.IenNavigationBarItem
+import zone.ien.utils.ui.view.IenNavigationBarItemDirection
 import zone.ien.utils.ui.interactive.IenAlphabetKeyboard
 import zone.ien.utils.ui.interactive.IenAlphabetKeypad
 import zone.ien.utils.ui.interactive.IenBadge
@@ -239,7 +240,6 @@ import zone.ien.utils.ui.interactive.IenFullSecureKeypad
 import zone.ien.utils.ui.interactive.IenExtendedFab
 import zone.ien.utils.ui.interactive.IenFab
 import zone.ien.utils.ui.interactive.IenFabSize
-import zone.ien.utils.ui.interactive.IenFloatingTabBar
 import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.interactive.IenIconToggleButton
 import zone.ien.utils.ui.interactive.IenKeyboardAction
@@ -302,7 +302,7 @@ import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.dialog.IenAlertDialog
-import zone.ien.utils.ui.view.Empty
+import zone.ien.utils.ui.view.IenEmpty
 import kotlinx.coroutines.launch
 import zone.ien.utils.utils.checkDecimal
 import kotlinx.coroutines.CoroutineScope
@@ -590,7 +590,7 @@ private val ComponentPlaygroundControls = mapOf(
         toggleControl("alwaysShowLabel", "레이블 항상 표시", false),
         numberControl("itemCount", "항목 수", 3, 1, 5),
         numberControl("selectedIndex", "선택 항목", 0, 0, 4),
-        numberControl("badge", "배지 수", 3, 0, 99),
+        numberControl("badge", "배지 수", -1, -1, 120),
         disabledControl(),
     ),
     "bottom-cta" to listOf(
@@ -714,19 +714,20 @@ internal fun DesignSystemPlayground(
                             horizontalArrangement = Arrangement.End,
                             verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                         ) {
-                            PreviewViewport.entries.forEach { viewport ->
-                                IenFilterChip(
-                                    selected = previewViewport == viewport,
-                                    onSelectedChange = { selected ->
-                                        if (selected) {
-                                            previewViewport = viewport
-                                            onPreviewViewportChange(viewport.storageValue)
-                                        }
-                                    },
-                                ) {
-                                    Text(viewport.label)
-                                }
-                            }
+                            IenSegmentedControl(
+                                items = PreviewViewport.entries.map { viewport ->
+                                    IenSegmentedControlItem(
+                                        value = viewport,
+                                        label = viewport.label,
+                                    )
+                                },
+                                value = previewViewport,
+                                onChange = { viewport ->
+                                    previewViewport = viewport
+                                    onPreviewViewportChange(viewport.storageValue)
+                                },
+                                alignment = IenSegmentedControlAlignment.Fluid,
+                            )
                         }
                     }
                 }
@@ -2957,13 +2958,12 @@ fun TabSection(controls: Map<String, String> = emptyMap()) {
         var tabSelected by remember(selectedIndex) {
             mutableIntStateOf(selectedIndex)
         }
-        var floatingTabSelected by remember { mutableIntStateOf(0) }
         ComponentSection(title = "Tab") {
             IenTab(
                 items = listOf(
                     IenTabItem("요약", key = "summary", enabled = enabled),
-                    IenTabItem("상세", key = "detail", redBean = true, enabled = enabled),
-                    IenTabItem("내역", key = "history", enabled = enabled),
+                    IenTabItem("상세", key = "detail", badge = -1, enabled = enabled),
+                    IenTabItem("내역", key = "history", badge = 120, enabled = enabled),
                 ),
                 selectedIndex = tabSelected,
                 onSelectedIndexChange = { tabSelected = it },
@@ -2973,22 +2973,6 @@ fun TabSection(controls: Map<String, String> = emptyMap()) {
                 modifier = Modifier.fillMaxWidth(),
                 ariaLabel = "주문 정보 탭",
             )
-            if (!LocalComponentVariantShowcase.current) {
-                IenBorder()
-                Text("FloatingTabBar", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
-                IenFloatingTabBar(
-                    items = listOf(
-                        IenTabItem("홈", key = "home", icon = M3SystemIcons.Rounded.RoundedKeyboard, selectedIcon = M3SystemIcons.Filled.FilledKeyboard, enabled = enabled),
-                        IenTabItem("혜택", key = "benefit", icon = M3SystemIcons.Rounded.RoundedCheck, selectedIcon = M3SystemIcons.Filled.Check, enabled = enabled),
-                        IenTabItem("아이엔페이", key = "pay", icon = M3SystemIcons.Rounded.RoundedSave, selectedIcon = M3SystemIcons.Filled.FilledSave, enabled = enabled),
-                        IenTabItem("증권", key = "stock", icon = M3SystemIcons.Rounded.RoundedCloudOff, selectedIcon = M3SystemIcons.Filled.FilledCloudOff, enabled = enabled),
-                        IenTabItem("전체", key = "all", icon = M3SystemIcons.Rounded.RoundedMoreVert, selectedIcon = M3SystemIcons.Filled.FilledMoreVert, enabled = enabled),
-                    ),
-                    selectedIndex = floatingTabSelected,
-                    onSelectedIndexChange = { floatingTabSelected = it },
-                    ariaLabel = "모바일 하단 탭바",
-                )
-            }
         }
     }
 }
@@ -3858,7 +3842,7 @@ fun AssetSection(controls: Map<String, String> = emptyMap()) {
                 Text("IEN")
             }
             if (!LocalComponentVariantShowcase.current) {
-                Empty(
+                IenEmpty(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(400.dp),
@@ -4009,13 +3993,13 @@ fun NavigationBarSection(controls: Map<String, String> = emptyMap()) {
         mutableIntStateOf(controls.intValue("selectedIndex", 0).coerceIn(0, itemCount - 1))
     }
     val direction = if (controls.booleanValue("vertical", false)) {
-        CustomNavigationBarItemDirection.Vertical
+        IenNavigationBarItemDirection.Vertical
     } else {
-        CustomNavigationBarItemDirection.Horizontal
+        IenNavigationBarItemDirection.Horizontal
     }
     val visible = controls.booleanValue("visible", true)
     val alwaysShowLabel = controls.booleanValue("alwaysShowLabel", false)
-    val badge = controls.intValue("badge", 3)
+    val badge = controls.intValue("badge", -1)
     val enabled = !controls.disabledValue()
     val items = listOf(
         "홈" to M3SystemIcons.Save,
@@ -4032,14 +4016,14 @@ fun NavigationBarSection(controls: Map<String, String> = emptyMap()) {
                 style = IenTheme.typography.caption,
                 color = IenTheme.colors.textSecondary,
             )
-            CustomNavigationBar(
+            IenNavigationBar(
                 selectedIndex = selectedTabIndex.coerceIn(0, itemCount - 1),
                 itemCount = itemCount,
                 windowInsets = WindowInsets(0.dp),
                 visible = visible,
             ) {
                 items.take(itemCount).forEachIndexed { index, (label, icon) ->
-                    CustomNavigationBarItem(
+                    IenNavigationBarItem(
                         index = index,
                         onClick = { selectedTabIndex = index },
                         icon = { Icon(icon, contentDescription = null) },
@@ -4049,6 +4033,39 @@ fun NavigationBarSection(controls: Map<String, String> = emptyMap()) {
                         enabled = enabled,
                         badge = if (index == 1) badge else 0,
                     )
+                }
+            }
+            if (!LocalComponentVariantShowcase.current) {
+                IenBorder()
+                Text("Type 2 (Floating)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+                val floatingTabItems = listOf(
+                    IenTabItem("홈", key = "home", icon = M3SystemIcons.Rounded.RoundedKeyboard, selectedIcon = M3SystemIcons.Filled.FilledKeyboard, badge = -1, enabled = enabled),
+                    IenTabItem("혜택", key = "benefit", icon = M3SystemIcons.Rounded.RoundedCheck, selectedIcon = M3SystemIcons.Filled.Check, badge = 1, enabled = enabled),
+                    IenTabItem("아이엔페이", key = "pay", icon = M3SystemIcons.Rounded.RoundedSave, selectedIcon = M3SystemIcons.Filled.FilledSave, badge = 99, enabled = enabled),
+                    IenTabItem("증권", key = "stock", icon = M3SystemIcons.Rounded.RoundedCloudOff, selectedIcon = M3SystemIcons.Filled.FilledCloudOff, badge = 120, enabled = enabled),
+                    IenTabItem("전체", key = "all", icon = M3SystemIcons.Rounded.RoundedMoreVert, selectedIcon = M3SystemIcons.Filled.FilledMoreVert, enabled = enabled),
+                )
+                IenNavigationBar2(
+                    selectedIndex = selectedTabIndex.coerceIn(0, itemCount - 1),
+                    itemCount = itemCount,
+                    windowInsets = WindowInsets(0.dp),
+                    visible = visible,
+                ) {
+                    floatingTabItems.take(itemCount).forEachIndexed { index, item ->
+                        IenNavigationBarItem(
+                            index = index,
+                            onClick = { selectedTabIndex = index },
+                            icon = { item.icon?.let { Icon(it, contentDescription = null) } },
+                            selectedIcon = item.selectedIcon?.let { selectedIcon ->
+                                { Icon(selectedIcon, contentDescription = null) }
+                            },
+                            label = { Text(item.text) },
+                            direction = direction,
+                            alwaysShowLabel = alwaysShowLabel,
+                            enabled = item.enabled,
+                            badge = if (index == 0) badge else item.badge,
+                        )
+                    }
                 }
             }
         }
@@ -4135,9 +4152,11 @@ fun BottomCTASection(controls: Map<String, String> = emptyMap()) {
                 onSecondaryClick = {},
                 primaryState = IenButtonState(enabled = enabled),
                 secondaryState = IenButtonState(enabled = enabled),
+                primaryButtonWeight = 2f,
+                secondaryButtonWeight = 1f,
                 topAccessory = {
                     Text(
-                        text = "Double은 좌우 버튼 슬롯을 함께 제공합니다.",
+                        text = "버튼 너비 비율: 부 버튼 1, 주 버튼 2",
                         style = IenTheme.typography.caption,
                         color = IenTheme.colors.textSecondary,
                     )
@@ -4195,7 +4214,7 @@ fun BottomCTASection(controls: Map<String, String> = emptyMap()) {
                     .background(IenTheme.colors.surfaceWeak),
             ) {
                 Text(
-                    text = "FixedBottomCTA.Double",
+                    text = "FixedBottomCTA.Double · 비율 1:2",
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .padding(IenTheme.spacing.md),
@@ -4205,6 +4224,8 @@ fun BottomCTASection(controls: Map<String, String> = emptyMap()) {
                 IenFixedDoubleBottomCTA(
                     hideOnScroll = true,
                     scrollDelta = 0f,
+                    leftButtonWeight = 1f,
+                    rightButtonWeight = 2f,
                     leftButton = {
                         IenBottomCTAButton(
                             text = "취소",

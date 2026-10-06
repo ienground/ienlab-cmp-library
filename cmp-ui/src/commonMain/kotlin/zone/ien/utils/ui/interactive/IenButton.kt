@@ -1,13 +1,18 @@
 package zone.ien.utils.ui.interactive
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -537,15 +542,11 @@ fun IenIconButton(
             IenButtonSize.Large -> 28.dp
         }
         IenProvideTextStyle(IenTheme.typography.body1, LocalContentColor.current) {
-            Box(
+            IenButtonLoadingTransition(
+                loading = state.loading,
                 modifier = Modifier.size(iconSize),
-                contentAlignment = Alignment.Center
-            ) {
-                if (state.loading) {
-                    IenLoaderPrimitive(color = LocalContentColor.current)
-                } else {
-                    content()
-                }
+            ) { loading ->
+                if (loading) IenLoaderPrimitive(color = LocalContentColor.current) else content()
             }
         }
     }
@@ -622,15 +623,11 @@ fun IenIconToggleButton(
         border = colors.borderStroke(checked = checked, enabled = state.enabled),
     ) {
         IenProvideTextStyle(IenTheme.typography.body1, LocalContentColor.current) {
-            Box(
+            IenButtonLoadingTransition(
+                loading = state.loading,
                 modifier = Modifier.size(iconSize),
-                contentAlignment = Alignment.Center,
-            ) {
-                if (state.loading) {
-                    IenLoaderPrimitive(color = LocalContentColor.current)
-                } else {
-                    content()
-                }
+            ) { loading ->
+                if (loading) IenLoaderPrimitive(color = LocalContentColor.current) else content()
             }
         }
     }
@@ -679,15 +676,11 @@ fun IenFab(
         scalePressed = 0.95f,
     ) {
         IenProvideTextStyle(IenTheme.typography.body1, LocalContentColor.current) {
-            Box(
+            IenButtonLoadingTransition(
+                loading = state.loading,
                 modifier = Modifier.size(iconSize),
-                contentAlignment = Alignment.Center,
-            ) {
-                if (state.loading) {
-                    IenLoaderPrimitive(color = LocalContentColor.current)
-                } else {
-                    content()
-                }
+            ) { loading ->
+                if (loading) IenLoaderPrimitive(color = LocalContentColor.current) else content()
             }
         }
     }
@@ -742,15 +735,11 @@ fun IenFab(
     ) {
         IenProvideTextStyle(IenTheme.typography.body1, LocalContentColor.current) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
+                IenButtonLoadingTransition(
+                    loading = state.loading,
                     modifier = Modifier.size(iconSize),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    if (state.loading) {
-                        IenLoaderPrimitive(color = LocalContentColor.current)
-                    } else {
-                        icon()
-                    }
+                ) { loading ->
+                    if (loading) IenLoaderPrimitive(color = LocalContentColor.current) else icon()
                 }
                 AnimatedVisibility(
                     visible = isExtended,
@@ -891,11 +880,36 @@ private fun IenButtonSlotContent(
         IenButtonSize.Large -> IenTheme.typography.body1
     }
     IenProvideTextStyle(textStyle, LocalContentColor.current) {
-        if (loading) {
-            IenLoaderPrimitive(color = LocalContentColor.current)
-        } else {
-            content()
+        IenButtonLoadingTransition(loading = loading) { isLoading ->
+            if (isLoading) IenLoaderPrimitive(color = LocalContentColor.current) else content()
         }
+    }
+}
+
+@Composable
+private fun IenButtonLoadingTransition(
+    loading: Boolean,
+    modifier: Modifier = Modifier,
+    content: @Composable (loading: Boolean) -> Unit,
+) {
+    val fastMillis = IenTheme.motion.fastMillis
+    val standardEasing = IenTheme.motion.standardEasing
+
+    AnimatedContent(
+        targetState = loading,
+        modifier = modifier,
+        transitionSpec = {
+            (fadeIn(tween(fastMillis, easing = standardEasing)) +
+                scaleIn(tween(fastMillis, easing = standardEasing), initialScale = 0.8f)
+            ).togetherWith(
+                fadeOut(tween(fastMillis, easing = standardEasing)) +
+                    scaleOut(tween(fastMillis, easing = standardEasing), targetScale = 0.8f)
+            )
+        },
+        contentAlignment = Alignment.Center,
+        label = "IenButtonLoadingContent",
+    ) { targetLoading ->
+        content(targetLoading)
     }
 }
 

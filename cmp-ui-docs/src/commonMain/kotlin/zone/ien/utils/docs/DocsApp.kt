@@ -61,13 +61,14 @@ fun DocsApp(
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
+                        .wrapContentHeight(align = Alignment.Top, unbounded = true)
                         .background(IenTheme.colors.background),
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .wrapContentHeight(unbounded = true)
+                            .wrapContentHeight(align = Alignment.Top, unbounded = true)
                             .padding(24.dp)
                             .onSizeChanged { size ->
                                 onContentHeight(with(density) { size.height.toDp().value.roundToInt() })

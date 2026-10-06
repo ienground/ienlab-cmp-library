@@ -32,8 +32,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -1034,10 +1036,11 @@ fun IenSkeleton(
 
     val phase = rememberIenSkeletonPhase()
     val color = resolveIenSkeletonColor(background, IenTheme.colors)
+    val scrollModifier = Modifier.verticalScroll(rememberScrollState(), enabled = false)
 
     if (height != null) {
         IenSkeletonBlock(
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier.then(scrollModifier).fillMaxWidth(),
             height = height,
             radius = radius,
             color = color,
@@ -1050,10 +1053,12 @@ fun IenSkeleton(
     val elements = (custom ?: pattern.elements()).withRepeatedLast(repeatLastItemCount)
     val contentDescription = stringResource(Res.string.loading)
     Column(
-        modifier = modifier.semantics {
-            this.contentDescription = contentDescription
-            liveRegion = LiveRegionMode.Polite
-        },
+        modifier = modifier
+            .then(scrollModifier)
+            .semantics {
+                this.contentDescription = contentDescription
+                liveRegion = LiveRegionMode.Polite
+            },
         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
     ) {
         elements.forEachIndexed { index, element ->

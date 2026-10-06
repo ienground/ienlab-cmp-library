@@ -3204,8 +3204,10 @@ fun IenBottomCTA(
  *
  * @param primaryText 주 버튼 텍스트
  * @param onPrimaryClick 주 버튼 클릭 콜백
+ * @param primaryButtonWeight 주 버튼의 상대 너비 비율
  * @param secondaryText 부 버튼 텍스트
  * @param onSecondaryClick 부 버튼 클릭 콜백
+ * @param secondaryButtonWeight 부 버튼의 상대 너비 비율
  * @param modifier 적용할 Modifier
  * @param background 하단 바 배경 스타일 ([IenBottomCTABackground])
  * @param hasSafeAreaPadding 세이프 에어리어 패딩 계산 적용 여부
@@ -3243,6 +3245,8 @@ fun IenDoubleBottomCTA(
     scrollDelta: Float = 0f,
     topAccessory: (@Composable () -> Unit)? = null,
     bottomAccessory: (@Composable () -> Unit)? = null,
+    primaryButtonWeight: Float = 1f,
+    secondaryButtonWeight: Float = 1f,
 ) {
     IenDoubleBottomCTA(
         modifier = modifier,
@@ -3257,6 +3261,8 @@ fun IenDoubleBottomCTA(
         scrollDelta = scrollDelta,
         topAccessory = topAccessory,
         bottomAccessory = bottomAccessory,
+        leftButtonWeight = secondaryButtonWeight,
+        rightButtonWeight = primaryButtonWeight,
         leftButton = {
             IenBottomCTAButton(
                 text = secondaryText,
@@ -3283,6 +3289,8 @@ fun IenDoubleBottomCTA(
  *
  * @param leftButton 좌측 버튼 컴포저블 슬롯
  * @param rightButton 우측 버튼 컴포저블 슬롯
+ * @param leftButtonWeight 좌측 버튼 영역의 상대 너비 비율
+ * @param rightButtonWeight 우측 버튼 영역의 상대 너비 비율
  * @param modifier 적용할 Modifier
  * @param background 하단 바 배경 스타일 ([IenBottomCTABackground])
  * @param hasSafeAreaPadding 세이프 에어리어 패딩 계산 적용 여부
@@ -3314,7 +3322,16 @@ fun IenDoubleBottomCTA(
     scrollDelta: Float = 0f,
     topAccessory: (@Composable () -> Unit)? = null,
     bottomAccessory: (@Composable () -> Unit)? = null,
+    leftButtonWeight: Float = 1f,
+    rightButtonWeight: Float = 1f,
 ) {
+    require(leftButtonWeight.isFinite() && leftButtonWeight > 0f) {
+        "leftButtonWeight는 0보다 큰 유한한 값이어야 합니다."
+    }
+    require(rightButtonWeight.isFinite() && rightButtonWeight > 0f) {
+        "rightButtonWeight는 0보다 큰 유한한 값이어야 합니다."
+    }
+
     IenBottomCTAContainer(
         modifier = modifier,
         hasSafeAreaPadding = hasSafeAreaPadding,
@@ -3335,8 +3352,20 @@ fun IenDoubleBottomCTA(
             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            leftButton()
-            rightButton()
+            Row(
+                modifier = Modifier.weight(leftButtonWeight).fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                leftButton()
+            }
+            Row(
+                modifier = Modifier.weight(rightButtonWeight).fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                rightButton()
+            }
         }
     }
 }
@@ -3458,6 +3487,8 @@ fun BoxScope.IenFixedBottomCTA(
  *
  * @param leftButton 좌측 버튼 컴포저블 슬롯
  * @param rightButton 우측 버튼 컴포저블 슬롯
+ * @param leftButtonWeight 좌측 버튼 영역의 상대 너비 비율
+ * @param rightButtonWeight 우측 버튼 영역의 상대 너비 비율
  * @param modifier 적용할 Modifier
  * @param background 하단 바 배경 스타일 ([IenBottomCTABackground])
  * @param hasSafeAreaPadding 세이프 에어리어 패딩 계산 적용 여부
@@ -3485,6 +3516,8 @@ fun BoxScope.IenFixedDoubleBottomCTA(
     scrollDelta: Float = 0f,
     topAccessory: (@Composable () -> Unit)? = null,
     bottomAccessory: (@Composable () -> Unit)? = null,
+    leftButtonWeight: Float = 1f,
+    rightButtonWeight: Float = 1f,
 ) {
     IenDoubleBottomCTA(
         leftButton = leftButton,
@@ -3502,6 +3535,8 @@ fun BoxScope.IenFixedDoubleBottomCTA(
         scrollDelta = scrollDelta,
         topAccessory = topAccessory,
         bottomAccessory = bottomAccessory,
+        leftButtonWeight = leftButtonWeight,
+        rightButtonWeight = rightButtonWeight,
     )
 }
 

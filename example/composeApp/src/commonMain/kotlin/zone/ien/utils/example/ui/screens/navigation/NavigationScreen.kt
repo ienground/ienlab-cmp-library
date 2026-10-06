@@ -34,10 +34,11 @@ import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.adaptive.utils.getSurfaceTopAppBarAdaptation
 import zone.ien.utils.adaptive.view.AdaptiveNavigationBar
 import zone.ien.utils.adaptive.view.NavigationBarItem
+import zone.ien.utils.ui.view.IenNavigationBarType
 import zone.ien.utils.icon.Adaptive
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
-import zone.ien.utils.ui.view.CustomNavigationBarItemDirection
+import zone.ien.utils.ui.view.IenNavigationBarItemDirection
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
@@ -49,11 +50,12 @@ fun NavigationScreen(
     var selected by remember { mutableStateOf(false) }
     var isMaterialTheme by remember { mutableStateOf(true) }
     var isNative by remember { mutableStateOf(true) }
+    var useNavigationBar2 by remember { mutableStateOf(false) }
     var isVerticalDirection by remember { mutableStateOf(false) }
     val itemDirection = if (isVerticalDirection) {
-        CustomNavigationBarItemDirection.Vertical
+        IenNavigationBarItemDirection.Vertical
     } else {
-        CustomNavigationBarItemDirection.Horizontal
+        IenNavigationBarItemDirection.Horizontal
     }
 
     @Composable
@@ -91,6 +93,11 @@ fun NavigationScreen(
                     adaptation = {
                         material {
                             this.alwaysShowLabel = false
+                            this.type = if (useNavigationBar2) {
+                                IenNavigationBarType.Type2
+                            } else {
+                                IenNavigationBarType.Type1
+                            }
                         }
                         cupertino { this.backdrop = backdrop }
                     },
@@ -135,6 +142,13 @@ fun NavigationScreen(
                         text = "네이티브 바",
                         checked = isNative,
                         onCheckedChange = { isNative = it }
+                    )
+                }
+                item {
+                    OptionSwitch(
+                        text = "NavigationBar type 2",
+                        checked = useNavigationBar2,
+                        onCheckedChange = { useNavigationBar2 = it },
                     )
                 }
                 item {

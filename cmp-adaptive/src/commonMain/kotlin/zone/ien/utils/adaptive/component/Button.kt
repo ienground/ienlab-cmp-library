@@ -1,5 +1,6 @@
 package zone.ien.utils.adaptive.component
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -7,19 +8,25 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Shape
@@ -31,6 +38,7 @@ import com.kyant.backdrop.Backdrop
 import com.kyant.capsule.ContinuousCapsule
 import com.kyant.capsule.ContinuousRoundedRectangle
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.CupertinoActivityIndicator
 import zone.ien.hig.CupertinoButtonSize
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonColors
@@ -380,8 +388,13 @@ fun AdaptiveIconButton(
                 backdrop = it.backdrop,
                 isBackgroundAdaptive = it.isBackgroundAdaptive,
                 isInteractive = it.isInteractive,
-                content = content,
-            )
+            ) {
+                AdaptiveIconButtonLoadingContent(
+                    loading = it.state.loading,
+                    size = size,
+                    content = content,
+                )
+            }
         },
     )
 }
@@ -451,8 +464,13 @@ fun AdaptiveFilledIconButton(
                 backdrop = it.backdrop,
                 isBackgroundAdaptive = it.isBackgroundAdaptive,
                 isInteractive = it.isInteractive,
-                content = content,
-            )
+            ) {
+                AdaptiveIconButtonLoadingContent(
+                    loading = it.state.loading,
+                    size = size,
+                    content = content,
+                )
+            }
         },
     )
 }
@@ -611,10 +629,56 @@ fun AdaptiveIconToggleButton(
                 backdrop = hig.backdrop,
                 isBackgroundAdaptive = hig.isBackgroundAdaptive,
                 isInteractive = hig.isInteractive,
-                content = content,
-            )
+            ) {
+                AdaptiveIconButtonLoadingContent(
+                    loading = it.state.loading,
+                    size = size,
+                    content = content,
+                )
+            }
         },
     )
+}
+
+@OptIn(ExperimentalCupertinoApi::class)
+@Composable
+private fun AdaptiveIconButtonLoadingContent(
+    loading: Boolean,
+    size: IenButtonSize,
+    content: @Composable () -> Unit,
+) {
+    val iconSize = when (size) {
+        IenButtonSize.Small -> 18.dp
+        IenButtonSize.Medium -> 24.dp
+        IenButtonSize.Large -> 28.dp
+    }
+    val fastMillis = IenTheme.motion.fastMillis
+    val standardEasing = IenTheme.motion.standardEasing
+
+    AnimatedContent(
+        targetState = loading,
+        modifier = Modifier.size(iconSize),
+        transitionSpec = {
+            (fadeIn(tween(fastMillis, easing = standardEasing)) +
+                scaleIn(tween(fastMillis, easing = standardEasing), initialScale = 0.8f)
+            ).togetherWith(
+                fadeOut(tween(fastMillis, easing = standardEasing)) +
+                    scaleOut(tween(fastMillis, easing = standardEasing), targetScale = 0.8f)
+            )
+        },
+        contentAlignment = Alignment.Center,
+        label = "AdaptiveIconButtonLoadingContent",
+    ) { targetLoading ->
+        if (targetLoading) {
+            CupertinoActivityIndicator(
+                modifier = Modifier,
+                size = iconSize,
+                color = LocalContentColor.current,
+            )
+        } else {
+            content()
+        }
+    }
 }
 
 /**

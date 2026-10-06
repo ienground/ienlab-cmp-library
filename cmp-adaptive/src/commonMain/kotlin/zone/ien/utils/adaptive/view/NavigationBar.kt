@@ -6,9 +6,13 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -23,7 +27,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import zone.ien.hig.CupertinoNavigationBar
@@ -48,19 +54,21 @@ import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenBadge
 import zone.ien.utils.ui.interactive.IenBadgeSize
 import zone.ien.utils.ui.interactive.IenBadgeVariant
-import zone.ien.utils.ui.view.CustomNavigationBar
-import zone.ien.utils.ui.view.CustomNavigationBarColors
-import zone.ien.utils.ui.view.CustomNavigationBarDefaults
-import zone.ien.utils.ui.view.CustomNavigationBarItem
-import zone.ien.utils.ui.view.CustomNavigationBarItemDirection
+import zone.ien.utils.ui.view.IenNavigationBar
+import zone.ien.utils.ui.view.IenNavigationBarColors
+import zone.ien.utils.ui.view.IenNavigationBarDefaults
+import zone.ien.utils.ui.view.IenNavigationBarItem
+import zone.ien.utils.ui.view.IenNavigationBarItemDirection
+import zone.ien.utils.ui.view.IenNavigationBar2
+import zone.ien.utils.ui.view.IenNavigationBarType
 
 data class NavigationBarItem(
     val onClick: () -> Unit,
     val icon: IconData,
     val selectedIcon: IconData? = null,
     val label: String,
-    val direction: CustomNavigationBarItemDirection = CustomNavigationBarItemDirection.Horizontal,
-    /** 0이면 숨기고, 음수이면 숫자 없이 표시하는 배지 값입니다. */
+    val direction: IenNavigationBarItemDirection = IenNavigationBarItemDirection.Horizontal,
+    /** 0이면 숨기고, 음수이면 점으로 표시하며, 100 이상은 `99+`로 표시하는 배지 값입니다. */
     val badge: Int = 0,
 )
 
@@ -79,7 +87,7 @@ private val LocalNavigationBarAlwaysShowLabel = compositionLocalOf { true }
  * @param modifier 네비게이션 바에 적용할 수정자
  * @param selectedTabIndex 현재 선택된 탭 인덱스를 반환하는 함수
  * @param onTabSelected 탭이 선택되었을 때 호출되는 콜백
- * @param adaptation 플랫폼별 적응형 설정을 위한 블록
+ * @param adaptation 플랫폼별 적응형 설정을 위한 블록. Material에서는 `type`으로 `IenNavigationBarType.Type1` 또는 `Type2`를 지정할 수 있습니다.
  * @param isNative 네이티브 방식 사용 여부 (기본값: true). 배지가 있는 항목은 배지를 표시하는 컴포저블 방식을 사용합니다.
  * @param items 네비게이션 바에 표시할 아이템 목록
  * @param visible 네비게이션 바 표시 여부
@@ -211,20 +219,33 @@ private fun AdaptiveNavigationBar(
                 )
             },
             material = {
-                CustomNavigationBar(
-                    modifier = modifier,
-                    colors = it.colors,
-                    selectedIndex = selectedTabIndex(),
-                    itemCount = tabsCount,
-                    windowInsets = it.windowInsets,
-                    content = {
-                        CompositionLocalProvider(
-                            LocalNavigationBarAlwaysShowLabel provides it.alwaysShowLabel
-                        ) {
-                            content()
-                        }
+                val navigationBarAdaptation = it
+                val navigationBarContent: @Composable RowScope.() -> Unit = {
+                    CompositionLocalProvider(
+                        LocalNavigationBarAlwaysShowLabel provides navigationBarAdaptation.alwaysShowLabel
+                    ) {
+                        content()
                     }
-                )
+                }
+                val colors = navigationBarAdaptation.colorsFor(navigationBarAdaptation.type)
+                when (navigationBarAdaptation.type) {
+                    IenNavigationBarType.Type1 -> IenNavigationBar(
+                        modifier = modifier,
+                        colors = colors,
+                        selectedIndex = selectedTabIndex(),
+                        itemCount = tabsCount,
+                        windowInsets = navigationBarAdaptation.windowInsets,
+                        content = navigationBarContent,
+                    )
+                    IenNavigationBarType.Type2 -> IenNavigationBar2(
+                        modifier = modifier,
+                        colors = colors,
+                        selectedIndex = selectedTabIndex(),
+                        itemCount = tabsCount,
+                        windowInsets = navigationBarAdaptation.windowInsets,
+                        content = navigationBarContent,
+                    )
+                }
             }
         )
     }
@@ -237,7 +258,7 @@ private fun AdaptiveNavigationBarNative(
     selectedTabIndex: () -> Int,
     onTabSelected: (index: Int) -> Unit,
     adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, IenNavigationBarAdaptation>.() -> Unit = {},
-    directions: List<CustomNavigationBarItemDirection>,
+    directions: List<IenNavigationBarItemDirection>,
     items: List<CupertinoNavigationBarItemData>
 ) {
     CompositionLocalProvider(
@@ -263,31 +284,44 @@ private fun AdaptiveNavigationBarNative(
                 )
             },
             material = {
-                CustomNavigationBar(
-                    selectedIndex = selectedTabIndex(),
-                    modifier = modifier,
-                    colors = it.colors,
-                    windowInsets = it.windowInsets,
-                    itemCount = items.size,
-                    content = {
-                        items.forEachIndexed { index, item ->
-                            val selected = index == selectedTabIndex()
-                            CustomNavigationBarItem(
-                                index = index,
-                                onClick = item.onClick,
-                                icon = {
-                                    Icon(
-                                        painter = if (selected) item.selectedIcon ?: item.icon else item.icon,
-                                        contentDescription = item.label,
-                                    )
-                                },
-                                label = { Text(text = item.label) },
-                                direction = directions[index],
-                                alwaysShowLabel = it.alwaysShowLabel
-                            )
-                        }
+                val navigationBarAdaptation = it
+                val navigationBarContent: @Composable RowScope.() -> Unit = {
+                    items.forEachIndexed { index, item ->
+                        val selected = index == selectedTabIndex()
+                        IenNavigationBarItem(
+                            index = index,
+                            onClick = item.onClick,
+                            icon = {
+                                Icon(
+                                    painter = if (selected) item.selectedIcon ?: item.icon else item.icon,
+                                    contentDescription = item.label,
+                                )
+                            },
+                            label = { Text(text = item.label) },
+                            direction = directions[index],
+                            alwaysShowLabel = navigationBarAdaptation.alwaysShowLabel,
+                        )
                     }
-                )
+                }
+                val colors = navigationBarAdaptation.colorsFor(navigationBarAdaptation.type)
+                when (navigationBarAdaptation.type) {
+                    IenNavigationBarType.Type1 -> IenNavigationBar(
+                        selectedIndex = selectedTabIndex(),
+                        modifier = modifier,
+                        colors = colors,
+                        windowInsets = navigationBarAdaptation.windowInsets,
+                        itemCount = items.size,
+                        content = navigationBarContent,
+                    )
+                    IenNavigationBarType.Type2 -> IenNavigationBar2(
+                        selectedIndex = selectedTabIndex(),
+                        modifier = modifier,
+                        colors = colors,
+                        windowInsets = navigationBarAdaptation.windowInsets,
+                        itemCount = items.size,
+                        content = navigationBarContent,
+                    )
+                }
             }
         )
     }
@@ -296,7 +330,7 @@ private fun AdaptiveNavigationBarNative(
 /**
  * 적응형 네비게이션 바 항목입니다.
  *
- * @param badge 0이면 숨기고, 음수이면 숫자 없이 표시하는 배지 값입니다.
+ * @param badge 0이면 숨기고, 음수이면 점으로 표시하며, 100 이상은 `99+`로 표시하는 배지 값입니다.
  */
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
@@ -307,7 +341,7 @@ fun RowScope.AdaptiveNavigationBarItem(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     label: @Composable (() -> Unit)? = null,
-    direction: CustomNavigationBarItemDirection = CustomNavigationBarItemDirection.Horizontal,
+    direction: IenNavigationBarItemDirection = IenNavigationBarItemDirection.Horizontal,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     badge: Int = 0,
     adaptation: AdaptationScope<CupertinoNavigationBarItemAdaptation, IenNavigationBarItemAdaptation>.() -> Unit = {},
@@ -339,7 +373,7 @@ fun RowScope.AdaptiveNavigationBarItem(
             )
         },
         material = {
-            CustomNavigationBarItem(
+            IenNavigationBarItem(
                 index = index,
                 onClick = resolvedOnClick,
                 icon = icon,
@@ -365,24 +399,49 @@ private fun NavigationBarItemIcon(
     } else {
         BadgedBox(
             badge = {
-                IenBadge(
-                    text = if (badge > 0) badge.toString() else "",
-                    size = IenBadgeSize.Small,
-                    variant = IenBadgeVariant.Fill,
-                    tone = IenSemanticTone.Danger,
-                )
+                if (badge < 0) {
+                    Box(
+                        modifier = Modifier
+                            .size(5.dp)
+                            .clip(CircleShape)
+                            .background(IenTheme.colors.danger),
+                    )
+                } else {
+                    IenBadge(
+                        text = if (badge > 99) "99+" else badge.toString(),
+                        size = IenBadgeSize.Small,
+                        variant = IenBadgeVariant.Fill,
+                        tone = IenSemanticTone.Danger,
+                    )
+                }
             },
             content = { icon() },
         )
     }
 }
 
+/** Material 네비게이션 바의 표시 방식과 색상, 인셋 설정입니다. */
 class IenNavigationBarAdaptation internal constructor(
-    colors: CustomNavigationBarColors,
+    colors: IenNavigationBarColors,
     alwaysShowLabel: Boolean,
     windowInsets: WindowInsets,
 ) {
-    var colors: CustomNavigationBarColors by mutableStateOf(colors)
+    /** Material 네비게이션 바 유형입니다. */
+    var type: IenNavigationBarType by mutableStateOf(IenNavigationBarType.Type1)
+    private val defaultColors = colors
+    private var customColors by mutableStateOf<IenNavigationBarColors?>(null)
+    var colors: IenNavigationBarColors
+        get() = customColors ?: defaultColors
+        set(value) {
+            customColors = value
+        }
+
+    @Composable
+    internal fun colorsFor(type: IenNavigationBarType): IenNavigationBarColors = customColors ?: when (type) {
+        IenNavigationBarType.Type1 -> defaultColors
+        IenNavigationBarType.Type2 -> IenNavigationBarDefaults.type2Colors()
+    }
+
     var alwaysShowLabel: Boolean by mutableStateOf(alwaysShowLabel)
     var windowInsets: WindowInsets by mutableStateOf(windowInsets)
 }
@@ -430,7 +489,7 @@ private class NavigationBarAdaptation: Adaptation<CupertinoNavigationBarAdaptati
 
     @Composable
     override fun rememberMaterialAdaptation(): IenNavigationBarAdaptation {
-        val colors = CustomNavigationBarDefaults.colors()
+        val colors = IenNavigationBarDefaults.colors()
         val alwaysShowLabel = true
         val windowInsets = NavigationBarDefaults.windowInsets
 

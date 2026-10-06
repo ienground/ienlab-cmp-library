@@ -28,9 +28,9 @@ import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 
 /**
- * [Empty]의 아이콘과 아이콘을 감싸는 [IenAssetFrame]의 설정을 정의하는 스코프입니다.
+ * [IenEmpty]의 아이콘과 아이콘을 감싸는 [IenAssetFrame]의 설정을 정의하는 스코프입니다.
  */
-class EmptyIconScope internal constructor() {
+class IenEmptyIconScope internal constructor() {
     /** 아이콘을 감싸는 [IenAssetFrame]에 적용할 Modifier입니다. */
     var modifier: Modifier = Modifier
 
@@ -74,18 +74,18 @@ class EmptyIconScope internal constructor() {
 }
 
 /**
- * Empty는 비어 있는 상태를 표시하기 위한 컴포저블입니다.
+ * IenEmpty는 비어 있는 상태를 표시하기 위한 컴포저블입니다.
  *
  * @param modifier 적용할 Modifier
- * @param icon 아이콘과 아이콘 프레임 설정을 정의하는 [EmptyIconScope] 콘텐츠
+ * @param icon 아이콘과 아이콘 프레임 설정을 정의하는 [IenEmptyIconScope] 콘텐츠
  * @param title 제목
  * @param content 내용
  * @param buttons 버튼들
  */
 @Composable
-fun Empty(
+fun IenEmpty(
     modifier: Modifier = Modifier,
-    icon: (@Composable EmptyIconScope.() -> Unit)?,
+    icon: (@Composable IenEmptyIconScope.() -> Unit)?,
     title: @Composable () -> Unit,
     content: (@Composable () -> Unit)? = null,
     buttons: @Composable (RowScope.() -> Unit)? = null,
@@ -96,7 +96,7 @@ fun Empty(
         modifier = modifier
     ) {
         icon?.let { iconContent ->
-            val iconScope = EmptyIconScope()
+            val iconScope = IenEmptyIconScope()
             iconContent(iconScope)
         }
         IenProvideTextStyle(
@@ -135,13 +135,13 @@ fun Empty(
 
 @Preview(showBackground = true)
 @Composable
-private fun EmptyPreview() {
+private fun IenEmptyPreview() {
     IenTheme {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxSize()
         ) {
-            Empty(
+            IenEmpty(
                 icon = {
                     content { modifier ->
                         IenIcon(

@@ -189,6 +189,9 @@ function ComponentPage({
   }, []);
 
   useEffect(() => {
+    let pendingPreviewHeight: number | null = null;
+    let heightUpdateTimeout: number | undefined;
+
     function updatePreviewHeight(event: MessageEvent<unknown>) {
       if (event.source !== previewFrameRef.current?.contentWindow) return;
       if (typeof event.data !== "object" || event.data === null) return;
@@ -202,11 +205,24 @@ function ComponentPage({
         return;
       }
 
-      setPreviewHeight(Math.max(minimumPreviewHeight, Math.ceil(message.height + 48)));
+      pendingPreviewHeight = Math.ceil(message.height + 48);
+      window.clearTimeout(heightUpdateTimeout);
+      heightUpdateTimeout = window.setTimeout(() => {
+        if (pendingPreviewHeight !== null) {
+          setPreviewHeight(
+            Math.max(minimumPreviewHeight, pendingPreviewHeight),
+          );
+          pendingPreviewHeight = null;
+        }
+        heightUpdateTimeout = undefined;
+      }, 300);
     }
 
     window.addEventListener("message", updatePreviewHeight);
-    return () => window.removeEventListener("message", updatePreviewHeight);
+    return () => {
+      window.removeEventListener("message", updatePreviewHeight);
+      window.clearTimeout(heightUpdateTimeout);
+    };
   }, []);
 
   useEffect(() => {
