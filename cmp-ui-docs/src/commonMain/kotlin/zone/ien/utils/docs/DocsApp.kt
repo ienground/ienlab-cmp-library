@@ -225,6 +225,7 @@ private fun ComponentPreview(
         "top" -> TopSection()
         "agreement" -> AgreementSection()
         "asset" -> AssetSection()
+        "bottom-bar" -> BottomBarSection()
         "bottom-cta" -> BottomCTASection()
         "dialog" -> DialogSection()
         "keypad" -> KeypadSection()

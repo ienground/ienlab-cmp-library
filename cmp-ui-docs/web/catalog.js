@@ -80,6 +80,7 @@ export const catalog = [
   component("top", "Top", "화면 구성", "화면 상단의 제목·부제목·액션 조합입니다.", ["IenTop", "IenTopBar"], "screen/IenScreenParts.kt"),
   component("agreement", "Agreement", "화면 구성", "약관 본문과 선택 항목의 상태를 확인합니다.", ["IenAgreement", "IenAgreementCheckbox", "IenAgreementVariant"], "screen/IenScreenParts.kt"),
   component("asset", "Asset", "콘텐츠", "이미지와 아이콘을 담는 에셋 프레임입니다.", ["IenAssetFrame"], "primitives/IenAsset.kt"),
+  component("bottom-bar", "BottomBar", "화면 구성", "액션과 플로팅 액션 버튼을 조합하는 화면 하단 바입니다.", ["IenBottomBar"], "screen/IenBottomBar.kt"),
   component("bottom-cta", "BottomCTA", "화면 구성", "화면 하단의 주요 액션 영역을 표시합니다.", ["IenBottomCTA", "IenFixedBottomCTA"], "screen/IenScreenParts.kt"),
   component("dialog", "Dialog", "피드백", "확인·취소 동작을 포함한 다이얼로그입니다.", ["IenDialog", "IenAlertDialog"], "feedback/IenFeedback.kt"),
   component("keypad", "Keypad", "입력", "문자·숫자·보안 키패드 입력을 확인합니다.", ["IenAlphabetKeypad", "IenNumberKeypad", "IenFullSecureKeypad"], "interactive/IenKeypads.kt"),

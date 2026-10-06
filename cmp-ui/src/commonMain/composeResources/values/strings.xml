@@ -7,6 +7,8 @@
     <string name="next">Next</string>
     <string name="selected">Selected</string>
     <string name="loading">Loading</string>
+    <string name="chat_message_placeholder">Message</string>
+    <string name="chat_send">Send</string>
 
     <!--Delete Dialog-->
     <string name="delete_dialog_title">Delete?</string>

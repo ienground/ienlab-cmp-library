@@ -50,6 +50,8 @@ import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousCapsule
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.remix.RemixIcons
+import zone.ien.utils.icon.remix.fill.Add
 import zone.ien.utils.icon.material.filled.Check
 import zone.ien.utils.icon.material.filled.Close
 import zone.ien.utils.icon.material.filled.CloudOff as FilledCloudOff
@@ -91,6 +93,8 @@ import zone.ien.utils.ui.layout.IenBorderVariant
 import zone.ien.utils.ui.layout.IenAnimatedColumn
 import zone.ien.utils.ui.layout.IenAnimatedRow
 import zone.ien.utils.ui.screen.IenBottomCTA
+import zone.ien.utils.ui.screen.IenBottomBar
+import zone.ien.utils.ui.screen.IenChatBottomBar
 import zone.ien.utils.ui.screen.IenBottomCTAAnimation
 import zone.ien.utils.ui.screen.IenBottomCTABackground
 import zone.ien.utils.ui.screen.IenBottomCTAButton
@@ -492,6 +496,7 @@ fun DesignSystemScreen(
                 TopSection()
                 AgreementSection()
                 AssetSection()
+                BottomBarSection()
                 BottomCTASection()
                 DialogSection()
                 KeypadSection()
@@ -3511,6 +3516,101 @@ fun AssetSection() {
                     Text("ExtraLarge·Circle", style = IenTheme.typography.caption)
                 }
             }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun BottomBarSection() {
+    IenTheme {
+        var chatMessage by remember { mutableStateOf("") }
+        var sentMessage by remember { mutableStateOf<String?>(null) }
+
+        ComponentSection(title = "BottomBar") {
+            Text("기본 하단 바", style = IenTheme.typography.label1)
+            IenBottomBar(
+                actions = {
+                    IenIconButton(
+                        onClick = {},
+                        variant = IenButtonVariant.Ghost,
+                        tone = IenSemanticTone.Neutral,
+                    ) {
+                        IenIcon(
+                            imageVector = M3SystemIcons.ArrowBack,
+                            contentDescription = "뒤로",
+                        )
+                    }
+                    Text(
+                        text = "샘플 하단 바",
+                        modifier = Modifier.weight(1f),
+                        style = IenTheme.typography.label1,
+                    )
+                    IenIconButton(
+                        onClick = {},
+                        variant = IenButtonVariant.Ghost,
+                        tone = IenSemanticTone.Neutral,
+                    ) {
+                        IenIcon(
+                            imageVector = M3SystemIcons.MoreVert,
+                            contentDescription = "더 보기",
+                        )
+                    }
+                },
+                floatingActionButton = {
+                    IenFab(onClick = {}) {
+                        IenIcon(
+                            imageVector = M3SystemIcons.Filled.Check,
+                            contentDescription = "확인",
+                        )
+                    }
+                },
+            )
+            Text("채팅방 하단 바", style = IenTheme.typography.label1)
+            Text(
+                "텍스트 대신 메시지 입력창을 배치한 채팅방 하단 바입니다.",
+                style = IenTheme.typography.caption,
+                color = IenTheme.colors.textSecondary,
+            )
+            sentMessage?.let { message ->
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                    IenBubble(background = IenBubbleBackground.Brand) {
+                        Text(message)
+                    }
+                }
+            }
+            IenChatBottomBar(
+                value = chatMessage,
+                onValueChange = { chatMessage = it },
+                onSend = {
+                    sentMessage = chatMessage.trim()
+                    chatMessage = ""
+                },
+                leadingContent = {
+                    IenIconButton(
+                        onClick = {},
+                        variant = IenButtonVariant.Ghost,
+                        tone = IenSemanticTone.Neutral,
+                    ) {
+                        IenIcon(
+                            imageVector = RemixIcons.Fill.Add,
+                            contentDescription = "첨부",
+                        )
+                    }
+                },
+                trailingContent = {
+                    IenIconButton(
+                        onClick = {},
+                        variant = IenButtonVariant.Ghost,
+                        tone = IenSemanticTone.Neutral,
+                    ) {
+                        IenIcon(
+                            imageVector = M3SystemIcons.MoreVert,
+                            contentDescription = "더 보기",
+                        )
+                    }
+                },
+            )
         }
     }
 }

@@ -44,6 +44,7 @@ export const sampleLines = {
   "top": 2721,
   "agreement": 2885,
   "asset": 3141,
+  "bottom-bar": 3525,
   "bottom-cta": 3223,
   "dialog": 3389,
   "keypad": 3654,
