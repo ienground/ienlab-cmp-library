@@ -23,16 +23,16 @@ import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenTheme
 
 /**
- * Lazy 리스트 섹션을 정의하는 확장 함수
- * 
- * 이 함수는_lazy_ 리스트 내에 섹션을 추가하여 스크롤이 가능한 항목들을 표시합니다.
- * 제목과 캡션을 포함할 수 있으며, 섹션의 콘텐츠를 정의합니다.
+ * IEN 디자인의 Lazy 리스트 섹션을 정의하는 확장 함수
+ *
+ * Lazy 리스트 내에 제목, 항목, 캡션을 표시하며, 일반
+ * [zone.ien.utils.ui.section.IenSection]과 같은 여백과 표면 스타일을 적용합니다.
  * 
  * @param title 섹션의 제목
  * @param caption 섹션의 캡션
  * @param content 섹션의 내용을 정의하는 LazySectionScope 블록
  */
-fun LazyListScope.m3Section(
+fun LazyListScope.ienSection(
     title: @Composable (LazyItemScope.() -> Unit)? = null,
     caption: @Composable (LazyItemScope.() -> Unit)? = null,
     content: LazySectionScope.() -> Unit,
