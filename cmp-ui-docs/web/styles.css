@@ -583,23 +583,6 @@ body {
   border-radius: 9px;
 }
 
-.preview-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 10px;
-}
-
-.preview-width-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.preview-frame-wrap.mobile-preview {
-  display: flex;
-  justify-content: center;
-}
-
 .compose-frame {
   display: block;
   width: 100%;
@@ -607,12 +590,6 @@ body {
   border: 0;
   opacity: 0;
   transition: opacity 180ms ease-out;
-}
-
-.compose-frame.mobile-preview {
-  max-width: 100%;
-  margin-inline: auto;
-  border-inline: 1px solid var(--border-subtle);
 }
 
 .compose-frame.loaded {

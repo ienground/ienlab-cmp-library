@@ -169,7 +169,6 @@ function ComponentPage({
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
   const [previewLoaded, setPreviewLoaded] = useState(false);
   const [previewHeight, setPreviewHeight] = useState(minimumPreviewHeight);
-  const [previewWidth, setPreviewWidth] = useState<"full" | "mobile">("full");
   const previewFrameRef = useRef<HTMLIFrameElement>(null);
   const [customColorSchemes, setCustomColorSchemes] =
     useState<ColorSchemes | null>(null);
@@ -507,37 +506,7 @@ function ComponentPage({
                       기본 색상 복원
                     </Button>
                   )}
-                  <div className="preview-toolbar">
-                    <div
-                      aria-label="미리보기 너비"
-                      className="preview-width-controls"
-                      role="group"
-                    >
-                      <Button
-                        aria-pressed={previewWidth === "full"}
-                        onClick={() => setPreviewWidth("full")}
-                        size="sm"
-                        variant={previewWidth === "full" ? "secondary" : "outline"}
-                      >
-                        전체 너비
-                      </Button>
-                      <Button
-                        aria-pressed={previewWidth === "mobile"}
-                        onClick={() => setPreviewWidth("mobile")}
-                        size="sm"
-                        variant={previewWidth === "mobile" ? "secondary" : "outline"}
-                      >
-                        모바일 390px
-                      </Button>
-                    </div>
-                  </div>
-                  <div
-                    className={
-                      previewWidth === "mobile"
-                        ? "preview-frame-wrap mobile-preview"
-                        : "preview-frame-wrap"
-                    }
-                  >
+                  <div className="preview-frame-wrap">
                     {!previewLoaded ? (
                       <div
                         aria-live="polite"
@@ -552,17 +521,10 @@ function ComponentPage({
                       key={composeUrl}
                       ref={previewFrameRef}
                       aria-label={activeComponent.name + " Compose 미리보기"}
-                      className={
-                        `${previewLoaded ? "compose-frame loaded" : "compose-frame"}${
-                          previewWidth === "mobile" ? " mobile-preview" : ""
-                        }`
-                      }
+                      className={previewLoaded ? "compose-frame loaded" : "compose-frame"}
                       onLoad={() => setPreviewLoaded(true)}
                       src={composeUrl}
-                      style={{
-                        height: `${previewHeight}px`,
-                        width: previewWidth === "mobile" ? "min(390px, 100%)" : "100%",
-                      }}
+                      style={{ height: `${previewHeight}px` }}
                       title={activeComponent.name + " Compose 미리보기"}
                     />
                   </div>

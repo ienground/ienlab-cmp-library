@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -51,6 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousCapsule
@@ -660,18 +662,35 @@ private fun playgroundPreviewValues(
 private fun Map<String, String>.enumValue(key: String, defaultValue: String): String =
     this[key] ?: defaultValue
 
+internal enum class PreviewViewport(val storageValue: String, val label: String, val maxWidth: Dp) {
+    Pc("pc", "PC 1280px", 1280.dp),
+    Tablet("tablet", "태블릿 768px", 768.dp),
+    Mobile("mobile", "모바일 390px", 390.dp);
+
+    companion object {
+        fun fromStorageValue(value: String): PreviewViewport =
+            entries.firstOrNull { it.storageValue == value } ?: Pc
+    }
+}
+
 @Composable
 internal fun DesignSystemPlayground(
     componentId: String,
     snackbarHostState: SnackbarHostState,
     toastState: IenToastState?,
     coroutineScope: CoroutineScope,
+    showPreviewViewportControls: Boolean = false,
+    initialPreviewViewport: String = PreviewViewport.Pc.storageValue,
+    onPreviewViewportChange: (String) -> Unit = {},
 ) {
     val controls = remember(componentId) { playgroundControls(componentId) }
     val values = remember(componentId) {
         mutableStateMapOf<String, String>().apply {
             controls.forEach { control -> put(control.key, control.defaultValue) }
         }
+    }
+    var previewViewport by remember(componentId, initialPreviewViewport) {
+        mutableStateOf(PreviewViewport.fromStorageValue(initialPreviewViewport))
     }
     val previewValues = playgroundPreviewValues(controls, values)
 
@@ -689,16 +708,50 @@ internal fun DesignSystemPlayground(
                         style = IenTheme.typography.body2,
                         color = IenTheme.colors.textSecondary,
                     )
+                    if (showPreviewViewportControls) {
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End,
+                            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                        ) {
+                            PreviewViewport.entries.forEach { viewport ->
+                                IenFilterChip(
+                                    selected = previewViewport == viewport,
+                                    onSelectedChange = { selected ->
+                                        if (selected) {
+                                            previewViewport = viewport
+                                            onPreviewViewportChange(viewport.storageValue)
+                                        }
+                                    },
+                                ) {
+                                    Text(viewport.label)
+                                }
+                            }
+                        }
+                    }
                 }
                 IenDivider()
-                CompositionLocalProvider(LocalComponentSectionChrome provides false) {
-                    DesignSystemComponentPreview(
-                        componentId = componentId,
-                        snackbarHostState = snackbarHostState,
-                        toastState = toastState,
-                        coroutineScope = coroutineScope,
-                        controlValues = previewValues,
-                    )
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.TopCenter,
+                ) {
+                    Box(
+                        modifier = if (showPreviewViewportControls) {
+                            Modifier.widthIn(max = previewViewport.maxWidth).fillMaxWidth()
+                        } else {
+                            Modifier.fillMaxWidth()
+                        },
+                    ) {
+                        CompositionLocalProvider(LocalComponentSectionChrome provides false) {
+                            DesignSystemComponentPreview(
+                                componentId = componentId,
+                                snackbarHostState = snackbarHostState,
+                                toastState = toastState,
+                                coroutineScope = coroutineScope,
+                                controlValues = previewValues,
+                            )
+                        }
+                    }
                 }
             }
         }

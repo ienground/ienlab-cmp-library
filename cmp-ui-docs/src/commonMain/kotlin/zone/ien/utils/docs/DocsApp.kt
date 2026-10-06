@@ -37,6 +37,9 @@ fun DocsApp(
     darkTheme: Boolean = false,
     colors: IenColorScheme? = null,
     onContentHeight: (Int) -> Unit = {},
+    showPreviewViewportControls: Boolean = false,
+    initialPreviewViewport: String = "pc",
+    onPreviewViewportChange: (String) -> Unit = {},
 ) {
     val defaultTokens = defaultIenTokens()
     val docsTokens = defaultTokens.copy(
@@ -75,6 +78,9 @@ fun DocsApp(
                             snackbarHostState = snackbarHostState,
                             toastState = toastState,
                             coroutineScope = coroutineScope,
+                            showPreviewViewportControls = showPreviewViewportControls,
+                            initialPreviewViewport = initialPreviewViewport,
+                            onPreviewViewportChange = onPreviewViewportChange,
                         )
                     }
                     IenSnackbarHost(

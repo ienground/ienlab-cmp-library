@@ -27,7 +27,7 @@ import zone.ien.utils.ui.section.lazy.empty
 import zone.ien.utils.ui.section.lazy.link
 import zone.ien.utils.ui.section.lazy.ienSection
 import zone.ien.utils.ui.section.lazy.switch
-import zone.ien.utils.ui.section.m3SectionBackground
+import zone.ien.utils.ui.section.ienSectionBackground
 import zone.ien.utils.ui.screen.TopBarMode
 
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -73,7 +73,7 @@ fun LazySectionScreen(
                 state = lazyListState,
                 contentPadding = pv,
                 modifier = Modifier
-                    .m3SectionBackground()
+                    .ienSectionBackground()
 //                    .sectionBackground(sectionStyle = SectionStyle.InsetGrouped)
                     .fillMaxSize()
             ) {
