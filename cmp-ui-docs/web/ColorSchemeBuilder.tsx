@@ -28,20 +28,34 @@ export const colorSchemeSections = [
 const kotlinKeywords = new Set([
   "as",
   "class",
+  "const",
+  "data",
+  "else",
+  "enum",
+  "false",
   "fun",
   "if",
   "import",
   "internal",
+  "interface",
   "isSystemInDarkTheme",
+  "object",
   "private",
+  "public",
+  "return",
+  "suspend",
+  "this",
+  "true",
   "val",
   "var",
+  "when",
+  "where",
 ]);
 
-function highlightKotlin(source: string) {
+export function highlightKotlin(source: string) {
   let offset = 0;
   return source
-    .split(/(\s+|"(?:\\.|[^"\\])*"|0x[\da-fA-F]+|@[A-Za-z_]\w*|[A-Za-z_]\w*|\d+)/g)
+    .split(/(\/\/[^\n]*|\/\*[\s\S]*?\*\/|"""[\s\S]*?"""|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|@[A-Za-z_]\w*|0x[\da-fA-F]+|[A-Za-z_]\w*|\d+(?:\.\d+)?[fFL]?|\s+)/g)
     .filter(Boolean)
     .map((token, index) => {
       const tokenOffset = offset;
@@ -49,13 +63,16 @@ function highlightKotlin(source: string) {
       if (/^\s+$/.test(token)) return token;
 
       let tokenClass = "";
-      if (token.startsWith("@")) tokenClass = "kotlin-annotation";
-      else if (token.startsWith('"')) tokenClass = "kotlin-string";
-      else if (/^0x[\da-fA-F]+$/.test(token) || /^\d+$/.test(token)) {
+      if (token.startsWith("//") || token.startsWith("/*")) tokenClass = "kotlin-comment";
+      else if (token.startsWith("@")) tokenClass = "kotlin-annotation";
+      else if (token.startsWith('"') || token.startsWith("'")) tokenClass = "kotlin-string";
+      else if (/^(?:0x[\da-fA-F]+|\d+(?:\.\d+)?[fFL]?)$/.test(token)) {
         tokenClass = "kotlin-number";
       } else if (kotlinKeywords.has(token)) tokenClass = "kotlin-keyword";
       else if (/^[A-Z]/.test(token)) tokenClass = "kotlin-type";
-      else if (/^\s*=/.test(source.slice(tokenOffset + token.length))) {
+      else if (/^\s*\(/.test(source.slice(tokenOffset + token.length))) {
+        tokenClass = "kotlin-function";
+      } else if (/^\s*[:=]/.test(source.slice(tokenOffset + token.length))) {
         tokenClass = "kotlin-property";
       }
 

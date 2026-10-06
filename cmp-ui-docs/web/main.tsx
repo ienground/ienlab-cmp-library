@@ -45,7 +45,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { catalog, categories } from "./catalog.js";
 import apiDocs from "./generated-api-docs.json";
 import ienlabLogo from "./assets/ienlab-logo.png";
-import { ColorSchemeBuilder, colorSchemeSections } from "./ColorSchemeBuilder";
+import {
+  ColorSchemeBuilder,
+  colorSchemeSections,
+  highlightKotlin,
+} from "./ColorSchemeBuilder";
 import { composeColorQuery } from "./color-scheme";
 import type { ColorSchemes } from "./color-scheme";
 import "./styles.css";
@@ -165,6 +169,7 @@ function ComponentPage({
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
   const [previewLoaded, setPreviewLoaded] = useState(false);
   const [previewHeight, setPreviewHeight] = useState(minimumPreviewHeight);
+  const [previewWidth, setPreviewWidth] = useState<"full" | "mobile">("full");
   const previewFrameRef = useRef<HTMLIFrameElement>(null);
   const [customColorSchemes, setCustomColorSchemes] =
     useState<ColorSchemes | null>(null);
@@ -502,7 +507,37 @@ function ComponentPage({
                       기본 색상 복원
                     </Button>
                   )}
-                  <div className="preview-frame-wrap">
+                  <div className="preview-toolbar">
+                    <div
+                      aria-label="미리보기 너비"
+                      className="preview-width-controls"
+                      role="group"
+                    >
+                      <Button
+                        aria-pressed={previewWidth === "full"}
+                        onClick={() => setPreviewWidth("full")}
+                        size="sm"
+                        variant={previewWidth === "full" ? "secondary" : "outline"}
+                      >
+                        전체 너비
+                      </Button>
+                      <Button
+                        aria-pressed={previewWidth === "mobile"}
+                        onClick={() => setPreviewWidth("mobile")}
+                        size="sm"
+                        variant={previewWidth === "mobile" ? "secondary" : "outline"}
+                      >
+                        모바일 390px
+                      </Button>
+                    </div>
+                  </div>
+                  <div
+                    className={
+                      previewWidth === "mobile"
+                        ? "preview-frame-wrap mobile-preview"
+                        : "preview-frame-wrap"
+                    }
+                  >
                     {!previewLoaded ? (
                       <div
                         aria-live="polite"
@@ -518,11 +553,16 @@ function ComponentPage({
                       ref={previewFrameRef}
                       aria-label={activeComponent.name + " Compose 미리보기"}
                       className={
-                        previewLoaded ? "compose-frame loaded" : "compose-frame"
+                        `${previewLoaded ? "compose-frame loaded" : "compose-frame"}${
+                          previewWidth === "mobile" ? " mobile-preview" : ""
+                        }`
                       }
                       onLoad={() => setPreviewLoaded(true)}
                       src={composeUrl}
-                      style={{ height: `${previewHeight}px` }}
+                      style={{
+                        height: `${previewHeight}px`,
+                        width: previewWidth === "mobile" ? "min(390px, 100%)" : "100%",
+                      }}
                       title={activeComponent.name + " Compose 미리보기"}
                     />
                   </div>
@@ -855,7 +895,7 @@ function ApiDocumentation({ component }: { component: CatalogItem }) {
           <h3>{api.name}</h3>
           {api.signature ? (
             <pre className="api-signature">
-              <code>{api.signature}</code>
+              <code>{highlightKotlin(api.signature)}</code>
             </pre>
           ) : null}
           {api.description ? <p>{api.description}</p> : null}

@@ -583,6 +583,23 @@ body {
   border-radius: 9px;
 }
 
+.preview-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.preview-width-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.preview-frame-wrap.mobile-preview {
+  display: flex;
+  justify-content: center;
+}
+
 .compose-frame {
   display: block;
   width: 100%;
@@ -590,6 +607,12 @@ body {
   border: 0;
   opacity: 0;
   transition: opacity 180ms ease-out;
+}
+
+.compose-frame.mobile-preview {
+  max-width: 100%;
+  margin-inline: auto;
+  border-inline: 1px solid var(--border-subtle);
 }
 
 .compose-frame.loaded {
@@ -1085,6 +1108,13 @@ body {
 .kotlin-annotation {
   color: #c18401;
 }
+.kotlin-function {
+  color: #4078f2;
+}
+.kotlin-comment {
+  color: #7f848e;
+  font-style: italic;
+}
 .dark .kotlin-keyword {
   color: #c678dd;
 }
@@ -1102,6 +1132,12 @@ body {
 }
 .dark .kotlin-annotation {
   color: #e5c07b;
+}
+.dark .kotlin-function {
+  color: #61afef;
+}
+.dark .kotlin-comment {
+  color: #8b93a1;
 }
 .preview-reset {
   margin-bottom: 16px;

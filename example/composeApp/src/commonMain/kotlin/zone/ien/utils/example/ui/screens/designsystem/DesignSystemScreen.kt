@@ -8,6 +8,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
@@ -396,6 +397,8 @@ private fun toggleControl(
     isToggle = true,
 )
 
+private fun disabledControl() = toggleControl("disabled", "비활성화", false)
+
 private fun choiceControl(
     key: String,
     label: String,
@@ -425,7 +428,7 @@ private fun numberControl(
 private val ComponentPlaygroundControls = mapOf(
     "wheel-picker" to listOf(
         choiceControl("type", "종류", listOf("Date", "Time", "Duration")),
-        toggleControl("enabled", "선택 가능"),
+        disabledControl(),
         toggleControl("use24HourFormat", "24시간제"),
         toggleControl("showHours", "시 표시"),
         toggleControl("showMinutes", "분 표시"),
@@ -459,8 +462,9 @@ private val ComponentPlaygroundControls = mapOf(
     "button" to listOf(
         choiceControl("variant", "표시 방식", listOf("Fill", "Weak", "Line", "Ghost")),
         choiceControl("size", "크기", listOf("Small", "Medium", "Large")),
-        choiceControl("display", "배치", listOf("Full", "Block", "Inline")),
-        toggleControl("enabled", "활성화"),
+        choiceControl("display", "배치", listOf("Full", "Block", "Inline"), "Block"),
+        choiceControl("shape", "모양", listOf("Capsule", "Rounded"), "Capsule"),
+        disabledControl(),
         toggleControl("loading", "로딩 상태", false),
     ),
     "card" to listOf(
@@ -476,7 +480,6 @@ private val ComponentPlaygroundControls = mapOf(
                 "Assist",
                 "ElevatedAssist",
                 "Loading",
-                "Disabled",
                 "Filter",
                 "ElevatedFilter",
                 "Input",
@@ -486,30 +489,35 @@ private val ComponentPlaygroundControls = mapOf(
             ),
         ),
         toggleControl("selected", "선택 상태", false),
+        disabledControl(),
     ),
     "fab" to listOf(
         choiceControl("variant", "표시 방식", listOf("Fill", "Weak", "Line", "Ghost")),
         choiceControl("size", "크기", listOf("Small", "Regular", "Large"), "Regular"),
+        disabledControl(),
     ),
     "checkbox" to listOf(
         choiceControl("variant", "형태", listOf("Circle", "Line")),
         toggleControl("checked", "선택 상태"),
-        toggleControl("enabled", "활성화"),
+        disabledControl(),
     ),
     "icon-button" to listOf(
         choiceControl("variant", "표시 방식", listOf("Fill", "Weak", "Line", "Ghost")),
         choiceControl("size", "크기", listOf("Small", "Medium", "Large")),
-        toggleControl("enabled", "활성화"),
+        disabledControl(),
         toggleControl("loading", "로딩 상태", false),
     ),
     "loader" to listOf(choiceControl("size", "크기", listOf("Small", "Medium", "Large"))),
-    "menu" to listOf(toggleControl("visible", "메뉴 표시", false)),
+    "menu" to listOf(
+        toggleControl("visible", "메뉴 표시", false),
+        disabledControl(),
+    ),
     "modal" to listOf(toggleControl("visible", "모달 표시", false)),
     "numeric-spinner" to listOf(
         choiceControl("size", "크기", listOf("Tiny", "Small", "Medium", "Large"), "Medium"),
         numberControl("minNumber", "최솟값", 0, 0, 20),
         numberControl("maxNumber", "최댓값", 10, 1, 50),
-        toggleControl("disable", "비활성화", false),
+        disabledControl(),
     ),
     "progress-bar" to listOf(
         numberControl("progress", "진행률 (%)", 64, 0, 100),
@@ -526,23 +534,31 @@ private val ComponentPlaygroundControls = mapOf(
         toggleControl("readOnly", "읽기 전용", false),
         toggleControl("disabled", "비활성화", false),
     ),
-    "search-field" to listOf(toggleControl("enabled", "활성화")),
+    "search-field" to listOf(disabledControl()),
     "segmented-control" to listOf(
         numberControl("selectedIndex", "선택 항목", 0, 0, 2),
         choiceControl("size", "크기", listOf("Small", "Large")),
         choiceControl("alignment", "정렬", listOf("Fixed", "Fluid")),
+        disabledControl(),
     ),
-    "slider" to listOf(numberControl("value", "값 (%)", 35, 0, 100)),
-    "switch" to listOf(toggleControl("checked", "켜짐 상태")),
+    "slider" to listOf(
+        numberControl("value", "값 (%)", 35, 0, 100),
+        disabledControl(),
+    ),
+    "switch" to listOf(
+        toggleControl("checked", "켜짐 상태"),
+        disabledControl(),
+    ),
     "tab" to listOf(
         numberControl("selectedIndex", "선택 탭", 0, 0, 2),
         choiceControl("size", "크기", IenTabSize.entries.map { it.name }, "Large"),
         choiceControl("layout", "배치", listOf("Fixed", "Fluid")),
+        disabledControl(),
     ),
     "text-button" to listOf(
         choiceControl("variant", "표시 방식", listOf("Clear", "Arrow", "Underline")),
         choiceControl("size", "크기", listOf("XSmall", "Small", "Medium", "Large", "XLarge", "XXLarge"), "Medium"),
-        toggleControl("enabled", "활성화"),
+        disabledControl(),
     ),
     "tooltip" to listOf(
         choiceControl("placement", "표시 위치", listOf("Top", "Bottom", "Left", "Right")),
@@ -558,13 +574,14 @@ private val ComponentPlaygroundControls = mapOf(
         choiceControl("descriptionVariant", "설명 형태", IenAgreementDescriptionVariant.entries.map { it.name }),
         choiceControl("badgeVariant", "배지 형태", IenAgreementBadgeVariant.entries.map { it.name }),
         choiceControl("necessityVariant", "필수 표시", IenAgreementNecessityVariant.entries.map { it.name }),
+        disabledControl(),
     ),
     "asset" to listOf(
         choiceControl("size", "크기", listOf("Small", "Medium", "Large", "ExtraLarge")),
         choiceControl("shape", "모양", listOf("Rounded", "Circle")),
     ),
     "bottom-bar" to listOf(toggleControl("showFab", "플로팅 버튼 표시")),
-    "chat-bottom-bar" to listOf(toggleControl("enabled", "입력 가능")),
+    "chat-bottom-bar" to listOf(disabledControl()),
     "navigation-bar" to listOf(
         toggleControl("visible", "내비게이션 표시"),
         toggleControl("vertical", "세로 배치", false),
@@ -572,12 +589,14 @@ private val ComponentPlaygroundControls = mapOf(
         numberControl("itemCount", "항목 수", 3, 1, 5),
         numberControl("selectedIndex", "선택 항목", 0, 0, 4),
         numberControl("badge", "배지 수", 3, 0, 99),
+        disabledControl(),
     ),
     "bottom-cta" to listOf(
         toggleControl("visible", "CTA 표시"),
         toggleControl("loading", "로딩 상태", false),
+        disabledControl(),
     ),
-    "keypad" to listOf(toggleControl("enabled", "키 입력 가능")),
+    "keypad" to listOf(disabledControl()),
     "list-row" to listOf(
         choiceControl(
             "textType",
@@ -587,18 +606,27 @@ private val ComponentPlaygroundControls = mapOf(
         ),
         choiceControl("assetShape", "에셋 모양", IenListRowAssetShape.entries.map { it.name }, "Squircle"),
         choiceControl("assetSize", "에셋 크기", IenListRowAssetSize.entries.map { it.name }, "Medium"),
-        toggleControl("enabled", "활성화"),
+        disabledControl(),
     ),
     "text-field" to listOf(
         choiceControl("variant", "형태", IenTextFieldVariant.entries.map { it.name }),
-        toggleControl("enabled", "활성화"),
+        disabledControl(),
     ),
-    "split-text-field" to listOf(numberControl("fieldCount", "입력 칸 수", 4, 2, 8)),
-    "text-area" to listOf(numberControl("maxLines", "최대 줄 수", 4, 2, 12)),
+    "split-text-field" to listOf(
+        numberControl("fieldCount", "입력 칸 수", 4, 2, 8),
+        disabledControl(),
+    ),
+    "text-area" to listOf(
+        numberControl("maxLines", "최대 줄 수", 4, 2, 12),
+        disabledControl(),
+    ),
     "skeleton" to listOf(
         choiceControl("pattern", "패턴", IenSkeletonPattern.entries.map { it.name }, "TopListWithIcon"),
     ),
-    "primitives" to listOf(choiceControl("shape", "표면 형태", listOf("Rounded", "Circle"))),
+    "primitives" to listOf(
+        choiceControl("shape", "표면 형태", listOf("Rounded", "Circle")),
+        disabledControl(),
+    ),
 )
 
 private fun playgroundControls(componentId: String): List<PlaygroundControl> {
@@ -607,6 +635,8 @@ private fun playgroundControls(componentId: String): List<PlaygroundControl> {
 
 private fun Map<String, String>.booleanValue(key: String, defaultValue: Boolean): Boolean =
     this[key]?.toBooleanStrictOrNull() ?: defaultValue
+
+private fun Map<String, String>.disabledValue(): Boolean = booleanValue("disabled", false)
 
 private fun Map<String, String>.intValue(key: String, defaultValue: Int): Int =
     this[key]?.toIntOrNull() ?: defaultValue
@@ -701,59 +731,70 @@ internal fun DesignSystemPlayground(
                         Text("초기화")
                     }
                 }
-                controls.forEach { control ->
-                    if (control.isToggle) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                control.label,
-                                style = IenTheme.typography.label1,
-                                color = IenTheme.colors.textSecondary,
+                BoxWithConstraints {
+                    val columns = if (maxWidth >= 720.dp) 2 else 1
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        maxItemsInEachRow = columns,
+                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+                        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+                    ) {
+                        controls.forEach { control ->
+                            Column(
                                 modifier = Modifier.weight(1f),
-                            )
-                            IenSwitch(
-                                checked = values.booleanValue(
-                                    control.key,
-                                    control.defaultValue.toBooleanStrict(),
-                                ),
-                                onCheckedChange = { checked ->
-                                    values[control.key] = checked.toString()
-                                },
-                            )
-                        }
-                    } else {
-                        Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                            if (control.choices.isNotEmpty()) {
-                                Text(
-                                    control.label,
-                                    style = IenTheme.typography.label1,
-                                    color = IenTheme.colors.textSecondary,
-                                )
-                                FlowRow(
-                                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-                                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-                                ) {
-                                    control.choices.forEach { choice ->
-                                        IenFilterChip(
-                                            selected = values[control.key] == choice.value,
-                                            onSelectedChange = { selected ->
-                                                if (selected) values[control.key] = choice.value
+                                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                            ) {
+                                if (control.isToggle) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            control.label,
+                                            style = IenTheme.typography.label1,
+                                            color = IenTheme.colors.textSecondary,
+                                            modifier = Modifier.weight(1f),
+                                        )
+                                        IenSwitch(
+                                            checked = values.booleanValue(
+                                                control.key,
+                                                control.defaultValue.toBooleanStrict(),
+                                            ),
+                                            onCheckedChange = { checked ->
+                                                values[control.key] = checked.toString()
                                             },
-                                        ) {
-                                            Text(choice.label)
+                                        )
+                                    }
+                                } else if (control.choices.isNotEmpty()) {
+                                    Text(
+                                        control.label,
+                                        style = IenTheme.typography.label1,
+                                        color = IenTheme.colors.textSecondary,
+                                    )
+                                    FlowRow(
+                                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                                        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                                    ) {
+                                        control.choices.forEach { choice ->
+                                            IenFilterChip(
+                                                selected = values[control.key] == choice.value,
+                                                onSelectedChange = { selected ->
+                                                    if (selected) values[control.key] = choice.value
+                                                },
+                                            ) {
+                                                Text(choice.label)
+                                            }
                                         }
                                     }
+                                } else {
+                                    val minimum = control.minValue ?: Int.MIN_VALUE
+                                    val maximum = control.maxValue ?: Int.MAX_VALUE
+                                    IenTextField(
+                                        value = values[control.key] ?: control.defaultValue,
+                                        onValueChange = { value -> values[control.key] = value },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        label = control.label,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                        supportingText = "범위: $minimum–$maximum",
+                                    )
                                 }
-                            } else {
-                                val minimum = control.minValue ?: Int.MIN_VALUE
-                                val maximum = control.maxValue ?: Int.MAX_VALUE
-                                IenTextField(
-                                    value = values[control.key] ?: control.defaultValue,
-                                    onValueChange = { value -> values[control.key] = value },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    label = control.label,
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    supportingText = "범위: $minimum–$maximum",
-                                )
                             }
                         }
                     }
@@ -1040,7 +1081,7 @@ internal fun DesignSystemComponentPreview(
         "list-footer" -> ListFooterSection()
         "list-header" -> ListHeaderSection()
         "loader" -> LoaderSection(controlValues)
-        "menu" -> MenuSection()
+        "menu" -> MenuSection(controlValues)
         "modal" -> ModalSection()
         "numeric-spinner" -> NumericSpinnerSection(controlValues)
         "paragraph" -> ParagraphSection()
@@ -1486,7 +1527,7 @@ fun BottomSheetSection(controls: Map<String, String> = emptyMap()) {
             "Full" -> IenSheetDetent.Full
             else -> IenSheetDetent.Content
         }
-        val visible = controls.booleanValue("visible", false) || LocalComponentVariantShowcase.current
+        val visible = controls.booleanValue("visible", false)
         val sheetState = rememberIenBottomSheetState(visible = visible, detent = detent)
         LaunchedEffect(visible, detent) {
             if (visible) sheetState.show(detent) else sheetState.hide()
@@ -1618,9 +1659,14 @@ fun ButtonSection(controls: Map<String, String> = emptyMap()) {
                 size = buttonSize,
                 variant = buttonVariant,
                 state = IenButtonState(
-                    enabled = controls.booleanValue("enabled", true),
+                    enabled = !controls.disabledValue(),
                     loading = controls.booleanValue("loading", false),
                 ),
+                shape = if (controls.enumValue("shape", "Capsule") == "Capsule") {
+                    ContinuousCapsule()
+                } else {
+                    ContinuousRoundedRectangle(IenTheme.radius.default)
+                },
                 display = display,
             ) {
                 Text("${controls.enumValue("variant", "Fill")} · ${buttonSize.name}")
@@ -1813,24 +1859,25 @@ fun CardSection(controls: Map<String, String> = emptyMap()) {
 @Composable
 fun ChipSection(controls: Map<String, String> = emptyMap()) {
     val variant = controls.enumValue("variant", "Assist")
+    val disabled = controls.disabledValue()
     IenTheme {
         var selected by remember(controls["selected"]) {
             mutableStateOf(controls.booleanValue("selected", false))
         }
         ComponentSection(title = "Chip") {
             when (variant) {
-                "ElevatedAssist" -> IenElevatedAssistChip(onClick = {}) { Text("Elevated Assist") }
+                "ElevatedAssist" -> IenElevatedAssistChip(
+                    onClick = {},
+                    state = IenChipState(enabled = !disabled),
+                ) { Text("Elevated Assist") }
                 "Loading" -> IenAssistChip(
                     onClick = {},
-                    state = IenChipState(loading = true),
+                    state = IenChipState(enabled = !disabled, loading = true),
                 ) { Text("Loading") }
-                "Disabled" -> IenAssistChip(
-                    onClick = {},
-                    state = IenChipState(enabled = false),
-                ) { Text("Disabled") }
                 "Filter" -> IenFilterChip(
                     selected = selected,
                     onSelectedChange = { selected = it },
+                    state = IenChipState(enabled = !disabled),
                     colors = IenChipDefault.colors(
                         tone = if (selected) IenSemanticTone.Success else IenSemanticTone.Brand,
                     ),
@@ -1843,10 +1890,12 @@ fun ChipSection(controls: Map<String, String> = emptyMap()) {
                 "ElevatedFilter" -> IenElevatedFilterChip(
                     selected = selected,
                     onSelectedChange = { selected = it },
+                    state = IenChipState(enabled = !disabled),
                 ) { Text("Elevated Filter") }
                 "Input" -> IenInputChip(
                     selected = selected,
                     onSelectedChange = { selected = it },
+                    state = IenChipState(enabled = !disabled),
                     avatar = {
                         Box(
                             modifier = Modifier
@@ -1862,13 +1911,18 @@ fun ChipSection(controls: Map<String, String> = emptyMap()) {
                         IenIcon(M3SystemIcons.Filled.Close, contentDescription = "입력 제거")
                     },
                 ) { Text("Input") }
-                "Suggestion" -> IenSuggestionChip(onClick = {}) { Text("Suggestion") }
+                "Suggestion" -> IenSuggestionChip(
+                    onClick = {},
+                    state = IenChipState(enabled = !disabled),
+                ) { Text("Suggestion") }
                 "ElevatedSuggestion" -> IenElevatedSuggestionChip(
                     onClick = {},
+                    state = IenChipState(enabled = !disabled),
                     icon = { IenIcon(M3SystemIcons.Filled.Check, contentDescription = null) },
                 ) { Text("Elevated Suggestion") }
                 "GradientSuggestion" -> IenSuggestionChip(
                     onClick = {},
+                    state = IenChipState(enabled = !disabled),
                     colors = IenChipDefault.colors(
                         container = Color(0xFF7C3AED),
                         content = Color.White,
@@ -1879,6 +1933,7 @@ fun ChipSection(controls: Map<String, String> = emptyMap()) {
                 ) { Text("Gradient") }
                 else -> IenAssistChip(
                     onClick = {},
+                    state = IenChipState(enabled = !disabled),
                     leadingIcon = {
                         IenIcon(M3SystemIcons.Filled.Check, contentDescription = null)
                     },
@@ -1904,7 +1959,12 @@ fun FabSection(controls: Map<String, String> = emptyMap()) {
     }
     IenTheme {
         ComponentSection(title = "FAB") {
-            IenFab(onClick = {}, size = fabSize, variant = fabVariant) {
+            IenFab(
+                onClick = {},
+                size = fabSize,
+                variant = fabVariant,
+                state = IenButtonState(enabled = !controls.disabledValue()),
+            ) {
                 IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
             }
             if (!LocalComponentVariantShowcase.current) {
@@ -1959,7 +2019,7 @@ fun CheckboxSection(controls: Map<String, String> = emptyMap()) {
         var checked by remember(controls["checked"]) {
             mutableStateOf(controls.booleanValue("checked", true))
         }
-        val enabled = controls.booleanValue("enabled", true)
+        val enabled = !controls.disabledValue()
         ComponentSection(title = "Checkbox") {
             if (isCircle) {
                 IenCircleCheckbox(
@@ -2014,7 +2074,7 @@ fun IconButtonSection(controls: Map<String, String> = emptyMap()) {
                 size = size,
                 variant = variant,
                 state = IenButtonState(
-                    enabled = controls.booleanValue("enabled", true),
+                    enabled = !controls.disabledValue(),
                     loading = controls.booleanValue("loading", false),
                 ),
             ) {
@@ -2136,6 +2196,7 @@ fun MenuSection(controls: Map<String, String> = emptyMap()) {
                     ) {
                         IenMenu.DropdownItem(
                             text = "수정",
+                            enabled = !controls.disabledValue(),
                             onClick = {
                                 menuOpen = false
                             },
@@ -2253,7 +2314,7 @@ fun NumericSpinnerSection(controls: Map<String, String> = emptyMap()) {
                 minNumber = minNumber,
                 maxNumber = maxNumber,
                 size = size,
-                disable = controls.booleanValue("disable", false),
+                disable = controls.disabledValue(),
                 decreaseAriaLabel = "수량 줄이기",
                 increaseAriaLabel = "수량 늘리기",
             )
@@ -2412,7 +2473,7 @@ fun SearchFieldSection(controls: Map<String, String> = emptyMap()) {
                 value = search,
                 onValueChange = { search = it },
                 placeholder = "컴포넌트 검색",
-                state = IenTextFieldState(enabled = controls.booleanValue("enabled", true)),
+                state = IenTextFieldState(enabled = !controls.disabledValue()),
             )
             IenSearchField(
                 value = deletableSearch,
@@ -2487,6 +2548,7 @@ fun SegmentedControlSection(controls: Map<String, String> = emptyMap()) {
                 modifier = Modifier.fillMaxWidth(),
                 size = size,
                 alignment = alignment,
+                enabled = !controls.disabledValue(),
             )
         }
     }
@@ -2542,6 +2604,7 @@ fun SliderSection(controls: Map<String, String> = emptyMap()) {
                 onValueChange = { sliderValue = it },
                 label = "비율",
                 valueLabel = "${(sliderValue * 100).toInt()}%",
+                enabled = !controls.disabledValue(),
             )
         }
     }
@@ -2793,13 +2856,18 @@ fun SwitchSection(controls: Map<String, String> = emptyMap()) {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("자동 적용", modifier = Modifier.weight(1f))
-                    IenSwitch(checked = switched, onCheckedChange = { switched = it })
+                    IenSwitch(
+                        checked = switched,
+                        onCheckedChange = { switched = it },
+                        enabled = !controls.disabledValue(),
+                    )
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("트랙 아이콘", modifier = Modifier.weight(1f))
                     IenSwitch(
                         checked = switchedWithTrackIcon,
                         onCheckedChange = { switchedWithTrackIcon = it },
+                        enabled = !controls.disabledValue(),
                         onTrackContent = {
                             IenIcon(
                                 imageVector = M3SystemIcons.Filled.Check,
@@ -2831,6 +2899,7 @@ fun TabSection(controls: Map<String, String> = emptyMap()) {
         it.name == controls.enumValue("size", "Large")
     } ?: IenTabSize.Large
     val fluid = controls.enumValue("layout", "Fixed") == "Fluid"
+    val enabled = !controls.disabledValue()
     IenTheme {
         var tabSelected by remember(selectedIndex) {
             mutableIntStateOf(selectedIndex)
@@ -2839,9 +2908,9 @@ fun TabSection(controls: Map<String, String> = emptyMap()) {
         ComponentSection(title = "Tab") {
             IenTab(
                 items = listOf(
-                    IenTabItem("요약", key = "summary"),
-                    IenTabItem("상세", key = "detail", redBean = true),
-                    IenTabItem("내역", key = "history"),
+                    IenTabItem("요약", key = "summary", enabled = enabled),
+                    IenTabItem("상세", key = "detail", redBean = true, enabled = enabled),
+                    IenTabItem("내역", key = "history", enabled = enabled),
                 ),
                 selectedIndex = tabSelected,
                 onSelectedIndexChange = { tabSelected = it },
@@ -2856,11 +2925,11 @@ fun TabSection(controls: Map<String, String> = emptyMap()) {
                 Text("FloatingTabBar", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
                 IenFloatingTabBar(
                     items = listOf(
-                        IenTabItem("홈", key = "home", icon = M3SystemIcons.Rounded.RoundedKeyboard, selectedIcon = M3SystemIcons.Filled.FilledKeyboard),
-                        IenTabItem("혜택", key = "benefit", icon = M3SystemIcons.Rounded.RoundedCheck, selectedIcon = M3SystemIcons.Filled.Check),
-                        IenTabItem("아이엔페이", key = "pay", icon = M3SystemIcons.Rounded.RoundedSave, selectedIcon = M3SystemIcons.Filled.FilledSave),
-                        IenTabItem("증권", key = "stock", icon = M3SystemIcons.Rounded.RoundedCloudOff, selectedIcon = M3SystemIcons.Filled.FilledCloudOff),
-                        IenTabItem("전체", key = "all", icon = M3SystemIcons.Rounded.RoundedMoreVert, selectedIcon = M3SystemIcons.Filled.FilledMoreVert),
+                        IenTabItem("홈", key = "home", icon = M3SystemIcons.Rounded.RoundedKeyboard, selectedIcon = M3SystemIcons.Filled.FilledKeyboard, enabled = enabled),
+                        IenTabItem("혜택", key = "benefit", icon = M3SystemIcons.Rounded.RoundedCheck, selectedIcon = M3SystemIcons.Filled.Check, enabled = enabled),
+                        IenTabItem("아이엔페이", key = "pay", icon = M3SystemIcons.Rounded.RoundedSave, selectedIcon = M3SystemIcons.Filled.FilledSave, enabled = enabled),
+                        IenTabItem("증권", key = "stock", icon = M3SystemIcons.Rounded.RoundedCloudOff, selectedIcon = M3SystemIcons.Filled.FilledCloudOff, enabled = enabled),
+                        IenTabItem("전체", key = "all", icon = M3SystemIcons.Rounded.RoundedMoreVert, selectedIcon = M3SystemIcons.Filled.FilledMoreVert, enabled = enabled),
                     ),
                     selectedIndex = floatingTabSelected,
                     onSelectedIndexChange = { floatingTabSelected = it },
@@ -2925,7 +2994,7 @@ fun TextButtonSection(controls: Map<String, String> = emptyMap()) {
             IenTextButton(
                 size = size,
                 variant = variant,
-                state = IenButtonState(enabled = controls.booleanValue("enabled", true)),
+                state = IenButtonState(enabled = !controls.disabledValue()),
                 onClick = {},
             ) {
                 Text("${variant.name} · ${size.name}")
@@ -3349,6 +3418,7 @@ fun TopSection(controls: Map<String, String> = emptyMap()) {
 @Preview
 @Composable
 fun AgreementSection(controls: Map<String, String> = emptyMap()) {
+    val enabled = !controls.disabledValue()
     val agreementVariant = IenAgreementVariant.entries.firstOrNull {
         it.name == controls.enumValue("variant", "Large")
     } ?: IenAgreementVariant.Large
@@ -3374,6 +3444,7 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
                             checked = true,
                             onCheckedChange = {},
                             variant = checkboxVariant,
+                            enabled = enabled,
                         )
                     },
                     middle = {
@@ -3427,6 +3498,9 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
                 ),
             )
         }
+        val displayedAgreements = agreements.map { item ->
+            if (item.id == "service") item.copy(enabled = enabled) else item
+        }
         var singleChecked by remember { mutableStateOf(false) }
         var dotChecked by remember { mutableStateOf(true) }
 
@@ -3451,7 +3525,8 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
                 left = {
                     IenAgreementCheckbox(
                         checked = singleChecked,
-                        onCheckedChange = { singleChecked = it }
+                        onCheckedChange = { singleChecked = it },
+                        enabled = enabled,
                     )
                 },
                 middle = {
@@ -3656,7 +3731,7 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
             )
 
             IenAgreement(
-                items = agreements,
+                items = displayedAgreements,
                 onItemCheckedChange = { id, checked ->
                     agreements =
                         agreements.map { if (it.id == id) it.copy(checked = checked) else it }
@@ -3814,7 +3889,7 @@ fun BottomBarSection(controls: Map<String, String> = emptyMap()) {
 fun ChatBottomBarSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
         ComponentSection(title = "ChatBottomBar") {
-            ChatBottomBarExample(enabled = controls.booleanValue("enabled", true))
+            ChatBottomBarExample(enabled = !controls.disabledValue())
         }
     }
 }
@@ -3888,6 +3963,7 @@ fun NavigationBarSection(controls: Map<String, String> = emptyMap()) {
     val visible = controls.booleanValue("visible", true)
     val alwaysShowLabel = controls.booleanValue("alwaysShowLabel", false)
     val badge = controls.intValue("badge", 3)
+    val enabled = !controls.disabledValue()
     val items = listOf(
         "홈" to M3SystemIcons.Save,
         "기록" to M3SystemIcons.Schedule,
@@ -3917,6 +3993,7 @@ fun NavigationBarSection(controls: Map<String, String> = emptyMap()) {
                         label = { Text(label) },
                         direction = direction,
                         alwaysShowLabel = alwaysShowLabel,
+                        enabled = enabled,
                         badge = if (index == 1) badge else 0,
                     )
                 }
@@ -3932,6 +4009,7 @@ fun BottomCTASection(controls: Map<String, String> = emptyMap()) {
         var showAnimatedCTA by remember { mutableStateOf(true) }
         var isLoadingCTA by remember(controls["loading"]) { mutableStateOf(controls.booleanValue("loading", false)) }
         val visible = controls.booleanValue("visible", true)
+        val enabled = !controls.disabledValue()
         ComponentSection(title = "BottomCTA") {
             IenButton(
                 onClick = { isLoadingCTA = !isLoadingCTA },
@@ -3950,12 +4028,12 @@ fun BottomCTASection(controls: Map<String, String> = emptyMap()) {
                         size = IenTheme.icon.md,
                     )
                 },
-                state = IenButtonState(loading = isLoadingCTA),
+                state = IenButtonState(enabled = enabled, loading = isLoadingCTA),
             )
             if (visible) IenBottomCTA(
                 text = "단일 CTA",
                 onClick = {},
-                state = IenButtonState(loading = isLoadingCTA),
+                state = IenButtonState(enabled = enabled, loading = isLoadingCTA),
                 topAccessory = {
                     Text(
                         text = "상단 액세서리: 결제 전 안내 문구",
@@ -4002,6 +4080,8 @@ fun BottomCTASection(controls: Map<String, String> = emptyMap()) {
                 onPrimaryClick = {},
                 secondaryText = "취소",
                 onSecondaryClick = {},
+                primaryState = IenButtonState(enabled = enabled),
+                secondaryState = IenButtonState(enabled = enabled),
                 topAccessory = {
                     Text(
                         text = "Double은 좌우 버튼 슬롯을 함께 제공합니다.",
@@ -4360,6 +4440,7 @@ fun DialogSection() {
 @Preview
 @Composable
 fun KeypadSection(controls: Map<String, String> = emptyMap()) {
+    val enabled = !controls.disabledValue()
     IenTheme {
         var alphabetValue by remember { mutableStateOf("") }
         var customAlphabetValue by remember { mutableStateOf("") }
@@ -4377,6 +4458,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
             IenAlphabetKeypad(
                 onKeyClick = { alphabetValue += it },
                 onBackspaceClick = { alphabetValue = alphabetValue.dropLast(1) },
+                enabled = enabled,
             )
             IenDivider()
             Text("커스텀 배열: $customAlphabetValue", style = IenTheme.typography.body2)
@@ -4394,6 +4476,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 ),
                 onKeyClick = { customAlphabetValue += it },
                 onBackspaceClick = { customAlphabetValue = customAlphabetValue.dropLast(1) },
+                enabled = enabled,
             )
             IenDivider()
             Text("보안 알파벳 키보드: $alphabetValue", style = IenTheme.typography.body2)
@@ -4401,13 +4484,14 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 onAction = { action ->
                     alphabetValue = applyKeyboardAction(alphabetValue, action)
                 },
+                enabled = enabled,
             )
             IenDivider()
             Text("Number Keypad: $numberValue", style = IenTheme.typography.body2)
             IenNumberKeypad(
                 onKeyClick = { numberValue += it },
                 onBackspaceClick = { numberValue = numberValue.dropLast(1) },
-                enabled = controls.booleanValue("enabled", true),
+                enabled = enabled,
             )
             IenDivider()
             Text("커스텀 숫자 배열: $customNumberValue", style = IenTheme.typography.body2)
@@ -4415,6 +4499,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 numbers = listOf(1, 3, 5, 7, 9, 2, 4, 6, 8, 0),
                 onKeyClick = { customNumberValue += it },
                 onBackspaceClick = { customNumberValue = customNumberValue.dropLast(1) },
+                enabled = enabled,
             )
             IenDivider()
             Text(
@@ -4431,6 +4516,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 onSecureNoiseKeyClick = {
                     secureNoiseValue = (secureNoiseValue + it).takeLast(8)
                 },
+                enabled = enabled,
             )
             IenDivider()
             Text("Full Secure Keypad: $fullSecureValue", style = IenTheme.typography.body2)
@@ -4442,6 +4528,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 onSubmit = { fullSecureKeypadState.reorderEmptyCells() },
                 submitButtonText = "공백 옮기기",
                 submitDisabled = fullSecureValue.isEmpty(),
+                enabled = enabled,
             )
             IenDivider()
             IenFullSecureKeyboard(
@@ -4453,6 +4540,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                     secureValue = applyKeyboardAction(secureValue, action)
                 },
                 onLanguageChange = { secureLanguage = it },
+                enabled = enabled,
             )
         }
     }
@@ -4470,6 +4558,7 @@ fun ListRowSection(controls: Map<String, String> = emptyMap()) {
     val assetSize = IenListRowAssetSize.entries.firstOrNull {
         it.name == controls.enumValue("assetSize", "Medium")
     } ?: IenListRowAssetSize.Medium
+    val enabled = !controls.disabledValue()
     if (LocalComponentVariantShowcase.current) {
         IenTheme {
             ComponentSection(title = "ListRow") {
@@ -4499,8 +4588,8 @@ fun ListRowSection(controls: Map<String, String> = emptyMap()) {
         ComponentSection(title = "ListRow") {
             IenListRow(
                 title = "속성 적용 미리보기",
-                subtitle = "enabled = ${controls.booleanValue("enabled", true)}",
-                enabled = controls.booleanValue("enabled", true),
+                subtitle = "비활성화 = ${!enabled}",
+                enabled = enabled,
                 withArrow = true,
                 onClick = {},
             )
@@ -4690,6 +4779,7 @@ fun ListRowSection(controls: Map<String, String> = emptyMap()) {
 @Preview
 @Composable
 fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
+    val enabled = !controls.disabledValue()
     val variant = IenTextFieldVariant.entries.firstOrNull {
         it.name == controls.enumValue("variant", "Box")
     } ?: IenTextFieldVariant.Box
@@ -4703,7 +4793,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
                     label = "이름",
                     placeholder = "이름을 입력하세요",
                     variant = variant,
-                    state = IenTextFieldState(enabled = controls.booleanValue("enabled", true)),
+                    state = IenTextFieldState(enabled = enabled),
                 )
             }
         }
@@ -4737,7 +4827,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
                 required = true,
                 placeholder = "이름을 입력하세요",
                 variant = variant,
-                state = IenTextFieldState(enabled = controls.booleanValue("enabled", true)),
+                state = IenTextFieldState(enabled = enabled),
                 hasError = text.length >= 4,
                 help = if (text.length >= 4) "이름은 3글자 이하로 입력해주세요." else "값이 들어오거나 포커스되면 라벨이 나타납니다.",
                 lengthLimit = IenTextFieldLengthLimit.Error(3),
@@ -4836,6 +4926,7 @@ fun SplitTextFieldSection(controls: Map<String, String> = emptyMap()) {
                 value = splitText,
                 onValueChange = { splitText = it },
                 length = controls.intValue("fieldCount", 4).coerceIn(2, 8),
+                state = IenTextFieldState(enabled = !controls.disabledValue()),
             )
         }
     }
@@ -4854,6 +4945,7 @@ fun TextAreaSection(controls: Map<String, String> = emptyMap()) {
                 label = "메모 · LengthLimit.Block",
                 placeholder = "여러 줄 텍스트를 입력하세요",
                 supportingText = "TextArea는 TextField 토큰과 상태 모델을 공유합니다.",
+                state = IenTextFieldState(enabled = !controls.disabledValue()),
                 lengthLimit = IenTextFieldLengthLimit.Block(120),
                 minLines = 2,
                 maxLines = controls.intValue("maxLines", 4).coerceIn(2, 12),
@@ -4881,7 +4973,7 @@ fun PrimitivesSection(controls: Map<String, String> = emptyMap()) {
                 Text("${controls.enumValue("shape", "Rounded")} 표면", modifier = Modifier.padding(IenTheme.spacing.md), color = IenTheme.colors.brand)
             }
             if (!LocalComponentVariantShowcase.current) {
-                IenClickable(onClick = {}) {
+                IenClickable(onClick = {}, enabled = !controls.disabledValue()) {
                     IenSurface(color = IenTheme.colors.brandWeak) {
                         Text(
                             text = "Clickable container",
@@ -4942,7 +5034,7 @@ internal val LocalComponentVariantShowcase = staticCompositionLocalOf { false }
 @Composable
 fun WheelPickerSection(controls: Map<String, String> = emptyMap()) {
     val type = controls.enumValue("type", "Date")
-    val enabled = controls.booleanValue("enabled", true)
+    val enabled = !controls.disabledValue()
     val use24HourFormat = controls.booleanValue("use24HourFormat", true)
     val showHours = controls.booleanValue("showHours", true)
     val showMinutes = controls.booleanValue("showMinutes", true)
