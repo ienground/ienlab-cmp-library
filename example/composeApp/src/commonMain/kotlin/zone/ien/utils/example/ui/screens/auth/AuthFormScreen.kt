@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.delay
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.icons.CupertinoIcons
@@ -45,6 +47,8 @@ import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenFieldStatus
 import zone.ien.utils.ui.interactive.IenPasswordRule
+import zone.ien.utils.ui.interactive.IenTextButton
+import zone.ien.utils.ui.interactive.IenTextButtonSize
 import zone.ien.utils.ui.interactive.IenTextFieldState
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
@@ -62,6 +66,7 @@ fun AuthFormScreen(
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var status by remember { mutableStateOf<IenAuthFormStatus>(IenAuthFormStatus.Idle) }
+    var progress by remember { mutableStateOf(false) }
 
     val copy = remember {
         IenAuthFormCopy(
@@ -87,6 +92,13 @@ fun AuthFormScreen(
             confirmPasswordPlaceholder = "비밀번호를 한 번 더 입력하세요",
             passwordRulesTitle = "비밀번호 보안",
             socialLoginTitle = "다른 방법으로 계속하기",
+            passwordReset = IenAuthFormModeCopy(
+                title = "비밀번호 재설정",
+                description = "가입한 이메일 주소를 입력하세요.",
+                submitLabel = "재설정 요청",
+                modePrompt = "비밀번호가 기억나셨나요?",
+                modeActionLabel = "로그인",
+            ),
         )
     }
     val passwordRules = listOf(
@@ -116,13 +128,30 @@ fun AuthFormScreen(
         )
     }
     val passwordReady = passwordRules.all(IenPasswordRule::satisfied)
-    val formReady = email.contains("@") && password.isNotBlank() &&
-        (mode == IenAuthFormMode.Login || (passwordReady && confirmPassword == password))
+    val formReady = email.contains("@") &&
+        (mode == IenAuthFormMode.PasswordReset || password.isNotBlank()) &&
+        (mode != IenAuthFormMode.SignUp || (passwordReady && confirmPassword == password))
     val formState = IenAuthFormState(
         confirmPassword = confirmState,
         submit = IenButtonState(enabled = formReady),
         status = status,
+        progress = progress,
     )
+    val isProgress = formState.progress || formState.submit.loading
+
+    LaunchedEffect(progress) {
+        if (progress) {
+            delay(800)
+            status = IenAuthFormStatus.Success(
+                when (mode) {
+                    IenAuthFormMode.Login -> "로그인 요청을 준비했습니다"
+                    IenAuthFormMode.SignUp -> "회원가입 요청을 준비했습니다"
+                    IenAuthFormMode.PasswordReset -> "비밀번호 재설정 요청을 준비했습니다"
+                },
+            )
+            progress = false
+        }
+    }
 
     IenAdaptiveTheme(target = Theme.Material3) {
         AdaptiveTopAppBarScaffold(
@@ -165,7 +194,7 @@ fun AuthFormScreen(
                                 Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
                                     AuthProviderButton(
                                         label = "Google",
-                                        enabled = !formState.submit.loading,
+                                        enabled = !isProgress,
                                         onClick = {
                                             status = IenAuthFormStatus.Success("Google 로그인을 준비했습니다")
                                         },
@@ -174,7 +203,7 @@ fun AuthFormScreen(
                                     }
                                     AuthProviderButton(
                                         label = "Apple",
-                                        enabled = !formState.submit.loading,
+                                        enabled = !isProgress,
                                         onClick = {
                                             status = IenAuthFormStatus.Success("Apple 로그인을 준비했습니다")
                                         },
@@ -187,7 +216,7 @@ fun AuthFormScreen(
                                     }
                                     AuthProviderButton(
                                         label = "네이버",
-                                        enabled = !formState.submit.loading,
+                                        enabled = !isProgress,
                                         onClick = {
                                             status = IenAuthFormStatus.Success("네이버 로그인을 준비했습니다")
                                         },
@@ -196,7 +225,7 @@ fun AuthFormScreen(
                                     }
                                     AuthProviderButton(
                                         label = "카카오",
-                                        enabled = !formState.submit.loading,
+                                        enabled = !isProgress,
                                         onClick = {
                                             status = IenAuthFormStatus.Success("카카오 로그인을 준비했습니다")
                                         },
@@ -206,6 +235,19 @@ fun AuthFormScreen(
                                 }
                             },
                             state = formState,
+                            modePromptActionLabel = if (mode == IenAuthFormMode.PasswordReset) {
+                                "로그인으로 돌아가기"
+                            } else {
+                                null
+                            },
+                            onModePromptActionClick = {
+                                mode = when (mode) {
+                                    IenAuthFormMode.Login -> IenAuthFormMode.SignUp
+                                    IenAuthFormMode.SignUp,
+                                    IenAuthFormMode.PasswordReset -> IenAuthFormMode.Login
+                                }
+                                status = IenAuthFormStatus.Idle
+                            },
                             guestAction = IenAuthGuestAction("게스트로 계속하기") {
                                 status = IenAuthFormStatus.Success("게스트 모드로 시작합니다")
                             },
@@ -222,10 +264,7 @@ fun AuthFormScreen(
                                 status = IenAuthFormStatus.Idle
                             },
                             onSubmit = {
-                                status = IenAuthFormStatus.Success(
-                                    if (mode == IenAuthFormMode.Login) "로그인 요청을 준비했습니다"
-                                    else "회원가입 요청을 준비했습니다",
-                                )
+                                progress = true
                             },
                             onModeChange = {
                                 mode = it
@@ -233,6 +272,19 @@ fun AuthFormScreen(
                             },
                             modifier = Modifier.fillMaxWidth(),
                         )
+                        if (mode == IenAuthFormMode.Login) {
+                            IenTextButton(
+                                onClick = {
+                                    mode = IenAuthFormMode.PasswordReset
+                                    status = IenAuthFormStatus.Idle
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                size = IenTextButtonSize.XLarge,
+                                state = IenButtonState(enabled = !isProgress),
+                            ) {
+                                Text("비밀번호를 잊으셨나요?")
+                            }
+                        }
                     }
                 }
             }
