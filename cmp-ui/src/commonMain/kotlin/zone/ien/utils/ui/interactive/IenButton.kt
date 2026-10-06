@@ -15,7 +15,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
@@ -73,6 +72,7 @@ import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.primitives.drawIenBorder
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 import zone.ien.utils.ui.utils.instantPress
 
@@ -544,9 +544,20 @@ fun IenIconButton(
         IenProvideTextStyle(IenTheme.typography.body1, LocalContentColor.current) {
             IenButtonLoadingTransition(
                 loading = state.loading,
-                modifier = Modifier.size(iconSize),
             ) { loading ->
-                if (loading) IenLoaderPrimitive(color = LocalContentColor.current) else content()
+                Box(
+                    modifier = Modifier.size(iconSize),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (loading) {
+                        IenLoaderPrimitive(
+                            modifier = Modifier.size(iconSize),
+                            color = LocalContentColor.current,
+                        )
+                    } else {
+                        content()
+                    }
+                }
             }
         }
     }
@@ -1367,7 +1378,7 @@ internal fun IenButtonContainer(
         modifier = buttonModifier
             .clip(shape)
             .then(backgroundModifier)
-            .then(if (borderStroke != null) Modifier.border(borderStroke, shape) else Modifier)
+            .then(if (borderStroke != null) Modifier.drawIenBorder(borderStroke, shape) else Modifier)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,

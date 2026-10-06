@@ -28,6 +28,6 @@ export default defineConfig(({ command }) => ({
   publicDir: command === "serve" ? "../build/site" : false,
   build: {
     outDir: "../build/site",
-    emptyOutDir: true,
+    emptyOutDir: command === "build",
   },
 }));

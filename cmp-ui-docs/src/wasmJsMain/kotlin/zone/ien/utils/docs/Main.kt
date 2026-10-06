@@ -11,9 +11,6 @@ import kotlin.js.js
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalWasmJsInterop::class)
 fun main() {
     val componentId = currentComponentId() ?: "button"
-    if (componentId == "agreement" || componentId == "list-row") {
-        reduceTallPreviewPixelRatio()
-    }
     val darkTheme = isDarkTheme()
     val previewViewport = currentPreviewViewport()
     val tokens = defaultIenTokens()
@@ -30,11 +27,6 @@ fun main() {
             onPreviewViewportChange = ::storePreviewViewport,
         )
     }
-}
-
-@OptIn(ExperimentalWasmJsInterop::class)
-private fun reduceTallPreviewPixelRatio() {
-    js("Object.defineProperty(window, 'devicePixelRatio', { configurable: true, value: 1 })")
 }
 
 @OptIn(ExperimentalWasmJsInterop::class)

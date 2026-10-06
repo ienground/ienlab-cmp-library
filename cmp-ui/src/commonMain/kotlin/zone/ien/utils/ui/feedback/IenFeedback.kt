@@ -32,10 +32,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -1036,11 +1034,10 @@ fun IenSkeleton(
 
     val phase = rememberIenSkeletonPhase()
     val color = resolveIenSkeletonColor(background, IenTheme.colors)
-    val scrollModifier = Modifier.verticalScroll(rememberScrollState(), enabled = false)
 
     if (height != null) {
         IenSkeletonBlock(
-            modifier = modifier.then(scrollModifier).fillMaxWidth(),
+            modifier = modifier.fillMaxWidth(),
             height = height,
             radius = radius,
             color = color,
@@ -1054,7 +1051,6 @@ fun IenSkeleton(
     val contentDescription = stringResource(Res.string.loading)
     Column(
         modifier = modifier
-            .then(scrollModifier)
             .semantics {
                 this.contentDescription = contentDescription
                 liveRegion = LiveRegionMode.Polite
@@ -1508,22 +1504,27 @@ enum class IenProgressBarSize {
 }
 
 /**
- * 로더([IenLoader]) 원형 회전 인디케이터 크기 단계를 지정하기 위한 Enum 클래스입니다.
+ * 로더([IenLoader]) 인디케이터 크기 단계를 지정하기 위한 Enum 클래스입니다.
  */
 enum class IenLoaderSize { Small, Medium, Large }
 
 /**
- * 화면 중앙 등에서 콘텐츠 대기 시에 돌면서 로딩 중임을 시각화하는 원형 로더 컴포저블입니다.
+ * 인디케이터와 선택적인 안내 텍스트로 콘텐츠 대기 상태를 표시하는 로더 컴포저블입니다.
  *
  * @param modifier 적용할 [Modifier]
- * @param size 로더 원형 인디케이터 크기 ([IenLoaderSize])
- * @param label 인디케이터 밑에 표시할 안내 텍스트. 생략 시 원형 단독으로 렌더링됩니다.
+ * @param size 인디케이터 슬롯에 전달할 크기 ([IenLoaderSize])
+ * @param label 인디케이터 밑에 표시할 안내 텍스트. 생략 시 인디케이터만 렌더링됩니다.
+ * @param indicator 인디케이터 슬롯. 전달된 크기용 [Modifier]를 표시기에 적용합니다.
+ * 기본값은 CircularProgressIndicator를 사용하는 [IenLoaderPrimitive]입니다.
  */
 @Composable
 fun IenLoader(
     modifier: Modifier = Modifier,
     size: IenLoaderSize = IenLoaderSize.Medium,
     label: String? = null,
+    indicator: @Composable (Modifier) -> Unit = { indicatorModifier ->
+        IenLoaderPrimitive(modifier = indicatorModifier, color = IenTheme.colors.brand)
+    },
 ) {
     val defaultLabel = stringResource(Res.string.loading)
     Column(
@@ -1534,15 +1535,14 @@ fun IenLoader(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
     ) {
-        IenLoaderPrimitive(
-            modifier = Modifier.size(
+        indicator(
+            Modifier.size(
                 when (size) {
                     IenLoaderSize.Small -> IenTheme.icon.sm
                     IenLoaderSize.Medium -> IenTheme.icon.lg
                     IenLoaderSize.Large -> IenTheme.icon.xl
                 },
             ),
-            color = IenTheme.colors.brand,
         )
         if (label != null) {
             Text(label, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)

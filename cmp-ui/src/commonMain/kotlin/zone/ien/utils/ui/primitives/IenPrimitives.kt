@@ -2,7 +2,6 @@ package zone.ien.utils.ui.primitives
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -22,9 +21,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
@@ -33,11 +43,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenTheme
+import kotlin.math.ceil
 
 /**
  * 라이브러리의 기본 테마가 입혀진 배경 판(Surface) 컴포저블입니다.
  *
  * 내부 콘텐츠의 색상 조절 및 그림자 효과를 처리합니다.
+ * 테두리는 Shape의 외곽 경로 안쪽에 직접 그립니다.
  *
  * @param modifier 레이아웃에 적용할 [Modifier]
  * @param color 배경 판에 채울 테마 색상
@@ -59,21 +71,60 @@ fun IenSurface(
     backgroundBrush: Brush? = null,
     content: @Composable () -> Unit,
 ) {
-    val surfaceModifier = if (backgroundBrush == null) {
+    val backgroundModifier = if (backgroundBrush == null) {
         modifier
     } else {
         modifier.background(backgroundBrush, shape)
+    }
+    val surfaceModifier = if (border != null) {
+        backgroundModifier.drawIenBorder(border, shape)
+    } else {
+        backgroundModifier
     }
     Surface(
         modifier = surfaceModifier,
         color = if (backgroundBrush == null) color else Color.Transparent,
         contentColor = contentColor,
         shape = shape,
-        border = border,
+        border = null,
         tonalElevation = tonalElevation,
         content = content,
     )
 }
+
+internal fun Modifier.drawIenBorder(border: BorderStroke, shape: Shape): Modifier =
+    drawWithCache {
+        val width = if (border.width == Dp.Hairline) 1f else ceil(border.width.toPx())
+        if (border.width.value < 0f || width == 0f || !width.isFinite() || size.minDimension <= 0f) {
+            onDrawWithContent { drawContent() }
+        } else {
+            val path = when (val outline = shape.createOutline(size, layoutDirection, this)) {
+                is Outline.Generic -> outline.path
+                is Outline.Rectangle -> Path().apply { addRect(outline.rect) }
+                is Outline.Rounded -> Path().apply { addRoundRect(outline.roundRect) }
+            }
+            if (width * 2f > size.minDimension) {
+                onDrawWithContent {
+                    drawContent()
+                    drawPath(path, border.brush)
+                }
+            } else {
+                val outerMask = Path().apply {
+                    addRect(Rect(Offset.Zero, size))
+                    op(this, path, PathOperation.Difference)
+                }
+                val bitmap = ImageBitmap(ceil(size.width).toInt(), ceil(size.height).toInt())
+                CanvasDrawScope().draw(this, layoutDirection, Canvas(bitmap), size) {
+                    drawPath(path, border.brush, style = Stroke(width * 2f))
+                    drawPath(outerMask, Color.Black, blendMode = BlendMode.Clear)
+                }
+                onDrawWithContent {
+                    drawContent()
+                    drawImage(bitmap)
+                }
+            }
+        }
+    }
 
 /**
  * 내부 자식 컴포저블에 공통 텍스트 스타일([style]) 및 전경 컬러([color])를 주입해 주는 스타일 프로바이더 컴포저블입니다.
@@ -185,7 +236,7 @@ fun IenBorderBox(
 ) {
     Box(
         modifier = modifier
-            .border(width, color, shape)
+            .drawIenBorder(BorderStroke(width, color), shape)
             .padding(padding),
     ) {
         content()

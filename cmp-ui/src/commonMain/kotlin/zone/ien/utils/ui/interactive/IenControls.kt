@@ -895,7 +895,7 @@ private fun StepperAction(
  * @property ariaLabel 접근성 스크린 리더용 설명 텍스트.
  * @property icon 탭에 기본 표시될 아이콘 [ImageVector].
  * @property selectedIcon 탭이 선택되었을 때 표시할 아이콘 [ImageVector].
- * @property badge 0이면 숨기고, 음수이면 점으로 표시하며, 100 이상은 `99+`로 표시합니다.
+ * @property badge 0이면 숨기고, 음수이면 우상단 점으로 표시합니다. 양수는 라벨 오른쪽에 표시하며, 100 이상은 `99+`로 표시합니다.
  */
 @Immutable
 data class IenTabItem(
@@ -1104,34 +1104,37 @@ fun IenTab(
                             },
                         contentAlignment = Alignment.Center,
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Text(
-                                text = item.text,
-                                style = textStyle,
-                                color = textColor,
-                                textAlign = TextAlign.Center,
-                            )
-                            if (badge < 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(5.dp)
-                                        .align(Alignment.TopEnd)
-                                        .graphicsLayer {
-                                            translationX = 7.dp.toPx()
-                                            translationY = (-1).dp.toPx()
-                                        }
-                                        .clip(CircleShape)
-                                        .background(IenTheme.colors.danger),
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Box(
+                                modifier = if (badge > 0) Modifier.weight(1f, fill = false) else Modifier,
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(
+                                    text = item.text,
+                                    style = textStyle,
+                                    color = textColor,
+                                    textAlign = TextAlign.Center,
                                 )
-                            } else if (badge > 0) {
+                                if (badge < 0) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(5.dp)
+                                            .align(Alignment.TopEnd)
+                                            .graphicsLayer {
+                                                translationX = 7.dp.toPx()
+                                                translationY = (-1).dp.toPx()
+                                            }
+                                            .clip(CircleShape)
+                                            .background(IenTheme.colors.danger),
+                                    )
+                                }
+                            }
+                            if (badge > 0) {
                                 IenBadge(
                                     text = if (badge > 99) "99+" else badge.toString(),
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .graphicsLayer {
-                                            translationX = 7.dp.toPx()
-                                            translationY = (-1).dp.toPx()
-                                        },
                                     size = IenBadgeSize.Small,
                                     variant = IenBadgeVariant.Fill,
                                     tone = IenSemanticTone.Danger,

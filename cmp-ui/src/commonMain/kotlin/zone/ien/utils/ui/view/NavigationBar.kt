@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.BadgedBox
@@ -312,7 +313,9 @@ fun IenNavigationBar2(
                     shape = ContinuousCapsule(),
                     tonalElevation = 0.dp,
                     shadowElevation = 18.dp,
-                    modifier = Modifier.height(78.dp),
+                    modifier = Modifier
+                        .width(IntrinsicSize.Max)
+                        .height(78.dp),
                 ) {
                     CompositionLocalProvider(
                         LocalNavigationBarSelectedIndex provides selectedIndex,
@@ -322,6 +325,7 @@ fun IenNavigationBar2(
                         Row(
                             modifier = Modifier
                                 .fillMaxHeight()
+                                .fillMaxWidth()
                                 .selectableGroup()
                                 .padding(horizontal = 10.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -712,11 +716,11 @@ private fun RowScope.IenNavigationBar2Item(
 
     val showLabel = alwaysShowLabel || selected
     val itemSizeModifier = if (alwaysShowLabel) {
-        Modifier.weight(1f)
+        Modifier.weight(1f).widthIn(min = 54.dp)
     } else if (selected) {
-        Modifier.widthIn(min = 112.dp)
+        Modifier.weight(1.75f).widthIn(min = 112.dp)
     } else {
-        Modifier.width(54.dp)
+        Modifier.weight(1f).widthIn(min = 54.dp)
     }
 
     Box(
@@ -750,7 +754,8 @@ private fun RowScope.IenNavigationBar2Item(
                         badge = badge,
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .offset(x = 6.dp, y = (-1).dp),
+                            .offset(x = 6.dp, y = (-1).dp)
+                            .wrapContentSize(Alignment.TopEnd, unbounded = true),
                     )
                 }
             }

@@ -150,6 +150,10 @@ import zone.ien.utils.ui.list.IenListRowTexts
 import zone.ien.utils.ui.list.IenListRowTextsType
 import zone.ien.utils.ui.list.IenSwipeBox
 import zone.ien.utils.ui.list.IenSwipeBoxItem
+import zone.ien.utils.ui.feedback.IenCircularProgressIndicator
+import zone.ien.utils.ui.feedback.IenCircularWavyProgressIndicator
+import zone.ien.utils.ui.feedback.IenLinearProgressIndicator
+import zone.ien.utils.ui.feedback.IenLoadingIndicator
 import zone.ien.utils.ui.feedback.IenLoader
 import zone.ien.utils.ui.feedback.IenLoaderSize
 import zone.ien.utils.ui.menu.IenMenu
@@ -333,6 +337,7 @@ private val DesignSystemComponents = listOf(
     DesignSystemComponent("icon-button", "IconButton", "액션·선택", "아이콘 버튼과 토글 버튼의 상태를 확인합니다."),
     DesignSystemComponent("list-footer", "ListFooter", "콘텐츠", "목록 하단의 추가 정보와 구분선을 표시합니다."),
     DesignSystemComponent("list-header", "ListHeader", "콘텐츠", "목록 제목과 설명을 정렬해 표시합니다."),
+    DesignSystemComponent("loading-indicator", "LoadingIndicator", "피드백", "다각형이 변하는 로딩 애니메이션을 확인합니다."),
     DesignSystemComponent("loader", "Loader", "피드백", "대기 중 상태를 나타내는 로더를 확인합니다."),
     DesignSystemComponent("menu", "Menu", "액션·선택", "메뉴 항목과 선택 동작을 확인합니다."),
     DesignSystemComponent("modal", "Modal", "피드백", "화면 위에 표시되는 모달과 닫기 동작입니다."),
@@ -340,6 +345,7 @@ private val DesignSystemComponents = listOf(
     DesignSystemComponent("paragraph", "Paragraph", "콘텐츠", "본문과 보조 문장을 표현하는 문단입니다."),
     DesignSystemComponent("post", "Post", "콘텐츠", "작성자·날짜·본문으로 구성된 게시물 카드입니다."),
     DesignSystemComponent("progress-bar", "ProgressBar", "피드백", "진행률과 두께에 따른 진행 표시를 비교합니다."),
+    DesignSystemComponent("progress-indicator", "ProgressIndicator", "피드백", "원형·물결·선형 진행 표시기를 비교합니다."),
     DesignSystemComponent("progress-stepper", "ProgressStepper", "피드백", "단계별 진행 상태와 레이아웃 변형을 표시합니다."),
     DesignSystemComponent("rating", "Rating", "입력", "편집 가능, 읽기 전용, 비활성 별점을 비교합니다."),
     DesignSystemComponent("result", "Result", "피드백", "완료·실패·빈 상태의 결과 화면을 구성합니다."),
@@ -386,6 +392,7 @@ private data class PlaygroundControl(
     val choices: List<PlaygroundChoice> = emptyList(),
     val minValue: Int? = null,
     val maxValue: Int? = null,
+    val allowDecimal: Boolean = false,
 )
 
 private fun toggleControl(
@@ -419,12 +426,14 @@ private fun numberControl(
     defaultValue: Int,
     minValue: Int,
     maxValue: Int,
+    allowDecimal: Boolean = false,
 ) = PlaygroundControl(
     key = key,
     label = label,
     defaultValue = defaultValue.toString(),
     minValue = minValue,
     maxValue = maxValue,
+    allowDecimal = allowDecimal,
 )
 
 private val ComponentPlaygroundControls = mapOf(
@@ -497,6 +506,8 @@ private val ComponentPlaygroundControls = mapOf(
         choiceControl("variant", "표시 방식", listOf("Fill", "Weak", "Line", "Ghost")),
         choiceControl("size", "크기", listOf("Small", "Regular", "Large"), "Regular"),
         disabledControl(),
+        toggleControl("loading", "로딩 상태", false),
+        toggleControl("extended", "확장 상태", false),
     ),
     "checkbox" to listOf(
         choiceControl("variant", "형태", listOf("Circle", "Line")),
@@ -509,7 +520,15 @@ private val ComponentPlaygroundControls = mapOf(
         disabledControl(),
         toggleControl("loading", "로딩 상태", false),
     ),
-    "loader" to listOf(choiceControl("size", "크기", listOf("Small", "Medium", "Large"))),
+    "loader" to listOf(
+        choiceControl("size", "크기", listOf("Small", "Medium", "Large"), "Medium"),
+        choiceControl("indicator", "표시기", listOf("Circular", "Loading", "Wavy")),
+    ),
+    "progress-indicator" to listOf(
+        choiceControl("variant", "형태", listOf("Circular", "Wavy", "Linear")),
+        toggleControl("determinate", "물결 진행률 지정", false),
+        numberControl("progress", "물결 진행률 (%)", 64, 0, 100),
+    ),
     "menu" to listOf(
         toggleControl("visible", "메뉴 표시", false),
         disabledControl(),
@@ -530,7 +549,7 @@ private val ComponentPlaygroundControls = mapOf(
         choiceControl("variant", "형태", IenProgressStepperVariant.entries.map { it.name }),
     ),
     "rating" to listOf(
-        numberControl("rating", "별점", 3, 0, 5),
+        numberControl("rating", "별점", 3, 0, 5, allowDecimal = true),
         choiceControl("size", "크기", listOf("Tiny", "Small", "Medium", "Large", "Big"), "Medium"),
         choiceControl("variant", "표시 방식", listOf("Full", "Compact", "IconOnly")),
         toggleControl("readOnly", "읽기 전용", false),
@@ -608,6 +627,18 @@ private val ComponentPlaygroundControls = mapOf(
         ),
         choiceControl("assetShape", "에셋 모양", IenListRowAssetShape.entries.map { it.name }, "Squircle"),
         choiceControl("assetSize", "에셋 크기", IenListRowAssetSize.entries.map { it.name }, "Medium"),
+        choiceControl("border", "구분선", IenListRowBorder.entries.map { it.name }, "Indented"),
+        choiceControl("verticalPadding", "상하 여백", IenListRowPadding.entries.map { it.name }, "Medium"),
+        choiceControl("horizontalPadding", "좌우 여백", IenListRowPadding.entries.map { it.name }, "Medium"),
+        choiceControl("leftAlignment", "좌측 정렬", IenListRowAlignment.entries.map { it.name }, "Center"),
+        choiceControl("rightAlignment", "우측 정렬", IenListRowAlignment.entries.map { it.name }, "Center"),
+        choiceControl("disabledStyle", "비활성 스타일", IenListRowDisabledStyle.entries.map { it.name }, "Type1"),
+        choiceControl("touchEffectColor", "터치 효과 색상", listOf("surfaceVariant", "brandWeak", "successWeak", "dangerWeak")),
+        toggleControl("showLeft", "좌측 에셋 표시"),
+        toggleControl("showRight", "우측 콘텐츠 표시", false),
+        toggleControl("withArrow", "화살표 표시", false),
+        toggleControl("withTouchEffect", "터치 효과", false),
+        toggleControl("clickable", "클릭 동작", false),
         disabledControl(),
     ),
     "text-field" to listOf(
@@ -649,10 +680,18 @@ private fun playgroundPreviewValues(
 ): Map<String, String> = controls.associate { control ->
     val value = values[control.key] ?: control.defaultValue
     val previewValue = if (control.minValue != null && control.maxValue != null) {
-        value.toIntOrNull()
-            ?.coerceIn(control.minValue, control.maxValue)
-            ?.toString()
-            ?: control.defaultValue
+        if (control.allowDecimal) {
+            value.toFloatOrNull()
+                ?.takeIf { it.isFinite() }
+                ?.coerceIn(control.minValue.toFloat(), control.maxValue.toFloat())
+                ?.toString()
+                ?: control.defaultValue
+        } else {
+            value.toIntOrNull()
+                ?.coerceIn(control.minValue, control.maxValue)
+                ?.toString()
+                ?: control.defaultValue
+        }
     } else {
         value
     }
@@ -743,7 +782,10 @@ internal fun DesignSystemPlayground(
                             Modifier.fillMaxWidth()
                         },
                     ) {
-                        CompositionLocalProvider(LocalComponentSectionChrome provides false) {
+                        CompositionLocalProvider(
+                            LocalComponentSectionChrome provides false,
+                            LocalComponentVariantShowcase provides true,
+                        ) {
                             DesignSystemComponentPreview(
                                 componentId = componentId,
                                 snackbarHostState = snackbarHostState,
@@ -845,7 +887,9 @@ internal fun DesignSystemPlayground(
                                         onValueChange = { value -> values[control.key] = value },
                                         modifier = Modifier.fillMaxWidth(),
                                         label = control.label,
-                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                        keyboardOptions = KeyboardOptions(
+                                            keyboardType = if (control.allowDecimal) KeyboardType.Decimal else KeyboardType.Number,
+                                        ),
                                         supportingText = "범위: $minimum–$maximum",
                                     )
                                 }
@@ -892,6 +936,27 @@ internal fun DesignSystemPlayground(
                             }
                         }
                         if (control != variantControls.last()) IenDivider()
+                    }
+                }
+            }
+        }
+
+        if (controls.isNotEmpty()) {
+            IenCard(
+                modifier = Modifier.fillMaxWidth(),
+                variant = IenCardVariant.Outlined,
+                contentPadding = PaddingValues(IenTheme.spacing.md),
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
+                    Text("구성 예시", style = IenTheme.typography.title3)
+                    CompositionLocalProvider(LocalComponentSectionChrome provides false) {
+                        DesignSystemComponentPreview(
+                            componentId = componentId,
+                            snackbarHostState = snackbarHostState,
+                            toastState = toastState,
+                            coroutineScope = coroutineScope,
+                            controlValues = previewValues,
+                        )
                     }
                 }
             }
@@ -1134,6 +1199,7 @@ internal fun DesignSystemComponentPreview(
         "icon-button" -> IconButtonSection(controlValues)
         "list-footer" -> ListFooterSection()
         "list-header" -> ListHeaderSection()
+        "loading-indicator" -> LoadingIndicatorSection()
         "loader" -> LoaderSection(controlValues)
         "menu" -> MenuSection(controlValues)
         "modal" -> ModalSection()
@@ -1141,6 +1207,7 @@ internal fun DesignSystemComponentPreview(
         "paragraph" -> ParagraphSection()
         "post" -> PostSection()
         "progress-bar" -> ProgressBarSection(controlValues)
+        "progress-indicator" -> ProgressIndicatorSection(controlValues)
         "progress-stepper" -> ProgressStepperSection(controlValues)
         "rating" -> RatingSection(controlValues)
         "result" -> ResultSection()
@@ -2000,6 +2067,8 @@ fun ChipSection(controls: Map<String, String> = emptyMap()) {
 @Preview
 @Composable
 fun FabSection(controls: Map<String, String> = emptyMap()) {
+    val loading = controls.booleanValue("loading", false)
+    val extended = controls.booleanValue("extended", false)
     val fabSize = when (controls.enumValue("size", "Regular")) {
         "Small" -> IenFabSize.Small
         "Large" -> IenFabSize.Large
@@ -2015,12 +2084,15 @@ fun FabSection(controls: Map<String, String> = emptyMap()) {
         ComponentSection(title = "FAB") {
             IenFab(
                 onClick = {},
+                icon = {
+                    IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
+                },
+                text = { Text("작성하기") },
+                isExtended = extended,
                 size = fabSize,
                 variant = fabVariant,
-                state = IenButtonState(enabled = !controls.disabledValue()),
-            ) {
-                IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
-            }
+                state = IenButtonState(enabled = !controls.disabledValue(), loading = loading),
+            )
             if (!LocalComponentVariantShowcase.current) {
                 IenBorder()
                 Text(
@@ -2034,6 +2106,8 @@ fun FabSection(controls: Map<String, String> = emptyMap()) {
                 ) {
                     IenExtendedFab(
                         onClick = {},
+                        variant = fabVariant,
+                        state = IenButtonState(enabled = !controls.disabledValue(), loading = loading),
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
@@ -2221,9 +2295,46 @@ fun LoaderSection(controls: Map<String, String> = emptyMap()) {
     }
     IenTheme {
         ComponentSection(title = "Loader") {
-            IenLoader(label = "데이터를 불러오는 중", size = selectedSize)
+            when (controls.enumValue("indicator", "Circular")) {
+                "Loading" -> IenLoader(label = "데이터를 불러오는 중", size = selectedSize) { modifier ->
+                    IenLoadingIndicator(modifier = modifier)
+                }
+                "Wavy" -> IenLoader(label = "데이터를 불러오는 중", size = selectedSize) { modifier ->
+                    IenCircularWavyProgressIndicator(modifier = modifier)
+                }
+                else -> IenLoader(label = "데이터를 불러오는 중", size = selectedSize)
+            }
             if (!LocalComponentVariantShowcase.current) {
                 IenLoaderPrimitive(color = IenTheme.colors.brand)
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun LoadingIndicatorSection() {
+    IenTheme {
+        ComponentSection(title = "LoadingIndicator") {
+            IenLoadingIndicator()
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ProgressIndicatorSection(controls: Map<String, String> = emptyMap()) {
+    val progress = controls.intValue("progress", 64).coerceIn(0, 100) / 100f
+    IenTheme {
+        ComponentSection(title = "ProgressIndicator") {
+            when (controls.enumValue("variant", "Circular")) {
+                "Wavy" -> if (controls.booleanValue("determinate", false)) {
+                    IenCircularWavyProgressIndicator(progress = { progress })
+                } else {
+                    IenCircularWavyProgressIndicator()
+                }
+                "Linear" -> IenLinearProgressIndicator()
+                else -> IenCircularProgressIndicator()
             }
         }
     }
@@ -2465,7 +2576,12 @@ fun ProgressStepperSection(controls: Map<String, String> = emptyMap()) {
 fun RatingSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
         var rating by remember(controls["rating"]) {
-            mutableStateOf(controls.intValue("rating", 3).coerceIn(0, 5).toFloat())
+            mutableStateOf(
+                controls["rating"]?.toFloatOrNull()
+                    ?.takeIf { it.isFinite() }
+                    ?.coerceIn(0f, 5f)
+                    ?: 3.8f,
+            )
         }
         val size = IenRatingSize.entries.firstOrNull { it.name == controls.enumValue("size", "Medium") }
             ?: IenRatingSize.Medium
@@ -3473,13 +3589,15 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
     } ?: IenAgreementNecessityVariant.Mandatory
     if (LocalComponentVariantShowcase.current) {
         IenTheme {
+            var checked by remember { mutableStateOf(true) }
             ComponentSection(title = "Agreement (TDS v4 Spec)") {
                 IenAgreement(
                     variant = agreementVariant,
+                    onClick = if (enabled) ({ checked = !checked }) else null,
                     left = {
                         IenAgreementCheckbox(
-                            checked = true,
-                            onCheckedChange = {},
+                            checked = checked,
+                            onCheckedChange = { checked = it },
                             variant = checkboxVariant,
                             enabled = enabled,
                         )
@@ -3488,6 +3606,7 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
                         IenAgreementText(
                             text = "약관 동의 · ${agreementVariant.name}",
                             necessity = { IenAgreementNecessity(necessityVariant) },
+                            enabled = enabled,
                         )
                     },
                     right = { IenAgreementBadge(text = "안심", variant = badgeVariant) },
@@ -4632,27 +4751,72 @@ fun ListRowSection(controls: Map<String, String> = emptyMap()) {
     val assetSize = IenListRowAssetSize.entries.firstOrNull {
         it.name == controls.enumValue("assetSize", "Medium")
     } ?: IenListRowAssetSize.Medium
+    val border = IenListRowBorder.entries.firstOrNull {
+        it.name == controls.enumValue("border", "Indented")
+    } ?: IenListRowBorder.Indented
+    val verticalPadding = IenListRowPadding.entries.firstOrNull {
+        it.name == controls.enumValue("verticalPadding", "Medium")
+    } ?: IenListRowPadding.Medium
+    val horizontalPadding = IenListRowPadding.entries.firstOrNull {
+        it.name == controls.enumValue("horizontalPadding", "Medium")
+    } ?: IenListRowPadding.Medium
+    val leftAlignment = IenListRowAlignment.entries.firstOrNull {
+        it.name == controls.enumValue("leftAlignment", "Center")
+    } ?: IenListRowAlignment.Center
+    val rightAlignment = IenListRowAlignment.entries.firstOrNull {
+        it.name == controls.enumValue("rightAlignment", "Center")
+    } ?: IenListRowAlignment.Center
+    val disabledStyle = IenListRowDisabledStyle.entries.firstOrNull {
+        it.name == controls.enumValue("disabledStyle", "Type1")
+    } ?: IenListRowDisabledStyle.Type1
     val enabled = !controls.disabledValue()
     if (LocalComponentVariantShowcase.current) {
         IenTheme {
+            val touchEffectColor = when (controls.enumValue("touchEffectColor", "surfaceVariant")) {
+                "brandWeak" -> IenTheme.colors.brandWeak
+                "successWeak" -> IenTheme.colors.successWeak
+                "dangerWeak" -> IenTheme.colors.dangerWeak
+                else -> IenTheme.colors.surfaceVariant
+            }
+            var clickCount by remember { mutableIntStateOf(0) }
             ComponentSection(title = "ListRow") {
                 IenListRow(
-                    left = {
+                    left = if (controls.booleanValue("showLeft", true)) ({
                         IenListRowAssetText(
                             text = "IEN",
                             shape = assetShape,
                             size = assetSize,
                         )
-                    },
+                    }) else null,
                     contents = {
                         IenListRowTexts(
                             type = selectedTextType,
-                            top = { Text("${selectedTextType.name} (Top)") },
+                            top = {
+                                Text(
+                                    if (clickCount == 0) "${selectedTextType.name} (Top)"
+                                    else "${selectedTextType.name} · 클릭 ${clickCount}회",
+                                )
+                            },
                             middle = { Text("${selectedTextType.name} (Middle)") },
                             bottom = { Text("${selectedTextType.name} (Bottom)") },
                         )
                     },
-                    border = IenListRowBorder.Indented,
+                    right = if (controls.booleanValue("showRight", false)) ({
+                        Text("상세", style = IenTheme.typography.label1)
+                    }) else null,
+                    border = border,
+                    disabled = !enabled,
+                    disabledStyle = disabledStyle,
+                    verticalPadding = verticalPadding,
+                    horizontalPadding = horizontalPadding,
+                    leftAlignment = leftAlignment,
+                    rightAlignment = rightAlignment,
+                    withArrow = controls.booleanValue("withArrow", false),
+                    withTouchEffect = controls.booleanValue("withTouchEffect", false),
+                    touchEffectColor = touchEffectColor,
+                    onClick = if (controls.booleanValue("clickable", false)) ({
+                        clickCount += 1
+                    }) else null,
                 )
             }
         }
@@ -4725,6 +4889,22 @@ fun ListRowSection(controls: Map<String, String> = emptyMap()) {
                 leftAlignment = IenListRowAlignment.Top,
                 rightAlignment = IenListRowAlignment.Top,
                 verticalPadding = IenListRowPadding.Large,
+            )
+            IenListRow(
+                left = {
+                    IenListRowAssetText(
+                        text = "NEW",
+                        shape = IenListRowAssetShape.Squircle,
+                    )
+                },
+                contents = {
+                    IenListRowTexts(
+                        type = IenListRowTextsType.TwoRowTypeG,
+                        top = { Text("강조형 두 줄 제목") },
+                        bottom = { Text("TwoRowTypeG · title2 Bold") },
+                    )
+                },
+                withArrow = true,
             )
             IenListRow(
                 contents = {

@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.drawIenBorder
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 
@@ -114,12 +115,13 @@ fun IenDropdownMenu(
         ) {
             Surface(
                 modifier = Modifier
-                    .shadow(elevation = shadowElevation, shape = shape, clip = false),
+                    .shadow(elevation = shadowElevation, shape = shape, clip = false)
+                    .then(border?.let { Modifier.drawIenBorder(it, shape) } ?: Modifier),
                 shape = shape,
                 color = containerColor,
                 tonalElevation = tonalElevation,
                 shadowElevation = 0.dp,
-                border = border,
+                border = null,
             ) {
                 Column(
                     modifier = Modifier

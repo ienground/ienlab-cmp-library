@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.drawIenBorder
 
 /**
  * BaseDialog은 AlertDialog의 기본 구성 요소로, 기본적인 다이얼로그 레이아웃을 제공합니다.
@@ -51,9 +52,11 @@ fun BaseDialog(
         Surface(
             shape = dialogShape,
             color = dialogBackgroundColor,
-            border = dialogBorder,
+            border = null,
             tonalElevation = 6.dp,
-            modifier = modifier.height(IntrinsicSize.Min)
+            modifier = modifier
+                .height(IntrinsicSize.Min)
+                .then(dialogBorder?.let { Modifier.drawIenBorder(it, dialogShape) } ?: Modifier)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,

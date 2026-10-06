@@ -6,7 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -61,14 +62,13 @@ fun DocsApp(
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(align = Alignment.Top, unbounded = true)
+                        .fillMaxSize()
                         .background(IenTheme.colors.background),
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .wrapContentHeight(align = Alignment.Top, unbounded = true)
+                            .verticalScroll(rememberScrollState())
                             .padding(24.dp)
                             .onSizeChanged { size ->
                                 onContentHeight(with(density) { size.height.toDp().value.roundToInt() })
