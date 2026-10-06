@@ -92,7 +92,7 @@ fun ColorTokenScreen(
             ),
             topBar = {
                 IenTopBar(
-                    title = "Color Tokens",
+                    title = "컬러 스킴 제작기",
                     subtitle = if (darkTheme) "Dark theme" else "Light theme",
                     navigationIcon = {
                         IenTextButton(onClick = navigateBack) {
