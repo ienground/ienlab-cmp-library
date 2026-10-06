@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.screen.IenTop
 import zone.ien.utils.ui.screen.IenTopSubtitleParagraph
@@ -343,12 +344,23 @@ fun IenAuthForm(
                     modifier = Modifier.fillMaxWidth(),
                     label = "auth_form_social_login_title",
                 ) { title ->
-                    Text(
-                        text = title,
-                        modifier = Modifier.fillMaxWidth(),
-                        style = IenTheme.typography.label2,
-                        color = IenTheme.colors.textSecondary,
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        IenDivider(
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = title,
+                            style = IenTheme.typography.label2,
+                            color = IenTheme.colors.textSecondary,
+                        )
+                        IenDivider(
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
             }
             providerContent()
