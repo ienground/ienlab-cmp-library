@@ -2,10 +2,11 @@ package zone.ien.utils.docs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -16,8 +17,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.Font
 import zone.ien.utils.docs.generated.resources.Pretendard_Regular
@@ -37,7 +41,12 @@ import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.utils.getIenTypography
 
 @Composable
-fun DocsApp(componentId: String, darkTheme: Boolean = false, colors: IenColorScheme? = null) {
+fun DocsApp(
+    componentId: String,
+    darkTheme: Boolean = false,
+    colors: IenColorScheme? = null,
+    onContentHeight: (Int) -> Unit = {},
+) {
     val defaultTokens = defaultIenTokens()
     val docsTokens = defaultTokens.copy(
         lightColors = if (!darkTheme) colors ?: defaultTokens.lightColors else defaultTokens.lightColors,
@@ -46,6 +55,7 @@ fun DocsApp(componentId: String, darkTheme: Boolean = false, colors: IenColorSch
     )
 
     IenTheme(tokens = docsTokens, darkTheme = darkTheme) {
+        val density = LocalDensity.current
         val snackbarHostState = remember { SnackbarHostState() }
         val toastState = rememberIenToastState()
         val coroutineScope = rememberCoroutineScope()
@@ -60,11 +70,14 @@ fun DocsApp(componentId: String, darkTheme: Boolean = false, colors: IenColorSch
                         .fillMaxSize()
                         .background(IenTheme.colors.background),
                 ) {
-                    Box(
+                    Column(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                            .padding(24.dp),
+                            .fillMaxWidth()
+                            .wrapContentHeight(unbounded = true)
+                            .padding(24.dp)
+                            .onSizeChanged { size ->
+                                onContentHeight(with(density) { size.height.toDp().value.roundToInt() })
+                            },
                     ) {
                         CompositionLocalProvider(LocalComponentSectionChrome provides false) {
                             ComponentPreview(
@@ -226,8 +239,11 @@ private fun ComponentPreview(
         "agreement" -> AgreementSection()
         "asset" -> AssetSection()
         "bottom-bar" -> BottomBarSection()
+        "chat-bottom-bar" -> ChatBottomBarSection()
+        "navigation-bar" -> NavigationBarSection()
         "bottom-cta" -> BottomCTASection()
         "dialog" -> DialogSection()
+        "alert-dialog" -> DialogSection()
         "keypad" -> KeypadSection()
         "list-row" -> ListRowSection()
         "text-field" -> TextFieldSection()

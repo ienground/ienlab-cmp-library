@@ -1,4 +1,11 @@
-import { Fragment, StrictMode, useEffect, useMemo, useState } from "react";
+import {
+  Fragment,
+  StrictMode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { createRoot } from "react-dom/client";
 import { RiGithubFill } from "@remixicon/react";
 import type { CatalogItem } from "./catalog.js";
@@ -65,6 +72,9 @@ type ThemeMode = "light" | "dark";
 
 const typedApiDocs = apiDocs as Record<string, ApiDocumentationEntry[]>;
 const themeStorageKey = "ienlab-cmp-ui-docs-theme";
+const minimumPreviewHeight = window.matchMedia("(max-width: 780px)").matches
+  ? 460
+  : 530;
 
 function getInitialThemeMode(): ThemeMode {
   const savedTheme = window.localStorage.getItem(themeStorageKey);
@@ -154,6 +164,8 @@ function ComponentPage({
   const [query, setQuery] = useState("");
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
   const [previewLoaded, setPreviewLoaded] = useState(false);
+  const [previewHeight, setPreviewHeight] = useState(minimumPreviewHeight);
+  const previewFrameRef = useRef<HTMLIFrameElement>(null);
   const [customColorSchemes, setCustomColorSchemes] =
     useState<ColorSchemes | null>(null);
   const activeComponent = useMemo(
@@ -170,6 +182,27 @@ function ComponentPage({
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
     return () => window.removeEventListener("scroll", updateHeader);
+  }, []);
+
+  useEffect(() => {
+    function updatePreviewHeight(event: MessageEvent<unknown>) {
+      if (event.source !== previewFrameRef.current?.contentWindow) return;
+      if (typeof event.data !== "object" || event.data === null) return;
+
+      const message = event.data as { type?: unknown; height?: unknown };
+      if (
+        message.type !== "ien-compose-preview-height" ||
+        typeof message.height !== "number" ||
+        !Number.isFinite(message.height)
+      ) {
+        return;
+      }
+
+      setPreviewHeight(Math.max(minimumPreviewHeight, Math.ceil(message.height + 48)));
+    }
+
+    window.addEventListener("message", updatePreviewHeight);
+    return () => window.removeEventListener("message", updatePreviewHeight);
   }, []);
 
   useEffect(() => {
@@ -265,6 +298,7 @@ function ComponentPage({
 
   useEffect(() => {
     setPreviewLoaded(false);
+    setPreviewHeight(minimumPreviewHeight);
   }, [activeComponent?.id, themeMode, customColorSchemes, isColorSchemePage]);
 
   if (page === "colors") return <Navigate replace to="/color-scheme" />;
@@ -481,12 +515,14 @@ function ComponentPage({
                     ) : null}
                     <iframe
                       key={composeUrl}
+                      ref={previewFrameRef}
                       aria-label={activeComponent.name + " Compose 미리보기"}
                       className={
                         previewLoaded ? "compose-frame loaded" : "compose-frame"
                       }
                       onLoad={() => setPreviewLoaded(true)}
                       src={composeUrl}
+                      style={{ height: `${previewHeight}px` }}
                       title={activeComponent.name + " Compose 미리보기"}
                     />
                   </div>

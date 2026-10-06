@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,6 +28,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -200,6 +202,8 @@ import zone.ien.utils.ui.screen.IenTopUpperAssetContent
 import zone.ien.utils.ui.feedback.rememberIenBottomSheetState
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.view.CustomNavigationBar
+import zone.ien.utils.ui.view.CustomNavigationBarItem
 import zone.ien.utils.ui.interactive.IenAlphabetKeyboard
 import zone.ien.utils.ui.interactive.IenAlphabetKeypad
 import zone.ien.utils.ui.interactive.IenBadge
@@ -3524,9 +3528,6 @@ fun AssetSection() {
 @Composable
 fun BottomBarSection() {
     IenTheme {
-        var chatMessage by remember { mutableStateOf("") }
-        var sentMessage by remember { mutableStateOf<String?>(null) }
-
         ComponentSection(title = "BottomBar") {
             Text("기본 하단 바", style = IenTheme.typography.label1)
             IenBottomBar(
@@ -3566,51 +3567,110 @@ fun BottomBarSection() {
                     }
                 },
             )
-            Text("채팅방 하단 바", style = IenTheme.typography.label1)
+            ChatBottomBarExample()
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ChatBottomBarSection() {
+    IenTheme {
+        ComponentSection(title = "ChatBottomBar") {
+            ChatBottomBarExample()
+        }
+    }
+}
+
+@Composable
+private fun ChatBottomBarExample() {
+    var chatMessage by remember { mutableStateOf("") }
+    var sentMessage by remember { mutableStateOf<String?>(null) }
+
+    Text("채팅방 하단 바", style = IenTheme.typography.label1)
+    Text(
+        "텍스트 대신 메시지 입력창을 배치한 채팅방 하단 바입니다.",
+        style = IenTheme.typography.caption,
+        color = IenTheme.colors.textSecondary,
+    )
+    sentMessage?.let { message ->
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+            IenBubble(background = IenBubbleBackground.Brand) {
+                Text(message)
+            }
+        }
+    }
+    IenChatBottomBar(
+        value = chatMessage,
+        onValueChange = { chatMessage = it },
+        onSend = {
+            sentMessage = chatMessage.trim()
+            chatMessage = ""
+        },
+        leadingContent = {
+            IenIconButton(
+                onClick = {},
+                variant = IenButtonVariant.Ghost,
+                tone = IenSemanticTone.Neutral,
+            ) {
+                IenIcon(
+                    imageVector = RemixIcons.Fill.Add,
+                    contentDescription = "첨부",
+                )
+            }
+        },
+        trailingContent = {
+            IenIconButton(
+                onClick = {},
+                variant = IenButtonVariant.Ghost,
+                tone = IenSemanticTone.Neutral,
+            ) {
+                IenIcon(
+                    imageVector = M3SystemIcons.MoreVert,
+                    contentDescription = "더 보기",
+                )
+            }
+        },
+    )
+}
+
+@Preview
+@Composable
+fun NavigationBarSection() {
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+
+    IenTheme {
+        ComponentSection(title = "NavigationBar") {
             Text(
-                "텍스트 대신 메시지 입력창을 배치한 채팅방 하단 바입니다.",
+                "항목을 선택해 하단 내비게이션 상태를 바꿔 보세요.",
                 style = IenTheme.typography.caption,
                 color = IenTheme.colors.textSecondary,
             )
-            sentMessage?.let { message ->
-                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                    IenBubble(background = IenBubbleBackground.Brand) {
-                        Text(message)
-                    }
-                }
+            CustomNavigationBar(
+                selectedIndex = selectedTabIndex,
+                itemCount = 3,
+                windowInsets = WindowInsets(0.dp),
+            ) {
+                CustomNavigationBarItem(
+                    index = 0,
+                    onClick = { selectedTabIndex = 0 },
+                    icon = { Icon(M3SystemIcons.Save, contentDescription = null) },
+                    label = { Text("홈") },
+                )
+                CustomNavigationBarItem(
+                    index = 1,
+                    onClick = { selectedTabIndex = 1 },
+                    icon = { Icon(M3SystemIcons.Schedule, contentDescription = null) },
+                    label = { Text("기록") },
+                    badge = 3,
+                )
+                CustomNavigationBarItem(
+                    index = 2,
+                    onClick = { selectedTabIndex = 2 },
+                    icon = { Icon(M3SystemIcons.Delete, contentDescription = null) },
+                    label = { Text("설정") },
+                )
             }
-            IenChatBottomBar(
-                value = chatMessage,
-                onValueChange = { chatMessage = it },
-                onSend = {
-                    sentMessage = chatMessage.trim()
-                    chatMessage = ""
-                },
-                leadingContent = {
-                    IenIconButton(
-                        onClick = {},
-                        variant = IenButtonVariant.Ghost,
-                        tone = IenSemanticTone.Neutral,
-                    ) {
-                        IenIcon(
-                            imageVector = RemixIcons.Fill.Add,
-                            contentDescription = "첨부",
-                        )
-                    }
-                },
-                trailingContent = {
-                    IenIconButton(
-                        onClick = {},
-                        variant = IenButtonVariant.Ghost,
-                        tone = IenSemanticTone.Neutral,
-                    ) {
-                        IenIcon(
-                            imageVector = M3SystemIcons.MoreVert,
-                            contentDescription = "더 보기",
-                        )
-                    }
-                },
-            )
         }
     }
 }

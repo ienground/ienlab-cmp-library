@@ -16,8 +16,18 @@ fun main() {
     val colors = previewColors(if (darkTheme) tokens.darkColors else tokens.lightColors)
 
     ComposeViewport(viewportContainerId = "composeApplication") {
-        DocsApp(componentId, darkTheme, colors)
+        DocsApp(
+            componentId = componentId,
+            darkTheme = darkTheme,
+            colors = colors,
+            onContentHeight = ::reportPreviewHeight,
+        )
     }
+}
+
+@OptIn(ExperimentalWasmJsInterop::class)
+private fun reportPreviewHeight(height: Int) {
+    js("window.parent.postMessage({ type: 'ien-compose-preview-height', height: height }, window.location.origin)")
 }
 
 @OptIn(ExperimentalWasmJsInterop::class)
