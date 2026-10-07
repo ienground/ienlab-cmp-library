@@ -62,6 +62,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
@@ -1012,6 +1013,7 @@ fun IenSnackbarIcon(
 
 /**
  * 데이터를 로딩 중일 때 표시할 수 있는 스켈레톤(스위머) 자리 표시자 컴포저블입니다.
+ * 프리뷰에서는 애니메이션 없이 원래 크기와 배경 색상으로 표시합니다.
  *
  * @param modifier 적용할 [Modifier]
  * @param height 단일 블록의 스켈레톤을 만들 때 사용하는 높이. null이 아니면 해당 높이의 단일 블록이 렌더링됩니다.
@@ -1184,6 +1186,7 @@ enum class IenSkeletonBackground {
 
 /**
  * 자식 스켈레톤 요소를 하나로 묶어 파동형 애니메이션 페이즈를 동기화하기 위해 사용하는 모션 그룹 컴포저블입니다.
+ * 프리뷰에서는 투명도와 크기를 변경하지 않습니다.
  *
  * @param modifier 적용할 [Modifier]
  * @param animationIndex 애니메이션 딜레이 기준 인덱스
@@ -1628,6 +1631,8 @@ private fun IenSkeletonTextBlock(
 
 @Composable
 private fun rememberIenSkeletonPhase(): Float {
+    if (LocalInspectionMode.current) return 0f
+
     var phase by remember { mutableStateOf(0f) }
     LaunchedEffect(Unit) {
         while (true) {
@@ -1667,10 +1672,13 @@ private fun IenSkeletonBlock(
     )
 }
 
+@Composable
 private fun Modifier.ienSkeletonMotion(
     phase: Float,
     animationIndex: Int,
 ): Modifier {
+    if (LocalInspectionMode.current) return this
+
     val delayedPhase = phase - animationIndex * 0.78f
     val wave = ((sin(delayedPhase) + 1f) / 2f).coerceIn(0f, 1f)
     val alpha = 0.2f + 0.8f * wave

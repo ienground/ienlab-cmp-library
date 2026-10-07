@@ -7,13 +7,14 @@ const projectDirectory = fileURLToPath(new URL("../", import.meta.url));
 const repositoryDirectory = path.resolve(projectDirectory, "..");
 const outputFile = path.join(projectDirectory, "web/generated-api-docs.json");
 
-function findDeclaration(source, name) {
+function findDeclarations(source, name) {
   const declarationPattern = new RegExp(
-    "\\b(?:fun\\s+(?:<[^>]+>\\s*)?(?:[\\w?.<>]+\\.)?|(?:(?:data|sealed|enum|value)\\s+)?(?:class|interface|object)\\s+)" +
+    "^[ \\t]*(?:fun\\s+(?:<[^>]+>\\s*)?(?:[\\w?.<>]+\\.)?|(?:(?:data|sealed|enum|value)\\s+)?(?:class|interface|object)\\s+)" +
       name +
       "\\b",
+    "gm",
   );
-  return declarationPattern.exec(source);
+  return Array.from(source.matchAll(declarationPattern));
 }
 
 function readKDoc(source, declarationIndex) {
@@ -111,17 +112,7 @@ function findSignatureEnd(source, openParenthesis) {
   return source.length - 1;
 }
 
-function extractApi(source, name, fallbackDescription) {
-  const declaration = findDeclaration(source, name);
-  if (!declaration) {
-    return {
-      name,
-      signature: "",
-      description: fallbackDescription,
-      parameters: [],
-    };
-  }
-
+function extractApi(source, name, declaration, fallbackDescription) {
   const declarationIndex = declaration.index;
   const openParenthesis = source.indexOf("(", declarationIndex + declaration[0].length);
   const declarationLineEnd = source.indexOf("\n", declarationIndex);
@@ -147,6 +138,24 @@ function extractApi(source, name, fallbackDescription) {
   };
 }
 
+function extractApis(source, name, fallbackDescription) {
+  const declarations = findDeclarations(source, name);
+  if (declarations.length === 0) {
+    return [
+      {
+        name,
+        signature: "",
+        description: fallbackDescription,
+        parameters: [],
+      },
+    ];
+  }
+
+  return declarations.map((declaration) =>
+    extractApi(source, name, declaration, fallbackDescription),
+  );
+}
+
 const apiDocs = {};
 
 for (const component of catalog) {
@@ -164,8 +173,8 @@ for (const component of catalog) {
     path.join(repositoryDirectory, component.source),
     "utf8",
   );
-  apiDocs[component.id] = component.api.map((name) =>
-    extractApi(source, name, component.description),
+  apiDocs[component.id] = component.api.flatMap((name) =>
+    extractApis(source, name, component.description),
   );
 }
 
