@@ -909,8 +909,8 @@ function ApiDocumentation({ component }: { component: CatalogItem }) {
           ))}
         </div>
       </Card>
-      {documentation.map((api) => (
-        <Card className="api-reference-card" key={api.name}>
+      {documentation.map((api, index) => (
+        <Card className="api-reference-card" key={`${api.name}-${index}`}>
           <h3>{api.name}</h3>
           {api.signature ? (
             <pre className="api-signature">
