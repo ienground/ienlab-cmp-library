@@ -1,6 +1,8 @@
 import {
   Fragment,
   StrictMode,
+  Suspense,
+  lazy,
   useEffect,
   useMemo,
   useRef,
@@ -54,6 +56,12 @@ import { composeColorQuery } from "./color-scheme";
 import type { ColorSchemes } from "./color-scheme";
 import "./styles.css";
 
+const SkeletonComposer = lazy(() =>
+  import("./SkeletonComposer").then(({ SkeletonComposer: component }) => ({
+    default: component,
+  })),
+);
+
 const repositoryUrl =
   "https://github.com/ienground/ienlab-cmp-library/blob/main/";
 const defaultComponentId = "button";
@@ -71,7 +79,7 @@ interface ApiDocumentationEntry {
   parameters: ApiParameterDocumentation[];
 }
 
-type PreviewTab = "preview" | "api";
+type PreviewTab = "preview" | "composer" | "api";
 type ThemeMode = "light" | "dark";
 
 const typedApiDocs = apiDocs as Record<string, ApiDocumentationEntry[]>;
@@ -142,10 +150,13 @@ function InitialRedirect() {
   );
   const componentId =
     catalog.find((item) => item.id === requestedId)?.id ?? defaultComponentId;
+  const requestedPage = new URLSearchParams(window.location.search).get("page");
   const page =
-    new URLSearchParams(window.location.search).get("page") === "api"
+    requestedPage === "api"
       ? "api"
-      : "preview";
+      : requestedPage === "composer" && componentId === "skeleton"
+        ? "composer"
+        : "preview";
 
   return <Navigate replace to={`/components/${componentId}/${page}`} />;
 }
@@ -319,21 +330,25 @@ function ComponentPage({
   useEffect(() => {
     setPreviewLoaded(false);
     setPreviewHeight(minimumPreviewHeight);
-  }, [activeComponent?.id, themeMode, customColorSchemes, isColorSchemePage]);
+  }, [activeComponent?.id, themeMode, customColorSchemes, isColorSchemePage, page]);
 
   if (page === "colors") return <Navigate replace to="/color-scheme" />;
 
   if (
     !activeComponent ||
     (!isColorSchemePage &&
-      (section !== "components" || (page !== "preview" && page !== "api")))
+      (section !== "components" ||
+        (page !== "preview" &&
+          page !== "api" &&
+          !(page === "composer" && activeComponent.id === "skeleton"))))
   ) {
     return (
       <Navigate replace to={`/components/${defaultComponentId}/preview`} />
     );
   }
 
-  const activeTab: PreviewTab = page === "api" ? "api" : "preview";
+  const activeTab: PreviewTab =
+    page === "api" ? "api" : page === "composer" ? "composer" : "preview";
   const composeUrl =
     import.meta.env.BASE_URL +
     "compose/index.html?component=" +
@@ -442,7 +457,7 @@ function ComponentPage({
           isColorSchemePage={isColorSchemePage}
           activeColorSection={activeColorSection}
           onColorSectionSelect={selectColorSection}
-          activePage={activeTab}
+          activePage={activeTab === "composer" ? "preview" : activeTab}
           activeComponentId={activeComponent.id}
           filteredCatalog={filteredCatalog}
           mobileNavigationOpen={mobileNavigationOpen}
@@ -480,7 +495,11 @@ function ComponentPage({
                 aria-label="콘텐츠 보기 방식"
                 className="view-tabs-root"
                 onValueChange={(value) => {
-                  if (value === "preview" || value === "api") {
+                  if (
+                    value === "preview" ||
+                    value === "api" ||
+                    (value === "composer" && activeComponent.id === "skeleton")
+                  ) {
                     navigate(`/components/${activeComponent.id}/${value}`);
                   }
                 }}
@@ -490,6 +509,11 @@ function ComponentPage({
                   <TabsTrigger className="view-tab" value="preview">
                     Preview
                   </TabsTrigger>
+                  {activeComponent.id === "skeleton" && (
+                    <TabsTrigger className="view-tab" value="composer">
+                      조합기
+                    </TabsTrigger>
+                  )}
                   <TabsTrigger className="view-tab" value="api">
                     API 참고
                   </TabsTrigger>
@@ -497,7 +521,6 @@ function ComponentPage({
 
                 <TabsContent
                   className="content-panel"
-                  forceMount
                   value="preview"
                 >
                   <div className="panel-heading">
@@ -545,6 +568,24 @@ function ComponentPage({
                     />
                   </div>
                 </TabsContent>
+
+                {activeComponent.id === "skeleton" && (
+                  <TabsContent
+                    className="content-panel"
+                    forceMount
+                    value="composer"
+                  >
+                    <Suspense
+                      fallback={
+                        <p className="skeleton-composer-loading" role="status">
+                          스켈레톤 조합기를 불러오는 중입니다.
+                        </p>
+                      }
+                    >
+                      <SkeletonComposer />
+                    </Suspense>
+                  </TabsContent>
+                )}
 
                 <TabsContent className="content-panel" forceMount value="api">
                   <ApiSidebar component={activeComponent} />

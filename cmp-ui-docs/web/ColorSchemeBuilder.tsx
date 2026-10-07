@@ -17,6 +17,7 @@ import {
   toKotlinIdentifier,
 } from "./color-scheme";
 import type { ColorMode, ColorSchemes } from "./color-scheme";
+import { copyTextToClipboard } from "./clipboard";
 
 export const colorSchemeSections = [
   { id: "color-seeds", label: "기준 색상" },
@@ -174,14 +175,12 @@ export function ColorSchemeBuilder({
   const scheme = schemes[mode];
   const invalid = invalidFields.size > 0;
   async function copyCode() {
-    try {
-      await navigator.clipboard.writeText(code);
-      setMessage("Kotlin 코드를 복사했습니다.");
-    } catch {
-      setMessage(
-        "복사하지 못했습니다. 코드를 선택해 복사하거나 파일을 다운로드하세요.",
-      );
-    }
+    const copied = await copyTextToClipboard(code);
+    setMessage(
+      copied
+        ? "Kotlin 코드를 복사했습니다."
+        : "복사하지 못했습니다. 코드를 선택해 복사하거나 파일을 다운로드하세요.",
+    );
   }
   function downloadCode() {
     const url = URL.createObjectURL(
