@@ -181,7 +181,6 @@ fun IenSlider(
                                     if (event.changes.any { it.changedToDownIgnoreConsumed() }) {
                                         shakeDisabledSlider()
                                     }
-                                    event.changes.forEach { it.consume() }
                                 }
                             }
                         }
