@@ -686,7 +686,18 @@ private val ComponentPlaygroundControls = mapOf(
         disabledControl(),
     ),
     "skeleton" to listOf(
-        choiceControl("pattern", "패턴", IenSkeletonPattern.entries.map { it.name }, "TopListWithIcon"),
+        choiceControl(
+            "pattern",
+            "패턴",
+            IenSkeletonPattern.entries.map { it.name } + "ListRowTexts",
+            "TopListWithIcon",
+        ),
+        choiceControl(
+            "listRowTextsType",
+            "ListRowTexts 유형",
+            IenSkeletonPattern.ListRowTexts.entries.map { it.name },
+            "OneRowTypeA",
+        ),
     ),
     "primitives" to listOf(
         choiceControl("shape", "표면 형태", listOf("Rounded", "Circle")),
@@ -3211,8 +3222,16 @@ fun SegmentedControlSection(controls: Map<String, String> = emptyMap()) {
 @Preview
 @Composable
 fun SkeletonSection(controls: Map<String, String> = emptyMap()) {
+    val selectedPattern = controls.enumValue("pattern", "TopListWithIcon")
+    val textsPattern = if (selectedPattern == "ListRowTexts") {
+        IenSkeletonPattern.ListRowTexts.entries.firstOrNull {
+            it.name == controls.enumValue("listRowTextsType", "OneRowTypeA")
+        } ?: IenSkeletonPattern.ListRowTexts.OneRowTypeA
+    } else {
+        null
+    }
     val pattern = IenSkeletonPattern.entries.firstOrNull {
-        it.name == controls.enumValue("pattern", "TopListWithIcon")
+        it.name == selectedPattern
     } ?: IenSkeletonPattern.TopListWithIcon
     val background = IenSkeletonBackground.entries.firstOrNull {
         it.name == controls.enumValue("background", "Grey")
@@ -3232,11 +3251,16 @@ fun SkeletonSection(controls: Map<String, String> = emptyMap()) {
                 height = height,
                 radius = radius,
                 pattern = pattern,
+                custom = textsPattern?.let { listOf(IenSkeletonElement.ListRowTexts(it.type)) },
                 background = background,
                 play = play,
                 repeatLastItemCount = IenSkeletonRepeat.Count(repeatCount),
             )
             if (!LocalComponentVariantShowcase.current) {
+                IenSkeleton(
+                    pattern = IenSkeletonPattern.ListRowTexts.ThreeRowTypeC,
+                    repeatLastItemCount = IenSkeletonRepeat.Count(1),
+                )
                 IenSkeleton(
                     modifier = Modifier.fillMaxWidth(),
                     custom = listOf(
