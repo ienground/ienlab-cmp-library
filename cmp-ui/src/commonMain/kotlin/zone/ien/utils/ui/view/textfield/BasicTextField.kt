@@ -36,6 +36,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import zone.ien.utils.ui.view.IenAsteriskTextWrapper
 
 /**
@@ -93,7 +94,7 @@ fun PlaceholderBasicTextField(
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = modifier,
+        modifier = modifier.shakeOnDisabledClick(enabled),
         enabled = enabled,
         readOnly = readOnly,
         textStyle = textStyle,
@@ -176,7 +177,7 @@ fun PlaceholderBasicTextField(
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = modifier,
+        modifier = modifier.shakeOnDisabledClick(enabled),
         enabled = enabled,
         readOnly = readOnly,
         textStyle = textStyle,
@@ -285,6 +286,7 @@ fun PlaceholderBasicSecureTextField(
             state = state,
             modifier =
                 modifier
+                    .shakeOnDisabledClick(enabled)
                     .defaultMinSize(
                         minWidth = TextFieldDefaults.MinWidth,
                         minHeight = TextFieldDefaults.MinHeight,

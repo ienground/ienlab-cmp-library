@@ -2,6 +2,7 @@ package zone.ien.utils.ui.screen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -9,11 +10,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousRoundedRectangle
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.chat_message_placeholder
@@ -31,6 +35,7 @@ import zone.ien.utils.ui.primitives.IenIcon
  * 메시지 입력창과 전송 버튼을 조합한 채팅방 하단 바입니다.
  * [IenScaffold]의 bottomBar 슬롯에 배치할 수 있습니다.
  * 입력값, 첨부 상태, 실제 전송과 전송 성공 후 입력값 초기화는 호출자가 관리합니다.
+ * 입력 줄이 늘어나도 한 줄 높이의 모서리 반경을 유지하며, 버튼은 하단에 정렬됩니다.
  *
  * @param value 입력한 메시지
  * @param onValueChange 메시지가 변경될 때 호출되는 콜백
@@ -71,6 +76,11 @@ fun IenChatBottomBar(
         )
     },
 ) {
+    val actionHeight = 56.dp
+    val cornerRadius = maxOf(
+        IenBottomBarDefaults.ContentHeight,
+        actionHeight + IenTheme.spacing.xs * 2,
+    ) / 2
     val send: () -> Unit = {
         if (sendState.enabled && !sendState.loading) {
             onSend()
@@ -80,9 +90,13 @@ fun IenChatBottomBar(
     IenBottomBar(
         modifier = modifier,
         windowInsets = windowInsets,
+        shape = ContinuousRoundedRectangle(cornerRadius),
     ) {
         if (leadingContent != null) {
-            Box(contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier.align(Alignment.Bottom).heightIn(min = actionHeight),
+                contentAlignment = Alignment.Center,
+            ) {
                 leadingContent()
             }
         }
@@ -91,6 +105,7 @@ fun IenChatBottomBar(
             onValueChange = onValueChange,
             modifier = Modifier
                 .weight(1f)
+                .clipToBounds()
                 .semantics {
                     if (inputState.status is IenFieldStatus.Error) {
                         error(inputState.status.message)
@@ -119,13 +134,16 @@ fun IenChatBottomBar(
             },
         )
         if (trailingContent != null) {
-            Box(contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier.align(Alignment.Bottom).heightIn(min = actionHeight),
+                contentAlignment = Alignment.Center,
+            ) {
                 trailingContent()
             }
         }
         IenFab(
             onClick = send,
-            modifier = Modifier.align(Alignment.CenterVertically),
+            modifier = Modifier.align(Alignment.Bottom),
             size = IenFabSize.Regular,
             state = sendState,
             content = sendButtonContent,

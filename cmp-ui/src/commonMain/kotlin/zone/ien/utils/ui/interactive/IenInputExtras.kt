@@ -95,6 +95,7 @@ import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.utils.instantPress
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -497,7 +498,7 @@ enum class IenRatingVariant {
 /**
  * 사용자의 평가 점수를 별점 형태로 시각화하고 입력받을 수 있는 인터랙티브 평가 컴포저블.
  *
- * @param value 현재 평가 점수 값 (0.0에서 [max] 사이).
+ * @param value 현재 평가 점수 값 (0.0에서 [max] 사이). 소수부는 별의 채움 비율로 표시됩니다.
  * @param onValueChange 평가 점수가 변경될 때 호출되는 콜백 함수. null인 경우 읽기 전용 상태가 됩니다.
  * @param modifier 컴포저블에 적용할 [Modifier].
  * @param max 평가의 최대 점수 (별의 총 개수). 기본값은 5.
@@ -541,6 +542,7 @@ fun IenRating(
 
     Row(
         modifier = modifier
+            .shakeOnDisabledClick(!isDisabled)
             .onSizeChanged { rowSize = it }
             .ratingGesture(
                 enabled = interactive && valueChange != null,
@@ -578,7 +580,7 @@ fun IenRating(
             }
             IenRatingVariant.Compact -> {
                 IenRatingStar(
-                    index = selectedIndex.coerceAtLeast(0),
+                    index = 0,
                     value = 1f,
                     size = size,
                     isDisabled = isDisabled,
@@ -594,8 +596,8 @@ fun IenRating(
             }
             IenRatingVariant.IconOnly -> {
                 IenRatingStar(
-                    index = selectedIndex.coerceAtLeast(0),
-                    value = 1f,
+                    index = selectedIndex,
+                    value = selectedIndex.toFloat() + resolvedValue / itemCount.toFloat(),
                     size = size,
                     isDisabled = isDisabled,
                     pressed = false,
@@ -795,7 +797,7 @@ private fun IenRatingStar(
                         alpha = starAlpha
                     },
             ) {
-                if (fillFraction >= 0.75f) {
+                if (fillFraction >= 1f) {
                     drawRatingStarPath(brush = starBrush, scale = 0.92f)
                 } else {
                     drawRatingStarPath(color = emptyStarColor, scale = 0.92f)
@@ -891,7 +893,7 @@ private fun ScreenPreview() {
                 modifier = Modifier.padding(it)
             ) {
                 IenRating(
-                    value = 3f,
+                    value = 3.8f,
                     onValueChange = {},
                     size = IenRatingSize.Medium,
                     modifier = Modifier.fillMaxWidth()

@@ -90,7 +90,7 @@ private data class HomeMenuItem(
 
 private val menuItems = listOf(
     HomeMenuItem("Design System", RootRoute.DesignSystem, Color(0xFFE91E63)),
-    HomeMenuItem("Color Tokens", RootRoute.ColorTokens, Color(0xFF3182F6)),
+    HomeMenuItem("컬러 스킴 제작기", RootRoute.ColorTokens, Color(0xFF3182F6)),
     HomeMenuItem("Section", RootRoute.Section, Color(0xFFE53935)),
     HomeMenuItem("Settings", RootRoute.Settings, Color(0xFF1E88E5)),
     HomeMenuItem("Lazy Section", RootRoute.LazySection, Color(0xFF43A047)),

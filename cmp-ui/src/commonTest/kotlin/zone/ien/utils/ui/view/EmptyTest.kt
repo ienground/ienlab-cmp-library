@@ -11,14 +11,14 @@ import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.primitives.IenAssetFrameShape
 import zone.ien.utils.ui.primitives.IenAssetFrameSize
 
-class EmptyTest {
+class IenEmptyTest {
     @Test
-    fun `Empty icon configures IenAssetFrame parameters with receiver scope`() {
+    fun `IenEmpty icon configures IenAssetFrame parameters with receiver scope`() {
         assertNotNull(emptyWithAssetFrameParameters())
     }
 
     private fun emptyWithAssetFrameParameters(): @Composable () -> Unit = {
-        Empty(
+        IenEmpty(
             icon = {
                 this.modifier = Modifier.padding(4.dp)
                 this.size = IenAssetFrameSize.ExtraLarge

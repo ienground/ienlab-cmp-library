@@ -10,7 +10,6 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +37,7 @@ import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.primitives.drawIenBorder
 import zone.ien.utils.ui.screen.IenTop
 import zone.ien.utils.ui.screen.IenTopSubtitleParagraph
 import zone.ien.utils.ui.screen.IenTopTitleParagraph
@@ -500,7 +500,7 @@ private fun PasswordRules(
                                 if (rule.satisfied) {
                                     Modifier.background(color, CircleShape)
                                 } else {
-                                    Modifier.border(BorderStroke(IenTheme.stroke.thin, color), CircleShape)
+                                    Modifier.drawIenBorder(BorderStroke(IenTheme.stroke.thin, color), CircleShape)
                                 },
                             ),
                     )

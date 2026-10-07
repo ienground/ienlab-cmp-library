@@ -10,7 +10,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -67,7 +66,9 @@ import zone.ien.utils.ui.foundation.LocalIenDarkTheme
 import zone.ien.utils.ui.foundation.resolveThemeColor
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.primitives.drawIenBorder
 import zone.ien.utils.ui.utils.instantPress
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import kotlin.math.roundToInt
 
 /**
@@ -408,6 +409,7 @@ fun <T : Any> IenSegmentedControl(
                                     itemBounds = itemBounds + (item.value to bounds)
                                 }
                             }
+                            .shakeOnDisabledClick(itemEnabled)
                             .instantPress(itemEnabled) { pressed ->
                                 pressedValue = if (pressed) item.value else null
                             }
@@ -662,7 +664,7 @@ fun IenCircleCheckbox(
                 .alpha(alpha)
                 .size(size)
                 .then(checkboxBackgroundModifier)
-                .border(
+                .drawIenBorder(
                     BorderStroke(1.5.dp, borderAnimColor),
                     shape = androidx.compose.foundation.shape.CircleShape
                 ),
@@ -807,7 +809,7 @@ fun IenDotCheckbox(
                 .alpha(alpha)
                 .size(size)
                 .then(dotBackgroundModifier)
-                .border(
+                .drawIenBorder(
                     BorderStroke(1.5.dp, borderAnimColor),
                     shape = androidx.compose.foundation.shape.CircleShape
                 ),

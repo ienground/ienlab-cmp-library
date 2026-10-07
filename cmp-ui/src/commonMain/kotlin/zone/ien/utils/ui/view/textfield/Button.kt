@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 
 /**
  * Material3 텍스트 필드 아이콘 버튼 컴포저블
@@ -55,6 +56,7 @@ fun IenTextFieldIconButton(
     icon: IconData,
     contentDescription: String? = null
 ) {
+    val interactiveEnabled = enabled && !loading
     val buttonColors = IconButtonDefaults.iconButtonColors()
     val containerColor = if (enabled) buttonColors.containerColor else buttonColors.disabledContainerColor
     val contentColor = if (enabled) buttonColors.contentColor else buttonColors.disabledContentColor
@@ -65,13 +67,14 @@ fun IenTextFieldIconButton(
             .size(40.dp)
             .clip(CircleShape)
             .background(color = containerColor)
+            .shakeOnDisabledClick(interactiveEnabled)
             .combinedClickable(
-                enabled = true,
+                enabled = interactiveEnabled,
                 onClick = {
-                    if (enabled && !loading) onClick()
+                    if (interactiveEnabled) onClick()
                 },
                 onLongClick = {
-                    if (enabled && !loading) onLongClick()
+                    if (interactiveEnabled) onLongClick()
                 },
                 role = Role.Button,
                 interactionSource = interactionSource

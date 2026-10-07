@@ -41,20 +41,20 @@ import zone.ien.utils.ui.utils.conditional
 internal object SectionScopeImpl: SectionScope
 
 /**
- * Material3 스타일의 섹션 배경을 적용하는 Modifier
+ * IEN 섹션 배경을 적용하는 Modifier
  * 
- * 이 Modifier는 컴포저블 요소에 Material3의 surfaceContainer 색상을 적용하여
+ * 이 Modifier는 컴포저블 요소에 IEN 테마의 섹션 배경색을 적용하여
  * 섹션의 배경 스타일을 적용합니다.
  * 
  * @return 배경이 적용된 Modifier
  */
 @Composable
-fun Modifier.m3SectionBackground(): Modifier {
+fun Modifier.ienSectionBackground(): Modifier {
     return this.background(IenTheme.colors.surfaceWeak)
 }
 
 /**
- * Material3 스타일의 섹션 스타일을 적용하는 컴포저블
+ * IEN 섹션 스타일을 적용하는 컴포저블
  * 
  * 이 컴포저블은 섹션의 전반적인 스타일을 제공하며, 
  * 스크롤 가능 여부, 모양(shape), 제목, 내용을 정의할 수 있습니다.
@@ -81,7 +81,7 @@ fun IenProvideSectionStyle(
             .conditional(fullHeight) { fillMaxHeight() }
             .conditional(scrollState != null) { scrollState?.let { this.verticalScroll(it) } ?: this }
             .clip(shape)
-            .m3SectionBackground()
+            .ienSectionBackground()
             .then(modifier)
         ,
         content = {

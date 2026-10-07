@@ -30,6 +30,7 @@ import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.section.IenSectionColors
 import zone.ien.utils.ui.section.IenSectionLinkDefault
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 
 /**
  * Lazy 리스트 섹션의 스코프를 정의하는 인터페이스
@@ -211,6 +212,7 @@ private fun LazySectionScope.labelWithCustomChevron(
     dividerPadding = dividerPadding,
     modifier = {
         Modifier
+            .shakeOnDisabledClick(enabled)
             .clickable(
                 enabled = enabled,
                 onClick = onClick,

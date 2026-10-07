@@ -39,6 +39,7 @@ sealed interface RootRoute: NavKey {
     @Serializable data object LazySection: RootRoute
     @Serializable data object Navigation: RootRoute
     @Serializable data object DesignSystem: RootRoute
+    @Serializable data class DesignSystemComponent(val componentId: String): RootRoute
     @Serializable data object ColorTokens: RootRoute
     @Serializable data object FirebaseAuth: RootRoute
     @Serializable data object AuthForm: RootRoute
@@ -102,7 +103,17 @@ fun RootNavigationGraph(
             entry<RootRoute.DesignSystem> {
                 DesignSystemScreen(
                     navigateBack = { backStack.navigateBack() },
-                    navigateToColor = { backStack.add(RootRoute.ColorTokens) }
+                    navigateToColor = { backStack.add(RootRoute.ColorTokens) },
+                    navigateToComponent = {
+                        backStack.add(RootRoute.DesignSystemComponent(it))
+                    },
+                )
+            }
+            entry<RootRoute.DesignSystemComponent> { route ->
+                DesignSystemScreen(
+                    navigateBack = { backStack.navigateBack() },
+                    navigateToColor = { backStack.add(RootRoute.ColorTokens) },
+                    componentId = route.componentId,
                 )
             }
             entry<RootRoute.ColorTokens> {

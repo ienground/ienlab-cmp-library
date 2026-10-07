@@ -308,6 +308,7 @@ fun IenSwipeBox(
                             itemWidth = itemWidth,
                             actionCount = startActionsSize,
                             actionRowOuterPadding = actionRowOuterPadding,
+                            expansionThreshold = IenTheme.spacing.sm,
                         )
                         val actionRowWidth =
                             if (isActionRowExpanding) {
@@ -361,6 +362,7 @@ fun IenSwipeBox(
                             itemWidth = itemWidth,
                             actionCount = endActionsSize,
                             actionRowOuterPadding = actionRowOuterPadding,
+                            expansionThreshold = IenTheme.spacing.sm,
                         )
                         val actionRowWidth =
                             if (isActionRowExpanding) {
@@ -727,7 +729,9 @@ internal fun isSwipeBoxActionExpanding(
     itemWidth: Dp,
     actionCount: Int,
     actionRowOuterPadding: Dp,
-): Boolean = revealedWidth > itemWidth * actionCount + actionRowOuterPadding
+    expansionThreshold: Dp = 0.dp,
+): Boolean =
+    revealedWidth > itemWidth * actionCount + actionRowOuterPadding + expansionThreshold
 
 internal fun isSwipeBoxExpansionThresholdReached(
     offset: Float,

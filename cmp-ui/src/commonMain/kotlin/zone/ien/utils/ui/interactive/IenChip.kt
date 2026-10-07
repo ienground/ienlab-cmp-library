@@ -12,8 +12,8 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -49,7 +49,9 @@ import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.primitives.drawIenBorder
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 
 /** Chip의 활성화 및 진행 상태를 정의합니다. */
 @Immutable
@@ -394,6 +396,7 @@ private fun IenChipContainer(
 
     Box(
         modifier = modifier
+            .shakeOnDisabledClick(state.isInteractive)
             .defaultMinSize(
                 minWidth = IenTheme.state.minimumTouchTarget,
                 minHeight = IenTheme.state.minimumTouchTarget,
@@ -428,7 +431,7 @@ private fun IenChipContainer(
                 animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
             )
             .clip(shape)
-            .border(IenTheme.stroke.thin, animatedBorder, shape)
+            .drawIenBorder(BorderStroke(IenTheme.stroke.thin, animatedBorder), shape)
             .heightIn(min = 32.dp)
 
         Box(modifier = visualModifier, contentAlignment = Alignment.Center) {

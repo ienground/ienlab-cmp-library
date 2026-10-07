@@ -201,10 +201,6 @@ await writeFile(
   JSON.stringify({ light: extractColorTokens("Light"), dark: extractColorTokens("Dark"), descriptions }, null, 2) + "\n",
 );
 
-const docsAppSource = await readFile(
-  path.join(projectDirectory, "src/commonMain/kotlin/zone/ien/utils/docs/DocsApp.kt"),
-  "utf8",
-);
 const designScreenSource = await readFile(
   path.join(
     repositoryDirectory,
@@ -214,10 +210,11 @@ const designScreenSource = await readFile(
 );
 const designLines = designScreenSource.split(/\r?\n/);
 const mapping = {};
-const mappingRegex = /"([a-z0-9-]+)"\s*->\s*([A-Za-z0-9]+)\(/g;
+const mappingRegex = /"([a-z0-9-]+)"(?:,\s*"([a-z0-9-]+)")?\s*->\s*([A-Za-z0-9]+)\(/g;
 let mappingMatch;
-while ((mappingMatch = mappingRegex.exec(docsAppSource)) !== null) {
-  mapping[mappingMatch[1]] = mappingMatch[2];
+while ((mappingMatch = mappingRegex.exec(designScreenSource)) !== null) {
+  mapping[mappingMatch[1]] = mappingMatch[3];
+  if (mappingMatch[2]) mapping[mappingMatch[2]] = mappingMatch[3];
 }
 const sampleLines = {};
 for (const [id, fnName] of Object.entries(mapping)) {
