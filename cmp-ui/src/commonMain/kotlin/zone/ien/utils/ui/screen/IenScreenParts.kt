@@ -26,6 +26,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material3.Text
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -133,7 +134,7 @@ import zone.ien.utils.ui.interactive.IenTextButtonVariant
 import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import zone.ien.utils.ui.view.resolveIenTooltipColors
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -549,7 +550,7 @@ fun IenTopBar(
 ) {
     IenTopBar(
         title = {
-            IenText(
+            Text(
                 text = title,
                 style = IenTheme.typography.title3,
                 textAlign = if (titleAlignment == IenTopBarTitleAlignment.Center) TextAlign.Center else null,
@@ -558,7 +559,7 @@ fun IenTopBar(
         modifier = modifier,
         subtitle = subtitle?.let {
             {
-                IenText(
+                Text(
                     text = it,
                     style = IenTheme.typography.caption,
                     color = IenTheme.colors.textSecondary,
@@ -1017,7 +1018,7 @@ fun IenTopTitleParagraph(
     fontWeight: FontWeight = FontWeight.Bold,
     maxLines: Int = Int.MAX_VALUE,
 ) {
-    IenText(
+    Text(
         text = text,
         modifier = modifier.semantics { heading() },
         style = style.copy(fontWeight = fontWeight, lineBreak = LineBreak.Heading),
@@ -1056,7 +1057,7 @@ fun IenTopTitleTextButton(
         tone = colorTone,
         state = state,
     ) {
-        IenText(text)
+        Text(text)
     }
 }
 
@@ -1116,7 +1117,7 @@ fun IenTopSubtitleParagraph(
     fontWeight: FontWeight = size.subtitleWeight(),
     maxLines: Int = Int.MAX_VALUE,
 ) {
-    IenText(
+    Text(
         text = text,
         modifier = modifier,
         style = style.copy(fontWeight = fontWeight),
@@ -1155,7 +1156,7 @@ fun IenTopSubtitleTextButton(
         tone = colorTone,
         state = state,
     ) {
-        IenText(text)
+        Text(text)
     }
 }
 
@@ -1253,7 +1254,7 @@ fun IenTopLowerButton(
         tone = tone,
         state = state,
     ) {
-        IenText(text)
+        Text(text)
     }
 }
 
@@ -1310,7 +1311,7 @@ fun RowScope.IenTopLowerCTAButton(
         state = state,
         display = IenButtonDisplay.Block,
     ) {
-        IenText(text)
+        Text(text)
     }
 }
 
@@ -1343,7 +1344,7 @@ fun IenTopRightButton(
         tone = tone,
         state = state,
     ) {
-        IenText(text)
+        Text(text)
     }
 }
 
@@ -1403,7 +1404,7 @@ private fun IenTopSelector(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IenProvideTextStyle(style, color) {
-            IenText(
+            Text(
                 text = text,
                 style = style,
                 color = LocalContentColor.current,
@@ -1861,7 +1862,7 @@ private fun IenTooltipImpl(
     ) {
         anchor?.invoke(this, toggle)
         if (anchor == null) {
-            IenText("?", style = IenTheme.typography.label1, color = IenTheme.colors.brand)
+            Text("?", style = IenTheme.typography.label1, color = IenTheme.colors.brand)
         }
 
         if (keepInComposition) {
@@ -2034,7 +2035,7 @@ private fun IenTooltipPopup(
                     bottom = bottomPadding,
                 )
                 if (text != null) {
-                    IenText(
+                    Text(
                         text = text,
                         modifier = contentModifier,
                         style = IenTheme.typography.label2.copy(fontWeight = FontWeight.Bold),
@@ -2384,9 +2385,11 @@ fun IenAgreementText(
     )
     Row(
         modifier = modifier
+            .shakeOnDisabledClick(enabled)
             .then(
                 if (onPressEnd != null) {
                     Modifier.clickable(
+                        enabled = enabled,
                         interactionSource = interactionSource,
                         indication = null,
                         onClick = onPressEnd,
@@ -2398,7 +2401,7 @@ fun IenAgreementText(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         necessity?.invoke()
-        IenText(
+        Text(
             text = text,
             modifier = Modifier.weight(1f, fill = false),
             style = LocalIenAgreementVariant.current.agreementTextStyle(),
@@ -2424,7 +2427,7 @@ fun IenAgreementNecessity(
     text: String = if (variant == IenAgreementNecessityVariant.Mandatory) stringResource(Res.string.agreement_required) else stringResource(Res.string.agreement_optional)
 ) {
     val isMandatory = variant == IenAgreementNecessityVariant.Mandatory
-    IenText(
+    Text(
         text = text,
         modifier = modifier,
         style = IenTheme.typography.caption,
@@ -2466,7 +2469,7 @@ fun IenAgreementBadge(
             .background(resolvedBg)
             .padding(horizontal = 6.dp, vertical = 3.dp),
     ) {
-        IenText(text = text, style = IenTheme.typography.caption, color = resolvedText)
+        Text(text = text, style = IenTheme.typography.caption, color = resolvedText)
     }
 }
 
@@ -2527,14 +2530,14 @@ fun IenAgreementDescription(
                 .background(IenTheme.colors.surfaceWeak)
                 .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
         ) {
-            IenText(
+            Text(
                 text = text,
                 style = IenTheme.typography.caption,
                 color = IenTheme.colors.textSecondary
             )
         }
     } else {
-        IenText(
+        Text(
             text = text,
             modifier = modifier
                 .fillMaxWidth()
@@ -2562,7 +2565,7 @@ fun IenAgreementHeader(
 ) {
     val currentIndent = LocalIenAgreementIndent.current + indent
     val agreementVariant = variant.toAgreementVariant()
-    IenText(
+    Text(
         text = text,
         modifier = modifier
             .fillMaxWidth()
@@ -2952,7 +2955,7 @@ fun IenAgreement(
                     )
                 },
                 middle = {
-                    IenText(
+                    Text(
                         text = title,
                         style = IenTheme.typography.body1,
                         color = IenTheme.colors.textPrimary,
@@ -2987,7 +2990,7 @@ fun IenAgreement(
                                 } else null
                             )
                             if (item.description != null) {
-                                IenText(
+                                Text(
                                     text = item.description,
                                     style = IenTheme.typography.caption,
                                     color = if (item.enabled) IenTheme.colors.textTertiary else IenTheme.colors.textDisabled,
@@ -3110,7 +3113,7 @@ internal fun IenBottomCTAButtonContent(
                     }
                 }
             }
-            IenText(text)
+            Text(text)
         }
     }
 }
@@ -3204,8 +3207,10 @@ fun IenBottomCTA(
  *
  * @param primaryText 주 버튼 텍스트
  * @param onPrimaryClick 주 버튼 클릭 콜백
+ * @param primaryButtonWeight 주 버튼의 상대 너비 비율
  * @param secondaryText 부 버튼 텍스트
  * @param onSecondaryClick 부 버튼 클릭 콜백
+ * @param secondaryButtonWeight 부 버튼의 상대 너비 비율
  * @param modifier 적용할 Modifier
  * @param background 하단 바 배경 스타일 ([IenBottomCTABackground])
  * @param hasSafeAreaPadding 세이프 에어리어 패딩 계산 적용 여부
@@ -3243,6 +3248,8 @@ fun IenDoubleBottomCTA(
     scrollDelta: Float = 0f,
     topAccessory: (@Composable () -> Unit)? = null,
     bottomAccessory: (@Composable () -> Unit)? = null,
+    primaryButtonWeight: Float = 1f,
+    secondaryButtonWeight: Float = 1f,
 ) {
     IenDoubleBottomCTA(
         modifier = modifier,
@@ -3257,6 +3264,8 @@ fun IenDoubleBottomCTA(
         scrollDelta = scrollDelta,
         topAccessory = topAccessory,
         bottomAccessory = bottomAccessory,
+        leftButtonWeight = secondaryButtonWeight,
+        rightButtonWeight = primaryButtonWeight,
         leftButton = {
             IenBottomCTAButton(
                 text = secondaryText,
@@ -3283,6 +3292,8 @@ fun IenDoubleBottomCTA(
  *
  * @param leftButton 좌측 버튼 컴포저블 슬롯
  * @param rightButton 우측 버튼 컴포저블 슬롯
+ * @param leftButtonWeight 좌측 버튼 영역의 상대 너비 비율
+ * @param rightButtonWeight 우측 버튼 영역의 상대 너비 비율
  * @param modifier 적용할 Modifier
  * @param background 하단 바 배경 스타일 ([IenBottomCTABackground])
  * @param hasSafeAreaPadding 세이프 에어리어 패딩 계산 적용 여부
@@ -3314,7 +3325,16 @@ fun IenDoubleBottomCTA(
     scrollDelta: Float = 0f,
     topAccessory: (@Composable () -> Unit)? = null,
     bottomAccessory: (@Composable () -> Unit)? = null,
+    leftButtonWeight: Float = 1f,
+    rightButtonWeight: Float = 1f,
 ) {
+    require(leftButtonWeight.isFinite() && leftButtonWeight > 0f) {
+        "leftButtonWeight는 0보다 큰 유한한 값이어야 합니다."
+    }
+    require(rightButtonWeight.isFinite() && rightButtonWeight > 0f) {
+        "rightButtonWeight는 0보다 큰 유한한 값이어야 합니다."
+    }
+
     IenBottomCTAContainer(
         modifier = modifier,
         hasSafeAreaPadding = hasSafeAreaPadding,
@@ -3335,8 +3355,20 @@ fun IenDoubleBottomCTA(
             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            leftButton()
-            rightButton()
+            Row(
+                modifier = Modifier.weight(leftButtonWeight).fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                leftButton()
+            }
+            Row(
+                modifier = Modifier.weight(rightButtonWeight).fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                rightButton()
+            }
         }
     }
 }
@@ -3458,6 +3490,8 @@ fun BoxScope.IenFixedBottomCTA(
  *
  * @param leftButton 좌측 버튼 컴포저블 슬롯
  * @param rightButton 우측 버튼 컴포저블 슬롯
+ * @param leftButtonWeight 좌측 버튼 영역의 상대 너비 비율
+ * @param rightButtonWeight 우측 버튼 영역의 상대 너비 비율
  * @param modifier 적용할 Modifier
  * @param background 하단 바 배경 스타일 ([IenBottomCTABackground])
  * @param hasSafeAreaPadding 세이프 에어리어 패딩 계산 적용 여부
@@ -3485,6 +3519,8 @@ fun BoxScope.IenFixedDoubleBottomCTA(
     scrollDelta: Float = 0f,
     topAccessory: (@Composable () -> Unit)? = null,
     bottomAccessory: (@Composable () -> Unit)? = null,
+    leftButtonWeight: Float = 1f,
+    rightButtonWeight: Float = 1f,
 ) {
     IenDoubleBottomCTA(
         leftButton = leftButton,
@@ -3502,6 +3538,8 @@ fun BoxScope.IenFixedDoubleBottomCTA(
         scrollDelta = scrollDelta,
         topAccessory = topAccessory,
         bottomAccessory = bottomAccessory,
+        leftButtonWeight = leftButtonWeight,
+        rightButtonWeight = rightButtonWeight,
     )
 }
 

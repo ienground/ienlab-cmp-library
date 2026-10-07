@@ -36,7 +36,7 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.screen.LocalTopBarScaffoldScrollState
 import zone.ien.utils.ui.section.IenProvideSectionStyle
 import zone.ien.utils.ui.section.IenSection
-import zone.ien.utils.ui.section.m3SectionBackground
+import zone.ien.utils.ui.section.ienSectionBackground
 import zone.ien.utils.ui.utils.conditional
 
 /**
@@ -51,7 +51,7 @@ fun Modifier.sectionBackground(
     sectionStyle: SectionStyle
 ): Modifier {
     return this
-        .conditional(currentTheme == Theme.Material3) { m3SectionBackground() }
+        .conditional(currentTheme == Theme.Material3) { ienSectionBackground() }
         .conditional(currentTheme == Theme.Cupertino) { sectionContainerBackground(sectionStyle) }
 }
 

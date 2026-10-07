@@ -1,16 +1,20 @@
 package zone.ien.utils.ui.interactive
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
@@ -28,6 +32,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -67,9 +72,10 @@ import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
-import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.primitives.drawIenBorder
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 import zone.ien.utils.ui.utils.instantPress
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 
 /**
  * [IenButton]의 크기 규격을 정의하는 열거형 클래스.
@@ -537,14 +543,21 @@ fun IenIconButton(
             IenButtonSize.Large -> 28.dp
         }
         IenProvideTextStyle(IenTheme.typography.body1, LocalContentColor.current) {
-            Box(
-                modifier = Modifier.size(iconSize),
-                contentAlignment = Alignment.Center
-            ) {
-                if (state.loading) {
-                    IenLoaderPrimitive(color = LocalContentColor.current)
-                } else {
-                    content()
+            IenButtonLoadingTransition(
+                loading = state.loading,
+            ) { loading ->
+                Box(
+                    modifier = Modifier.size(iconSize),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (loading) {
+                        IenLoaderPrimitive(
+                            modifier = Modifier.size(iconSize),
+                            color = LocalContentColor.current,
+                        )
+                    } else {
+                        content()
+                    }
                 }
             }
         }
@@ -622,15 +635,11 @@ fun IenIconToggleButton(
         border = colors.borderStroke(checked = checked, enabled = state.enabled),
     ) {
         IenProvideTextStyle(IenTheme.typography.body1, LocalContentColor.current) {
-            Box(
+            IenButtonLoadingTransition(
+                loading = state.loading,
                 modifier = Modifier.size(iconSize),
-                contentAlignment = Alignment.Center,
-            ) {
-                if (state.loading) {
-                    IenLoaderPrimitive(color = LocalContentColor.current)
-                } else {
-                    content()
-                }
+            ) { loading ->
+                if (loading) IenLoaderPrimitive(color = LocalContentColor.current) else content()
             }
         }
     }
@@ -679,15 +688,11 @@ fun IenFab(
         scalePressed = 0.95f,
     ) {
         IenProvideTextStyle(IenTheme.typography.body1, LocalContentColor.current) {
-            Box(
+            IenButtonLoadingTransition(
+                loading = state.loading,
                 modifier = Modifier.size(iconSize),
-                contentAlignment = Alignment.Center,
-            ) {
-                if (state.loading) {
-                    IenLoaderPrimitive(color = LocalContentColor.current)
-                } else {
-                    content()
-                }
+            ) { loading ->
+                if (loading) IenLoaderPrimitive(color = LocalContentColor.current) else content()
             }
         }
     }
@@ -742,15 +747,11 @@ fun IenFab(
     ) {
         IenProvideTextStyle(IenTheme.typography.body1, LocalContentColor.current) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
+                IenButtonLoadingTransition(
+                    loading = state.loading,
                     modifier = Modifier.size(iconSize),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    if (state.loading) {
-                        IenLoaderPrimitive(color = LocalContentColor.current)
-                    } else {
-                        icon()
-                    }
+                ) { loading ->
+                    if (loading) IenLoaderPrimitive(color = LocalContentColor.current) else icon()
                 }
                 AnimatedVisibility(
                     visible = isExtended,
@@ -891,11 +892,36 @@ private fun IenButtonSlotContent(
         IenButtonSize.Large -> IenTheme.typography.body1
     }
     IenProvideTextStyle(textStyle, LocalContentColor.current) {
-        if (loading) {
-            IenLoaderPrimitive(color = LocalContentColor.current)
-        } else {
-            content()
+        IenButtonLoadingTransition(loading = loading) { isLoading ->
+            if (isLoading) IenLoaderPrimitive(color = LocalContentColor.current) else content()
         }
+    }
+}
+
+@Composable
+private fun IenButtonLoadingTransition(
+    loading: Boolean,
+    modifier: Modifier = Modifier,
+    content: @Composable (loading: Boolean) -> Unit,
+) {
+    val fastMillis = IenTheme.motion.fastMillis
+    val standardEasing = IenTheme.motion.standardEasing
+
+    AnimatedContent(
+        targetState = loading,
+        modifier = modifier,
+        transitionSpec = {
+            (fadeIn(tween(fastMillis, easing = standardEasing)) +
+                scaleIn(tween(fastMillis, easing = standardEasing), initialScale = 0.8f)
+            ).togetherWith(
+                fadeOut(tween(fastMillis, easing = standardEasing)) +
+                    scaleOut(tween(fastMillis, easing = standardEasing), targetScale = 0.8f)
+            )
+        },
+        contentAlignment = Alignment.Center,
+        label = "IenButtonLoadingContent",
+    ) { targetLoading ->
+        content(targetLoading)
     }
 }
 
@@ -1308,6 +1334,7 @@ internal fun IenButtonContainer(
     }
 
     val buttonModifier = modifier
+        .shakeOnDisabledClick(interactiveEnabled)
         .graphicsLayer {
             scaleX = scale
             scaleY = scale
@@ -1353,7 +1380,7 @@ internal fun IenButtonContainer(
         modifier = buttonModifier
             .clip(shape)
             .then(backgroundModifier)
-            .then(if (borderStroke != null) Modifier.border(borderStroke, shape) else Modifier)
+            .then(if (borderStroke != null) Modifier.drawIenBorder(borderStroke, shape) else Modifier)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,

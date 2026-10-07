@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -59,8 +60,8 @@ import zone.ien.utils.icon.remix.fill.Check
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.instantPress
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 
 @Composable
 internal fun IenAnimatedPopup(
@@ -693,7 +694,7 @@ object IenMenu {
         modifier: Modifier = Modifier,
     ) {
         Header(modifier = modifier) {
-            IenText(
+            Text(
                 text = text,
                 style = IenTheme.typography.caption,
                 color = IenTheme.colors.textTertiary,
@@ -750,7 +751,7 @@ object IenMenu {
             enabled = enabled,
             selected = selected,
         ) {
-            IenText(
+            Text(
                 text = text,
                 style = IenTheme.typography.body2,
                 color = when {
@@ -822,7 +823,7 @@ object IenMenu {
             enabled = enabled,
             right = right,
         ) {
-            IenText(
+            Text(
                 text = text,
                 style = IenTheme.typography.body2,
                 color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
@@ -908,6 +909,7 @@ object IenMenu {
             modifier = modifier
                 .fillMaxWidth()
                 .heightIn(min = 48.dp)
+                .shakeOnDisabledClick(enabled)
                 .instantPress(enabled = enabled) { isPressed = it }
                 .clickable(
                     interactionSource = interactionSource,

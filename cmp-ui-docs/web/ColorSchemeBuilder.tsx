@@ -14,6 +14,7 @@ import {
   generateKotlinTheme,
   isHexColor,
   semanticGroups,
+  toKotlinIdentifier,
 } from "./color-scheme";
 import type { ColorMode, ColorSchemes } from "./color-scheme";
 
@@ -23,6 +24,67 @@ export const colorSchemeSections = [
   { id: "color-contrast", label: "상태 색상과 대비" },
   { id: "color-code", label: "Kotlin 테마 코드" },
 ];
+
+const kotlinKeywords = new Set([
+  "as",
+  "class",
+  "const",
+  "data",
+  "else",
+  "enum",
+  "false",
+  "fun",
+  "if",
+  "import",
+  "internal",
+  "interface",
+  "isSystemInDarkTheme",
+  "object",
+  "private",
+  "public",
+  "return",
+  "suspend",
+  "this",
+  "true",
+  "val",
+  "var",
+  "when",
+  "where",
+]);
+
+export function highlightKotlin(source: string) {
+  let offset = 0;
+  return source
+    .split(/(\/\/[^\n]*|\/\*[\s\S]*?\*\/|"""[\s\S]*?"""|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|@[A-Za-z_]\w*|0x[\da-fA-F]+|[A-Za-z_]\w*|\d+(?:\.\d+)?[fFL]?|\s+)/g)
+    .filter(Boolean)
+    .map((token, index) => {
+      const tokenOffset = offset;
+      offset += token.length;
+      if (/^\s+$/.test(token)) return token;
+
+      let tokenClass = "";
+      if (token.startsWith("//") || token.startsWith("/*")) tokenClass = "kotlin-comment";
+      else if (token.startsWith("@")) tokenClass = "kotlin-annotation";
+      else if (token.startsWith('"') || token.startsWith("'")) tokenClass = "kotlin-string";
+      else if (/^(?:0x[\da-fA-F]+|\d+(?:\.\d+)?[fFL]?)$/.test(token)) {
+        tokenClass = "kotlin-number";
+      } else if (kotlinKeywords.has(token)) tokenClass = "kotlin-keyword";
+      else if (/^[A-Z]/.test(token)) tokenClass = "kotlin-type";
+      else if (/^\s*\(/.test(source.slice(tokenOffset + token.length))) {
+        tokenClass = "kotlin-function";
+      } else if (/^\s*[:=]/.test(source.slice(tokenOffset + token.length))) {
+        tokenClass = "kotlin-property";
+      }
+
+      return tokenClass ? (
+        <span className={tokenClass} key={`${index}-${tokenOffset}`}>
+          {token}
+        </span>
+      ) : (
+        token
+      );
+    });
+}
 
 function ColorInput({
   id,
@@ -91,6 +153,7 @@ export function ColorSchemeBuilder({
 }) {
   const [seeds, setSeeds] = useState(defaultColorSeeds);
   const [schemes, setSchemes] = useState(defaultColorSchemes);
+  const [appName, setAppName] = useState("Lovehero");
   const [mode, setMode] = useState<ColorMode>(themeMode);
   const [invalidFields, setInvalidFields] = useState<Set<string>>(
     () => new Set(),
@@ -106,7 +169,8 @@ export function ColorSchemeBuilder({
       return next;
     });
   }, []);
-  const code = generateKotlinTheme(schemes);
+  const code = generateKotlinTheme(schemes, appName);
+  const appIdentifier = toKotlinIdentifier(appName);
   const scheme = schemes[mode];
   const invalid = invalidFields.size > 0;
   async function copyCode() {
@@ -125,10 +189,10 @@ export function ColorSchemeBuilder({
     );
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = "AppTheme.kt";
+    anchor.download = `${appIdentifier}Theme.kt`;
     anchor.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setMessage("AppTheme.kt를 다운로드했습니다.");
+    setMessage(`${appIdentifier}Theme.kt를 다운로드했습니다.`);
   }
   return (
     <div className="color-builder">
@@ -141,9 +205,26 @@ export function ColorSchemeBuilder({
       </div>
       <p className="panel-description">
         기준색을 선택하면 라이트·다크 상태 색상을 자동 생성합니다. 세부 색상을
-        조정한 뒤 AppTheme.kt를 프로젝트에 추가하고 AppTheme으로 화면을
-        감싸세요.
+        조정한 뒤 {appIdentifier}Theme.kt를 프로젝트에 추가하고 {appIdentifier}Theme으로
+        화면을 감싸세요.
       </p>
+      <Card className="color-builder-card app-name-card">
+        <div>
+          <label htmlFor="color-scheme-app-name">앱 이름</label>
+          <p className="color-hint">
+            입력한 이름으로 색상 토큰과 테마 함수 이름을 만듭니다.
+          </p>
+        </div>
+        <Input
+          id="color-scheme-app-name"
+          aria-label="앱 이름"
+          value={appName}
+          onChange={(event) => {
+            setAppName(event.target.value);
+            setMessage("");
+          }}
+        />
+      </Card>
       <Card id={colorSchemeSections[0].id} className="color-builder-card">
         <h3>기준 색상</h3>
         <div className="color-seeds">
@@ -297,7 +378,7 @@ export function ColorSchemeBuilder({
               코드 복사
             </Button>
             <Button disabled={invalid} onClick={downloadCode}>
-              AppTheme.kt 다운로드
+              {appIdentifier}Theme.kt 다운로드
             </Button>
           </div>
         </div>
@@ -311,7 +392,7 @@ export function ColorSchemeBuilder({
           {message}
         </p>
         <pre className="api-signature color-code" tabIndex={0}>
-          <code>{code}</code>
+          <code>{highlightKotlin(code)}</code>
         </pre>
       </Card>
     </div>

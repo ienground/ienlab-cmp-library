@@ -10,7 +10,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -29,6 +28,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -66,8 +66,9 @@ import zone.ien.utils.ui.foundation.LocalIenDarkTheme
 import zone.ien.utils.ui.foundation.resolveThemeColor
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.primitives.drawIenBorder
 import zone.ien.utils.ui.utils.instantPress
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import kotlin.math.roundToInt
 
 /**
@@ -408,6 +409,7 @@ fun <T : Any> IenSegmentedControl(
                                     itemBounds = itemBounds + (item.value to bounds)
                                 }
                             }
+                            .shakeOnDisabledClick(itemEnabled)
                             .instantPress(itemEnabled) { pressed ->
                                 pressedValue = if (pressed) item.value else null
                             }
@@ -433,7 +435,7 @@ fun <T : Any> IenSegmentedControl(
                             .padding(horizontal = itemSize.segmentedControlItemHorizontalPadding()),
                         contentAlignment = Alignment.Center,
                     ) {
-                        IenText(
+                        Text(
                             text = item.label,
                             style = itemSize.segmentedControlTextStyle(),
                             color = textColor,
@@ -662,7 +664,7 @@ fun IenCircleCheckbox(
                 .alpha(alpha)
                 .size(size)
                 .then(checkboxBackgroundModifier)
-                .border(
+                .drawIenBorder(
                     BorderStroke(1.5.dp, borderAnimColor),
                     shape = androidx.compose.foundation.shape.CircleShape
                 ),
@@ -676,7 +678,7 @@ fun IenCircleCheckbox(
             )
         }
         if (label != null) {
-            IenText(
+            Text(
                 text = label,
                 style = IenTheme.typography.body2,
                 color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
@@ -807,13 +809,13 @@ fun IenDotCheckbox(
                 .alpha(alpha)
                 .size(size)
                 .then(dotBackgroundModifier)
-                .border(
+                .drawIenBorder(
                     BorderStroke(1.5.dp, borderAnimColor),
                     shape = androidx.compose.foundation.shape.CircleShape
                 ),
         )
         if (label != null) {
-            IenText(
+            Text(
                 text = label,
                 style = IenTheme.typography.body2,
                 color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
@@ -926,7 +928,7 @@ fun IenLineCheckbox(
                 .size(size)
         )
         if (label != null) {
-            IenText(
+            Text(
                 text = label,
                 style = IenTheme.typography.body2,
                 color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,7 +30,6 @@ import zone.ien.utils.firebase.auth.google.rememberFirebaseGoogleSignInState
 import zone.ien.utils.ui.interactive.IenButton
 import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonVariant
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.TopBarMode
 
 import zone.ien.utils.example.TAG
@@ -63,7 +63,7 @@ fun FirebaseAuthScreen(
     IenAdaptiveTheme(target = Theme.Material3) {
         AdaptiveTopAppBarScaffold(
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
-            title = { IenText("Firebase Auth Sample") },
+            title = { Text("Firebase Auth Sample") },
             adaptation = {
                 material { mode = TopBarMode.Expanded }
                 cupertino { this.backdrop = backdrop }
@@ -79,7 +79,7 @@ fun FirebaseAuthScreen(
             ) {
                 title()
 
-                IenText("KMPAuth 스타일 Google 및 Apple Sign-In 연동 샘플입니다.")
+                Text("KMPAuth 스타일 Google 및 Apple Sign-In 연동 샘플입니다.")
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -90,7 +90,7 @@ fun FirebaseAuthScreen(
                         variant = IenButtonVariant.Fill,
                         display = IenButtonDisplay.Inline,
                     ) {
-                        IenText("Google Sign-In")
+                        Text("Google Sign-In")
                     }
 
                     if (googleSignInState.isInProgress) {
@@ -107,7 +107,7 @@ fun FirebaseAuthScreen(
                         variant = IenButtonVariant.Weak,
                         display = IenButtonDisplay.Inline,
                     ) {
-                        IenText("Apple Sign-In")
+                        Text("Apple Sign-In")
                     }
 
                     if (appleSignInState.isInProgress) {
@@ -117,9 +117,9 @@ fun FirebaseAuthScreen(
 
                 currentUser?.let { user ->
                     Spacer(modifier = Modifier.height(16.dp))
-                    IenText("현재 로그인된 사용자:")
-                    IenText("UID: ${user.uid}")
-                    IenText("Email: ${user.email ?: "N/A"}")
+                    Text("현재 로그인된 사용자:")
+                    Text("UID: ${user.uid}")
+                    Text("Email: ${user.email ?: "N/A"}")
 
                     IenButton(
                         onClick = {
@@ -129,7 +129,7 @@ fun FirebaseAuthScreen(
                         variant = IenButtonVariant.Fill,
                         display = IenButtonDisplay.Inline,
                     ) {
-                        IenText("로그아웃")
+                        Text("로그아웃")
                     }
                 }
 
@@ -138,9 +138,9 @@ fun FirebaseAuthScreen(
                     val user = res.getOrNull()
                     val error = res.exceptionOrNull()
                     if (user != null) {
-                        IenText("로그인 성공: ${user.uid}")
+                        Text("로그인 성공: ${user.uid}")
                     } else if (error != null) {
-                        IenText("로그인 결과: ${error.message}")
+                        Text("로그인 결과: ${error.message}")
                     }
                 }
             }

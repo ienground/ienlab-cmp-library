@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,7 +31,6 @@ import zone.ien.utils.ui.dialog.IenTextFieldDialog
 import zone.ien.utils.ui.dialog.IenTimePickerDialog
 import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.primitives.IenIcon
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.IenBackButton
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.IenTopAppBarScaffold
@@ -44,9 +44,9 @@ import zone.ien.utils.ui.section.IenSectionSwitchItem
 import zone.ien.utils.ui.section.IenSectionTextField
 import zone.ien.utils.ui.select.IenExposedDropdownMenuBox
 import zone.ien.utils.ui.utils.TextFieldDialogData
-import zone.ien.utils.ui.view.CustomNavigationBar
-import zone.ien.utils.ui.view.CustomNavigationBarItem
-import zone.ien.utils.ui.view.Empty
+import zone.ien.utils.ui.view.IenNavigationBar
+import zone.ien.utils.ui.view.IenNavigationBarItem
+import zone.ien.utils.ui.view.IenEmpty
 import zone.ien.utils.ui.view.IenAsteriskTextWrapper
 import zone.ien.utils.ui.view.IenTooltipBox
 import zone.ien.utils.ui.menu.ActionMenuItem
@@ -95,16 +95,16 @@ fun IenPlaygroundScreen(
                     navigateBack()
                 }
             },
-            title = { IenText("UI Module Playground") },
-            subtitle = { IenText("Testing all migrated Material3 wrapper components") },
+            title = { Text("UI Module Playground") },
+            subtitle = { Text("Testing all migrated Material3 wrapper components") },
             actions = listOf<ActionMenuItem>(),
             bottomBar = {
-                CustomNavigationBar(
+                IenNavigationBar(
                     selectedIndex = selectedNavIndex,
                     itemCount = 3,
                     visible = navigationBarVisible,
                 ) {
-                    CustomNavigationBarItem(
+                    IenNavigationBarItem(
                         index = 0,
                         onClick = { selectedNavIndex = 0 },
                         icon = {
@@ -113,9 +113,9 @@ fun IenPlaygroundScreen(
                                 contentDescription = null
                             )
                         },
-                        label = { IenText("저장") }
+                        label = { Text("저장") }
                     )
-                    CustomNavigationBarItem(
+                    IenNavigationBarItem(
                         index = 1,
                         onClick = { selectedNavIndex = 1 },
                         icon = {
@@ -124,9 +124,9 @@ fun IenPlaygroundScreen(
                                 contentDescription = null
                             )
                         },
-                        label = { IenText("수정") }
+                        label = { Text("수정") }
                     )
-                    CustomNavigationBarItem(
+                    IenNavigationBarItem(
                         index = 2,
                         onClick = { selectedNavIndex = 2 },
                         icon = {
@@ -135,7 +135,7 @@ fun IenPlaygroundScreen(
                                 contentDescription = null
                             )
                         },
-                        label = { IenText("스케쥴") }
+                        label = { Text("스케쥴") }
                     )
                 }
             }
@@ -151,49 +151,49 @@ fun IenPlaygroundScreen(
             ) {
                 // ─── Dialogs Section ───
                 IenSection(
-                    title = { IenText("Dialogs") }
+                    title = { Text("Dialogs") }
                 ) {
                     IenSectionSwitchItem(
                         checked = darkTheme,
                         onCheckedChange = { darkTheme = it },
-                        title = { IenText("IenTheme dark mode") }
+                        title = { Text("IenTheme dark mode") }
                     )
                     IenSectionSwitchItem(
                         checked = darkTheme,
                         onCheckedChange = { darkTheme = it },
                         enabled = false,
-                        title = { IenText("IenTheme dark mode") }
+                        title = { Text("IenTheme dark mode") }
                     )
                     IenSectionButton(
                         onClick = { showAlertDialog = true },
-                        label = { IenText("Open IenAlertDialog") },
+                        label = { Text("Open IenAlertDialog") },
                         modifier = Modifier.fillMaxWidth()
                     )
                     IenSectionButton(
                         onClick = { showDatePicker = true },
-                        label = { IenText("Open IenDatePickerDialog") },
+                        label = { Text("Open IenDatePickerDialog") },
                         modifier = Modifier.fillMaxWidth()
                     )
                     IenSectionButton(
                         onClick = { showTimePicker = true },
-                        label = { IenText("Open IenTimePickerDialog") },
+                        label = { Text("Open IenTimePickerDialog") },
                         modifier = Modifier.fillMaxWidth()
                     )
                     IenSectionButton(
                         onClick = { showProgressDialog = true },
-                        label = { IenText("Open IenProgressDialog") },
+                        label = { Text("Open IenProgressDialog") },
                         modifier = Modifier.fillMaxWidth()
                     )
                     IenSectionButton(
                         onClick = { showTextFieldDialog = true },
-                        label = { IenText("Open IenTextFieldDialog") },
+                        label = { Text("Open IenTextFieldDialog") },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
 
                 // ─── Exposed Dropdown Section ───
                 IenSection(
-                    title = { IenText("Exposed Dropdown Menus") }
+                    title = { Text("Exposed Dropdown Menus") }
                 ) {
                     IenSectionItem(
                         title = {
@@ -206,7 +206,7 @@ fun IenPlaygroundScreen(
                                         value = value,
                                         onValueChange = {},
                                         readOnly = true,
-                                        placeholder = { IenText("Select Fruit") },
+                                        placeholder = { Text("Select Fruit") },
                                         trailingIcon = { trailingIcon() }
                                     )
                                 }
@@ -224,7 +224,7 @@ fun IenPlaygroundScreen(
                                         value = value,
                                         onValueChange = {},
                                         readOnly = true,
-                                        placeholder = { IenText("Select Fruits (Multi)") },
+                                        placeholder = { Text("Select Fruits (Multi)") },
                                         trailingIcon = { trailingIcon() }
                                     )
                                 }
@@ -235,37 +235,37 @@ fun IenPlaygroundScreen(
 
                 // ─── Inputs Section ───
                 IenSection(
-                    title = { IenText("Section Items & Inputs") }
+                    title = { Text("Section Items & Inputs") }
                 ) {
                     IenSectionSwitchItem(
                         checked = navigationBarVisible,
                         onCheckedChange = { navigationBarVisible = it },
-                        title = { IenText("Bottom Navigation Visible") }
+                        title = { Text("Bottom Navigation Visible") }
                     )
                     IenSectionSwitchItem(
                         checked = switchChecked,
                         onCheckedChange = { switchChecked = it },
-                        title = { IenText("Switch Item") }
+                        title = { Text("Switch Item") }
                     )
                     IenSectionCheckboxItem(
                         checked = checkboxChecked,
                         onCheckedChange = { checkboxChecked = it },
-                        title = { IenText("Checkbox Item") }
+                        title = { Text("Checkbox Item") }
                     )
                     IenSectionCheckboxItem(
                         checked = checkboxChecked,
                         onCheckedChange = { checkboxChecked = it },
                         enabled = false,
-                        title = { IenText("Checkbox Item") }
+                        title = { Text("Checkbox Item") }
                     )
                     IenSectionTextField(
                         value = sectionTextFieldValue,
                         onValueChange = { sectionTextFieldValue = it },
-                        placeholder = { IenText("Placeholder Text") }
+                        placeholder = { Text("Placeholder Text") }
                     )
                     IenSectionSecureTextField(
                         state = secureTextFieldState,
-                        placeholder = { IenText("Password Input") }
+                        placeholder = { Text("Password Input") }
                     )
                     IenSectionSlider(
                         value = sliderValue,
@@ -276,21 +276,21 @@ fun IenPlaygroundScreen(
 
                 // ─── Views & Formatting ───
                 IenSection(
-                    title = { IenText("Views & Formatting") }
+                    title = { Text("Views & Formatting") }
                 ) {
                     IenSectionItem(
                         title = {
                             IenTooltipBox(
                                 label = "This is a custom tooltip text container styling test!"
                             ) {
-                                IenText("Hover/Click here for IenTooltipBox")
+                                Text("Hover/Click here for IenTooltipBox")
                             }
                         }
                     )
                     IenSectionItem(
                         title = {
                             IenAsteriskTextWrapper {
-                                IenText("Required Input Field Wrapper")
+                                Text("Required Input Field Wrapper")
                             }
                         }
                     )
@@ -298,11 +298,11 @@ fun IenPlaygroundScreen(
 
                 // ─── Empty State Preview ───
                 IenSection(
-                    title = { IenText("Empty State Preview") }
+                    title = { Text("Empty State Preview") }
                 ) {
                     IenSectionItem(
                         title = {
-                            Empty(
+                            IenEmpty(
                                 icon = {
                                     content { modifier ->
                                         IenIcon(
@@ -312,8 +312,8 @@ fun IenPlaygroundScreen(
                                         )
                                     }
                                 },
-                                title = { IenText("No Data Available") },
-                                content = { IenText("Try configuring settings or refreshing the screen to load samples.") }
+                                title = { Text("No Data Available") },
+                                content = { Text("Try configuring settings or refreshing the screen to load samples.") }
                             )
                         }
                     )

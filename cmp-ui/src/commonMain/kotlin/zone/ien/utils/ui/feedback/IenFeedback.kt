@@ -34,11 +34,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SnackbarVisuals
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -64,6 +66,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -85,10 +88,11 @@ import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.toneGradientBrush
 import zone.ien.utils.ui.list.IenListRow
+import zone.ien.utils.ui.list.IenListRowTexts
+import zone.ien.utils.ui.list.IenListRowTextsType
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.dialog.IenAlertDialog
 import zone.ien.utils.ui.dialog.IenConfirmDialog
 import zone.ien.utils.ui.dialog.IenConfirmDialogCancelButton
@@ -925,7 +929,7 @@ private fun IenSnackbarContent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             leftAddon?.invoke()
-            IenText(
+            Text(
                 text = text,
                 modifier = Modifier.weight(1f, fill = false),
                 color = Color.White,
@@ -951,7 +955,7 @@ fun IenSnackbarActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    IenText(
+    Text(
         text = text,
         modifier = modifier
             .clip(ContinuousRoundedRectangle(IenTheme.radius.sm))
@@ -1050,10 +1054,11 @@ fun IenSkeleton(
     val elements = (custom ?: pattern.elements()).withRepeatedLast(repeatLastItemCount)
     val contentDescription = stringResource(Res.string.loading)
     Column(
-        modifier = modifier.semantics {
-            this.contentDescription = contentDescription
-            liveRegion = LiveRegionMode.Polite
-        },
+        modifier = modifier
+            .semantics {
+                this.contentDescription = contentDescription
+                liveRegion = LiveRegionMode.Polite
+            },
         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
     ) {
         elements.forEachIndexed { index, element ->
@@ -1069,6 +1074,40 @@ fun IenSkeleton(
 }
 
 /**
+ * [IenListRowTexts]의 행 수, 정렬 및 텍스트 스타일에 대응하는 스켈레톤을 표시합니다.
+ *
+ * @param pattern 리스트 행 텍스트 유형에 대응하는 레이아웃
+ * @param modifier 적용할 [Modifier]
+ * @param height null이 아니면 텍스트 패턴 대신 해당 높이의 단일 블록을 표시합니다.
+ * @param radius 블록의 모서리 반경
+ * @param custom 지정하면 패턴 대신 사용할 스켈레톤 요소 목록
+ * @param repeatLastItemCount 마지막 요소의 반복 횟수 또는 방식
+ * @param play 스켈레톤 노출 여부
+ * @param background 스켈레톤 배경 색상
+ */
+@Composable
+fun IenSkeleton(
+    pattern: IenSkeletonPattern.ListRowTexts,
+    modifier: Modifier = Modifier,
+    height: Dp? = null,
+    radius: Dp = IenTheme.radius.sm,
+    custom: List<IenSkeletonElement>? = null,
+    repeatLastItemCount: IenSkeletonRepeat = IenSkeletonRepeat.Count(3),
+    play: IenSkeletonPlay = IenSkeletonPlay.Show,
+    background: IenSkeletonBackground = IenSkeletonBackground.Grey,
+) {
+    IenSkeleton(
+        modifier = modifier,
+        height = height,
+        radius = radius,
+        custom = custom ?: listOf(IenSkeletonElement.ListRowTexts(pattern.type)),
+        repeatLastItemCount = repeatLastItemCount,
+        play = play,
+        background = background,
+    )
+}
+
+/**
  * 스켈레톤 화면 구조를 쉽게 구성할 수 있도록 지원하는 미리 설정된 레이아웃 템플릿 목록입니다.
  */
 enum class IenSkeletonPattern {
@@ -1080,7 +1119,44 @@ enum class IenSkeletonPattern {
     SubtitleListWithIcon,
     ListOnly,
     ListWithIconOnly,
-    CardOnly,
+    CardOnly;
+
+    /**
+     * [IenListRowTextsType]의 모든 텍스트 조합에 대응하는 스켈레톤 패턴입니다.
+     *
+     * @property type 대응하는 리스트 행 텍스트 유형
+     */
+    enum class ListRowTexts {
+        OneRowTypeA,
+        OneRowTypeB,
+        OneRowTypeC,
+        RightOneRowTypeA,
+        RightOneRowTypeB,
+        RightOneRowTypeC,
+        RightOneRowTypeD,
+        RightOneRowTypeE,
+        TwoRowTypeA,
+        TwoRowTypeB,
+        TwoRowTypeC,
+        TwoRowTypeD,
+        TwoRowTypeE,
+        TwoRowTypeF,
+        TwoRowTypeG,
+        RightTwoRowTypeA,
+        RightTwoRowTypeB,
+        RightTwoRowTypeC,
+        RightTwoRowTypeD,
+        RightTwoRowTypeE,
+        ThreeRowTypeA,
+        ThreeRowTypeB,
+        ThreeRowTypeC,
+        ThreeRowTypeD,
+        ThreeRowTypeE,
+        ThreeRowTypeF;
+
+        val type: IenListRowTextsType
+            get() = IenListRowTextsType.valueOf(name)
+    }
 }
 
 /**
@@ -1149,6 +1225,12 @@ sealed interface IenSkeletonElement {
     data object List : IenSkeletonElement
     /** 아이콘과 함께 있는 리스트 형태의 스켈레톤 요소 */
     data object ListWithIcon : IenSkeletonElement
+    /**
+     * 리스트 행 텍스트의 행 수, 정렬 및 스타일을 따르는 스켈레톤 요소입니다.
+     *
+     * @property type 대응하는 리스트 행 텍스트 유형
+     */
+    data class ListRowTexts(val type: IenListRowTextsType) : IenSkeletonElement
     /** 카드 형태의 커다란 스켈레톤 블록 */
     data object Card : IenSkeletonElement
     /** 요소들 사이의 여백을 나타내는 여백 스켈레톤 */
@@ -1264,6 +1346,14 @@ private fun ColumnScope.IenSkeletonElementView(
             phase = phase,
         )
 
+        is IenSkeletonElement.ListRowTexts -> IenSkeletonListRowTexts(
+            type = element.type,
+            index = index,
+            radius = radius,
+            color = color,
+            phase = phase,
+        )
+
         IenSkeletonElement.Card -> IenSkeletonBlock(
             modifier = Modifier.fillMaxWidth(),
             height = 132.dp,
@@ -1360,6 +1450,58 @@ private fun IenSkeletonListRowWithIcon(
                 animate = false,
             )
         }
+    }
+}
+
+@Composable
+private fun IenSkeletonListRowTexts(
+    type: IenListRowTextsType,
+    index: Int,
+    radius: Dp,
+    color: Color,
+    phase: Float,
+) {
+    Box(modifier = Modifier.ienSkeletonMotion(phase = phase, animationIndex = index)) {
+        IenListRowTexts(
+            type = type,
+            top = {
+                IenSkeletonTextBlock(0.7f, radius, color, phase, index)
+            },
+            middle = {
+                IenSkeletonTextBlock(0.55f, radius, color, phase, index)
+            },
+            bottom = {
+                IenSkeletonTextBlock(0.4f, radius, color, phase, index)
+            },
+        )
+    }
+}
+
+@Composable
+private fun IenSkeletonTextBlock(
+    widthFraction: Float,
+    radius: Dp,
+    color: Color,
+    phase: Float,
+    index: Int,
+) {
+    val style = LocalTextStyle.current
+    val density = LocalDensity.current
+    val fontHeight = with(density) { style.fontSize.toDp() }
+    val lineHeight = with(density) { style.lineHeight.toDp() }
+    Box(
+        modifier = Modifier.fillMaxWidth().height(lineHeight),
+        contentAlignment = if (style.textAlign == TextAlign.End) Alignment.CenterEnd else Alignment.CenterStart,
+    ) {
+        IenSkeletonBlock(
+            modifier = Modifier.fillMaxWidth(widthFraction),
+            height = fontHeight,
+            radius = radius,
+            color = color,
+            phase = phase,
+            animationIndex = index,
+            animate = false,
+        )
     }
 }
 
@@ -1484,7 +1626,7 @@ fun IenProgressBar(
             )
         }
         if (showLabel) {
-            IenText(
+            Text(
                 text = "${(safeProgress * 100).toInt()}%",
                 style = IenTheme.typography.caption,
                 color = IenTheme.colors.textSecondary,
@@ -1503,22 +1645,27 @@ enum class IenProgressBarSize {
 }
 
 /**
- * 로더([IenLoader]) 원형 회전 인디케이터 크기 단계를 지정하기 위한 Enum 클래스입니다.
+ * 로더([IenLoader]) 인디케이터 크기 단계를 지정하기 위한 Enum 클래스입니다.
  */
 enum class IenLoaderSize { Small, Medium, Large }
 
 /**
- * 화면 중앙 등에서 콘텐츠 대기 시에 돌면서 로딩 중임을 시각화하는 원형 로더 컴포저블입니다.
+ * 인디케이터와 선택적인 안내 텍스트로 콘텐츠 대기 상태를 표시하는 로더 컴포저블입니다.
  *
  * @param modifier 적용할 [Modifier]
- * @param size 로더 원형 인디케이터 크기 ([IenLoaderSize])
- * @param label 인디케이터 밑에 표시할 안내 텍스트. 생략 시 원형 단독으로 렌더링됩니다.
+ * @param size 인디케이터 슬롯에 전달할 크기 ([IenLoaderSize])
+ * @param label 인디케이터 밑에 표시할 안내 텍스트. 생략 시 인디케이터만 렌더링됩니다.
+ * @param indicator 인디케이터 슬롯. 전달된 크기용 [Modifier]를 표시기에 적용합니다.
+ * 기본값은 CircularProgressIndicator를 사용하는 [IenLoaderPrimitive]입니다.
  */
 @Composable
 fun IenLoader(
     modifier: Modifier = Modifier,
     size: IenLoaderSize = IenLoaderSize.Medium,
     label: String? = null,
+    indicator: @Composable (Modifier) -> Unit = { indicatorModifier ->
+        IenLoaderPrimitive(modifier = indicatorModifier, color = IenTheme.colors.brand)
+    },
 ) {
     val defaultLabel = stringResource(Res.string.loading)
     Column(
@@ -1529,18 +1676,17 @@ fun IenLoader(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
     ) {
-        IenLoaderPrimitive(
-            modifier = Modifier.size(
+        indicator(
+            Modifier.size(
                 when (size) {
                     IenLoaderSize.Small -> IenTheme.icon.sm
                     IenLoaderSize.Medium -> IenTheme.icon.lg
                     IenLoaderSize.Large -> IenTheme.icon.xl
                 },
             ),
-            color = IenTheme.colors.brand,
         )
         if (label != null) {
-            IenText(label, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
+            Text(label, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
         }
     }
 }
@@ -1698,7 +1844,7 @@ fun IenProgressStepper(
                 }
                 if (step.title != null) {
                     Spacer(Modifier.height(IenTheme.spacing.xs))
-                    IenText(
+                    Text(
                         text = step.title,
                         style = IenTheme.typography.caption,
                         color = titleColor,
@@ -1811,9 +1957,9 @@ fun IenResult(
         ) {
             icon?.invoke(this)
         }
-        IenText(title, style = IenTheme.typography.title2)
+        Text(title, style = IenTheme.typography.title2)
         if (description != null) {
-            IenText(description, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
+            Text(description, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
         }
         primaryAction?.invoke()
         secondaryAction?.invoke()

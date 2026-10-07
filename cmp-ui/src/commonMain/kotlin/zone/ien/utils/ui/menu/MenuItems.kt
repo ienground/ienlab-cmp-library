@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -46,7 +47,6 @@ import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.interactive.IenTextButton
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.LocalIenTopBarFloatingSlotHiddenRequester
 import zone.ien.utils.ui.view.IenTooltipBox
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
@@ -206,7 +206,7 @@ fun IenActionsMenu(
                             tone = IenSemanticTone.Neutral,
                             state = IenButtonState(enabled = item.enabled),
                         ) {
-                            IenText(item.title)
+                            Text(item.title)
                         }
                     }
                 }

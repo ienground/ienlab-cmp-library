@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,7 +24,6 @@ import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.toneColor
 import zone.ien.utils.ui.interactive.toneWeakColor
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
 
 /**
  * 말풍선(Bubble)의 꼬리 방향을 나타내는 열거형 클래스입니다.
@@ -70,7 +70,7 @@ fun IenBubble(
             contentColor = content,
             shape = ContinuousRoundedRectangle(IenTheme.radius.lg),
         ) {
-            IenText(
+            Text(
                 text = text,
                 modifier = Modifier.padding(contentPadding),
                 style = IenTheme.typography.body2,

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,10 +25,9 @@ import zone.ien.utils.example.isIos
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.section.lazy.empty
 import zone.ien.utils.ui.section.lazy.link
-import zone.ien.utils.ui.section.lazy.m3Section
+import zone.ien.utils.ui.section.lazy.ienSection
 import zone.ien.utils.ui.section.lazy.switch
-import zone.ien.utils.ui.section.m3SectionBackground
-import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.section.ienSectionBackground
 import zone.ien.utils.ui.screen.TopBarMode
 
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -51,7 +51,7 @@ fun LazySectionScreen(
                 lazyListState = lazyListState,
             ),
             title = {
-                IenText(text = "Title")
+                Text(text = "Title")
             },
             actions = {
                 AdaptiveSwitch(
@@ -73,7 +73,7 @@ fun LazySectionScreen(
                 state = lazyListState,
                 contentPadding = pv,
                 modifier = Modifier
-                    .m3SectionBackground()
+                    .ienSectionBackground()
 //                    .sectionBackground(sectionStyle = SectionStyle.InsetGrouped)
                     .fillMaxSize()
             ) {
@@ -81,22 +81,22 @@ fun LazySectionScreen(
                     title()
                 }
 //                /*
-                m3Section(
+                ienSection(
 //                    isMaterialTheme = isMaterialTheme,
-                    title = { IenText(text = "title") }
+                    title = { Text(text = "title") }
                 ) {
                     empty {
-                        IenText(text = "empty")
+                        Text(text = "empty")
                     }
                     link(
                         onClick = {},
-                        title = { IenText(text = "hello") }
+                        title = { Text(text = "hello") }
                     )
                     switch(
                         checked = enabled,
                         onCheckedChange = { enabled = it },
-                        title = { IenText(text = "switch") },
-                        supportingContent = { IenText(text = "supporting") }
+                        title = { Text(text = "switch") },
+                        supportingContent = { Text(text = "supporting") }
                     )
                 }
 //

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -42,7 +43,7 @@ import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.line.ArrowRightS
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
-import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 
 /**
  * 리스트 행(Row)의 구분선 스타일을 정의하는 열거형 클래스입니다.
@@ -68,6 +69,7 @@ enum class IenListRowDisabledStyle {
  * 리스트 행의 여백(패딩) 크기를 정의하는 열거형 클래스입니다.
  */
 enum class IenListRowPadding {
+    None,
     ExtraSmall,
     Small,
     Medium,
@@ -138,6 +140,7 @@ enum class IenListRowTextsType {
     TwoRowTypeD,
     TwoRowTypeE,
     TwoRowTypeF,
+    TwoRowTypeG,
     RightTwoRowTypeA,
     RightTwoRowTypeB,
     RightTwoRowTypeC,
@@ -168,6 +171,7 @@ enum class IenListRowTextsType {
  * @param rightAlignment 우측 영역 수직 정렬 ([IenListRowAlignment])
  * @param withArrow 우측 끝 화살표 아이콘 노출 여부
  * @param withTouchEffect 터치 효과(피드백) 적용 여부
+ * @param touchEffectColor 눌림 상태에서 적용할 배경색
  * @param onClick 클릭 이벤트 콜백
  */
 @Composable
@@ -185,6 +189,7 @@ fun IenListRow(
     rightAlignment: IenListRowAlignment = IenListRowAlignment.Center,
     withArrow: Boolean = false,
     withTouchEffect: Boolean = false,
+    touchEffectColor: Color = IenTheme.colors.surfaceVariant,
     onClick: (() -> Unit)? = null,
 ) {
     val enabled = !disabled
@@ -194,8 +199,8 @@ fun IenListRow(
     val rowBackground by animateColorAsState(
         targetValue = when {
             disabled && disabledStyle == IenListRowDisabledStyle.Type2 -> IenTheme.colors.surfaceWeak
-            pressed && hasTouchEffect && enabled -> IenTheme.colors.surfaceWeak
-            else -> Color.Transparent
+            pressed && hasTouchEffect && enabled -> touchEffectColor
+            else -> touchEffectColor.copy(alpha = 0f)
         },
         label = "ienListRowBackground",
     )
@@ -203,6 +208,7 @@ fun IenListRow(
 
     Column(
         modifier = modifier
+            .shakeOnDisabledClick(enabled)
             .fillMaxWidth()
             .background(rowBackground)
             .then(
@@ -292,6 +298,7 @@ fun IenListRow(
  * @param verticalPadding 수직 여백 ([IenListRowPadding])
  * @param horizontalPadding 수평 여백 ([IenListRowPadding])
  * @param withArrow 우측 끝 화살표 아이콘 노출 여부
+ * @param touchEffectColor 눌림 상태에서 적용할 배경색
  */
 @Composable
 fun IenListRow(
@@ -307,6 +314,7 @@ fun IenListRow(
     verticalPadding: IenListRowPadding = IenListRowPadding.Medium,
     horizontalPadding: IenListRowPadding = IenListRowPadding.Medium,
     withArrow: Boolean = false,
+    touchEffectColor: Color = IenTheme.colors.surfaceVariant,
 ) {
     IenListRow(
         modifier = modifier,
@@ -317,6 +325,7 @@ fun IenListRow(
         verticalPadding = verticalPadding,
         horizontalPadding = horizontalPadding,
         withArrow = withArrow,
+        touchEffectColor = touchEffectColor,
         onClick = onClick,
         contents = {
             IenListRowTexts(
@@ -356,7 +365,7 @@ fun IenListRowTexts(
 ) {
     IenListRowTexts(
         top = {
-            IenText(
+            Text(
                 text = top,
                 maxLines = maxLines,
                 overflow = TextOverflow.Ellipsis,
@@ -366,7 +375,7 @@ fun IenListRowTexts(
         type = type,
         middle = middle?.let { text ->
             {
-                IenText(
+                Text(
                     text = text,
                     maxLines = maxLines,
                     overflow = TextOverflow.Ellipsis,
@@ -375,7 +384,7 @@ fun IenListRowTexts(
         },
         bottom = bottom?.let { text ->
             {
-                IenText(
+                Text(
                     text = text,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -469,7 +478,7 @@ fun IenListRowAssetText(
             .background(backgroundColor),
         contentAlignment = Alignment.Center,
     ) {
-        IenText(
+        Text(
             text = text,
             style = IenTheme.typography.label2.copy(fontWeight = FontWeight.Bold),
             color = contentColor,
@@ -577,6 +586,7 @@ private fun IenListRowLoaderBlock(
 
 private val IenListRowPadding.value: Dp
     get() = when (this) {
+        IenListRowPadding.None -> 0.dp
         IenListRowPadding.ExtraSmall -> 4.dp
         IenListRowPadding.Small -> 8.dp
         IenListRowPadding.Medium -> 12.dp
@@ -619,6 +629,7 @@ private val IenListRowTextsType.rowCount: Int
 
 @Composable
 private fun IenListRowTextsType.topStyle(): TextStyle = when (this) {
+    IenListRowTextsType.TwoRowTypeG -> IenTheme.typography.title2.copy(fontWeight = FontWeight.Bold)
     IenListRowTextsType.OneRowTypeB,
     IenListRowTextsType.OneRowTypeC,
     IenListRowTextsType.TwoRowTypeD,
@@ -715,14 +726,14 @@ fun IenTableRow(
                 ) {
                     leading?.invoke()
                     Column {
-                        IenText(resolvedLeft, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
+                        Text(resolvedLeft, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
                         if (description != null) {
-                            IenText(description, style = IenTheme.typography.caption, color = IenTheme.colors.textTertiary)
+                            Text(description, style = IenTheme.typography.caption, color = IenTheme.colors.textTertiary)
                         }
                     }
                 }
             } else {
-                IenText(
+                Text(
                     text = resolvedLeft,
                     style = IenTheme.typography.body2,
                     color = IenTheme.colors.textPrimary,
@@ -736,7 +747,7 @@ fun IenTableRow(
                 horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                IenText(
+                Text(
                     text = resolvedRight,
                     style = IenTheme.typography.body2,
                     color = if (hasLegacyAffordance) IenTheme.colors.textPrimary else IenTheme.colors.textSecondary,

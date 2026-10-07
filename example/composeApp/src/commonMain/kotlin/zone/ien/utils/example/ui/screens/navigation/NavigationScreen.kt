@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,11 +34,11 @@ import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.adaptive.utils.getSurfaceTopAppBarAdaptation
 import zone.ien.utils.adaptive.view.AdaptiveNavigationBar
 import zone.ien.utils.adaptive.view.NavigationBarItem
+import zone.ien.utils.ui.view.IenNavigationBarType
 import zone.ien.utils.icon.Adaptive
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.material.M3SystemIcons
-import zone.ien.utils.ui.primitives.IenText
-import zone.ien.utils.ui.view.CustomNavigationBarItemDirection
+import zone.ien.utils.ui.view.IenNavigationBarItemDirection
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
@@ -49,11 +50,12 @@ fun NavigationScreen(
     var selected by remember { mutableStateOf(false) }
     var isMaterialTheme by remember { mutableStateOf(true) }
     var isNative by remember { mutableStateOf(true) }
+    var useNavigationBar2 by remember { mutableStateOf(false) }
     var isVerticalDirection by remember { mutableStateOf(false) }
     val itemDirection = if (isVerticalDirection) {
-        CustomNavigationBarItemDirection.Vertical
+        IenNavigationBarItemDirection.Vertical
     } else {
-        CustomNavigationBarItemDirection.Horizontal
+        IenNavigationBarItemDirection.Horizontal
     }
 
     @Composable
@@ -69,7 +71,7 @@ fun NavigationScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IenText(text)
+            Text(text)
             AdaptiveSwitch(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
@@ -91,6 +93,11 @@ fun NavigationScreen(
                     adaptation = {
                         material {
                             this.alwaysShowLabel = false
+                            this.type = if (useNavigationBar2) {
+                                IenNavigationBarType.Type2
+                            } else {
+                                IenNavigationBarType.Type1
+                            }
                         }
                         cupertino { this.backdrop = backdrop }
                     },
@@ -112,6 +119,7 @@ fun NavigationScreen(
                             ),
                             label = "Very Long Save",
                             direction = itemDirection,
+                            badge = 3,
                         )
                     ),
                 )
@@ -138,6 +146,13 @@ fun NavigationScreen(
                 }
                 item {
                     OptionSwitch(
+                        text = "NavigationBar type 2",
+                        checked = useNavigationBar2,
+                        onCheckedChange = { useNavigationBar2 = it },
+                    )
+                }
+                item {
+                    OptionSwitch(
                         text = "세로 방향",
                         checked = isVerticalDirection,
                         onCheckedChange = {
@@ -156,7 +171,7 @@ fun NavigationScreen(
                             .background(if (it % 2 == 0) Color.Cyan else Color.Green)
                             .fillMaxWidth()
                     ) {
-                        IenText(
+                        Text(
                             text = "${it}"
                         )
                     }

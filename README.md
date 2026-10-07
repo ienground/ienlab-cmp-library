@@ -369,7 +369,7 @@ buildkonfig {
 | 모듈 | 설명 | 주요 의존성 |
 |---|---|---|
 | `cmp-common` | 공통 유틸리티, HIG 기본 | compose, hig-core |
-| `cmp-ui` | 공통 UI 컴포넌트 (IenButton, IenText 등) | compose, cmp-common, cmp-utils |
+| `cmp-ui` | 공통 UI 컴포넌트 (IenButton 등) | compose, cmp-common, cmp-utils |
 | `cmp-adaptive` | Adaptive (Material3 + Cupertino) UI | compose-material3, hig-adaptive |
 | `cmp-navigation` | Navigation3 기반 네비게이션 | navigation3, serialization |
 | `cmp-date` | 날짜/시간 컴포넌트 | kdatetime, compose |

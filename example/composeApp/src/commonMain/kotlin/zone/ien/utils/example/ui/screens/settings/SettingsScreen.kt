@@ -3,6 +3,7 @@ package zone.ien.utils.example.ui.screens.settings
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +35,6 @@ import zone.ien.utils.pref.item.TextFieldPref
 import zone.ien.utils.pref.item.TextPref
 import zone.ien.utils.ui.interactive.IenTextField
 import zone.ien.utils.ui.primitives.IenIcon
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.utils.sendEmail
 
@@ -74,7 +74,7 @@ fun SettingsScreen(
                 modifier = Modifier.padding(pv)
             ) {
                 PrefsGroup(
-                    title = { IenText(text = "Pref Group") }
+                    title = { Text(text = "Pref Group") }
                 ) {
                     SwitchPref(
                         title = "Hi",
@@ -102,7 +102,7 @@ fun SettingsScreen(
                     )
                 }
                 PrefsGroup(
-                    title = { IenText(text = "Pref Group") }
+                    title = { Text(text = "Pref Group") }
                 ) {
                     TextPref(
                         title = "Title OnClick",
@@ -175,7 +175,7 @@ fun SettingsScreen(
                     )
                 }
                 PrefsGroup(
-                    title = { IenText(text = "Pref Group") }
+                    title = { Text(text = "Pref Group") }
                 ) {
                     TextFieldPref(
                         leadingIcon = { IenIcon(imageVector = M3SystemIcons.Rounded.Delete, contentDescription = null) },

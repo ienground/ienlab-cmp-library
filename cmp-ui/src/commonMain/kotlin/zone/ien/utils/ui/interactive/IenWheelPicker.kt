@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -48,7 +49,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import zone.ien.utils.ui.foundation.IenTheme
-import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -130,6 +131,7 @@ fun <T> IenWheelPicker(
 
     BoxWithConstraints(
         modifier = modifier
+            .shakeOnDisabledClick(enabled)
             .height(rowHeight * visibleItemCount)
             .clipToBounds()
             .alpha(if (enabled) 1f else IenTheme.state.disabledAlpha)
@@ -182,7 +184,7 @@ fun <T> IenWheelPicker(
                         ) { scope.launch { state.animateScrollToItem(index) } },
                     contentAlignment = Alignment.Center,
                 ) {
-                    IenText(
+                    Text(
                         text = itemLabel(items[index]),
                         style = style,
                         color = if (index == centerIndex) IenTheme.colors.brand else IenTheme.colors.textSecondary,

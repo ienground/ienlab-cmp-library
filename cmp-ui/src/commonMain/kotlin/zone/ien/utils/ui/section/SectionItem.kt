@@ -60,6 +60,7 @@ import zone.ien.utils.ui.interactive.IenSlider
 import zone.ien.utils.ui.interactive.IenSwitch
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import zone.ien.utils.ui.view.IenAsteriskTextWrapper
 import zone.ien.utils.ui.view.textfield.IenTextFieldClearButton
 import zone.ien.utils.ui.view.textfield.PlaceholderBasicSecureTextField
@@ -173,7 +174,9 @@ fun SectionScope.IenSectionSwitchItem(
         },
         supportingContent = supportingContent,
         title = title,
-        modifier = modifier.clickable(enabled = enabled) { onCheckedChange(!checked) }
+        modifier = modifier
+            .shakeOnDisabledClick(enabled)
+            .clickable(enabled = enabled) { onCheckedChange(!checked) }
     )
 }
 
@@ -212,7 +215,9 @@ fun SectionScope.IenSectionCheckboxItem(
         },
         supportingContent = supportingContent,
         title = title,
-        modifier = modifier.clickable(enabled = enabled) { onCheckedChange(!checked) }
+        modifier = modifier
+            .shakeOnDisabledClick(enabled)
+            .clickable(enabled = enabled) { onCheckedChange(!checked) }
     )
 }
 
@@ -521,6 +526,7 @@ fun SectionScope.IenSectionLink(
     IenSectionItem(
         modifier =
             modifier
+                .shakeOnDisabledClick(enabled)
                 .clickable(
                     enabled = enabled,
                     onClick = onClick,

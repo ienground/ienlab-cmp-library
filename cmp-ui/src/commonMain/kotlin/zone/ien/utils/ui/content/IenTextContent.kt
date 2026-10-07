@@ -6,12 +6,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
 
 /**
  * 제목, 본문, 강조 텍스트, 푸터를 포함할 수 있는 문단 UI 컴포넌트입니다.
@@ -35,7 +35,7 @@ fun IenParagraph(
         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
     ) {
         if (title != null) {
-            IenText(title, style = IenTheme.typography.title3)
+            Text(title, style = IenTheme.typography.title3)
         }
         if (emphasis != null) {
             IenHighlightText(
@@ -43,10 +43,10 @@ fun IenParagraph(
                 highlights = listOf(emphasis),
             )
         } else {
-            IenText(body, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
+            Text(body, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
         }
         if (footer != null) {
-            IenText(footer, style = IenTheme.typography.caption, color = IenTheme.colors.textTertiary)
+            Text(footer, style = IenTheme.typography.caption, color = IenTheme.colors.textTertiary)
         }
     }
 }
@@ -86,7 +86,7 @@ fun IenPost(
                     horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 ) {
                     if (author != null) {
-                        IenText(
+                        Text(
                             text = author,
                             modifier = Modifier.weight(1f),
                             style = IenTheme.typography.caption,
@@ -96,9 +96,9 @@ fun IenPost(
                     metadata?.invoke(this)
                 }
             }
-            IenText(title, style = IenTheme.typography.title3, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(title, style = IenTheme.typography.title3, maxLines = 2, overflow = TextOverflow.Ellipsis)
             if (description != null) {
-                IenText(description, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
+                Text(description, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
             }
             media?.invoke()
             action?.invoke()

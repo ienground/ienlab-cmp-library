@@ -16,6 +16,7 @@ import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.Text
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
@@ -44,7 +45,6 @@ import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconButton
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.rememberMyDatePickerState
 
 /**
@@ -130,7 +130,7 @@ fun IenDatePickerDialog(
                         state = IenButtonState(enabled = datePickerState.selectedDateMillis != null),
                         display = IenButtonDisplay.Block,
                     ) {
-                        IenText(stringResource(Res.string.ok))
+                        Text(stringResource(Res.string.ok))
                     }
                 }
             }
@@ -227,7 +227,7 @@ fun IenTimePickerDialog(
                     tone = IenSemanticTone.Brand,
                     display = IenButtonDisplay.Block,
                 ) {
-                    IenText(stringResource(Res.string.ok))
+                    Text(stringResource(Res.string.ok))
                 }
             }
         }

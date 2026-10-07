@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,12 +26,11 @@ import zone.ien.utils.ui.primitives.IenAssetFrameShape
 import zone.ien.utils.ui.primitives.IenAssetFrameSize
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
-import zone.ien.utils.ui.primitives.IenText
 
 /**
- * [Empty]의 아이콘과 아이콘을 감싸는 [IenAssetFrame]의 설정을 정의하는 스코프입니다.
+ * [IenEmpty]의 아이콘과 아이콘을 감싸는 [IenAssetFrame]의 설정을 정의하는 스코프입니다.
  */
-class EmptyIconScope internal constructor() {
+class IenEmptyIconScope internal constructor() {
     /** 아이콘을 감싸는 [IenAssetFrame]에 적용할 Modifier입니다. */
     var modifier: Modifier = Modifier
 
@@ -74,18 +74,18 @@ class EmptyIconScope internal constructor() {
 }
 
 /**
- * Empty는 비어 있는 상태를 표시하기 위한 컴포저블입니다.
+ * IenEmpty는 비어 있는 상태를 표시하기 위한 컴포저블입니다.
  *
  * @param modifier 적용할 Modifier
- * @param icon 아이콘과 아이콘 프레임 설정을 정의하는 [EmptyIconScope] 콘텐츠
+ * @param icon 아이콘과 아이콘 프레임 설정을 정의하는 [IenEmptyIconScope] 콘텐츠
  * @param title 제목
  * @param content 내용
  * @param buttons 버튼들
  */
 @Composable
-fun Empty(
+fun IenEmpty(
     modifier: Modifier = Modifier,
-    icon: (@Composable EmptyIconScope.() -> Unit)?,
+    icon: (@Composable IenEmptyIconScope.() -> Unit)?,
     title: @Composable () -> Unit,
     content: (@Composable () -> Unit)? = null,
     buttons: @Composable (RowScope.() -> Unit)? = null,
@@ -96,7 +96,7 @@ fun Empty(
         modifier = modifier
     ) {
         icon?.let { iconContent ->
-            val iconScope = EmptyIconScope()
+            val iconScope = IenEmptyIconScope()
             iconContent(iconScope)
         }
         IenProvideTextStyle(
@@ -135,13 +135,13 @@ fun Empty(
 
 @Preview(showBackground = true)
 @Composable
-private fun EmptyPreview() {
+private fun IenEmptyPreview() {
     IenTheme {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxSize()
         ) {
-            Empty(
+            IenEmpty(
                 icon = {
                     content { modifier ->
                         IenIcon(
@@ -151,13 +151,13 @@ private fun EmptyPreview() {
                         )
                     }
                 },
-                title = { IenText(text = "Title is Here") },
+                title = { Text(text = "Title is Here") },
                 content = {
-                    IenText(text = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolo")
+                    Text(text = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolo")
                 },
                 buttons = {
-                    IenButton(onClick = {}) { IenText("hi") }
-                    IenButton(onClick = {}) { IenText("hi") }
+                    IenButton(onClick = {}) { Text("hi") }
+                    IenButton(onClick = {}) { Text("hi") }
                 },
                 modifier = Modifier.fillMaxWidth(0.75f)
             )

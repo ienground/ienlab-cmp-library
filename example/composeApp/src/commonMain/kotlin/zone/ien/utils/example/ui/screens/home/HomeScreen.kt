@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import zone.ien.utils.ui.foundation.IenTheme
@@ -70,7 +71,6 @@ import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenTextField
 import zone.ien.utils.ui.menu.IenMenu
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.utils.moveToBackground
 import zone.ien.utils.utils.shareText
@@ -90,7 +90,7 @@ private data class HomeMenuItem(
 
 private val menuItems = listOf(
     HomeMenuItem("Design System", RootRoute.DesignSystem, Color(0xFFE91E63)),
-    HomeMenuItem("Color Tokens", RootRoute.ColorTokens, Color(0xFF3182F6)),
+    HomeMenuItem("컬러 스킴 제작기", RootRoute.ColorTokens, Color(0xFF3182F6)),
     HomeMenuItem("Section", RootRoute.Section, Color(0xFFE53935)),
     HomeMenuItem("Settings", RootRoute.Settings, Color(0xFF1E88E5)),
     HomeMenuItem("Lazy Section", RootRoute.LazySection, Color(0xFF43A047)),
@@ -231,7 +231,7 @@ fun HomeScreen(
                                 }
                             }
                         ) {
-                            IenText(
+                            Text(
                                 text = "Hi",
                             )
                             Icon(
@@ -280,8 +280,8 @@ fun HomeScreen(
                     )
                 }
             },
-            title = { IenText(text = "IENGROUND") },
-            subtitle = { IenText(text = "Sub Title") },
+            title = { Text(text = "IENGROUND") },
+            subtitle = { Text(text = "Sub Title") },
             adaptation = {
                 material {
                     mode = TopBarMode.Expanded
@@ -323,7 +323,7 @@ fun HomeScreen(
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
                 ) {
-                    IenText(
+                    Text(
                         text = "set material3",
                         modifier = Modifier.weight(1f)
                     )
@@ -338,7 +338,7 @@ fun HomeScreen(
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
                 ) {
-                    IenText(
+                    Text(
                         text = "isDropdownMenu",
                         modifier = Modifier.weight(1f)
                     )
@@ -347,7 +347,7 @@ fun HomeScreen(
                         onCheckedChange = { isDropdownMenu = it }
                     )
                 }
-                IenText(
+                Text(
                     text = "result: ${resultStore.getResult<String>("text")}"
                 )
                 val onBackPressed = rememberRepeatClick(
@@ -366,7 +366,7 @@ fun HomeScreen(
                     variant = IenButtonVariant.Weak,
                     display = IenButtonDisplay.Full,
                 ) {
-                    IenText("move to background")
+                    Text("move to background")
                 }
                 IenButton(
                     onClick = {
@@ -375,7 +375,7 @@ fun HomeScreen(
                     variant = IenButtonVariant.Fill,
                     display = IenButtonDisplay.Full,
                 ) {
-                    IenText("Text share")
+                    Text("Text share")
                 }
                 AnimatedVisibility(
                     visible = !isDropdownMenu,
@@ -386,7 +386,7 @@ fun HomeScreen(
                             .padding(horizontal = 16.dp)
                             .fillMaxWidth()
                     ) {
-                        IenText(
+                        Text(
                             text = "showVisible",
                             modifier = Modifier.weight(1f)
                         )
@@ -405,7 +405,7 @@ fun HomeScreen(
                             .padding(horizontal = 16.dp)
                             .fillMaxWidth()
                     ) {
-                        IenText(
+                        Text(
                             text = "real single",
                             modifier = Modifier.weight(1f)
                         )
@@ -422,7 +422,7 @@ fun HomeScreen(
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
                 ) {
-                    IenText(
+                    Text(
                         text = "all invisible",
                         modifier = Modifier.weight(1f)
                     )
@@ -438,7 +438,7 @@ fun HomeScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    IenText(
+                    Text(
                         text = "MENU",
                         style = IenTheme.typography.title2.copy(fontWeight = FontWeight.Bold),
                         color = IenTheme.colors.textPrimary,
@@ -557,7 +557,7 @@ private fun HomeMenuCard(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center,
         ) {
-            IenText(
+            Text(
                 text = name,
                 style = IenTheme.typography.body1.copy(fontWeight = FontWeight.Bold),
                 color = IenTheme.colors.textPrimary,

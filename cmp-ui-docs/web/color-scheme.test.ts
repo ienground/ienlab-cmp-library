@@ -99,3 +99,19 @@ test("알파값과 Kotlin ARGB 코드 및 Compose 쿼리가 보존된다", () =>
   assert.equal(isHexColor("#123"), false);
   assert.throws(() => colorToArgb("#nothex"));
 });
+
+test("앱 이름으로 유효한 Kotlin 테마 식별자를 생성한다", () => {
+  const code = generateKotlinTheme(defaultColorSchemes(), "Love Hero");
+
+  assert.ok(
+    code.includes(
+      "internal val LoveHeroLightColors = DefaultColors.lightColors.copy(",
+    ),
+  );
+  assert.ok(
+    code.includes(
+      "internal val LoveHeroDarkColors = DefaultColors.darkColors.copy(",
+    ),
+  );
+  assert.ok(code.includes("fun LoveHeroTheme("));
+});

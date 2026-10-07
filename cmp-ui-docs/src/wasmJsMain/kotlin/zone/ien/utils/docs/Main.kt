@@ -12,12 +12,47 @@ import kotlin.js.js
 fun main() {
     val componentId = currentComponentId() ?: "button"
     val darkTheme = isDarkTheme()
+    val previewViewport = currentPreviewViewport()
     val tokens = defaultIenTokens()
     val colors = previewColors(if (darkTheme) tokens.darkColors else tokens.lightColors)
 
     ComposeViewport(viewportContainerId = "composeApplication") {
-        DocsApp(componentId, darkTheme, colors)
+        DocsApp(
+            componentId = componentId,
+            darkTheme = darkTheme,
+            colors = colors,
+            onContentHeight = ::reportPreviewHeight,
+            showPreviewViewportControls = true,
+            initialPreviewViewport = previewViewport,
+            onPreviewViewportChange = ::storePreviewViewport,
+        )
     }
+}
+
+@OptIn(ExperimentalWasmJsInterop::class)
+private fun currentPreviewViewport(): String =
+    js("""(function() {
+        try {
+            const value = window.localStorage.getItem('ien-compose-preview-viewport');
+            return value === 'tablet' || value === 'mobile' ? value : 'pc';
+        } catch (error) {
+            console.warn('미리보기 화면 크기를 불러오지 못했습니다.', error);
+            return 'pc';
+        }
+    })()""")
+
+@OptIn(ExperimentalWasmJsInterop::class)
+private fun storePreviewViewport(value: String) {
+    js("""try {
+        window.localStorage.setItem('ien-compose-preview-viewport', value);
+    } catch (error) {
+        console.warn('미리보기 화면 크기를 저장하지 못했습니다.', error);
+    }""")
+}
+
+@OptIn(ExperimentalWasmJsInterop::class)
+private fun reportPreviewHeight(height: Int) {
+    js("window.parent.postMessage({ type: 'ien-compose-preview-height', height: height }, window.location.origin)")
 }
 
 @OptIn(ExperimentalWasmJsInterop::class)

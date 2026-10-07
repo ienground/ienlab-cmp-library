@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -38,7 +39,6 @@ import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.interactive.IenTextButtonSize
 import zone.ien.utils.ui.interactive.IenTextButtonVariant
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
 
 /**
  * 다이얼로그 버튼의 배치 방향을 정의하는 열거형 클래스입니다.
@@ -299,7 +299,7 @@ fun IenAlertDialogTitle(
     style: TextStyle = IenTheme.typography.title2,
     fontWeight: FontWeight = FontWeight.Bold,
 ) {
-    IenText(
+    Text(
         text = text,
         modifier = modifier,
         style = style.copy(fontWeight = fontWeight),
@@ -351,7 +351,7 @@ fun IenAlertDialogDescription(
     style: TextStyle = IenTheme.typography.body2,
     fontWeight: FontWeight = FontWeight.Medium,
 ) {
-    IenText(
+    Text(
         text = text,
         modifier = modifier,
         style = style.copy(fontWeight = fontWeight),
@@ -412,7 +412,7 @@ fun IenAlertDialogAlertButton(
         tone = tone,
         variant = variant,
     ) {
-        IenText(text)
+        Text(text)
     }
 }
 
@@ -443,7 +443,7 @@ fun IenConfirmDialogCancelButton(
         tone = tone,
         display = IenButtonDisplay.Block,
     ) {
-        IenText(text)
+        Text(text)
     }
 }
 
@@ -474,7 +474,7 @@ fun IenConfirmDialogConfirmButton(
         tone = tone,
         display = IenButtonDisplay.Block,
     ) {
-        IenText(text)
+        Text(text)
     }
 }
 

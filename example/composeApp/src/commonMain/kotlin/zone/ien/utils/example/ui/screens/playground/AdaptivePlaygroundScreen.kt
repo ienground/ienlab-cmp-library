@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -69,7 +70,6 @@ import zone.ien.utils.ui.interactive.IenSegmentedControlItem
 import zone.ien.utils.ui.interactive.IenToggleButton
 import zone.ien.utils.ui.interactive.IenToggleButtonDefault
 import zone.ien.utils.ui.primitives.IenIcon
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.list.IenSwipeBox
 import zone.ien.utils.ui.list.IenSwipeBoxItem
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
@@ -110,8 +110,8 @@ fun AdaptivePlaygroundScreen(
                     onClick = navigateBack,
                 )
             },
-            title = { IenText("Adaptive Playground") },
-            subtitle = { IenText(if (isMaterialTheme) "Material3 + Ien" else "Cupertino + HIG") },
+            title = { Text("Adaptive Playground") },
+            subtitle = { Text(if (isMaterialTheme) "Material3 + Ien" else "Cupertino + HIG") },
             modifier = modifier,
             contentEdge = IenScaffoldContentEdge(
                 scrollState = scrollState,
@@ -224,7 +224,7 @@ fun AdaptivePlaygroundScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             SampleIcon()
-                            IenText("Primary action")
+                            Text("Primary action")
                         }
                     }
                     AdaptiveButton(
@@ -238,7 +238,7 @@ fun AdaptivePlaygroundScreen(
                             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            IenText("Weak action")
+                            Text("Weak action")
                             SampleIcon()
                         }
                     }
@@ -252,7 +252,7 @@ fun AdaptivePlaygroundScreen(
                             border = Color(0xFF111827),
                         ),
                     ) {
-                        IenText("Colors fill action")
+                        Text("Colors fill action")
                     }
                     AdaptiveButton(
                         onClick = {},
@@ -264,7 +264,7 @@ fun AdaptivePlaygroundScreen(
                             border = IenTheme.colors.info,
                         ),
                     ) {
-                        IenText("Colors line action")
+                        Text("Colors line action")
                     }
                     AdaptiveToggleButton(
                         checked = toggleChecked,
@@ -292,7 +292,7 @@ fun AdaptivePlaygroundScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             SampleIcon()
-                            IenText(if (toggleChecked) "Toggle enabled" else "Toggle disabled")
+                            Text(if (toggleChecked) "Toggle enabled" else "Toggle disabled")
                         }
                     }
                     AdaptiveTonalButton(
@@ -309,14 +309,14 @@ fun AdaptivePlaygroundScreen(
                             }
                         },
                     ) {
-                        IenText("Adaptation override")
+                        Text("Adaptation override")
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         AdaptiveTextButton(
                             onClick = {},
                             state = IenButtonState(enabled = enabled),
                         ) {
-                            IenText("Text button")
+                            Text("Text button")
                         }
                         AdaptiveIconButton(
                             onClick = {},
@@ -354,7 +354,7 @@ fun AdaptivePlaygroundScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             SampleIcon()
-                            IenText("Extended floating action")
+                            Text("Extended floating action")
                         }
                     }
                     AdaptiveMediumFloatingActionButton(
@@ -438,10 +438,10 @@ fun AdaptivePlaygroundScreen(
                                 .padding(horizontal = 16.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            IenText("왼쪽으로 밀어 액션을 확인하세요")
+                            Text("왼쪽으로 밀어 액션을 확인하세요")
                         }
                     }
-                    IenText("액션 실행 ${swipeActionCount}회")
+                    Text("액션 실행 ${swipeActionCount}회")
                 }
 
                 PlaygroundGroup(title = "Feedback") {
@@ -477,7 +477,7 @@ private fun PlaygroundGroup(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        IenText(
+        Text(
             text = title,
             style = IenTheme.typography.title3,
             color = IenTheme.colors.textPrimary,
@@ -502,7 +502,7 @@ private fun PlaygroundSwitchRow(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IenText(text = text)
+        Text(text = text)
         AdaptiveSwitch(
             checked = checked,
             onCheckedChange = onCheckedChange,

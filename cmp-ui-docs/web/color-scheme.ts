@@ -160,32 +160,48 @@ export function composeColorQuery(scheme: ColorScheme): string {
   ).toString();
 }
 
-export function generateKotlinTheme(schemes: ColorSchemes): string {
-  function declaration(mode: ColorMode, name: string): string {
-    return `val ${name} = IenColorScheme(\n${colorRoles.map((role) => `    ${role} = Color(0x${colorToArgb(schemes[mode][role])}),`).join("\n")}\n)`;
+export function toKotlinIdentifier(value: string): string {
+  const identifier = value
+    .trim()
+    .split(/[^A-Za-z0-9]+/)
+    .filter(Boolean)
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join("");
+  return /^[A-Za-z_]/.test(identifier) ? identifier : `App${identifier}`;
+}
+
+export function generateKotlinTheme(
+  schemes: ColorSchemes,
+  appName = "App",
+): string {
+  const name = toKotlinIdentifier(appName);
+  function declaration(mode: ColorMode, colorName: string): string {
+    const defaultName = mode === "light" ? "lightColors" : "darkColors";
+    return `internal val ${colorName} = DefaultColors.${defaultName}.copy(\n${colorRoles.map((role) => `    ${role} = Color(0x${colorToArgb(schemes[mode][role])}),`).join("\n")}\n)`;
   }
   return `import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import zone.ien.utils.ui.foundation.IenColorScheme
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.foundation.defaultIenTokens
 
-${declaration("light", "AppLightColors")}
+private val DefaultColors = defaultIenTokens()
 
-${declaration("dark", "AppDarkColors")}
+${declaration("light", `${name}LightColors`)}
 
-val AppTokens = defaultIenTokens().copy(
-    lightColors = AppLightColors,
-    darkColors = AppDarkColors,
+${declaration("dark", `${name}DarkColors`)}
+
+private val ${name}Tokens = DefaultColors.copy(
+    lightColors = ${name}LightColors,
+    darkColors = ${name}DarkColors,
 )
 
 @Composable
-fun AppTheme(
+fun ${name}Theme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
-    IenTheme(tokens = AppTokens, darkTheme = darkTheme, content = content)
+    IenTheme(tokens = ${name}Tokens, darkTheme = darkTheme, content = content)
 }
 `;
 }

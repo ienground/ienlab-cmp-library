@@ -2,7 +2,6 @@ package zone.ien.utils.ui.primitives
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -16,33 +15,36 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
+import kotlin.math.ceil
 
 /**
  * 라이브러리의 기본 테마가 입혀진 배경 판(Surface) 컴포저블입니다.
  *
  * 내부 콘텐츠의 색상 조절 및 그림자 효과를 처리합니다.
+ * 테두리는 Shape의 외곽 경로 안쪽에 직접 그립니다.
  *
  * @param modifier 레이아웃에 적용할 [Modifier]
  * @param color 배경 판에 채울 테마 색상
@@ -64,56 +66,53 @@ fun IenSurface(
     backgroundBrush: Brush? = null,
     content: @Composable () -> Unit,
 ) {
-    val surfaceModifier = if (backgroundBrush == null) {
+    val backgroundModifier = if (backgroundBrush == null) {
         modifier
     } else {
         modifier.background(backgroundBrush, shape)
+    }
+    val surfaceModifier = if (border != null) {
+        backgroundModifier.drawIenBorder(border, shape)
+    } else {
+        backgroundModifier
     }
     Surface(
         modifier = surfaceModifier,
         color = if (backgroundBrush == null) color else Color.Transparent,
         contentColor = contentColor,
         shape = shape,
-        border = border,
+        border = null,
         tonalElevation = tonalElevation,
         content = content,
     )
 }
 
-/**
- * 라이브러리의 기본 타이포그래피 스타일을 기반으로 문구를 출력하는 기본 텍스트 컴포저블입니다.
- *
- * @param text 화면에 표시할 문자열
- * @param modifier 적용할 [Modifier]
- * @param style 적용할 글자 크기, 행간 등 스타일 명세 ([TextStyle])
- * @param color 글자 색상
- * @param fontWeight 글씨 두께 설정 ([FontWeight])
- * @param maxLines 줄 바꿈을 허용할 최대 라인 수
- * @param overflow 텍스트가 정해진 크기를 초과할 때 처리할 규칙 ([TextOverflow])
- * @param textAlign 텍스트 수평 정렬 방식 ([TextAlign])
- */
-@Composable
-fun IenText(
-    text: String,
-    modifier: Modifier = Modifier,
-    style: TextStyle = LocalTextStyle.current,
-    color: Color = Color.Unspecified,
-    fontWeight: FontWeight? = null,
-    maxLines: Int = Int.MAX_VALUE,
-    overflow: TextOverflow = TextOverflow.Clip,
-    textAlign: TextAlign? = null,
-) {
-    Text(
-        text = text,
-        modifier = modifier,
-        style = style,
-        color = color,
-        fontWeight = fontWeight,
-        maxLines = maxLines,
-        overflow = overflow,
-        textAlign = textAlign,
-    )
-}
+internal fun Modifier.drawIenBorder(border: BorderStroke, shape: Shape): Modifier =
+    drawWithCache {
+        val width = if (border.width == Dp.Hairline) 1f else ceil(border.width.toPx())
+        if (border.width.value < 0f || width == 0f || !width.isFinite() || size.minDimension <= 0f) {
+            onDrawWithContent { drawContent() }
+        } else {
+            val path = when (val outline = shape.createOutline(size, layoutDirection, this)) {
+                is Outline.Generic -> outline.path
+                is Outline.Rectangle -> Path().apply { addRect(outline.rect) }
+                is Outline.Rounded -> Path().apply { addRoundRect(outline.roundRect) }
+            }
+            if (width * 2f > size.minDimension) {
+                onDrawWithContent {
+                    drawContent()
+                    drawPath(path, border.brush)
+                }
+            } else {
+                onDrawWithContent {
+                    drawContent()
+                    clipPath(path) {
+                        drawPath(path, border.brush, style = Stroke(width * 2f))
+                    }
+                }
+            }
+        }
+    }
 
 /**
  * 내부 자식 컴포저블에 공통 텍스트 스타일([style]) 및 전경 컬러([color])를 주입해 주는 스타일 프로바이더 컴포저블입니다.
@@ -225,7 +224,7 @@ fun IenBorderBox(
 ) {
     Box(
         modifier = modifier
-            .border(width, color, shape)
+            .drawIenBorder(BorderStroke(width, color), shape)
             .padding(padding),
     ) {
         content()
@@ -254,6 +253,7 @@ fun IenClickable(
     Box(
         modifier = modifier
             .defaultMinSize(minWidth = IenTheme.state.minimumTouchTarget, minHeight = IenTheme.state.minimumTouchTarget)
+            .shakeOnDisabledClick(enabled)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,

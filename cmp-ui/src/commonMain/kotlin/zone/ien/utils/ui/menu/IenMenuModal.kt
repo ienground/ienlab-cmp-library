@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -34,7 +35,7 @@ import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.toneColor
 import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenSurface
-import zone.ien.utils.ui.primitives.IenText
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import zone.ien.utils.ui.window.disablePlatformDialogDim
 import zone.ien.utils.ui.window.ienOverlayDialogProperties
 import zone.ien.utils.ui.window.ienOverlayWindowSize
@@ -109,6 +110,7 @@ private fun IenMenuItemRow(item: IenMenuItem) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .shakeOnDisabledClick(item.enabled)
             .clickable(enabled = item.enabled, role = Role.Button, onClick = item.onClick)
             .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
         horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
@@ -116,13 +118,13 @@ private fun IenMenuItemRow(item: IenMenuItem) {
     ) {
         item.leading?.invoke()
         Column(Modifier.weight(1f)) {
-            IenText(
+            Text(
                 text = item.title,
                 style = IenTheme.typography.body2,
                 color = if (item.enabled) toneColor(item.tone) else IenTheme.colors.textDisabled,
             )
             if (item.description != null) {
-                IenText(
+                Text(
                     text = item.description,
                     style = IenTheme.typography.caption,
                     color = IenTheme.colors.textTertiary,

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,7 +43,6 @@ import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.primitives.IenIcon
-import zone.ien.utils.ui.primitives.IenText
 import zone.ien.utils.ui.section.IenProvideSectionStyle
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.TopBarMode
@@ -68,7 +68,7 @@ fun SectionScreen(
             contentEdge = IenScaffoldContentEdge(
                 scrollState = scrollState,
             ),
-            title = { IenText(text = "Title") },
+            title = { Text(text = "Title") },
             adaptation = {
                 material {
                     mode = TopBarMode.Expanded
@@ -102,7 +102,7 @@ fun SectionScreen(
             ) {
                 title()
                 AdaptiveSection(
-                    title = { IenText(text = "title") }
+                    title = { Text(text = "title") }
                 ) {
                     AdaptiveSectionItem(
                         leadingContent = {
@@ -122,10 +122,10 @@ fun SectionScreen(
                         }
                     ) {
 
-                        IenText(text = "Section1")
+                        Text(text = "Section1")
                     }
                     AdaptiveSectionItem {
-                        IenText(text = "Section2")
+                        Text(text = "Section2")
                     }
                     var text by remember { mutableStateOf("") }
                     AdaptiveSectionTextField(
@@ -148,13 +148,13 @@ fun SectionScreen(
                     AdaptiveSectionLink(
                         onClick = {}
                     ) {
-                        IenText(text = "Section3")
+                        Text(text = "Section3")
                     }
                     AdaptiveSectionItem {
-                        IenText(text = "Section4")
+                        Text(text = "Section4")
                     }
                     AdaptiveSectionSwitchItem(
-                        title = { IenText(text = "Check") },
+                        title = { Text(text = "Check") },
                         checked = isMaterialTheme,
                         onCheckedChange = { isMaterialTheme = it }
                     )
@@ -163,22 +163,22 @@ fun SectionScreen(
 //                    title = { Text(text = "Title") }
                 ) {
                     AdaptiveSectionItem {
-                        IenText(text = "Section4")
+                        Text(text = "Section4")
                     }
                     AdaptiveSectionSwitchItem(
-                        title = { IenText(text = "Check") },
+                        title = { Text(text = "Check") },
                         checked = isMaterialTheme,
                         onCheckedChange = { isMaterialTheme = it }
                     )
                 }
                 AdaptiveSection(
-                    title = { IenText(text = "Title") }
+                    title = { Text(text = "Title") }
                 ) {
                     AdaptiveSectionItem {
-                        IenText(text = "Section4")
+                        Text(text = "Section4")
                     }
                     AdaptiveSectionSwitchItem(
-                        title = { IenText(text = "Check") },
+                        title = { Text(text = "Check") },
                         checked = isMaterialTheme,
                         onCheckedChange = { isMaterialTheme = it }
                     )
