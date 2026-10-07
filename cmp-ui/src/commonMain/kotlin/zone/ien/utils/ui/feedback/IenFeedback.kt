@@ -58,6 +58,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -1020,6 +1021,7 @@ fun IenSnackbarIcon(
  * @param repeatLastItemCount 마지막 줄 요소를 반복해 뿌릴 횟수 또는 방식 ([IenSkeletonRepeat])
  * @param play 스켈레톤을 노출할지 감출지 여부 ([IenSkeletonPlay])
  * @param background 스켈레톤의 배경 컬러 톤 ([IenSkeletonBackground])
+ * @param width 단일 블록 너비. null이면 사용 가능한 너비를 채웁니다.
  */
 @Composable
 fun IenSkeleton(
@@ -1031,6 +1033,7 @@ fun IenSkeleton(
     repeatLastItemCount: IenSkeletonRepeat = IenSkeletonRepeat.Count(3),
     play: IenSkeletonPlay = IenSkeletonPlay.Show,
     background: IenSkeletonBackground = IenSkeletonBackground.Grey,
+    width: Dp? = null,
 ) {
     if (play == IenSkeletonPlay.Hide) {
         return
@@ -1041,7 +1044,7 @@ fun IenSkeleton(
 
     if (height != null) {
         IenSkeletonBlock(
-            modifier = modifier.fillMaxWidth(),
+            modifier = if (width == null) modifier.fillMaxWidth() else modifier.width(width),
             height = height,
             radius = radius,
             color = color,
@@ -1084,6 +1087,7 @@ fun IenSkeleton(
  * @param repeatLastItemCount 마지막 요소의 반복 횟수 또는 방식
  * @param play 스켈레톤 노출 여부
  * @param background 스켈레톤 배경 색상
+ * @param width 단일 블록 너비. null이면 사용 가능한 너비를 채웁니다.
  */
 @Composable
 fun IenSkeleton(
@@ -1095,6 +1099,7 @@ fun IenSkeleton(
     repeatLastItemCount: IenSkeletonRepeat = IenSkeletonRepeat.Count(3),
     play: IenSkeletonPlay = IenSkeletonPlay.Show,
     background: IenSkeletonBackground = IenSkeletonBackground.Grey,
+    width: Dp? = null,
 ) {
     IenSkeleton(
         modifier = modifier,
@@ -1104,6 +1109,7 @@ fun IenSkeleton(
         repeatLastItemCount = repeatLastItemCount,
         play = play,
         background = background,
+        width = width,
     )
 }
 
@@ -1233,8 +1239,62 @@ sealed interface IenSkeletonElement {
     data class ListRowTexts(val type: IenListRowTextsType) : IenSkeletonElement
     /** 카드 형태의 커다란 스켈레톤 블록 */
     data object Card : IenSkeletonElement
+    /**
+     * 너비, 높이와 모양을 직접 지정하는 스켈레톤 블록입니다.
+     *
+     * @property height 블록 높이
+     * @property width 지정한 경우 사용할 블록의 너비. null이면 modifier에 따라 너비를 정합니다.
+     * @property shape 지정하면 기본 둥근 사각형 대신 사용할 모양
+     * @property modifier 블록의 너비 비율 등 레이아웃 속성. width가 null이면 기본적으로 부모 너비를 채웁니다.
+     */
+    data class Block(
+        val height: Dp,
+        val width: Dp? = null,
+        val shape: Shape? = null,
+        val modifier: Modifier = Modifier,
+    ) : IenSkeletonElement
+    /**
+     * 자식 요소를 가로로 배치하는 컨테이너입니다.
+     *
+     * @property elements 배치할 스켈레톤 요소
+     * @property modifier 컨테이너에 적용할 [Modifier]
+     * @property horizontalArrangement 자식 요소의 가로 배치 방식
+     * @property verticalAlignment 자식 요소의 세로 정렬 방식
+     */
+    data class Row(
+        val elements: kotlin.collections.List<IenSkeletonElement>,
+        val modifier: Modifier = Modifier.fillMaxWidth(),
+        val horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+        val verticalAlignment: Alignment.Vertical = Alignment.Top,
+    ) : IenSkeletonElement
+    /**
+     * 자식 요소를 세로로 배치하는 컨테이너입니다.
+     *
+     * @property elements 배치할 스켈레톤 요소
+     * @property modifier 컨테이너에 적용할 [Modifier]
+     * @property verticalArrangement 자식 요소의 세로 배치 방식
+     * @property horizontalAlignment 자식 요소의 가로 정렬 방식
+     */
+    data class Column(
+        val elements: kotlin.collections.List<IenSkeletonElement>,
+        val modifier: Modifier = Modifier.fillMaxWidth(),
+        val verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+        val horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    ) : IenSkeletonElement
+    /**
+     * 자식 요소를 겹쳐 배치하는 컨테이너입니다.
+     *
+     * @property elements 겹쳐 배치할 스켈레톤 요소
+     * @property modifier 컨테이너에 적용할 [Modifier]
+     * @property contentAlignment 자식 요소의 정렬 방식
+     */
+    data class Box(
+        val elements: kotlin.collections.List<IenSkeletonElement>,
+        val modifier: Modifier = Modifier.fillMaxWidth(),
+        val contentAlignment: Alignment = Alignment.TopStart,
+    ) : IenSkeletonElement
     /** 요소들 사이의 여백을 나타내는 여백 스켈레톤 */
-    data class Spacer(val height: Dp) : IenSkeletonElement
+    data class Spacer(val height: Dp, val width: Dp = 0.dp) : IenSkeletonElement
 }
 
 private const val IenSkeletonMotionDurationMillis = 1200L
@@ -1306,7 +1366,7 @@ internal fun resolveIenSkeletonColor(
 }
 
 @Composable
-private fun ColumnScope.IenSkeletonElementView(
+private fun IenSkeletonElementView(
     element: IenSkeletonElement,
     index: Int,
     radius: Dp,
@@ -1363,7 +1423,68 @@ private fun ColumnScope.IenSkeletonElementView(
             animationIndex = index,
         )
 
-        is IenSkeletonElement.Spacer -> Spacer(modifier = Modifier.height(element.height))
+        is IenSkeletonElement.Block -> IenSkeletonBlock(
+            modifier = element.modifier.then(
+                element.width?.let(Modifier::width) ?: Modifier.fillMaxWidth(),
+            ),
+            height = element.height,
+            radius = radius,
+            color = color,
+            phase = phase,
+            animationIndex = index,
+            shape = element.shape,
+        )
+
+        is IenSkeletonElement.Row -> Row(
+            modifier = element.modifier,
+            horizontalArrangement = element.horizontalArrangement,
+            verticalAlignment = element.verticalAlignment,
+        ) {
+            element.elements.forEachIndexed { childIndex, child ->
+                IenSkeletonElementView(
+                    element = child,
+                    index = index + childIndex + 1,
+                    radius = radius,
+                    color = color,
+                    phase = phase,
+                )
+            }
+        }
+
+        is IenSkeletonElement.Column -> Column(
+            modifier = element.modifier,
+            verticalArrangement = element.verticalArrangement,
+            horizontalAlignment = element.horizontalAlignment,
+        ) {
+            element.elements.forEachIndexed { childIndex, child ->
+                IenSkeletonElementView(
+                    element = child,
+                    index = index + childIndex + 1,
+                    radius = radius,
+                    color = color,
+                    phase = phase,
+                )
+            }
+        }
+
+        is IenSkeletonElement.Box -> Box(
+            modifier = element.modifier,
+            contentAlignment = element.contentAlignment,
+        ) {
+            element.elements.forEachIndexed { childIndex, child ->
+                IenSkeletonElementView(
+                    element = child,
+                    index = index + childIndex + 1,
+                    radius = radius,
+                    color = color,
+                    phase = phase,
+                )
+            }
+        }
+
+        is IenSkeletonElement.Spacer -> Spacer(
+            modifier = Modifier.width(element.width).height(element.height),
+        )
     }
 }
 
@@ -1528,6 +1649,7 @@ private fun IenSkeletonBlock(
     phase: Float,
     animationIndex: Int,
     animate: Boolean = true,
+    shape: Shape? = null,
 ) {
     val motionEnabled = LocalIenSkeletonBlockMotionEnabled.current
     val motionModifier = if (animate && motionEnabled) {
@@ -1540,7 +1662,7 @@ private fun IenSkeletonBlock(
         modifier = modifier
             .then(motionModifier)
             .height(height)
-            .clip(ContinuousRoundedRectangle(radius))
+            .clip(shape ?: ContinuousRoundedRectangle(radius))
             .background(color),
     )
 }

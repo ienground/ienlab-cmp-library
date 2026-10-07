@@ -3273,6 +3273,50 @@ fun SkeletonSection(controls: Map<String, String> = emptyMap()) {
                     ),
                     repeatLastItemCount = IenSkeletonRepeat.Count(2),
                 )
+                IenSkeleton(
+                    width = 180.dp,
+                    height = 88.dp,
+                    repeatLastItemCount = IenSkeletonRepeat.Count(1),
+                )
+                IenSkeleton(
+                    custom = listOf(
+                        IenSkeletonElement.Row(
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                            verticalAlignment = Alignment.CenterVertically,
+                            elements = listOf(
+                                IenSkeletonElement.Block(
+                                    width = 40.dp,
+                                    height = 40.dp,
+                                    shape = CircleShape,
+                                ),
+                                IenSkeletonElement.Column(
+                                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                                    elements = listOf(
+                                        IenSkeletonElement.Block(
+                                            height = 16.dp,
+                                            modifier = Modifier.fillMaxWidth(0.7f),
+                                        ),
+                                        IenSkeletonElement.Block(width = 112.dp, height = 12.dp),
+                                    ),
+                                ),
+                            ),
+                        ),
+                        IenSkeletonElement.Spacer(height = 12.dp),
+                        IenSkeletonElement.Box(
+                            modifier = Modifier.size(width = 180.dp, height = 112.dp),
+                            contentAlignment = Alignment.Center,
+                            elements = listOf(
+                                IenSkeletonElement.Block(height = 112.dp),
+                                IenSkeletonElement.Block(
+                                    width = 40.dp,
+                                    height = 40.dp,
+                                    shape = CircleShape,
+                                ),
+                            ),
+                        ),
+                    ),
+                    repeatLastItemCount = IenSkeletonRepeat.Count(1),
+                )
                 IenSkeletonMotionGroup(modifier = Modifier.fillMaxWidth()) {
                     Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
                         IenSkeleton(modifier = Modifier.weight(1f), height = 20.dp)

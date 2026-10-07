@@ -68,7 +68,7 @@ export const catalog = [
   component("result", "Result", "피드백", "완료·실패·빈 상태의 결과 화면을 구성합니다.", ["IenResult"], "feedback/IenFeedback.kt"),
   component("search-field", "SearchField", "입력", "검색어 입력, 삭제, 비활성 상태를 확인합니다.", ["IenSearchField"], "interactive/IenTextField.kt"),
   component("segmented-control", "SegmentedControl", "액션·선택", "세그먼트 선택과 정렬·크기 변형입니다.", ["IenSegmentedControl", "IenSegmentedControlItem"], "interactive/IenSelection.kt"),
-  component("skeleton", "Skeleton", "피드백", "콘텐츠 로딩 형태와 반복 패턴을 표현합니다.", ["IenSkeleton", "IenSkeletonMotionGroup", "IenSkeletonPattern"], "feedback/IenFeedback.kt"),
+  component("skeleton", "Skeleton", "피드백", "콘텐츠 로딩 형태와 직접 조합한 자리 표시자를 표현합니다.", ["IenSkeleton", "IenSkeletonElement", "IenSkeletonMotionGroup", "IenSkeletonPattern"], "feedback/IenFeedback.kt"),
   component("slider", "Slider", "입력", "값 범위와 단계에 따른 슬라이더 동작입니다.", ["IenSlider"], "interactive/IenControls.kt"),
   component("swipe-box", "SwipeBox", "액션·선택", "스와이프에 연결된 보조 액션을 확인합니다.", ["IenSwipeBox", "IenSwipeBoxItem"], "list/IenSwipeBox.kt"),
   component("stepper", "Stepper", "입력", "단계 이동과 텍스트·아이콘 구성을 확인합니다.", ["IenStepper", "IenStepperTexts", "IenStepperTextsType"], "interactive/IenControls.kt"),
