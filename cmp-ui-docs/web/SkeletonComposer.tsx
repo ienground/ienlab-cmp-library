@@ -130,7 +130,13 @@ function createNode(type: ElementKind): SkeletonNode {
   const id = createNodeId();
   switch (type) {
     case "Block":
-      return { id, type, width: { mode: "fill" }, height: 24, shape: "Rounded" };
+      return {
+        id,
+        type,
+        width: { mode: "fill" },
+        height: radiusHeightFor(radiusTokenValues.default),
+        shape: "Rounded",
+      };
     case "Spacer":
       return {
         id,
@@ -170,77 +176,7 @@ function createNode(type: ElementKind): SkeletonNode {
 }
 
 function createDefaultNodes(): SkeletonNode[] {
-  return [
-    {
-      id: createNodeId(),
-      type: "Row",
-      width: { mode: "fill" },
-      height: null,
-      spacing: { unit: "token", token: "xs" },
-      children: [
-        {
-          id: createNodeId(),
-          type: "Block",
-          width: { mode: "dp", value: 40 },
-          height: 40,
-          shape: "Circle",
-        },
-        {
-          id: createNodeId(),
-          type: "Column",
-          width: { mode: "fill" },
-          height: null,
-          spacing: { unit: "dp", value: 6 },
-          children: [
-            {
-              id: createNodeId(),
-              type: "Block",
-              width: { mode: "dp", value: 168 },
-              height: 16,
-              shape: "Rounded",
-            },
-            {
-              id: createNodeId(),
-              type: "Block",
-              width: { mode: "dp", value: 112 },
-              height: 12,
-              shape: "Rounded",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: createNodeId(),
-      type: "Spacer",
-      width: { unit: "dp", value: 0 },
-      height: { unit: "token", token: "sm" },
-    },
-    {
-      id: createNodeId(),
-      type: "Box",
-      width: { mode: "dp", value: 180 },
-      height: 112,
-      spacing: { unit: "token", token: "none" },
-      alignment: "Center",
-      children: [
-        {
-          id: createNodeId(),
-          type: "Block",
-          width: { mode: "fill" },
-          height: 112,
-          shape: "Rounded",
-        },
-        {
-          id: createNodeId(),
-          type: "Block",
-          width: { mode: "dp", value: 40 },
-          height: 40,
-          shape: "Circle",
-        },
-      ],
-    },
-  ];
+  return [];
 }
 
 function updateNodeTree(
@@ -963,13 +899,12 @@ function SkeletonNodeEditor({
               <select
                 aria-label="블록 모양"
                 value={node.shape}
-                onChange={(event) =>
+                onChange={(event) => {
+                  const shape = blockShapeValue(event.currentTarget.value);
                   patch((current) =>
-                    current.type === "Block"
-                      ? { ...current, shape: blockShapeValue(event.currentTarget.value) }
-                      : current,
-                  )
-                }
+                    current.type === "Block" ? { ...current, shape } : current,
+                  );
+                }}
               >
                 <option value="Rounded">둥근 사각형</option>
                 <option value="Circle">원형</option>
@@ -1015,16 +950,12 @@ function SkeletonNodeEditor({
                 <select
                   aria-label="겹친 요소 정렬"
                   value={node.alignment}
-                  onChange={(event) =>
+                  onChange={(event) => {
+                    const alignment = boxAlignmentValue(event.currentTarget.value);
                     patch((current) =>
-                      current.type === "Box"
-                        ? {
-                            ...current,
-                            alignment: boxAlignmentValue(event.currentTarget.value),
-                          }
-                        : current,
-                    )
-                  }
+                      current.type === "Box" ? { ...current, alignment } : current,
+                    );
+                  }}
                 >
                   <option value="Center">가운데</option>
                   <option value="TopStart">왼쪽 위</option>
