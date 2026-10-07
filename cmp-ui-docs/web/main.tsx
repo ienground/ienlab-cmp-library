@@ -330,7 +330,7 @@ function ComponentPage({
   useEffect(() => {
     setPreviewLoaded(false);
     setPreviewHeight(minimumPreviewHeight);
-  }, [activeComponent?.id, themeMode, customColorSchemes, isColorSchemePage]);
+  }, [activeComponent?.id, themeMode, customColorSchemes, isColorSchemePage, page]);
 
   if (page === "colors") return <Navigate replace to="/color-scheme" />;
 
@@ -521,7 +521,6 @@ function ComponentPage({
 
                 <TabsContent
                   className="content-panel"
-                  forceMount
                   value="preview"
                 >
                   <div className="panel-heading">

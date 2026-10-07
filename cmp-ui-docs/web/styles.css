@@ -766,24 +766,11 @@ body {
   min-width: 0;
   min-height: 0;
   border-radius: 7px;
-  background: linear-gradient(
-    105deg,
-    color-mix(in oklch, var(--muted) 80%, var(--foreground) 3%) 20%,
-    color-mix(in oklch, var(--muted) 58%, var(--background)) 42%,
-    color-mix(in oklch, var(--muted) 80%, var(--foreground) 3%) 64%
-  );
-  background-size: 220% 100%;
-  animation: skeleton-composer-wave 1.35s ease-in-out infinite;
+  background: color-mix(in oklch, var(--muted) 80%, var(--foreground) 3%);
 }
 
 .skeleton-preview-block.circle {
   border-radius: 50%;
-}
-
-@keyframes skeleton-composer-wave {
-  to {
-    background-position-x: -220%;
-  }
 }
 
 .skeleton-composer-tree {
@@ -970,12 +957,6 @@ body {
   margin: 0;
   color: var(--text-secondary);
   font-size: 10px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .skeleton-preview-block {
-    animation: none;
-  }
 }
 
 @media (max-width: 1040px) {
