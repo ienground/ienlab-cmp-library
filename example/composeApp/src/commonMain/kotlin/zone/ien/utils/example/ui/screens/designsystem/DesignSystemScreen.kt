@@ -108,11 +108,13 @@ import zone.ien.utils.ui.screen.IenBottomCTABackground
 import zone.ien.utils.ui.screen.IenBottomCTAButton
 import zone.ien.utils.ui.screen.IenBottomCTAShowAfterDelay
 import zone.ien.utils.ui.layout.IenBottomInfo
+import zone.ien.utils.ui.layout.IenBottomGradient
 import zone.ien.utils.ui.feedback.IenBottomSheet
 import zone.ien.utils.ui.feedback.IenBottomSheetOption
 import zone.ien.utils.ui.feedback.IenBottomSheetSelect
 import zone.ien.utils.ui.content.IenBubble
 import zone.ien.utils.ui.content.IenBubbleBackground
+import zone.ien.utils.ui.content.IenBubbleTail
 import zone.ien.utils.ui.content.IenCard
 import zone.ien.utils.ui.content.IenCardDefaults
 import zone.ien.utils.ui.content.IenCardToneVariant
@@ -176,6 +178,7 @@ import zone.ien.utils.ui.feedback.IenSkeletonBackground
 import zone.ien.utils.ui.feedback.IenSkeletonElement
 import zone.ien.utils.ui.feedback.IenSkeletonMotionGroup
 import zone.ien.utils.ui.feedback.IenSkeletonPattern
+import zone.ien.utils.ui.feedback.IenSkeletonPlay
 import zone.ien.utils.ui.feedback.IenSkeletonRepeat
 import zone.ien.utils.ui.list.IenTableRow
 import zone.ien.utils.ui.list.IenTableRowAlign
@@ -190,6 +193,7 @@ import zone.ien.utils.ui.screen.IenTooltipClipToEnd
 import zone.ien.utils.ui.screen.IenTooltipMessageAlign
 import zone.ien.utils.ui.screen.IenTooltipMotionVariant
 import zone.ien.utils.ui.screen.IenTooltipPlacement
+import zone.ien.utils.ui.screen.IenTooltipStrategy
 import zone.ien.utils.ui.screen.IenTop
 import zone.ien.utils.ui.screen.IenTopBar
 import zone.ien.utils.ui.screen.IenTopLowerButton
@@ -389,6 +393,7 @@ private data class PlaygroundControl(
     val label: String,
     val defaultValue: String,
     val isToggle: Boolean = false,
+    val isTextInput: Boolean = false,
     val choices: List<PlaygroundChoice> = emptyList(),
     val minValue: Int? = null,
     val maxValue: Int? = null,
@@ -434,6 +439,32 @@ private fun numberControl(
     minValue = minValue,
     maxValue = maxValue,
     allowDecimal = allowDecimal,
+)
+
+private fun decimalControl(
+    key: String,
+    label: String,
+    defaultValue: Float,
+    minValue: Int,
+    maxValue: Int,
+) = PlaygroundControl(
+    key = key,
+    label = label,
+    defaultValue = defaultValue.toString(),
+    minValue = minValue,
+    maxValue = maxValue,
+    allowDecimal = true,
+)
+
+private fun textControl(
+    key: String,
+    label: String,
+    defaultValue: String,
+) = PlaygroundControl(
+    key = key,
+    label = label,
+    defaultValue = defaultValue,
+    isTextInput = true,
 )
 
 private val ComponentPlaygroundControls = mapOf(
@@ -604,6 +635,7 @@ private val ComponentPlaygroundControls = mapOf(
     "bottom-bar" to listOf(toggleControl("showFab", "플로팅 버튼 표시")),
     "chat-bottom-bar" to listOf(disabledControl()),
     "navigation-bar" to listOf(
+        choiceControl("type", "타입", listOf("nav", "nav2")),
         toggleControl("visible", "내비게이션 표시"),
         toggleControl("vertical", "세로 배치", false),
         toggleControl("alwaysShowLabel", "레이블 항상 표시", false),
@@ -662,8 +694,290 @@ private val ComponentPlaygroundControls = mapOf(
     ),
 )
 
+private val AdditionalComponentPlaygroundControls = mapOf(
+    "badge" to listOf(textControl("text", "레이블", "미리보기")),
+    "board-row" to listOf(
+        textControl("title", "제목", "배송 정보 자세히 보기"),
+        toggleControl("showPrefix", "앞 배지 표시"),
+    ),
+    "bottom-info" to listOf(
+        choiceControl("gradient", "하단 그라데이션", listOf("Default", "None", "Custom")),
+        choiceControl("background", "배경", listOf("surfaceWeak", "surface", "brandWeak")),
+        numberControl("padding", "안쪽 여백", 24, 0, 48),
+    ),
+    "bottom-sheet" to listOf(
+        toggleControl("dismissOnScrimClick", "바깥 영역으로 닫기"),
+        toggleControl("showDragHandle", "드래그 핸들 표시"),
+        toggleControl("disableDimmer", "배경 어둡게 하지 않기", false),
+    ),
+    "border" to listOf(
+        numberControl("thickness", "두께", 1, 1, 8),
+        choiceControl("tone", "색상", IenSemanticTone.entries.map { it.name }, "Neutral"),
+    ),
+    "bubble" to listOf(
+        choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Neutral"),
+        textControl("text", "메시지", "의미 색상과 꼬리 방향도 조정할 수 있습니다."),
+    ),
+    "button" to listOf(
+        choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
+        textControl("text", "버튼 레이블", "속성 적용 미리보기"),
+        numberControl("contentPadding", "안쪽 여백", 16, 0, 32),
+        numberControl("verticalContentPadding", "상하 안쪽 여백", 8, 0, 32),
+    ),
+    "card" to listOf(
+        choiceControl("shape", "모양", listOf("Rounded", "Capsule"), "Rounded"),
+        numberControl("contentPadding", "안쪽 여백", 16, 0, 32),
+    ),
+    "chip" to listOf(textControl("text", "레이블", "Assist")),
+    "fab" to listOf(
+        choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
+        textControl("text", "버튼 레이블", "작성하기"),
+    ),
+    "icon-button" to listOf(choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand")),
+    "checkbox" to listOf(
+        toggleControl("showLabel", "레이블 표시"),
+        textControl("label", "레이블", "동의"),
+        numberControl("size", "크기", 24, 16, 40),
+    ),
+    "highlight" to listOf(
+        textControl("text", "문장", "Highlight는 검색 결과나 본문 안의 중요한 텍스트를 토큰 색상으로 강조합니다."),
+        textControl("highlight", "강조할 단어", "Highlight"),
+        choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
+        toggleControl("ignoreCase", "대소문자 무시"),
+    ),
+    "list-footer" to listOf(
+        choiceControl("border", "구분선", listOf("Full", "Indented", "None")),
+        textControl("text", "레이블", "더 보기"),
+    ),
+    "list-header" to listOf(
+        choiceControl("descriptionPosition", "설명 위치", listOf("Top", "Bottom")),
+        toggleControl("showDescription", "설명 표시"),
+        textControl("title", "제목", "최근 거래"),
+        textControl("description", "설명", "타이틀 위에 보조 설명이 배치됩니다."),
+    ),
+    "loading-indicator" to listOf(
+        numberControl("size", "크기", 48, 24, 96),
+        choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
+    ),
+    "loader" to listOf(
+        textControl("label", "로딩 안내", "데이터를 불러오는 중"),
+        toggleControl("showLabel", "안내 문구 표시"),
+    ),
+    "menu" to listOf(
+        choiceControl("placement", "메뉴 위치", IenMenu.Placement.entries.map { it.name }, "AnchorTopStart"),
+        numberControl("offset", "앵커 간격", 8, 0, 32),
+    ),
+    "progress-indicator" to listOf(
+        numberControl("strokeWidth", "선 두께", 4, 1, 12),
+        numberControl("waveAmplitude", "물결 진폭 (%)", 100, 0, 200),
+        numberControl("gapSize", "진행 간격", 4, 0, 16),
+        numberControl("wavelength", "물결 길이", 40, 8, 100),
+        choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
+    ),
+    "progress-bar" to listOf(
+        toggleControl("showLabel", "진행률 레이블 표시", true),
+        choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
+    ),
+    "progress-stepper" to listOf(
+        choiceControl("paddingTop", "상단 여백", listOf("Default", "Wide"), "Wide"),
+        numberControl("activeStepIndex", "현재 단계", 1, 0, 2),
+        toggleControl("checkForFinish", "완료 표시", false),
+        numberControl("stepCount", "단계 수", 3, 2, 5),
+    ),
+    "numeric-spinner" to listOf(numberControl("number", "초기 수량", 2, 0, 50)),
+    "rating" to listOf(numberControl("max", "최대 별점", 5, 1, 10)),
+    "search-field" to listOf(
+        textControl("placeholder", "입력 안내", "검색어를 입력하세요"),
+        toggleControl("fixed", "상단 고정", true),
+        toggleControl("takeSpace", "공간 유지", true),
+    ),
+    "skeleton" to listOf(
+        choiceControl("background", "배경", listOf("White", "Grey", "GreyOpacity100"), "Grey"),
+        choiceControl("play", "재생 상태", listOf("Show", "Hide"), "Show"),
+        numberControl("repeatCount", "마지막 항목 반복", 3, 0, 8),
+        numberControl("height", "블록 높이", 0, 0, 120),
+        numberControl("radius", "모서리 반경", 8, 0, 32),
+    ),
+    "slider" to listOf(
+        numberControl("steps", "단계 수", 0, 0, 10),
+        numberControl("rangeStart", "범위 시작 (%)", 0, 0, 90),
+        numberControl("rangeEnd", "범위 끝 (%)", 100, 10, 100),
+    ),
+    "segmented-control" to listOf(numberControl("itemCount", "항목 수", 3, 2, 5)),
+    "tab" to listOf(numberControl("itemGap", "탭 간격", 8, 0, 32)),
+    "text-button" to listOf(choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand")),
+    "tooltip" to listOf(
+        textControl("text", "메시지", "툴팁은 짧은 보조 설명에 사용합니다."),
+        choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Neutral"),
+        choiceControl("messageAlign", "메시지 정렬", listOf("Left", "Center"), "Left"),
+        choiceControl("motionVariant", "모션", listOf("Weak", "Strong"), "Weak"),
+        choiceControl("strategy", "배치 방식", listOf("Absolute", "Fixed"), "Absolute"),
+        choiceControl("clipToEnd", "끝 방향 클리핑", listOf("None", "Left", "Right"), "None"),
+        toggleControl("defaultOpen", "처음부터 열기", false),
+        toggleControl("dismissible", "닫기 가능", false),
+        toggleControl("autoFlip", "자동 위치 조정", false),
+        toggleControl("fitContentWidth", "콘텐츠 너비에 맞춤", false),
+        toggleControl("openOnHover", "포인터 올릴 때 열기", false),
+        toggleControl("openOnFocus", "키보드 포커스 시 열기", false),
+        numberControl("anchorPosition", "화살표 위치 (%)", 50, 0, 100),
+        numberControl("offset", "앵커 간격", 0, 0, 32),
+        numberControl("width", "너비", 0, 0, 320),
+    ),
+    "top" to listOf(
+        textControl("title", "제목", "결제 확인"),
+        textControl("subtitle", "보조 문구", "타이틀과 보조 설명의 크기를 선택합니다."),
+        choiceControl("rightVerticalAlign", "우측 정렬", listOf("Center", "End"), "Center"),
+        numberControl("contentPadding", "좌우 여백", 24, 0, 48),
+        numberControl("contentPaddingVertical", "상하 여백", 0, 0, 48),
+        numberControl("upperGap", "상단 간격", 24, 0, 48),
+        numberControl("lowerGap", "하단 간격", 24, 0, 48),
+    ),
+    "asset" to listOf(
+        choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
+        toggleControl("bordered", "테두리 표시", false),
+    ),
+    "bottom-bar" to listOf(
+        choiceControl("container", "배경", listOf("surface", "surfaceWeak"), "surface"),
+        numberControl("elevation", "그림자 높이", 8, 0, 24),
+        choiceControl("shape", "모양", listOf("Capsule", "Rounded"), "Capsule"),
+        numberControl("contentPadding", "안쪽 여백", 8, 0, 24),
+    ),
+    "chat-bottom-bar" to listOf(
+        textControl("placeholder", "입력 안내", "메시지를 입력하세요"),
+        numberControl("maxLines", "최대 줄 수", 4, 1, 8),
+        toggleControl("showLeading", "첨부 버튼 표시"),
+        toggleControl("showTrailing", "추가 메뉴 표시"),
+    ),
+    "bottom-cta" to listOf(
+        choiceControl("background", "배경", listOf("Default", "None")),
+        choiceControl("variant", "버튼 형태", listOf("Fill", "Weak", "Line", "Ghost"), "Fill"),
+        choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
+        textControl("text", "CTA 레이블", "아이콘 포함 CTA"),
+        textControl("primaryText", "주 버튼 레이블", "확인"),
+        textControl("secondaryText", "보조 버튼 레이블", "취소"),
+        choiceControl("animation", "등장 모션", listOf("None", "Fade", "Scale", "Slide"), "Scale"),
+        numberControl("delayMillis", "등장 지연 (ms)", 300, 0, 1000),
+        numberControl("primaryButtonWeight", "주 버튼 비율", 2, 1, 4),
+        numberControl("secondaryButtonWeight", "보조 버튼 비율", 1, 1, 4),
+        numberControl("hideOnScrollDistanceThreshold", "스크롤 숨김 임계값", 1, 0, 16),
+        toggleControl("takeSpace", "숨김 상태에서 공간 유지", false),
+        toggleControl("safeArea", "안전 영역 여백"),
+        toggleControl("paddingBottom", "하단 여백"),
+        toggleControl("fixed", "고정 CTA 샘플 표시", true),
+        toggleControl("fixedAboveKeyboard", "키보드 위에 고정", false),
+        toggleControl("hideOnScroll", "스크롤 시 숨김", false),
+    ),
+    "dialog" to listOf(
+        choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
+        toggleControl("destructive", "위험 동작", false),
+        choiceControl("buttonLayout", "버튼 배치", listOf("Horizontal", "Vertical")),
+        toggleControl("closeOnDimmerClick", "바깥 영역으로 닫기"),
+        toggleControl("closeOnBackEvent", "뒤로가기로 닫기"),
+        textControl("title", "제목", "엔님의 의견이 잘 전달되었어요"),
+        textControl("message", "내용", "소중한 의견을 바탕으로 더 간편한 서비스를 만들게요."),
+        textControl("confirmText", "확인 버튼", "확인"),
+        textControl("dismissText", "취소 버튼", "취소"),
+    ),
+    "alert-dialog" to listOf(
+        choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
+        toggleControl("destructive", "위험 동작", false),
+        choiceControl("buttonLayout", "버튼 배치", listOf("Horizontal", "Vertical")),
+        toggleControl("closeOnDimmerClick", "바깥 영역으로 닫기"),
+        toggleControl("closeOnBackEvent", "뒤로가기로 닫기"),
+        textControl("title", "제목", "엔님의 의견이 잘 전달되었어요"),
+        textControl("message", "내용", "소중한 의견을 바탕으로 더 간편한 서비스를 만들게요."),
+        textControl("confirmText", "확인 버튼", "확인"),
+        textControl("dismissText", "취소 버튼", "취소"),
+    ),
+    "keypad" to listOf(
+        toggleControl("randomized", "키 순서 무작위", false),
+        numberControl("columns", "알파벳 열 수", 3, 2, 6),
+        numberControl("keyHeight", "키 높이", 56, 40, 80),
+    ),
+    "text-field" to listOf(
+        toggleControl("required", "필수 입력"),
+        toggleControl("hasError", "오류 상태", false),
+        choiceControl("labelOption", "레이블 표시", listOf("Appear", "Sustain"), "Appear"),
+        choiceControl("lengthLimit", "글자 수 제한", listOf("None", "Error", "Block"), "Error"),
+        numberControl("lengthLimitCount", "최대 글자 수", 3, 1, 64),
+        textControl("label", "레이블", "이름 · Required · LengthLimit.Error"),
+        textControl("placeholder", "입력 안내", "이름을 입력하세요"),
+    ),
+    "split-text-field" to listOf(
+        toggleControl("mask", "입력값 가리기", false),
+        choiceControl("placeholderChar", "빈 칸 표시", listOf("•", "○", "_", "-"), "•"),
+    ),
+    "text-area" to listOf(
+        numberControl("minLines", "최소 줄 수", 2, 1, 8),
+        toggleControl("required", "필수 입력"),
+        choiceControl("lengthLimit", "글자 수 제한", listOf("None", "Error", "Block"), "Block"),
+        numberControl("lengthLimitCount", "최대 글자 수", 120, 1, 500),
+        textControl("label", "레이블", "메모 · LengthLimit.Block"),
+        textControl("placeholder", "입력 안내", "여러 줄 텍스트를 입력하세요"),
+    ),
+    "primitives" to listOf(
+        choiceControl("surfaceColor", "표면 색상", listOf("surface", "surfaceWeak", "brandWeak")),
+        numberControl("dividerThickness", "구분선 두께", 1, 1, 8),
+        choiceControl("borderTone", "테두리 색상", IenSemanticTone.entries.map { it.name }, "Neutral"),
+        numberControl("borderWidth", "테두리 두께", 1, 1, 8),
+    ),
+    "paragraph" to listOf(
+        textControl("title", "제목", "문단 컴포넌트"),
+        textControl("body", "본문", "Paragraph는 본문 타이포그래피와 Highlight를 함께 사용해 긴 설명을 안정적으로 표시합니다."),
+        textControl("emphasis", "강조 문구", "Highlight"),
+        textControl("footer", "보조 문구", "토큰 기반 줄 높이와 색상을 사용합니다."),
+    ),
+    "post" to listOf(
+        textControl("title", "제목", "Compose Multiplatform 디자인 시스템 진행 기록"),
+        textControl("author", "작성자", "IENGROUND"),
+        textControl("description", "본문", "Post는 피드형 콘텐츠, 공지, 업데이트 카드의 공통 정보 구조입니다."),
+        toggleControl("showAuthor", "작성자 표시"),
+        toggleControl("showDescription", "본문 표시"),
+        toggleControl("showMetadata", "메타데이터 표시"),
+    ),
+    "result" to listOf(
+        choiceControl("tone", "결과 상태", listOf("Success", "Failure", "Empty", "Info"), "Success"),
+        textControl("title", "제목", "처리 준비 완료"),
+        textControl("description", "설명", "Result는 성공, 실패, 빈 상태 화면을 같은 정보 구조로 표현합니다."),
+        toggleControl("showDescription", "설명 표시"),
+        toggleControl("showPrimaryAction", "주요 동작 표시"),
+        toggleControl("showSecondaryAction", "보조 동작 표시", false),
+    ),
+    "swipe-box" to listOf(
+        numberControl("itemWidth", "액션 너비", 96, 56, 160),
+        numberControl("height", "행 높이", 72, 48, 120),
+        toggleControl("fullSwipe", "끝까지 밀어 실행", false),
+        toggleControl("haptics", "확장 진동 피드백"),
+    ),
+    "stepper" to listOf(
+        toggleControl("play", "단계 애니메이션"),
+        decimalControl("delay", "시작 지연", 0f, 0, 2),
+        decimalControl("staggerDelay", "항목 간 지연", 0.12f, 0, 1),
+        choiceControl("textType", "텍스트 크기", listOf("A", "B", "C"), "A"),
+    ),
+    "table-row" to listOf(
+        choiceControl("align", "열 정렬", listOf("SpaceBetween", "Left"), "SpaceBetween"),
+        numberControl("leftRatio", "왼쪽 열 비율 (%)", 30, 10, 90),
+        textControl("left", "왼쪽 값", "엔님"),
+        textControl("right", "오른쪽 값", "받는 분"),
+    ),
+    "snackbar" to listOf(
+        textControl("message", "메시지", "속성 조정 스낵바입니다."),
+        choiceControl("tone", "상태", listOf("Neutral", "Success", "Warning", "Danger", "Info")),
+        choiceControl("duration", "표시 시간", listOf("Short", "Long", "Indefinite"), "Long"),
+        textControl("actionLabel", "액션 레이블", "확인"),
+        toggleControl("showAction", "액션 버튼 표시"),
+    ),
+    "toast" to listOf(
+        textControl("message", "메시지", "속성 조정 토스트입니다."),
+        choiceControl("tone", "상태", listOf("Neutral", "Success", "Warning", "Danger", "Info")),
+        choiceControl("duration", "표시 시간", listOf("Short", "Long"), "Long"),
+    ),
+)
+
 private fun playgroundControls(componentId: String): List<PlaygroundControl> {
-    return ComponentPlaygroundControls[componentId].orEmpty()
+    return ComponentPlaygroundControls[componentId].orEmpty() +
+        AdditionalComponentPlaygroundControls[componentId].orEmpty()
 }
 
 private fun Map<String, String>.booleanValue(key: String, defaultValue: Boolean): Boolean =
@@ -673,6 +987,29 @@ private fun Map<String, String>.disabledValue(): Boolean = booleanValue("disable
 
 private fun Map<String, String>.intValue(key: String, defaultValue: Int): Int =
     this[key]?.toIntOrNull() ?: defaultValue
+
+private fun Map<String, String>.floatValue(key: String, defaultValue: Float): Float =
+    this[key]?.toFloatOrNull()?.takeIf { it.isFinite() } ?: defaultValue
+
+private fun Map<String, String>.textValue(key: String, defaultValue: String): String =
+    this[key] ?: defaultValue
+
+@Composable
+private fun playgroundToneColor(tone: String): Color = when (tone) {
+    "Success" -> IenTheme.colors.success
+    "Warning" -> IenTheme.colors.warning
+    "Danger" -> IenTheme.colors.danger
+    "Info" -> IenTheme.colors.info
+    "Neutral" -> IenTheme.colors.textSecondary
+    else -> IenTheme.colors.brand
+}
+
+@Composable
+private fun playgroundSurfaceColor(surface: String): Color = when (surface) {
+    "surface" -> IenTheme.colors.surface
+    "brandWeak" -> IenTheme.colors.brandWeak
+    else -> IenTheme.colors.surfaceWeak
+}
 
 private fun playgroundPreviewValues(
     controls: List<PlaygroundControl>,
@@ -700,6 +1037,9 @@ private fun playgroundPreviewValues(
 
 private fun Map<String, String>.enumValue(key: String, defaultValue: String): String =
     this[key] ?: defaultValue
+
+private fun Map<String, String>.toneValue(key: String, defaultValue: IenSemanticTone): IenSemanticTone =
+    IenSemanticTone.entries.firstOrNull { it.name == enumValue(key, defaultValue.name) } ?: defaultValue
 
 internal enum class PreviewViewport(val storageValue: String, val label: String, val maxWidth: Dp) {
     Pc("pc", "PC 1280px", 1280.dp),
@@ -888,9 +1228,13 @@ internal fun DesignSystemPlayground(
                                         modifier = Modifier.fillMaxWidth(),
                                         label = control.label,
                                         keyboardOptions = KeyboardOptions(
-                                            keyboardType = if (control.allowDecimal) KeyboardType.Decimal else KeyboardType.Number,
+                                            keyboardType = when {
+                                                control.isTextInput -> KeyboardType.Text
+                                                control.allowDecimal -> KeyboardType.Decimal
+                                                else -> KeyboardType.Number
+                                            },
                                         ),
-                                        supportingText = "범위: $minimum–$maximum",
+                                        supportingText = if (control.isTextInput) null else "범위: $minimum–$maximum",
                                     )
                                 }
                             }
@@ -1187,7 +1531,7 @@ internal fun DesignSystemComponentPreview(
         "badge" -> BadgeSection(controlValues)
         "board-row" -> BoardRowSection(controlValues)
         "border" -> BorderSection(controlValues)
-        "bottom-info" -> BottomInfoSection()
+        "bottom-info" -> BottomInfoSection(controlValues)
         "bottom-sheet" -> BottomSheetSection(controlValues)
         "bubble" -> BubbleSection(controlValues)
         "button" -> ButtonSection(controlValues)
@@ -1195,36 +1539,45 @@ internal fun DesignSystemComponentPreview(
         "chip" -> ChipSection(controlValues)
         "fab" -> FabSection(controlValues)
         "checkbox" -> CheckboxSection(controlValues)
-        "highlight" -> HighlightSection()
+        "highlight" -> HighlightSection(controlValues)
         "icon-button" -> IconButtonSection(controlValues)
-        "list-footer" -> ListFooterSection()
-        "list-header" -> ListHeaderSection()
-        "loading-indicator" -> LoadingIndicatorSection()
+        "list-footer" -> ListFooterSection(controlValues)
+        "list-header" -> ListHeaderSection(controlValues)
+        "loading-indicator" -> LoadingIndicatorSection(controlValues)
         "loader" -> LoaderSection(controlValues)
         "menu" -> MenuSection(controlValues)
-        "modal" -> ModalSection()
+        "modal" -> ModalSection(controlValues)
         "numeric-spinner" -> NumericSpinnerSection(controlValues)
-        "paragraph" -> ParagraphSection()
-        "post" -> PostSection()
+        "paragraph" -> ParagraphSection(controlValues)
+        "post" -> PostSection(controlValues)
         "progress-bar" -> ProgressBarSection(controlValues)
         "progress-indicator" -> ProgressIndicatorSection(controlValues)
         "progress-stepper" -> ProgressStepperSection(controlValues)
         "rating" -> RatingSection(controlValues)
-        "result" -> ResultSection()
+        "result" -> ResultSection(controlValues)
         "search-field" -> SearchFieldSection(controlValues)
         "segmented-control" -> SegmentedControlSection(controlValues)
         "skeleton" -> SkeletonSection(controlValues)
         "slider" -> SliderSection(controlValues)
-        "swipe-box" -> SwipeBoxSection()
-        "stepper" -> StepperSection()
+        "swipe-box" -> SwipeBoxSection(controlValues)
+        "stepper" -> StepperSection(controlValues)
         "switch" -> SwitchSection(controlValues)
         "tab" -> TabSection(controlValues)
-        "table-row" -> TableRowSection()
+        "table-row" -> TableRowSection(controlValues)
         "text-button" -> TextButtonSection(controlValues)
         "snackbar" -> SnackbarSection(
+            controls = controlValues,
             onShowBasic = {
                 coroutineScope.launch {
-                    snackbarHostState.showIenSnackbar("기본 스낵바 메시지예요")
+                    snackbarHostState.showIenSnackbar(
+                        message = controlValues.textValue("message", "속성 조정 스낵바입니다."),
+                        tone = controlValues.toneValue("tone", IenSemanticTone.Neutral),
+                        duration = when (controlValues.enumValue("duration", "Long")) {
+                            "Short" -> SnackbarDuration.Short
+                            "Indefinite" -> SnackbarDuration.Indefinite
+                            else -> SnackbarDuration.Long
+                        },
+                    )
                 }
             },
             onShowSuccess = {
@@ -1238,12 +1591,18 @@ internal fun DesignSystemComponentPreview(
             onShowAction = {
                 coroutineScope.launch {
                     val result = snackbarHostState.showIenSnackbar(
-                        message = "버튼이 포함된 스낵바예요",
-                        actionLabel = "확인",
-                        duration = SnackbarDuration.Long,
+                        message = controlValues.textValue("message", "속성 조정 스낵바입니다."),
+                        actionLabel = controlValues.textValue("actionLabel", "확인")
+                            .takeIf { controlValues.booleanValue("showAction", true) },
+                        duration = when (controlValues.enumValue("duration", "Long")) {
+                            "Short" -> SnackbarDuration.Short
+                            "Indefinite" -> SnackbarDuration.Indefinite
+                            else -> SnackbarDuration.Long
+                        },
+                        tone = controlValues.toneValue("tone", IenSemanticTone.Neutral),
                     )
                     if (result == SnackbarResult.ActionPerformed) {
-                        snackbarHostState.showIenSnackbar("확인을 눌렀어요")
+                        snackbarHostState.showIenSnackbar("액션을 실행했어요")
                     }
                 }
             },
@@ -1294,7 +1653,18 @@ internal fun DesignSystemComponentPreview(
             },
         )
         "toast" -> ToastSection(
-            onShowBasic = { toastState?.showIenToast("기본 토스트 메시지예요") },
+            controls = controlValues,
+            onShowBasic = {
+                toastState?.showIenToast(
+                    message = controlValues.textValue("message", "속성 조정 토스트입니다."),
+                    tone = controlValues.toneValue("tone", IenSemanticTone.Neutral),
+                    duration = if (controlValues.enumValue("duration", "Long") == "Short") {
+                        IenToastDuration.Short
+                    } else {
+                        IenToastDuration.Long
+                    },
+                )
+            },
             onShowSuccess = {
                 toastState?.showIenToast(
                     message = "성공 상태 토스트예요",
@@ -1317,7 +1687,7 @@ internal fun DesignSystemComponentPreview(
         "chat-bottom-bar" -> ChatBottomBarSection(controlValues)
         "navigation-bar" -> NavigationBarSection(controlValues)
         "bottom-cta" -> BottomCTASection(controlValues)
-        "dialog", "alert-dialog" -> DialogSection()
+        "dialog", "alert-dialog" -> DialogSection(controlValues)
         "keypad" -> KeypadSection(controlValues)
         "list-row" -> ListRowSection(controlValues)
         "text-field" -> TextFieldSection(controlValues)
@@ -1573,7 +1943,7 @@ fun BadgeSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
         ComponentSection(title = "Badge") {
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
-                IenBadge("미리보기", size = size, variant = variant, tone = tone)
+                IenBadge(controls.textValue("text", "미리보기"), size = size, variant = variant, tone = tone)
             }
         }
     }
@@ -1585,9 +1955,11 @@ fun BoardRowSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
         ComponentSection(title = "BoardRow") {
             IenBoardRow(
-                title = { Text("배송 정보 자세히 보기", style = IenTheme.typography.label1) },
+                title = { Text(controls.textValue("title", "배송 정보 자세히 보기"), style = IenTheme.typography.label1) },
                 initialOpened = controls.booleanValue("initialOpened", true),
-                prefix = { IenBadge("배송", size = IenBadgeSize.Small) },
+                prefix = if (controls.booleanValue("showPrefix", true)) {
+                    { IenBadge("배송", size = IenBadgeSize.Small) }
+                } else null,
             ) {
                 Text(
                     "제한된 영역에서 상세 정보를 접고 펼치는 아코디언형 정보 구조입니다.",
@@ -1618,17 +1990,32 @@ fun BorderSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
         ComponentSection(title = "Border") {
             Text(controls.enumValue("variant", "Full"), style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
-            IenBorder(variant = variant)
+            IenBorder(
+                variant = variant,
+                color = playgroundToneColor(controls.enumValue("tone", "Neutral")),
+                thickness = controls.intValue("thickness", 1).coerceIn(1, 8).dp,
+            )
         }
     }
 }
 
 @Preview
 @Composable
-fun BottomInfoSection() {
+fun BottomInfoSection(controls: Map<String, String> = emptyMap()) {
+    val padding = controls.intValue("padding", 24).coerceIn(0, 48).dp
     IenTheme {
+        val backgroundColor = playgroundSurfaceColor(controls.enumValue("background", "surfaceWeak"))
+        val bottomGradient = when (controls.enumValue("gradient", "Default")) {
+            "None" -> IenBottomGradient.None
+            "Custom" -> IenBottomGradient.Custom(fromColor = backgroundColor)
+            else -> IenBottomGradient.Default
+        }
         ComponentSection(title = "BottomInfo") {
-            IenBottomInfo {
+            IenBottomInfo(
+                bottomGradient = bottomGradient,
+                backgroundColor = backgroundColor,
+                contentPadding = PaddingValues(horizontal = padding, vertical = 16.dp),
+            ) {
                 Text(
                     text = "하단 안내는 결제, 확인, 폼 화면에서 보조 정보를 안정적으로 보여줍니다.",
                     style = IenTheme.typography.caption,
@@ -1675,6 +2062,9 @@ fun BottomSheetSection(controls: Map<String, String> = emptyMap()) {
 
         IenBottomSheet(
             state = sheetState,
+            dismissOnScrimClick = controls.booleanValue("dismissOnScrimClick", true),
+            showDragHandle = controls.booleanValue("showDragHandle", true),
+            disableDimmer = controls.booleanValue("disableDimmer", false),
             header = { Text("바텀시트", style = IenTheme.typography.title3) },
             cta = {
                 Row(
@@ -1747,6 +2137,11 @@ fun BubbleSection(controls: Map<String, String> = emptyMap()) {
             IenBubble(background = background, withTail = withTail) {
                 Text("배경과 꼬리 속성을 적용한 버블입니다.", style = IenTheme.typography.body2)
             }
+            IenBubble(
+                text = controls.textValue("text", "의미 색상과 꼬리 방향도 조정할 수 있습니다."),
+                tone = controls.toneValue("tone", IenSemanticTone.Neutral),
+                tail = if (withTail) IenBubbleTail.End else IenBubbleTail.None,
+            )
         }
     }
 }
@@ -1779,6 +2174,11 @@ fun ButtonSection(controls: Map<String, String> = emptyMap()) {
                 onClick = {},
                 size = buttonSize,
                 variant = buttonVariant,
+                tone = controls.toneValue("tone", IenSemanticTone.Brand),
+                contentPadding = PaddingValues(
+                    horizontal = controls.intValue("contentPadding", 16).coerceIn(0, 32).dp,
+                    vertical = controls.intValue("verticalContentPadding", 8).coerceIn(0, 32).dp,
+                ),
                 state = IenButtonState(
                     enabled = !controls.disabledValue(),
                     loading = controls.booleanValue("loading", false),
@@ -1790,7 +2190,7 @@ fun ButtonSection(controls: Map<String, String> = emptyMap()) {
                 },
                 display = display,
             ) {
-                Text("${controls.enumValue("variant", "Fill")} · ${buttonSize.name}")
+                Text(controls.textValue("text", "속성 적용 미리보기"))
             }
             if (!LocalComponentVariantShowcase.current) {
                 IenBorder()
@@ -1955,12 +2355,21 @@ fun CardSection(controls: Map<String, String> = emptyMap()) {
     }
     IenTheme {
         var clickedCard by remember { mutableStateOf("없음") }
+        val shape = if (controls.enumValue("shape", "Rounded") == "Capsule") {
+            ContinuousCapsule()
+        } else {
+            ContinuousRoundedRectangle(IenTheme.radius.default)
+        }
 
         ComponentSection(title = "Card") {
             IenCard(
                 variant = cardVariant,
                 tone = cardTone,
                 toneVariant = cardToneVariant,
+                shape = shape,
+                contentPadding = PaddingValues(
+                    controls.intValue("contentPadding", 16).coerceIn(0, 32).dp,
+                ),
                 onClick = {
                     clickedCard = "${controls.enumValue("tone", "Neutral")} · ${controls.enumValue("variant", "Filled")}"
                 },
@@ -2058,7 +2467,7 @@ fun ChipSection(controls: Map<String, String> = emptyMap()) {
                     leadingIcon = {
                         IenIcon(M3SystemIcons.Filled.Check, contentDescription = null)
                     },
-                ) { Text("Assist") }
+                ) { Text(controls.textValue("text", "Assist")) }
             }
         }
     }
@@ -2080,6 +2489,7 @@ fun FabSection(controls: Map<String, String> = emptyMap()) {
         "Ghost" -> IenButtonVariant.Ghost
         else -> IenButtonVariant.Fill
     }
+    val tone = controls.toneValue("tone", IenSemanticTone.Brand)
     IenTheme {
         ComponentSection(title = "FAB") {
             IenFab(
@@ -2087,10 +2497,11 @@ fun FabSection(controls: Map<String, String> = emptyMap()) {
                 icon = {
                     IenIcon(imageVector = M3SystemIcons.Filled.Check, contentDescription = null)
                 },
-                text = { Text("작성하기") },
+                text = { Text(controls.textValue("text", "작성하기")) },
                 isExtended = extended,
                 size = fabSize,
                 variant = fabVariant,
+                tone = tone,
                 state = IenButtonState(enabled = !controls.disabledValue(), loading = loading),
             )
             if (!LocalComponentVariantShowcase.current) {
@@ -2107,6 +2518,7 @@ fun FabSection(controls: Map<String, String> = emptyMap()) {
                     IenExtendedFab(
                         onClick = {},
                         variant = fabVariant,
+                        tone = tone,
                         state = IenButtonState(enabled = !controls.disabledValue(), loading = loading),
                     ) {
                         Row(
@@ -2117,7 +2529,7 @@ fun FabSection(controls: Map<String, String> = emptyMap()) {
                                 imageVector = M3SystemIcons.Filled.Check,
                                 contentDescription = null
                             )
-                            Text("작성하기")
+                            Text(controls.textValue("text", "작성하기"))
                         }
                     }
                     IenExtendedFab(
@@ -2143,6 +2555,9 @@ fun FabSection(controls: Map<String, String> = emptyMap()) {
 @Composable
 fun CheckboxSection(controls: Map<String, String> = emptyMap()) {
     val isCircle = controls.enumValue("variant", "Circle") == "Circle"
+    val label = controls.textValue("label", "동의")
+        .takeIf { controls.booleanValue("showLabel", true) }
+    val size = controls.intValue("size", 24).coerceIn(16, 40).dp
     IenTheme {
         var checked by remember(controls["checked"]) {
             mutableStateOf(controls.booleanValue("checked", true))
@@ -2153,14 +2568,15 @@ fun CheckboxSection(controls: Map<String, String> = emptyMap()) {
                 IenCircleCheckbox(
                     checked = checked,
                     onCheckedChange = { checked = it },
-                    label = "동의",
+                    label = label,
                     enabled = enabled,
+                    size = size,
                 )
             } else {
                 IenLineCheckbox(
                     checked = checked,
                     onCheckedChange = { checked = it },
-                    label = "동의",
+                    label = label,
                     enabled = enabled,
                 )
             }
@@ -2170,12 +2586,17 @@ fun CheckboxSection(controls: Map<String, String> = emptyMap()) {
 
 @Preview
 @Composable
-fun HighlightSection() {
+fun HighlightSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
         ComponentSection(title = "Highlight") {
             IenHighlightText(
-                text = "Highlight는 검색 결과나 본문 안의 중요한 텍스트를 토큰 색상으로 강조합니다.",
-                highlights = listOf("Highlight", "강조"),
+                text = controls.textValue(
+                    "text",
+                    "Highlight는 검색 결과나 본문 안의 중요한 텍스트를 토큰 색상으로 강조합니다.",
+                ),
+                highlights = listOf(controls.textValue("highlight", "Highlight"), "강조"),
+                tone = controls.toneValue("tone", IenSemanticTone.Brand),
+                ignoreCase = controls.booleanValue("ignoreCase", true),
             )
         }
     }
@@ -2201,6 +2622,7 @@ fun IconButtonSection(controls: Map<String, String> = emptyMap()) {
                 onClick = {},
                 size = size,
                 variant = variant,
+                tone = controls.toneValue("tone", IenSemanticTone.Brand),
                 state = IenButtonState(
                     enabled = !controls.disabledValue(),
                     loading = controls.booleanValue("loading", false),
@@ -2214,13 +2636,18 @@ fun IconButtonSection(controls: Map<String, String> = emptyMap()) {
 
 @Preview
 @Composable
-fun ListFooterSection() {
+fun ListFooterSection(controls: Map<String, String> = emptyMap()) {
+    val border = when (controls.enumValue("border", "Full")) {
+        "Indented" -> IenListFooterBorder.Indented
+        "None" -> IenListFooterBorder.None
+        else -> IenListFooterBorder.Full
+    }
     IenTheme {
         ComponentSection(title = "ListFooter") {
             IenListFooter(
-                text = "더 보기",
+                text = controls.textValue("text", "더 보기"),
                 onClick = {},
-                border = IenListFooterBorder.Full
+                border = border,
             )
             IenListFooter(
                 text = "더 보기 (아이콘 포함)",
@@ -2258,13 +2685,19 @@ fun ListFooterSection() {
 
 @Preview
 @Composable
-fun ListHeaderSection() {
+fun ListHeaderSection(controls: Map<String, String> = emptyMap()) {
+    val descriptionPosition = if (controls.enumValue("descriptionPosition", "Top") == "Bottom") {
+        IenListHeaderDescriptionPosition.Bottom
+    } else {
+        IenListHeaderDescriptionPosition.Top
+    }
     IenTheme {
         ComponentSection(title = "ListHeader") {
             IenListHeader(
-                title = "최근 거래",
-                description = "타이틀 위에 보조 설명이 배치됩니다.",
-                descriptionPosition = IenListHeaderDescriptionPosition.Top,
+                title = controls.textValue("title", "최근 거래"),
+                description = controls.textValue("description", "타이틀 위에 보조 설명이 배치됩니다.")
+                    .takeIf { controls.booleanValue("showDescription", true) },
+                descriptionPosition = descriptionPosition,
                 right = {
                     IenTextButton(onClick = {}) {
                         Text("전체보기")
@@ -2293,16 +2726,18 @@ fun LoaderSection(controls: Map<String, String> = emptyMap()) {
         "Large" -> IenLoaderSize.Large
         else -> IenLoaderSize.Medium
     }
+    val label = controls.textValue("label", "데이터를 불러오는 중")
+        .takeIf { controls.booleanValue("showLabel", true) }
     IenTheme {
         ComponentSection(title = "Loader") {
             when (controls.enumValue("indicator", "Circular")) {
-                "Loading" -> IenLoader(label = "데이터를 불러오는 중", size = selectedSize) { modifier ->
+                "Loading" -> IenLoader(label = label, size = selectedSize) { modifier ->
                     IenLoadingIndicator(modifier = modifier)
                 }
-                "Wavy" -> IenLoader(label = "데이터를 불러오는 중", size = selectedSize) { modifier ->
+                "Wavy" -> IenLoader(label = label, size = selectedSize) { modifier ->
                     IenCircularWavyProgressIndicator(modifier = modifier)
                 }
-                else -> IenLoader(label = "데이터를 불러오는 중", size = selectedSize)
+                else -> IenLoader(label = label, size = selectedSize)
             }
             if (!LocalComponentVariantShowcase.current) {
                 IenLoaderPrimitive(color = IenTheme.colors.brand)
@@ -2313,10 +2748,14 @@ fun LoaderSection(controls: Map<String, String> = emptyMap()) {
 
 @Preview
 @Composable
-fun LoadingIndicatorSection() {
+fun LoadingIndicatorSection(controls: Map<String, String> = emptyMap()) {
+    val size = controls.intValue("size", 48).coerceIn(24, 96).dp
     IenTheme {
         ComponentSection(title = "LoadingIndicator") {
-            IenLoadingIndicator()
+            IenLoadingIndicator(
+                modifier = Modifier.size(size),
+                color = playgroundToneColor(controls.enumValue("tone", "Brand")),
+            )
         }
     }
 }
@@ -2326,15 +2765,31 @@ fun LoadingIndicatorSection() {
 fun ProgressIndicatorSection(controls: Map<String, String> = emptyMap()) {
     val progress = controls.intValue("progress", 64).coerceIn(0, 100) / 100f
     IenTheme {
+        val color = playgroundToneColor(controls.enumValue("tone", "Brand"))
         ComponentSection(title = "ProgressIndicator") {
             when (controls.enumValue("variant", "Circular")) {
                 "Wavy" -> if (controls.booleanValue("determinate", false)) {
-                    IenCircularWavyProgressIndicator(progress = { progress })
+                    IenCircularWavyProgressIndicator(
+                        progress = { progress },
+                        color = color,
+                        gapSize = controls.intValue("gapSize", 4).coerceIn(0, 16).dp,
+                        wavelength = controls.intValue("wavelength", 40).coerceIn(8, 100).dp,
+                        amplitude = { controls.intValue("waveAmplitude", 100).coerceIn(0, 200) / 100f },
+                    )
                 } else {
-                    IenCircularWavyProgressIndicator()
+                    IenCircularWavyProgressIndicator(
+                        color = color,
+                        gapSize = controls.intValue("gapSize", 4).coerceIn(0, 16).dp,
+                        wavelength = controls.intValue("wavelength", 40).coerceIn(8, 100).dp,
+                        amplitude = controls.intValue("waveAmplitude", 100).coerceIn(0, 200) / 100f,
+                    )
                 }
-                "Linear" -> IenLinearProgressIndicator()
-                else -> IenCircularProgressIndicator()
+                "Linear" -> IenLinearProgressIndicator(color = color)
+                else -> IenCircularProgressIndicator(
+                    color = color,
+                    strokeWidth = controls.intValue("strokeWidth", 4).coerceIn(1, 12).dp,
+                    gapSize = controls.intValue("gapSize", 4).coerceIn(0, 16).dp,
+                )
             }
         }
     }
@@ -2352,8 +2807,10 @@ fun MenuSection(controls: Map<String, String> = emptyMap()) {
                 open = menuOpen,
                 onOpen = { menuOpen = true },
                 onClose = { menuOpen = false },
-                placement = IenMenu.Placement.AnchorTopStart,
-                offset = DpOffset(0.dp, 8.dp),
+                placement = IenMenu.Placement.entries.firstOrNull {
+                    it.name == controls.enumValue("placement", "AnchorTopStart")
+                } ?: IenMenu.Placement.AnchorTopStart,
+                offset = DpOffset(0.dp, controls.intValue("offset", 8).coerceIn(0, 32).dp),
                 dropdown = {
                     IenMenu.Dropdown(
                         onDismissRequest = { menuOpen = false },
@@ -2462,22 +2919,22 @@ fun ModalSection(controls: Map<String, String> = emptyMap()) {
 fun NumericSpinnerSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
         ComponentSection(title = "NumericSpinner") {
-            val minNumber = controls.intValue("minNumber", 0)
-            val maxNumber = controls.intValue("maxNumber", 10)
-            val minimum = minOf(minNumber, maxNumber)
-            val maximum = maxOf(minNumber, maxNumber)
+            val minimum = minOf(controls.intValue("minNumber", 0), controls.intValue("maxNumber", 10))
+            val maximum = maxOf(controls.intValue("minNumber", 0), controls.intValue("maxNumber", 10))
             val size = when (controls.enumValue("size", "Medium")) {
                 "Tiny" -> IenNumericSpinnerSize.Tiny
                 "Small" -> IenNumericSpinnerSize.Small
                 "Large" -> IenNumericSpinnerSize.Large
                 else -> IenNumericSpinnerSize.Medium
             }
-            var value by remember(minimum, maximum) { mutableIntStateOf(2.coerceIn(minimum, maximum)) }
+            var value by remember(minimum, maximum, controls["number"]) {
+                mutableIntStateOf(controls.intValue("number", 2).coerceIn(minimum, maximum))
+            }
             IenNumericSpinner(
                 number = value,
                 onNumberChange = { value = it },
-                minNumber = minNumber,
-                maxNumber = maxNumber,
+                minNumber = minimum,
+                maxNumber = maximum,
                 size = size,
                 disable = controls.disabledValue(),
                 decreaseAriaLabel = "수량 줄이기",
@@ -2489,14 +2946,17 @@ fun NumericSpinnerSection(controls: Map<String, String> = emptyMap()) {
 
 @Preview
 @Composable
-fun ParagraphSection() {
+fun ParagraphSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
         ComponentSection(title = "Paragraph") {
             IenParagraph(
-                title = "문단 컴포넌트",
-                body = "Paragraph는 본문 타이포그래피와 Highlight를 함께 사용해 긴 설명을 안정적으로 표시합니다.",
-                emphasis = "Highlight",
-                footer = "토큰 기반 줄 높이와 색상을 사용합니다.",
+                title = controls.textValue("title", "문단 컴포넌트"),
+                body = controls.textValue(
+                    "body",
+                    "Paragraph는 본문 타이포그래피와 Highlight를 함께 사용해 긴 설명을 안정적으로 표시합니다.",
+                ),
+                emphasis = controls.textValue("emphasis", "Highlight").takeIf { it.isNotBlank() },
+                footer = controls.textValue("footer", "토큰 기반 줄 높이와 색상을 사용합니다."),
             )
         }
     }
@@ -2504,16 +2964,22 @@ fun ParagraphSection() {
 
 @Preview
 @Composable
-fun PostSection() {
+fun PostSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
         ComponentSection(title = "Post") {
             IenPost(
-                title = "Compose Multiplatform 디자인 시스템 진행 기록",
-                author = "IENGROUND",
-                description = "Post는 피드형 콘텐츠, 공지, 업데이트 카드의 공통 정보 구조입니다.",
-                metadata = {
-                    IenBadge("새 글", size = IenBadgeSize.Small)
-                },
+                title = controls.textValue("title", "Compose Multiplatform 디자인 시스템 진행 기록"),
+                author = controls.textValue("author", "IENGROUND")
+                    .takeIf { controls.booleanValue("showAuthor", true) },
+                description = controls.textValue(
+                    "description",
+                    "Post는 피드형 콘텐츠, 공지, 업데이트 카드의 공통 정보 구조입니다.",
+                ).takeIf { controls.booleanValue("showDescription", true) },
+                metadata = if (controls.booleanValue("showMetadata", true)) {
+                    {
+                        IenBadge("새 글", size = IenBadgeSize.Small)
+                    }
+                } else null,
             )
         }
     }
@@ -2535,8 +3001,9 @@ fun ProgressBarSection(controls: Map<String, String> = emptyMap()) {
             IenProgressBar(
                 progress = progress,
                 size = size,
+                color = playgroundToneColor(controls.enumValue("tone", "Brand")),
                 animate = controls.booleanValue("animate", false),
-                showLabel = true,
+                showLabel = controls.booleanValue("showLabel", true),
             )
             if (!LocalComponentVariantShowcase.current) {
                 IenButton(
@@ -2555,17 +3022,21 @@ fun ProgressStepperSection(controls: Map<String, String> = emptyMap()) {
     val variant = IenProgressStepperVariant.entries.firstOrNull {
         it.name == controls.enumValue("variant", "Compact")
     } ?: IenProgressStepperVariant.Compact
+    val steps = (0 until controls.intValue("stepCount", 3).coerceIn(2, 5)).map { index ->
+        IenProgressStep(
+            title = listOf("유심 신청", "배송 완료", "개통 완료", "상태 확인", "완료")[index],
+        )
+    }
     IenTheme {
         ComponentSection(title = "ProgressStepper") {
             IenProgressStepper(
-                steps = listOf(
-                    IenProgressStep(title = "유심 신청"),
-                    IenProgressStep(title = "배송 완료"),
-                    IenProgressStep(title = "개통 완료"),
-                ),
+                steps = steps,
                 variant = variant,
-                paddingTop = IenProgressStepperPaddingTop.Wide,
-                activeStepIndex = 1,
+                paddingTop = IenProgressStepperPaddingTop.entries.firstOrNull {
+                    it.name == controls.enumValue("paddingTop", "Wide")
+                } ?: IenProgressStepperPaddingTop.Wide,
+                activeStepIndex = controls.intValue("activeStepIndex", 1).coerceIn(0, steps.lastIndex),
+                checkForFinish = controls.booleanValue("checkForFinish", false),
             )
         }
     }
@@ -2574,13 +3045,14 @@ fun ProgressStepperSection(controls: Map<String, String> = emptyMap()) {
 @Preview
 @Composable
 fun RatingSection(controls: Map<String, String> = emptyMap()) {
+    val max = controls.intValue("max", 5).coerceIn(1, 10)
     IenTheme {
-        var rating by remember(controls["rating"]) {
+        var rating by remember(controls["rating"], max) {
             mutableStateOf(
                 controls["rating"]?.toFloatOrNull()
                     ?.takeIf { it.isFinite() }
-                    ?.coerceIn(0f, 5f)
-                    ?: 3.8f,
+                    ?.coerceIn(0f, max.toFloat())
+                    ?: 3.8f.coerceAtMost(max.toFloat()),
             )
         }
         val size = IenRatingSize.entries.firstOrNull { it.name == controls.enumValue("size", "Medium") }
@@ -2592,6 +3064,7 @@ fun RatingSection(controls: Map<String, String> = emptyMap()) {
             IenRating(
                 value = rating,
                 onValueChange = { rating = it },
+                max = max,
                 size = size,
                 variant = variant,
                 readOnly = controls.booleanValue("readOnly", false),
@@ -2604,13 +3077,18 @@ fun RatingSection(controls: Map<String, String> = emptyMap()) {
 
 @Preview
 @Composable
-fun ResultSection() {
+fun ResultSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
         ComponentSection(title = "Result") {
             IenResult(
-                title = "처리 준비 완료",
-                description = "Result는 성공, 실패, 빈 상태 화면을 같은 정보 구조로 표현합니다.",
-                tone = IenResultTone.Success,
+                title = controls.textValue("title", "처리 준비 완료"),
+                description = controls.textValue(
+                    "description",
+                    "Result는 성공, 실패, 빈 상태 화면을 같은 정보 구조로 표현합니다.",
+                ).takeIf { controls.booleanValue("showDescription", true) },
+                tone = IenResultTone.entries.firstOrNull {
+                    it.name == controls.enumValue("tone", "Success")
+                } ?: IenResultTone.Success,
                 icon = {
                     Box(
                         modifier = Modifier
@@ -2619,11 +3097,14 @@ fun ResultSection() {
                             .background(IenTheme.colors.success),
                     )
                 },
-                primaryAction = {
+                primaryAction = if (controls.booleanValue("showPrimaryAction", true)) ({
                     IenButton(onClick = {}, size = IenButtonSize.Medium) {
                         Text("확인")
                     }
-                },
+                }) else null,
+                secondaryAction = if (controls.booleanValue("showSecondaryAction", false)) ({
+                    IenTextButton(onClick = {}) { Text("다시 시도") }
+                }) else null,
             )
         }
     }
@@ -2642,7 +3123,7 @@ fun SearchFieldSection(controls: Map<String, String> = emptyMap()) {
             IenSearchField(
                 value = search,
                 onValueChange = { search = it },
-                placeholder = "컴포넌트 검색",
+                placeholder = controls.textValue("placeholder", "검색어를 입력하세요"),
                 state = IenTextFieldState(enabled = !controls.disabledValue()),
             )
             IenSearchField(
@@ -2667,11 +3148,11 @@ fun SearchFieldSection(controls: Map<String, String> = emptyMap()) {
                         value = fixedSearch,
                         onValueChange = { fixedSearch = it },
                         placeholder = "상단 고정 검색",
-                        fixed = true,
-                        takeSpace = true,
+                        fixed = controls.booleanValue("fixed", true),
+                        takeSpace = controls.booleanValue("takeSpace", true),
                     )
                     Text(
-                        text = "fixed=true, takeSpace=true 예시입니다. 실제 화면에서는 Scaffold topBar 같은 고정 영역에 배치합니다.",
+                        text = "fixed=${controls.booleanValue("fixed", true)}, takeSpace=${controls.booleanValue("takeSpace", true)} 예시입니다. 실제 화면에서는 Scaffold topBar 같은 고정 영역에 배치합니다.",
                         modifier = Modifier.padding(horizontal = IenTheme.spacing.md),
                         style = IenTheme.typography.caption,
                         color = IenTheme.colors.textTertiary,
@@ -2692,7 +3173,8 @@ fun SearchFieldSection(controls: Map<String, String> = emptyMap()) {
 @Composable
 fun SegmentedControlSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
-        val selectedIndex = controls.intValue("selectedIndex", 0).coerceIn(0, 2)
+        val itemCount = controls.intValue("itemCount", 3).coerceIn(2, 5)
+        val selectedIndex = controls.intValue("selectedIndex", 0).coerceIn(0, itemCount - 1)
         val size = if (controls.enumValue("size", "Small") == "Large") {
             IenSegmentedControlSize.Large
         } else {
@@ -2704,7 +3186,7 @@ fun SegmentedControlSection(controls: Map<String, String> = emptyMap()) {
             IenSegmentedControlAlignment.Fixed
         }
         var selected by remember(selectedIndex) {
-            mutableStateOf(listOf("all", "progress", "done")[selectedIndex])
+            mutableStateOf(listOf("all", "progress", "done", "waiting", "failed")[selectedIndex])
         }
         ComponentSection(title = "SegmentedControl") {
             IenSegmentedControl(
@@ -2712,7 +3194,9 @@ fun SegmentedControlSection(controls: Map<String, String> = emptyMap()) {
                     IenSegmentedControlItem(value = "all", label = "전체"),
                     IenSegmentedControlItem(value = "progress", label = "진행"),
                     IenSegmentedControlItem(value = "done", label = "완료"),
-                ),
+                    IenSegmentedControlItem(value = "waiting", label = "대기"),
+                    IenSegmentedControlItem(value = "failed", label = "실패"),
+                ).take(itemCount),
                 value = selected,
                 onChange = { selected = it },
                 modifier = Modifier.fillMaxWidth(),
@@ -2730,12 +3214,27 @@ fun SkeletonSection(controls: Map<String, String> = emptyMap()) {
     val pattern = IenSkeletonPattern.entries.firstOrNull {
         it.name == controls.enumValue("pattern", "TopListWithIcon")
     } ?: IenSkeletonPattern.TopListWithIcon
+    val background = IenSkeletonBackground.entries.firstOrNull {
+        it.name == controls.enumValue("background", "Grey")
+    } ?: IenSkeletonBackground.Grey
+    val play = if (controls.enumValue("play", "Show") == "Hide") {
+        IenSkeletonPlay.Hide
+    } else {
+        IenSkeletonPlay.Show
+    }
+    val repeatCount = controls.intValue("repeatCount", 3).coerceIn(0, 8)
+    val height = controls.intValue("height", 0).coerceIn(0, 120).takeIf { it > 0 }?.dp
+    val radius = controls.intValue("radius", 8).coerceIn(0, 32).dp
     IenTheme {
         ComponentSection(title = "Skeleton") {
             IenSkeleton(
                 modifier = Modifier.fillMaxWidth(),
+                height = height,
+                radius = radius,
                 pattern = pattern,
-                repeatLastItemCount = IenSkeletonRepeat.Count(3),
+                background = background,
+                play = play,
+                repeatLastItemCount = IenSkeletonRepeat.Count(repeatCount),
             )
             if (!LocalComponentVariantShowcase.current) {
                 IenSkeleton(
@@ -2764,16 +3263,24 @@ fun SkeletonSection(controls: Map<String, String> = emptyMap()) {
 @Preview
 @Composable
 fun SliderSection(controls: Map<String, String> = emptyMap()) {
+    val rangeStart = controls.intValue("rangeStart", 0).coerceIn(0, 99) / 100f
+    val rangeEnd = maxOf(
+        controls.intValue("rangeEnd", 100).coerceIn(1, 100) / 100f,
+        rangeStart + 0.01f,
+    )
+    val valueRange = rangeStart..rangeEnd
     IenTheme {
-        var sliderValue by remember(controls["value"]) {
-            mutableStateOf(controls.intValue("value", 35).coerceIn(0, 100) / 100f)
+        var sliderValue by remember(controls["value"], rangeStart, rangeEnd) {
+            mutableStateOf((controls.intValue("value", 35) / 100f).coerceIn(valueRange))
         }
         ComponentSection(title = "Slider") {
             IenSlider(
-                value = sliderValue,
+                value = sliderValue.coerceIn(valueRange),
                 onValueChange = { sliderValue = it },
                 label = "비율",
                 valueLabel = "${(sliderValue * 100).toInt()}%",
+                steps = controls.intValue("steps", 0).coerceIn(0, 10),
+                valueRange = valueRange,
                 enabled = !controls.disabledValue(),
             )
         }
@@ -2782,7 +3289,11 @@ fun SliderSection(controls: Map<String, String> = emptyMap()) {
 
 @Preview
 @Composable
-fun SwipeBoxSection() {
+fun SwipeBoxSection(controls: Map<String, String> = emptyMap()) {
+    val itemWidth = controls.intValue("itemWidth", 96).coerceIn(56, 160).dp
+    val height = controls.intValue("height", 72).coerceIn(48, 120).dp
+    val fullSwipe = controls.booleanValue("fullSwipe", false)
+    val haptics = controls.booleanValue("haptics", true)
     IenTheme {
         var swipeActionCount by remember { mutableIntStateOf(0) }
         ComponentSection(title = "SwipeBox") {
@@ -2795,7 +3306,10 @@ fun SwipeBoxSection() {
                 IenSwipeBox(
                     modifier = Modifier
                         .fillMaxWidth(),
-//                        .height(72.dp)
+                    itemWidth = itemWidth,
+                    height = height,
+                    endToStartFullSwipeEnabled = fullSwipe,
+                    expansionHapticEnabled = haptics,
                     actionItemBuilder = {
                         end(key = "end-delete") {
                             IenSwipeBoxItem(
@@ -2819,7 +3333,10 @@ fun SwipeBoxSection() {
                 IenSwipeBox(
                     modifier = Modifier
                         .fillMaxWidth(),
-//                        .height(72.dp)
+                    itemWidth = itemWidth,
+                    height = height,
+                    startToEndFullSwipeEnabled = fullSwipe,
+                    expansionHapticEnabled = haptics,
                     actionItemBuilder = {
                         start(key = "start-complete") {
                             IenSwipeBoxItem(
@@ -2843,7 +3360,11 @@ fun SwipeBoxSection() {
                 IenSwipeBox(
                     modifier = Modifier
                         .fillMaxWidth(),
-//                        .height(72.dp)
+                    itemWidth = itemWidth,
+                    height = height,
+                    startToEndFullSwipeEnabled = fullSwipe,
+                    endToStartFullSwipeEnabled = fullSwipe,
+                    expansionHapticEnabled = haptics,
                     actionItemBuilder = {
                         start(key = "start-complete") {
                             IenSwipeBoxItem(
@@ -2910,18 +3431,22 @@ private fun SwipeBoxSampleContent(title: String) {
 
 @Preview
 @Composable
-fun StepperSection() {
+fun StepperSection(controls: Map<String, String> = emptyMap()) {
+    val textType = controls.enumValue("textType", "A")
     IenTheme {
         ComponentSection(title = "Stepper") {
             IenStepper(
                 modifier = Modifier.fillMaxWidth(),
-                staggerDelay = 0.12f,
+                play = controls.booleanValue("play", true),
+                delay = controls.floatValue("delay", 0f).coerceIn(0f, 1000f),
+                staggerDelay = controls.floatValue("staggerDelay", 0.12f).coerceIn(0f, 1000f),
             ) {
                 Row(
                     left = { IenStepperNumberIcon(number = 1) },
                     center = {
                         IenStepperTexts(
-                            type = IenStepperTextsType.A,
+                            type = IenStepperTextsType.entries.firstOrNull { it.name == textType }
+                                ?: IenStepperTextsType.A,
                             title = "IenStepperTextsType.A (label1)",
                             description = "body2 보통 본문 설명",
                         )
@@ -3085,7 +3610,7 @@ fun TabSection(controls: Map<String, String> = emptyMap()) {
                 onSelectedIndexChange = { tabSelected = it },
                 size = size,
                 fluid = fluid,
-                itemGap = if (fluid) 36.dp else 8.dp,
+                itemGap = controls.intValue("itemGap", if (fluid) 36 else 8).coerceIn(0, 32).dp,
                 modifier = Modifier.fillMaxWidth(),
                 ariaLabel = "주문 정보 탭",
             )
@@ -3095,13 +3620,20 @@ fun TabSection(controls: Map<String, String> = emptyMap()) {
 
 @Preview
 @Composable
-fun TableRowSection() {
+fun TableRowSection(controls: Map<String, String> = emptyMap()) {
+    val align = if (controls.enumValue("align", "SpaceBetween") == "Left") {
+        IenTableRowAlign.Left
+    } else {
+        IenTableRowAlign.SpaceBetween
+    }
+    val leftRatio = controls.intValue("leftRatio", 30).coerceIn(10, 90)
     IenTheme {
         ComponentSection(title = "TableRow") {
             IenTableRow(
-                left = "엔님",
-                right = "받는 분",
-                align = IenTableRowAlign.SpaceBetween,
+                left = controls.textValue("left", "엔님"),
+                right = controls.textValue("right", "받는 분"),
+                align = align,
+                leftRatio = leftRatio,
             )
             IenTableRow(
                 left = "아이엔",
@@ -3147,6 +3679,7 @@ fun TextButtonSection(controls: Map<String, String> = emptyMap()) {
             IenTextButton(
                 size = size,
                 variant = variant,
+                tone = controls.toneValue("tone", IenSemanticTone.Brand),
                 state = IenButtonState(enabled = !controls.disabledValue()),
                 onClick = {},
             ) {
@@ -3159,6 +3692,7 @@ fun TextButtonSection(controls: Map<String, String> = emptyMap()) {
 @Preview
 @Composable
 fun SnackbarSection(
+    controls: Map<String, String> = emptyMap(),
     onShowBasic: () -> Unit = {},
     onShowSuccess: () -> Unit = {},
     onShowAction: () -> Unit = {},
@@ -3170,6 +3704,11 @@ fun SnackbarSection(
 ) {
     IenTheme {
         ComponentSection(title = "Snackbar") {
+            Text(
+                text = "${controls.textValue("message", "기본 스낵바 메시지예요")} · ${controls.enumValue("tone", "Neutral")}",
+                style = IenTheme.typography.caption,
+                color = IenTheme.colors.textSecondary,
+            )
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
@@ -3222,6 +3761,7 @@ fun SnackbarSection(
 @Preview
 @Composable
 fun ToastSection(
+    controls: Map<String, String> = emptyMap(),
     onShowBasic: () -> Unit = {},
     onShowSuccess: () -> Unit = {},
     onShowLong: () -> Unit = {},
@@ -3229,6 +3769,11 @@ fun ToastSection(
 ) {
     IenTheme {
         ComponentSection(title = "Toast") {
+            Text(
+                text = "${controls.textValue("message", "기본 토스트 메시지예요")} · ${controls.enumValue("tone", "Neutral")}",
+                style = IenTheme.typography.caption,
+                color = IenTheme.colors.textSecondary,
+            )
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
@@ -3267,12 +3812,49 @@ fun TooltipSection(controls: Map<String, String> = emptyMap()) {
         "Right" -> IenTooltipPlacement.Right
         else -> IenTooltipPlacement.Top
     }
+    val messageAlign = if (controls.enumValue("messageAlign", "Left") == "Center") {
+        IenTooltipMessageAlign.Center
+    } else {
+        IenTooltipMessageAlign.Left
+    }
+    val motionVariant = if (controls.enumValue("motionVariant", "Weak") == "Strong") {
+        IenTooltipMotionVariant.Strong
+    } else {
+        IenTooltipMotionVariant.Weak
+    }
+    val strategy = IenTooltipStrategy.entries.firstOrNull {
+        it.name == controls.enumValue("strategy", "Absolute")
+    } ?: IenTooltipStrategy.Absolute
+    val clipToEnd = IenTooltipClipToEnd.entries.firstOrNull {
+        it.name == controls.enumValue("clipToEnd", "None")
+    } ?: IenTooltipClipToEnd.None
+    val tooltipText = controls.textValue("text", "툴팁은 짧은 보조 설명에 사용합니다.")
+    val anchorPosition = controls.intValue("anchorPosition", 50).coerceIn(0, 100) / 100f
+    val width = controls.intValue("width", 0).coerceIn(0, 320).takeIf { it > 0 }?.dp
+    val offset = controls.intValue("offset", 0).coerceIn(0, 32).takeIf { it > 0 }?.dp
+    val defaultOpen = controls.booleanValue("defaultOpen", false)
+    val openOnHover = controls.booleanValue("openOnHover", false)
+    val openOnFocus = controls.booleanValue("openOnFocus", false)
     if (LocalComponentVariantShowcase.current) {
         IenTheme {
             ComponentSection(title = "Tooltip") {
                 IenTooltip(
-                    text = "툴팁은 짧은 보조 설명에 사용합니다.",
+                    text = tooltipText,
                     placement = placement,
+                    messageAlign = messageAlign,
+                    motionVariant = motionVariant,
+                    strategy = strategy,
+                    clipToEnd = clipToEnd,
+                    anchorPositionByRatio = anchorPosition,
+                    offset = offset,
+                    width = width,
+                    defaultOpen = defaultOpen,
+                    openOnHover = openOnHover,
+                    openOnFocus = openOnFocus,
+                    tone = controls.toneValue("tone", IenSemanticTone.Neutral),
+                    dismissible = controls.booleanValue("dismissible", false),
+                    autoFlip = controls.booleanValue("autoFlip", false),
+                    fitContentWidth = controls.booleanValue("fitContentWidth", false),
                     anchor = { IenBadge("도움말", variant = IenBadgeVariant.Line) },
                 )
             }
@@ -3283,8 +3865,22 @@ fun TooltipSection(controls: Map<String, String> = emptyMap()) {
         var controlledTooltipOpen by remember { mutableStateOf(false) }
         ComponentSection(title = "Tooltip") {
             IenTooltip(
-                text = "툴팁은 짧은 보조 설명에 사용합니다.",
+                text = tooltipText,
                 placement = placement,
+                messageAlign = messageAlign,
+                motionVariant = motionVariant,
+                strategy = strategy,
+                clipToEnd = clipToEnd,
+                anchorPositionByRatio = anchorPosition,
+                offset = offset,
+                width = width,
+                defaultOpen = defaultOpen,
+                openOnHover = openOnHover,
+                openOnFocus = openOnFocus,
+                tone = controls.toneValue("tone", IenSemanticTone.Neutral),
+                dismissible = controls.booleanValue("dismissible", false),
+                autoFlip = controls.booleanValue("autoFlip", false),
+                fitContentWidth = controls.booleanValue("fitContentWidth", false),
                 anchor = { toggle -> IenBadge("도움말", variant = IenBadgeVariant.Line) },
             )
             IenTooltip(
@@ -3371,10 +3967,22 @@ fun TopSection(controls: Map<String, String> = emptyMap()) {
     val selectorType = IenTopSelectorType.entries.firstOrNull {
         it.name == controls.enumValue("selectorType", "Arrow")
     } ?: IenTopSelectorType.Arrow
+    val upperGap = controls.intValue("upperGap", 24).coerceIn(0, 48).dp
+    val lowerGap = controls.intValue("lowerGap", 24).coerceIn(0, 48).dp
+    val contentPadding = PaddingValues(
+        horizontal = controls.intValue("contentPadding", 24).coerceIn(0, 48).dp,
+        vertical = controls.intValue("contentPaddingVertical", 0).coerceIn(0, 48).dp,
+    )
+    val rightVerticalAlign = IenTopRightVerticalAlign.entries.firstOrNull {
+        it.name == controls.enumValue("rightVerticalAlign", "Center")
+    } ?: IenTopRightVerticalAlign.Center
     if (LocalComponentVariantShowcase.current) {
         IenTheme {
             ComponentSection(title = "Top") {
                 IenTop(
+                    upperGap = upperGap,
+                    lowerGap = lowerGap,
+                    contentPadding = contentPadding,
                     upper = {
                         IenTopSubtitleSelector(
                             text = "계좌 선택",
@@ -3384,41 +3992,46 @@ fun TopSection(controls: Map<String, String> = emptyMap()) {
                         )
                     },
                     title = {
-                        IenTopTitleParagraph("결제 확인", size = titleSize)
+                        IenTopTitleParagraph(controls.textValue("title", "결제 확인"), size = titleSize)
                     },
                     subtitleBottom = {
                         IenTopSubtitleParagraph(
-                            text = "타이틀과 보조 설명의 크기를 선택합니다.",
+                            text = controls.textValue("subtitle", "타이틀과 보조 설명의 크기를 선택합니다."),
                             size = subtitleSize,
                         )
                     },
+                    rightVerticalAlign = rightVerticalAlign,
                 )
             }
         }
         return
     }
-    IenTheme {
-        ComponentSection(title = "Top") {
-            IenTop(
-                title = {
-                    IenTopTitleParagraph("결제 확인", size = titleSize)
-                },
-                upper = {
-                    IenTopSubtitleSelector(
-                        text = "계좌 선택",
-                        onClick = {},
-                        type = selectorType,
-                        size = subtitleSize,
-                    )
-                },
-                subtitleBottom = {
-                    IenTopSubtitleParagraph(
-                        text = "Top은 화면 제목과 액션을 하나의 정보 구조로 묶습니다.",
-                        size = subtitleSize,
-                    )
-                },
-                right = { IenBadge("v4", size = IenBadgeSize.Small) },
-            )
+        IenTheme {
+            ComponentSection(title = "Top") {
+                IenTop(
+                    upperGap = upperGap,
+                    lowerGap = lowerGap,
+                    contentPadding = contentPadding,
+                    title = {
+                        IenTopTitleParagraph(controls.textValue("title", "결제 확인"), size = titleSize)
+                    },
+                    upper = {
+                        IenTopSubtitleSelector(
+                            text = "계좌 선택",
+                            onClick = {},
+                            type = selectorType,
+                            size = subtitleSize,
+                        )
+                    },
+                    subtitleBottom = {
+                        IenTopSubtitleParagraph(
+                            text = controls.textValue("subtitle", "타이틀과 보조 설명의 크기를 선택합니다."),
+                            size = subtitleSize,
+                        )
+                    },
+                    right = { IenBadge("v4", size = IenBadgeSize.Small) },
+                    rightVerticalAlign = rightVerticalAlign,
+                )
             IenTop(
                 upperGap = IenTheme.spacing.md,
                 lowerGap = IenTheme.spacing.md,
@@ -3955,9 +4568,15 @@ fun AssetSection(controls: Map<String, String> = emptyMap()) {
     } else {
         IenAssetFrameShape.Rounded
     }
+    val tone = controls.toneValue("tone", IenSemanticTone.Brand)
     IenTheme {
         ComponentSection(title = "Asset") {
-            IenAssetFrame(size = size, shape = shape, tone = IenSemanticTone.Brand) {
+            IenAssetFrame(
+                size = size,
+                shape = shape,
+                tone = tone,
+                bordered = controls.booleanValue("bordered", false),
+            ) {
                 Text("IEN")
             }
             if (!LocalComponentVariantShowcase.current) {
@@ -3995,6 +4614,11 @@ fun AssetSection(controls: Map<String, String> = emptyMap()) {
 @Composable
 fun BottomBarSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
+        val shape = if (controls.enumValue("shape", "Capsule") == "Rounded") {
+            ContinuousRoundedRectangle(IenTheme.radius.default)
+        } else {
+            ContinuousCapsule()
+        }
         ComponentSection(title = "BottomBar") {
             Text("기본 하단 바", style = IenTheme.typography.label1)
             IenBottomBar(
@@ -4035,6 +4659,10 @@ fun BottomBarSection(controls: Map<String, String> = emptyMap()) {
                         }
                     }
                 } else null,
+                containerColor = playgroundSurfaceColor(controls.enumValue("container", "surface")),
+                shape = shape,
+                elevation = controls.intValue("elevation", 8).coerceIn(0, 24).dp,
+                contentPadding = PaddingValues(controls.intValue("contentPadding", 8).coerceIn(0, 24).dp),
             )
         }
     }
@@ -4045,13 +4673,25 @@ fun BottomBarSection(controls: Map<String, String> = emptyMap()) {
 fun ChatBottomBarSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
         ComponentSection(title = "ChatBottomBar") {
-            ChatBottomBarExample(enabled = !controls.disabledValue())
+            ChatBottomBarExample(
+                enabled = !controls.disabledValue(),
+                placeholder = controls.textValue("placeholder", "메시지를 입력하세요"),
+                maxLines = controls.intValue("maxLines", 4).coerceIn(1, 8),
+                showLeading = controls.booleanValue("showLeading", true),
+                showTrailing = controls.booleanValue("showTrailing", true),
+            )
         }
     }
 }
 
 @Composable
-private fun ChatBottomBarExample(enabled: Boolean = true) {
+private fun ChatBottomBarExample(
+    enabled: Boolean = true,
+    placeholder: String = "메시지를 입력하세요",
+    maxLines: Int = 4,
+    showLeading: Boolean = true,
+    showTrailing: Boolean = true,
+) {
     var chatMessage by remember { mutableStateOf("") }
     var sentMessage by remember { mutableStateOf<String?>(null) }
 
@@ -4075,7 +4715,9 @@ private fun ChatBottomBarExample(enabled: Boolean = true) {
             sentMessage = chatMessage.trim()
             chatMessage = ""
         },
-        leadingContent = {
+        placeholder = placeholder,
+        maxLines = maxLines,
+        leadingContent = if (showLeading) ({
             IenIconButton(
                 onClick = {},
                 variant = IenButtonVariant.Ghost,
@@ -4086,8 +4728,8 @@ private fun ChatBottomBarExample(enabled: Boolean = true) {
                     contentDescription = "첨부",
                 )
             }
-        },
-        trailingContent = {
+        }) else null,
+        trailingContent = if (showTrailing) ({
             IenIconButton(
                 onClick = {},
                 variant = IenButtonVariant.Ghost,
@@ -4098,7 +4740,7 @@ private fun ChatBottomBarExample(enabled: Boolean = true) {
                     contentDescription = "더 보기",
                 )
             }
-        },
+        }) else null,
         inputState = IenTextFieldState(enabled = enabled),
         sendState = IenButtonState(enabled = enabled && chatMessage.isNotBlank()),
     )
@@ -4135,28 +4777,27 @@ fun NavigationBarSection(controls: Map<String, String> = emptyMap()) {
                 style = IenTheme.typography.caption,
                 color = IenTheme.colors.textSecondary,
             )
-            IenNavigationBar(
-                selectedIndex = selectedTabIndex.coerceIn(0, itemCount - 1),
-                itemCount = itemCount,
-                windowInsets = WindowInsets(0.dp),
-                visible = visible,
-            ) {
-                items.take(itemCount).forEachIndexed { index, (label, icon) ->
-                    IenNavigationBarItem(
-                        index = index,
-                        onClick = { selectedTabIndex = index },
-                        icon = { Icon(icon, contentDescription = null) },
-                        label = { Text(label) },
-                        direction = direction,
-                        alwaysShowLabel = alwaysShowLabel,
-                        enabled = enabled,
-                        badge = if (index == 1) badge else 0,
-                    )
+            if (controls.enumValue("type", "nav") == "nav") {
+                IenNavigationBar(
+                    selectedIndex = selectedTabIndex.coerceIn(0, itemCount - 1),
+                    itemCount = itemCount,
+                    windowInsets = WindowInsets(0.dp),
+                    visible = visible,
+                ) {
+                    items.take(itemCount).forEachIndexed { index, (label, icon) ->
+                        IenNavigationBarItem(
+                            index = index,
+                            onClick = { selectedTabIndex = index },
+                            icon = { Icon(icon, contentDescription = null) },
+                            label = { Text(label) },
+                            direction = direction,
+                            alwaysShowLabel = alwaysShowLabel,
+                            enabled = enabled,
+                            badge = if (index == 1) badge else 0,
+                        )
+                    }
                 }
-            }
-            if (!LocalComponentVariantShowcase.current) {
-                IenBorder()
-                Text("Type 2 (Floating)", style = IenTheme.typography.label2, color = IenTheme.colors.textSecondary)
+            } else {
                 val floatingTabItems = listOf(
                     IenTabItem("홈", key = "home", icon = M3SystemIcons.Rounded.RoundedKeyboard, selectedIcon = M3SystemIcons.Filled.FilledKeyboard, badge = -1, enabled = enabled),
                     IenTabItem("혜택", key = "benefit", icon = M3SystemIcons.Rounded.RoundedCheck, selectedIcon = M3SystemIcons.Filled.Check, badge = 1, enabled = enabled),
@@ -4199,6 +4840,38 @@ fun BottomCTASection(controls: Map<String, String> = emptyMap()) {
         var isLoadingCTA by remember(controls["loading"]) { mutableStateOf(controls.booleanValue("loading", false)) }
         val visible = controls.booleanValue("visible", true)
         val enabled = !controls.disabledValue()
+        val background = if (controls.enumValue("background", "Default") == "None") {
+            IenBottomCTABackground.None
+        } else {
+            IenBottomCTABackground.Default
+        }
+        val safeArea = controls.booleanValue("safeArea", true)
+        val paddingBottom = controls.booleanValue("paddingBottom", true)
+        val hideOnScroll = controls.booleanValue("hideOnScroll", false)
+        val hideOnScrollDistanceThreshold = controls.intValue("hideOnScrollDistanceThreshold", 1)
+            .coerceIn(0, 16)
+            .toFloat()
+        val fixedAboveKeyboard = controls.booleanValue("fixedAboveKeyboard", false)
+        val animation = when (controls.enumValue("animation", "Scale")) {
+            "Fade" -> IenBottomCTAAnimation.Fade
+            "Slide" -> IenBottomCTAAnimation.Slide
+            "Scale" -> IenBottomCTAAnimation.Scale
+            else -> null
+        }
+        val showAfterDelay = animation?.let {
+            IenBottomCTAShowAfterDelay(
+                animation = it,
+                delayMillis = controls.intValue("delayMillis", 300).coerceIn(0, 1000),
+            )
+        }
+        val takeSpace = controls.booleanValue("takeSpace", false)
+        val variant = when (controls.enumValue("variant", "Fill")) {
+            "Weak" -> IenButtonVariant.Weak
+            "Line" -> IenButtonVariant.Line
+            "Ghost" -> IenButtonVariant.Ghost
+            else -> IenButtonVariant.Fill
+        }
+        val tone = controls.toneValue("tone", IenSemanticTone.Brand)
         ComponentSection(title = "BottomCTA") {
             IenButton(
                 onClick = { isLoadingCTA = !isLoadingCTA },
@@ -4208,7 +4881,7 @@ fun BottomCTASection(controls: Map<String, String> = emptyMap()) {
                 Text(if (isLoadingCTA) "CTA 로딩 상태 해제" else "CTA 로딩 상태 활성화")
             }
             if (visible) IenBottomCTA(
-                text = "아이콘 포함 CTA",
+                text = controls.textValue("text", "아이콘 포함 CTA"),
                 onClick = {},
                 icon = {
                     IenIcon(
@@ -4218,11 +4891,21 @@ fun BottomCTASection(controls: Map<String, String> = emptyMap()) {
                     )
                 },
                 state = IenButtonState(enabled = enabled, loading = isLoadingCTA),
+                variant = variant,
+                tone = tone,
+                background = background,
+                hasSafeAreaPadding = safeArea,
+                hasPaddingBottom = paddingBottom,
             )
             if (visible) IenBottomCTA(
                 text = "단일 CTA",
                 onClick = {},
                 state = IenButtonState(enabled = enabled, loading = isLoadingCTA),
+                variant = variant,
+                tone = tone,
+                background = background,
+                hasSafeAreaPadding = safeArea,
+                hasPaddingBottom = paddingBottom,
                 topAccessory = {
                     Text(
                         text = "상단 액세서리: 결제 전 안내 문구",
@@ -4257,22 +4940,24 @@ fun BottomCTASection(controls: Map<String, String> = emptyMap()) {
                 text = "지연 등장 CTA",
                 onClick = {},
                 show = showAnimatedCTA,
-                showAfterDelay = IenBottomCTAShowAfterDelay(
-                    animation = IenBottomCTAAnimation.Scale,
-                    delayMillis = 300,
-                ),
-                hideOnScroll = true,
+                takeSpace = takeSpace,
+                showAfterDelay = showAfterDelay,
+                hideOnScroll = hideOnScroll,
+                hideOnScrollDistanceThreshold = hideOnScrollDistanceThreshold,
                 scrollDelta = if (showAnimatedCTA) 0f else 4f,
             )
             if (visible) IenDoubleBottomCTA(
-                primaryText = "확인",
+                primaryText = controls.textValue("primaryText", "확인"),
                 onPrimaryClick = {},
-                secondaryText = "취소",
+                secondaryText = controls.textValue("secondaryText", "취소"),
                 onSecondaryClick = {},
                 primaryState = IenButtonState(enabled = enabled),
                 secondaryState = IenButtonState(enabled = enabled),
-                primaryButtonWeight = 2f,
-                secondaryButtonWeight = 1f,
+                background = background,
+                hasSafeAreaPadding = safeArea,
+                hasPaddingBottom = paddingBottom,
+                primaryButtonWeight = controls.intValue("primaryButtonWeight", 2).coerceIn(1, 4).toFloat(),
+                secondaryButtonWeight = controls.intValue("secondaryButtonWeight", 1).coerceIn(1, 4).toFloat(),
                 topAccessory = {
                     Text(
                         text = "버튼 너비 비율: 부 버튼 1, 주 버튼 2",
@@ -4299,67 +4984,75 @@ fun BottomCTASection(controls: Map<String, String> = emptyMap()) {
                     )
                 },
             )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(176.dp)
-                    .background(IenTheme.colors.surfaceWeak),
-            ) {
-                Text(
-                    text = "FixedBottomCTA.Single",
+            if (controls.booleanValue("fixed", true)) {
+                Box(
                     modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(IenTheme.spacing.md),
-                    style = IenTheme.typography.caption,
-                    color = IenTheme.colors.textSecondary,
-                )
-                IenFixedBottomCTA(
-                    text = "고정 CTA",
-                    onClick = {},
-                    topAccessory = {
-                        Text(
-                            text = "fixedAboveKeyboard=true",
-                            style = IenTheme.typography.caption,
-                            color = IenTheme.colors.textSecondary,
-                        )
-                    },
-                    fixedAboveKeyboard = true,
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(176.dp)
-                    .background(IenTheme.colors.surfaceWeak),
-            ) {
-                Text(
-                    text = "FixedBottomCTA.Double · 비율 1:2",
+                        .fillMaxWidth()
+                        .height(176.dp)
+                        .background(IenTheme.colors.surfaceWeak),
+                ) {
+                    Text(
+                        text = "FixedBottomCTA.Single",
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(IenTheme.spacing.md),
+                        style = IenTheme.typography.caption,
+                        color = IenTheme.colors.textSecondary,
+                    )
+                    IenFixedBottomCTA(
+                        text = "고정 CTA",
+                        onClick = {},
+                        variant = variant,
+                        tone = tone,
+                        background = background,
+                        hasSafeAreaPadding = safeArea,
+                        hasPaddingBottom = paddingBottom,
+                        topAccessory = {
+                            Text(
+                                text = "fixedAboveKeyboard=$fixedAboveKeyboard",
+                                style = IenTheme.typography.caption,
+                                color = IenTheme.colors.textSecondary,
+                            )
+                        },
+                        fixedAboveKeyboard = fixedAboveKeyboard,
+                    )
+                }
+                Box(
                     modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(IenTheme.spacing.md),
-                    style = IenTheme.typography.caption,
-                    color = IenTheme.colors.textSecondary,
-                )
-                IenFixedDoubleBottomCTA(
-                    hideOnScroll = true,
-                    scrollDelta = 0f,
-                    leftButtonWeight = 1f,
-                    rightButtonWeight = 2f,
-                    leftButton = {
-                        IenBottomCTAButton(
-                            text = "취소",
-                            onClick = {},
-                            variant = IenButtonVariant.Weak,
-                            tone = IenSemanticTone.Neutral,
-                        )
-                    },
-                    rightButton = {
-                        IenBottomCTAButton(
-                            text = "확인",
-                            onClick = {},
-                        )
-                    },
-                )
+                        .fillMaxWidth()
+                        .height(176.dp)
+                        .background(IenTheme.colors.surfaceWeak),
+                ) {
+                    Text(
+                        text = "FixedBottomCTA.Double · 비율 1:2",
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(IenTheme.spacing.md),
+                        style = IenTheme.typography.caption,
+                        color = IenTheme.colors.textSecondary,
+                    )
+                    IenFixedDoubleBottomCTA(
+                        hideOnScroll = hideOnScroll,
+                        hideOnScrollDistanceThreshold = hideOnScrollDistanceThreshold,
+                        scrollDelta = 0f,
+                        leftButtonWeight = controls.intValue("secondaryButtonWeight", 1).coerceIn(1, 4).toFloat(),
+                        rightButtonWeight = controls.intValue("primaryButtonWeight", 2).coerceIn(1, 4).toFloat(),
+                        leftButton = {
+                            IenBottomCTAButton(
+                                text = controls.textValue("secondaryText", "취소"),
+                                onClick = {},
+                                variant = IenButtonVariant.Weak,
+                                tone = IenSemanticTone.Neutral,
+                            )
+                        },
+                        rightButton = {
+                            IenBottomCTAButton(
+                                text = controls.textValue("primaryText", "확인"),
+                                onClick = {},
+                            )
+                        },
+                    )
+                }
             }
         }
     }
@@ -4367,7 +5060,7 @@ fun BottomCTASection(controls: Map<String, String> = emptyMap()) {
 
 @Preview
 @Composable
-fun DialogSection() {
+fun DialogSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
         var showAlert by remember { mutableStateOf(false) }
         var showAlertWiggle by remember { mutableStateOf(false) }
@@ -4468,10 +5161,14 @@ fun DialogSection() {
 
         IenAlertDialog(
             visible = showAlert,
-            title = "엔님의 의견이\n잘 전달되었어요",
-            message = "소중한 의견을 바탕으로 더 간편한 서비스를 만들게요.",
+            title = controls.textValue("title", "엔님의 의견이 잘 전달되었어요"),
+            message = controls.textValue("message", "소중한 의견을 바탕으로 더 간편한 서비스를 만들게요."),
+            confirmText = controls.textValue("confirmText", "확인"),
             onDismissRequest = { showAlert = false },
             onConfirmClick = { showAlert = false },
+            tone = controls.toneValue("tone", IenSemanticTone.Brand),
+            closeOnDimmerClick = controls.booleanValue("closeOnDimmerClick", true),
+            closeOnBackEvent = controls.booleanValue("closeOnBackEvent", true),
             onEntered = { dialogEventText = "AlertDialog 열림" },
             onExited = { dialogEventText = "AlertDialog 닫힘" },
         )
@@ -4508,9 +5205,16 @@ fun DialogSection() {
             visible = showConfirm,
             title = "삭제할까요?",
             message = "ConfirmDialog는 사용자의 명시적인 결정을 받아야 하는 상황에 사용합니다.",
+            confirmText = controls.textValue("confirmText", "확인"),
+            dismissText = controls.textValue("dismissText", "취소"),
             onDismissRequest = { showConfirm = false },
             onConfirmClick = { showConfirm = false },
-            destructive = true,
+            destructive = controls.booleanValue("destructive", false),
+            closeOnDimmerClick = controls.booleanValue("closeOnDimmerClick", true),
+            closeOnBackEvent = controls.booleanValue("closeOnBackEvent", true),
+            buttonLayout = IenDialogButtonLayout.entries.firstOrNull {
+                it.name == controls.enumValue("buttonLayout", "Horizontal")
+            } ?: IenDialogButtonLayout.Horizontal,
         )
 
         IenConfirmDialog(
@@ -4551,11 +5255,11 @@ fun DialogSection() {
             title = "기본 Dialog",
             message = "IenDialog는 가장 단순한 확인/취소 구조를 제공합니다.",
             confirm = IenDialogAction(
-                text = "확인",
+                text = controls.textValue("confirmText", "확인"),
                 onClick = { showGenericDialog = false },
             ),
             dismiss = IenDialogAction(
-                text = "취소",
+                text = controls.textValue("dismissText", "취소"),
                 onClick = { showGenericDialog = false },
             ),
         )
@@ -4564,7 +5268,7 @@ fun DialogSection() {
             visible = showM3OneButton,
             title = "1버튼 알림",
             message = "기존 IenAlertDialog 단일 버튼 API가 IEN AlertDialog 디자인으로 표시됩니다.",
-            textDismiss = "확인",
+            textDismiss = controls.textValue("confirmText", "확인"),
             onDismiss = { showM3OneButton = false },
             tone = IenSemanticTone.Brand,
         )
@@ -4582,11 +5286,15 @@ fun DialogSection() {
             visible = showM3TwoButtonHorizontal,
             title = "2버튼 가로 배치",
             message = "buttonLayout 기본값은 Horizontal입니다.",
-            textDismiss = "취소",
+            textDismiss = controls.textValue("dismissText", "취소"),
             onDismiss = { showM3TwoButtonHorizontal = false },
-            textConfirm = "확인",
+            textConfirm = controls.textValue("confirmText", "확인"),
             onConfirm = { showM3TwoButtonHorizontal = false },
-            buttonLayout = IenDialogButtonLayout.Horizontal,
+            tone = controls.toneValue("tone", IenSemanticTone.Brand),
+            isDestructive = controls.booleanValue("destructive", false),
+            buttonLayout = IenDialogButtonLayout.entries.firstOrNull {
+                it.name == controls.enumValue("buttonLayout", "Horizontal")
+            } ?: IenDialogButtonLayout.Horizontal,
         )
 
         IenAlertDialog(
@@ -4651,6 +5359,8 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
             IenAlphabetKeypad(
                 onKeyClick = { alphabetValue += it },
                 onBackspaceClick = { alphabetValue = alphabetValue.dropLast(1) },
+                columns = controls.intValue("columns", 3).coerceIn(2, 6),
+                keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
                 enabled = enabled,
             )
             IenDivider()
@@ -4669,6 +5379,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 ),
                 onKeyClick = { customAlphabetValue += it },
                 onBackspaceClick = { customAlphabetValue = customAlphabetValue.dropLast(1) },
+                keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
                 enabled = enabled,
             )
             IenDivider()
@@ -4677,6 +5388,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 onAction = { action ->
                     alphabetValue = applyKeyboardAction(alphabetValue, action)
                 },
+                randomized = controls.booleanValue("randomized", false),
                 enabled = enabled,
             )
             IenDivider()
@@ -4684,6 +5396,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
             IenNumberKeypad(
                 onKeyClick = { numberValue += it },
                 onBackspaceClick = { numberValue = numberValue.dropLast(1) },
+                keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
                 enabled = enabled,
             )
             IenDivider()
@@ -4709,6 +5422,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 onSecureNoiseKeyClick = {
                     secureNoiseValue = (secureNoiseValue + it).takeLast(8)
                 },
+                keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
                 enabled = enabled,
             )
             IenDivider()
@@ -5034,6 +5748,21 @@ fun ListRowSection(controls: Map<String, String> = emptyMap()) {
 @Composable
 fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
     val enabled = !controls.disabledValue()
+    val required = controls.booleanValue("required", true)
+    val label = controls.textValue("label", "이름 · Required · LengthLimit.Error")
+    val placeholder = controls.textValue("placeholder", "이름을 입력하세요")
+    val labelOption = if (controls.enumValue("labelOption", "Appear") == "Sustain") {
+        IenTextFieldLabelOption.Sustain
+    } else {
+        IenTextFieldLabelOption.Appear
+    }
+    val lengthLimitCount = controls.intValue("lengthLimitCount", 3).coerceIn(1, 64)
+    val lengthLimit = when (controls.enumValue("lengthLimit", "Error")) {
+        "Block" -> IenTextFieldLengthLimit.Block(lengthLimitCount)
+        "None" -> IenTextFieldLengthLimit.None
+        else -> IenTextFieldLengthLimit.Error(lengthLimitCount)
+    }
+    val forceError = controls.booleanValue("hasError", false)
     val variant = IenTextFieldVariant.entries.firstOrNull {
         it.name == controls.enumValue("variant", "Box")
     } ?: IenTextFieldVariant.Box
@@ -5044,9 +5773,13 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
                 IenTextField(
                     value = value,
                     onValueChange = { value = it },
-                    label = "이름",
-                    placeholder = "이름을 입력하세요",
+                    label = label,
+                    required = required,
+                    labelOption = labelOption,
+                    placeholder = placeholder,
                     variant = variant,
+                    hasError = forceError,
+                    lengthLimit = lengthLimit,
                     state = IenTextFieldState(enabled = enabled),
                 )
             }
@@ -5077,14 +5810,19 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
             IenTextField(
                 value = text,
                 onValueChange = { text = it },
-                label = "이름 · Required · LengthLimit.Error",
-                required = true,
-                placeholder = "이름을 입력하세요",
+                label = label,
+                required = required,
+                labelOption = labelOption,
+                placeholder = placeholder,
                 variant = variant,
                 state = IenTextFieldState(enabled = enabled),
-                hasError = text.length >= 4,
-                help = if (text.length >= 4) "이름은 3글자 이하로 입력해주세요." else "값이 들어오거나 포커스되면 라벨이 나타납니다.",
-                lengthLimit = IenTextFieldLengthLimit.Error(3),
+                hasError = forceError || (lengthLimit is IenTextFieldLengthLimit.Error && text.length > lengthLimitCount),
+                help = if (forceError || text.length > lengthLimitCount) {
+                    "이름은 ${lengthLimitCount}글자 이하로 입력해주세요."
+                } else {
+                    "값이 들어오거나 포커스되면 라벨이 나타납니다."
+                },
+                lengthLimit = lengthLimit,
             )
             IenTextField(
                 value = number,
@@ -5180,6 +5918,8 @@ fun SplitTextFieldSection(controls: Map<String, String> = emptyMap()) {
                 value = splitText,
                 onValueChange = { splitText = it },
                 length = controls.intValue("fieldCount", 4).coerceIn(2, 8),
+                placeholderChar = controls.textValue("placeholderChar", "•").firstOrNull() ?: '•',
+                mask = controls.booleanValue("mask", false),
                 state = IenTextFieldState(enabled = !controls.disabledValue()),
             )
         }
@@ -5189,20 +5929,31 @@ fun SplitTextFieldSection(controls: Map<String, String> = emptyMap()) {
 @Preview
 @Composable
 fun TextAreaSection(controls: Map<String, String> = emptyMap()) {
+    val maxLines = controls.intValue("maxLines", 4).coerceIn(2, 12)
+    val minLines = controls.intValue("minLines", 2).coerceIn(1, maxLines)
+    val label = controls.textValue("label", "메모 · LengthLimit.Block")
+    val placeholder = controls.textValue("placeholder", "여러 줄 텍스트를 입력하세요")
+    val lengthLimitCount = controls.intValue("lengthLimitCount", 120).coerceIn(1, 500)
+    val lengthLimit = when (controls.enumValue("lengthLimit", "Block")) {
+        "None" -> IenTextFieldLengthLimit.None
+        "Error" -> IenTextFieldLengthLimit.Error(lengthLimitCount)
+        else -> IenTextFieldLengthLimit.Block(lengthLimitCount)
+    }
     IenTheme {
         var textArea by remember { mutableStateOf("") }
         ComponentSection(title = "TextArea") {
             IenTextArea(
                 value = textArea,
                 onValueChange = { textArea = it },
-                modifier = Modifier.height((controls.intValue("maxLines", 4).coerceIn(2, 12) * 48).dp),
-                label = "메모 · LengthLimit.Block",
-                placeholder = "여러 줄 텍스트를 입력하세요",
+                modifier = Modifier.height((maxLines * 48).dp),
+                label = label,
+                required = controls.booleanValue("required", true),
+                placeholder = placeholder,
                 supportingText = "TextArea는 TextField 토큰과 상태 모델을 공유합니다.",
                 state = IenTextFieldState(enabled = !controls.disabledValue()),
-                lengthLimit = IenTextFieldLengthLimit.Block(120),
-                minLines = 2,
-                maxLines = controls.intValue("maxLines", 4).coerceIn(2, 12),
+                lengthLimit = lengthLimit,
+                minLines = minLines,
+                maxLines = maxLines,
             )
         }
     }
@@ -5211,8 +5962,12 @@ fun TextAreaSection(controls: Map<String, String> = emptyMap()) {
 @Preview
 @Composable
 fun PrimitivesSection(controls: Map<String, String> = emptyMap()) {
-    val shape = if (controls.enumValue("shape", "Rounded") == "Circle") CircleShape else ContinuousRoundedRectangle(IenTheme.radius.default)
     IenTheme {
+        val shape = if (controls.enumValue("shape", "Rounded") == "Circle") {
+            CircleShape
+        } else {
+            ContinuousRoundedRectangle(IenTheme.radius.default)
+        }
         ComponentSection(title = "Primitives") {
             IenProvideTextStyle(
                 style = IenTheme.typography.label1,
@@ -5220,10 +5975,15 @@ fun PrimitivesSection(controls: Map<String, String> = emptyMap()) {
             ) {
                 Text("ProvideTextStyle 적용 텍스트", color = IenTheme.colors.brand)
             }
-            IenBorderBox {
+            IenBorderBox(
+                shape = shape,
+                color = playgroundToneColor(controls.enumValue("borderTone", "Neutral")),
+                width = controls.intValue("borderWidth", 1).coerceIn(1, 8).dp,
+            ) {
                 Text("BorderBox 프리미티브", color = IenTheme.colors.textSecondary)
             }
-            IenSurface(color = IenTheme.colors.brandWeak, shape = shape) {
+            IenDivider(thickness = controls.intValue("dividerThickness", 1).coerceIn(1, 8).dp)
+            IenSurface(color = playgroundSurfaceColor(controls.enumValue("surfaceColor", "brandWeak")), shape = shape) {
                 Text("${controls.enumValue("shape", "Rounded")} 표면", modifier = Modifier.padding(IenTheme.spacing.md), color = IenTheme.colors.brand)
             }
             if (!LocalComponentVariantShowcase.current) {

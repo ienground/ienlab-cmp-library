@@ -78,6 +78,7 @@ import zone.ien.utils.ui.foundation.resolveThemeColor
 import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 
 /**
  * 텍스트 필드의 상태(정상, 오류, 성공)를 표현하는 실드 인터페이스.
@@ -340,9 +341,13 @@ fun IenTextField(
         fieldDefaultVerticalPadding(variant)
     }
 
-    Column(modifier = modifier.semantics {
-        if (effectiveStatus is IenFieldStatus.Error) error(effectiveStatus.message)
-    }) {
+    Column(
+        modifier = modifier
+            .shakeOnDisabledClick(state.enabled)
+            .semantics {
+                if (effectiveStatus is IenFieldStatus.Error) error(effectiveStatus.message)
+            },
+    ) {
         if (label != null) {
             IenTextFieldLabel(
                 label = label,
@@ -1077,6 +1082,7 @@ fun IenSearchField(
     if (fixed) {
         Column(
             modifier = modifier
+                .shakeOnDisabledClick(state.enabled)
                 .fillMaxWidth()
                 .then(if (takeSpace) Modifier else Modifier)
                 .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
@@ -1084,7 +1090,7 @@ fun IenSearchField(
             field()
         }
     } else {
-        Box(modifier = modifier) {
+        Box(modifier = modifier.shakeOnDisabledClick(state.enabled)) {
             field()
         }
     }

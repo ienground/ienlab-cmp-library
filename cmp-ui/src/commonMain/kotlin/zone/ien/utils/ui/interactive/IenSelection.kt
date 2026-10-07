@@ -68,6 +68,7 @@ import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.drawIenBorder
 import zone.ien.utils.ui.utils.instantPress
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import kotlin.math.roundToInt
 
 /**
@@ -408,6 +409,7 @@ fun <T : Any> IenSegmentedControl(
                                     itemBounds = itemBounds + (item.value to bounds)
                                 }
                             }
+                            .shakeOnDisabledClick(itemEnabled)
                             .instantPress(itemEnabled) { pressed ->
                                 pressedValue = if (pressed) item.value else null
                             }

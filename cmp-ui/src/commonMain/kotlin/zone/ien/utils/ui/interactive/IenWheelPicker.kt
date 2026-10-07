@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -130,6 +131,7 @@ fun <T> IenWheelPicker(
 
     BoxWithConstraints(
         modifier = modifier
+            .shakeOnDisabledClick(enabled)
             .height(rowHeight * visibleItemCount)
             .clipToBounds()
             .alpha(if (enabled) 1f else IenTheme.state.disabledAlpha)

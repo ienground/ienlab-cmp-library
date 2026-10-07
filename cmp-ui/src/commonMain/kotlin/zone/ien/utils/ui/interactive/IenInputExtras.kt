@@ -95,6 +95,7 @@ import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.utils.instantPress
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -541,6 +542,7 @@ fun IenRating(
 
     Row(
         modifier = modifier
+            .shakeOnDisabledClick(!isDisabled)
             .onSizeChanged { rowSize = it }
             .ratingGesture(
                 enabled = interactive && valueChange != null,

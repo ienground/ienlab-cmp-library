@@ -103,6 +103,7 @@ import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
@@ -873,6 +874,7 @@ private fun StepperAction(
                     minWidth = IenTheme.state.minimumTouchTarget,
                     minHeight = IenTheme.state.minimumTouchTarget
                 )
+                .shakeOnDisabledClick(enabled)
                 .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
@@ -1074,6 +1076,7 @@ fun IenTab(
                                 itemBounds = itemBounds + (index to bounds)
                             }
                         }
+                        .shakeOnDisabledClick(item.enabled)
                         .clickable(
                             enabled = item.enabled,
                             role = Role.Tab,
@@ -1109,7 +1112,11 @@ fun IenTab(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Box(
-                                modifier = if (badge > 0) Modifier.weight(1f, fill = false) else Modifier,
+                                modifier = if (badge > 0 && !fluid) {
+                                    Modifier.weight(1f, fill = false)
+                                } else {
+                                    Modifier
+                                },
                                 contentAlignment = Alignment.Center,
                             ) {
                                 Text(

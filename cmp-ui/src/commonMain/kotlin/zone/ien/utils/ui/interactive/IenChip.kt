@@ -51,6 +51,7 @@ import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.drawIenBorder
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 
 /** Chip의 활성화 및 진행 상태를 정의합니다. */
 @Immutable
@@ -395,6 +396,7 @@ private fun IenChipContainer(
 
     Box(
         modifier = modifier
+            .shakeOnDisabledClick(state.isInteractive)
             .defaultMinSize(
                 minWidth = IenTheme.state.minimumTouchTarget,
                 minHeight = IenTheme.state.minimumTouchTarget,

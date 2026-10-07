@@ -35,6 +35,7 @@ import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.toneColor
 import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import zone.ien.utils.ui.window.disablePlatformDialogDim
 import zone.ien.utils.ui.window.ienOverlayDialogProperties
 import zone.ien.utils.ui.window.ienOverlayWindowSize
@@ -109,6 +110,7 @@ private fun IenMenuItemRow(item: IenMenuItem) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .shakeOnDisabledClick(item.enabled)
             .clickable(enabled = item.enabled, role = Role.Button, onClick = item.onClick)
             .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
         horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),

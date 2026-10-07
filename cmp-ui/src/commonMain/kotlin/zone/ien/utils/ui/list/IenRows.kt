@@ -43,6 +43,7 @@ import zone.ien.utils.icon.remix.RemixIcons
 import zone.ien.utils.icon.remix.line.ArrowRightS
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 
 /**
  * 리스트 행(Row)의 구분선 스타일을 정의하는 열거형 클래스입니다.
@@ -139,6 +140,7 @@ enum class IenListRowTextsType {
     TwoRowTypeD,
     TwoRowTypeE,
     TwoRowTypeF,
+    TwoRowTypeG,
     RightTwoRowTypeA,
     RightTwoRowTypeB,
     RightTwoRowTypeC,
@@ -206,6 +208,7 @@ fun IenListRow(
 
     Column(
         modifier = modifier
+            .shakeOnDisabledClick(enabled)
             .fillMaxWidth()
             .background(rowBackground)
             .then(
@@ -626,6 +629,7 @@ private val IenListRowTextsType.rowCount: Int
 
 @Composable
 private fun IenListRowTextsType.topStyle(): TextStyle = when (this) {
+    IenListRowTextsType.TwoRowTypeG -> IenTheme.typography.title2.copy(fontWeight = FontWeight.Bold)
     IenListRowTextsType.OneRowTypeB,
     IenListRowTextsType.OneRowTypeC,
     IenListRowTextsType.TwoRowTypeD,

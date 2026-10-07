@@ -1,11 +1,22 @@
 package zone.ien.utils.ui.utils
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.layout.offset
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 /**
  * 조건에 따라 Modifier를 적용하는 확장 함수
@@ -61,4 +72,39 @@ fun Modifier.instantPress(
     }
 } else {
     this
+}
+
+@Composable
+internal fun Modifier.shakeOnDisabledClick(enabled: Boolean): Modifier {
+    if (enabled) return this
+
+    val shakeOffset = remember { Animatable(0f) }
+    val coroutineScope = rememberCoroutineScope()
+    val shakeDistance = with(LocalDensity.current) { 6.dp.toPx() }
+
+    return this
+        .pointerInput(shakeDistance) {
+            awaitEachGesture {
+                awaitFirstDown(
+                    requireUnconsumed = false,
+                    pass = PointerEventPass.Initial,
+                )
+                coroutineScope.launch {
+                    shakeOffset.snapTo(0f)
+                    shakeOffset.animateTo(
+                        targetValue = 0f,
+                        animationSpec = keyframes {
+                            durationMillis = 200
+                            -shakeDistance at 30
+                            shakeDistance at 70
+                            -shakeDistance * 0.6f at 110
+                            shakeDistance * 0.6f at 150
+                            0f at 200
+                        },
+                    )
+                }
+                waitForUpOrCancellation(pass = PointerEventPass.Initial)
+            }
+        }
+        .offset { IntOffset(x = shakeOffset.value.roundToInt(), y = 0) }
 }

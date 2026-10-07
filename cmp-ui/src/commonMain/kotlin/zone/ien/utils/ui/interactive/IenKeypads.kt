@@ -36,6 +36,7 @@ import zone.ien.utils.cmp_ui.generated.resources.special
 import zone.ien.utils.cmp_ui.generated.resources.submit
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import kotlin.random.Random
 
 /**
@@ -727,6 +728,7 @@ private fun IenNumberKeypadDigitKey(
         Box(
             modifier = Modifier
                 .height(height)
+                .shakeOnDisabledClick(enabled)
                 .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
@@ -757,6 +759,7 @@ private fun IenNumberKeypadActionKey(
         Box(
             modifier = Modifier
                 .height(height)
+                .shakeOnDisabledClick(enabled)
                 .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
@@ -828,6 +831,7 @@ private fun IenFullSecureInputKey(
         Box(
             modifier = Modifier
                 .height(height)
+                .shakeOnDisabledClick(enabled)
                 .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
@@ -881,6 +885,7 @@ private fun IenFullSecureActionKey(
         Box(
             modifier = Modifier
                 .height(height)
+                .shakeOnDisabledClick(enabled)
                 .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
@@ -909,6 +914,7 @@ private fun KeyboardKey(
     ) {
         Box(
             modifier = Modifier
+                .shakeOnDisabledClick(enabled)
                 .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
                 .padding(vertical = IenTheme.spacing.sm),
             contentAlignment = Alignment.Center,
@@ -940,6 +946,7 @@ private fun IenKeypadKey(
         Box(
             modifier = Modifier
                 .height(height)
+                .shakeOnDisabledClick(enabled)
                 .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {

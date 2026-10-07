@@ -84,6 +84,7 @@ import zone.ien.utils.ui.interactive.IenBadge
 import zone.ien.utils.ui.interactive.IenBadgeSize
 import zone.ien.utils.ui.interactive.IenBadgeVariant
 import zone.ien.utils.ui.interactive.toneGradientBrush
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 
 // ─── CompositionLocals ───────────────────────────────────────────────────────
 
@@ -532,6 +533,7 @@ fun RowScope.IenNavigationBarItem(
     )
     val textColor by animateColorAsState(
         targetValue = when {
+            !enabled && selected -> colors.selectedTextColor.copy(alpha = IenTheme.state.disabledAlpha)
             !enabled -> colors.unselectedTextColor.copy(alpha = 0.38f)
             selected -> colors.selectedTextColor
             else -> colors.unselectedTextColor
@@ -573,6 +575,7 @@ fun RowScope.IenNavigationBarItem(
                 scaleX = pressScale
                 scaleY = pressScale
             }
+            .shakeOnDisabledClick(enabled)
             .clickable(
                 enabled = enabled,
                 indication = null,
@@ -732,6 +735,7 @@ private fun RowScope.IenNavigationBar2Item(
                 scaleX = itemScale * selectedBounce.value
                 scaleY = itemScale * selectedBounce.value
             }
+            .shakeOnDisabledClick(enabled)
             .clickable(
                 enabled = enabled,
                 role = Role.Tab,

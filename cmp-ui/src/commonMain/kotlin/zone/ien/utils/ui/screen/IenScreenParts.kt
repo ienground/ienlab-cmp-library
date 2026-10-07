@@ -134,6 +134,7 @@ import zone.ien.utils.ui.interactive.IenTextButtonVariant
 import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import zone.ien.utils.ui.view.resolveIenTooltipColors
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -2384,9 +2385,11 @@ fun IenAgreementText(
     )
     Row(
         modifier = modifier
+            .shakeOnDisabledClick(enabled)
             .then(
                 if (onPressEnd != null) {
                     Modifier.clickable(
+                        enabled = enabled,
                         interactionSource = interactionSource,
                         indication = null,
                         onClick = onPressEnd,

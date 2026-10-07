@@ -22,19 +22,13 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
@@ -43,6 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import kotlin.math.ceil
 
 /**
@@ -109,18 +104,11 @@ internal fun Modifier.drawIenBorder(border: BorderStroke, shape: Shape): Modifie
                     drawPath(path, border.brush)
                 }
             } else {
-                val outerMask = Path().apply {
-                    addRect(Rect(Offset.Zero, size))
-                    op(this, path, PathOperation.Difference)
-                }
-                val bitmap = ImageBitmap(ceil(size.width).toInt(), ceil(size.height).toInt())
-                CanvasDrawScope().draw(this, layoutDirection, Canvas(bitmap), size) {
-                    drawPath(path, border.brush, style = Stroke(width * 2f))
-                    drawPath(outerMask, Color.Black, blendMode = BlendMode.Clear)
-                }
                 onDrawWithContent {
                     drawContent()
-                    drawImage(bitmap)
+                    clipPath(path) {
+                        drawPath(path, border.brush, style = Stroke(width * 2f))
+                    }
                 }
             }
         }
@@ -265,6 +253,7 @@ fun IenClickable(
     Box(
         modifier = modifier
             .defaultMinSize(minWidth = IenTheme.state.minimumTouchTarget, minHeight = IenTheme.state.minimumTouchTarget)
+            .shakeOnDisabledClick(enabled)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,

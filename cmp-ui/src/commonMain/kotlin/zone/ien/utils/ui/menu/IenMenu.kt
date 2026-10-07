@@ -61,6 +61,7 @@ import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.utils.instantPress
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 
 @Composable
 internal fun IenAnimatedPopup(
@@ -908,6 +909,7 @@ object IenMenu {
             modifier = modifier
                 .fillMaxWidth()
                 .heightIn(min = 48.dp)
+                .shakeOnDisabledClick(enabled)
                 .instantPress(enabled = enabled) { isPressed = it }
                 .clickable(
                     interactionSource = interactionSource,

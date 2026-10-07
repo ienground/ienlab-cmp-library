@@ -75,6 +75,7 @@ import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.drawIenBorder
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 import zone.ien.utils.ui.utils.instantPress
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 
 /**
  * [IenButton]의 크기 규격을 정의하는 열거형 클래스.
@@ -1333,6 +1334,7 @@ internal fun IenButtonContainer(
     }
 
     val buttonModifier = modifier
+        .shakeOnDisabledClick(interactiveEnabled)
         .graphicsLayer {
             scaleX = scale
             scaleY = scale

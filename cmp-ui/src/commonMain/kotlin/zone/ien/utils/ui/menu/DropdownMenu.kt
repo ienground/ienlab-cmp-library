@@ -34,8 +34,9 @@ import androidx.compose.ui.window.PopupProperties
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.drawIenBorder
-import zone.ien.utils.ui.utils.conditional
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
+import zone.ien.utils.ui.utils.conditional
+import zone.ien.utils.ui.utils.shakeOnDisabledClick
 
 /**
  * 드롭다운 메뉴의 기본 팝업 속성입니다.
@@ -172,7 +173,9 @@ fun IenDropdownMenuItem(
     DropdownMenuItem(
         text = text,
         onClick = onClick,
-        modifier = modifier.conditional(shape != null) { shape?.let { clip(it) } ?: this },
+        modifier = modifier
+            .shakeOnDisabledClick(enabled)
+            .conditional(shape != null) { shape?.let { clip(it) } ?: this },
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
         enabled = enabled,
