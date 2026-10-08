@@ -35,7 +35,7 @@ import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.example.Android
 import zone.ien.utils.example.isIos
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.navigation.result.ResultStore
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.interactive.IenButtonSize
@@ -139,7 +139,7 @@ fun SectionScreen(
                                 tone = IenSemanticTone.Neutral,
                             ) {
                                 IenIcon(
-                                    imageVector = M3SystemIcons.Save,
+                                    imageVector = SystemIcons.Save,
                                     contentDescription = null
                                 )
                             }

@@ -22,7 +22,7 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.chat_message_placeholder
 import zone.ien.utils.cmp_ui.generated.resources.chat_send
-import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenFab
@@ -71,7 +71,7 @@ fun IenChatBottomBar(
     windowInsets: WindowInsets = IenBottomBarDefaults.windowInsets,
     sendButtonContent: @Composable () -> Unit = {
         IenIcon(
-            imageVector = M3SystemIcons.ArrowDropUp,
+            imageVector = SystemIcons.ArrowDropUp,
             contentDescription = stringResource(Res.string.chat_send),
         )
     },

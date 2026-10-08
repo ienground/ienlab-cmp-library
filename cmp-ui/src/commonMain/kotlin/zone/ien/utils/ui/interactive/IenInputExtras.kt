@@ -85,10 +85,10 @@ import zone.ien.utils.cmp_ui.generated.resources.number_spinner
 import zone.ien.utils.cmp_ui.generated.resources.rate_stars
 import zone.ien.utils.cmp_ui.generated.resources.rating_score
 import zone.ien.utils.cmp_ui.generated.resources.rating_value
-import zone.ien.utils.icon.remix.RemixIcons
-import zone.ien.utils.icon.remix.fill.Star
-import zone.ien.utils.icon.remix.fill.StarHalf
-import zone.ien.utils.icon.remix.line.Star
+import zone.ien.utils.icon.tabler.TablerIcons
+import zone.ien.utils.icon.tabler.fill.Star
+import zone.ien.utils.icon.tabler.fill.StarHalf
+import zone.ien.utils.icon.tabler.line.Star
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
@@ -757,9 +757,9 @@ private fun IenRatingStar(
         }
 
     val ratingIcon = when {
-        fillFraction >= 0.75f -> RemixIcons.Fill.Star
-        fillFraction >= 0.25f -> RemixIcons.Fill.StarHalf
-        else -> RemixIcons.Line.Star
+        fillFraction >= 0.75f -> TablerIcons.Fill.Star
+        fillFraction >= 0.25f -> TablerIcons.Fill.StarHalf
+        else -> TablerIcons.Line.Star
     }
     val glowColor = IenTheme.colors.brand
     val starBrush = toneGradientBrush(IenSemanticTone.Brand)

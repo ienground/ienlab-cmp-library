@@ -10,7 +10,7 @@ import zone.ien.utils.cmp_ui.generated.resources.save
 import zone.ien.utils.cmp_ui.generated.resources.save_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.save_dialog_title
 import org.jetbrains.compose.resources.stringResource
-import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.SystemIcons
 
 /**
  * IenSaveAlertDialog은 데이터 저장 확인을 위한 다이얼로그 컴포저블입니다.
@@ -38,7 +38,7 @@ fun IenSaveAlertDialog(
     IenAlertDialog(
         modifier = modifier,
         visible = visible,
-        icon = { Icon(imageVector = M3SystemIcons.Save, contentDescription = null) },
+        icon = { Icon(imageVector = SystemIcons.Save, contentDescription = null) },
         title = stringResource(Res.string.save_dialog_title),
         message = stringResource(Res.string.save_dialog_content),
         textNeutral = stringResource(Res.string.not_save),

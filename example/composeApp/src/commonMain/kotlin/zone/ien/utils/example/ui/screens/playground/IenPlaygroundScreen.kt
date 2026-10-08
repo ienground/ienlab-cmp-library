@@ -22,7 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.dialog.IenAlertDialog
 import zone.ien.utils.ui.dialog.IenDatePickerDialog
@@ -109,7 +109,7 @@ fun IenPlaygroundScreen(
                         onClick = { selectedNavIndex = 0 },
                         icon = {
                             IenIcon(
-                                imageVector = M3SystemIcons.Save,
+                                imageVector = SystemIcons.Save,
                                 contentDescription = null
                             )
                         },
@@ -120,7 +120,7 @@ fun IenPlaygroundScreen(
                         onClick = { selectedNavIndex = 1 },
                         icon = {
                             IenIcon(
-                                imageVector = M3SystemIcons.Edit,
+                                imageVector = SystemIcons.Edit,
                                 contentDescription = null
                             )
                         },
@@ -131,7 +131,7 @@ fun IenPlaygroundScreen(
                         onClick = { selectedNavIndex = 2 },
                         icon = {
                             IenIcon(
-                                imageVector = M3SystemIcons.Schedule,
+                                imageVector = SystemIcons.Schedule,
                                 contentDescription = null
                             )
                         },
@@ -306,7 +306,7 @@ fun IenPlaygroundScreen(
                                 icon = {
                                     content { modifier ->
                                         IenIcon(
-                                            imageVector = M3SystemIcons.Edit,
+                                            imageVector = SystemIcons.Edit,
                                             contentDescription = null,
                                             modifier = modifier,
                                         )

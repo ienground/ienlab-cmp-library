@@ -9,7 +9,7 @@ import zone.ien.utils.cmp_ui.generated.resources.close
 import zone.ien.utils.cmp_ui.generated.resources.network_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.network_dialog_title
 import zone.ien.utils.cmp_ui.generated.resources.retry
-import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.SystemIcons
 
 /**
  * IenNetworkAlertDialog은 네트워크 연결이 되지 않았을 때 표시하는 다이얼로그를 제공하는 컴포저블입니다.
@@ -27,7 +27,7 @@ fun IenNetworkAlertDialog(
     IenAlertDialog(
         modifier = modifier,
         visible = visible,
-        icon = { Icon(imageVector = M3SystemIcons.CloudOff, contentDescription = null) },
+        icon = { Icon(imageVector = SystemIcons.CloudOff, contentDescription = null) },
         title = stringResource(Res.string.network_dialog_title),
         message = stringResource(Res.string.network_dialog_content),
         textDismiss = stringResource(Res.string.close),

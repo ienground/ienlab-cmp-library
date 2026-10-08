@@ -2,39 +2,35 @@ package zone.ien.utils.icon
 
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.graphics.vector.ImageVector
 
 /**
- * 아이콘 스타일을 나타내는 열거형 클래스
- *
- * 이 열거형은 아이콘 표시에 사용할 수 있는 아이콘 스타일(Filled, Rounded, Sharp)을 정의합니다.
+ * UI에서 사용할 아이콘 종류와 형태입니다.
  */
-enum class IconStyle {
-    /**
-     * 채워진 아이콘 스타일
-     * 완전히 채워진 아이콘을 나타냅니다.
-     */
-    Filled,
+sealed interface IconStyle {
+    /** Tabler 아이콘을 사용합니다. */
+    data object Tabler : IconStyle
 
-    /**
-     * 라운드된 아이콘 스타일
-     * 모서리가 둥근 아이콘을 나타냅니다.
-     */
-    Rounded,
+    /** Material 아이콘의 형태입니다. */
+    enum class Material : IconStyle {
+        /** 채워진 아이콘입니다. */
+        Filled,
 
-    /**
-     * 샤프 아이콘 스타일
-     * 예각이 뾰족하고 선이 정확한 아이콘을 나타냅니다.
-     */
-    Sharp
+        /** 모서리가 둥근 아이콘입니다. */
+        Rounded,
+
+        /** 모서리가 뾰족한 아이콘입니다. */
+        Sharp
+    }
 }
 
 /**
- * 현재 아이콘 스타일을 정의하는 CompositionLocal
+ * 하위 컴포저블에서 사용할 아이콘 스타일을 제공합니다.
+ * 기본값은 [IconStyle.Material.Filled]입니다.
  *
- * 이 CompositionLocal은 전체 UI에서 사용되는 아이콘 스타일(Filled, Rounded, Sharp)을 정의합니다.
+ * 아이콘을 사용하는 컴포저블에서 현재 값을 읽어 사용할 아이콘을 선택할 수 있습니다.
  */
-val LocalIconStyle: ProvidableCompositionLocal<IconStyle> = staticCompositionLocalOf { IconStyle.Filled }
+val LocalIconStyle: ProvidableCompositionLocal<IconStyle> =
+    staticCompositionLocalOf { IconStyle.Material.Filled }
 
 /**
  * 뒤로 가기 버튼 아이콘을 정의하는 CompositionLocal

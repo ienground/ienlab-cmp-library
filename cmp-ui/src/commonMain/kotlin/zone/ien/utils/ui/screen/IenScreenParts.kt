@@ -152,11 +152,10 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.agreement_optional
 import zone.ien.utils.cmp_ui.generated.resources.agreement_required
 import zone.ien.utils.cmp_ui.generated.resources.agreement_terms
-import zone.ien.utils.icon.remix.RemixIcons
-import zone.ien.utils.icon.remix.line.ArrowDownWide
+import zone.ien.utils.icon.SystemIcons
+import zone.ien.utils.icon.tabler.TablerIcons
 import zone.ien.utils.ui.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.interactive.IenDotCheckbox
-import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 import zone.ien.utils.ui.window.ienTooltipPopupProperties
 
 internal val LocalIenTopBarFloatingSlotHiddenRequester = staticCompositionLocalOf<((Boolean) -> Unit)?> { null }
@@ -2496,7 +2495,7 @@ fun IenAgreementRightArrow(
         label = "ienAgreementRightArrowRotation",
     )
     Icon(
-        imageVector = RemixIcons.Line.ArrowDownWide,
+        imageVector = SystemIcons.ChevronDown,
         contentDescription = null,
         tint = IenTheme.colors.textDisabled,
         modifier = modifier

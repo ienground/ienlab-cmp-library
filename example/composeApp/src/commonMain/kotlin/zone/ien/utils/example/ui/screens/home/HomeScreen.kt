@@ -63,7 +63,7 @@ import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.navigation.result.ResultStore
 import zone.ien.utils.ui.interactive.IenButton
 import zone.ien.utils.ui.interactive.IenButtonDisplay
@@ -236,7 +236,7 @@ fun HomeScreen(
                             )
                             Icon(
                                 painter = AdaptiveIcons.painter(
-                                    material = { M3SystemIcons.ArrowDropDown },
+                                    material = { SystemIcons.ArrowDropDown },
                                     cupertino = { "chevron.down" }
                                 ),
                                 contentDescription = null

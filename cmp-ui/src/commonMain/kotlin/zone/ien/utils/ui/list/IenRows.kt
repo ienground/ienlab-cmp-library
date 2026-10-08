@@ -39,8 +39,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousCapsule
 import com.kyant.capsule.ContinuousRoundedRectangle
-import zone.ien.utils.icon.remix.RemixIcons
-import zone.ien.utils.icon.remix.line.ArrowRightS
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.utils.shakeOnDisabledClick
@@ -272,7 +271,7 @@ fun IenListRow(
                             LocalContentColor provides IenTheme.colors.textTertiary
                         ) {
                             Icon(
-                                imageVector = RemixIcons.Line.ArrowRightS,
+                                imageVector = SystemIcons.ChevronRight,
                                 contentDescription = null
                             )
                         }
