@@ -67,6 +67,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -1245,17 +1246,26 @@ sealed interface IenSkeletonElement {
     /**
      * 너비, 높이와 모양을 직접 지정하는 스켈레톤 블록입니다.
      *
-     * @property height 블록 높이
+     * @property height 블록 높이. 지정하면 typography보다 우선합니다.
      * @property width 지정한 경우 사용할 블록의 너비. null이면 modifier에 따라 너비를 정합니다.
      * @property shape 지정하면 기본 둥근 사각형 대신 사용할 모양
      * @property modifier 블록의 너비 비율 등 레이아웃 속성. width가 null이면 기본적으로 부모 너비를 채웁니다.
+     * @property typography 높이에 사용할 텍스트 스타일. lineHeight, fontSize 순서로 사용하며,
+     * 둘 다 미지정이면 테마 body2의 lineHeight를 사용합니다. height 또는 typography를 지정해야 합니다.
      */
     data class Block(
-        val height: Dp,
+        val height: Dp = Dp.Unspecified,
         val width: Dp? = null,
         val shape: Shape? = null,
         val modifier: Modifier = Modifier,
-    ) : IenSkeletonElement
+        val typography: TextStyle? = null,
+    ) : IenSkeletonElement {
+        init {
+            require(height != Dp.Unspecified || typography != null) {
+                "height 또는 typography를 지정해야 합니다."
+            }
+        }
+    }
     /**
      * 자식 요소를 가로로 배치하는 컨테이너입니다.
      *
@@ -1430,7 +1440,20 @@ private fun IenSkeletonElementView(
             modifier = element.modifier.then(
                 element.width?.let(Modifier::width) ?: Modifier.fillMaxWidth(),
             ),
-            height = element.height,
+            height = if (element.height != Dp.Unspecified) {
+                element.height
+            } else {
+                val typography = requireNotNull(element.typography)
+                val fontSize = typography.fontSize.takeIf { it.isSp }
+                    ?: IenTheme.typography.body2.fontSize
+                val lineHeight = when {
+                    typography.lineHeight.isSp -> typography.lineHeight
+                    typography.lineHeight.isEm -> fontSize * typography.lineHeight.value
+                    typography.fontSize.isSp -> typography.fontSize
+                    else -> IenTheme.typography.body2.lineHeight
+                }
+                with(LocalDensity.current) { lineHeight.toDp() }
+            },
             radius = radius,
             color = color,
             phase = phase,

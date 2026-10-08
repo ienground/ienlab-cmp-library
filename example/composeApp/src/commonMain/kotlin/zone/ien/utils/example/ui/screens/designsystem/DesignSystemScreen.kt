@@ -3355,7 +3355,7 @@ fun SkeletonSection(controls: Map<String, String> = emptyMap()) {
                                     verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                                     elements = listOf(
                                         IenSkeletonElement.Block(
-                                            height = 16.dp,
+                                            typography = IenTheme.typography.body2,
                                             modifier = Modifier.fillMaxWidth(0.7f),
                                         ),
                                         IenSkeletonElement.Block(width = 112.dp, height = 12.dp),

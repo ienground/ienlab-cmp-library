@@ -8,12 +8,11 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -41,6 +40,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousRoundedRectangle
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.pull_to_refresh_action
@@ -48,6 +48,7 @@ import zone.ien.utils.cmp_ui.generated.resources.pull_to_refresh_pulling
 import zone.ien.utils.cmp_ui.generated.resources.pull_to_refresh_ready
 import zone.ien.utils.cmp_ui.generated.resources.pull_to_refresh_refreshing
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.drawIenBorder
 
 /** Ien 당김 갱신의 기본 크기입니다. */
 object IenPullToRefreshDefaults {
@@ -154,6 +155,7 @@ fun IenPullToRefreshIndicator(
     val progress = if (isRefreshing) 1f else fraction.coerceAtMost(1f)
     val ready = isRefreshing || fraction >= 1f
     val colors = IenTheme.colors
+    val shape = ContinuousRoundedRectangle(IenTheme.radius.full)
     val readyProgress = animateFloatAsState(
         targetValue = if (ready) 1f else 0f,
         animationSpec = tween(
@@ -189,20 +191,22 @@ fun IenPullToRefreshIndicator(
                     (distance - 36.dp.toPx() + 8.dp.toPx()).coerceAtMost(8.dp.toPx())
             }
             .dropShadow(
-                shape = CircleShape,
+                shape = shape,
                 shadow = Shadow(
                     radius = 16.dp,
                     color = colors.textPrimary.copy(alpha = .08f),
                     offset = DpOffset(0.dp, 4.dp),
                 ),
             )
-            .clip(CircleShape)
-            .background(lerp(containerColor, colors.brandWeak, readyProgress.value), CircleShape)
-            .border(
-                IenTheme.stroke.thin,
-                lerp(colors.border, colors.brandWeak, readyProgress.value),
-                CircleShape,
+            .drawIenBorder(
+                BorderStroke(
+                    IenTheme.stroke.thin,
+                    lerp(colors.border, colors.brandWeak, readyProgress.value),
+                ),
+                shape,
             )
+            .clip(shape)
+            .background(lerp(containerColor, colors.brandWeak, readyProgress.value), shape)
             .semantics {
                 liveRegion = LiveRegionMode.Polite
                 stateDescription = description
