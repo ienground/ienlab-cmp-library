@@ -139,7 +139,6 @@ import zone.ien.utils.ui.view.resolveIenTooltipColors
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Icon
 import androidx.compose.ui.text.style.LineBreak
 import com.kyant.backdrop.drawPlainBackdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
@@ -157,6 +156,7 @@ import zone.ien.utils.icon.tabler.TablerIcons
 import zone.ien.utils.ui.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.interactive.IenDotCheckbox
 import zone.ien.utils.ui.window.ienTooltipPopupProperties
+import zone.ien.utils.ui.primitives.IenIcon
 
 internal val LocalIenTopBarFloatingSlotHiddenRequester = staticCompositionLocalOf<((Boolean) -> Unit)?> { null }
 
@@ -2494,7 +2494,7 @@ fun IenAgreementRightArrow(
         animationSpec = tween(durationMillis = IenTheme.motion.fastMillis, easing = IenTheme.motion.standardEasing),
         label = "ienAgreementRightArrowRotation",
     )
-    Icon(
+    IenIcon(
         imageVector = SystemIcons.ChevronDown,
         contentDescription = null,
         tint = IenTheme.colors.textDisabled,

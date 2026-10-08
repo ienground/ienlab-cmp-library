@@ -36,6 +36,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import kotlin.math.ceil
@@ -180,6 +181,42 @@ fun IenIcon(
         tint = tint,
         modifier = modifier.size(size),
     )
+}
+
+/**
+ * 아이콘 데이터([icon])에 포함된 벡터 또는 페인터를 렌더링합니다.
+ *
+ * @param icon 화면에 그릴 아이콘 데이터
+ * @param contentDescription 시각장애인 접근성을 위한 스크린 리더용 설명문
+ * @param modifier 적용할 [Modifier]
+ * @param tint 아이콘 문양에 칠할 전경색
+ * @param size 아이콘의 전체 크기 ([Dp])
+ */
+@Composable
+fun IenIcon(
+    icon: IconData,
+    contentDescription: String? = null,
+    modifier: Modifier = Modifier,
+    tint: Color = LocalContentColor.current,
+    size: Dp = IenTheme.icon.md,
+) {
+    when (icon) {
+        is IconData.Vector -> IenIcon(
+            imageVector = icon.imageVector,
+            contentDescription = contentDescription,
+            modifier = modifier,
+            tint = tint,
+            size = size,
+        )
+
+        is IconData.Paint -> IenIcon(
+            painter = icon.painter,
+            contentDescription = contentDescription,
+            modifier = modifier,
+            tint = tint,
+            size = size,
+        )
+    }
 }
 
 /**

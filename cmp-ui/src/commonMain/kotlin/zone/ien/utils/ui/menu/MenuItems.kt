@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -35,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
-import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
@@ -50,6 +48,7 @@ import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.screen.LocalIenTopBarFloatingSlotHiddenRequester
 import zone.ien.utils.ui.view.IenTooltipBox
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
+import zone.ien.utils.ui.primitives.IenIcon
 
 /**
  * IenActionsMenu는 액션 메뉴를 표시하기 위한 컴포저블입니다.
@@ -103,7 +102,7 @@ fun IenActionsMenu(
                 left = if (item is ActionMenuItem.IconMenuItem) {
                     item.icon?.let {
                         {
-                            ComplexIcon(
+                            IenIcon(
                                 icon = it,
                                 contentDescription = item.title
                             )
@@ -188,7 +187,7 @@ fun IenActionsMenu(
                                         label = "menu_icon"
                                     ) { targetIcon ->
                                         targetIcon?.let {
-                                            ComplexIcon(
+                                            IenIcon(
                                                 icon = it,
                                                 contentDescription = item.title,
                                                 modifier = Modifier
@@ -230,7 +229,7 @@ fun IenActionsMenu(
                         variant = IenButtonVariant.Ghost,
                         tone = IenSemanticTone.Neutral,
                     ) {
-                        Icon(
+                        IenIcon(
                             imageVector = SystemIcons.MoreVert,
                             contentDescription = stringResource(Res.string.more_options),
                         )

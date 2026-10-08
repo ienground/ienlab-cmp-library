@@ -33,7 +33,6 @@ import zone.ien.utils.ui.content.IenCard
 import zone.ien.utils.ui.content.IenCardDefaults
 import zone.ien.utils.ui.content.IenCardVariant
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -242,7 +241,7 @@ fun HomeScreen(
                             Text(
                                 text = "Hi",
                             )
-                            Icon(
+                            IenIcon(
                                 painter = AdaptiveIcons.painter(
                                     material = { SystemIcons.ArrowDropDown },
                                     cupertino = { "chevron.down" }

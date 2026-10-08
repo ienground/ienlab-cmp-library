@@ -47,10 +47,10 @@ import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.utils.rememberDefaultBackdrop
-import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.menu.IenMenu
+import zone.ien.utils.ui.primitives.IenIcon
 
 /**
  * 적응형 드롭다운 박스 컴포저블
@@ -378,7 +378,7 @@ private fun CupertinoMenuScope.ActionToUIMenu(action: DropdownMenuSection.Action
 private fun DropdownMenuSectionNative.Action.IenMenuItem() = IenMenu.DropdownItem(
     onClick = onClick,
     modifier = modifier,
-    left = icon?.let { { ComplexIcon(icon = it) } },
+    left = icon?.let { { IenIcon(icon = it) } },
     enabled = enabled,
 ) {
     Text(

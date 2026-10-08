@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,6 +42,7 @@ import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.utils.shakeOnDisabledClick
+import zone.ien.utils.ui.primitives.IenIcon
 
 /**
  * 리스트 행(Row)의 구분선 스타일을 정의하는 열거형 클래스입니다.
@@ -270,7 +270,7 @@ fun IenListRow(
                         CompositionLocalProvider(
                             LocalContentColor provides IenTheme.colors.textTertiary
                         ) {
-                            Icon(
+                            IenIcon(
                                 imageVector = SystemIcons.ChevronRight,
                                 contentDescription = null
                             )

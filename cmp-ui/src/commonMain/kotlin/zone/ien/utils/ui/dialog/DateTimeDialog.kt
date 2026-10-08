@@ -14,7 +14,6 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimeInput
@@ -44,6 +43,7 @@ import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.utils.rememberMyDatePickerState
+import zone.ien.utils.ui.primitives.IenIcon
 
 /**
  * IenDatePickerDialog은 날짜 선택 다이얼로그를 제공하는 컴포저블입니다.
@@ -205,7 +205,7 @@ fun IenTimePickerDialog(
                         targetState = if (isTimePickerDial) SystemIcons.Keyboard else SystemIcons.Schedule,
                         label = "time_picker_dial"
                     ) {
-                        Icon(
+                        IenIcon(
                             imageVector = it,
                             contentDescription = "",
                             tint = IenTheme.colors.textPrimary

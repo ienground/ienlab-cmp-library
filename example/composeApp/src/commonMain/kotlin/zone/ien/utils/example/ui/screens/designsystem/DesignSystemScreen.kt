@@ -26,7 +26,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -4839,7 +4838,7 @@ fun NavigationBarSection(controls: Map<String, String> = emptyMap()) {
                         IenNavigationBarItem(
                             index = index,
                             onClick = { selectedTabIndex = index },
-                            icon = { Icon(icon, contentDescription = null) },
+                            icon = { IenIcon(icon, contentDescription = null) },
                             label = { Text(label) },
                             direction = direction,
                             alwaysShowLabel = alwaysShowLabel,
@@ -4866,9 +4865,9 @@ fun NavigationBarSection(controls: Map<String, String> = emptyMap()) {
                         IenNavigationBarItem(
                             index = index,
                             onClick = { selectedTabIndex = index },
-                            icon = { item.icon?.let { Icon(it, contentDescription = null) } },
+                            icon = { item.icon?.let { IenIcon(it, contentDescription = null) } },
                             selectedIcon = item.selectedIcon?.let { selectedIcon ->
-                                { Icon(selectedIcon, contentDescription = null) }
+                                { IenIcon(selectedIcon, contentDescription = null) }
                             },
                             label = { Text(item.text) },
                             direction = direction,

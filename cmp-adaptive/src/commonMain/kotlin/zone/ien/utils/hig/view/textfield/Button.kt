@@ -24,9 +24,9 @@ import zone.ien.hig.CupertinoButtonSize
 import zone.ien.hig.CupertinoIconDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.theme.CupertinoTheme
-import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.IconData
+import zone.ien.utils.ui.primitives.IenIcon
 
 /**
  * HIG 텍스트 필드 아이콘 버튼 컴포저블
@@ -77,7 +77,7 @@ fun HigTextFieldIconButton(
                     enter = fadeIn(tween(700)),
                     exit = fadeOut(tween(700))
                 ) {
-                    ComplexIcon(
+                    IenIcon(
                         icon = icon,
                         contentDescription = contentDescription,
                         modifier = Modifier.size(CupertinoIconDefaults.MediumSize),

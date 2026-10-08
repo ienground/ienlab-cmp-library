@@ -18,7 +18,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -50,7 +49,6 @@ import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.theme.CupertinoTheme
-import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.LocalBackButtonIcon
 import zone.ien.utils.icon.LocalButtonProviderDefault
@@ -76,6 +74,7 @@ import zone.ien.utils.ui.interactive.IenToggleButtonDefault
 import zone.ien.utils.ui.interactive.IenToggleButtonShapes
 import zone.ien.utils.ui.interactive.IenToggleButtonVariants
 import zone.ien.utils.ui.screen.IenBackButton
+import zone.ien.utils.ui.primitives.IenIcon
 
 /**
  * 현재 플랫폼에 맞는 버튼 구현을 선택하는 적응형 기본 버튼 컴포저블입니다.
@@ -1276,7 +1275,7 @@ fun AdaptiveBackButton(
                     isBackgroundAdaptive = isBackgroundAdaptive,
                     onClick = onClick
                 ) {
-                    ComplexIcon(
+                    IenIcon(
                         icon = icon,
                         contentDescription = null
                     )

@@ -15,7 +15,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.clearText
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
@@ -73,6 +72,7 @@ import zone.ien.utils.ui.section.IenSectionSwitchItem
 import zone.ien.utils.ui.section.IenSectionTextField
 import zone.ien.utils.ui.feedback.IenLinearProgressIndicator
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenIcon
 
 /**
  * 적응형 섹션 항목 컴포저블
@@ -988,7 +988,7 @@ fun SectionScope.AdaptiveSectionSlider(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         it.startIcon?.let {
-                            Icon(
+                            IenIcon(
                                 imageVector = it,
                                 contentDescription = null,
                             )
@@ -1003,7 +1003,7 @@ fun SectionScope.AdaptiveSectionSlider(
                             modifier = Modifier.weight(1f)
                         )
                         it.endIcon?.let {
-                            Icon(
+                            IenIcon(
                                 imageVector = it,
                                 contentDescription = null,
                             )

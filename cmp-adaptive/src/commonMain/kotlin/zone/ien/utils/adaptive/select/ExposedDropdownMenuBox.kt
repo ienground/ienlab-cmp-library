@@ -1,12 +1,12 @@
 package zone.ien.utils.adaptive.select
 
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.menu.IenMenu
 import zone.ien.utils.ui.view.textfield.IenTextFieldIconButton
+import zone.ien.utils.ui.primitives.IenIcon
 
 /**
  * iOS와 Android 플랫폼 간에 서로 다른 구현을 제공하는 드롭다운 메뉴 박스 컴포저블.
@@ -86,7 +86,7 @@ expect fun <T> ExposedDropdownMenuBox(
     ) -> Unit = { text, onClick, checked ->
         IenMenu.DropdownItem(
             onClick = onClick,
-            left = if (checked) { { Icon(imageVector = SystemIcons.Check, contentDescription = null) } } else null,
+            left = if (checked) { { IenIcon(imageVector = SystemIcons.Check, contentDescription = null) } } else null,
             content = text,
         )
     },
