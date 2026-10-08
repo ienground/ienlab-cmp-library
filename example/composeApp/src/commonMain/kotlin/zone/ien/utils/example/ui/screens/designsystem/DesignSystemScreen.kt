@@ -82,7 +82,15 @@ import zone.ien.utils.ui.dialog.IenConfirmDialog
 import zone.ien.utils.ui.dialog.IenConfirmDialogCancelButton
 import zone.ien.utils.ui.dialog.IenConfirmDialogConfirmButton
 import zone.ien.utils.ui.dialog.IenConfirmDialogTitle
+import zone.ien.utils.ui.dialog.IenDatePickerDialog
+import zone.ien.utils.ui.dialog.IenDeleteAlertDialog
 import zone.ien.utils.ui.dialog.IenDialogButtonLayout
+import zone.ien.utils.ui.dialog.IenNetworkAlertDialog
+import zone.ien.utils.ui.dialog.IenProgressDialog
+import zone.ien.utils.ui.dialog.IenSaveAlertDialog
+import zone.ien.utils.ui.dialog.IenTextFieldDialog
+import zone.ien.utils.ui.dialog.IenTimePickerDialog
+import zone.ien.utils.ui.dialog.IenUpdateAlertDialog
 import zone.ien.utils.ui.feedback.IenBottomSheet
 import zone.ien.utils.ui.feedback.IenBottomSheetOption
 import zone.ien.utils.ui.feedback.IenBottomSheetSelect
@@ -296,6 +304,7 @@ import zone.ien.utils.ui.screen.IenTopTitleSelector
 import zone.ien.utils.ui.screen.IenTopTitleSize
 import zone.ien.utils.ui.screen.IenTopTitleTextButton
 import zone.ien.utils.ui.screen.IenTopUpperAssetContent
+import zone.ien.utils.ui.utils.TextFieldDialogData
 import zone.ien.utils.ui.view.IenEmpty
 import zone.ien.utils.ui.view.IenNavigationBar
 import zone.ien.utils.ui.view.IenNavigationBar2
@@ -1695,6 +1704,14 @@ internal fun DesignSystemComponentPreview(
         "navigation-bar" -> NavigationBarSection(controlValues)
         "bottom-cta" -> BottomCTASection(controlValues)
         "dialog", "alert-dialog" -> DialogSection(controlValues)
+        "save-alert-dialog" -> DialogSection(controlValues)
+        "delete-alert-dialog" -> DialogSection(controlValues)
+        "update-alert-dialog" -> DialogSection(controlValues)
+        "network-alert-dialog" -> DialogSection(controlValues)
+        "progress-dialog" -> DialogSection(controlValues)
+        "date-picker-dialog" -> DialogSection(controlValues)
+        "time-picker-dialog" -> DialogSection(controlValues)
+        "text-field-dialog" -> DialogSection(controlValues)
         "keypad" -> KeypadSection(controlValues)
         "list-row" -> ListRowSection(controlValues)
         "text-field" -> TextFieldSection(controlValues)
@@ -5253,6 +5270,14 @@ fun DialogSection(controls: Map<String, String> = emptyMap()) {
         var showM3TwoButtonVerticalDestructive by remember { mutableStateOf(false) }
         var showM3ThreeButtonHorizontal by remember { mutableStateOf(false) }
         var showM3ThreeButtonVerticalDestructive by remember { mutableStateOf(false) }
+        var showSaveDialog by remember { mutableStateOf(false) }
+        var showDeleteDialog by remember { mutableStateOf(false) }
+        var showUpdateDialog by remember { mutableStateOf(false) }
+        var showNetworkDialog by remember { mutableStateOf(false) }
+        var showProgressDialog by remember { mutableStateOf(false) }
+        var showDatePickerDialog by remember { mutableStateOf(false) }
+        var showTimePickerDialog by remember { mutableStateOf(false) }
+        var showTextFieldDialog by remember { mutableStateOf(false) }
         var dialogEventText by remember { mutableStateOf("대기 중") }
 
         ComponentSection(title = "Dialog") {
@@ -5330,6 +5355,52 @@ fun DialogSection(controls: Map<String, String> = emptyMap()) {
                 variant = IenButtonVariant.Ghost,
                 tone = IenSemanticTone.Danger,
             ) { Text("M3 3버튼 Vertical destructive") }
+            Text(
+                text = "미리 만들어진 cmp-ui Dialog",
+                style = IenTheme.typography.label1,
+                color = IenTheme.colors.textSecondary,
+            )
+            IenButton(
+                onClick = { showSaveDialog = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Weak,
+            ) { Text("저장 확인 Dialog") }
+            IenButton(
+                onClick = { showDeleteDialog = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Line,
+                tone = IenSemanticTone.Danger,
+            ) { Text("삭제 확인 Dialog") }
+            IenButton(
+                onClick = { showUpdateDialog = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Weak,
+            ) { Text("앱 업데이트 Dialog") }
+            IenButton(
+                onClick = { showNetworkDialog = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Ghost,
+            ) { Text("네트워크 오류 Dialog") }
+            IenButton(
+                onClick = { showProgressDialog = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Line,
+            ) { Text("진행 상태 Dialog") }
+            IenButton(
+                onClick = { showDatePickerDialog = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Weak,
+            ) { Text("날짜 선택 Dialog") }
+            IenButton(
+                onClick = { showTimePickerDialog = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Weak,
+            ) { Text("시간 선택 Dialog") }
+            IenButton(
+                onClick = { showTextFieldDialog = true },
+                display = IenButtonDisplay.Block,
+                variant = IenButtonVariant.Line,
+            ) { Text("텍스트 입력 Dialog") }
             Text(
                 text = "이벤트: $dialogEventText",
                 style = IenTheme.typography.caption,
@@ -5512,6 +5583,82 @@ fun DialogSection(controls: Map<String, String> = emptyMap()) {
             onPositive = { showM3ThreeButtonVerticalDestructive = false },
             isDestructive = true,
             buttonLayout = IenDialogButtonLayout.Vertical,
+        )
+
+        IenSaveAlertDialog(
+            visible = showSaveDialog,
+            onCancel = { showSaveDialog = false },
+            onUnsave = { showSaveDialog = false },
+            onSave = { showSaveDialog = false },
+        )
+
+        IenDeleteAlertDialog(
+            visible = showDeleteDialog,
+            onDismiss = { showDeleteDialog = false },
+            onConfirm = { showDeleteDialog = false },
+        )
+
+        IenUpdateAlertDialog(
+            visible = showUpdateDialog,
+            appName = "IENLAB",
+            onDismiss = { showUpdateDialog = false },
+        )
+
+        IenNetworkAlertDialog(
+            visible = showNetworkDialog,
+            onDismiss = { showNetworkDialog = false },
+        )
+
+        IenProgressDialog(
+            visible = showProgressDialog,
+            isLoadingIndicator = false,
+            isWavyIndicator = true,
+        )
+        LaunchedEffect(showProgressDialog) {
+            if (showProgressDialog) {
+                delay(2000)
+                showProgressDialog = false
+            }
+        }
+
+        IenDatePickerDialog(
+            visible = showDatePickerDialog,
+            title = "날짜 선택",
+            onDismiss = { showDatePickerDialog = false },
+            onConfirm = {
+                dialogEventText = "날짜를 선택했어요"
+                showDatePickerDialog = false
+            },
+        )
+
+        IenTimePickerDialog(
+            visible = showTimePickerDialog,
+            initialHour = 12,
+            initialMinute = 30,
+            is24Hour = false,
+            title = "시간 선택",
+            onDismiss = { showTimePickerDialog = false },
+            onConfirm = { hour, minute ->
+                dialogEventText = "시간을 선택했어요: $hour:$minute"
+                showTimePickerDialog = false
+            },
+        )
+
+        IenTextFieldDialog(
+            visible = showTextFieldDialog,
+            title = "프로필 편집",
+            message = "표시 이름을 입력하세요.",
+            textFields = mapOf(
+                "name" to TextFieldDialogData(
+                    initialValue = "IENLAB",
+                    placeholder = "표시 이름",
+                ),
+            ),
+            onDismiss = { showTextFieldDialog = false },
+            onConfirm = { values ->
+                dialogEventText = "입력 완료: ${values["name"].orEmpty()}"
+                showTextFieldDialog = false
+            },
         )
     }
 }

@@ -119,6 +119,7 @@ fun AdaptivePlaygroundScreen(
             contentEdge = IenScaffoldContentEdge(
                 scrollableState = scrollState,
             ),
+            topBarMode = topBarMode,
             bottomBar = {
                 AdaptiveNavigationBar(
                     selectedTabIndex = { selectedNavigationIndex },
@@ -156,12 +157,8 @@ fun AdaptivePlaygroundScreen(
                 )
             },
             adaptation = {
-                material {
-                    mode = topBarMode
-                }
                 cupertino {
                     this.backdrop = backdrop
-                    mode = topBarMode
                 }
             },
         ) { paddingValues, title ->

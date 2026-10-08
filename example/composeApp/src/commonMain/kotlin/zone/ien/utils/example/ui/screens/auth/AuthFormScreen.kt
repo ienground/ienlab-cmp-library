@@ -155,10 +155,10 @@ fun AuthFormScreen(
 
     IenAdaptiveTheme(target = Theme.Material3) {
         AdaptiveTopAppBarScaffold(
+            topBarMode = TopBarMode.Expanded,
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
             title = { Text("Auth Form") },
             adaptation = {
-                material { this.mode = TopBarMode.Expanded }
                 cupertino { this.backdrop = backdrop }
             },
             modifier = modifier,

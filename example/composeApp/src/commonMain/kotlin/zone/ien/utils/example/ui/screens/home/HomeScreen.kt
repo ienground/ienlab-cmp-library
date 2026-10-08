@@ -289,14 +289,13 @@ fun HomeScreen(
             },
             title = { Text(text = "IENGROUND") },
             subtitle = { Text(text = "Sub Title") },
+            topBarMode = TopBarMode.Expanded,
             adaptation = {
                 material {
-                    mode = TopBarMode.Expanded
                     isCenterAligned = true
                 }
                 cupertino {
                     this.backdrop = backdrop
-                    mode = TopBarMode.Expanded
                 }
             },
             modifier = modifier

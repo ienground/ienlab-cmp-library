@@ -50,6 +50,7 @@ fun LazySectionScreen(
             contentEdge = IenScaffoldContentEdge(
                 scrollableState = lazyListState,
             ),
+            topBarMode = TopBarMode.Expanded,
             title = {
                 Text(text = "Title")
             },
@@ -58,14 +59,6 @@ fun LazySectionScreen(
                     checked = isMaterialTheme,
                     onCheckedChange = { isMaterialTheme = it }
                 )
-            },
-            adaptation = {
-                material {
-                    mode = TopBarMode.Expanded
-                }
-                cupertino {
-                    mode = TopBarMode.Expanded
-                }
             },
             modifier = modifier
         ) { pv, title ->
