@@ -48,7 +48,7 @@ fun LazySectionScreen(
         AdaptiveTopAppBarScaffold(
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
             contentEdge = IenScaffoldContentEdge(
-                lazyListState = lazyListState,
+                scrollableState = lazyListState,
             ),
             title = {
                 Text(text = "Title")

@@ -114,7 +114,7 @@ fun AdaptivePlaygroundScreen(
             subtitle = { Text(if (isMaterialTheme) "Material3 + Ien" else "Cupertino + HIG") },
             modifier = modifier,
             contentEdge = IenScaffoldContentEdge(
-                scrollState = scrollState,
+                scrollableState = scrollState,
             ),
             bottomBar = {
                 AdaptiveNavigationBar(

@@ -56,7 +56,7 @@ fun SettingsScreen(
         AdaptiveTopAppBarScaffold(
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
             contentEdge = IenScaffoldContentEdge(
-                scrollState = scrollState,
+                scrollableState = scrollState,
             ),
             actions = {
                 AdaptiveSwitch(

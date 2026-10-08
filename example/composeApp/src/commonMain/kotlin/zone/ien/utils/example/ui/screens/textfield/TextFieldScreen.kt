@@ -77,7 +77,7 @@ fun TextFieldScreen(
 //        navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
         snackbarHost = { SnackbarHost(snackbarState) },
         contentEdge = IenScaffoldContentEdge(
-            lazyListState = lazyListState,
+            scrollableState = lazyListState,
         ),
 //        title = { Text(text = stringResource(Res.string.daily_mission)) },
         bottomBar = {

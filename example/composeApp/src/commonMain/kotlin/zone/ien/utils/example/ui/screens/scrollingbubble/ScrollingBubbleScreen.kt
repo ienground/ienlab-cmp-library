@@ -102,7 +102,7 @@ fun ScrollingBubbleScreen(
         IenScaffold(
             modifier = modifier,
             contentEdge = IenScaffoldContentEdge(
-                lazyListState = lazyListState,
+                scrollableState = lazyListState,
             ),
             topBar = {
                 IenTopBar(

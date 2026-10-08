@@ -88,7 +88,7 @@ fun IenPlaygroundScreen(
         IenTopAppBarScaffold(
             modifier = modifier,
             contentEdge = IenScaffoldContentEdge(
-                scrollState = scrollState,
+                scrollableState = scrollState,
             ),
             navigationIcon = {
                 IenBackButton {

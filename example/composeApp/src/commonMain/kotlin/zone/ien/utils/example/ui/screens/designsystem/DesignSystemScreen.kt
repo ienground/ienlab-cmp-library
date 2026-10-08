@@ -1321,7 +1321,7 @@ fun DesignSystemScreen(
 
         IenScaffold(
             modifier = modifier,
-            contentEdge = IenScaffoldContentEdge(scrollState = scrollState),
+            contentEdge = IenScaffoldContentEdge(scrollableState = scrollState),
             topBar = {
                 IenTopBar(
                     title = selectedComponent?.name ?: "Ien CMP UI",

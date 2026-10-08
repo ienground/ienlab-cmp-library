@@ -66,7 +66,7 @@ fun SectionScreen(
         AdaptiveTopAppBarScaffold(
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
             contentEdge = IenScaffoldContentEdge(
-                scrollState = scrollState,
+                scrollableState = scrollState,
             ),
             title = { Text(text = "Title") },
             adaptation = {

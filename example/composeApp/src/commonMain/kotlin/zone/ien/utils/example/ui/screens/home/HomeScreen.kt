@@ -141,7 +141,7 @@ fun HomeScreen(
         AdaptiveTopAppBarScaffold(
             snackbarHost = { SnackbarHost(snackbarState) },
             contentEdge = IenScaffoldContentEdge(
-                scrollState = scrollState,
+                scrollableState = scrollState,
             ),
             actions = if (isDropdownMenu) listOf(
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
