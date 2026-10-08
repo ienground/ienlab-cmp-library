@@ -418,9 +418,15 @@ private fun ScrollState.bottomEdgeProgress(fadeDistancePx: Float): Float {
 private fun LazyListState.topEdgeProgress(fadeDistancePx: Float): Float {
     val layoutInfo = layoutInfo
     if (layoutInfo.totalItemsCount <= 0) return 0f
-    if (!canScrollBackward && !canScrollForward) return 0f
-    if (firstVisibleItemIndex > 0) return 1f
-    return (firstVisibleItemScrollOffset / fadeDistancePx).coerceIn(0f, 1f)
+    val firstItem = layoutInfo.visibleItemsInfo.firstOrNull { it.index == 0 }
+    val firstItemOffset = firstItem?.takeUnless {
+        firstVisibleItemIndex > 0 && it.size > 0 && it.offset >= 0
+    }?.offset
+    return resolveLazyTopEdgeProgress(
+        canScrollBackward = canScrollBackward,
+        firstItemOffset = firstItemOffset,
+        fadeDistancePx = fadeDistancePx,
+    )
 }
 
 private fun LazyListState.bottomEdgeProgress(fadeDistancePx: Float): Float {
@@ -435,10 +441,27 @@ private fun LazyListState.bottomEdgeProgress(fadeDistancePx: Float): Float {
 }
 
 private fun LazyGridState.topEdgeProgress(fadeDistancePx: Float): Float {
+    val layoutInfo = layoutInfo
     if (layoutInfo.totalItemsCount <= 0) return 0f
+    val firstItem = layoutInfo.visibleItemsInfo.firstOrNull { it.index == 0 }
+    return resolveLazyTopEdgeProgress(
+        canScrollBackward = canScrollBackward,
+        firstItemOffset = firstItem?.let {
+            if (layoutInfo.orientation == Orientation.Vertical) it.offset.y else it.offset.x
+        },
+        fadeDistancePx = fadeDistancePx,
+    )
+}
+
+internal fun resolveLazyTopEdgeProgress(
+    canScrollBackward: Boolean,
+    firstItemOffset: Int?,
+    fadeDistancePx: Float,
+): Float {
     if (!canScrollBackward) return 0f
-    if (firstVisibleItemIndex > 0) return 1f
-    return (firstVisibleItemScrollOffset / fadeDistancePx).coerceIn(0f, 1f)
+    if (firstItemOffset == null) return 1f
+    if (firstItemOffset >= 0) return 0f
+    return (-firstItemOffset.toFloat() / fadeDistancePx.coerceAtLeast(1f)).coerceIn(0f, 1f)
 }
 
 private fun LazyGridState.bottomEdgeProgress(fadeDistancePx: Float): Float {

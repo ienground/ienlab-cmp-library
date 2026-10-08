@@ -12,6 +12,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
@@ -65,7 +67,7 @@ object IenPullToRefreshDefaults {
  * 갱신 중에도 기존 콘텐츠를 유지하며, 당긴 거리에 맞춰 콘텐츠를 아래로 이동합니다.
  * 당김 없이 [isRefreshing]이 변경되어도 갱신 상태를 표시합니다.
  * 첫 로딩은 호출자가 [content] 안에서 [IenSkeleton] 등으로 별도 표현합니다.
- * 하단 탭바와 시스템 영역의 여백은 목록의 contentPadding으로 지정합니다.
+ * [contentPadding]으로 콘텐츠 여백을 지정하며, 기본 인디케이터는 상단 여백을 지나 내려옵니다.
  *
  * @param isRefreshing 실제 데이터 갱신 진행 여부입니다.
  * @param onRefresh 기준 거리를 넘겨 손을 놓거나 접근성 갱신 동작을 실행할 때 호출합니다.
@@ -75,6 +77,7 @@ object IenPullToRefreshDefaults {
  * @param indicator 콘텐츠 위에 표시할 인디케이터 슬롯입니다.
  * @param enabled 당김 제스처와 접근성 갱신 요청을 허용할지 여부입니다.
  * @param threshold 갱신을 요청하는 표시 거리입니다. 0보다 커야 합니다.
+ * @param contentPadding 콘텐츠에 적용할 여백입니다. 기본 인디케이터의 이동 거리에도 상단 여백을 반영합니다.
  * @param content LazyColumn 등 스크롤 가능한 콘텐츠입니다.
  */
 @Composable
@@ -86,12 +89,14 @@ fun IenPullToRefreshBox(
     contentAlignment: Alignment = Alignment.TopStart,
     enabled: Boolean = true,
     threshold: Dp = IenPullToRefreshDefaults.PositionalThreshold,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     indicator: @Composable BoxScope.() -> Unit = {
         IenPullToRefreshIndicator(
             state = state,
             isRefreshing = isRefreshing,
             modifier = Modifier.align(Alignment.TopCenter),
             maxDistance = threshold,
+            topPadding = contentPadding.calculateTopPadding(),
         )
     },
     content: @Composable BoxScope.() -> Unit,
@@ -116,7 +121,7 @@ fun IenPullToRefreshBox(
         threshold = threshold,
     ) {
         Box(
-            modifier = Modifier.graphicsLayer {
+            modifier = Modifier.padding(contentPadding).graphicsLayer {
                 translationY = (state.distanceFraction.coerceAtLeast(0f) * threshold.toPx())
                     .coerceAtMost(maxOf(IenPullToRefreshDefaults.MaxPullDistance, threshold).toPx())
             },
@@ -138,6 +143,7 @@ fun IenPullToRefreshBox(
  * @param containerColor 대기 및 당김 상태의 배경색입니다.
  * @param color 점의 색상입니다.
  * @param maxDistance 컨테이너의 threshold와 동일한 표시 거리입니다.
+ * @param topPadding 인디케이터가 추가로 내려올 콘텐츠의 상단 여백입니다.
  */
 @Composable
 fun IenPullToRefreshIndicator(
@@ -147,6 +153,7 @@ fun IenPullToRefreshIndicator(
     containerColor: Color = IenTheme.colors.surface,
     color: Color = IenTheme.colors.brand,
     maxDistance: Dp = IenPullToRefreshDefaults.PositionalThreshold,
+    topPadding: Dp = 0.dp,
 ) {
     require(maxDistance > 0.dp) { "maxDistance는 0보다 커야 합니다." }
     val fraction = state.distanceFraction.coerceAtLeast(0f)
@@ -186,9 +193,10 @@ fun IenPullToRefreshIndicator(
         modifier = modifier
             .size(width = (36 + 36 * progress).dp, height = 36.dp)
             .graphicsLayer {
-                val distance = fraction * maxDistance.toPx()
-                translationY = if (isRefreshing) 8.dp.toPx() else
-                    (distance - 36.dp.toPx() + 8.dp.toPx()).coerceAtMost(8.dp.toPx())
+                val distance = fraction * (maxDistance + topPadding).toPx()
+                val restingOffset = (topPadding + 8.dp).toPx()
+                translationY = if (isRefreshing) restingOffset else
+                    (distance - 36.dp.toPx() + 8.dp.toPx()).coerceAtMost(restingOffset)
             }
             .dropShadow(
                 shape = shape,

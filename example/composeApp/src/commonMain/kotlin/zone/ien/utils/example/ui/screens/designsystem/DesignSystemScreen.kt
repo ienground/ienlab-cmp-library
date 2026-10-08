@@ -461,6 +461,7 @@ private val ComponentPlaygroundControls = mapOf(
         choiceControl("state", "상태", listOf("Idle", "Loading", "Pulling", "Ready", "Refreshing")),
         toggleControl("enabled", "당김 허용", true),
         numberControl("threshold", "갱신 기준 거리", 56, 36, 96),
+        numberControl("topPadding", "콘텐츠 상단 여백", 0, 0, 160),
     ),
     "wheel-picker" to listOf(
         choiceControl("type", "종류", listOf("Date", "Time", "Duration")),
@@ -2758,6 +2759,9 @@ fun PullToRefreshSection(controls: Map<String, String> = emptyMap()) {
                 state = state,
                 enabled = controls.booleanValue("enabled", true) && !loading,
                 threshold = controls.intValue("threshold", 56).coerceIn(36, 96).dp,
+                contentPadding = PaddingValues(
+                    top = controls.intValue("topPadding", 0).coerceIn(0, 160).dp,
+                ),
             ) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
