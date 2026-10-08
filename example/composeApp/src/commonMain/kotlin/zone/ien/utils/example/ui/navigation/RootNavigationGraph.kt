@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.navigation
 
+import zone.ien.utils.icon.IconStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavBackStack
@@ -50,7 +51,9 @@ sealed interface RootRoute: NavKey {
 @Composable
 fun RootNavigationGraph(
     modifier: Modifier = Modifier,
-    backStack: NavBackStack<RootRoute>
+    backStack: NavBackStack<RootRoute>,
+    iconStyle: IconStyle,
+    onIconStyleChange: (IconStyle) -> Unit,
 ) {
     val resultStore = rememberResultStore()
 
@@ -61,7 +64,9 @@ fun RootNavigationGraph(
             entry<RootRoute.Home> {
                 HomeScreen(
                     backStack = backStack,
-                    resultStore = resultStore
+                    resultStore = resultStore,
+                    iconStyle = iconStyle,
+                    onIconStyleChange = onIconStyleChange,
                 )
             }
             entry<RootRoute.Settings> {

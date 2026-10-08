@@ -57,7 +57,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -97,8 +96,8 @@ import zone.ien.utils.cmp_ui.generated.resources.next
 import zone.ien.utils.cmp_ui.generated.resources.stepper_step_list
 import zone.ien.utils.cmp_ui.generated.resources.tab_list
 import zone.ien.utils.cmp_ui.generated.resources.tab_update_indicator_desc
-import zone.ien.utils.icon.remix.RemixIcons
-import zone.ien.utils.icon.remix.line.ArrowRightS
+import zone.ien.utils.icon.SystemIcons
+import zone.ien.utils.icon.tabler.TablerIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
@@ -820,7 +819,7 @@ fun IenStepperRightArrow(
         contentAlignment = Alignment.Center,
     ) {
         IenIcon(
-            imageVector = RemixIcons.Line.ArrowRightS,
+            imageVector = SystemIcons.ChevronRight,
             contentDescription = null,
             modifier = Modifier.size(16.dp),
             tint = color,

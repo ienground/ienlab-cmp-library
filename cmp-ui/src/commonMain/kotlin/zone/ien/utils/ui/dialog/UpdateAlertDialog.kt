@@ -7,7 +7,7 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.version_update_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.version_update_dialog_title
-import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.SystemIcons
 
 /**
  * IenUpdateAlertDialog은 앱 업데이트를 위한 다이얼로그 컴포저블입니다.
@@ -27,7 +27,7 @@ fun IenUpdateAlertDialog(
     IenAlertDialog(
         modifier = modifier,
         visible = visible,
-        icon = { Icon(imageVector = M3SystemIcons.Update, contentDescription = null) },
+        icon = { Icon(imageVector = SystemIcons.Update, contentDescription = null) },
         title = stringResource(Res.string.version_update_dialog_title),
         message = stringResource(Res.string.version_update_dialog_content, appName),
         onDismiss = onDismiss,

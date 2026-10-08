@@ -65,12 +65,12 @@ import zone.ien.utils.cmp_ui.generated.resources.search
 import zone.ien.utils.cmp_ui.generated.resources.search_input
 import zone.ien.utils.cmp_ui.generated.resources.segmented_input
 import zone.ien.utils.cmp_ui.generated.resources.show_password
-import zone.ien.utils.icon.remix.RemixIcons
-import zone.ien.utils.icon.remix.fill.Close
-import zone.ien.utils.icon.remix.line.ArrowDownWide
-import zone.ien.utils.icon.remix.line.Eye
-import zone.ien.utils.icon.remix.line.EyeOff
-import zone.ien.utils.icon.remix.line.Search
+import zone.ien.utils.icon.SystemIcons
+import zone.ien.utils.icon.tabler.TablerIcons
+import zone.ien.utils.icon.tabler.line.Close
+import zone.ien.utils.icon.tabler.line.Eye
+import zone.ien.utils.icon.tabler.line.EyeOff
+import zone.ien.utils.icon.tabler.line.Search
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.foundation.LocalIenDarkTheme
@@ -882,7 +882,7 @@ private fun IenTextFieldClearButton(
         contentAlignment = Alignment.Center,
     ) {
         IenIcon(
-            imageVector = RemixIcons.Fill.Close,
+            imageVector = SystemIcons.Close,
             contentDescription = null,
             modifier = Modifier.size(16.dp),
             tint = Color(0xFF8B95A1),
@@ -907,7 +907,7 @@ private fun IenTextFieldPasswordButton(
         state = IenButtonState(enabled = enabled),
     ) {
         IenIcon(
-            imageVector = if (visible) RemixIcons.Line.EyeOff else RemixIcons.Line.Eye,
+            imageVector = if (visible) SystemIcons.EyeOff else SystemIcons.Eye,
             contentDescription = contentDescription,
             tint = IenTheme.colors.brand,
         )
@@ -919,7 +919,7 @@ private fun IenTextFieldArrowDown(
     modifier: Modifier = Modifier,
 ) {
     IenIcon(
-        imageVector = RemixIcons.Line.ArrowDownWide,
+        imageVector = SystemIcons.ChevronDown,
         contentDescription = null,
         modifier = modifier.size(24.dp),
         tint = Color(0xFF6B7684),
@@ -1186,7 +1186,7 @@ fun IenSearchFieldSearchIcon(
 ) {
     val color = searchFieldIconColor()
     IenIcon(
-        imageVector = RemixIcons.Line.Search,
+        imageVector = SystemIcons.Search,
         contentDescription = contentDescription,
         modifier = modifier
             .width(size)
@@ -1229,7 +1229,7 @@ fun IenSearchFieldDeleteButton(
             shape = ContinuousCapsule(),
         ) {
             IenIcon(
-                imageVector = RemixIcons.Fill.Close,
+                imageVector = SystemIcons.Close,
                 contentDescription = null,
                 tint = contentColor,
                 modifier = Modifier.size(18.dp)

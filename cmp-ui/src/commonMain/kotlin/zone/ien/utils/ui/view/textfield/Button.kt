@@ -27,7 +27,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.utils.shakeOnDisabledClick
 
 /**
@@ -130,7 +130,7 @@ fun IenTextFieldClearButton(
         exit = fadeOut(spring(1.2f)) + scaleOut(spring(1.2f), targetScale = 0.75f)
     ) {
         IenTextFieldIconButton(
-            icon = IconData.Vector(M3SystemIcons.Cancel),
+            icon = IconData.Vector(SystemIcons.Cancel),
             onClick = onClick
         )
     }

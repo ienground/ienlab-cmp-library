@@ -93,7 +93,6 @@ import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
-import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -308,7 +307,6 @@ fun IenSwipeBox(
                             itemWidth = itemWidth,
                             actionCount = startActionsSize,
                             actionRowOuterPadding = actionRowOuterPadding,
-                            expansionThreshold = IenTheme.spacing.sm,
                         )
                         val actionRowWidth =
                             if (isActionRowExpanding) {
@@ -323,13 +321,13 @@ fun IenSwipeBox(
                                         .coerceIn(0f, 1f)
                                 CompositionLocalProvider(
                                     LocalIenSwipeBoxItemFullSwipe provides (index == 0),
-                                    LocalIenSwipeBoxItemExpanding provides (
+                                    LocalIenSwipeBoxItemWidth provides itemWidth,
+                                    LocalIenSwipeBoxItemLabelVisible provides (
                                         index == 0 && (
-                                            isActionRowExpanding ||
+                                            revealedWidth > normalActionRowWidth + IenTheme.spacing.xl ||
                                                 state.targetValue == IenSwipeBoxStates.StartFullyExpanded
                                             )
                                         ),
-                                    LocalIenSwipeBoxItemWidth provides itemWidth,
                                     LocalIenSwipeBoxItemRevealScale provides revealScale,
                                 ) {
                                     key(swipeAction.key) {
@@ -362,7 +360,6 @@ fun IenSwipeBox(
                             itemWidth = itemWidth,
                             actionCount = endActionsSize,
                             actionRowOuterPadding = actionRowOuterPadding,
-                            expansionThreshold = IenTheme.spacing.sm,
                         )
                         val actionRowWidth =
                             if (isActionRowExpanding) {
@@ -379,13 +376,13 @@ fun IenSwipeBox(
                                 CompositionLocalProvider(
                                     LocalIenSwipeBoxItemFullSwipe provides
                                         (index == actionItems.endActions.lastIndex),
-                                    LocalIenSwipeBoxItemExpanding provides (
+                                    LocalIenSwipeBoxItemWidth provides itemWidth,
+                                    LocalIenSwipeBoxItemLabelVisible provides (
                                         index == actionItems.endActions.lastIndex && (
-                                            isActionRowExpanding ||
+                                            revealedWidth > normalActionRowWidth + IenTheme.spacing.xl ||
                                                 state.targetValue == IenSwipeBoxStates.EndFullyExpanded
                                             )
                                         ),
-                                    LocalIenSwipeBoxItemWidth provides itemWidth,
                                     LocalIenSwipeBoxItemRevealScale provides revealScale,
                                 ) {
                                     key(swipeAction.key) {
@@ -543,7 +540,7 @@ private fun RowScope.IenSwipeBoxItemImpl(
     val isFullSwipeActionItem = LocalIenSwipeBoxItemFullSwipe.current
     val itemWidth = LocalIenSwipeBoxItemWidth.current
     val revealScale = LocalIenSwipeBoxItemRevealScale.current
-    val isExpanding = LocalIenSwipeBoxItemExpanding.current
+    val isLabelVisible = LocalIenSwipeBoxItemLabelVisible.current
     val collapsedItemSize =
         (itemWidth - IenSwipeBoxDefaults.actionItemHorizontalPadding * 2)
             .coerceAtLeast(0.dp)
@@ -610,14 +607,8 @@ private fun RowScope.IenSwipeBoxItemImpl(
                 }
             },
             modifier = Modifier
-                .animateContentSizeWithoutClipping(
-                    animationSpec = tween(
-                        durationMillis = IenTheme.motion.fastMillis,
-                        easing = IenTheme.motion.standardEasing,
-                    ),
-                )
                 .then(
-                    if (isExpanding) {
+                    if (isFullSwipeActionItem) {
                         Modifier
                             .fillMaxWidth()
                             .requiredHeight(collapsedItemSize)
@@ -669,7 +660,7 @@ private fun RowScope.IenSwipeBoxItemImpl(
                             labelContent?.let { content ->
                                 AnimatedVisibility(
                                     visible = shouldRenderSwipeBoxLabel(
-                                        isExpanding = isExpanding,
+                                        isExpanding = isLabelVisible,
                                         showLabelOnExpansion = showLabelOnExpansion,
                                     ),
                                     enter = fadeIn(
@@ -793,7 +784,7 @@ private enum class IenSwipeActionPosition {
 private val LocalIenSwipeBoxItemFullSwipe = compositionLocalOf { false }
 private val LocalIenSwipeBoxItemWidth = compositionLocalOf { 0.dp }
 private val LocalIenSwipeBoxItemRevealScale = compositionLocalOf { 1f }
-private val LocalIenSwipeBoxItemExpanding = compositionLocalOf { false }
+private val LocalIenSwipeBoxItemLabelVisible = compositionLocalOf { false }
 private val LocalIenSwipeActionPosition = compositionLocalOf { IenSwipeActionPosition.Start }
 private val LocalIenSwipeBoxState =
     compositionLocalOf<AnchoredDraggableState<IenSwipeBoxStates>> {

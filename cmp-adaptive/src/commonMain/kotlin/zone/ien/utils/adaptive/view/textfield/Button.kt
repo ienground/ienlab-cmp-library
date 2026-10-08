@@ -15,7 +15,7 @@ import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.utils.hig.view.textfield.HigTextFieldIconButton
-import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.view.textfield.IenTextFieldIconButton
 
@@ -85,7 +85,7 @@ fun AdaptiveTextFieldClearButton(
         AdaptiveTextFieldIconButton(
             icon = IconData.Paint(
                 AdaptiveIcons.painter(
-                    material = { M3SystemIcons.Cancel },
+                    material = { SystemIcons.Cancel },
                     cupertino = { "xmark.circle.fill" }
                 )
             ),

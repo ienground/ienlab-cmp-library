@@ -2,6 +2,8 @@ package zone.ien.utils.example.ui.screens.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +24,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import zone.ien.utils.icon.IconStyle
+import zone.ien.utils.icon.LocalIconStyle
+import zone.ien.utils.ui.interactive.IenFilterChip
+import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.content.IenCard
 import zone.ien.utils.ui.content.IenCardDefaults
@@ -63,7 +69,7 @@ import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.navigation.result.ResultStore
 import zone.ien.utils.ui.interactive.IenButton
 import zone.ien.utils.ui.interactive.IenButtonDisplay
@@ -111,6 +117,8 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     backStack: NavBackStack<RootRoute>,
     resultStore: ResultStore,
+    iconStyle: IconStyle,
+    onIconStyleChange: (IconStyle) -> Unit,
 ) {
     var isMaterialTheme by rememberSaveable { mutableStateOf(true) }
     var isDropdownMenu by remember { mutableStateOf(true) }
@@ -236,7 +244,7 @@ fun HomeScreen(
                             )
                             Icon(
                                 painter = AdaptiveIcons.painter(
-                                    material = { M3SystemIcons.ArrowDropDown },
+                                    material = { SystemIcons.ArrowDropDown },
                                     cupertino = { "chevron.down" }
                                 ),
                                 contentDescription = null
@@ -331,6 +339,33 @@ fun HomeScreen(
                         checked = isMaterialTheme,
                         onCheckedChange = { isMaterialTheme = it }
                     )
+                }
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text(text = "아이콘 스타일")
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        val iconStyles = listOf(
+                            IconStyle.Tabler to "Tabler",
+                            IconStyle.Material.Filled to "Material Filled",
+                            IconStyle.Material.Rounded to "Material Rounded",
+                            IconStyle.Material.Sharp to "Material Sharp",
+                        )
+                        iconStyles.forEach { (style, label) ->
+                            CompositionLocalProvider(LocalIconStyle provides style) {
+                                IenFilterChip(
+                                    selected = iconStyle == style,
+                                    onSelectedChange = { onIconStyleChange(style) },
+                                    leadingIcon = { IenIcon(SystemIcons.Search, contentDescription = null) },
+                                    label = { Text(text = label) },
+                                )
+                            }
+                        }
+                    }
                 }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

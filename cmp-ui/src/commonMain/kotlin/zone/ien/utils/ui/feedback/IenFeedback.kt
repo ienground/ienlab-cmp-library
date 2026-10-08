@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarDuration
@@ -82,9 +81,10 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.loading
 import zone.ien.utils.cmp_ui.generated.resources.progress_stepper_step
 import zone.ien.utils.cmp_ui.generated.resources.selected
-import zone.ien.utils.icon.remix.RemixIcons
-import zone.ien.utils.icon.remix.fill.Check
-import zone.ien.utils.icon.remix.fill.Close
+import zone.ien.utils.icon.SystemIcons
+import zone.ien.utils.icon.tabler.TablerIcons
+import zone.ien.utils.icon.tabler.line.Check
+import zone.ien.utils.icon.tabler.line.Close
 import zone.ien.utils.ui.foundation.IenColorScheme
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
@@ -421,7 +421,7 @@ fun IenBottomSheetSelect(
                 trailing = {
                     if (isSelected) {
                         IenIcon(
-                            imageVector = RemixIcons.Fill.Check,
+                            imageVector = SystemIcons.Check,
                             contentDescription = stringResource(Res.string.selected),
                             tint = IenTheme.colors.brand
                         )
@@ -990,9 +990,9 @@ fun IenSnackbarIcon(
         IenSemanticTone.Info -> IenTheme.colors.info
     }
     val iconVector = when (tone) {
-        IenSemanticTone.Success -> RemixIcons.Fill.Check
-        IenSemanticTone.Danger -> RemixIcons.Fill.Close
-        else -> RemixIcons.Fill.Check
+        IenSemanticTone.Success -> SystemIcons.Check
+        IenSemanticTone.Danger -> SystemIcons.Close
+        else -> SystemIcons.Check
     }
     Box(
         modifier = modifier
@@ -2023,7 +2023,7 @@ private fun ProgressStepMarker(
     ) {
         when {
             showFinishedCheck -> IenIcon(
-                imageVector = RemixIcons.Fill.Check,
+                imageVector = SystemIcons.Check,
                 contentDescription = null,
                 tint = IenTheme.colors.onBrand,
                 size = IenTheme.icon.sm,

@@ -1,5 +1,13 @@
 import defaults from "./generated-color-scheme.json" with { type: "json" };
 
+export const iconStyles = {
+  "material-filled": { label: "Material Filled", kotlin: "IconStyle.Material.Filled" },
+  "material-rounded": { label: "Material Rounded", kotlin: "IconStyle.Material.Rounded" },
+  "material-sharp": { label: "Material Sharp", kotlin: "IconStyle.Material.Sharp" },
+  tabler: { label: "Tabler", kotlin: "IconStyle.Tabler" },
+} as const;
+export type IconStyle = keyof typeof iconStyles;
+
 export type ColorRole = keyof typeof defaults.light;
 export type ColorMode = "light" | "dark";
 export type ColorScheme = Record<ColorRole, string>;
@@ -173,6 +181,7 @@ export function toKotlinIdentifier(value: string): string {
 export function generateKotlinTheme(
   schemes: ColorSchemes,
   appName = "App",
+  iconStyle: IconStyle = "material-filled",
 ): string {
   const name = toKotlinIdentifier(appName);
   function declaration(mode: ColorMode, colorName: string): string {
@@ -181,7 +190,10 @@ export function generateKotlinTheme(
   }
   return `import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
+import zone.ien.utils.icon.IconStyle
+import zone.ien.utils.icon.LocalIconStyle
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.foundation.defaultIenTokens
 
@@ -201,7 +213,9 @@ fun ${name}Theme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
-    IenTheme(tokens = ${name}Tokens, darkTheme = darkTheme, content = content)
+    CompositionLocalProvider(LocalIconStyle provides ${iconStyles[iconStyle].kotlin}) {
+        IenTheme(tokens = ${name}Tokens, darkTheme = darkTheme, content = content)
+    }
 }
 `;
 }

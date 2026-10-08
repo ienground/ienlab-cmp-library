@@ -34,9 +34,7 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
 import zone.ien.utils.cmp_ui.generated.resources.ok
-import zone.ien.utils.icon.material.M3SystemIcons
-import zone.ien.utils.ui.dialog.IenAlertDialogTitle
-import zone.ien.utils.ui.dialog.IenConfirmDialogCancelButton
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButton
@@ -204,7 +202,7 @@ fun IenTimePickerDialog(
                     tone = IenSemanticTone.Neutral,
                 ) {
                     AnimatedContent(
-                        targetState = if (isTimePickerDial) M3SystemIcons.Keyboard else M3SystemIcons.Schedule,
+                        targetState = if (isTimePickerDial) SystemIcons.Keyboard else SystemIcons.Schedule,
                         label = "time_picker_dial"
                     ) {
                         Icon(

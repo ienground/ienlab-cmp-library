@@ -58,7 +58,7 @@ import zone.ien.utils.adaptive.view.AdaptiveNavigationBar
 import zone.ien.utils.adaptive.view.NavigationBarItem
 import zone.ien.utils.icon.Adaptive
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButtonDefault
@@ -128,7 +128,7 @@ fun AdaptivePlaygroundScreen(
                         NavigationBarItem(
                             onClick = { selectedNavigationIndex = 0 },
                             icon = IconData.Adaptive(
-                                material = { M3SystemIcons.Save },
+                                material = { SystemIcons.Save },
                                 cupertino = { "checkmark" },
                             ),
                             label = "Save",
@@ -136,7 +136,7 @@ fun AdaptivePlaygroundScreen(
                         NavigationBarItem(
                             onClick = { selectedNavigationIndex = 1 },
                             icon = IconData.Adaptive(
-                                material = { M3SystemIcons.Edit },
+                                material = { SystemIcons.Edit },
                                 cupertino = { "pencil" },
                             ),
                             label = "Edit",
@@ -144,7 +144,7 @@ fun AdaptivePlaygroundScreen(
                         NavigationBarItem(
                             onClick = { selectedNavigationIndex = 2 },
                             icon = IconData.Adaptive(
-                                material = { M3SystemIcons.Schedule },
+                                material = { SystemIcons.Schedule },
                                 cupertino = { "calendar" },
                             ),
                             label = "Schedule",
@@ -514,7 +514,7 @@ private fun PlaygroundSwitchRow(
 @Composable
 private fun SampleIcon() {
     IenIcon(
-        imageVector = M3SystemIcons.Save,
+        imageVector = SystemIcons.Save,
         contentDescription = null,
         modifier = Modifier.size(20.dp),
     )

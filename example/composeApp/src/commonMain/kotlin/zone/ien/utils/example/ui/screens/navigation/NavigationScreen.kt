@@ -37,7 +37,7 @@ import zone.ien.utils.adaptive.view.NavigationBarItem
 import zone.ien.utils.ui.view.IenNavigationBarType
 import zone.ien.utils.icon.Adaptive
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.view.IenNavigationBarItemDirection
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
@@ -105,7 +105,7 @@ fun NavigationScreen(
                         NavigationBarItem(
                             onClick = { selected = true },
                             icon = IconData.Adaptive(
-                                material = { M3SystemIcons.Delete },
+                                material = { SystemIcons.Delete },
                                 cupertino = { "trash.fill" }
                             ),
                             label = "Delete",
@@ -114,7 +114,7 @@ fun NavigationScreen(
                         NavigationBarItem(
                             onClick = { selected = false },
                             icon = IconData.Adaptive(
-                                material = { M3SystemIcons.Save },
+                                material = { SystemIcons.Save },
                                 cupertino = { "checkmark" }
                             ),
                             label = "Very Long Save",
