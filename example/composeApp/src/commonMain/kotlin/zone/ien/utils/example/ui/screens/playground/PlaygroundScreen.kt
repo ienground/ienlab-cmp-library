@@ -62,6 +62,7 @@ fun PlaygroundScreen(
     ) {
 //        /*
         AdaptiveTopAppBarScaffold(
+            topBarMode = TopBarMode.Expanded,
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop, visible = visible) { navigateBack() } },
             title = { Text(text = "Playground") },
             subtitle = { Text(text = "IENGROUND") },
@@ -102,12 +103,8 @@ fun PlaygroundScreen(
                 onClick = {}
             ),
             adaptation = {
-                material {
-                    mode = TopBarMode.Expanded
-                }
                 cupertino {
                     this.backdrop = backdrop
-                    mode = TopBarMode.Expanded
                 }
             },
             modifier = modifier

@@ -68,14 +68,11 @@ fun SectionScreen(
             contentEdge = IenScaffoldContentEdge(
                 scrollableState = scrollState,
             ),
+            topBarMode = TopBarMode.Expanded,
             title = { Text(text = "Title") },
             adaptation = {
-                material {
-                    mode = TopBarMode.Expanded
-                }
                 cupertino {
                     this.backdrop = backdrop
-                    mode = TopBarMode.Expanded
                 }
             },
             actions = listOf(
