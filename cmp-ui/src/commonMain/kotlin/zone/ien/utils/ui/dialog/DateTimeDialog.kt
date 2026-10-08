@@ -1,8 +1,6 @@
 package zone.ien.utils.ui.dialog
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -20,7 +18,6 @@ import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TimePickerState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,11 +26,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.sunnychung.lib.multiplatform.kdatetime.KDate
+import com.sunnychung.lib.multiplatform.kdatetime.KDuration
+import com.sunnychung.lib.multiplatform.kdatetime.KFixedTimeUnit
+import com.sunnychung.lib.multiplatform.kdatetime.KZonedDateTime
+import com.sunnychung.lib.multiplatform.kdatetime.KZoneOffset
+import com.sunnychung.lib.multiplatform.kdatetime.serializer.KInstantAsLong
+import com.sunnychung.lib.multiplatform.kdatetime.toKZonedDateTime
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
 import zone.ien.utils.cmp_ui.generated.resources.ok
-import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButton
@@ -41,9 +44,9 @@ import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
-import zone.ien.utils.ui.interactive.IenIconButton
+import zone.ien.utils.ui.interactive.IenDateWheelPicker
+import zone.ien.utils.ui.interactive.IenTimeWheelPicker
 import zone.ien.utils.ui.utils.rememberMyDatePickerState
-import zone.ien.utils.ui.primitives.IenIcon
 
 /**
  * IenDatePickerDialog은 날짜 선택 다이얼로그를 제공하는 컴포저블입니다.
@@ -53,7 +56,7 @@ import zone.ien.utils.ui.primitives.IenIcon
  * @param initialSelectedDateMillis 초기 선택된 날짜 (밀리초 단위)
  * @param initialDisplayedMonthMillis 초기에 표시되는 달 (밀리초 단위)
  * @param yearRange 선택 가능한 연도 범위
- * @param initialDisplayMode 초기 표시 모드 (Picker 또는 List)
+ * @param initialDisplayMode 기존 호출과의 호환을 위해 유지되며 휠 표시에는 영향을 주지 않습니다.
  * @param selectableDates 선택 가능한 날짜 범위
  * @param title 다이얼로그의 제목
  * @param onDismiss 다이얼로그를 닫기 위한 콜백 함수
@@ -67,7 +70,7 @@ fun IenDatePickerDialog(
     initialSelectedDateMillis: Long? = null,
     initialDisplayedMonthMillis: Long? = initialSelectedDateMillis,
     yearRange: IntRange = DatePickerDefaults.YearRange,
-    initialDisplayMode: DisplayMode = DisplayMode.Picker,
+    @Suppress("UNUSED_PARAMETER") initialDisplayMode: DisplayMode = DisplayMode.Picker,
     selectableDates: SelectableDates = DatePickerDefaults.AllDates,
     title: String,
     onDismiss: () -> Unit,
@@ -78,9 +81,20 @@ fun IenDatePickerDialog(
             initialSelectedDateMillis = initialSelectedDateMillis,
             initialDisplayedMonthMillis = initialDisplayedMonthMillis,
             yearRange = yearRange,
-            initialDisplayMode = initialDisplayMode,
             selectableDates = selectableDates
         )
+        val initialDate = datePickerUtcMillisToDate(datePickerState.displayedMonthMillis)
+        val initialSelectedDate = datePickerState.selectedDateMillis?.let(::datePickerUtcMillisToDate)
+        var selectedDate by remember(datePickerState) {
+            mutableStateOf(initialSelectedDate ?: initialDate)
+        }
+        var hasSelection by remember(datePickerState) {
+            mutableStateOf(initialSelectedDate != null)
+        }
+        val selectedDateMillis = selectedDate.toDatePickerUtcMillis()
+        val canConfirm = hasSelection &&
+            selectableDates.isSelectableYear(selectedDate.year) &&
+            selectableDates.isSelectableDate(selectedDateMillis)
 
         IenDialogFrame(
             visible = visible,
@@ -96,17 +110,25 @@ fun IenDatePickerDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 568.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
             ) {
-                Box(
-                    modifier = Modifier.weight(1f, fill = false)
-                ) {
-                    IenDatePicker(
-                        state = datePickerState,
-                        title = title,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+                IenAlertDialogTitle(
+                    text = title,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 24.dp, end = 24.dp, top = 16.dp),
+                )
+                IenDateWheelPicker(
+                    value = selectedDate,
+                    onValueChange = {
+                        selectedDate = it
+                        hasSelection = true
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
+                    yearRange = yearRange,
+                )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -120,12 +142,12 @@ fun IenDatePickerDialog(
                         modifier = Modifier.weight(1f),
                     )
                     IenButton(
-                        onClick = { onConfirm(datePickerState.selectedDateMillis ?: 0L) },
+                        onClick = { onConfirm(selectedDateMillis) },
                         modifier = Modifier.weight(1f),
                         size = IenButtonSize.Large,
                         variant = IenButtonVariant.Fill,
                         tone = IenSemanticTone.Brand,
-                        state = IenButtonState(enabled = datePickerState.selectedDateMillis != null),
+                        state = IenButtonState(enabled = canConfirm),
                         display = IenButtonDisplay.Block,
                     ) {
                         Text(stringResource(Res.string.ok))
@@ -161,12 +183,14 @@ fun IenTimePickerDialog(
     onConfirm: (Int, Int) -> Unit
 ) {
     if (visible) {
-        val timePickerState = rememberTimePickerState(
-            initialHour = initialHour,
-            initialMinute = initialMinute,
-            is24Hour = is24Hour,
-        )
-        var isTimePickerDial by remember { mutableStateOf(true) }
+        var selectedTime by remember(visible, initialHour, initialMinute, is24Hour) {
+            mutableStateOf(
+                KDuration.of(
+                    initialHour * 3600L + initialMinute * 60L,
+                    KFixedTimeUnit.Second,
+                ),
+            )
+        }
 
         IenDialogFrame(
             visible = visible,
@@ -178,47 +202,27 @@ fun IenTimePickerDialog(
             horizontalMargin = 16.dp,
         ) {
             IenAlertDialogTitle(text = title)
-            if (isTimePickerDial) {
-                IenTimePicker(
-                    state = timePickerState,
-                    isDial = true,
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                )
-            } else {
-                IenTimePicker(
-                    state = timePickerState,
-                    isDial = false,
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                )
-            }
+            IenTimeWheelPicker(
+                value = selectedTime,
+                onValueChange = { selectedTime = it },
+                use24HourFormat = is24Hour,
+                showSeconds = false,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+            )
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                IenIconButton(
-                    onClick = { isTimePickerDial = !isTimePickerDial },
-                    variant = IenButtonVariant.Ghost,
-                    tone = IenSemanticTone.Neutral,
-                ) {
-                    AnimatedContent(
-                        targetState = if (isTimePickerDial) SystemIcons.Keyboard else SystemIcons.Schedule,
-                        label = "time_picker_dial"
-                    ) {
-                        IenIcon(
-                            imageVector = it,
-                            contentDescription = "",
-                            tint = IenTheme.colors.textPrimary
-                        )
-                    }
-                }
                 IenConfirmDialogCancelButton(
                     text = stringResource(Res.string.cancel),
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f),
                 )
                 IenButton(
-                    onClick = { onConfirm(timePickerState.hour, timePickerState.minute) },
+                    onClick = { onConfirm(selectedTime.hourPart(), selectedTime.minutePart()) },
                     modifier = Modifier.weight(1f),
                     size = IenButtonSize.Large,
                     variant = IenButtonVariant.Fill,
@@ -318,3 +322,21 @@ fun IenTimePicker(
         )
     }
 }
+
+private fun datePickerUtcMillisToDate(utcTimeMillis: Long): KDate =
+    KInstantAsLong(utcTimeMillis)
+        .atZoneOffset(KZoneOffset.UTC)
+        .toKZonedDateTime()
+        .datePart()
+
+private fun KDate.toDatePickerUtcMillis(): Long =
+    KZonedDateTime(
+        year = year,
+        month = month,
+        day = day,
+        hour = 0,
+        minute = 0,
+        second = 0,
+        millisecond = 0,
+        zoneOffset = KZoneOffset.UTC,
+    ).toKInstant().toEpochMilliseconds()

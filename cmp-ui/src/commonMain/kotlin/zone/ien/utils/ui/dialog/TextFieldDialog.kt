@@ -8,14 +8,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.SecureTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -23,6 +19,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
@@ -37,6 +35,7 @@ import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenTextField
 import zone.ien.utils.ui.utils.TextFieldDialogData
 
 /**
@@ -154,41 +153,29 @@ fun IenTextFieldDialog(
         onDismiss = onDismiss,
         textFields = {
             textFields.forEach { (key, field) ->
-                if (field.keyboardType in listOf(KeyboardType.Password, KeyboardType.NumberPassword)) {
-                    val passwordState = remember { TextFieldState(initialText = textStates[key] ?: "") }
-
-                    LaunchedEffect(passwordState.text) {
-                        textStates[key] = passwordState.text.toString()
-                    }
-
-                    SecureTextField(
-                        state = passwordState,
-                        placeholder = { Text(text = field.placeholder) },
-                        prefix = field.prefix?.let { { Text(text = it) } },
-                        suffix = field.suffix?.let { { Text(text = it) } },
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = field.keyboardType,
-                            imeAction = field.imeAction
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                } else {
-                    TextField(
-                        value = textStates[key] ?: "",
-                        onValueChange = {
-                            field.onValueChange(it)?.let { textStates[key] = it }
-                        },
-                        placeholder = { Text(text = field.placeholder) },
-                        prefix = field.prefix?.let { { Text(text = it) } },
-                        suffix = field.suffix?.let { { Text(text = it) } },
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = field.keyboardType,
-                            imeAction = field.imeAction
-                        ),
-                        maxLines = field.maxLines,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+                val isPassword = field.keyboardType in listOf(KeyboardType.Password, KeyboardType.NumberPassword)
+                IenTextField(
+                    value = textStates[key] ?: "",
+                    onValueChange = {
+                        field.onValueChange(it)?.let { textStates[key] = it }
+                    },
+                    placeholder = field.placeholder.takeIf { it.isNotEmpty() },
+                    prefix = field.prefix,
+                    suffix = field.suffix,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = field.keyboardType,
+                        imeAction = field.imeAction
+                    ),
+                    visualTransformation = if (isPassword) {
+                        PasswordVisualTransformation()
+                    } else {
+                        VisualTransformation.None
+                    },
+                    singleLine = field.maxLines == 1,
+                    minLines = field.minLines,
+                    maxLines = field.maxLines,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
         },
         buttons = {
