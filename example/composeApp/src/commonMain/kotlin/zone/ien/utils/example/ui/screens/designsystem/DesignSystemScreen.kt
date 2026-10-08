@@ -22,6 +22,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -58,6 +61,7 @@ import com.sunnychung.lib.multiplatform.kdatetime.KDate
 import com.sunnychung.lib.multiplatform.kdatetime.KDuration
 import com.sunnychung.lib.multiplatform.kdatetime.KFixedTimeUnit
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.tabler.line.Add
@@ -91,6 +95,7 @@ import zone.ien.utils.ui.feedback.IenLoader
 import zone.ien.utils.ui.feedback.IenLoaderSize
 import zone.ien.utils.ui.feedback.IenLoadingIndicator
 import zone.ien.utils.ui.feedback.IenProgressBar
+import zone.ien.utils.ui.feedback.IenPullToRefreshBox
 import zone.ien.utils.ui.feedback.IenProgressBarSize
 import zone.ien.utils.ui.feedback.IenProgressStep
 import zone.ien.utils.ui.feedback.IenProgressStepper
@@ -324,6 +329,7 @@ private val DesignSystemComponents = listOf(
     DesignSystemComponent("list-footer", "ListFooter", "콘텐츠", "목록 하단의 추가 정보와 구분선을 표시합니다."),
     DesignSystemComponent("list-header", "ListHeader", "콘텐츠", "목록 제목과 설명을 정렬해 표시합니다."),
     DesignSystemComponent("loading-indicator", "LoadingIndicator", "피드백", "다각형이 변하는 로딩 애니메이션을 확인합니다."),
+    DesignSystemComponent("pull-to-refresh", "PullToRefresh", "피드백", "당김 갱신과 첫 로딩을 세 점 인디케이터 및 스켈레톤으로 표현합니다."),
     DesignSystemComponent("loader", "Loader", "피드백", "대기 중 상태를 나타내는 로더를 확인합니다."),
     DesignSystemComponent("menu", "Menu", "액션·선택", "메뉴 항목과 선택 동작을 확인합니다."),
     DesignSystemComponent("modal", "Modal", "피드백", "화면 위에 표시되는 모달과 닫기 동작입니다."),
@@ -450,6 +456,11 @@ private fun textControl(
 )
 
 private val ComponentPlaygroundControls = mapOf(
+    "pull-to-refresh" to listOf(
+        choiceControl("state", "상태", listOf("Idle", "Loading", "Pulling", "Ready", "Refreshing")),
+        toggleControl("enabled", "당김 허용", true),
+        numberControl("threshold", "갱신 기준 거리", 56, 36, 96),
+    ),
     "wheel-picker" to listOf(
         choiceControl("type", "종류", listOf("Date", "Time", "Duration")),
         disabledControl(),
@@ -1537,6 +1548,7 @@ internal fun DesignSystemComponentPreview(
         "list-footer" -> ListFooterSection(controlValues)
         "list-header" -> ListHeaderSection(controlValues)
         "loading-indicator" -> LoadingIndicatorSection(controlValues)
+        "pull-to-refresh" -> PullToRefreshSection(controlValues)
         "loader" -> LoaderSection(controlValues)
         "menu" -> MenuSection(controlValues)
         "modal" -> ModalSection(controlValues)
@@ -2707,6 +2719,74 @@ fun ListHeaderSection(controls: Map<String, String> = emptyMap()) {
                     }
                 }
             )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PullToRefreshSection(controls: Map<String, String> = emptyMap()) {
+    val selectedState = controls.enumValue("state", "Idle")
+    val loading = selectedState == "Loading"
+    var refreshing by remember { mutableStateOf(false) }
+    var revision by remember { mutableIntStateOf(0) }
+    val state = rememberPullToRefreshState()
+    val listState = rememberLazyListState()
+    LaunchedEffect(selectedState) {
+        refreshing = selectedState == "Refreshing"
+        listState.scrollToItem(0)
+        state.snapTo(when (selectedState) {
+            "Pulling" -> .5f
+            "Ready", "Refreshing" -> 1f
+            else -> 0f
+        })
+    }
+    LaunchedEffect(refreshing, selectedState) {
+        if (refreshing && selectedState != "Refreshing") {
+            delay(1200)
+            revision += 1
+            refreshing = false
+        }
+    }
+    IenTheme {
+        ComponentSection(title = "PullToRefresh") {
+            IenPullToRefreshBox(
+                isRefreshing = refreshing,
+                onRefresh = { refreshing = true },
+                modifier = Modifier.fillMaxWidth().height(360.dp),
+                state = state,
+                enabled = controls.booleanValue("enabled", true) && !loading,
+                threshold = controls.intValue("threshold", 56).coerceIn(36, 96).dp,
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    state = listState,
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 106.dp),
+                ) {
+                    if (loading) {
+                        item {
+                            IenSkeleton(
+                                pattern = IenSkeletonPattern.TopListWithIcon,
+                                repeatLastItemCount = IenSkeletonRepeat.Count(5),
+                            )
+                        }
+                    } else {
+                        items(12) { index ->
+                            IenListRow(
+                                title = "목록 항목 ${index + 1}",
+                                subtitle = if (revision == 0) "기존 목록" else "갱신된 목록 $revision",
+                                leading = {
+                                    Box(
+                                        Modifier.size(44.dp).clip(CircleShape)
+                                            .background(IenTheme.colors.brandWeak),
+                                        contentAlignment = Alignment.Center,
+                                    ) { Text("${index + 1}", color = IenTheme.colors.brand) }
+                                },
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }

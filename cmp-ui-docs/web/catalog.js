@@ -76,6 +76,7 @@ export const catalog = [
   component("list-footer", "ListFooter", "콘텐츠", "목록 하단의 추가 정보와 구분선을 표시합니다.", ["IenListFooter"], "list/IenList.kt"),
   component("list-header", "ListHeader", "콘텐츠", "목록 제목과 설명을 정렬해 표시합니다.", ["IenListHeader"], "list/IenList.kt"),
   component("loading-indicator", "LoadingIndicator", "피드백", "다각형이 변하는 로딩 애니메이션을 확인합니다.", ["IenLoadingIndicator"], "feedback/IenProgress.kt"),
+  component("pull-to-refresh", "PullToRefresh", "피드백", "당김 갱신과 첫 로딩을 세 점 인디케이터 및 스켈레톤으로 표현합니다.", ["IenPullToRefreshBox", "IenPullToRefreshIndicator", "IenPullToRefreshDefaults"], "feedback/IenPullToRefresh.kt"),
   component("loader", "Loader", "피드백", "대기 중 상태를 나타내는 로더를 확인합니다.", ["IenLoader"], "feedback/IenFeedback.kt"),
   component("menu", "Menu", "액션·선택", "메뉴 항목과 선택 동작을 확인합니다.", ["IenMenu"], "menu/IenMenuModal.kt"),
   component("modal", "Modal", "피드백", "화면 위에 표시되는 모달과 닫기 동작입니다.", ["IenModal"], "menu/IenMenuModal.kt"),

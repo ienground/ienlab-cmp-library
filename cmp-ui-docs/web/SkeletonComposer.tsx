@@ -32,6 +32,17 @@ type SpacingValue =
   | { unit: "token"; token: SpacingToken }
   | RadiusHeight;
 
+type TypographyToken =
+  | "display"
+  | "title1"
+  | "title2"
+  | "title3"
+  | "body1"
+  | "body2"
+  | "label1"
+  | "label2"
+  | "caption";
+
 const radiusTokenValues = {
   none: 0,
   xs: 4,
@@ -44,7 +55,7 @@ const radiusTokenValues = {
 };
 type RadiusToken = keyof typeof radiusTokenValues;
 type RadiusHeight = { unit: "radius"; token: RadiusToken; multiplier: number };
-type HeightValue = number | RadiusHeight;
+type HeightValue = number | RadiusHeight | { unit: "typography"; token: TypographyToken };
 
 interface BlockNode {
   id: string;
@@ -117,6 +128,17 @@ const spacingTokenValues: Record<SpacingToken, number> = {
   xl: 24,
   xxl: 32,
   xxxl: 40,
+};
+const typographyLineHeights: Record<TypographyToken, number> = {
+  display: 38,
+  title1: 32,
+  title2: 28,
+  title3: 26,
+  body1: 24,
+  body2: 22,
+  label1: 20,
+  label2: 18,
+  caption: 16,
 };
 
 let nextNodeId = 0;
@@ -298,13 +320,17 @@ function boxAlignmentValue(value: string): BoxAlignment {
 function heightPixels(height: HeightValue): number {
   return typeof height === "number"
     ? height
-    : radiusTokenValues[height.token] * height.multiplier;
+    : height.unit === "typography"
+      ? typographyLineHeights[height.token]
+      : radiusTokenValues[height.token] * height.multiplier;
 }
 
 function heightExpression(height: HeightValue): string {
-  return typeof height === "number"
-    ? `${height}.dp`
-    : `IenTheme.radius.${height.token} * ${height.multiplier}`;
+  if (typeof height === "number") return `${height}.dp`;
+  if (height.unit === "typography") {
+    return `with(LocalDensity.current) { IenTheme.typography.${height.token}.lineHeight.toDp() }`;
+  }
+  return `IenTheme.radius.${height.token} * ${height.multiplier}`;
 }
 
 function radiusHeightFor(pixels: number): RadiusHeight {
@@ -343,12 +369,11 @@ function generateNodeCode(node: SkeletonNode, indentLevel: number): string {
       parameters.push(`width = ${node.width.value}.dp`);
     } else if (node.width.mode === "radius") {
       parameters.push(`width = ${heightExpression({ ...node.width, unit: "radius" })}`);
-    } else if (node.width.mode === "fraction") {
-      parameters.push(
-        `modifier = Modifier.${fillMaxWidthExpression(node.width.fraction)}`,
-      );
     }
     if (node.shape === "Circle") parameters.push("shape = CircleShape");
+    if (node.width.mode === "fraction") {
+      parameters.push(`modifier = Modifier.${fillMaxWidthExpression(node.width.fraction)}`);
+    }
     return `IenSkeletonElement.Block(\n${parameters
       .map((parameter) => `${indent}    ${parameter},`)
       .join("\n")}\n${indent})`;
@@ -363,7 +388,6 @@ function generateNodeCode(node: SkeletonNode, indentLevel: number): string {
 
   const parameters: string[] = [];
   const modifier = elementModifier(node);
-  if (modifier) parameters.push(`modifier = ${modifier}`);
   if (node.type === "Row") {
     parameters.push(
       `horizontalArrangement = Arrangement.spacedBy(${spacingExpression(node.spacing)})`,
@@ -387,6 +411,7 @@ function generateNodeCode(node: SkeletonNode, indentLevel: number): string {
         .join(",\n")}\n${indent}    )`,
     );
   }
+  if (modifier) parameters.push(`modifier = ${modifier}`);
 
   return `IenSkeletonElement.${node.type}(\n${parameters
     .map((parameter) => `${indent}    ${parameter},`)
@@ -413,15 +438,18 @@ function generateKotlinCode(nodes: SkeletonNode[]): string {
   if (containsThemeToken(nodes)) {
     imports.push("import zone.ien.utils.ui.foundation.IenTheme");
   }
+  if (containsTypographyHeight(nodes)) {
+    imports.push("import androidx.compose.ui.platform.LocalDensity");
+  }
   return [
     ...imports,
     "",
     "IenSkeleton(",
-    "    modifier = Modifier.fillMaxWidth(),",
     "    custom = listOf(",
     elements,
     "    ),",
     "    repeatLastItemCount = IenSkeletonRepeat.Count(1),",
+    "    modifier = Modifier.fillMaxWidth(),",
     ")",
   ].join("\n");
 }
@@ -440,6 +468,16 @@ function containsThemeToken(nodes: SkeletonNode[]): boolean {
       return usesToken || containsThemeToken(node.children);
     }
     return false;
+  });
+}
+
+function containsTypographyHeight(nodes: SkeletonNode[]): boolean {
+  return nodes.some((node) => {
+    if (node.type === "Spacer") return false;
+    if (typeof node.height === "object" && node.height?.unit === "typography") {
+      return true;
+    }
+    return isContainer(node) && containsTypographyHeight(node.children);
   });
 }
 
@@ -649,12 +687,18 @@ function HeightEditor({
   value,
   onChange,
   allowAuto = false,
+  allowTypography = false,
 }: {
   value: HeightValue | null;
   onChange: (value: HeightValue | null) => void;
   allowAuto?: boolean;
+  allowTypography?: boolean;
 }) {
-  const mode = value === null ? "auto" : typeof value === "number" ? "dp" : "radius";
+  const mode = value === null
+    ? "auto"
+    : typeof value === "number"
+      ? "dp"
+      : value.unit;
   return (
     <div className="skeleton-dimension-row">
       <label className="skeleton-select-field">
@@ -667,12 +711,14 @@ function HeightEditor({
             const pixels = value === null ? 24 : heightPixels(value);
             if (nextMode === "auto") onChange(null);
             else if (nextMode === "dp") onChange(pixels);
-            else onChange(radiusHeightFor(pixels));
+            else if (nextMode === "radius") onChange(radiusHeightFor(pixels));
+            else onChange({ unit: "typography", token: "body1" });
           }}
         >
           {allowAuto && <option value="auto">콘텐츠에 맞춤</option>}
           <option value="dp">직접 지정 (dp)</option>
           <option value="radius">IenTheme.radius × 정수배</option>
+          {allowTypography && <option value="typography">IenTheme.typography</option>}
         </select>
       </label>
       {typeof value === "number" && (
@@ -683,11 +729,29 @@ function HeightEditor({
         />
       )}
       {value !== null && typeof value !== "number" && (
-        <RadiusDimensionFields
-          label="높이"
-          value={value}
-          onChange={(radius) => onChange({ ...value, ...radius })}
-        />
+        value.unit === "typography" ? (
+          <label className="skeleton-select-field">
+            <span>타이포그래피</span>
+            <select
+              aria-label="높이 타이포그래피"
+              value={value.token}
+              onChange={(event) => onChange({
+                unit: "typography",
+                token: event.currentTarget.value as TypographyToken,
+              })}
+            >
+              {Object.keys(typographyLineHeights).map((token) => (
+                <option key={token} value={token}>IenTheme.typography.{token}</option>
+              ))}
+            </select>
+          </label>
+        ) : (
+          <RadiusDimensionFields
+            label="높이"
+            value={value}
+            onChange={(radius) => onChange({ ...value, ...radius })}
+          />
+        )
       )}
     </div>
   );
@@ -885,6 +949,7 @@ function SkeletonNodeEditor({
               }
             />
             <HeightEditor
+              allowTypography
               value={node.height}
               onChange={(height) =>
                 patch((current) =>
@@ -1017,12 +1082,22 @@ export function SkeletonComposer() {
   const [nodes, setNodes] = useState(createDefaultNodes);
   const [copiedCode, setCopiedCode] = useState("");
   const [copySucceeded, setCopySucceeded] = useState(false);
+  const [copiedWithoutImports, setCopiedWithoutImports] = useState(false);
   const code = generateKotlinCode(nodes);
-  const copyMessage = copiedCode === code
+  const codeWithoutImports = code
+    .split("\n")
+    .filter((line) => !line.startsWith("import "))
+    .join("\n")
+    .trim();
+  const copyMessage = copiedWithoutImports
     ? copySucceeded
-      ? "Kotlin 코드를 복사했습니다."
+      ? "import 없이 Kotlin 코드를 복사했습니다."
       : "복사에 실패했습니다."
-    : "";
+    : copiedCode === code
+      ? copySucceeded
+        ? "Kotlin 코드를 복사했습니다."
+        : "복사에 실패했습니다."
+      : "";
 
   function updateNode(
     id: string,
@@ -1046,6 +1121,14 @@ export function SkeletonComposer() {
   async function copyCode() {
     const copied = await copyTextToClipboard(code);
     setCopiedCode(code);
+    setCopiedWithoutImports(false);
+    setCopySucceeded(copied);
+  }
+
+  async function copyCodeWithoutImports() {
+    const copied = await copyTextToClipboard(codeWithoutImports);
+    setCopiedCode(code);
+    setCopiedWithoutImports(true);
     setCopySucceeded(copied);
   }
 
@@ -1122,10 +1205,16 @@ export function SkeletonComposer() {
             <h4>Kotlin 코드</h4>
             <p>현재 조합과 같은 구조를 사용하는 코드입니다.</p>
           </div>
-          <Button onClick={copyCode} size="sm" type="button" variant="outline">
-            <Copy aria-hidden="true" />
-            코드 복사
-          </Button>
+          <div className="skeleton-composer-actions">
+            <Button onClick={copyCode} size="sm" type="button" variant="outline">
+              <Copy aria-hidden="true" />
+              코드 복사
+            </Button>
+            <Button onClick={copyCodeWithoutImports} size="sm" type="button" variant="outline">
+              <Copy aria-hidden="true" />
+              import 없이 복사
+            </Button>
+          </div>
         </div>
         <pre className="api-signature skeleton-composer-code-block" tabIndex={0}>
           <code>{highlightKotlin(code)}</code>
