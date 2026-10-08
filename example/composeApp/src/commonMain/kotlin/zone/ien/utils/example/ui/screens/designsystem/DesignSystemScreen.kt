@@ -938,9 +938,9 @@ private val AdditionalComponentPlaygroundControls = mapOf(
         toggleControl("showSecondaryAction", "보조 동작 표시", false),
     ),
     "swipe-box" to listOf(
-        numberControl("itemWidth", "액션 너비", 96, 56, 160),
+        numberControl("itemWidth", "액션 너비", 60, 56, 160),
         numberControl("height", "행 높이", 72, 48, 120),
-        toggleControl("fullSwipe", "끝까지 밀어 실행", false),
+        toggleControl("fullSwipe", "끝까지 밀어 실행"),
         toggleControl("haptics", "확장 진동 피드백"),
     ),
     "stepper" to listOf(
@@ -3341,9 +3341,9 @@ fun SliderSection(controls: Map<String, String> = emptyMap()) {
 @Preview
 @Composable
 fun SwipeBoxSection(controls: Map<String, String> = emptyMap()) {
-    val itemWidth = controls.intValue("itemWidth", 96).coerceIn(56, 160).dp
+    val itemWidth = controls.intValue("itemWidth", 60).coerceIn(56, 160).dp
     val height = controls.intValue("height", 72).coerceIn(48, 120).dp
-    val fullSwipe = controls.booleanValue("fullSwipe", false)
+    val fullSwipe = controls.booleanValue("fullSwipe", true)
     val haptics = controls.booleanValue("haptics", true)
     IenTheme {
         var swipeActionCount by remember { mutableIntStateOf(0) }
