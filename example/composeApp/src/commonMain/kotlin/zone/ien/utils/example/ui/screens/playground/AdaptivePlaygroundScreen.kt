@@ -2,6 +2,7 @@ package zone.ien.utils.example.ui.screens.playground
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -51,6 +52,7 @@ import zone.ien.utils.adaptive.component.AdaptiveTextButton
 import zone.ien.utils.adaptive.component.AdaptiveTonalButton
 import zone.ien.utils.adaptive.component.AdaptiveToggleButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
+import zone.ien.utils.adaptive.shimmer.adaptivePlaceholder
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.adaptive.view.AdaptiveCircularProgressIndicator
 import zone.ien.utils.adaptive.view.AdaptiveLoadingIndicator
@@ -92,6 +94,7 @@ fun AdaptivePlaygroundScreen(
     var lineChecked by remember { mutableStateOf(true) }
     var toggleChecked by remember { mutableStateOf(true) }
     var iconToggleChecked by remember { mutableStateOf(false) }
+    var showPlaceholder by remember { mutableStateOf(true) }
     var sliderValue by remember { mutableFloatStateOf(0.64f) }
     var segmentedIndex by remember { mutableIntStateOf(0) }
     var swipeActionCount by remember { mutableIntStateOf(0) }
@@ -414,6 +417,63 @@ fun AdaptivePlaygroundScreen(
                         enabled = enabled,
                         label = "Line checkbox",
                     )
+                }
+
+                PlaygroundGroup(title = "Adaptive Placeholder") {
+                    PlaygroundSwitchRow(
+                        text = "Loading content",
+                        checked = showPlaceholder,
+                        onCheckedChange = { showPlaceholder = it },
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = IenTheme.colors.surfaceRaised,
+                                shape = ContinuousRoundedRectangle(IenTheme.radius.default),
+                            )
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(44.dp)
+                                .adaptivePlaceholder(
+                                    enabled = showPlaceholder,
+                                    adaptation = {
+                                        material { shape = CircleShape }
+                                        cupertino { shape = CircleShape }
+                                    },
+                                ),
+                        )
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Text(
+                                text = "Avery Johnson",
+                                modifier = Modifier
+                                    .fillMaxWidth(0.62f)
+                                    .adaptivePlaceholder(enabled = showPlaceholder),
+                            )
+                            Text(
+                                text = "Product designer",
+                                modifier = Modifier
+                                    .fillMaxWidth(0.46f)
+                                    .adaptivePlaceholder(enabled = showPlaceholder),
+                            )
+                        }
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(112.dp)
+                            .adaptivePlaceholder(enabled = showPlaceholder),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text("Featured content")
+                    }
                 }
 
                 PlaygroundGroup(title = "SwipeBox") {

@@ -100,4 +100,8 @@
         <item quantity="one">%1$d second</item>
         <item quantity="other">%1$d seconds</item>
     </plurals>
+    <string name="pull_to_refresh_action">Refresh</string>
+    <string name="pull_to_refresh_pulling">Pull down to refresh</string>
+    <string name="pull_to_refresh_ready">Release to refresh</string>
+    <string name="pull_to_refresh_refreshing">Refreshing the list</string>
 </resources>
