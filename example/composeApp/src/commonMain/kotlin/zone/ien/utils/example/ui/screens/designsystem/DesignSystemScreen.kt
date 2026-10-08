@@ -111,6 +111,7 @@ import zone.ien.utils.ui.feedback.IenSkeletonMotionGroup
 import zone.ien.utils.ui.feedback.IenSkeletonPattern
 import zone.ien.utils.ui.feedback.IenSkeletonPlay
 import zone.ien.utils.ui.feedback.IenSkeletonRepeat
+import zone.ien.utils.ui.feedback.placeholder
 import zone.ien.utils.ui.feedback.IenSnackbarHost
 import zone.ien.utils.ui.feedback.IenToastDuration
 import zone.ien.utils.ui.feedback.IenToastState
@@ -3318,6 +3319,49 @@ fun SkeletonSection(controls: Map<String, String> = emptyMap()) {
                 play = play,
                 repeatLastItemCount = IenSkeletonRepeat.Count(repeatCount),
             )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = IenTheme.colors.surfaceRaised,
+                        shape = ContinuousRoundedRectangle(IenTheme.radius.default),
+                    )
+                    .padding(IenTheme.spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .placeholder(
+                            enabled = play == IenSkeletonPlay.Show,
+                            shape = CircleShape,
+                        ),
+                )
+                Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
+                    Text(
+                        text = "Avery Johnson",
+                        modifier = Modifier
+                            .fillMaxWidth(0.62f)
+                            .placeholder(enabled = play == IenSkeletonPlay.Show),
+                    )
+                    Text(
+                        text = "Product designer",
+                        modifier = Modifier
+                            .fillMaxWidth(0.46f)
+                            .placeholder(enabled = play == IenSkeletonPlay.Show),
+                    )
+                }
+            }
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(96.dp)
+                    .placeholder(enabled = play == IenSkeletonPlay.Show),
+            ) {
+                Text("Featured content")
+            }
             if (!LocalComponentVariantShowcase.current) {
                 IenSkeleton(
                     pattern = IenSkeletonPattern.ListRowTexts.ThreeRowTypeC,

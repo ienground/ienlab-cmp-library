@@ -55,9 +55,11 @@ import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -96,6 +98,9 @@ import zone.ien.utils.ui.list.IenListRowTextsType
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.shimmer.IenPlaceholderDefaults
+import zone.ien.utils.ui.shimmer.IenPlaceholderHighlight
+import zone.ien.utils.ui.shimmer.LocalIenShimmerShape
 import zone.ien.utils.ui.dialog.IenAlertDialog
 import zone.ien.utils.ui.dialog.IenConfirmDialog
 import zone.ien.utils.ui.dialog.IenConfirmDialogCancelButton
@@ -1075,6 +1080,40 @@ fun IenSkeleton(
                 color = color,
                 phase = phase,
             )
+        }
+    }
+}
+
+/**
+ * 임의의 컴포저블 영역을 IenSkeleton과 같은 바운스 효과가 있는 자리 표시자로 표시합니다.
+ *
+ * @param enabled 자리 표시자를 표시할지 여부
+ * @param color 자리 표시자 색상
+ * @param shape 자리 표시자 모양
+ * @param highlight null이면 바운스 효과를 끕니다.
+ * @param animationIndex 바운스 효과의 시작 시점을 늦추는 인덱스
+ */
+@Composable
+fun Modifier.placeholder(
+    enabled: Boolean = true,
+    color: Color = IenTheme.colors.surfaceVariant,
+    shape: Shape = LocalIenShimmerShape.current,
+    highlight: IenPlaceholderHighlight? = IenPlaceholderDefaults.fade,
+    animationIndex: Int = 0,
+): Modifier {
+    if (!enabled) return this
+
+    val motion = if (highlight != null && LocalIenSkeletonBlockMotionEnabled.current) {
+        val phase = rememberIenSkeletonPhase()
+        ienSkeletonMotion(phase = phase, animationIndex = animationIndex)
+    } else {
+        this
+    }
+
+    return motion.drawWithCache {
+        val outline = shape.createOutline(size, layoutDirection, this)
+        onDrawWithContent {
+            drawOutline(outline, color)
         }
     }
 }

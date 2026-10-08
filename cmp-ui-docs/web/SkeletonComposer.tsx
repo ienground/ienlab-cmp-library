@@ -364,7 +364,11 @@ function elementModifier(node: ContainerNode): string | null {
 function generateNodeCode(node: SkeletonNode, indentLevel: number): string {
   const indent = "    ".repeat(indentLevel);
   if (node.type === "Block") {
-    const parameters = [`height = ${heightExpression(node.height)}`];
+    const parameters = [
+      typeof node.height === "object" && node.height.unit === "typography"
+        ? `typography = IenTheme.typography.${node.height.token}`
+        : `height = ${heightExpression(node.height)}`,
+    ];
     if (node.width.mode === "dp") {
       parameters.push(`width = ${node.width.value}.dp`);
     } else if (node.width.mode === "radius") {
@@ -474,6 +478,7 @@ function containsThemeToken(nodes: SkeletonNode[]): boolean {
 function containsTypographyHeight(nodes: SkeletonNode[]): boolean {
   return nodes.some((node) => {
     if (node.type === "Spacer") return false;
+    if (node.type === "Block") return false;
     if (typeof node.height === "object" && node.height?.unit === "typography") {
       return true;
     }
