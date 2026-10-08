@@ -115,3 +115,17 @@ test("앱 이름으로 유효한 Kotlin 테마 식별자를 생성한다", () =>
   );
   assert.ok(code.includes("fun LoveHeroTheme("));
 });
+
+test("아이콘 스타일이 생성한 Kotlin 테마에 적용된다", () => {
+  const styles = [
+    ["tabler", "IconStyle.Tabler"],
+    ["material-filled", "IconStyle.Material.Filled"],
+    ["material-rounded", "IconStyle.Material.Rounded"],
+    ["material-sharp", "IconStyle.Material.Sharp"],
+  ] as const;
+  for (const [style, kotlinStyle] of styles) {
+    const code = generateKotlinTheme(defaultColorSchemes(), "App", style);
+    assert.ok(code.includes(`LocalIconStyle provides ${kotlinStyle}`));
+    assert.ok(code.includes("CompositionLocalProvider"));
+  }
+});

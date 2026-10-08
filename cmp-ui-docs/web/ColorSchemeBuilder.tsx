@@ -12,11 +12,12 @@ import {
   defaultColorSeeds,
   generateColorSchemes,
   generateKotlinTheme,
+  iconStyles,
   isHexColor,
   semanticGroups,
   toKotlinIdentifier,
 } from "./color-scheme";
-import type { ColorMode, ColorSchemes } from "./color-scheme";
+import type { ColorMode, ColorSchemes, IconStyle } from "./color-scheme";
 import { copyTextToClipboard } from "./clipboard";
 
 export const colorSchemeSections = [
@@ -147,9 +148,13 @@ function ColorInput({
 
 export function ColorSchemeBuilder({
   themeMode,
+  iconStyle,
+  onIconStyleChange,
   onApply,
 }: {
   themeMode: ColorMode;
+  iconStyle: IconStyle;
+  onIconStyleChange: (style: IconStyle) => void;
   onApply: (schemes: ColorSchemes, mode: ColorMode) => void;
 }) {
   const [seeds, setSeeds] = useState(defaultColorSeeds);
@@ -170,7 +175,7 @@ export function ColorSchemeBuilder({
       return next;
     });
   }, []);
-  const code = generateKotlinTheme(schemes, appName);
+  const code = generateKotlinTheme(schemes, appName, iconStyle);
   const appIdentifier = toKotlinIdentifier(appName);
   const scheme = schemes[mode];
   const invalid = invalidFields.size > 0;
@@ -223,6 +228,29 @@ export function ColorSchemeBuilder({
             setMessage("");
           }}
         />
+      </Card>
+      <Card className="color-builder-card">
+        <h3>아이콘 스타일</h3>
+        <p className="color-hint">
+          선택한 스타일을 컴포넌트 미리보기와 생성한 Kotlin 테마에 적용합니다.
+        </p>
+        <Tabs
+          value={iconStyle}
+          onValueChange={(value) => {
+            if (Object.hasOwn(iconStyles, value)) {
+              onIconStyleChange(value as IconStyle);
+              setMessage("");
+            }
+          }}
+        >
+          <TabsList aria-label="아이콘 스타일" className="flex h-auto flex-wrap">
+            {(Object.keys(iconStyles) as IconStyle[]).map((style) => (
+              <TabsTrigger key={style} value={style}>
+                {iconStyles[style].label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       </Card>
       <Card id={colorSchemeSections[0].id} className="color-builder-card">
         <h3>기준 색상</h3>

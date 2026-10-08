@@ -41,6 +41,7 @@ kotlin {
                 implementation(libs.capsule)
                 implementation(projects.cmpUi)
                 implementation(projects.cmpIcon)
+                implementation(projects.cmpCommon)
             }
         }
 

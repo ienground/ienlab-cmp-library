@@ -19,7 +19,13 @@ import zone.ien.utils.icon.material.filled.KeyboardArrowDown
 import zone.ien.utils.icon.material.filled.MoreVert
 import zone.ien.utils.icon.material.filled.Save
 import zone.ien.utils.icon.material.filled.Schedule
+import zone.ien.utils.icon.material.filled.Search
+import zone.ien.utils.icon.material.filled.StarFill
+import zone.ien.utils.icon.material.filled.StarHalf
+import zone.ien.utils.icon.material.filled.StarLine
 import zone.ien.utils.icon.material.filled.Update
+import zone.ien.utils.icon.material.filled.Visibility
+import zone.ien.utils.icon.material.filled.VisibilityOff
 import zone.ien.utils.icon.material.rounded.Add
 import zone.ien.utils.icon.material.rounded.ArrowBack
 import zone.ien.utils.icon.material.rounded.ArrowBackIosNew
@@ -70,11 +76,29 @@ import zone.ien.utils.icon.tabler.line.Close as TablerClose
 import zone.ien.utils.icon.tabler.line.CloudOff as TablerCloudOff
 import zone.ien.utils.icon.material.rounded.ChevronRight
 import zone.ien.utils.icon.material.rounded.KeyboardArrowDown
+import zone.ien.utils.icon.material.rounded.Search
+import zone.ien.utils.icon.material.rounded.StarFill
+import zone.ien.utils.icon.material.rounded.StarHalf
+import zone.ien.utils.icon.material.rounded.StarLine
+import zone.ien.utils.icon.material.rounded.Visibility
+import zone.ien.utils.icon.material.rounded.VisibilityOff
 import zone.ien.utils.icon.material.sharp.Add
 import zone.ien.utils.icon.material.sharp.ChevronRight
 import zone.ien.utils.icon.material.sharp.KeyboardArrowDown
+import zone.ien.utils.icon.material.sharp.Search
+import zone.ien.utils.icon.material.sharp.StarFill
+import zone.ien.utils.icon.material.sharp.StarHalf
+import zone.ien.utils.icon.material.sharp.StarLine
+import zone.ien.utils.icon.material.sharp.Visibility
+import zone.ien.utils.icon.material.sharp.VisibilityOff
+import zone.ien.utils.icon.tabler.fill.Eye
+import zone.ien.utils.icon.tabler.fill.Star
+import zone.ien.utils.icon.tabler.fill.StarHalf
 import zone.ien.utils.icon.tabler.line.Add
 import zone.ien.utils.icon.tabler.line.ChevronDown
+import zone.ien.utils.icon.tabler.line.EyeClosed
+import zone.ien.utils.icon.tabler.line.Search
+import zone.ien.utils.icon.tabler.line.Star
 
 /**
  * System 아이콘을 제공합니다.
@@ -204,5 +228,47 @@ object SystemIcons {
         IconStyle.Material.Filled -> M3SystemIcons.Filled.ChevronRight
         IconStyle.Material.Rounded -> M3SystemIcons.Rounded.ChevronRight
         IconStyle.Material.Sharp -> M3SystemIcons.Sharp.ChevronRight
+    }
+
+    val StarFill @Composable get() = when (LocalIconStyle.current) {
+        IconStyle.Tabler -> TablerIcons.Fill.Star
+        IconStyle.Material.Filled -> M3SystemIcons.Filled.StarFill
+        IconStyle.Material.Rounded -> M3SystemIcons.Rounded.StarFill
+        IconStyle.Material.Sharp -> M3SystemIcons.Sharp.StarFill
+    }
+
+    val StarLine @Composable get() = when (LocalIconStyle.current) {
+        IconStyle.Tabler -> TablerIcons.Line.Star
+        IconStyle.Material.Filled -> M3SystemIcons.Filled.StarLine
+        IconStyle.Material.Rounded -> M3SystemIcons.Rounded.StarLine
+        IconStyle.Material.Sharp -> M3SystemIcons.Sharp.StarLine
+    }
+
+    val StarHalf @Composable get() = when (LocalIconStyle.current) {
+        IconStyle.Tabler -> TablerIcons.Fill.StarHalf
+        IconStyle.Material.Filled -> M3SystemIcons.Filled.StarHalf
+        IconStyle.Material.Rounded -> M3SystemIcons.Rounded.StarHalf
+        IconStyle.Material.Sharp -> M3SystemIcons.Sharp.StarHalf
+    }
+
+    val Search @Composable get() = when (LocalIconStyle.current) {
+        IconStyle.Tabler -> TablerIcons.Line.Search
+        IconStyle.Material.Filled -> M3SystemIcons.Filled.Search
+        IconStyle.Material.Rounded -> M3SystemIcons.Rounded.Search
+        IconStyle.Material.Sharp -> M3SystemIcons.Sharp.Search
+    }
+
+    val Eye @Composable get() = when (LocalIconStyle.current) {
+        IconStyle.Tabler -> TablerIcons.Fill.Eye
+        IconStyle.Material.Filled -> M3SystemIcons.Filled.Visibility
+        IconStyle.Material.Rounded -> M3SystemIcons.Rounded.Visibility
+        IconStyle.Material.Sharp -> M3SystemIcons.Sharp.Visibility
+    }
+
+    val EyeOff @Composable get() = when (LocalIconStyle.current) {
+        IconStyle.Tabler -> TablerIcons.Line.EyeClosed
+        IconStyle.Material.Filled -> M3SystemIcons.Filled.VisibilityOff
+        IconStyle.Material.Rounded -> M3SystemIcons.Rounded.VisibilityOff
+        IconStyle.Material.Sharp -> M3SystemIcons.Sharp.VisibilityOff
     }
 }

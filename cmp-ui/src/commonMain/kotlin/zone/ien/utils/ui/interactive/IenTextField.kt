@@ -907,7 +907,7 @@ private fun IenTextFieldPasswordButton(
         state = IenButtonState(enabled = enabled),
     ) {
         IenIcon(
-            imageVector = if (visible) TablerIcons.Line.EyeOff else TablerIcons.Line.Eye,
+            imageVector = if (visible) SystemIcons.EyeOff else SystemIcons.Eye,
             contentDescription = contentDescription,
             tint = IenTheme.colors.brand,
         )
@@ -1186,7 +1186,7 @@ fun IenSearchFieldSearchIcon(
 ) {
     val color = searchFieldIconColor()
     IenIcon(
-        imageVector = TablerIcons.Line.Search,
+        imageVector = SystemIcons.Search,
         contentDescription = contentDescription,
         modifier = modifier
             .width(size)
