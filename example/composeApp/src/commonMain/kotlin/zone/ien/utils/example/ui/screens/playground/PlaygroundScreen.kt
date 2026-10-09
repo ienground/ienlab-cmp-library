@@ -242,6 +242,7 @@ private fun ScreenBody(
     }
 
     var text by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     TextFieldDialog(
         visible = showTextFieldDialog,
         title = "Hello Title",
@@ -251,13 +252,19 @@ private fun ScreenBody(
 //                onValueChange = { text = it; it },
                 valid = { it.isNotBlank() },
                 placeholder = "placeholder",
+                keyboardType = KeyboardType.Text
+            ),
+            "password" to TextFieldDialogData(
+                initialValue = password,
+                valid = { it.isNotBlank() },
+                placeholder = "Password",
                 keyboardType = KeyboardType.Password
             )
         ),
         onDismiss = { showTextFieldDialog = false },
         onConfirm = {
-            val newText = it["text"]
-            text = newText.orEmpty()
+            text = it["text"].orEmpty()
+            password = it["password"].orEmpty()
         }
     )
 }

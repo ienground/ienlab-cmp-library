@@ -135,7 +135,8 @@ fun IenActionsMenu(
         Row(
             modifier = Modifier
                 .clipToBounds()
-                .animateContentSize(animationSpec = tween(durationMillis = 110, easing = IenTheme.motion.standardEasing))
+                .animateContentSize(animationSpec = tween(durationMillis = 110, easing = IenTheme.motion.standardEasing)),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             menuItems.alwaysShownItems.forEach { item ->
                 val alpha by animateFloatAsState(

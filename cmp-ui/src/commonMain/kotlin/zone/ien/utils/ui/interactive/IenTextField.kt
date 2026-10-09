@@ -645,6 +645,8 @@ fun IenClearableTextField(
  * @param onVisibilityChange 노출 여부 토글 시 호출되는 선택적 콜백 함수.
  * @param keyboardOptions 키보드 입력 유형. 기본적으로 비밀번호 전용 키보드가 나타납니다.
  * @param keyboardActions 키보드 액션 정의.
+ * @param prefix 필드 입력 영역 왼쪽에 표시할 접두사.
+ * @param suffix 필드 입력 영역 오른쪽에 표시할 접미사.
  */
 @Composable
 fun IenPasswordTextField(
@@ -664,6 +666,8 @@ fun IenPasswordTextField(
     onVisibilityChange: ((visible: Boolean) -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
     keyboardActions: KeyboardActions = KeyboardActions.Default,
+    prefix: String? = null,
+    suffix: String? = null,
 ) {
     var internalVisible by remember { mutableStateOf(false) }
     val resolvedVisible = visible ?: internalVisible
@@ -678,6 +682,8 @@ fun IenPasswordTextField(
         help = help,
         hasError = hasError,
         variant = variant,
+        prefix = prefix,
+        suffix = suffix,
         state = state,
         lengthLimit = lengthLimit,
         keyboardOptions = keyboardOptions,
