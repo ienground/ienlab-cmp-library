@@ -354,8 +354,8 @@ fun SectionScope.AdaptiveSectionCheckboxItem(
  * @param textStyle 텍스트 스타일
  * @param placeholder 플레이스홀더 텍스트
  * @param isRequired 필수 입력 여부
- * @param leadingIcon 앞에 표시할 아이콘
- * @param trailingIcon 뒤에 표시할 아이콘
+ * @param leadingContent 앞쪽 콘텐츠
+ * @param trailingContent 뒤에 표시할 콘텐츠
  * @param isError 에러 상태 여부
  * @param visualTransformation 시각적 변환
  * @param keyboardOptions 키보드 옵션
@@ -377,8 +377,8 @@ fun SectionScope.AdaptiveSectionTextField(
     textStyle: TextStyle? = null,
     placeholder: @Composable (() -> Unit)? = null,
     isRequired: Boolean = false,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable ((InteractionSource) -> Unit)? = {
+    leadingContent: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable ((InteractionSource) -> Unit)? = {
         val focused by it.collectIsFocusedAsState()
         val updatedValueChange by rememberUpdatedState(onValueChange)
 
@@ -412,8 +412,8 @@ fun SectionScope.AdaptiveSectionTextField(
                 textStyle = textStyle,
                 placeholder = placeholder,
                 isRequired = isRequired,
-                leadingIcon = leadingIcon,
-                trailingIcon = trailingIcon,
+                leadingContent = leadingContent,
+                trailingContent = trailingContent,
                 isError = isError,
                 visualTransformation = visualTransformation,
                 keyboardOptions = keyboardOptions,
@@ -438,8 +438,8 @@ fun SectionScope.AdaptiveSectionTextField(
                     readOnly = readOnly,
                     textStyle = (textStyle ?: LocalTextStyle.current),
                     placeholder = placeholder,
-                    leadingIcon = leadingIcon,
-                    trailingIcon = trailingIcon,
+                    leadingContent = leadingContent,
+                    trailingContent = trailingContent,
                     visualTransformation = visualTransformation,
                     keyboardOptions = keyboardOptions,
                     keyboardActions = keyboardActions,
@@ -465,8 +465,8 @@ fun SectionScope.AdaptiveSectionTextField(
  * @param textStyle 텍스트 스타일
  * @param placeholder 플레이스홀더 텍스트
  * @param isRequired 필수 입력 여부
- * @param leadingIcon 앞에 표시할 아이콘
- * @param trailingIcon 뒤에 표시할 아이콘
+ * @param leadingContent 앞쪽 콘텐츠
+ * @param trailingContent 뒤에 표시할 콘텐츠
  * @param isError 에러 상태 여부
  * @param keyboardOptions 키보드 옵션
  * @param interactionSource 상호작용 소스
@@ -484,8 +484,8 @@ fun SectionScope.AdaptiveSectionSecureTextField(
     textStyle: TextStyle? = null,
     placeholder: @Composable (() -> Unit)? = null,
     isRequired: Boolean = false,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable ((InteractionSource) -> Unit)? = {
+    leadingContent: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable ((InteractionSource) -> Unit)? = {
         val focused by it.collectIsFocusedAsState()
 
         AdaptiveTextFieldClearButton(
@@ -514,8 +514,8 @@ fun SectionScope.AdaptiveSectionSecureTextField(
                 textStyle = textStyle,
                 placeholder = placeholder,
                 isRequired = isRequired,
-                leadingIcon = leadingIcon,
-                trailingIcon = trailingIcon,
+                leadingContent = leadingContent,
+                trailingContent = trailingContent,
                 isError = isError,
                 keyboardOptions = keyboardOptions,
                 interactionSource = interactionSource,
@@ -536,8 +536,8 @@ fun SectionScope.AdaptiveSectionSecureTextField(
                     readOnly = readOnly,
                     textStyle = (textStyle ?: LocalTextStyle.current),
                     placeholder = placeholder?.let { { if (isRequired) AsteriskTextWrapper { it() } else it() } },
-                    leadingIcon = leadingIcon,
-                    trailingIcon = trailingIcon,
+                    leadingContent = leadingContent,
+                    trailingContent = trailingContent,
                     keyboardOptions = keyboardOptions,
                     interactionSource = interactionSource,
                     colors = it.colors,
@@ -561,7 +561,7 @@ fun SectionScope.AdaptiveSectionSecureTextField(
  * @param textStyle 텍스트 스타일
  * @param placeholder 플레이스홀더 텍스트
  * @param isRequired 필수 입력 여부
- * @param trailingIcon 뒤에 표시할 아이콘
+ * @param trailingContent 뒤에 표시할 콘텐츠
  * @param isError 에러 상태 여부
  * @param visualTransformation 시각적 변환
  * @param keyboardOptions 키보드 옵션
@@ -570,6 +570,7 @@ fun SectionScope.AdaptiveSectionSecureTextField(
  * @param maxLines 최대 줄 수
  * @param minLines 최소 줄 수
  * @param interactionSource 상호작용 소스
+ * @param leadingContent 앞쪽 콘텐츠
  * @param adaptation 적응형 스타일 설정을 위한 범위
  */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
@@ -583,7 +584,7 @@ fun SectionScope.AdaptiveSectionTextField(
     textStyle: TextStyle? = null,
     placeholder: @Composable (() -> Unit)? = null,
     isRequired: Boolean = false,
-    trailingIcon: @Composable ((InteractionSource) -> Unit)? = {
+    trailingContent: @Composable ((InteractionSource) -> Unit)? = {
         val focused by it.collectIsFocusedAsState()
         val updatedValueChange by rememberUpdatedState(onValueChange)
 
@@ -602,6 +603,7 @@ fun SectionScope.AdaptiveSectionTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    leadingContent: @Composable (() -> Unit)? = null,
     adaptation: AdaptationScope<HigSectionTextFieldAdaptation, IenSectionTextFieldAdaptation>.() -> Unit = {},
 ) {
     AdaptiveWidget(
@@ -617,7 +619,8 @@ fun SectionScope.AdaptiveSectionTextField(
                 textStyle = textStyle,
                 placeholder = placeholder,
                 isRequired = isRequired,
-                trailingIcon = trailingIcon,
+                leadingContent = leadingContent,
+                trailingContent = trailingContent,
                 isError = isError,
                 visualTransformation = visualTransformation,
                 keyboardOptions = keyboardOptions,
@@ -643,7 +646,8 @@ fun SectionScope.AdaptiveSectionTextField(
                     textStyle = (textStyle ?: LocalTextStyle.current),
                     placeholder = placeholder,
                     isRequired = isRequired,
-                    trailingIcon = trailingIcon,
+                    leadingContent = leadingContent,
+                    trailingContent = trailingContent,
                     visualTransformation = visualTransformation,
                     keyboardOptions = keyboardOptions,
                     keyboardActions = keyboardActions,
@@ -709,7 +713,7 @@ internal class SectionTextFieldAdaptation: Adaptation<HigSectionTextFieldAdaptat
  * @param onClick 클릭 콜백
  * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
  * @param enabled 항목 활성화 여부
- * @param leadingIcon 앞에 표시할 아이콘
+ * @param leadingContent 앞쪽 콘텐츠
  * @param onClickLabel 클릭 시 접근성 레이블
  * @param indication 표시 방법
  * @param interactionSource 상호작용 소스
@@ -724,7 +728,7 @@ fun SectionScope.AdaptiveSectionLink(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    leadingIcon: @Composable (() -> Unit)? = null,
+    leadingContent: @Composable (() -> Unit)? = null,
     onClickLabel: String? = null,
     indication: Indication? = LocalIndication.current,
     interactionSource: MutableInteractionSource? = null,
@@ -741,7 +745,7 @@ fun SectionScope.AdaptiveSectionLink(
                 onClick = onClick,
                 modifier = modifier,
                 enabled = enabled,
-                leadingIcon = leadingIcon,
+                leadingContent = leadingContent,
                 onClickLabel = onClickLabel,
                 indication = indication,
                 interactionSource = interactionSource,
@@ -756,7 +760,7 @@ fun SectionScope.AdaptiveSectionLink(
                 onClick = onClick,
                 modifier = modifier,
                 enabled = enabled,
-                icon = { leadingIcon?.invoke() },
+                icon = { leadingContent?.invoke() },
                 onClickLabel = onClickLabel,
                 indication = indication,
                 interactionSource = interactionSource,
@@ -863,7 +867,7 @@ fun SectionScope.AdaptiveSectionButton(
             button(
                 modifier = modifier,
                 onClick = onClick,
-                icon = it.icon,
+                leadingContent = it.leadingContent,
                 enabled = enabled,
                 label = label
             )
@@ -895,12 +899,12 @@ fun SectionScope.AdaptiveSectionButton(
 /**
  * IEN 섹션 버튼 적응성 클래스
  *
- * @param icon 아이콘
+ * @param leadingContent 버튼 앞쪽 콘텐츠
  */
 class IenSectionButtonAdaptation internal constructor(
-    icon: @Composable (() -> Unit)? = null,
+    leadingContent: @Composable (() -> Unit)? = null,
 ) {
-    var icon by mutableStateOf(icon)
+    var leadingContent by mutableStateOf(leadingContent)
 }
 
 /**
@@ -930,11 +934,11 @@ internal class SectionButtonAdaptation: Adaptation<HigSectionButtonAdaptation, I
      */
     @Composable
     override fun rememberMaterialAdaptation(): IenSectionButtonAdaptation {
-        val icon: @Composable (() -> Unit)? = null
+        val leadingContent: @Composable (() -> Unit)? = null
 
-        return remember(icon) {
+        return remember(leadingContent) {
             IenSectionButtonAdaptation(
-                icon = icon,
+                leadingContent = leadingContent,
             )
         }
     }

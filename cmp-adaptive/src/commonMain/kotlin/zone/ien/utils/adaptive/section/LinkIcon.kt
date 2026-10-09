@@ -30,9 +30,12 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.section.CupertinoLabelIconDefaults
 import zone.ien.hig.section.CupertinoLinkIcon
 import zone.ien.utils.icon.IconData
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.section.IenLinkIcon
+import zone.ien.utils.ui.section.IenLinkIconColors
+import zone.ien.utils.ui.section.IenLinkIconDefaults
 import zone.ien.utils.ui.section.IenLinkIconText
-import zone.ien.utils.ui.section.MaterialLabelIconDefaults
+import zone.ien.utils.ui.section.IenLinkIconToneVariant
 
 /**
  * 적응형 링크 아이콘 컴포저블
@@ -102,8 +105,9 @@ fun AdaptiveLinkIcon(
         material = {
             IenLinkIcon(
                 imageVector = imageVector,
-                containerColor = it.containerColor,
-                tint = it.tint,
+                tone = it.tone,
+                toneVariant = it.toneVariant,
+                colors = it.colors ?: IenLinkIconDefaults.colors(it.tone, it.toneVariant),
                 shape = it.shape,
                 contentDescription = contentDescription,
                 modifier = modifier
@@ -141,8 +145,9 @@ fun AdaptiveLinkIconText(
         material = {
             IenLinkIconText(
                 text = text,
-                containerColor = it.containerColor,
-                tint = it.tint,
+                tone = it.tone,
+                toneVariant = it.toneVariant,
+                colors = it.colors ?: IenLinkIconDefaults.colors(it.tone, it.toneVariant),
                 shape = it.shape,
                 modifier = modifier
             )
@@ -174,8 +179,9 @@ fun AdaptiveLinkIcon(
         material = {
             IenLinkIcon(
                 painter = painter,
-                containerColor = it.containerColor,
-                tint = it.tint,
+                tone = it.tone,
+                toneVariant = it.toneVariant,
+                colors = it.colors ?: IenLinkIconDefaults.colors(it.tone, it.toneVariant),
                 shape = it.shape,
                 contentDescription = contentDescription,
                 modifier = modifier
@@ -204,17 +210,25 @@ class CupertinoLinkIconAdaptation(
 /**
  * IEN 링크 아이콘 적응성 클래스
  *
- * @param containerColor 컨테이너 색상
- * @param tint 틴트 색상
- * @param shape 모양
+ * @param tone 의미적 색상 톤
+ * @param toneVariant 색상 강도
+ * @param shape 링크 아이콘 모양
  */
 class IenLinkIconAdaptation(
-    containerColor: Color,
-    tint: Color,
+    tone: IenSemanticTone,
+    toneVariant: IenLinkIconToneVariant,
     shape: Shape,
 ) {
-    var containerColor: Color by mutableStateOf(containerColor)
-    var tint: Color by mutableStateOf(tint)
+    /** 링크 아이콘에 적용할 의미적 색상 톤입니다. */
+    var tone: IenSemanticTone by mutableStateOf(tone)
+
+    /** 링크 아이콘 배경의 색상 강도입니다. */
+    var toneVariant: IenLinkIconToneVariant by mutableStateOf(toneVariant)
+
+    /** 직접 지정할 색상입니다. null이면 톤과 강도에 맞는 기본 색상을 사용합니다. */
+    var colors: IenLinkIconColors? by mutableStateOf(null)
+
+    /** 링크 아이콘 컨테이너의 모양입니다. */
     var shape: Shape by mutableStateOf(shape)
 }
 
@@ -249,14 +263,12 @@ private class LinkIconAdaptation: Adaptation<CupertinoLinkIconAdaptation, IenLin
      */
     @Composable
     override fun rememberMaterialAdaptation(): IenLinkIconAdaptation {
-        val containerColor = MaterialLabelIconDefaults.ContainerColor
-        val tint = MaterialLabelIconDefaults.Tint
-        val shape = MaterialLabelIconDefaults.Shape
+        val tone = IenSemanticTone.Brand
+        val toneVariant = IenLinkIconToneVariant.Weak
+        val shape = IenLinkIconDefaults.Shape
 
-        return remember(containerColor, tint, shape) {
-            IenLinkIconAdaptation(
-                containerColor, tint, shape
-            )
+        return remember(tone, toneVariant, shape) {
+            IenLinkIconAdaptation(tone, toneVariant, shape)
         }
     }
 }

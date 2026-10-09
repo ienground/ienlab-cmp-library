@@ -28,12 +28,12 @@ import zone.ien.utils.adaptive.section.IenSectionLinkAdaptation
  * @param onClick 항목을 클릭했을 때 트리거되는 콜백 함수
  * @param modifier 레이아웃에 적용할 Modifier
  * @param enabled 설정의 활성화 여부
- * @param leadingIcon 제목 앞에 표시할 선택적 아이콘
+ * @param leadingContent 제목 앞에 표시할 콘텐츠
  * @param onClickLabel 클릭 동작에 대한 선택적 접근성 레이블
  * @param indication 상호작용에 대한 선택적 시각적 표시
  * @param interactionSource 상호작용 추적을 위한 선택적 소스
  * @param summary 표시할 선택적 요약 텍스트
- * @param chevron 끝에 쉐브론 아이콘을 표시하는 Composable
+ * @param trailingContent 항목 뒤에 표시할 콘텐츠
  * @param adaptation 플랫폼별(iOS/Android) 적응형 구성
  * @param title 이 설정 항목의 제목 텍스트
  */
@@ -43,12 +43,12 @@ fun SectionScope.TextPref(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    leadingIcon: @Composable (() -> Unit)? = null,
+    leadingContent: @Composable (() -> Unit)? = null,
     onClickLabel: String? = null,
     indication: Indication? = LocalIndication.current,
     interactionSource: MutableInteractionSource? = null,
     summary: String? = null,
-    chevron: @Composable () -> Unit = {
+    trailingContent: @Composable () -> Unit = {
         AdaptiveWidget(
             material = {},
             cupertino = { CupertinoSectionDefaults.LabelChevron() }
@@ -61,12 +61,12 @@ fun SectionScope.TextPref(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        leadingIcon = leadingIcon,
+        leadingContent = leadingContent,
         onClickLabel = onClickLabel,
         indication = indication,
         interactionSource = interactionSource,
         caption = summary?.let { { Text(text = it) } },
-        trailingContent = chevron,
+        trailingContent = trailingContent,
         adaptation = adaptation,
         title = { Text(text = title) }
     )

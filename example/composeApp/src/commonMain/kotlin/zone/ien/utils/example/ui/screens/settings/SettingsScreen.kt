@@ -122,7 +122,7 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     TextFieldPref(
-                        leadingIcon = {
+                        leadingContent = {
                             IenIcon(
                                 imageVector = SystemIcons.Delete,
                                 contentDescription = null
@@ -135,7 +135,7 @@ fun SettingsScreen(
                         defaultValue = "!hi"
                     )
                     TextFieldPref(
-                        leadingIcon = {
+                        leadingContent = {
                             IenIcon(
                                 imageVector = SystemIcons.Delete,
                                 contentDescription = null
@@ -148,7 +148,7 @@ fun SettingsScreen(
                         defaultValue = 1254
                     )
                     TextFieldPref(
-                        leadingIcon = {
+                        leadingContent = {
                             IenIcon(
                                 imageVector = SystemIcons.Delete,
                                 contentDescription = null
@@ -161,7 +161,7 @@ fun SettingsScreen(
                         defaultValue = 1254
                     )
                     TextFieldPref(
-                        leadingIcon = {
+                        leadingContent = {
                             IenIcon(
                                 imageVector = SystemIcons.Delete,
                                 contentDescription = null
@@ -178,7 +178,7 @@ fun SettingsScreen(
                     title = { Text(text = "Pref Group") }
                 ) {
                     TextFieldPref(
-                        leadingIcon = { IenIcon(imageVector = SystemIcons.Delete, contentDescription = null) },
+                        leadingContent = { IenIcon(imageVector = SystemIcons.Delete, contentDescription = null) },
                         title = "Title OnClick",
                         summary = { "내 숫자는 ${it}" },
                         key = intPreferencesKey("real_num"),
@@ -186,7 +186,7 @@ fun SettingsScreen(
                         defaultValue = 1254
                     )
                     TextFieldPref(
-                        leadingIcon = { IenIcon(imageVector = SystemIcons.Delete, contentDescription = null) },
+                        leadingContent = { IenIcon(imageVector = SystemIcons.Delete, contentDescription = null) },
                         title = "Title OnClick",
                         summary = { "내 숫자는 ${it}" },
                         key = intPreferencesKey("real_num"),

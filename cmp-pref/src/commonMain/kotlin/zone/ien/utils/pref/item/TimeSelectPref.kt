@@ -29,8 +29,8 @@ import zone.ien.utils.pref.LocalPrefsDataStore
  * @param key DataStore에서 이 설정을 식별하는 데 사용되는 Preferences.Key
  * @param defaultValue 시간의 기본값 (분 단위 Int, 0-1439)
  * @param enabled 설정의 활성화 여부
- * @param leadingIcon 제목 앞에 표시할 선택적 아이콘
- * @param showIcon 선행 아이콘을 표시할지 여부
+ * @param leadingContent 제목 앞에 표시할 콘텐츠
+ * @param showIcon 앞쪽 콘텐츠를 표시할지 여부
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -41,7 +41,7 @@ fun SectionScope.TimeSelectPref(
     key: Preferences.Key<Int>,
     defaultValue: Int,
     enabled: Boolean = true,
-    leadingIcon: @Composable (() -> Unit)? = null,
+    leadingContent: @Composable (() -> Unit)? = null,
     showIcon: Boolean = false,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -56,8 +56,8 @@ fun SectionScope.TimeSelectPref(
         modifier = modifier,
         enabled = enabled,
         summary = summary(value),
-        leadingIcon = if (showIcon) leadingIcon else null,
-        chevron = {},
+        leadingContent = if (showIcon) leadingContent else null,
+        trailingContent = {},
         adaptation = {
             cupertino {
                 this.showSupportingContent = true
@@ -96,8 +96,8 @@ fun SectionScope.TimeSelectPref(
  * @param key DataStore에서 이 설정을 식별하는 데 사용되는 Preferences.Key
  * @param defaultValue 시간의 기본값 (분 단위 Int, 0-1439)
  * @param enabled 이 설정을 활성화/비활성화하기 위한 Preferences.Key와 기본 불리언 값의 쌍
- * @param leadingIcon 제목 앞에 표시할 선택적 아이콘
- * @param showIcon 선행 아이콘을 표시할지 여부
+ * @param leadingContent 제목 앞에 표시할 콘텐츠
+ * @param showIcon 앞쪽 콘텐츠를 표시할지 여부
  */
 @Composable
 fun SectionScope.TimeSelectPref(
@@ -107,7 +107,7 @@ fun SectionScope.TimeSelectPref(
     key: Preferences.Key<Int>,
     defaultValue: Int,
     enabled: Pair<Preferences.Key<Boolean>, Boolean>,
-    leadingIcon: @Composable (() -> Unit)? = null,
+    leadingContent: @Composable (() -> Unit)? = null,
     showIcon: Boolean = false,
 ) {
     val dataStore = LocalPrefsDataStore.current
@@ -121,7 +121,7 @@ fun SectionScope.TimeSelectPref(
         key = key,
         defaultValue = defaultValue,
         enabled = checked,
-        leadingIcon = leadingIcon,
+        leadingContent = leadingContent,
         showIcon = showIcon,
     )
 }

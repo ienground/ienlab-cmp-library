@@ -1,6 +1,8 @@
 package zone.ien.utils.ui.section
 
 import androidx.annotation.IntRange
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
@@ -12,10 +14,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
@@ -27,16 +29,23 @@ import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.RangeSlider
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
@@ -46,9 +55,11 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.section.SectionScope
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.feedback.IenLinearProgressIndicator
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
@@ -58,6 +69,8 @@ import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.interactive.IenSlider
 import zone.ien.utils.ui.interactive.IenSwitch
+import zone.ien.utils.ui.menu.IenMenu
+import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.utils.shakeOnDisabledClick
@@ -100,8 +113,8 @@ fun SectionScope.item(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .defaultMinSize(minHeight = 56.dp)
-                .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
+                .heightIn(min = 56.dp)
+                .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.xxs),
             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -222,6 +235,146 @@ fun SectionScope.checkbox(
 }
 
 /**
+ * 섹션에서 하나의 선택지를 표시하는 라디오 항목입니다.
+ *
+ * @param selected 현재 선택 여부
+ * @param onClick 항목을 선택했을 때 호출되는 함수
+ * @param modifier 적용할 Modifier
+ * @param enabled 활성화 상태
+ * @param leadingContent 앞쪽 콘텐츠
+ * @param supportingContent 지원 콘텐츠
+ * @param title 제목
+ */
+@Composable
+fun SectionScope.radio(
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    leadingContent: (@Composable () -> Unit)? = null,
+    supportingContent: (@Composable () -> Unit)? = null,
+    title: @Composable () -> Unit,
+) {
+    item(
+        modifier = modifier
+            .shakeOnDisabledClick(enabled)
+            .selectable(
+                selected = selected,
+                enabled = enabled,
+                role = Role.RadioButton,
+                onClick = onClick,
+            ),
+        enabled = enabled,
+        leadingContent = leadingContent,
+        trailingContent = {
+            RadioButton(
+                selected = selected,
+                onClick = null,
+                enabled = enabled,
+                colors = RadioButtonDefaults.colors(
+                    selectedColor = IenTheme.colors.brand,
+                    unselectedColor = IenTheme.colors.border,
+                    disabledSelectedColor = IenTheme.colors.textDisabled,
+                    disabledUnselectedColor = IenTheme.colors.textDisabled,
+                ),
+            )
+        },
+        supportingContent = supportingContent,
+        title = title,
+    )
+}
+
+/**
+ * 섹션에서 선택 가능한 드롭다운 항목을 표시합니다.
+ *
+ * @param itemsWithLabels 항목과 표시 이름의 매핑
+ * @param currentItem 현재 선택된 항목
+ * @param onItemSelected 항목 선택 시 호출되는 함수
+ * @param modifier 적용할 Modifier
+ * @param enabled 활성화 상태
+ * @param leadingContent 앞쪽 콘텐츠
+ * @param supportingContent 지원 콘텐츠
+ * @param title 제목
+ */
+@Composable
+fun <T> SectionScope.dropdown(
+    itemsWithLabels: Map<T, String>,
+    currentItem: T?,
+    onItemSelected: (T) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    leadingContent: (@Composable () -> Unit)? = null,
+    supportingContent: (@Composable () -> Unit)? = null,
+    title: @Composable () -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val currentLabel = currentItem?.let(itemsWithLabels::get).orEmpty()
+    val chevronRotation by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        animationSpec = tween(
+            durationMillis = IenTheme.motion.fastMillis,
+            easing = IenTheme.motion.standardEasing,
+        ),
+        label = "IenSectionDropdownChevronRotation",
+    )
+
+    val row: @Composable (Modifier) -> Unit = { rowModifier ->
+        item(
+            modifier = rowModifier,
+            enabled = enabled,
+            leadingContent = leadingContent,
+            trailingContent = {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = currentLabel,
+                        style = IenTheme.typography.body2,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    IenIcon(
+                        imageVector = SystemIcons.ChevronDown,
+                        contentDescription = null,
+                        modifier = Modifier.rotate(chevronRotation),
+                    )
+                }
+            },
+            supportingContent = supportingContent,
+            title = title,
+        )
+    }
+
+    if (enabled) {
+        IenMenu.Trigger(
+            modifier = modifier,
+            open = expanded,
+            onOpen = { expanded = true },
+            onClose = { expanded = false },
+            placement = IenMenu.Placement.BottomEnd,
+            dropdown = {
+                IenMenu.Dropdown {
+                    itemsWithLabels.forEach { (item, label) ->
+                        IenMenu.DropdownItem(
+                            text = label,
+                            selected = item == currentItem,
+                            onClick = {
+                                onItemSelected(item)
+                                expanded = false
+                            },
+                        )
+                    }
+                }
+            },
+            children = { row(Modifier) },
+        )
+    } else {
+        row(modifier)
+    }
+}
+
+/**
  * 섹션 텍스트 필드 컴포저블 (String 타입 버전)
  * 
  * 이 컴포저블은 섹션 내부에 표시되는 텍스트 필드를 제공합니다.
@@ -235,8 +388,8 @@ fun SectionScope.checkbox(
  * @param textStyle 텍스트 스타일
  * @param placeholder PlaceHolder 텍스트
  * @param isRequired 필수 입력 여부
- * @param leadingIcon 좌측 아이콘
- * @param trailingIcon 우측 아이콘 (InteractionSource를 인자로 받음)
+ * @param leadingContent 좌측 콘텐츠
+ * @param trailingContent 우측 콘텐츠 (InteractionSource를 인자로 받음)
  * @param isError 오류 상태
  * @param visualTransformation 입력 텍스트의 시각적 변환
  * @param keyboardOptions 키보드 설정
@@ -256,8 +409,8 @@ fun SectionScope.textField(
     textStyle: TextStyle? = null,
     placeholder: @Composable (() -> Unit)? = null,
     isRequired: Boolean = false,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable ((InteractionSource) -> Unit)? = {
+    leadingContent: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable ((InteractionSource) -> Unit)? = {
         val focused by it.collectIsFocusedAsState()
         val updatedValueChange by rememberUpdatedState(onValueChange)
 
@@ -294,9 +447,9 @@ fun SectionScope.textField(
                     textStyle = (textStyle ?: LocalTextStyle.current),
                     placeholder = placeholder,
                     isRequired = isRequired,
-                    leadingIcon = leadingIcon,
+                    leadingIcon = leadingContent,
                     trailingIcon = {
-                        trailingIcon?.invoke(interactionSource)
+                        trailingContent?.invoke(interactionSource)
                     },
                     visualTransformation = visualTransformation,
                     keyboardOptions = keyboardOptions,
@@ -331,7 +484,7 @@ fun SectionScope.textField(
  * @param textStyle 텍스트 스타일
  * @param placeholder PlaceHolder 텍스트
  * @param isRequired 필수 입력 여부
- * @param trailingIcon 우측 아이콘 (InteractionSource를 인자로 받음)
+ * @param trailingContent 우측 콘텐츠 (InteractionSource를 인자로 받음)
  * @param isError 오류 상태
  * @param visualTransformation 입력 텍스트의 시각적 변환
  * @param keyboardOptions 키보드 설정
@@ -340,6 +493,7 @@ fun SectionScope.textField(
  * @param maxLines 최대 라인 수
  * @param minLines 최소 라인 수
  * @param interactionSource 상호작용 소스
+ * @param leadingContent 좌측 콘텐츠
  */
 @Composable
 fun SectionScope.textField(
@@ -351,7 +505,7 @@ fun SectionScope.textField(
     textStyle: TextStyle? = null,
     placeholder: @Composable (() -> Unit)? = null,
     isRequired: Boolean = false,
-    trailingIcon: @Composable ((InteractionSource) -> Unit)? = {
+    trailingContent: @Composable ((InteractionSource) -> Unit)? = {
         val focused by it.collectIsFocusedAsState()
         val updatedValueChange by rememberUpdatedState(onValueChange)
 
@@ -370,6 +524,7 @@ fun SectionScope.textField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    leadingContent: @Composable (() -> Unit)? = null,
 ) {
     val focused by interactionSource.collectIsFocusedAsState()
     val fieldColor = ienSectionTextFieldColor(
@@ -390,8 +545,9 @@ fun SectionScope.textField(
                     readOnly = readOnly,
                     textStyle = (textStyle ?: LocalTextStyle.current),
                     placeholder = placeholder?.let { { if (isRequired) IenAsteriskTextWrapper { it() } else it() } },
+                    leadingIcon = leadingContent,
                     trailingIcon = {
-                        trailingIcon?.invoke(interactionSource)
+                        trailingContent?.invoke(interactionSource)
                     },
                     visualTransformation = visualTransformation,
                     keyboardOptions = keyboardOptions,
@@ -423,8 +579,8 @@ fun SectionScope.textField(
  * @param textStyle 텍스트 스타일
  * @param placeholder PlaceHolder 텍스트
  * @param isRequired 필수 입력 여부
- * @param leadingIcon 좌측 아이콘
- * @param trailingIcon 우측 아이콘 (InteractionSource를 인자로 받음)
+ * @param leadingContent 좌측 콘텐츠
+ * @param trailingContent 우측 콘텐츠 (InteractionSource를 인자로 받음)
  * @param isError 오류 상태
  * @param keyboardOptions 키보드 설정
  * @param interactionSource 상호작용 소스
@@ -440,8 +596,8 @@ fun SectionScope.secureTextField(
     textStyle: TextStyle? = null,
     placeholder: @Composable (() -> Unit)? = null,
     isRequired: Boolean = false,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable ((InteractionSource) -> Unit)? = {
+    leadingContent: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable ((InteractionSource) -> Unit)? = {
         val focused by it.collectIsFocusedAsState()
 
         IenTextFieldClearButton(
@@ -477,9 +633,9 @@ fun SectionScope.secureTextField(
                     readOnly = readOnly,
                     textStyle = (textStyle ?: LocalTextStyle.current),
                     placeholder = placeholder?.let { { if (isRequired) IenAsteriskTextWrapper { it() } else it() } },
-                    leadingIcon = leadingIcon,
+                    leadingIcon = leadingContent,
                     trailingIcon = {
-                        trailingIcon?.invoke(interactionSource)
+                        trailingContent?.invoke(interactionSource)
                     },
                     keyboardOptions = keyboardOptions,
                     interactionSource = interactionSource,
@@ -500,7 +656,7 @@ fun SectionScope.secureTextField(
  * @param onClick 클릭 시 호출되는 콜백 함수
  * @param modifier 적용할 Modifier
  * @param enabled 활성화 상태
- * @param leadingIcon 좌측 아이콘
+ * @param leadingContent 좌측 콘텐츠
  * @param trailingContent 우측 콘텐츠
  * @param onClickLabel 클릭에 대한 설명 텍스트
  * @param indication 상호작용 시 표시할 인디케이션
@@ -514,7 +670,7 @@ fun SectionScope.link(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    leadingIcon: @Composable (() -> Unit)? = null,
+    leadingContent: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null,
     onClickLabel: String? = null,
     indication: Indication? = LocalIndication.current,
@@ -537,10 +693,57 @@ fun SectionScope.link(
                 ),
         enabled = enabled,
         title = title,
-        leadingContent = leadingIcon,
+        leadingContent = leadingContent,
         trailingContent = trailingContent,
         supportingContent = caption,
         colors = colors
+    )
+}
+
+/**
+ * 삭제나 초기화처럼 주의가 필요한 동작을 위험 색상으로 표시하는 링크 항목입니다.
+ *
+ * @param onClick 클릭 시 호출되는 콜백 함수
+ * @param modifier 적용할 Modifier
+ * @param enabled 활성화 상태
+ * @param leadingContent 좌측 콘텐츠
+ * @param trailingContent 우측 콘텐츠
+ * @param onClickLabel 클릭에 대한 설명 텍스트
+ * @param indication 상호작용 시 표시할 인디케이션
+ * @param interactionSource 상호작용 소스
+ * @param caption 캡션 텍스트
+ * @param title 제목
+ */
+@Composable
+fun SectionScope.dangerAction(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    leadingContent: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
+    onClickLabel: String? = null,
+    indication: Indication? = LocalIndication.current,
+    interactionSource: MutableInteractionSource? = null,
+    caption: (@Composable () -> Unit)? = null,
+    title: @Composable () -> Unit,
+) {
+    val colors = IenSectionLinkDefault.colors().copy(
+        headlineColor = IenTheme.colors.danger,
+        leadingIconColor = IenTheme.colors.danger,
+        trailingIconColor = IenTheme.colors.danger,
+    )
+    link(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        leadingContent = leadingContent,
+        trailingContent = trailingContent,
+        onClickLabel = onClickLabel,
+        indication = indication,
+        interactionSource = interactionSource,
+        colors = colors,
+        caption = caption,
+        title = title,
     )
 }
 
@@ -667,7 +870,7 @@ object IenSectionLinkDefault {
  *
  * @param modifier 적용할 Modifier
  * @param onClick 단추 클릭 시 호출되는 콜백 함수
- * @param icon 단추에 표시할 아이콘 컴포저블 (선택 사항)
+ * @param leadingContent 단추 앞에 표시할 콘텐츠 (선택 사항)
  * @param enabled 단추의 활성화 여부
  * @param label 단추 내에 들어갈 라벨 컴포저블
  */
@@ -676,7 +879,7 @@ object IenSectionLinkDefault {
 fun SectionScope.button(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
-    icon: @Composable (() -> Unit)? = null,
+    leadingContent: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
     label: @Composable () -> Unit,
 ) {
@@ -688,12 +891,13 @@ fun SectionScope.button(
         shape = ContinuousRoundedRectangle(IenTheme.radius.default),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
         modifier = modifier
+            .heightIn(min = 56.dp),
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            icon?.invoke()
+            leadingContent?.invoke()
             label.invoke()
         }
     }
@@ -750,6 +954,57 @@ fun SectionScope.slider(
             )
         },
         modifier = modifier
+    )
+}
+
+/**
+ * 섹션 영역에 최소값과 최대값을 선택하는 범위 슬라이더 항목을 배치합니다.
+ *
+ * @param value 현재 선택된 값 범위
+ * @param onValueChange 범위가 변경될 때 호출되는 콜백 함수
+ * @param modifier 적용할 Modifier
+ * @param enabled 활성화 상태
+ * @param valueRange 선택 가능한 최소값과 최대값
+ * @param steps 슬라이더의 단계 수
+ * @param title 슬라이더 위에 표시할 제목
+ */
+@Composable
+fun SectionScope.rangeSlider(
+    value: ClosedFloatingPointRange<Float>,
+    onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    @IntRange(from = 0) steps: Int = 0,
+    title: String? = null,
+) {
+    item(
+        title = { title?.let { Text(text = it) } },
+        supportingContent = {
+            RangeSlider(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = enabled,
+                valueRange = valueRange,
+                steps = steps,
+                colors = SliderDefaults.colors(
+                    thumbColor = IenTheme.colors.brand,
+                    activeTrackColor = IenTheme.colors.brand,
+                    activeTickColor = IenTheme.colors.onBrand,
+                    inactiveTrackColor = IenTheme.colors.brandWeak,
+                    inactiveTickColor = IenTheme.colors.brand,
+                    disabledThumbColor = IenTheme.colors.textDisabled,
+                    disabledActiveTrackColor = IenTheme.colors.textDisabled,
+                    disabledActiveTickColor = IenTheme.colors.textDisabled,
+                    disabledInactiveTrackColor = IenTheme.colors.brandWeak.copy(
+                        alpha = IenTheme.state.disabledAlpha,
+                    ),
+                    disabledInactiveTickColor = IenTheme.colors.textDisabled,
+                ),
+            )
+        },
+        modifier = modifier,
     )
 }
 

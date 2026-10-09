@@ -128,7 +128,7 @@ fun SectionScreen(
                     AdaptiveSectionTextField(
                         value = text,
                         onValueChange = { text = it },
-                        trailingIcon = {
+                        trailingContent = {
                             IenIconButton(
                                 onClick = { resultStore.setResult("text", text) },
                                 size = IenButtonSize.Small,
