@@ -393,15 +393,31 @@ fun IenScaffold(
 
 private fun ScrollableState.topEdgeProgress(fadeDistancePx: Float): Float = when (this) {
     is ScrollState -> topEdgeProgress(fadeDistancePx)
-    is LazyListState -> topEdgeProgress(fadeDistancePx)
-    is LazyGridState -> topEdgeProgress(fadeDistancePx)
+    is LazyListState -> if (layoutInfo.reverseLayout) {
+        bottomEdgeProgress(fadeDistancePx)
+    } else {
+        topEdgeProgress(fadeDistancePx)
+    }
+    is LazyGridState -> if (layoutInfo.reverseLayout) {
+        bottomEdgeProgress(fadeDistancePx)
+    } else {
+        topEdgeProgress(fadeDistancePx)
+    }
     else -> if (canScrollBackward) 1f else 0f
 }
 
 private fun ScrollableState.bottomEdgeProgress(fadeDistancePx: Float): Float = when (this) {
     is ScrollState -> bottomEdgeProgress(fadeDistancePx)
-    is LazyListState -> bottomEdgeProgress(fadeDistancePx)
-    is LazyGridState -> bottomEdgeProgress(fadeDistancePx)
+    is LazyListState -> if (layoutInfo.reverseLayout) {
+        topEdgeProgress(fadeDistancePx)
+    } else {
+        bottomEdgeProgress(fadeDistancePx)
+    }
+    is LazyGridState -> if (layoutInfo.reverseLayout) {
+        topEdgeProgress(fadeDistancePx)
+    } else {
+        bottomEdgeProgress(fadeDistancePx)
+    }
     else -> if (canScrollForward) 1f else 0f
 }
 
