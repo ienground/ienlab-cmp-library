@@ -16,6 +16,7 @@ import {
   Command,
   Info,
   Menu,
+  Monitor,
   Moon,
   Search,
   Sun,
@@ -80,33 +81,95 @@ interface ApiDocumentationEntry {
 }
 
 type PreviewTab = "preview" | "composer" | "api";
-type ThemeMode = "light" | "dark";
+type ThemeMode = "light" | "dark" | "system";
+type ResolvedTheme = Exclude<ThemeMode, "system">;
+
+interface StoredThemeData {
+  theme: ThemeMode;
+  time: number;
+}
 
 const typedApiDocs = apiDocs as Record<string, ApiDocumentationEntry[]>;
 const themeStorageKey = "ienlab-cmp-ui-docs-theme";
+const themeExpiryHours = 3;
 const minimumPreviewHeight = window.matchMedia("(max-width: 780px)").matches
   ? 460
   : 530;
 
+function isThemeMode(value: unknown): value is ThemeMode {
+  return value === "light" || value === "dark" || value === "system";
+}
+
 function getInitialThemeMode(): ThemeMode {
-  const savedTheme = window.localStorage.getItem(themeStorageKey);
-  if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  const storedTheme = window.localStorage.getItem(themeStorageKey);
+  if (!storedTheme) return "system";
+
+  try {
+    const parsed: unknown = JSON.parse(storedTheme);
+
+    if (isThemeMode(parsed)) return parsed;
+
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      "theme" in parsed &&
+      "time" in parsed
+    ) {
+      const data = parsed as StoredThemeData;
+
+      if (!isThemeMode(data.theme) || typeof data.time !== "number") {
+        return "system";
+      }
+
+      const expiryTime = themeExpiryHours * 60 * 60 * 1000;
+      if (Date.now() - data.time < expiryTime) return data.theme;
+
+      window.localStorage.removeItem(themeStorageKey);
+    }
+  } catch {
+    if (isThemeMode(storedTheme)) return storedTheme;
+  }
+
+  return "system";
 }
 
 function App() {
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialThemeMode);
+  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() =>
+    window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light",
+  );
+  const resolvedTheme: ResolvedTheme =
+    themeMode === "system" ? systemTheme : themeMode;
+
+  function changeThemeMode(nextThemeMode: ThemeMode): void {
+    const themeData: StoredThemeData = {
+      theme: nextThemeMode,
+      time: Date.now(),
+    };
+
+    window.localStorage.setItem(themeStorageKey, JSON.stringify(themeData));
+    setThemeMode(nextThemeMode);
+  }
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", themeMode === "dark");
-    document.documentElement.style.colorScheme = themeMode;
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = (event: MediaQueryListEvent) => {
+      setSystemTheme(event.matches ? "dark" : "light");
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.remove("light", "dark");
+    root.classList.add(resolvedTheme);
+    root.style.colorScheme = resolvedTheme;
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", themeMode === "dark" ? "#0a0a0a" : "#ffffff");
-    window.localStorage.setItem(themeStorageKey, themeMode);
-  }, [themeMode]);
+      ?.setAttribute("content", resolvedTheme === "dark" ? "#0a0a0a" : "#ffffff");
+  }, [resolvedTheme]);
 
   return (
     <BrowserRouter>
@@ -115,7 +178,8 @@ function App() {
         <Route
           element={
             <ComponentPage
-              onThemeModeChange={setThemeMode}
+              onThemeModeChange={changeThemeMode}
+              resolvedTheme={resolvedTheme}
               themeMode={themeMode}
             />
           }
@@ -163,9 +227,11 @@ function InitialRedirect() {
 
 function ComponentPage({
   onThemeModeChange,
+  resolvedTheme,
   themeMode,
 }: {
   onThemeModeChange: (themeMode: ThemeMode) => void;
+  resolvedTheme: ResolvedTheme;
   themeMode: ThemeMode;
 }) {
   const { section, componentId: requestedComponentId, page } = useParams();
@@ -331,7 +397,7 @@ function ComponentPage({
   useEffect(() => {
     setPreviewLoaded(false);
     setPreviewHeight(minimumPreviewHeight);
-  }, [activeComponent?.id, themeMode, iconStyle, customColorSchemes, isColorSchemePage, page]);
+  }, [activeComponent?.id, resolvedTheme, iconStyle, customColorSchemes, isColorSchemePage, page]);
 
   if (page === "colors") return <Navigate replace to="/color-scheme" />;
 
@@ -355,12 +421,26 @@ function ComponentPage({
     "compose/index.html?component=" +
     encodeURIComponent(activeComponent.id) +
     "&theme=" +
-    themeMode +
+    resolvedTheme +
     "&iconStyle=" +
     encodeURIComponent(iconStyle) +
     (customColorSchemes
-      ? "&" + composeColorQuery(customColorSchemes[themeMode])
+      ? "&" + composeColorQuery(customColorSchemes[resolvedTheme])
       : "");
+  const nextThemeMode: ThemeMode =
+    themeMode === "light" ? "dark" : themeMode === "dark" ? "system" : "light";
+  const themeModeLabel =
+    themeMode === "light"
+      ? "라이트 모드"
+      : themeMode === "dark"
+        ? "다크 모드"
+        : "시스템 모드";
+  const nextThemeModeLabel =
+    nextThemeMode === "light"
+      ? "라이트 모드"
+      : nextThemeMode === "dark"
+        ? "다크 모드"
+        : "시스템 모드";
 
   function selectComponent(): void {
     setMobileNavigationOpen(false);
@@ -418,20 +498,18 @@ function ComponentPage({
           </Button>
 
           <Button
-            aria-label={
-              themeMode === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"
-            }
-            onClick={() =>
-              onThemeModeChange(themeMode === "dark" ? "light" : "dark")
-            }
+            aria-label={`${nextThemeModeLabel}로 전환`}
+            onClick={() => onThemeModeChange(nextThemeMode)}
             size="icon-sm"
-            title={themeMode === "dark" ? "라이트 모드" : "다크 모드"}
+            title={themeModeLabel}
             variant="outline"
           >
-            {themeMode === "dark" ? (
+            {themeMode === "light" ? (
               <Sun aria-hidden="true" />
-            ) : (
+            ) : themeMode === "dark" ? (
               <Moon aria-hidden="true" />
+            ) : (
+              <Monitor aria-hidden="true" />
             )}
           </Button>
           <Button
@@ -602,7 +680,7 @@ function ComponentPage({
               aria-label="컬러 스킴 생성기"
             >
               <ColorSchemeBuilder
-                themeMode={themeMode}
+                themeMode={resolvedTheme}
                 iconStyle={iconStyle}
                 onIconStyleChange={setIconStyle}
                 onApply={(schemes, mode) => {

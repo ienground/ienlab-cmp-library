@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,6 +40,9 @@ import zone.ien.utils.ui.interactive.IenSegmentedControlItem
 import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.screen.IenBackButton
+import zone.ien.utils.ui.screen.IenBottomBar
+import zone.ien.utils.ui.screen.IenBottomBarDefaults
+import zone.ien.utils.ui.screen.IenChatBottomBar
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.IenTopAppBarScaffold
 import zone.ien.utils.ui.section.IenSection
@@ -81,7 +85,7 @@ fun IenPlaygroundScreen(
     var switchChecked by remember { mutableStateOf(true) }
     var checkboxChecked by remember { mutableStateOf(false) }
     var sectionTextFieldValue by remember { mutableStateOf("Hello Section Text Field") }
-    var sectionSelectedFruit by remember { mutableStateOf("apple") }
+    var sectionSelectedFruit by remember { mutableStateOf<String?>(null) }
     var sectionErrorValue by remember { mutableStateOf("invalid-email") }
     var selectedSectionOption by remember { mutableStateOf("standard") }
     var sectionRangeValue by remember { mutableStateOf(20f..80f) }
@@ -108,14 +112,28 @@ fun IenPlaygroundScreen(
     var selectedOption by remember { mutableStateOf("apple") }
     var selectedOptions by remember { mutableStateOf(listOf("apple", "banana")) }
 
-    // Navigation Bar State
+    // Bottom Bar States
     var selectedNavIndex by remember { mutableStateOf(0) }
     var navigationBarVisible by remember { mutableStateOf(true) }
+    var bottomBarVisible by remember { mutableStateOf(true) }
+    var chatBottomBarVisible by remember { mutableStateOf(true) }
+    var chatMessage by remember { mutableStateOf("") }
     var darkTheme by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
 
     IenTheme(darkTheme = darkTheme) {
+        val bottomBarWindowInsets = if (!navigationBarVisible && bottomBarVisible) {
+            IenBottomBarDefaults.windowInsets
+        } else {
+            WindowInsets(0.dp)
+        }
+        val chatBottomBarWindowInsets = if (!navigationBarVisible && !bottomBarVisible && chatBottomBarVisible) {
+            IenBottomBarDefaults.windowInsets
+        } else {
+            WindowInsets(0.dp)
+        }
+
         IenTopAppBarScaffold(
             modifier = modifier,
             contentEdge = IenScaffoldContentEdge(
@@ -130,44 +148,58 @@ fun IenPlaygroundScreen(
             subtitle = { Text("Testing all migrated Material3 wrapper components") },
             actions = listOf<ActionMenuItem>(),
             bottomBar = {
-                IenNavigationBar(
-                    selectedIndex = selectedNavIndex,
-                    itemCount = 3,
-                    visible = navigationBarVisible,
-                ) {
-                    IenNavigationBarItem(
-                        index = 0,
-                        onClick = { selectedNavIndex = 0 },
-                        icon = {
-                            IenIcon(
-                                imageVector = SystemIcons.Save,
-                                contentDescription = null
-                            )
-                        },
-                        label = { Text("저장") }
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    IenChatBottomBar(
+                        value = chatMessage,
+                        onValueChange = { chatMessage = it },
+                        onSend = { chatMessage = "" },
+                        visible = chatBottomBarVisible,
+                        windowInsets = chatBottomBarWindowInsets,
                     )
-                    IenNavigationBarItem(
-                        index = 1,
-                        onClick = { selectedNavIndex = 1 },
-                        icon = {
-                            IenIcon(
-                                imageVector = SystemIcons.Edit,
-                                contentDescription = null
-                            )
-                        },
-                        label = { Text("수정") }
+                    IenBottomBar(
+                        actions = { Text("IenBottomBar") },
+                        visible = bottomBarVisible,
+                        windowInsets = bottomBarWindowInsets,
                     )
-                    IenNavigationBarItem(
-                        index = 2,
-                        onClick = { selectedNavIndex = 2 },
-                        icon = {
-                            IenIcon(
-                                imageVector = SystemIcons.Schedule,
-                                contentDescription = null
-                            )
-                        },
-                        label = { Text("스케쥴") }
-                    )
+                    IenNavigationBar(
+                        selectedIndex = selectedNavIndex,
+                        itemCount = 3,
+                        visible = navigationBarVisible,
+                    ) {
+                        IenNavigationBarItem(
+                            index = 0,
+                            onClick = { selectedNavIndex = 0 },
+                            icon = {
+                                IenIcon(
+                                    imageVector = SystemIcons.Save,
+                                    contentDescription = null
+                                )
+                            },
+                            label = { Text("저장") }
+                        )
+                        IenNavigationBarItem(
+                            index = 1,
+                            onClick = { selectedNavIndex = 1 },
+                            icon = {
+                                IenIcon(
+                                    imageVector = SystemIcons.Edit,
+                                    contentDescription = null
+                                )
+                            },
+                            label = { Text("수정") }
+                        )
+                        IenNavigationBarItem(
+                            index = 2,
+                            onClick = { selectedNavIndex = 2 },
+                            icon = {
+                                IenIcon(
+                                    imageVector = SystemIcons.Schedule,
+                                    contentDescription = null
+                                )
+                            },
+                            label = { Text("스케쥴") }
+                        )
+                    }
                 }
             }
         ) { paddingValues ->
@@ -278,6 +310,16 @@ fun IenPlaygroundScreen(
                         title = { Text("Link Item") }
                     )
                     switch(
+                        checked = bottomBarVisible,
+                        onCheckedChange = { bottomBarVisible = it },
+                        title = { Text("Bottom Bar Visible") }
+                    )
+                    switch(
+                        checked = chatBottomBarVisible,
+                        onCheckedChange = { chatBottomBarVisible = it },
+                        title = { Text("Chat Bottom Bar Visible") }
+                    )
+                    switch(
                         checked = navigationBarVisible,
                         onCheckedChange = { navigationBarVisible = it },
                         title = { Text("Bottom Navigation Visible") }
@@ -314,6 +356,7 @@ fun IenPlaygroundScreen(
                         itemsWithLabels = options,
                         currentItem = sectionSelectedFruit,
                         onItemSelected = { sectionSelectedFruit = it },
+                        defaultText = "Select a fruit",
                         title = { Text("Dropdown Item") }
                     )
                     textField(

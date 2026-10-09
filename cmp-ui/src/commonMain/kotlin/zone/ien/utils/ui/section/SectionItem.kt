@@ -53,6 +53,7 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
@@ -306,9 +307,46 @@ fun <T> SectionScope.dropdown(
     leadingContent: (@Composable () -> Unit)? = null,
     supportingContent: (@Composable () -> Unit)? = null,
     title: @Composable () -> Unit,
+) = dropdown(
+    itemsWithLabels = itemsWithLabels,
+    currentItem = currentItem,
+    onItemSelected = onItemSelected,
+    modifier = modifier,
+    enabled = enabled,
+    leadingContent = leadingContent,
+    supportingContent = supportingContent,
+    defaultText = "",
+    title = title,
+)
+
+/**
+ * 섹션에서 선택 가능한 드롭다운 항목을 표시합니다.
+ *
+ * @param itemsWithLabels 항목과 표시 이름의 매핑
+ * @param currentItem 현재 선택된 항목
+ * @param onItemSelected 항목 선택 시 호출되는 함수
+ * @param modifier 적용할 Modifier
+ * @param enabled 활성화 상태
+ * @param leadingContent 앞쪽 콘텐츠
+ * @param supportingContent 지원 콘텐츠
+ * @param defaultText 선택된 항목이 없을 때 표시할 텍스트. 생략하면 빈 문자열을 표시합니다.
+ * @param title 제목
+ */
+@Composable
+fun <T> SectionScope.dropdown(
+    itemsWithLabels: Map<T, String>,
+    currentItem: T?,
+    onItemSelected: (T) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    leadingContent: (@Composable () -> Unit)? = null,
+    supportingContent: (@Composable () -> Unit)? = null,
+    defaultText: String,
+    title: @Composable () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val currentLabel = currentItem?.let(itemsWithLabels::get).orEmpty()
+    val selectedLabel = currentItem?.let(itemsWithLabels::get)
+    val currentLabel = selectedLabel ?: defaultText
     val chevronRotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         animationSpec = tween(
@@ -330,7 +368,9 @@ fun <T> SectionScope.dropdown(
                 ) {
                     Text(
                         text = currentLabel,
-                        style = IenTheme.typography.body2,
+                        style = IenTheme.typography.body2.copy(
+                            fontStyle = if (selectedLabel == null) FontStyle.Italic else FontStyle.Normal,
+                        ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )

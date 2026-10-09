@@ -653,8 +653,14 @@ private val ComponentPlaygroundControls = mapOf(
         choiceControl("size", "크기", listOf("Small", "Medium", "Large", "ExtraLarge")),
         choiceControl("shape", "모양", listOf("Rounded", "Circle")),
     ),
-    "bottom-bar" to listOf(toggleControl("showFab", "플로팅 버튼 표시")),
-    "chat-bottom-bar" to listOf(disabledControl()),
+    "bottom-bar" to listOf(
+        toggleControl("visible", "하단 바 표시"),
+        toggleControl("showFab", "플로팅 버튼 표시"),
+    ),
+    "chat-bottom-bar" to listOf(
+        toggleControl("visible", "채팅 하단 바 표시"),
+        disabledControl(),
+    ),
     "navigation-bar" to listOf(
         choiceControl("type", "타입", listOf("nav", "nav2")),
         toggleControl("visible", "내비게이션 표시"),
@@ -4876,6 +4882,7 @@ fun BottomBarSection(controls: Map<String, String> = emptyMap()) {
                 shape = shape,
                 elevation = controls.intValue("elevation", 8).coerceIn(0, 24).dp,
                 contentPadding = PaddingValues(controls.intValue("contentPadding", 8).coerceIn(0, 24).dp),
+                visible = controls.booleanValue("visible", true),
             )
         }
     }
@@ -4892,6 +4899,7 @@ fun ChatBottomBarSection(controls: Map<String, String> = emptyMap()) {
                 maxLines = controls.intValue("maxLines", 4).coerceIn(1, 8),
                 showLeading = controls.booleanValue("showLeading", true),
                 showTrailing = controls.booleanValue("showTrailing", true),
+                visible = controls.booleanValue("visible", true),
             )
         }
     }
@@ -4904,6 +4912,7 @@ private fun ChatBottomBarExample(
     maxLines: Int = 4,
     showLeading: Boolean = true,
     showTrailing: Boolean = true,
+    visible: Boolean = true,
 ) {
     var chatMessage by remember { mutableStateOf("") }
     var sentMessage by remember { mutableStateOf<String?>(null) }
@@ -4956,6 +4965,7 @@ private fun ChatBottomBarExample(
         }) else null,
         inputState = IenTextFieldState(enabled = enabled),
         sendState = IenButtonState(enabled = enabled && chatMessage.isNotBlank()),
+        visible = visible,
     )
 }
 

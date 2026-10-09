@@ -1,5 +1,11 @@
 package zone.ien.utils.ui.screen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,6 +45,7 @@ import zone.ien.utils.ui.primitives.IenSurface
  * @param elevation 표면 그림자의 높이
  * @param contentPadding 표면 내부 콘텐츠 여백
  * @param windowInsets 표면 바깥에 적용하고 소비할 안전 영역 인셋
+ * @param visible 하단 바 표시 여부
  */
 @Composable
 fun IenBottomBar(
@@ -51,6 +58,7 @@ fun IenBottomBar(
     elevation: Dp = IenTheme.elevation.floating,
     contentPadding: PaddingValues = PaddingValues(IenTheme.spacing.xs),
     windowInsets: WindowInsets = IenBottomBarDefaults.windowInsets,
+    visible: Boolean = true,
 ) {
     IenBottomBar(
         modifier = modifier,
@@ -60,6 +68,7 @@ fun IenBottomBar(
         elevation = elevation,
         contentPadding = contentPadding,
         windowInsets = windowInsets,
+        visible = visible,
     ) {
         Row(
             modifier = Modifier.weight(1f),
@@ -102,30 +111,96 @@ fun IenBottomBar(
     windowInsets: WindowInsets = IenBottomBarDefaults.windowInsets,
     content: @Composable RowScope.() -> Unit,
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .windowInsetsPadding(windowInsets)
-            .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.xs),
+    IenBottomBar(
+        modifier = modifier,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        shape = shape,
+        elevation = elevation,
+        contentPadding = contentPadding,
+        windowInsets = windowInsets,
+        visible = true,
+        content = content,
+    )
+}
+
+/**
+ * 호출자가 표시 여부와 RowScope 콘텐츠를 지정하는 하단 바입니다.
+ *
+ * @param modifier 안전 영역과 외부 여백을 포함하는 하단 바 전체에 적용할 Modifier
+ * @param containerColor 하단 바 표면 색상
+ * @param contentColor 내부 콘텐츠 기본 색상
+ * @param shape 하단 바 표면 모양
+ * @param elevation 표면 그림자의 높이
+ * @param contentPadding 표면 내부 콘텐츠 여백
+ * @param windowInsets 표면 바깥에 적용하고 소비할 안전 영역 인셋
+ * @param visible 하단 바 표시 여부
+ * @param content 하단 바 콘텐츠. weight와 Spacer로 각 항목의 배치를 조절할 수 있습니다.
+ */
+@Composable
+fun IenBottomBar(
+    modifier: Modifier = Modifier,
+    containerColor: Color = IenTheme.colors.surface,
+    contentColor: Color = IenTheme.colors.textPrimary,
+    shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.full),
+    elevation: Dp = IenTheme.elevation.floating,
+    contentPadding: PaddingValues = PaddingValues(IenTheme.spacing.xs),
+    windowInsets: WindowInsets = IenBottomBarDefaults.windowInsets,
+    visible: Boolean = true,
+    content: @Composable RowScope.() -> Unit,
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(
+            animationSpec = tween(
+                durationMillis = IenTheme.motion.fastMillis,
+                easing = IenTheme.motion.standardEasing,
+            ),
+        ) + slideInVertically(
+            animationSpec = tween(
+                durationMillis = IenTheme.motion.normalMillis,
+                easing = IenTheme.motion.standardEasing,
+            ),
+            initialOffsetY = { it },
+        ),
+        exit = fadeOut(
+            animationSpec = tween(
+                durationMillis = IenTheme.motion.fastMillis,
+                easing = IenTheme.motion.standardEasing,
+            ),
+        ) + slideOutVertically(
+            animationSpec = tween(
+                durationMillis = IenTheme.motion.normalMillis,
+                easing = IenTheme.motion.standardEasing,
+            ),
+            targetOffsetY = { it },
+        ),
     ) {
-        IenSurface(
-            modifier = Modifier
+        Box(
+            modifier = modifier
                 .fillMaxWidth()
-                .shadow(elevation = elevation, shape = shape, clip = false),
-            color = containerColor,
-            contentColor = contentColor,
-            shape = shape,
+                .windowInsetsPadding(windowInsets)
+                .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.xs),
         ) {
-            IenProvideTextStyle(IenTheme.typography.body2, contentColor) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = IenBottomBarDefaults.ContentHeight)
-                        .padding(contentPadding),
-                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
-                    verticalAlignment = Alignment.CenterVertically,
-                    content = content,
-                )
+            IenSurface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(elevation = elevation, shape = shape, clip = false),
+                color = containerColor,
+                contentColor = contentColor,
+                shape = shape,
+            ) {
+                IenProvideTextStyle(IenTheme.typography.body2, contentColor) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = IenBottomBarDefaults.ContentHeight)
+                            .padding(contentPadding),
+                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
+                        verticalAlignment = Alignment.CenterVertically,
+                        content = content,
+                    )
+                }
             }
         }
     }
