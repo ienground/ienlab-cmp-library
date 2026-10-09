@@ -41,6 +41,7 @@ import zone.ien.utils.ui.primitives.IenIcon
  * @param onValueChange 메시지가 변경될 때 호출되는 콜백
  * @param onSend 전송 버튼 또는 키보드 전송 액션을 실행할 때 호출되는 콜백
  * @param modifier 안전 영역과 외부 여백을 포함한 하단 바 전체에 적용할 Modifier
+ * @param inputModifier 메시지 입력창에 적용할 Modifier
  * @param placeholder 비어 있는 입력창에 표시할 안내 문구
  * @param leadingContent 입력창 앞에 배치할 첨부 버튼 등의 선택적인 콘텐츠
  * @param trailingContent 입력창 뒤, 전송 FAB 앞에 배치할 선택적인 콘텐츠
@@ -69,6 +70,7 @@ fun IenChatBottomBar(
         imeAction = ImeAction.Send,
     ),
     windowInsets: WindowInsets = IenBottomBarDefaults.windowInsets,
+    inputModifier: Modifier = Modifier,
     sendButtonContent: @Composable () -> Unit = {
         IenIcon(
             imageVector = SystemIcons.ArrowDropUp,
@@ -103,7 +105,7 @@ fun IenChatBottomBar(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = Modifier
+            modifier = inputModifier
                 .weight(1f)
                 .clipToBounds()
                 .semantics {
