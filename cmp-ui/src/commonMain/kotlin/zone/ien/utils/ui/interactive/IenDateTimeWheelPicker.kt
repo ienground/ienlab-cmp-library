@@ -2,6 +2,9 @@ package zone.ien.utils.ui.interactive
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SelectableDates
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -9,6 +12,10 @@ import com.sunnychung.lib.multiplatform.kdatetime.KDate
 import com.sunnychung.lib.multiplatform.kdatetime.KDuration
 import com.sunnychung.lib.multiplatform.kdatetime.KFixedTimeUnit
 import com.sunnychung.lib.multiplatform.kdatetime.KGregorianCalendar
+import com.sunnychung.lib.multiplatform.kdatetime.KZonedDateTime
+import com.sunnychung.lib.multiplatform.kdatetime.KZoneOffset
+import com.sunnychung.lib.multiplatform.kdatetime.serializer.KInstantAsLong
+import com.sunnychung.lib.multiplatform.kdatetime.toKZonedDateTime
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
@@ -24,6 +31,7 @@ import zone.ien.utils.cmp_ui.generated.resources.time_picker_minute
 import zone.ien.utils.cmp_ui.generated.resources.time_picker_pm
 import zone.ien.utils.cmp_ui.generated.resources.time_picker_second
 import zone.ien.utils.ui.foundation.IenTheme
+import kotlin.math.abs
 
 /**
  * 시각 휠 선택기에서 표시할 필드.
@@ -50,7 +58,9 @@ enum class IenDurationWheelField {
  * @param modifier 루트 레이아웃에 적용할 Modifier.
  * @param yearRange 선택 가능한 연도 범위 (1..9999).
  * @param enabled 선택 가능 여부.
+ * @param selectableDates 선택할 수 있는 연도와 날짜.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IenDateWheelPicker(
     value: KDate,
@@ -58,38 +68,77 @@ fun IenDateWheelPicker(
     modifier: Modifier = Modifier,
     yearRange: IntRange = 1900..2100,
     enabled: Boolean = true,
+    selectableDates: SelectableDates = DatePickerDefaults.AllDates,
 ) {
     require(!yearRange.isEmpty() && yearRange.first >= 1 && yearRange.last <= 9999) { "연도 범위는 1..9999 안이어야 합니다." }
     require(value.year in yearRange) { "날짜가 선택 가능한 연도 범위를 벗어났습니다." }
-    val years = remember(yearRange) { yearRange.toList() }
-    val months = remember { (1..12).toList() }
-    val days = remember(value.year, value.month) { (1..wheelPickerDaysInMonth(value.year, value.month)).toList() }
+    val selectableYears = remember(yearRange, selectableDates) {
+        yearRange.filter { year -> selectableDates.hasSelectableDateInYear(year) }
+    }
+    val hasSelectableDates = selectableYears.isNotEmpty()
+    val wheelDate = remember(value, selectableYears, selectableDates) {
+        if (selectableDates.allows(value)) {
+            value
+        } else {
+            val referenceMillis = value.toDatePickerUtcMillis()
+            listOfNotNull(
+                selectableYears.lastOrNull { it <= value.year },
+                selectableYears.firstOrNull { it >= value.year },
+            ).distinct()
+                .mapNotNull { year -> selectableDates.nearestDateInYear(year, referenceMillis) }
+                .minByOrNull { abs(it.toDatePickerUtcMillis() - referenceMillis) }
+                ?: value
+        }
+    }
+    val years = remember(yearRange, selectableYears) {
+        if (hasSelectableDates) selectableYears else yearRange.toList()
+    }
+    val months = remember(wheelDate.year, wheelDate.day, selectableDates, hasSelectableDates) {
+        if (hasSelectableDates) {
+            (1..12).filter { month ->
+                selectableDates.nearestDateInMonth(wheelDate.year, month, wheelDate.day) != null
+            }
+        } else {
+            (1..12).toList()
+        }
+    }
+    val days = remember(wheelDate.year, wheelDate.month, selectableDates, hasSelectableDates) {
+        (1..wheelPickerDaysInMonth(wheelDate.year, wheelDate.month)).filter { day ->
+            !hasSelectableDates || selectableDates.allows(KDate(wheelDate.year, wheelDate.month, day))
+        }
+    }
     val yearLabel = stringResource(Res.string.date_picker_year, WHEEL_VALUE_PLACEHOLDER)
     val monthLabel = stringResource(Res.string.date_picker_month, WHEEL_VALUE_PLACEHOLDER)
     val dayLabel = stringResource(Res.string.date_picker_day, WHEEL_VALUE_PLACEHOLDER)
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs)) {
         IenWheelPicker(
             items = years,
-            selectedIndex = value.year - yearRange.first,
-            onSelectedIndexChange = { onValueChange(wheelPickerDate(years[it], value.month, value.day)) },
+            selectedIndex = years.indexOf(wheelDate.year).coerceAtLeast(0),
+            onSelectedIndexChange = { index ->
+                selectableDates.nearestDateInYear(years[index], wheelDate.toDatePickerUtcMillis())
+                    ?.let(onValueChange)
+            },
             modifier = Modifier.weight(1.4f),
-            enabled = enabled,
+            enabled = enabled && hasSelectableDates,
             itemLabel = { yearLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString()) },
         )
         IenWheelPicker(
             items = months,
-            selectedIndex = value.month - 1,
-            onSelectedIndexChange = { onValueChange(wheelPickerDate(value.year, months[it], value.day)) },
+            selectedIndex = months.indexOf(wheelDate.month).coerceAtLeast(0),
+            onSelectedIndexChange = { index ->
+                selectableDates.nearestDateInMonth(wheelDate.year, months[index], wheelDate.day)
+                    ?.let(onValueChange)
+            },
             modifier = Modifier.weight(1f),
-            enabled = enabled,
+            enabled = enabled && hasSelectableDates,
             itemLabel = { monthLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString()) },
         )
         IenWheelPicker(
             items = days,
-            selectedIndex = value.day - 1,
-            onSelectedIndexChange = { onValueChange(KDate(value.year, value.month, days[it])) },
+            selectedIndex = days.indexOf(wheelDate.day).coerceAtLeast(0),
+            onSelectedIndexChange = { onValueChange(KDate(wheelDate.year, wheelDate.month, days[it])) },
             modifier = Modifier.weight(1f),
-            enabled = enabled,
+            enabled = enabled && hasSelectableDates,
             itemLabel = { dayLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString()) },
         )
     }
@@ -334,6 +383,69 @@ private fun wheelPickerDaysInMonth(year: Int, month: Int): Int = when (month) {
     4, 6, 9, 11 -> 30
     else -> 31
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+private fun SelectableDates.allows(date: KDate): Boolean =
+    isSelectableYear(date.year) && isSelectableDate(date.toDatePickerUtcMillis())
+
+@OptIn(ExperimentalMaterial3Api::class)
+private fun SelectableDates.hasSelectableDateInYear(year: Int): Boolean {
+    if (!isSelectableYear(year)) return false
+    return (1..12).any { month ->
+        (1..wheelPickerDaysInMonth(year, month)).any { day ->
+            isSelectableDate(KDate(year, month, day).toDatePickerUtcMillis())
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+private fun SelectableDates.nearestDateInMonth(year: Int, month: Int, preferredDay: Int): KDate? {
+    if (!isSelectableYear(year)) return null
+    return (1..wheelPickerDaysInMonth(year, month))
+        .asSequence()
+        .map { KDate(year, month, it) }
+        .filter { isSelectableDate(it.toDatePickerUtcMillis()) }
+        .minByOrNull { abs(it.day - preferredDay) }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+private fun SelectableDates.nearestDateInYear(year: Int, referenceMillis: Long): KDate? {
+    if (!isSelectableYear(year)) return null
+    var nearestDate: KDate? = null
+    var nearestDistance = Long.MAX_VALUE
+    for (month in 1..12) {
+        for (day in 1..wheelPickerDaysInMonth(year, month)) {
+            val date = KDate(year, month, day)
+            val dateMillis = date.toDatePickerUtcMillis()
+            if (isSelectableDate(dateMillis)) {
+                val distance = abs(dateMillis - referenceMillis)
+                if (distance < nearestDistance) {
+                    nearestDate = date
+                    nearestDistance = distance
+                }
+            }
+        }
+    }
+    return nearestDate
+}
+
+internal fun KDate.toDatePickerUtcMillis(): Long =
+    KZonedDateTime(
+        year = year,
+        month = month,
+        day = day,
+        hour = 0,
+        minute = 0,
+        second = 0,
+        millisecond = 0,
+        zoneOffset = KZoneOffset.UTC,
+    ).toKInstant().toEpochMilliseconds()
+
+internal fun datePickerUtcMillisToDate(utcTimeMillis: Long): KDate =
+    KInstantAsLong(utcTimeMillis)
+        .atZoneOffset(KZoneOffset.UTC)
+        .toKZonedDateTime()
+        .datePart()
 
 internal fun wheelPickerHour(hour: Int, afternoon: Boolean): Int = hour % 12 + if (afternoon) 12 else 0
 

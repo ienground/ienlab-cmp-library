@@ -26,13 +26,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.sunnychung.lib.multiplatform.kdatetime.KDate
 import com.sunnychung.lib.multiplatform.kdatetime.KDuration
 import com.sunnychung.lib.multiplatform.kdatetime.KFixedTimeUnit
-import com.sunnychung.lib.multiplatform.kdatetime.KZonedDateTime
-import com.sunnychung.lib.multiplatform.kdatetime.KZoneOffset
-import com.sunnychung.lib.multiplatform.kdatetime.serializer.KInstantAsLong
-import com.sunnychung.lib.multiplatform.kdatetime.toKZonedDateTime
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
@@ -46,6 +41,8 @@ import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenDateWheelPicker
 import zone.ien.utils.ui.interactive.IenTimeWheelPicker
+import zone.ien.utils.ui.interactive.datePickerUtcMillisToDate
+import zone.ien.utils.ui.interactive.toDatePickerUtcMillis
 import zone.ien.utils.ui.utils.rememberMyDatePickerState
 
 /**
@@ -128,6 +125,7 @@ fun IenDatePickerDialog(
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp),
                     yearRange = yearRange,
+                    selectableDates = selectableDates,
                 )
                 Row(
                     modifier = Modifier
@@ -322,21 +320,3 @@ fun IenTimePicker(
         )
     }
 }
-
-private fun datePickerUtcMillisToDate(utcTimeMillis: Long): KDate =
-    KInstantAsLong(utcTimeMillis)
-        .atZoneOffset(KZoneOffset.UTC)
-        .toKZonedDateTime()
-        .datePart()
-
-private fun KDate.toDatePickerUtcMillis(): Long =
-    KZonedDateTime(
-        year = year,
-        month = month,
-        day = day,
-        hour = 0,
-        minute = 0,
-        second = 0,
-        millisecond = 0,
-        zoneOffset = KZoneOffset.UTC,
-    ).toKInstant().toEpochMilliseconds()
