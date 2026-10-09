@@ -23,9 +23,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.material3.Text
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Arrangement
@@ -139,7 +142,6 @@ import zone.ien.utils.ui.view.resolveIenTooltipColors
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Icon
 import androidx.compose.ui.text.style.LineBreak
 import com.kyant.backdrop.drawPlainBackdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
@@ -152,12 +154,12 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.agreement_optional
 import zone.ien.utils.cmp_ui.generated.resources.agreement_required
 import zone.ien.utils.cmp_ui.generated.resources.agreement_terms
-import zone.ien.utils.icon.remix.RemixIcons
-import zone.ien.utils.icon.remix.line.ArrowDownWide
+import zone.ien.utils.icon.SystemIcons
+import zone.ien.utils.icon.tabler.TablerIcons
 import zone.ien.utils.ui.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.interactive.IenDotCheckbox
-import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 import zone.ien.utils.ui.window.ienTooltipPopupProperties
+import zone.ien.utils.ui.primitives.IenIcon
 
 internal val LocalIenTopBarFloatingSlotHiddenRequester = staticCompositionLocalOf<((Boolean) -> Unit)?> { null }
 
@@ -243,8 +245,9 @@ data class IenTopSubtitleBadge(
  * @property bottomEnabled 하단 모서리 블러 효과 활성화 여부
  * @property topProgress 상단 블러 진행도 (0f ~ 1f)
  * @property bottomProgress 하단 블러 진행도 (0f ~ 1f)
- * @property scrollState 일반 스크롤 콘텐츠의 상/하단 블러 진행도를 자동 계산할 상태
- * @property lazyListState Lazy 리스트 콘텐츠의 상/하단 블러 진행도를 자동 계산할 상태
+ * @property scrollableState 콘텐츠의 상/하단 블러 진행도를 자동 계산할 상태.
+ * [ScrollState], [LazyListState], [LazyGridState]는 스크롤 거리로 진행도를 계산하고,
+ * 그 외 상태는 각 방향의 스크롤 가능 여부에 따라 블러를 표시합니다.
  * @property scrollFadeDistance 스크롤 시작/끝 근처에서 블러가 나타나고 사라지는 거리
  * @property topHeight 상단 블러 영역의 높이
  * @property bottomHeight 하단 블러 영역의 높이
@@ -258,8 +261,7 @@ data class IenScaffoldContentEdge(
     val bottomEnabled: Boolean = true,
     val topProgress: Float = 1f,
     val bottomProgress: Float = 1f,
-    val scrollState: ScrollState? = null,
-    val lazyListState: LazyListState? = null,
+    val scrollableState: ScrollableState? = null,
     val scrollFadeDistance: Dp = 48.dp,
     val topHeight: Dp = 168.dp,
     val bottomHeight: Dp = 64.dp,
@@ -303,8 +305,8 @@ fun IenScaffold(
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val defaultScrollState = rememberScrollState()
-    val effectiveContentEdge = if (contentEdge.scrollState == null && contentEdge.lazyListState == null) {
-        contentEdge.copy(scrollState = defaultScrollState)
+    val effectiveContentEdge = if (contentEdge.scrollableState == null) {
+        contentEdge.copy(scrollableState = defaultScrollState)
     } else {
         contentEdge
     }
@@ -316,11 +318,9 @@ fun IenScaffold(
     val scrollFadeDistancePx = with(LocalDensity.current) {
         effectiveContentEdge.scrollFadeDistance.toPx().coerceAtLeast(1f)
     }
-    val scrollTopProgress = effectiveContentEdge.scrollState?.topEdgeProgress(scrollFadeDistancePx)
-        ?: effectiveContentEdge.lazyListState?.topEdgeProgress(scrollFadeDistancePx)
+    val scrollTopProgress = effectiveContentEdge.scrollableState?.topEdgeProgress(scrollFadeDistancePx)
         ?: 0f
-    val scrollBottomProgress = effectiveContentEdge.scrollState?.bottomEdgeProgress(scrollFadeDistancePx)
-        ?: effectiveContentEdge.lazyListState?.bottomEdgeProgress(scrollFadeDistancePx)
+    val scrollBottomProgress = effectiveContentEdge.scrollableState?.bottomEdgeProgress(scrollFadeDistancePx)
         ?: 0f
     val effectiveTopProgress = effectiveContentEdge.topProgress.coerceIn(0f, 1f) * scrollTopProgress
     val effectiveBottomProgress = effectiveContentEdge.bottomProgress.coerceIn(0f, 1f) * scrollBottomProgress
@@ -366,7 +366,7 @@ fun IenScaffold(
                     .matchParentSize()
                     .layerBackdrop(backdrop),
             ) {
-                CompositionLocalProvider(LocalIenScaffoldScrollState provides effectiveContentEdge.scrollState) {
+                CompositionLocalProvider(LocalIenScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState)) {
                     content(contentPadding)
                 }
             }
@@ -391,6 +391,20 @@ fun IenScaffold(
     }
 }
 
+private fun ScrollableState.topEdgeProgress(fadeDistancePx: Float): Float = when (this) {
+    is ScrollState -> topEdgeProgress(fadeDistancePx)
+    is LazyListState -> topEdgeProgress(fadeDistancePx)
+    is LazyGridState -> topEdgeProgress(fadeDistancePx)
+    else -> if (canScrollBackward) 1f else 0f
+}
+
+private fun ScrollableState.bottomEdgeProgress(fadeDistancePx: Float): Float = when (this) {
+    is ScrollState -> bottomEdgeProgress(fadeDistancePx)
+    is LazyListState -> bottomEdgeProgress(fadeDistancePx)
+    is LazyGridState -> bottomEdgeProgress(fadeDistancePx)
+    else -> if (canScrollForward) 1f else 0f
+}
+
 private fun ScrollState.topEdgeProgress(fadeDistancePx: Float): Float {
     if (maxValue <= 0) return 0f
     return (value / fadeDistancePx).coerceIn(0f, 1f)
@@ -404,9 +418,15 @@ private fun ScrollState.bottomEdgeProgress(fadeDistancePx: Float): Float {
 private fun LazyListState.topEdgeProgress(fadeDistancePx: Float): Float {
     val layoutInfo = layoutInfo
     if (layoutInfo.totalItemsCount <= 0) return 0f
-    if (!canScrollBackward && !canScrollForward) return 0f
-    if (firstVisibleItemIndex > 0) return 1f
-    return (firstVisibleItemScrollOffset / fadeDistancePx).coerceIn(0f, 1f)
+    val firstItem = layoutInfo.visibleItemsInfo.firstOrNull { it.index == 0 }
+    val firstItemOffset = firstItem?.takeUnless {
+        firstVisibleItemIndex > 0 && it.size > 0 && it.offset >= 0
+    }?.offset
+    return resolveLazyTopEdgeProgress(
+        canScrollBackward = canScrollBackward,
+        firstItemOffset = firstItemOffset,
+        fadeDistancePx = fadeDistancePx,
+    )
 }
 
 private fun LazyListState.bottomEdgeProgress(fadeDistancePx: Float): Float {
@@ -417,6 +437,49 @@ private fun LazyListState.bottomEdgeProgress(fadeDistancePx: Float): Float {
     if (lastVisibleItem.index < layoutInfo.totalItemsCount - 1) return 1f
 
     val remainingPx = (lastVisibleItem.offset + lastVisibleItem.size - layoutInfo.viewportEndOffset).toFloat()
+    return (remainingPx / fadeDistancePx).coerceIn(0f, 1f)
+}
+
+private fun LazyGridState.topEdgeProgress(fadeDistancePx: Float): Float {
+    val layoutInfo = layoutInfo
+    if (layoutInfo.totalItemsCount <= 0) return 0f
+    val firstItem = layoutInfo.visibleItemsInfo.firstOrNull { it.index == 0 }
+    return resolveLazyTopEdgeProgress(
+        canScrollBackward = canScrollBackward,
+        firstItemOffset = firstItem?.let {
+            if (layoutInfo.orientation == Orientation.Vertical) it.offset.y else it.offset.x
+        },
+        fadeDistancePx = fadeDistancePx,
+    )
+}
+
+internal fun resolveLazyTopEdgeProgress(
+    canScrollBackward: Boolean,
+    firstItemOffset: Int?,
+    fadeDistancePx: Float,
+): Float {
+    if (!canScrollBackward) return 0f
+    if (firstItemOffset == null) return 1f
+    if (firstItemOffset >= 0) return 0f
+    return (-firstItemOffset.toFloat() / fadeDistancePx.coerceAtLeast(1f)).coerceIn(0f, 1f)
+}
+
+private fun LazyGridState.bottomEdgeProgress(fadeDistancePx: Float): Float {
+    val layoutInfo = layoutInfo
+    if (layoutInfo.totalItemsCount <= 0) return 0f
+    if (!canScrollForward) return 0f
+    val visibleItems = layoutInfo.visibleItemsInfo
+    if (visibleItems.isEmpty()) return 0f
+    if (visibleItems.none { it.index == layoutInfo.totalItemsCount - 1 }) return 1f
+
+    val contentEnd = visibleItems.maxOf {
+        if (layoutInfo.orientation == Orientation.Vertical) {
+            it.offset.y + it.size.height
+        } else {
+            it.offset.x + it.size.width
+        }
+    }
+    val remainingPx = (contentEnd - layoutInfo.viewportEndOffset).toFloat()
     return (remainingPx / fadeDistancePx).coerceIn(0f, 1f)
 }
 
@@ -2495,8 +2558,8 @@ fun IenAgreementRightArrow(
         animationSpec = tween(durationMillis = IenTheme.motion.fastMillis, easing = IenTheme.motion.standardEasing),
         label = "ienAgreementRightArrowRotation",
     )
-    Icon(
-        imageVector = RemixIcons.Line.ArrowDownWide,
+    IenIcon(
+        imageVector = SystemIcons.ChevronDown,
         contentDescription = null,
         tint = IenTheme.colors.textDisabled,
         modifier = modifier

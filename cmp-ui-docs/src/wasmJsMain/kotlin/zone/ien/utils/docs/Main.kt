@@ -3,6 +3,7 @@ package zone.ien.utils.docs
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 import androidx.compose.ui.graphics.Color
+import zone.ien.utils.icon.IconStyle
 import zone.ien.utils.ui.foundation.IenColorScheme
 import zone.ien.utils.ui.foundation.defaultIenTokens
 import kotlin.js.ExperimentalWasmJsInterop
@@ -21,6 +22,7 @@ fun main() {
             componentId = componentId,
             darkTheme = darkTheme,
             colors = colors,
+            iconStyle = currentIconStyle(),
             onContentHeight = ::reportPreviewHeight,
             showPreviewViewportControls = true,
             initialPreviewViewport = previewViewport,
@@ -107,3 +109,15 @@ private fun previewColor(role: String, fallback: Color): Color {
 @OptIn(ExperimentalWasmJsInterop::class)
 private fun currentColor(role: String): String? =
     js("new URLSearchParams(window.location.search).get('color.' + role)")
+
+@OptIn(ExperimentalWasmJsInterop::class)
+private fun currentIconStyleName(): String? =
+    js("new URLSearchParams(window.location.search).get('iconStyle')")
+
+private fun currentIconStyle(): IconStyle =
+    when (currentIconStyleName()) {
+        "tabler" -> IconStyle.Tabler
+        "material-rounded" -> IconStyle.Material.Rounded
+        "material-sharp" -> IconStyle.Material.Sharp
+        else -> IconStyle.Material.Filled
+    }

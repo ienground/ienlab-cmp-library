@@ -53,7 +53,7 @@ import {
   highlightKotlin,
 } from "./ColorSchemeBuilder";
 import { composeColorQuery } from "./color-scheme";
-import type { ColorSchemes } from "./color-scheme";
+import type { ColorSchemes, IconStyle } from "./color-scheme";
 import "./styles.css";
 
 const SkeletonComposer = lazy(() =>
@@ -181,6 +181,7 @@ function ComponentPage({
   const [previewLoaded, setPreviewLoaded] = useState(false);
   const [previewHeight, setPreviewHeight] = useState(minimumPreviewHeight);
   const previewFrameRef = useRef<HTMLIFrameElement>(null);
+  const [iconStyle, setIconStyle] = useState<IconStyle>("material-filled");
   const [customColorSchemes, setCustomColorSchemes] =
     useState<ColorSchemes | null>(null);
   const activeComponent = useMemo(
@@ -330,7 +331,7 @@ function ComponentPage({
   useEffect(() => {
     setPreviewLoaded(false);
     setPreviewHeight(minimumPreviewHeight);
-  }, [activeComponent?.id, themeMode, customColorSchemes, isColorSchemePage, page]);
+  }, [activeComponent?.id, themeMode, iconStyle, customColorSchemes, isColorSchemePage, page]);
 
   if (page === "colors") return <Navigate replace to="/color-scheme" />;
 
@@ -355,6 +356,8 @@ function ComponentPage({
     encodeURIComponent(activeComponent.id) +
     "&theme=" +
     themeMode +
+    "&iconStyle=" +
+    encodeURIComponent(iconStyle) +
     (customColorSchemes
       ? "&" + composeColorQuery(customColorSchemes[themeMode])
       : "");
@@ -600,6 +603,8 @@ function ComponentPage({
             >
               <ColorSchemeBuilder
                 themeMode={themeMode}
+                iconStyle={iconStyle}
+                onIconStyleChange={setIconStyle}
                 onApply={(schemes, mode) => {
                   setCustomColorSchemes({
                     light: { ...schemes.light },

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -21,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenIcon
 
 /**
  * Material3 링크 아이콘 컴포저블
@@ -43,7 +43,7 @@ fun IenLinkIcon(
     tint: Color = MaterialLabelIconDefaults.Tint,
     shape: Shape = MaterialLabelIconDefaults.Shape,
     contentDescription: String? = null,
-) = Icon(
+) = IenIcon(
     painter = painter,
     contentDescription = contentDescription,
     tint = tint,

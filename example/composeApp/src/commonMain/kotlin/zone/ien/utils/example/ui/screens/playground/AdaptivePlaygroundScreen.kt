@@ -2,6 +2,7 @@ package zone.ien.utils.example.ui.screens.playground
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -51,6 +52,7 @@ import zone.ien.utils.adaptive.component.AdaptiveTextButton
 import zone.ien.utils.adaptive.component.AdaptiveTonalButton
 import zone.ien.utils.adaptive.component.AdaptiveToggleButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
+import zone.ien.utils.adaptive.shimmer.adaptivePlaceholder
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.adaptive.view.AdaptiveCircularProgressIndicator
 import zone.ien.utils.adaptive.view.AdaptiveLoadingIndicator
@@ -58,7 +60,7 @@ import zone.ien.utils.adaptive.view.AdaptiveNavigationBar
 import zone.ien.utils.adaptive.view.NavigationBarItem
 import zone.ien.utils.icon.Adaptive
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButtonDefault
@@ -92,6 +94,7 @@ fun AdaptivePlaygroundScreen(
     var lineChecked by remember { mutableStateOf(true) }
     var toggleChecked by remember { mutableStateOf(true) }
     var iconToggleChecked by remember { mutableStateOf(false) }
+    var showPlaceholder by remember { mutableStateOf(true) }
     var sliderValue by remember { mutableFloatStateOf(0.64f) }
     var segmentedIndex by remember { mutableIntStateOf(0) }
     var swipeActionCount by remember { mutableIntStateOf(0) }
@@ -114,8 +117,9 @@ fun AdaptivePlaygroundScreen(
             subtitle = { Text(if (isMaterialTheme) "Material3 + Ien" else "Cupertino + HIG") },
             modifier = modifier,
             contentEdge = IenScaffoldContentEdge(
-                scrollState = scrollState,
+                scrollableState = scrollState,
             ),
+            topBarMode = topBarMode,
             bottomBar = {
                 AdaptiveNavigationBar(
                     selectedTabIndex = { selectedNavigationIndex },
@@ -128,7 +132,7 @@ fun AdaptivePlaygroundScreen(
                         NavigationBarItem(
                             onClick = { selectedNavigationIndex = 0 },
                             icon = IconData.Adaptive(
-                                material = { M3SystemIcons.Save },
+                                material = { SystemIcons.Save },
                                 cupertino = { "checkmark" },
                             ),
                             label = "Save",
@@ -136,7 +140,7 @@ fun AdaptivePlaygroundScreen(
                         NavigationBarItem(
                             onClick = { selectedNavigationIndex = 1 },
                             icon = IconData.Adaptive(
-                                material = { M3SystemIcons.Edit },
+                                material = { SystemIcons.Edit },
                                 cupertino = { "pencil" },
                             ),
                             label = "Edit",
@@ -144,7 +148,7 @@ fun AdaptivePlaygroundScreen(
                         NavigationBarItem(
                             onClick = { selectedNavigationIndex = 2 },
                             icon = IconData.Adaptive(
-                                material = { M3SystemIcons.Schedule },
+                                material = { SystemIcons.Schedule },
                                 cupertino = { "calendar" },
                             ),
                             label = "Schedule",
@@ -153,12 +157,8 @@ fun AdaptivePlaygroundScreen(
                 )
             },
             adaptation = {
-                material {
-                    mode = topBarMode
-                }
                 cupertino {
                     this.backdrop = backdrop
-                    mode = topBarMode
                 }
             },
         ) { paddingValues, title ->
@@ -416,6 +416,63 @@ fun AdaptivePlaygroundScreen(
                     )
                 }
 
+                PlaygroundGroup(title = "Adaptive Placeholder") {
+                    PlaygroundSwitchRow(
+                        text = "Loading content",
+                        checked = showPlaceholder,
+                        onCheckedChange = { showPlaceholder = it },
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = IenTheme.colors.surfaceRaised,
+                                shape = ContinuousRoundedRectangle(IenTheme.radius.default),
+                            )
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(44.dp)
+                                .adaptivePlaceholder(
+                                    enabled = showPlaceholder,
+                                    adaptation = {
+                                        material { shape = CircleShape }
+                                        cupertino { shape = CircleShape }
+                                    },
+                                ),
+                        )
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Text(
+                                text = "Avery Johnson",
+                                modifier = Modifier
+                                    .fillMaxWidth(0.62f)
+                                    .adaptivePlaceholder(enabled = showPlaceholder),
+                            )
+                            Text(
+                                text = "Product designer",
+                                modifier = Modifier
+                                    .fillMaxWidth(0.46f)
+                                    .adaptivePlaceholder(enabled = showPlaceholder),
+                            )
+                        }
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(112.dp)
+                            .adaptivePlaceholder(enabled = showPlaceholder),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text("Featured content")
+                    }
+                }
+
                 PlaygroundGroup(title = "SwipeBox") {
                     IenSwipeBox(
                         modifier = Modifier
@@ -514,7 +571,7 @@ private fun PlaygroundSwitchRow(
 @Composable
 private fun SampleIcon() {
     IenIcon(
-        imageVector = M3SystemIcons.Save,
+        imageVector = SystemIcons.Save,
         contentDescription = null,
         modifier = Modifier.size(20.dp),
     )

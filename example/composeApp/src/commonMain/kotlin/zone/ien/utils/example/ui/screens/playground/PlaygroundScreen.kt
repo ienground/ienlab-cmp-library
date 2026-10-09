@@ -62,6 +62,7 @@ fun PlaygroundScreen(
     ) {
 //        /*
         AdaptiveTopAppBarScaffold(
+            topBarMode = TopBarMode.Expanded,
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop, visible = visible) { navigateBack() } },
             title = { Text(text = "Playground") },
             subtitle = { Text(text = "IENGROUND") },
@@ -102,12 +103,8 @@ fun PlaygroundScreen(
                 onClick = {}
             ),
             adaptation = {
-                material {
-                    mode = TopBarMode.Expanded
-                }
                 cupertino {
                     this.backdrop = backdrop
-                    mode = TopBarMode.Expanded
                 }
             },
             modifier = modifier
@@ -245,6 +242,7 @@ private fun ScreenBody(
     }
 
     var text by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     TextFieldDialog(
         visible = showTextFieldDialog,
         title = "Hello Title",
@@ -254,13 +252,19 @@ private fun ScreenBody(
 //                onValueChange = { text = it; it },
                 valid = { it.isNotBlank() },
                 placeholder = "placeholder",
+                keyboardType = KeyboardType.Text
+            ),
+            "password" to TextFieldDialogData(
+                initialValue = password,
+                valid = { it.isNotBlank() },
+                placeholder = "Password",
                 keyboardType = KeyboardType.Password
             )
         ),
         onDismiss = { showTextFieldDialog = false },
         onConfirm = {
-            val newText = it["text"]
-            text = newText.orEmpty()
+            text = it["text"].orEmpty()
+            password = it["password"].orEmpty()
         }
     )
 }

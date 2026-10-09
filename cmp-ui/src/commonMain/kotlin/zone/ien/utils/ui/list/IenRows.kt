@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,11 +38,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousCapsule
 import com.kyant.capsule.ContinuousRoundedRectangle
-import zone.ien.utils.icon.remix.RemixIcons
-import zone.ien.utils.icon.remix.line.ArrowRightS
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.utils.shakeOnDisabledClick
+import zone.ien.utils.ui.primitives.IenIcon
 
 /**
  * 리스트 행(Row)의 구분선 스타일을 정의하는 열거형 클래스입니다.
@@ -183,8 +182,8 @@ fun IenListRow(
     border: IenListRowBorder = IenListRowBorder.Indented,
     disabled: Boolean = false,
     disabledStyle: IenListRowDisabledStyle = IenListRowDisabledStyle.Type1,
-    verticalPadding: IenListRowPadding = IenListRowPadding.Medium,
-    horizontalPadding: IenListRowPadding = IenListRowPadding.Medium,
+    verticalPadding: IenListRowPadding = IenListRowPadding.Large,
+    horizontalPadding: IenListRowPadding = IenListRowPadding.Large,
     leftAlignment: IenListRowAlignment = IenListRowAlignment.Center,
     rightAlignment: IenListRowAlignment = IenListRowAlignment.Center,
     withArrow: Boolean = false,
@@ -271,8 +270,8 @@ fun IenListRow(
                         CompositionLocalProvider(
                             LocalContentColor provides IenTheme.colors.textTertiary
                         ) {
-                            Icon(
-                                imageVector = RemixIcons.Line.ArrowRightS,
+                            IenIcon(
+                                imageVector = SystemIcons.ChevronRight,
                                 contentDescription = null
                             )
                         }
@@ -311,8 +310,8 @@ fun IenListRow(
     leading: (@Composable () -> Unit)? = null,
     trailing: (@Composable RowScope.() -> Unit)? = null,
     border: IenListRowBorder = IenListRowBorder.Indented,
-    verticalPadding: IenListRowPadding = IenListRowPadding.Medium,
-    horizontalPadding: IenListRowPadding = IenListRowPadding.Medium,
+    verticalPadding: IenListRowPadding = IenListRowPadding.Large,
+    horizontalPadding: IenListRowPadding = IenListRowPadding.Large,
     withArrow: Boolean = false,
     touchEffectColor: Color = IenTheme.colors.surfaceVariant,
 ) {

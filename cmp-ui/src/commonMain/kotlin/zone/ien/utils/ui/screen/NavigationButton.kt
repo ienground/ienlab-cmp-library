@@ -15,7 +15,6 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.back
 import zone.ien.utils.cmp_ui.generated.resources.close
-import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.LocalBackButtonIcon
 import zone.ien.utils.icon.LocalButtonProviderDefault
@@ -27,6 +26,7 @@ import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.view.IenTooltipBox
+import zone.ien.utils.ui.primitives.IenIcon
 
 /**
  * 네비게이션 버튼의 [IenButtonVariant]를 제공하기 위한 CompositionLocal입니다.
@@ -67,7 +67,7 @@ fun IenBackButton(
                 tone = IenSemanticTone.Neutral,
                 state = IenButtonState(enabled = enabled),
             ) {
-                ComplexIcon(
+                IenIcon(
                     icon = icon,
                     contentDescription = stringResource(Res.string.back)
                 )
@@ -103,7 +103,7 @@ fun IenCloseButton(
             tone = IenSemanticTone.Neutral,
             state = IenButtonState(enabled = enabled),
         ) {
-            ComplexIcon(
+            IenIcon(
                 icon = icon,
                 contentDescription = stringResource(Res.string.close)
             )

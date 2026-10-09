@@ -1,7 +1,6 @@
 package zone.ien.utils.ui.select
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -11,9 +10,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.fastForEach
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.menu.IenMenu
 import zone.ien.utils.ui.view.textfield.IenTextFieldIconButton
+import zone.ien.utils.ui.primitives.IenIcon
 
 /**
  * IenExposedDropdownMenuBox은 노출된 드롭다운 메뉴 박스를 표시하기 위한 컴포저블입니다.
@@ -38,7 +38,7 @@ fun <T> IenExposedDropdownMenuBox(
     ) -> Unit = { onClick, expanded ->
         IenTextFieldIconButton(
             onClick = onClick,
-            icon = IconData.Vector(if (expanded) M3SystemIcons.ArrowDropUp else M3SystemIcons.ArrowDropDown)
+            icon = IconData.Vector(if (expanded) SystemIcons.ArrowDropUp else SystemIcons.ArrowDropDown)
         )
     },
     dropdownMenuItem: @Composable (
@@ -97,7 +97,7 @@ fun <T> IenExposedDropdownMenuBox(
     ) -> Unit = { onClick, expanded ->
         IenTextFieldIconButton(
             onClick = onClick,
-            icon = IconData.Vector(if (expanded) M3SystemIcons.ArrowDropUp else M3SystemIcons.ArrowDropDown)
+            icon = IconData.Vector(if (expanded) SystemIcons.ArrowDropUp else SystemIcons.ArrowDropDown)
         )
     },
     dropdownMenuItem: @Composable (
@@ -107,7 +107,7 @@ fun <T> IenExposedDropdownMenuBox(
     ) -> Unit = { text, onClick, checked ->
         IenMenu.DropdownItem(
             onClick = onClick,
-            left = if (checked) { { Icon(imageVector = M3SystemIcons.Check, contentDescription = null) } } else null,
+            left = if (checked) { { IenIcon(imageVector = SystemIcons.Check, contentDescription = null) } } else null,
             content = text,
         )
     },

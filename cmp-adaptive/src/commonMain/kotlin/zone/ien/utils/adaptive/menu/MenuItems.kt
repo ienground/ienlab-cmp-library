@@ -26,7 +26,6 @@ import zone.ien.utils.adaptive.view.AdaptiveDropdownBox
 import zone.ien.utils.adaptive.view.AdaptiveTooltipBox
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
-import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.hig.Ellipsis
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.icon.IconData
@@ -35,6 +34,7 @@ import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenBadge
 import zone.ien.utils.ui.interactive.IenBadgeSize
 import zone.ien.utils.ui.interactive.IenBadgeVariant
+import zone.ien.utils.ui.primitives.IenIcon
 
 /**
  * HIG 액션 메뉴 컴포저블
@@ -81,7 +81,7 @@ fun HigActionMenu(
                             targetState = item.icon,
                             label = "menu_icon"
                         ) {
-                            ComplexIcon(
+                            IenIcon(
                                 icon = icon,
                                 contentDescription = item.title,
                                 modifier = Modifier
@@ -189,7 +189,7 @@ fun HigActionsMenu(
                             leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
                                 item.icon?.let {
                                     {
-                                        ComplexIcon(
+                                        IenIcon(
                                             icon = it,
                                             contentDescription = item.title
                                         )

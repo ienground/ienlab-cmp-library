@@ -2,6 +2,7 @@ package zone.ien.utils.example
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,6 +11,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
+import zone.ien.utils.icon.IconStyle
+import zone.ien.utils.icon.LocalIconStyle
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
@@ -43,20 +46,26 @@ fun App() {
 //    val backStack = rememberNavBackStack(getConfig<RootRoute>(), RootRoute.Home)
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
 
-    IenAdaptiveTheme(
-        target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino,
-    ) {
-        RootWrapper(
-//            showKeyboardDirection = false
-        ) {
-//            TextFieldScreen(
-//                modifier = it
-//            )
-            RootNavigationGraph(
-                modifier = it,
-                backStack = backStack
-            )
-        }
-    }
+    var iconStyle by remember { mutableStateOf<IconStyle>(IconStyle.Material.Filled) }
 
+    CompositionLocalProvider(LocalIconStyle provides iconStyle) {
+        IenAdaptiveTheme(
+            target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino,
+        ) {
+            RootWrapper(
+    //            showKeyboardDirection = false
+            ) {
+    //            TextFieldScreen(
+    //                modifier = it
+    //            )
+                RootNavigationGraph(
+                    modifier = it,
+                    backStack = backStack,
+                    iconStyle = iconStyle,
+                    onIconStyleChange = { iconStyle = it },
+                )
+            }
+        }
+
+    }
 }

@@ -30,9 +30,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -66,8 +64,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousCapsule
 import com.kyant.capsule.ContinuousRoundedRectangle
-import zone.ien.utils.icon.remix.RemixIcons
-import zone.ien.utils.icon.remix.line.ArrowRightS
+import zone.ien.utils.icon.SystemIcons
+import zone.ien.utils.icon.tabler.TablerIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
@@ -76,6 +74,7 @@ import zone.ien.utils.ui.primitives.drawIenBorder
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 import zone.ien.utils.ui.utils.instantPress
 import zone.ien.utils.ui.utils.shakeOnDisabledClick
+import zone.ien.utils.ui.primitives.IenIcon
 
 /**
  * [IenButton]의 크기 규격을 정의하는 열거형 클래스.
@@ -868,8 +867,8 @@ fun IenTextButton(
             ) {
                 content()
                 if (variant == IenTextButtonVariant.Arrow) {
-                    Icon(
-                        imageVector = RemixIcons.Line.ArrowRightS,
+                    IenIcon(
+                        imageVector = SystemIcons.ChevronRight,
                         contentDescription = null,
                         tint = LocalContentColor.current,
                         modifier = Modifier.size(size.chevronSize())

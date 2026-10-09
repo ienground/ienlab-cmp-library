@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,7 +46,6 @@ import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.currentTheme
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.theme.ienCupertinoNavigationBarColors
-import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
@@ -61,6 +59,7 @@ import zone.ien.utils.ui.view.IenNavigationBarItem
 import zone.ien.utils.ui.view.IenNavigationBarItemDirection
 import zone.ien.utils.ui.view.IenNavigationBar2
 import zone.ien.utils.ui.view.IenNavigationBarType
+import zone.ien.utils.ui.primitives.IenIcon
 
 data class NavigationBarItem(
     val onClick: () -> Unit,
@@ -170,7 +169,7 @@ fun AdaptiveNavigationBar(
                         index = index,
                         onClick = item.onClick,
                         icon = {
-                            ComplexIcon(
+                            IenIcon(
                                 icon = if (selected && currentTheme == Theme.Material3 && item.selectedIcon != null) item.selectedIcon else item.icon
                             )
                         },
@@ -292,7 +291,7 @@ private fun AdaptiveNavigationBarNative(
                             index = index,
                             onClick = item.onClick,
                             icon = {
-                                Icon(
+                                IenIcon(
                                     painter = if (selected) item.selectedIcon ?: item.icon else item.icon,
                                     contentDescription = item.label,
                                 )

@@ -43,9 +43,9 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -55,8 +55,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import com.kyant.capsule.ContinuousRoundedRectangle
-import zone.ien.utils.icon.remix.RemixIcons
-import zone.ien.utils.icon.remix.fill.Check
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
@@ -957,7 +956,7 @@ object IenMenu {
         ) {
             if (checked) {
                 IenIcon(
-                    imageVector = RemixIcons.Fill.Check,
+                    imageVector = SystemIcons.Check,
                     contentDescription = "선택됨",
                     modifier = Modifier.size(16.dp),
                     tint = if (enabled) IenTheme.colors.brand else IenTheme.colors.textDisabled,

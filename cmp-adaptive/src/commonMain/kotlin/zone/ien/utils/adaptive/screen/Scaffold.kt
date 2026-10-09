@@ -17,6 +17,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -113,6 +114,7 @@ internal fun cupertinoActionsEndSpacing(hasActions: Boolean): Dp =
  * @param floatingActionButton 플로팅 액션 버튼
  * @param fabPosition 플로팅 액션 버튼 위치
  * @param higFabPosition HIG 플로팅 액션 버튼 위치
+ * @param topBarMode 상단바 표시 방식
  * @param adaptation 어댑테이션 설정
  * @param content 콘텐츠
  */
@@ -134,6 +136,7 @@ fun AdaptiveTopAppBarScaffold(
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
+    topBarMode: TopBarMode = LocalTopBarMode.current,
     adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {},
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
@@ -143,8 +146,8 @@ fun AdaptiveTopAppBarScaffold(
         adaptation()
     }
     val defaultScrollState = rememberScrollState()
-    val effectiveContentEdge = if (contentEdge.scrollState == null && contentEdge.lazyListState == null) {
-        contentEdge.copy(scrollState = defaultScrollState)
+    val effectiveContentEdge = if (contentEdge.scrollableState == null) {
+        contentEdge.copy(scrollableState = defaultScrollState)
     } else {
         contentEdge
     }
@@ -179,7 +182,7 @@ fun AdaptiveTopAppBarScaffold(
                             IenTopAppBar(
                                 title = {
                                     AnimatedVisibility(
-                                        visible = materialAdaptation.mode == TopBarMode.Static ||
+                                        visible = topBarMode == TopBarMode.Static ||
                                             !navigationTitleVisible,
                                         enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
                                         exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
@@ -190,7 +193,7 @@ fun AdaptiveTopAppBarScaffold(
                                 subtitle = subtitle?.let {
                                     {
                                         AnimatedVisibility(
-                                            visible = materialAdaptation.mode == TopBarMode.Static ||
+                                            visible = topBarMode == TopBarMode.Static ||
                                                 !navigationTitleVisible,
                                             enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
                                             exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
@@ -233,11 +236,11 @@ fun AdaptiveTopAppBarScaffold(
                 contentWindowInsets = materialAdaptation.contentWindowInsets,
                 contentEdge = effectiveContentEdge,
                 content = { contentPadding ->
-                    CompositionLocalProvider(LocalTopBarScaffoldScrollState provides effectiveContentEdge.scrollState) {
+                    CompositionLocalProvider(LocalTopBarScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState)) {
                         content(
                             contentPadding,
                             {
-                                if (materialAdaptation.mode == TopBarMode.Expanded) {
+                                if (topBarMode == TopBarMode.Expanded) {
                                     IenNavigationTitle(
                                         title = title,
                                         subtitle = subtitle,
@@ -309,13 +312,13 @@ fun AdaptiveTopAppBarScaffold(
                 containerColor = it.scaffoldContainerColor,
                 contentColor = it.scaffoldContentColor,
                 contentWindowInsets = it.contentWindowInsets,
-                hasNavigationTitle = it.mode == TopBarMode.Expanded,
+                hasNavigationTitle = topBarMode == TopBarMode.Expanded,
                 content = { contentPadding ->
-                    CompositionLocalProvider(LocalTopBarScaffoldScrollState provides effectiveContentEdge.scrollState) {
+                    CompositionLocalProvider(LocalTopBarScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState)) {
                         content(
                             contentPadding,
                             {
-                                if (it.mode == TopBarMode.Expanded) {
+                                if (topBarMode == TopBarMode.Expanded) {
                                     CupertinoNavigationTitle(
                                         title = title,
                                         subtitle = subtitle
@@ -346,6 +349,7 @@ fun AdaptiveTopAppBarScaffold(
  * @param floatingActionButton 플로팅 액션 버튼
  * @param fabPosition 플로팅 액션 버튼 위치
  * @param higFabPosition HIG 플로팅 액션 버튼 위치
+ * @param topBarMode 상단바 표시 방식
  * @param adaptation 어댑테이션 설정
  * @param content 콘텐츠
  */
@@ -366,6 +370,7 @@ fun AdaptiveTopAppBarScaffold(
     fabPosition: FabPosition = FabPosition.Center,
     higFabPosition: FabPosition = fabPosition,
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
+    topBarMode: TopBarMode = LocalTopBarMode.current,
     adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {},
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
@@ -390,6 +395,7 @@ fun AdaptiveTopAppBarScaffold(
             fabPosition = fabPosition,
             higFabPosition = higFabPosition,
             contentEdge = contentEdge,
+            topBarMode = topBarMode,
             adaptation = adaptation,
             content = content
         )
@@ -534,7 +540,6 @@ fun AdaptiveTopAppBarScaffold(
  * @param isCenterAligned 중앙 정렬 여부
  * @param scaffoldContainerColor 스크라프트 컨테이너 색상
  * @param scaffoldContentColor 스크라프트 콘텐츠 색상
- * @param mode 상단바 표시 방식
  */
 @OptIn(ExperimentalMaterial3Api::class)
 class IenTopAppBarScaffoldAdaptation internal constructor(
@@ -544,7 +549,6 @@ class IenTopAppBarScaffoldAdaptation internal constructor(
     isCenterAligned: Boolean,
     scaffoldContainerColor: Color,
     scaffoldContentColor: Color,
-    mode: TopBarMode,
 ) {
     var topBarWindowInsets by mutableStateOf(topBarWindowInsets)
     var contentWindowInsets by mutableStateOf(contentWindowInsets)
@@ -552,7 +556,6 @@ class IenTopAppBarScaffoldAdaptation internal constructor(
     var isCenterAligned by mutableStateOf(isCenterAligned)
     var scaffoldContainerColor by mutableStateOf(scaffoldContainerColor)
     var scaffoldContentColor by mutableStateOf(scaffoldContentColor)
-    var mode by mutableStateOf(mode)
 }
 
 /**
@@ -568,7 +571,6 @@ class IenTopAppBarScaffoldAdaptation internal constructor(
  * @param colors 상단바 색상
  * @param scaffoldContainerColor 스크라프트 컨테이너 색상
  * @param scaffoldContentColor 스크라프트 콘텐츠 색상
- * @param mode 상단바 표시 방식
  */
 class HigTopAppBarScaffoldAdaptation internal constructor(
     topBarWindowInsets: WindowInsets,
@@ -581,7 +583,6 @@ class HigTopAppBarScaffoldAdaptation internal constructor(
     colors: CupertinoTopAppBarColors,
     scaffoldContainerColor: Color,
     scaffoldContentColor: Color,
-    mode: TopBarMode,
 ) {
     var topBarWindowInsets by mutableStateOf(topBarWindowInsets)
     var contentWindowInsets by mutableStateOf(contentWindowInsets)
@@ -593,7 +594,6 @@ class HigTopAppBarScaffoldAdaptation internal constructor(
     var colors by mutableStateOf(colors)
     var scaffoldContainerColor by mutableStateOf(scaffoldContainerColor)
     var scaffoldContentColor by mutableStateOf(scaffoldContentColor)
-    var mode by mutableStateOf(mode)
 }
 
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -610,9 +610,8 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
         val colors = CupertinoTopAppBarDefaults.topAppBarColors()
         val scaffoldContainerColor = MaterialTheme.colorScheme.background// CupertinoScaffoldDefaults.containerColor
         val scaffoldContentColor = contentColorFor(scaffoldContainerColor) // CupertinoScaffoldDefaults.contentColor
-        val mode = LocalTopBarMode.current
 
-        return remember(topBarWindowInsets, contentWindowInsets, backdrop,isDropdownNative, isCenterAligned, isBackgroundAdaptive, isBackgroundGradient, colors, scaffoldContainerColor, scaffoldContentColor, mode) {
+        return remember(topBarWindowInsets, contentWindowInsets, backdrop,isDropdownNative, isCenterAligned, isBackgroundAdaptive, isBackgroundGradient, colors, scaffoldContainerColor, scaffoldContentColor) {
             HigTopAppBarScaffoldAdaptation(
                 topBarWindowInsets = topBarWindowInsets,
                 contentWindowInsets = contentWindowInsets,
@@ -624,7 +623,6 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
                 colors = colors,
                 scaffoldContainerColor = scaffoldContainerColor,
                 scaffoldContentColor = scaffoldContentColor,
-                mode = mode,
             )
         }
     }
@@ -638,9 +636,8 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
         val isCenterAligned = LocalIsM3TopBarCenterAligned.current
         val scaffoldContainerColor = MaterialTheme.colorScheme.background
         val scaffoldContentColor = contentColorFor(scaffoldContainerColor)
-        val mode = LocalTopBarMode.current
 
-        return remember(topBarWindowInsets, contentWindowInsets, isScrollTint, isCenterAligned, scaffoldContainerColor, scaffoldContentColor, mode) {
+        return remember(topBarWindowInsets, contentWindowInsets, isScrollTint, isCenterAligned, scaffoldContainerColor, scaffoldContentColor) {
             IenTopAppBarScaffoldAdaptation(
                 topBarWindowInsets = topBarWindowInsets,
                 contentWindowInsets = contentWindowInsets,
@@ -648,7 +645,6 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
                 isCenterAligned = isCenterAligned,
                 scaffoldContainerColor = scaffoldContainerColor,
                 scaffoldContentColor = scaffoldContentColor,
-                mode = mode,
             )
         }
     }

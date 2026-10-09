@@ -25,10 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import zone.ien.utils.icon.ComplexIcon
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.utils.shakeOnDisabledClick
+import zone.ien.utils.ui.primitives.IenIcon
 
 /**
  * Material3 텍스트 필드 아이콘 버튼 컴포저블
@@ -91,7 +91,7 @@ fun IenTextFieldIconButton(
                 exit = fadeOut(tween(700))
             ) {
                 CompositionLocalProvider(LocalContentColor provides contentColor) {
-                    ComplexIcon(
+                    IenIcon(
                         icon = icon,
                         contentDescription = contentDescription
                     )
@@ -130,7 +130,7 @@ fun IenTextFieldClearButton(
         exit = fadeOut(spring(1.2f)) + scaleOut(spring(1.2f), targetScale = 0.75f)
     ) {
         IenTextFieldIconButton(
-            icon = IconData.Vector(M3SystemIcons.Cancel),
+            icon = IconData.Vector(SystemIcons.Cancel),
             onClick = onClick
         )
     }

@@ -8,14 +8,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.SecureTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -37,6 +33,8 @@ import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenPasswordTextField
+import zone.ien.utils.ui.interactive.IenTextField
 import zone.ien.utils.ui.utils.TextFieldDialogData
 
 /**
@@ -154,39 +152,39 @@ fun IenTextFieldDialog(
         onDismiss = onDismiss,
         textFields = {
             textFields.forEach { (key, field) ->
-                if (field.keyboardType in listOf(KeyboardType.Password, KeyboardType.NumberPassword)) {
-                    val passwordState = remember { TextFieldState(initialText = textStates[key] ?: "") }
-
-                    LaunchedEffect(passwordState.text) {
-                        textStates[key] = passwordState.text.toString()
-                    }
-
-                    SecureTextField(
-                        state = passwordState,
-                        placeholder = { Text(text = field.placeholder) },
-                        prefix = field.prefix?.let { { Text(text = it) } },
-                        suffix = field.suffix?.let { { Text(text = it) } },
+                val isPassword = field.keyboardType in listOf(KeyboardType.Password, KeyboardType.NumberPassword)
+                if (isPassword) {
+                    IenPasswordTextField(
+                        value = textStates[key] ?: "",
+                        onValueChange = { value ->
+                            field.onValueChange(value)?.let { textStates[key] = it }
+                        },
+                        placeholder = field.placeholder.takeIf { it.isNotEmpty() },
+                        prefix = field.prefix,
+                        suffix = field.suffix,
                         keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = field.keyboardType,
-                            imeAction = field.imeAction
+                            imeAction = field.imeAction,
                         ),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 } else {
-                    TextField(
+                    IenTextField(
                         value = textStates[key] ?: "",
                         onValueChange = {
                             field.onValueChange(it)?.let { textStates[key] = it }
                         },
-                        placeholder = { Text(text = field.placeholder) },
-                        prefix = field.prefix?.let { { Text(text = it) } },
-                        suffix = field.suffix?.let { { Text(text = it) } },
+                        placeholder = field.placeholder.takeIf { it.isNotEmpty() },
+                        prefix = field.prefix,
+                        suffix = field.suffix,
                         keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = field.keyboardType,
-                            imeAction = field.imeAction
+                            imeAction = field.imeAction,
                         ),
+                        singleLine = field.maxLines == 1,
+                        minLines = field.minLines,
                         maxLines = field.maxLines,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }

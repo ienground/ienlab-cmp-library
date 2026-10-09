@@ -41,7 +41,7 @@ import zone.ien.hig.adaptive.adaptiveComponent
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.save
-import zone.ien.utils.icon.material.M3SystemIcons
+import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonVariant
@@ -77,7 +77,7 @@ fun TextFieldScreen(
 //        navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
         snackbarHost = { SnackbarHost(snackbarState) },
         contentEdge = IenScaffoldContentEdge(
-            lazyListState = lazyListState,
+            scrollableState = lazyListState,
         ),
 //        title = { Text(text = stringResource(Res.string.daily_mission)) },
         bottomBar = {
@@ -123,7 +123,7 @@ fun TextFieldScreen(
                             tone = IenSemanticTone.Neutral,
                         ) {
                             IenIcon(
-                                imageVector = M3SystemIcons.Close,
+                                imageVector = SystemIcons.Close,
                                 contentDescription = null
                             )
                         }

@@ -65,12 +65,12 @@ import zone.ien.utils.cmp_ui.generated.resources.search
 import zone.ien.utils.cmp_ui.generated.resources.search_input
 import zone.ien.utils.cmp_ui.generated.resources.segmented_input
 import zone.ien.utils.cmp_ui.generated.resources.show_password
-import zone.ien.utils.icon.remix.RemixIcons
-import zone.ien.utils.icon.remix.fill.Close
-import zone.ien.utils.icon.remix.line.ArrowDownWide
-import zone.ien.utils.icon.remix.line.Eye
-import zone.ien.utils.icon.remix.line.EyeOff
-import zone.ien.utils.icon.remix.line.Search
+import zone.ien.utils.icon.SystemIcons
+import zone.ien.utils.icon.tabler.TablerIcons
+import zone.ien.utils.icon.tabler.line.Close
+import zone.ien.utils.icon.tabler.line.Eye
+import zone.ien.utils.icon.tabler.line.EyeOff
+import zone.ien.utils.icon.tabler.line.Search
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.foundation.LocalIenDarkTheme
@@ -645,6 +645,8 @@ fun IenClearableTextField(
  * @param onVisibilityChange 노출 여부 토글 시 호출되는 선택적 콜백 함수.
  * @param keyboardOptions 키보드 입력 유형. 기본적으로 비밀번호 전용 키보드가 나타납니다.
  * @param keyboardActions 키보드 액션 정의.
+ * @param prefix 필드 입력 영역 왼쪽에 표시할 접두사.
+ * @param suffix 필드 입력 영역 오른쪽에 표시할 접미사.
  */
 @Composable
 fun IenPasswordTextField(
@@ -664,6 +666,8 @@ fun IenPasswordTextField(
     onVisibilityChange: ((visible: Boolean) -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
     keyboardActions: KeyboardActions = KeyboardActions.Default,
+    prefix: String? = null,
+    suffix: String? = null,
 ) {
     var internalVisible by remember { mutableStateOf(false) }
     val resolvedVisible = visible ?: internalVisible
@@ -678,6 +682,8 @@ fun IenPasswordTextField(
         help = help,
         hasError = hasError,
         variant = variant,
+        prefix = prefix,
+        suffix = suffix,
         state = state,
         lengthLimit = lengthLimit,
         keyboardOptions = keyboardOptions,
@@ -882,7 +888,7 @@ private fun IenTextFieldClearButton(
         contentAlignment = Alignment.Center,
     ) {
         IenIcon(
-            imageVector = RemixIcons.Fill.Close,
+            imageVector = SystemIcons.Close,
             contentDescription = null,
             modifier = Modifier.size(16.dp),
             tint = Color(0xFF8B95A1),
@@ -907,7 +913,7 @@ private fun IenTextFieldPasswordButton(
         state = IenButtonState(enabled = enabled),
     ) {
         IenIcon(
-            imageVector = if (visible) RemixIcons.Line.EyeOff else RemixIcons.Line.Eye,
+            imageVector = if (visible) SystemIcons.EyeOff else SystemIcons.Eye,
             contentDescription = contentDescription,
             tint = IenTheme.colors.brand,
         )
@@ -919,7 +925,7 @@ private fun IenTextFieldArrowDown(
     modifier: Modifier = Modifier,
 ) {
     IenIcon(
-        imageVector = RemixIcons.Line.ArrowDownWide,
+        imageVector = SystemIcons.ChevronDown,
         contentDescription = null,
         modifier = modifier.size(24.dp),
         tint = Color(0xFF6B7684),
@@ -1186,7 +1192,7 @@ fun IenSearchFieldSearchIcon(
 ) {
     val color = searchFieldIconColor()
     IenIcon(
-        imageVector = RemixIcons.Line.Search,
+        imageVector = SystemIcons.Search,
         contentDescription = contentDescription,
         modifier = modifier
             .width(size)
@@ -1229,7 +1235,7 @@ fun IenSearchFieldDeleteButton(
             shape = ContinuousCapsule(),
         ) {
             IenIcon(
-                imageVector = RemixIcons.Fill.Close,
+                imageVector = SystemIcons.Close,
                 contentDescription = null,
                 tint = contentColor,
                 modifier = Modifier.size(18.dp)

@@ -62,7 +62,7 @@ import kotlin.math.sin
  *
  * @param items 비어 있지 않은 선택 항목 목록.
  * @param selectedIndex 현재 선택된 항목의 인덱스.
- * @param onSelectedIndexChange 스크롤이 멈추거나 접근성 작업으로 선택이 변경될 때 호출됩니다.
+ * @param onSelectedIndexChange 스크롤이 멈추거나 접근성 작업 또는 항목 탭으로 선택될 때 호출됩니다.
  * @param modifier 루트 레이아웃에 적용할 Modifier.
  * @param enabled 스크롤 및 항목 선택 가능 여부.
  * @param visibleItemCount 표시할 행 수. 3 이상의 홀수여야 합니다.
@@ -143,7 +143,7 @@ fun <T> IenWheelPicker(
                 if (!enabled) disabled()
                 else setProgress { value ->
                     val index = value.roundToInt().coerceIn(items.indices)
-                    if (index != selectedIndex) onSelectedIndexChange(index)
+                    onSelectedIndexChange(index)
                     true
                 }
             },
@@ -181,7 +181,13 @@ fun <T> IenWheelPicker(
                             enabled = enabled,
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
-                        ) { scope.launch { state.animateScrollToItem(index) } },
+                        ) {
+                            if (index == currentSelectedIndex) {
+                                currentOnChange(index)
+                            } else {
+                                scope.launch { state.animateScrollToItem(index) }
+                            }
+                        },
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(

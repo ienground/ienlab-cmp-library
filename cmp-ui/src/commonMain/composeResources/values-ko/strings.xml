@@ -98,4 +98,8 @@
         <item quantity="other">%1$d초</item>
     </plurals>
 
+    <string name="pull_to_refresh_action">새로고침</string>
+    <string name="pull_to_refresh_pulling">아래로 당겨 새로고침</string>
+    <string name="pull_to_refresh_ready">놓으면 새로고침</string>
+    <string name="pull_to_refresh_refreshing">목록을 새로고침하는 중</string>
 </resources>

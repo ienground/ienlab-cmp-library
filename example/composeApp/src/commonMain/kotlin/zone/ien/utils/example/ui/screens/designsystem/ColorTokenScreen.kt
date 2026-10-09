@@ -88,7 +88,7 @@ fun ColorTokenScreen(
         IenScaffold(
             modifier = modifier,
             contentEdge = IenScaffoldContentEdge(
-                scrollState = scrollState,
+                scrollableState = scrollState,
             ),
             topBar = {
                 IenTopBar(
