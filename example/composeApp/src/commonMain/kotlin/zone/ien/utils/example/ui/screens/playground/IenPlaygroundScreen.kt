@@ -35,13 +35,13 @@ import zone.ien.utils.ui.screen.IenBackButton
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.IenTopAppBarScaffold
 import zone.ien.utils.ui.section.IenSection
-import zone.ien.utils.ui.section.IenSectionButton
-import zone.ien.utils.ui.section.IenSectionCheckboxItem
-import zone.ien.utils.ui.section.IenSectionItem
-import zone.ien.utils.ui.section.IenSectionSecureTextField
-import zone.ien.utils.ui.section.IenSectionSlider
-import zone.ien.utils.ui.section.IenSectionSwitchItem
-import zone.ien.utils.ui.section.IenSectionTextField
+import zone.ien.utils.ui.section.button
+import zone.ien.utils.ui.section.checkbox
+import zone.ien.utils.ui.section.item
+import zone.ien.utils.ui.section.secureTextField
+import zone.ien.utils.ui.section.slider
+import zone.ien.utils.ui.section.switch
+import zone.ien.utils.ui.section.textField
 import zone.ien.utils.ui.select.IenExposedDropdownMenuBox
 import zone.ien.utils.ui.utils.TextFieldDialogData
 import zone.ien.utils.ui.view.IenNavigationBar
@@ -153,38 +153,38 @@ fun IenPlaygroundScreen(
                 IenSection(
                     title = { Text("Dialogs") }
                 ) {
-                    IenSectionSwitchItem(
+                    switch(
                         checked = darkTheme,
                         onCheckedChange = { darkTheme = it },
                         title = { Text("IenTheme dark mode") }
                     )
-                    IenSectionSwitchItem(
+                    switch(
                         checked = darkTheme,
                         onCheckedChange = { darkTheme = it },
                         enabled = false,
                         title = { Text("IenTheme dark mode") }
                     )
-                    IenSectionButton(
+                    button(
                         onClick = { showAlertDialog = true },
                         label = { Text("Open IenAlertDialog") },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    IenSectionButton(
+                    button(
                         onClick = { showDatePicker = true },
                         label = { Text("Open IenDatePickerDialog") },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    IenSectionButton(
+                    button(
                         onClick = { showTimePicker = true },
                         label = { Text("Open IenTimePickerDialog") },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    IenSectionButton(
+                    button(
                         onClick = { showProgressDialog = true },
                         label = { Text("Open IenProgressDialog") },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    IenSectionButton(
+                    button(
                         onClick = { showTextFieldDialog = true },
                         label = { Text("Open IenTextFieldDialog") },
                         modifier = Modifier.fillMaxWidth()
@@ -195,14 +195,14 @@ fun IenPlaygroundScreen(
                 IenSection(
                     title = { Text("Exposed Dropdown Menus") }
                 ) {
-                    IenSectionItem(
+                    item(
                         title = {
                             IenExposedDropdownMenuBox(
                                 itemsWithLabels = options,
                                 currentItem = selectedOption,
                                 onItemSelected = { selectedOption = it },
                                 textField = { value, trailingIcon ->
-                                    IenSectionTextField(
+                                    textField(
                                         value = value,
                                         onValueChange = {},
                                         readOnly = true,
@@ -213,14 +213,14 @@ fun IenPlaygroundScreen(
                             )
                         }
                     )
-                    IenSectionItem(
+                    item(
                         title = {
                             IenExposedDropdownMenuBox(
                                 itemsWithLabels = options,
                                 currentItems = selectedOptions,
                                 onItemsSelected = { selectedOptions = it },
                                 textField = { value, trailingIcon ->
-                                    IenSectionTextField(
+                                    textField(
                                         value = value,
                                         onValueChange = {},
                                         readOnly = true,
@@ -237,37 +237,37 @@ fun IenPlaygroundScreen(
                 IenSection(
                     title = { Text("Section Items & Inputs") }
                 ) {
-                    IenSectionSwitchItem(
+                    switch(
                         checked = navigationBarVisible,
                         onCheckedChange = { navigationBarVisible = it },
                         title = { Text("Bottom Navigation Visible") }
                     )
-                    IenSectionSwitchItem(
+                    switch(
                         checked = switchChecked,
                         onCheckedChange = { switchChecked = it },
                         title = { Text("Switch Item") }
                     )
-                    IenSectionCheckboxItem(
+                    checkbox(
                         checked = checkboxChecked,
                         onCheckedChange = { checkboxChecked = it },
                         title = { Text("Checkbox Item") }
                     )
-                    IenSectionCheckboxItem(
+                    checkbox(
                         checked = checkboxChecked,
                         onCheckedChange = { checkboxChecked = it },
                         enabled = false,
                         title = { Text("Checkbox Item") }
                     )
-                    IenSectionTextField(
+                    textField(
                         value = sectionTextFieldValue,
                         onValueChange = { sectionTextFieldValue = it },
                         placeholder = { Text("Placeholder Text") }
                     )
-                    IenSectionSecureTextField(
+                    secureTextField(
                         state = secureTextFieldState,
                         placeholder = { Text("Password Input") }
                     )
-                    IenSectionSlider(
+                    slider(
                         value = sliderValue,
                         onValueChange = { sliderValue = it },
                         title = "Slider Item"
@@ -278,7 +278,7 @@ fun IenPlaygroundScreen(
                 IenSection(
                     title = { Text("Views & Formatting") }
                 ) {
-                    IenSectionItem(
+                    item(
                         title = {
                             IenTooltipBox(
                                 label = "This is a custom tooltip text container styling test!"
@@ -287,7 +287,7 @@ fun IenPlaygroundScreen(
                             }
                         }
                     )
-                    IenSectionItem(
+                    item(
                         title = {
                             IenAsteriskTextWrapper {
                                 Text("Required Input Field Wrapper")
@@ -300,7 +300,7 @@ fun IenPlaygroundScreen(
                 IenSection(
                     title = { Text("Empty State Preview") }
                 ) {
-                    IenSectionItem(
+                    item(
                         title = {
                             IenEmpty(
                                 icon = {

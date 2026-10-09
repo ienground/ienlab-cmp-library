@@ -81,7 +81,7 @@ import zone.ien.utils.ui.view.textfield.PlaceholderBasicTextField
  * @param title 제목
  */
 @Composable
-fun SectionScope.IenSectionItem(
+fun SectionScope.item(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     leadingContent: @Composable (() -> Unit)? = null,
@@ -154,7 +154,7 @@ fun SectionScope.IenSectionItem(
  * @param title 제목
  */
 @Composable
-fun SectionScope.IenSectionSwitchItem(
+fun SectionScope.switch(
     modifier: Modifier = Modifier,
     leadingContent: (@Composable () -> Unit)? = null,
     checked: Boolean,
@@ -163,7 +163,7 @@ fun SectionScope.IenSectionSwitchItem(
     supportingContent: @Composable (() -> Unit)? = null,
     title: @Composable () -> Unit
 ) {
-    IenSectionItem(
+    item(
         leadingContent = leadingContent,
         trailingContent = {
             IenSwitch(
@@ -195,7 +195,7 @@ fun SectionScope.IenSectionSwitchItem(
  * @param title 제목
  */
 @Composable
-fun SectionScope.IenSectionCheckboxItem(
+fun SectionScope.checkbox(
     modifier: Modifier = Modifier,
     leadingContent: (@Composable () -> Unit)? = null,
     checked: Boolean,
@@ -204,7 +204,7 @@ fun SectionScope.IenSectionCheckboxItem(
     supportingContent: @Composable (() -> Unit)? = null,
     title: @Composable () -> Unit
 ) {
-    IenSectionItem(
+    item(
         leadingContent = leadingContent,
         trailingContent = {
             IenCircleCheckbox(
@@ -247,7 +247,7 @@ fun SectionScope.IenSectionCheckboxItem(
  * @param interactionSource 상호작용 소스
  */
 @Composable
-fun SectionScope.IenSectionTextField(
+fun SectionScope.textField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -284,7 +284,7 @@ fun SectionScope.IenSectionTextField(
     ProvideTextStyle(
         (textStyle ?: LocalTextStyle.current).copy(color = fieldColor)
     ) {
-        IenSectionItem(
+        item(
             title = {
                 PlaceholderBasicTextField(
                     value = value,
@@ -342,7 +342,7 @@ fun SectionScope.IenSectionTextField(
  * @param interactionSource 상호작용 소스
  */
 @Composable
-fun SectionScope.IenSectionTextField(
+fun SectionScope.textField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
@@ -380,7 +380,7 @@ fun SectionScope.IenSectionTextField(
     ProvideTextStyle(
         (textStyle ?: LocalTextStyle.current).copy(color = fieldColor)
     ) {
-        IenSectionItem(
+        item(
             title = {
                 PlaceholderBasicTextField(
                     value = value,
@@ -432,7 +432,7 @@ fun SectionScope.IenSectionTextField(
  * @param textObfuscationCharacter 가려질 때 사용할 문자
  */
 @Composable
-fun SectionScope.IenSectionSecureTextField(
+fun SectionScope.secureTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -466,7 +466,7 @@ fun SectionScope.IenSectionSecureTextField(
     ProvideTextStyle(
         (textStyle ?: LocalTextStyle.current).copy(color = fieldColor)
     ) {
-        IenSectionItem(
+        item(
             title = {
                 PlaceholderBasicSecureTextField(
                     state = state,
@@ -510,7 +510,7 @@ fun SectionScope.IenSectionSecureTextField(
  * @param title 제목
  */
 @Composable
-fun SectionScope.IenSectionLink(
+fun SectionScope.link(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -523,7 +523,7 @@ fun SectionScope.IenSectionLink(
     caption: @Composable (() -> Unit)? = null,
     title: @Composable () -> Unit,
 ) {
-    IenSectionItem(
+    item(
         modifier =
             modifier
                 .shakeOnDisabledClick(enabled)
@@ -543,7 +543,6 @@ fun SectionScope.IenSectionLink(
         colors = colors
     )
 }
-
 
 /**
  * 섹션 항목의 배경 및 텍스트/아이콘 색상 값을 정의하는 데이터 클래스
@@ -674,7 +673,7 @@ object IenSectionLinkDefault {
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun SectionScope.IenSectionButton(
+fun SectionScope.button(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     icon: @Composable (() -> Unit)? = null,
@@ -728,7 +727,7 @@ private fun ienSectionTextFieldColor(
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun SectionScope.IenSectionSlider(
+fun SectionScope.slider(
     modifier: Modifier = Modifier,
     value: Float,
     onValueChange: (Float) -> Unit,
@@ -738,7 +737,7 @@ fun SectionScope.IenSectionSlider(
     title: String? = null,
     icon: ImageVector? = null
 ) {
-    IenSectionItem(
+    item(
         title = { title?.let { Text(text = it) } },
         supportingContent = {
             IenSlider(
@@ -758,7 +757,7 @@ fun SectionScope.IenSectionSlider(
 private fun SectionScope.AdaptiveSectionProgressBar(
     modifier: Modifier = Modifier
 ) {
-    IenSectionItem(
+    item(
         title = {},
         supportingContent = { IenLinearProgressIndicator() },
         modifier = modifier

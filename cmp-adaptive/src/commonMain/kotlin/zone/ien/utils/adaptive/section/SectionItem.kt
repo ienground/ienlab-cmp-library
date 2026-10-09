@@ -60,16 +60,16 @@ import zone.ien.utils.adaptive.theme.ienCupertinoSwitchColors
 import zone.ien.utils.adaptive.view.textfield.AdaptiveTextFieldClearButton
 import zone.ien.utils.hig.section.SectionSecureTextField
 import zone.ien.utils.hig.section.SectionTextField
-import zone.ien.utils.ui.section.IenSectionButton
-import zone.ien.utils.ui.section.IenSectionCheckboxItem
+import zone.ien.utils.ui.section.button
+import zone.ien.utils.ui.section.checkbox
 import zone.ien.utils.ui.section.IenSectionColors
-import zone.ien.utils.ui.section.IenSectionItem
-import zone.ien.utils.ui.section.IenSectionLink
+import zone.ien.utils.ui.section.item
+import zone.ien.utils.ui.section.link
 import zone.ien.utils.ui.section.IenSectionLinkDefault
-import zone.ien.utils.ui.section.IenSectionSecureTextField
-import zone.ien.utils.ui.section.IenSectionSlider
-import zone.ien.utils.ui.section.IenSectionSwitchItem
-import zone.ien.utils.ui.section.IenSectionTextField
+import zone.ien.utils.ui.section.secureTextField
+import zone.ien.utils.ui.section.slider
+import zone.ien.utils.ui.section.switch
+import zone.ien.utils.ui.section.textField
 import zone.ien.utils.ui.feedback.IenLinearProgressIndicator
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
@@ -100,7 +100,7 @@ fun SectionScope.AdaptiveSectionItem(
         adaptation = remember { SectionItemAdaptation() },
         adaptationScope = adaptation,
         material = {
-            IenSectionItem(
+            item(
                 modifier = modifier,
                 enabled = enabled,
                 leadingContent = leadingContent,
@@ -232,7 +232,7 @@ fun SectionScope.AdaptiveSectionSwitchItem(
         adaptation = remember { SectionItemAdaptation() },
         adaptationScope = adaptation,
         material = {
-            IenSectionSwitchItem(
+            switch(
                 modifier = modifier,
                 leadingContent = leadingContent,
                 checked = checked,
@@ -304,7 +304,7 @@ fun SectionScope.AdaptiveSectionCheckboxItem(
         adaptation = remember { SectionItemAdaptation() },
         adaptationScope = adaptation,
         material = {
-            IenSectionCheckboxItem(
+            checkbox(
                 modifier = modifier,
                 leadingContent = leadingContent,
                 checked = checked,
@@ -403,7 +403,7 @@ fun SectionScope.AdaptiveSectionTextField(
         adaptation = remember { SectionTextFieldAdaptation() },
         adaptationScope = adaptation,
         material = {
-            IenSectionTextField(
+            textField(
                 value = value,
                 onValueChange = onValueChange,
                 modifier = modifier,
@@ -506,7 +506,7 @@ fun SectionScope.AdaptiveSectionSecureTextField(
         adaptation = remember { SectionTextFieldAdaptation() },
         adaptationScope = adaptation,
         material = {
-            IenSectionSecureTextField(
+            secureTextField(
                 state = state,
                 modifier = modifier,
                 enabled = enabled,
@@ -608,7 +608,7 @@ fun SectionScope.AdaptiveSectionTextField(
         adaptation = remember { SectionTextFieldAdaptation() },
         adaptationScope = adaptation,
         material = {
-            IenSectionTextField(
+            textField(
                 value = value,
                 onValueChange = onValueChange,
                 modifier = modifier,
@@ -737,7 +737,7 @@ fun SectionScope.AdaptiveSectionLink(
         adaptation = remember { SectionLinkAdaptation() },
         adaptationScope = adaptation,
         material = {
-            IenSectionLink(
+            link(
                 onClick = onClick,
                 modifier = modifier,
                 enabled = enabled,
@@ -860,7 +860,7 @@ fun SectionScope.AdaptiveSectionButton(
         adaptation = remember { SectionButtonAdaptation() },
         adaptationScope = adaptation,
         material = {
-            IenSectionButton(
+            button(
                 modifier = modifier,
                 onClick = onClick,
                 icon = it.icon,
@@ -966,7 +966,7 @@ fun SectionScope.AdaptiveSectionSlider(
     AdaptiveWidget(
         adaptation = remember { SectionSliderAdaptation() },
         material = {
-            IenSectionSlider(
+            slider(
                 modifier = modifier,
                 value = value,
                 onValueChange = onValueChange,
