@@ -66,6 +66,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -159,6 +160,7 @@ import zone.ien.utils.icon.tabler.TablerIcons
 import zone.ien.utils.ui.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.interactive.IenDotCheckbox
 import zone.ien.utils.ui.window.ienTooltipPopupProperties
+import zone.ien.utils.ui.window.rememberIenTooltipPopupKey
 import zone.ien.utils.ui.primitives.IenIcon
 
 internal val LocalIenTopBarFloatingSlotHiddenRequester = staticCompositionLocalOf<((Boolean) -> Unit)?> { null }
@@ -1945,29 +1947,32 @@ private fun IenTooltipImpl(
         }
 
         if (keepInComposition) {
-            Popup(
-                popupPositionProvider = remember(resolvedPlacement, resolvedOffset) {
-                    IenTooltipPositionProvider(resolvedPlacement, resolvedOffset, density) { ratio ->
-                        dynamicArrowRatio = ratio
-                    }
-                },
-                onDismissRequest = { updateOpen(false) },
-                properties = ienTooltipPopupProperties()
-            ) {
-                IenTooltipPopup(
-                    visible = isOpen,
-                    text = text,
-                    content = content,
-                    tone = tone,
-                    messageAlign = messageAlign,
-                    anchorPositionByRatio = dynamicArrowRatio,
-                    clipToEnd = clipToEnd,
-                    placement = resolvedPlacement,
-                    motionVariant = motionVariant,
-                    scale = motionScale,
-                    width = width,
-                    fitContentWidth = fitContentWidth,
-                )
+            val popupKey = rememberIenTooltipPopupKey()
+            key(popupKey) {
+                Popup(
+                    popupPositionProvider = remember(resolvedPlacement, resolvedOffset) {
+                        IenTooltipPositionProvider(resolvedPlacement, resolvedOffset, density) { ratio ->
+                            dynamicArrowRatio = ratio
+                        }
+                    },
+                    onDismissRequest = { updateOpen(false) },
+                    properties = ienTooltipPopupProperties()
+                ) {
+                    IenTooltipPopup(
+                        visible = isOpen,
+                        text = text,
+                        content = content,
+                        tone = tone,
+                        messageAlign = messageAlign,
+                        anchorPositionByRatio = dynamicArrowRatio,
+                        clipToEnd = clipToEnd,
+                        placement = resolvedPlacement,
+                        motionVariant = motionVariant,
+                        scale = motionScale,
+                        width = width,
+                        fitContentWidth = fitContentWidth,
+                    )
+                }
             }
         }
     }
