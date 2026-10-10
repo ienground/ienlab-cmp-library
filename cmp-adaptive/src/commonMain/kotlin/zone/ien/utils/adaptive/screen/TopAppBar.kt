@@ -140,7 +140,7 @@ internal class TopAppBarAdaptation: Adaptation<HigTopAppBarAdaptation, IenTopApp
         val isCenterAligned = LocalIsHigTopBarCenterAligned.current
         val isBackgroundAdaptive = LocalIsBackgroundAdaptive.current
         val isBackgroundGradient = LocalIsBackgroundGradient.current
-        val backdrop = rememberDefaultBackdrop()
+        val backdrop = LocalBackdrop.current ?: rememberDefaultBackdrop()
         val colors = CupertinoTopAppBarDefaults.topAppBarColors()
 
         return remember(windowInsets, backdrop, isCenterAligned, isBackgroundAdaptive, isBackgroundGradient, colors) {

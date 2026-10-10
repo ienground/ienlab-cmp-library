@@ -22,6 +22,7 @@ import zone.ien.hig.CupertinoMenuItemData
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.MenuAction
 import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.utils.adaptive.screen.LocalBackdrop
 import zone.ien.utils.adaptive.view.AdaptiveDropdownBox
 import zone.ien.utils.adaptive.view.AdaptiveTooltipBox
 import zone.ien.utils.cmp_ui.generated.resources.Res
@@ -161,7 +162,7 @@ fun HigActionsMenu(
             CupertinoDropdownMenuNative(
                 expanded = isOpen,
                 onDismissRequest = onToggleOverflow,
-                backdrop = rememberDefaultBackdrop(),
+                backdrop = LocalBackdrop.current ?: rememberDefaultBackdrop(),
                 items = menuItems.overflowItems.mapNotNull { item ->
                     CupertinoMenuItemData(
                         title = item.title,
@@ -180,7 +181,7 @@ fun HigActionsMenu(
             CupertinoDropdownMenu(
                 expanded = isOpen,
                 onDismissRequest = onToggleOverflow,
-                backdrop = rememberDefaultBackdrop()
+                backdrop = LocalBackdrop.current ?: rememberDefaultBackdrop()
             ) {
                 menuItems.overflowItems.forEach { item ->
                     if (item.visible) {

@@ -5,6 +5,7 @@ import com.kyant.backdrop.backdrops.LayerBackdrop
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.utils.adaptive.screen.LocalBackdrop
 import zone.ien.utils.adaptive.screen.HigTopAppBarScaffoldAdaptation
 import zone.ien.utils.adaptive.screen.IenTopAppBarScaffoldAdaptation
 
@@ -13,14 +14,14 @@ import zone.ien.utils.adaptive.screen.IenTopAppBarScaffoldAdaptation
  * 
  * Material과 Cupertino 플랫폼에 따라 다르게 동작하는 상단 앱 바의 적응형 설정을 제공합니다.
  * 
- * @param backdrop 상단 앱 바에 적용할 배경 레이어
+ * @param backdrop 상단 앱 바에 적용할 배경 레이어. 기본값은 가까운 스캐폴드의 레이어이며, 없으면 별도로 생성합니다.
  * @param isCenterAligned 타이틀을 중앙 정렬할지 여부
  * @return 플랫폼별 적응형 설정을 위한 블록
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun getSurfaceTopAppBarAdaptation(
-    backdrop: LayerBackdrop = rememberDefaultBackdrop(),
+    backdrop: LayerBackdrop = LocalBackdrop.current ?: rememberDefaultBackdrop(),
     isCenterAligned: Boolean = true
 ): AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {
     material {
@@ -36,14 +37,14 @@ fun getSurfaceTopAppBarAdaptation(
  * 
  * Material과 Cupertino 플랫폼에 따라 다르게 동작하는 상단 앱 바의 적응형 설정을 제공합니다.
  * 
- * @param backdrop 상단 앱 바에 적용할 배경 레이어
+ * @param backdrop 상단 앱 바에 적용할 배경 레이어. 기본값은 가까운 스캐폴드의 레이어이며, 없으면 별도로 생성합니다.
  * @param isCenterAligned 타이틀을 중앙 정렬할지 여부
  * @return 플랫폼별 적응형 설정을 위한 블록
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun getSurfaceContainerTopAppBarAdaptation(
-    backdrop: LayerBackdrop = rememberDefaultBackdrop(),
+    backdrop: LayerBackdrop = LocalBackdrop.current ?: rememberDefaultBackdrop(),
     isCenterAligned: Boolean = true
 ): AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {
     material {
@@ -59,14 +60,14 @@ fun getSurfaceContainerTopAppBarAdaptation(
  * 
  * Material과 Cupertino 플랫폼에 따라 다르게 동작하는 상단 앱 바의 적응형 설정을 제공합니다.
  * 
- * @param backdrop 상단 앱 바에 적용할 배경 레이어
+ * @param backdrop 상단 앱 바에 적용할 배경 레이어. 기본값은 가까운 스캐폴드의 레이어이며, 없으면 별도로 생성합니다.
  * @param isCenterAligned 타이틀을 중앙 정렬할지 여부
  * @return 플랫폼별 적응형 설정을 위한 블록
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun getNoTintTopAppBarAdaptation(
-    backdrop: LayerBackdrop = rememberDefaultBackdrop(),
+    backdrop: LayerBackdrop = LocalBackdrop.current ?: rememberDefaultBackdrop(),
     isCenterAligned: Boolean = true
 ): AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {
     material {

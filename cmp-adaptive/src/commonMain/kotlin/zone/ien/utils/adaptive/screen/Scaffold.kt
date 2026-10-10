@@ -140,6 +140,53 @@ fun AdaptiveTopAppBarScaffold(
     adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {},
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
+    AdaptiveTopAppBarScaffold(
+        modifier = modifier,
+        topBarModifier = topBarModifier,
+        title = title,
+        subtitle = subtitle,
+        showTopBar = showTopBar,
+        navigationIcon = navigationIcon,
+        actions = actions,
+        bottomBar = bottomBar,
+        snackbarHost = snackbarHost,
+        floatingActionButton = floatingActionButton,
+        fabPosition = fabPosition,
+        higFabPosition = higFabPosition,
+        contentEdge = contentEdge,
+        topBarMode = topBarMode,
+        adaptation = adaptation,
+        backdrop = LocalBackdrop.current ?: rememberDefaultBackdrop(),
+        content = content,
+    )
+}
+
+/**
+ * 명시적인 배경 레이어를 모든 슬롯과 콘텐츠에 [LocalBackdrop]으로 제공하는 스캐폴드입니다.
+ *
+ * @param backdrop 기본 배경 레이어. Cupertino adaptation에서 덮어쓰면 해당 레이어를 공유합니다.
+ */
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun AdaptiveTopAppBarScaffold(
+    modifier: Modifier = Modifier,
+    topBarModifier: Modifier = Modifier,
+    title: @Composable () -> Unit = {},
+    subtitle: @Composable (() -> Unit)? = null,
+    showTopBar: Boolean = true,
+    navigationIcon: (@Composable () -> Unit)? = null,
+    actions: (@Composable (RowScope.() -> Unit))? = null,
+    bottomBar: (@Composable () -> Unit)? = null,
+    snackbarHost: @Composable () -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
+    fabPosition: FabPosition = FabPosition.Center,
+    higFabPosition: FabPosition = fabPosition,
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
+    topBarMode: TopBarMode = LocalTopBarMode.current,
+    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {},
+    backdrop: LayerBackdrop,
+    content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
+) {
     val localAdaptation = LocalTopBarScaffoldAdaptation.current
     val effectiveAdaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {
         localAdaptation()
@@ -160,7 +207,7 @@ fun AdaptiveTopAppBarScaffold(
     }
 
     AdaptiveWidget(
-        adaptation = remember { TopAppBarScaffoldAdaptation() },
+        adaptation = remember(backdrop) { TopAppBarScaffoldAdaptation(backdrop) },
         adaptationScope = effectiveAdaptation,
         material = {
             val materialAdaptation = it
@@ -168,167 +215,171 @@ fun AdaptiveTopAppBarScaffold(
             val topBarHeight = remember { mutableStateOf(0f) }
             var navigationTitleVisible by remember { mutableStateOf(true) }
 
-            IenScaffold(
-                modifier = modifier.onGloballyPositioned {
-                    scaffoldCoordinates.value = it
-                },
-                topBar = {
-                    Box {
-                        AnimatedVisibility(
-                            visible = showTopBar,
-                            enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
-                            exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
-                        ) {
-                            IenTopAppBar(
-                                title = {
-                                    AnimatedVisibility(
-                                        visible = topBarMode == TopBarMode.Static ||
-                                            !navigationTitleVisible,
-                                        enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
-                                        exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
-                                    ) {
-                                        title()
-                                    }
-                                },
-                                subtitle = subtitle?.let {
-                                    {
+            CompositionLocalProvider(LocalBackdrop provides backdrop) {
+                IenScaffold(
+                    modifier = modifier.onGloballyPositioned {
+                        scaffoldCoordinates.value = it
+                    },
+                    topBar = {
+                        Box {
+                            AnimatedVisibility(
+                                visible = showTopBar,
+                                enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
+                                exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
+                            ) {
+                                IenTopAppBar(
+                                    title = {
                                         AnimatedVisibility(
                                             visible = topBarMode == TopBarMode.Static ||
                                                 !navigationTitleVisible,
                                             enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
                                             exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
                                         ) {
-                                            it()
+                                            title()
                                         }
-                                    }
-                                },
-                                modifier = topBarModifier.onGloballyPositioned {
-                                    topBarHeight.value = it.size.height.toFloat()
-                                },
-                                navigationIcon = navigationIcon,
-                                actions = actions,
-                                windowInsets = materialAdaptation.topBarWindowInsets,
-                                isCenterAligned = materialAdaptation.isCenterAligned,
-                                isScrollTint = materialAdaptation.isScrollTint,
-                                mode = TopBarMode.Static,
-                            )
-                        }
-                        AnimatedVisibility(
-                            visible = !showTopBar,
-                            enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
-                            exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
-                        ) {
-                            Box(
-                                modifier = Modifier.height(IntrinsicSize.Min)
-                            ) {
-                                Box(modifier = Modifier.statusBarsPadding())
-                                Box(modifier = Modifier.fillMaxSize())
+                                    },
+                                    subtitle = subtitle?.let {
+                                        {
+                                            AnimatedVisibility(
+                                                visible = topBarMode == TopBarMode.Static ||
+                                                    !navigationTitleVisible,
+                                                enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
+                                                exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
+                                            ) {
+                                                it()
+                                            }
+                                        }
+                                    },
+                                    modifier = topBarModifier.onGloballyPositioned {
+                                        topBarHeight.value = it.size.height.toFloat()
+                                    },
+                                    navigationIcon = navigationIcon,
+                                    actions = actions,
+                                    windowInsets = materialAdaptation.topBarWindowInsets,
+                                    isCenterAligned = materialAdaptation.isCenterAligned,
+                                    isScrollTint = materialAdaptation.isScrollTint,
+                                    mode = TopBarMode.Static,
+                                )
                             }
-                        }
-                    }
-                },
-                bottomBar = bottomBar,
-                snackbarHost = snackbarHost,
-                floating = floatingActionButton,
-                floatingActionButtonPosition = fabPosition.transform(),
-                containerColor = materialAdaptation.scaffoldContainerColor,
-                contentColor = materialAdaptation.scaffoldContentColor,
-                contentWindowInsets = materialAdaptation.contentWindowInsets,
-                contentEdge = effectiveContentEdge,
-                content = { contentPadding ->
-                    CompositionLocalProvider(LocalTopBarScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState)) {
-                        content(
-                            contentPadding,
-                            {
-                                if (topBarMode == TopBarMode.Expanded) {
-                                    IenNavigationTitle(
-                                        title = title,
-                                        subtitle = subtitle,
-                                        topBarHeight = topBarHeight.value,
-                                        scaffoldCoordinates = scaffoldCoordinates.value,
-                                        onVisibilityChange = { navigationTitleVisible = it },
-                                    )
+                            AnimatedVisibility(
+                                visible = !showTopBar,
+                                enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
+                                exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
+                            ) {
+                                Box(
+                                    modifier = Modifier.height(IntrinsicSize.Min)
+                                ) {
+                                    Box(modifier = Modifier.statusBarsPadding())
+                                    Box(modifier = Modifier.fillMaxSize())
                                 }
                             }
-                        )
+                        }
+                    },
+                    bottomBar = bottomBar,
+                    snackbarHost = snackbarHost,
+                    floating = floatingActionButton,
+                    floatingActionButtonPosition = fabPosition.transform(),
+                    containerColor = materialAdaptation.scaffoldContainerColor,
+                    contentColor = materialAdaptation.scaffoldContentColor,
+                    contentWindowInsets = materialAdaptation.contentWindowInsets,
+                    contentEdge = effectiveContentEdge,
+                    content = { contentPadding ->
+                        CompositionLocalProvider(LocalTopBarScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState)) {
+                            content(
+                                contentPadding,
+                                {
+                                    if (topBarMode == TopBarMode.Expanded) {
+                                        IenNavigationTitle(
+                                            title = title,
+                                            subtitle = subtitle,
+                                            topBarHeight = topBarHeight.value,
+                                            scaffoldCoordinates = scaffoldCoordinates.value,
+                                            onVisibilityChange = { navigationTitleVisible = it },
+                                        )
+                                    }
+                                }
+                            )
+                        }
                     }
-                }
-            )
+                )
+            }
         },
         cupertino = {
-            CupertinoScaffold(
-                modifier = modifier,
-                topBar = {
-                    Box {
-                        AnimatedVisibility(
-                            visible = showTopBar,
-                            enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
-                            exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
-                        ) {
-                            CupertinoTopAppBar(
-                                title = title,
-                                subtitle = subtitle,
-                                modifier = topBarModifier,
-                                navigationIcon = { navigationIcon?.invoke() },
-                                actions = {
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        content = {
-                                            actions?.invoke(this)
-                                            Spacer(modifier = Modifier.width(cupertinoActionsEndSpacing(actions != null)))
-                                        },
-                                        modifier = Modifier
-                                            .animateContentSizeWithoutClipping()
-                                            .heightIn(min = 48.dp)
-                                    )
-                                },
-                                windowInsets = it.topBarWindowInsets,
-                                isCenterAligned = it.isCenterAligned,
-                                isBackgroundAdaptive = it.isBackgroundAdaptive,
-                                isBackgroundGradient = it.isBackgroundGradient,
-                                backdrop = it.backdrop,
-                                colors = it.colors
-                            )
-                        }
-                        AnimatedVisibility(
-                            visible = !showTopBar,
-                            enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
-                            exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
-                        ) {
-                            Box(
-                                modifier = Modifier.height(IntrinsicSize.Min)
+            CompositionLocalProvider(LocalBackdrop provides it.backdrop) {
+                CupertinoScaffold(
+                    modifier = modifier,
+                    topBar = {
+                        Box {
+                            AnimatedVisibility(
+                                visible = showTopBar,
+                                enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
+                                exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
                             ) {
-                                Box(modifier = Modifier.statusBarsPadding())
-                                Box(modifier = Modifier.fillMaxSize())
+                                CupertinoTopAppBar(
+                                    title = title,
+                                    subtitle = subtitle,
+                                    modifier = topBarModifier,
+                                    navigationIcon = { navigationIcon?.invoke() },
+                                    actions = {
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            content = {
+                                                actions?.invoke(this)
+                                                Spacer(modifier = Modifier.width(cupertinoActionsEndSpacing(actions != null)))
+                                            },
+                                            modifier = Modifier
+                                                .animateContentSizeWithoutClipping()
+                                                .heightIn(min = 48.dp)
+                                        )
+                                    },
+                                    windowInsets = it.topBarWindowInsets,
+                                    isCenterAligned = it.isCenterAligned,
+                                    isBackgroundAdaptive = it.isBackgroundAdaptive,
+                                    isBackgroundGradient = it.isBackgroundGradient,
+                                    backdrop = it.backdrop,
+                                    colors = it.colors
+                                )
                             }
-                        }
-                    }
-                },
-                bottomBar = { bottomBar?.invoke() },
-                snackbarHost = snackbarHost,
-                floatingActionButton = floatingActionButton,
-                floatingActionButtonPosition = higFabPosition,
-                containerColor = it.scaffoldContainerColor,
-                contentColor = it.scaffoldContentColor,
-                contentWindowInsets = it.contentWindowInsets,
-                hasNavigationTitle = topBarMode == TopBarMode.Expanded,
-                content = { contentPadding ->
-                    CompositionLocalProvider(LocalTopBarScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState)) {
-                        content(
-                            contentPadding,
-                            {
-                                if (topBarMode == TopBarMode.Expanded) {
-                                    CupertinoNavigationTitle(
-                                        title = title,
-                                        subtitle = subtitle
-                                    )
+                            AnimatedVisibility(
+                                visible = !showTopBar,
+                                enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
+                                exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
+                            ) {
+                                Box(
+                                    modifier = Modifier.height(IntrinsicSize.Min)
+                                ) {
+                                    Box(modifier = Modifier.statusBarsPadding())
+                                    Box(modifier = Modifier.fillMaxSize())
                                 }
                             }
-                        )
+                        }
+                    },
+                    bottomBar = { bottomBar?.invoke() },
+                    snackbarHost = snackbarHost,
+                    floatingActionButton = floatingActionButton,
+                    floatingActionButtonPosition = higFabPosition,
+                    containerColor = it.scaffoldContainerColor,
+                    contentColor = it.scaffoldContentColor,
+                    contentWindowInsets = it.contentWindowInsets,
+                    hasNavigationTitle = topBarMode == TopBarMode.Expanded,
+                    content = { contentPadding ->
+                        CompositionLocalProvider(LocalTopBarScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState)) {
+                            content(
+                                contentPadding,
+                                {
+                                    if (topBarMode == TopBarMode.Expanded) {
+                                        CupertinoNavigationTitle(
+                                            title = title,
+                                            subtitle = subtitle
+                                        )
+                                    }
+                                }
+                            )
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     )
 }
@@ -374,6 +425,55 @@ fun AdaptiveTopAppBarScaffold(
     adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {},
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
+    AdaptiveTopAppBarScaffold(
+        modifier = modifier,
+        topBarModifier = topBarModifier,
+        title = title,
+        subtitle = subtitle,
+        showTopBar = showTopBar,
+        navigationIcon = navigationIcon,
+        actions = actions,
+        primaryAction = primaryAction,
+        bottomBar = bottomBar,
+        snackbarHost = snackbarHost,
+        floatingActionButton = floatingActionButton,
+        fabPosition = fabPosition,
+        higFabPosition = higFabPosition,
+        contentEdge = contentEdge,
+        topBarMode = topBarMode,
+        adaptation = adaptation,
+        backdrop = LocalBackdrop.current ?: rememberDefaultBackdrop(),
+        content = content,
+    )
+}
+
+/**
+ * 명시적인 배경 레이어를 모든 슬롯과 콘텐츠에 [LocalBackdrop]으로 제공하는 스캐폴드입니다.
+ *
+ * @param backdrop 기본 배경 레이어. Cupertino adaptation에서 덮어쓰면 해당 레이어를 공유합니다.
+ */
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun AdaptiveTopAppBarScaffold(
+    modifier: Modifier = Modifier,
+    topBarModifier: Modifier = Modifier,
+    title: @Composable () -> Unit = {},
+    subtitle: @Composable (() -> Unit)? = null,
+    showTopBar: Boolean = true,
+    navigationIcon: (@Composable () -> Unit)? = null,
+    actions: List<ActionMenuItem> = listOf(),
+    primaryAction: ActionMenuItem.IconMenuItem? = null,
+    bottomBar: (@Composable () -> Unit)? = null,
+    snackbarHost: @Composable () -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
+    fabPosition: FabPosition = FabPosition.Center,
+    higFabPosition: FabPosition = fabPosition,
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
+    topBarMode: TopBarMode = LocalTopBarMode.current,
+    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {},
+    backdrop: LayerBackdrop,
+    content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
+) {
     val localAdaptation = LocalTopBarScaffoldAdaptation.current
     val effectiveAdaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {
         localAdaptation()
@@ -397,11 +497,12 @@ fun AdaptiveTopAppBarScaffold(
             contentEdge = contentEdge,
             topBarMode = topBarMode,
             adaptation = adaptation,
+            backdrop = backdrop,
             content = content
         )
     }
     AdaptiveWidget(
-        adaptation = remember { TopAppBarScaffoldAdaptation() },
+        adaptation = remember(backdrop) { TopAppBarScaffoldAdaptation(backdrop) },
         adaptationScope = effectiveAdaptation,
         material = {
             val menuItems = primaryAction?.let { actions + it } ?: actions
@@ -597,7 +698,9 @@ class HigTopAppBarScaffoldAdaptation internal constructor(
 }
 
 @OptIn(ExperimentalAdaptiveApi::class)
-internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>() {
+internal class TopAppBarScaffoldAdaptation(
+    private val backdrop: LayerBackdrop,
+) : Adaptation<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): HigTopAppBarScaffoldAdaptation {
         val topBarWindowInsets = CupertinoTopAppBarDefaults.windowInsets
@@ -605,7 +708,6 @@ internal class TopAppBarScaffoldAdaptation: Adaptation<HigTopAppBarScaffoldAdapt
         val isCenterAligned = LocalIsHigTopBarCenterAligned.current
         val isBackgroundAdaptive = LocalIsBackgroundAdaptive.current
         val isBackgroundGradient = LocalIsBackgroundGradient.current
-        val backdrop = rememberDefaultBackdrop()
         val isDropdownNative = true
         val colors = CupertinoTopAppBarDefaults.topAppBarColors()
         val scaffoldContainerColor = MaterialTheme.colorScheme.background// CupertinoScaffoldDefaults.containerColor
