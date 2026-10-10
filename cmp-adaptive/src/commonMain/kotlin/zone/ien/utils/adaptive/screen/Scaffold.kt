@@ -162,7 +162,7 @@ fun AdaptiveTopAppBarScaffold(
 }
 
 /**
- * 명시적인 배경 레이어를 모든 슬롯과 콘텐츠에 [LocalBackdrop]으로 제공하는 스캐폴드입니다.
+ * 명시적인 배경 레이어를 상단바와 하단바 등 스캐폴드 슬롯에 제공하는 스캐폴드입니다.
  *
  * @param backdrop 기본 배경 레이어. Cupertino adaptation에서 덮어쓰면 해당 레이어를 공유합니다.
  */
@@ -364,7 +364,10 @@ fun AdaptiveTopAppBarScaffold(
                     contentWindowInsets = it.contentWindowInsets,
                     hasNavigationTitle = topBarMode == TopBarMode.Expanded,
                     content = { contentPadding ->
-                        CompositionLocalProvider(LocalTopBarScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState)) {
+                        CompositionLocalProvider(
+                            LocalBackdrop provides null,
+                            LocalTopBarScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState),
+                        ) {
                             content(
                                 contentPadding,
                                 {
@@ -448,7 +451,7 @@ fun AdaptiveTopAppBarScaffold(
 }
 
 /**
- * 명시적인 배경 레이어를 모든 슬롯과 콘텐츠에 [LocalBackdrop]으로 제공하는 스캐폴드입니다.
+ * 명시적인 배경 레이어를 상단바와 하단바 등 스캐폴드 슬롯에 제공하는 스캐폴드입니다.
  *
  * @param backdrop 기본 배경 레이어. Cupertino adaptation에서 덮어쓰면 해당 레이어를 공유합니다.
  */
