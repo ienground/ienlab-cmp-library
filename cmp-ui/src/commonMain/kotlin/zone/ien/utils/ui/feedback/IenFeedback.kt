@@ -62,8 +62,10 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
@@ -122,6 +124,16 @@ import kotlin.math.sin
  * - [Full]: 화면 높이의 92%만큼 펼쳐집니다.
  */
 enum class IenSheetDetent { Content, Medium, Full }
+
+private const val IenSheetMediumHeightFraction = 0.5f
+private const val IenSheetFullHeightFraction = 0.92f
+private const val IenSheetExpansionSnapFraction = 0.5f
+private val IenSheetHorizontalInset = 14.dp
+
+private fun IenSheetDetent.isExpandable(): Boolean = this != IenSheetDetent.Content
+
+private fun IenSheetDetent.expansionProgress(): Float =
+    if (this == IenSheetDetent.Full) 1f else 0f
 
 internal fun shouldKeepIenOverlayMounted(
     visible: Boolean,
@@ -206,6 +218,7 @@ fun IenBottomSheet(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val dragOffsetY = remember { Animatable(0f) }
+    val expansionProgress = remember(state) { Animatable(state.detent.expansionProgress()) }
     var mounted by remember { mutableStateOf(state.visible) }
     val density = LocalDensity.current
     val thresholdPx = with(density) { 150.dp.toPx() }
@@ -223,43 +236,26 @@ fun IenBottomSheet(
         if (state.visible) {
             mounted = true
             dragOffsetY.snapTo(0f)
+            expansionProgress.snapTo(state.detent.expansionProgress())
         } else if (mounted) {
             delay(normalMillis.toLong())
             mounted = false
         }
     }
 
-    if (!shouldKeepIenOverlayMounted(state.visible, mounted)) return
-
-    val dragModifier = Modifier.pointerInput(Unit) {
-        detectVerticalDragGestures(
-            onDragEnd = {
-                coroutineScope.launch {
-                    val sheetHeight = size.height.toFloat()
-                    if (dragOffsetY.value > thresholdPx) {
-                        launch {
-                            dragOffsetY.animateTo(
-                                targetValue = sheetHeight,
-                                animationSpec = tween(normalMillis, easing = standardEasing)
-                            )
-                        }
-                        state.hide()
-                    } else {
-                        dragOffsetY.animateTo(0f)
-                    }
-                }
-            },
-            onDragCancel = {
-                coroutineScope.launch { dragOffsetY.animateTo(0f) }
-            },
-            onVerticalDrag = { change, dragAmount ->
-                change.consume()
-                coroutineScope.launch {
-                    dragOffsetY.snapTo((dragOffsetY.value + dragAmount).coerceAtLeast(0f))
-                }
-            }
-        )
+    LaunchedEffect(state.detent) {
+        val targetProgress = state.detent.expansionProgress()
+        if (state.visible) {
+            expansionProgress.animateTo(
+                targetValue = targetProgress,
+                animationSpec = tween(normalMillis, easing = standardEasing),
+            )
+        } else {
+            expansionProgress.snapTo(targetProgress)
+        }
     }
+
+    if (!shouldKeepIenOverlayMounted(state.visible, mounted)) return
 
     Dialog(
         onDismissRequest = { state.hide() },
@@ -269,6 +265,75 @@ fun IenBottomSheet(
         ),
     ) {
         disablePlatformDialogDim()
+        val windowHeightPx = LocalWindowInfo.current.containerSize.height.toFloat()
+        val expansionDistancePx = if (windowHeightPx > 0f) {
+            windowHeightPx * (IenSheetFullHeightFraction - IenSheetMediumHeightFraction)
+        } else {
+            with(density) { 300.dp.toPx() }
+        }
+        val dragModifier = Modifier.pointerInput(expansionDistancePx) {
+            detectVerticalDragGestures(
+                onDragEnd = {
+                    coroutineScope.launch {
+                        val sheetHeight = size.height.toFloat()
+                        if (dragOffsetY.value > thresholdPx) {
+                            launch {
+                                dragOffsetY.animateTo(
+                                    targetValue = sheetHeight,
+                                    animationSpec = tween(normalMillis, easing = standardEasing),
+                                )
+                            }
+                            state.hide()
+                        } else {
+                            launch { dragOffsetY.animateTo(0f) }
+                            if (state.detent.isExpandable()) {
+                                val targetDetent =
+                                    if (expansionProgress.value >= IenSheetExpansionSnapFraction) {
+                                        IenSheetDetent.Full
+                                    } else {
+                                        IenSheetDetent.Medium
+                                    }
+                                if (state.detent == targetDetent) {
+                                    expansionProgress.animateTo(
+                                        targetValue = targetDetent.expansionProgress(),
+                                        animationSpec = tween(normalMillis, easing = standardEasing),
+                                    )
+                                } else {
+                                    state.show(targetDetent)
+                                }
+                            }
+                        }
+                    }
+                },
+                onDragCancel = {
+                    coroutineScope.launch { dragOffsetY.animateTo(0f) }
+                    if (state.detent.isExpandable()) {
+                        coroutineScope.launch {
+                            expansionProgress.animateTo(
+                                targetValue = state.detent.expansionProgress(),
+                                animationSpec = tween(normalMillis, easing = standardEasing),
+                            )
+                        }
+                    }
+                },
+                onVerticalDrag = { change, dragAmount ->
+                    change.consume()
+                    coroutineScope.launch {
+                        if (state.detent.isExpandable()) {
+                            val currentProgress = expansionProgress.value
+                            val nextProgress =
+                                (currentProgress - dragAmount / expansionDistancePx).coerceIn(0f, 1f)
+                            val unconsumedDrag =
+                                dragAmount + (nextProgress - currentProgress) * expansionDistancePx
+                            expansionProgress.snapTo(nextProgress)
+                            dragOffsetY.snapTo((dragOffsetY.value + unconsumedDrag).coerceAtLeast(0f))
+                        } else {
+                            dragOffsetY.snapTo((dragOffsetY.value + dragAmount).coerceAtLeast(0f))
+                        }
+                    }
+                },
+            )
+        }
         val overlayColor = if (disableDimmer) Color.Transparent else IenTheme.colors.overlay
         Box(
             modifier = modifier
@@ -305,7 +370,35 @@ fun IenBottomSheet(
                 IenSurface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .then(state.detent.sheetHeightModifier())
+                        .layout { measurable, constraints ->
+                            val isExpandable = state.detent.isExpandable()
+                            val progress = if (isExpandable) expansionProgress.value else 1f
+                            val horizontalInset =
+                                (IenSheetHorizontalInset.roundToPx() * (1f - progress))
+                                    .roundToInt()
+                                    .coerceAtMost(constraints.maxWidth / 2)
+                            val minHeight =
+                                if (isExpandable) {
+                                    (
+                                        constraints.maxHeight *
+                                            (IenSheetMediumHeightFraction +
+                                                (IenSheetFullHeightFraction - IenSheetMediumHeightFraction) * progress)
+                                    ).roundToInt().coerceIn(constraints.minHeight, constraints.maxHeight)
+                                } else {
+                                    constraints.minHeight
+                                }
+                            val placeable =
+                                measurable.measure(
+                                    constraints.copy(
+                                        minWidth = 0,
+                                        maxWidth = (constraints.maxWidth - horizontalInset * 2).coerceAtLeast(0),
+                                        minHeight = minHeight,
+                                    ),
+                                )
+                            layout(placeable.width + horizontalInset * 2, placeable.height) {
+                                placeable.placeRelative(horizontalInset, 0)
+                            }
+                        }
                         .clickable(
                             indication = null,
                             interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
@@ -380,12 +473,6 @@ fun IenBottomSheet(
             }
         }
     }
-}
-
-private fun IenSheetDetent.sheetHeightModifier(): Modifier = when (this) {
-    IenSheetDetent.Content -> Modifier
-    IenSheetDetent.Medium -> Modifier.fillMaxHeight(0.5f)
-    IenSheetDetent.Full -> Modifier.fillMaxHeight(0.92f)
 }
 
 /**

@@ -516,7 +516,7 @@ private val ComponentPlaygroundControls = mapOf(
     ),
     "bottom-sheet" to listOf(
         toggleControl("visible", "시트 표시", false),
-        choiceControl("detent", "시트 높이", listOf("Content", "Medium", "Full")),
+        choiceControl("detent", "시트 높이", listOf("Content", "Medium", "Full"), "Medium"),
     ),
     "bubble" to listOf(
         choiceControl("background", "배경", listOf("Grey", "Brand")),
@@ -2078,7 +2078,7 @@ fun BottomInfoSection(controls: Map<String, String> = emptyMap()) {
 @Composable
 fun BottomSheetSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
-        val detent = when (controls.enumValue("detent", "Content")) {
+        val detent = when (controls.enumValue("detent", "Medium")) {
             "Medium" -> IenSheetDetent.Medium
             "Full" -> IenSheetDetent.Full
             else -> IenSheetDetent.Content
@@ -2093,7 +2093,7 @@ fun BottomSheetSection(controls: Map<String, String> = emptyMap()) {
 
         ComponentSection(title = "BottomSheet") {
             IenButton(
-                onClick = { sheetState.show(IenSheetDetent.Content) },
+                onClick = { sheetState.show(detent) },
                 display = IenButtonDisplay.Block,
             ) {
                 Text("일반 바텀시트 열기")
