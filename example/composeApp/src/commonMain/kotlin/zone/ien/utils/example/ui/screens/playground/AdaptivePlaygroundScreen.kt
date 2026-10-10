@@ -107,9 +107,9 @@ fun AdaptivePlaygroundScreen(
         darkTheme = darkTheme,
     ) {
         AdaptiveTopAppBarScaffold(
+            backdrop = backdrop,
             navigationIcon = {
                 AdaptiveBackButton(
-                    backdrop = backdrop,
                     onClick = navigateBack,
                 )
             },
@@ -125,9 +125,6 @@ fun AdaptivePlaygroundScreen(
                     selectedTabIndex = { selectedNavigationIndex },
                     onTabSelected = { selectedNavigationIndex = it },
                     isNative = isNativeNavigationBar,
-                    adaptation = {
-                        cupertino { this.backdrop = backdrop }
-                    },
                     items = listOf(
                         NavigationBarItem(
                             onClick = { selectedNavigationIndex = 0 },
@@ -155,11 +152,6 @@ fun AdaptivePlaygroundScreen(
                         ),
                     ),
                 )
-            },
-            adaptation = {
-                cupertino {
-                    this.backdrop = backdrop
-                }
             },
         ) { paddingValues, title ->
             Column(
