@@ -2,6 +2,7 @@ package zone.ien.utils.example
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,7 +24,10 @@ import zone.ien.utils.example.ui.navigation.RootRoute
 import zone.ien.utils.firebase.auth.google.GoogleAuthCredentials
 import zone.ien.utils.firebase.auth.google.GoogleAuthProvider
 import zone.ien.utils.navigation.getConfig
+import zone.ien.utils.ui.interactive.IenButton
 import zone.ien.utils.utils.Dlog
+
+
 
 const val TAG = "CmpLibTAG"
 expect val currentTheme: Theme
@@ -46,7 +50,7 @@ fun App() {
 //    val backStack = rememberNavBackStack(getConfig<RootRoute>(), RootRoute.Home)
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
 
-    var iconStyle by remember { mutableStateOf<IconStyle>(IconStyle.Material.Filled) }
+    var iconStyle by remember { mutableStateOf<IconStyle>(IconStyle.Tabler) }
 
     CompositionLocalProvider(LocalIconStyle provides iconStyle) {
         IenAdaptiveTheme(
@@ -58,14 +62,19 @@ fun App() {
     //            TextFieldScreen(
     //                modifier = it
     //            )
-                RootNavigationGraph(
-                    modifier = it,
-                    backStack = backStack,
-                    iconStyle = iconStyle,
-                    onIconStyleChange = { iconStyle = it },
-                )
+
+                HapticTestScreen()
+//                RootNavigationGraph(
+//                    modifier = it,
+//                    backStack = backStack,
+//                    iconStyle = iconStyle,
+//                    onIconStyleChange = { iconStyle = it },
+//                )
             }
         }
 
     }
 }
+
+@Composable
+expect fun HapticTestScreen()
