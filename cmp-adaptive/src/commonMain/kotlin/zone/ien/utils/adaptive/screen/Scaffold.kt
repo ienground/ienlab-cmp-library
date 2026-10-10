@@ -284,7 +284,10 @@ fun AdaptiveTopAppBarScaffold(
                     contentWindowInsets = materialAdaptation.contentWindowInsets,
                     contentEdge = effectiveContentEdge,
                     content = { contentPadding ->
-                        CompositionLocalProvider(LocalTopBarScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState)) {
+                        CompositionLocalProvider(
+                            LocalBackdrop provides null,
+                            LocalTopBarScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState),
+                        ) {
                             content(
                                 contentPadding,
                                 {
