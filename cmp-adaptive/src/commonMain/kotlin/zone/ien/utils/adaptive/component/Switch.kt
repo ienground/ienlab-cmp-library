@@ -9,6 +9,7 @@ import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.utils.adaptive.screen.LocalBackdrop
 import zone.ien.utils.adaptive.theme.ienCupertinoSwitchColors
 import zone.ien.utils.ui.interactive.IenSwitch
 
@@ -41,7 +42,7 @@ fun AdaptiveSwitch(
                 enabled = enabled,
                 colors = ienCupertinoSwitchColors(),
                 interactionSource = interactionSource ?: remember { MutableInteractionSource() },
-                backdrop = rememberDefaultBackdrop(),
+                backdrop = LocalBackdrop.current ?: rememberDefaultBackdrop(),
             )
         },
     )

@@ -39,8 +39,8 @@ import zone.ien.utils.utils.checkDecimal
  * @param key DataStore에서 이 설정을 식별하는 데 사용되는 Preferences.Key
  * @param defaultValue 텍스트 필드의 기본값
  * @param enabled 설정의 활성화 여부
- * @param leadingIcon 제목 앞에 표시할 선택적 아이콘
- * @param showIcon 선행 아이콘을 표시할지 여부
+ * @param leadingContent 제목 앞에 표시할 콘텐츠
+ * @param showIcon 앞쪽 콘텐츠를 표시할지 여부
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -51,7 +51,7 @@ fun SectionScope.TextFieldPref(
     key: Preferences.Key<String>,
     defaultValue: String,
     enabled: Boolean = true,
-    leadingIcon: @Composable (() -> Unit)? = null,
+    leadingContent: @Composable (() -> Unit)? = null,
     showIcon: Boolean = false,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -77,19 +77,19 @@ fun SectionScope.TextFieldPref(
         modifier = modifier,
         enabled = enabled,
         summary = summary(value),
-        leadingIcon = if (showIcon) leadingIcon else null,
+        leadingContent = if (showIcon) leadingContent else null,
         adaptation = {
             cupertino {
                 this.showSupportingContent = true
                 this.isCaption = false
             }
         },
-        chevron = {}
+        trailingContent = {}
     )
 
     TextFieldDialog(
         visible = showDialog,
-        icon = leadingIcon,
+        icon = leadingContent,
         title = title,
         textFields = mapOf(
             "value" to TextFieldDialogData(
@@ -116,8 +116,8 @@ fun SectionScope.TextFieldPref(
  * @param key DataStore에서 이 설정을 식별하는 데 사용되는 Preferences.Key
  * @param defaultValue 텍스트 필드의 기본값
  * @param enabled 이 설정을 활성화/비활성화하기 위한 Preferences.Key와 기본 불리언 값의 쌍
- * @param leadingIcon 제목 앞에 표시할 선택적 아이콘
- * @param showIcon 선행 아이콘을 표시할지 여부
+ * @param leadingContent 제목 앞에 표시할 콘텐츠
+ * @param showIcon 앞쪽 콘텐츠를 표시할지 여부
  */
 @Composable
 fun SectionScope.TextFieldPref(
@@ -127,7 +127,7 @@ fun SectionScope.TextFieldPref(
     key: Preferences.Key<String>,
     defaultValue: String,
     enabled: Pair<Preferences.Key<Boolean>, Boolean>,
-    leadingIcon: @Composable (() -> Unit)? = null,
+    leadingContent: @Composable (() -> Unit)? = null,
     showIcon: Boolean = false,
 ) {
     val dataStore = LocalPrefsDataStore.current
@@ -143,7 +143,7 @@ fun SectionScope.TextFieldPref(
         key = key,
         defaultValue = defaultValue,
         enabled = checked,
-        leadingIcon = leadingIcon,
+        leadingContent = leadingContent,
         showIcon = showIcon,
     )
 }
@@ -161,8 +161,8 @@ fun SectionScope.TextFieldPref(
  * @param defaultValue 기본 정수 값
  * @param onlyDecimal 십진수 입력만 허용할지 여부
  * @param enabled 설정의 활성화 여부
- * @param leadingIcon 제목 앞에 표시할 선택적 아이콘
- * @param showIcon 선행 아이콘을 표시할지 여부
+ * @param leadingContent 제목 앞에 표시할 콘텐츠
+ * @param showIcon 앞쪽 콘텐츠를 표시할지 여부
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -174,7 +174,7 @@ fun SectionScope.TextFieldPref(
     defaultValue: Int,
     onlyDecimal: Boolean = true,
     enabled: Boolean = true,
-    leadingIcon: @Composable (() -> Unit)? = null,
+    leadingContent: @Composable (() -> Unit)? = null,
     showIcon: Boolean = false,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -210,8 +210,8 @@ fun SectionScope.TextFieldPref(
         modifier = modifier,
         enabled = enabled,
         summary = summary(value),
-        leadingIcon = if (showIcon) leadingIcon else null,
-        chevron = {},
+        leadingContent = if (showIcon) leadingContent else null,
+        trailingContent = {},
         adaptation = {
             cupertino {
                 isCaption = true
@@ -222,7 +222,7 @@ fun SectionScope.TextFieldPref(
 
     TextFieldDialog(
         visible = showDialog,
-        icon = leadingIcon,
+        icon = leadingContent,
         title = title,
         textFields = mapOf(
             "value" to TextFieldDialogData(
@@ -253,7 +253,7 @@ fun SectionScope.TextFieldPref(
  * @param defaultValue 기본 정수 값
  * @param onlyDecimal 십진수 입력만 허용할지 여부
  * @param enabled 이 설정을 활성화/비활성화하기 위한 Preferences.Key와 기본 불리언 값의 쌍
- * @param leadingIcon 제목 앞에 표시할 선택적 아이콘
+ * @param leadingContent 제목 앞에 표시할 콘텐츠
  * @param showIcon 선행 아이콘을 표시할지 여부
  */
 @Composable
@@ -265,7 +265,7 @@ fun SectionScope.TextFieldPref(
     defaultValue: Int,
     onlyDecimal: Boolean = true,
     enabled: Pair<Preferences.Key<Boolean>, Boolean>,
-    leadingIcon: @Composable (() -> Unit)? = null,
+    leadingContent: @Composable (() -> Unit)? = null,
     showIcon: Boolean = false,
 ) {
     val dataStore = LocalPrefsDataStore.current
@@ -282,7 +282,7 @@ fun SectionScope.TextFieldPref(
         defaultValue = defaultValue,
         onlyDecimal = onlyDecimal,
         enabled = checked,
-        leadingIcon = leadingIcon,
+        leadingContent = leadingContent,
         showIcon = showIcon,
     )
 }

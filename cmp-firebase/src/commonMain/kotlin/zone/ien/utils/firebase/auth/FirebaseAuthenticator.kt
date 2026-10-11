@@ -1,6 +1,5 @@
 package zone.ien.utils.firebase.auth
 
-import kotlinx.coroutines.CancellationException
 import zone.ien.firebase.Firebase
 import zone.ien.firebase.auth.FirebaseAuth
 import zone.ien.firebase.auth.FirebaseUser
@@ -10,9 +9,19 @@ import zone.ien.firebase.auth.auth
 import zone.ien.firebase.auth.AuthCredential as ZoneFirebaseAuthCredential
 
 /** Firebase SDK 호출 경계입니다. 커스텀 백엔드나 테스트 대역으로 교체할 수 있습니다. */
-interface FirebaseAuthGateway {
-    suspend fun signIn(credential: AuthCredential, linkAccount: Boolean = false): FirebaseAuthUser
-    fun currentUser(): FirebaseAuthUser?
+interface FirebaseAuthGateway : FirebaseAuthSessionGateway {
+    suspend fun signIn(
+        credential: AuthCredential,
+        linkAccount: Boolean = false,
+    ): FirebaseAuthUser
+
+    override suspend fun signInCredential(
+        credential: AuthCredential,
+        linkAccount: Boolean,
+    ): FirebaseAuthUser = signIn(credential, linkAccount)
+
+    override fun currentUser(): FirebaseAuthUser?
+
     fun signOut()
 }
 
@@ -57,28 +66,23 @@ class ZoneFirebaseAuthGateway(
         )
 }
 
-/** 공급자 인증과 Firebase credential 교환을 조율합니다. */
+/** 공통 인증 흐름에 Firebase SDK 기본 세션을 연결합니다. */
 class FirebaseAuthenticator(
     private val gateway: FirebaseAuthGateway = ZoneFirebaseAuthGateway(),
-) {
+) : FirebaseSignInFlow {
+    private val core = FirebaseAuthenticatorCore(gateway)
+
+    override suspend fun authenticate(
+        provider: AuthProvider,
+        linkAccount: Boolean,
+    ): FirebaseAuthResult = core.signIn(provider, linkAccount)
+
     suspend fun signIn(
         provider: AuthProvider,
         linkAccount: Boolean = false,
-    ): FirebaseAuthResult = try {
-        when (val providerResult = provider.authenticate()) {
-            is AuthProviderResult.Authenticated -> FirebaseAuthResult.Success(
-                gateway.signIn(providerResult.credential, linkAccount)
-            )
-            AuthProviderResult.Canceled -> FirebaseAuthResult.Canceled
-            is AuthProviderResult.Failure -> FirebaseAuthResult.Failure(providerResult.cause)
-        }
-    } catch (error: CancellationException) {
-        throw error
-    } catch (error: Throwable) {
-        FirebaseAuthResult.Failure(error)
-    }
+    ): FirebaseAuthResult = authenticate(provider, linkAccount)
 
-    fun currentUser(): FirebaseAuthUser? = gateway.currentUser()
+    fun currentUser(): FirebaseAuthUser? = core.currentUser()
 
     fun signOut() = gateway.signOut()
 }

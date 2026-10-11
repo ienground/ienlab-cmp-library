@@ -19,6 +19,7 @@ import zone.ien.hig.adaptive.Adaptation
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.utils.adaptive.screen.LocalBackdrop
 import zone.ien.utils.adaptive.theme.ienCupertinoGlassProminentButtonColors
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.interactive.IenButtonState
@@ -233,7 +234,7 @@ private class SmallFloatingActionButtonAdaptation: Adaptation<HigFloatingActionB
         val colors = ienCupertinoGlassProminentButtonColors()
         val shape = CircleShape
         val interactionSource = remember { MutableInteractionSource() }
-        val backdrop = rememberDefaultBackdrop()
+        val backdrop = LocalBackdrop.current ?: rememberDefaultBackdrop()
         val isBackgroundAdaptive = true
 
         return remember(colors, shape, interactionSource, backdrop, isBackgroundAdaptive) {
@@ -281,7 +282,7 @@ private class MediumFloatingActionButtonAdaptation: Adaptation<HigFloatingAction
         val colors = ienCupertinoGlassProminentButtonColors()
         val shape = CircleShape
         val interactionSource = remember { MutableInteractionSource() }
-        val backdrop = rememberDefaultBackdrop()
+        val backdrop = LocalBackdrop.current ?: rememberDefaultBackdrop()
         val isBackgroundAdaptive = true
 
         return remember(colors, shape, interactionSource, backdrop, isBackgroundAdaptive) {
@@ -329,7 +330,7 @@ private class LargeFloatingActionButtonAdaptation: Adaptation<HigFloatingActionB
         val colors = ienCupertinoGlassProminentButtonColors()
         val shape = CircleShape
         val interactionSource = remember { MutableInteractionSource() }
-        val backdrop = rememberDefaultBackdrop()
+        val backdrop = LocalBackdrop.current ?: rememberDefaultBackdrop()
         val isBackgroundAdaptive = true
 
         return remember(colors, shape, interactionSource, backdrop, isBackgroundAdaptive) {

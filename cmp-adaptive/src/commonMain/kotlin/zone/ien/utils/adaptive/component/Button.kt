@@ -49,6 +49,8 @@ import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.utils.adaptive.screen.LocalBackdrop
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.LocalBackButtonIcon
 import zone.ien.utils.icon.LocalButtonProviderDefault
@@ -970,7 +972,7 @@ private class ButtonAdaptation(
             AdaptiveButtonType.Text -> CupertinoLiquidButtonDefaults.glassButtonColors()
             AdaptiveButtonType.Tonal -> ienCupertinoGlassProminentButtonColors()
         }
-        val backdrop = rememberLayerBackdrop()
+        val backdrop = LocalBackdrop.current ?: rememberLayerBackdrop()
 
         return remember(state, colors, backdrop) {
             HigButtonAdaptation(
@@ -1010,7 +1012,7 @@ private class TextButtonAdaptation(
     @Composable
     override fun rememberCupertinoAdaptation(): HigButtonAdaptation {
         val colors = CupertinoLiquidButtonDefaults.glassButtonColors()
-        val backdrop = rememberLayerBackdrop()
+        val backdrop = LocalBackdrop.current ?: rememberLayerBackdrop()
 
         return remember(state, colors, backdrop) {
             HigButtonAdaptation(
@@ -1053,7 +1055,7 @@ private class IconButtonAdaptation(
         } else {
             CupertinoLiquidButtonDefaults.glassButtonColors()
         }
-        val backdrop = rememberLayerBackdrop()
+        val backdrop = LocalBackdrop.current ?: rememberLayerBackdrop()
 
         return remember(state, colors, backdrop) {
             HigIconButtonAdaptation(
@@ -1094,8 +1096,8 @@ private class ToggleButtonAdaptation(
     override fun rememberCupertinoAdaptation(): HigToggleButtonAdaptation {
         val checkedColors = ienCupertinoGlassProminentButtonColors()
         val uncheckedColors = CupertinoLiquidButtonDefaults.glassButtonColors()
-        val checkedBackdrop = rememberLayerBackdrop()
-        val uncheckedBackdrop = rememberLayerBackdrop()
+        val checkedBackdrop = LocalBackdrop.current ?: rememberLayerBackdrop()
+        val uncheckedBackdrop = LocalBackdrop.current ?: rememberLayerBackdrop()
 
         return remember(state, checkedColors, uncheckedColors, checkedBackdrop, uncheckedBackdrop) {
             HigToggleButtonAdaptation(
@@ -1144,8 +1146,8 @@ private class IconToggleButtonAdaptation(
     override fun rememberCupertinoAdaptation(): HigIconToggleButtonAdaptation {
         val checkedColors = ienCupertinoGlassProminentButtonColors()
         val uncheckedColors = CupertinoLiquidButtonDefaults.glassButtonColors()
-        val checkedBackdrop = rememberLayerBackdrop()
-        val uncheckedBackdrop = rememberLayerBackdrop()
+        val checkedBackdrop = LocalBackdrop.current ?: rememberLayerBackdrop()
+        val uncheckedBackdrop = LocalBackdrop.current ?: rememberLayerBackdrop()
 
         return remember(state, checkedColors, uncheckedColors, checkedBackdrop, uncheckedBackdrop) {
             HigIconToggleButtonAdaptation(
@@ -1192,7 +1194,7 @@ private class ExtendedFloatingActionButtonAdaptation(
     @Composable
     override fun rememberCupertinoAdaptation(): HigButtonAdaptation {
         val colors = ienCupertinoGlassProminentButtonColors()
-        val backdrop = rememberLayerBackdrop()
+        val backdrop = LocalBackdrop.current ?: rememberLayerBackdrop()
 
         return remember(state, colors, backdrop) {
             HigButtonAdaptation(
@@ -1226,7 +1228,7 @@ private class ExtendedFloatingActionButtonAdaptation(
  * @param icon 뒤로가기 아이콘 데이터
  * @param enabled 버튼 활성화 여부
  * @param visible 버튼 가시성 여부
- * @param backdrop Backdrop 컴포넌트 (iOS에서 사용함)
+ * @param backdrop iOS 배경 레이어. 기본값은 스캐폴드가 제공한 backdrop이며, 없으면 별도로 생성합니다.
  * @param isBackgroundAdaptive 배경 적응 여부 (iOS에서 사용함)
  * @param onClick 버튼 클릭 시 실행할 함수
  * @return 뒤로가기 버튼 컴포저블
@@ -1238,7 +1240,7 @@ fun AdaptiveBackButton(
     icon: IconData = LocalBackButtonIcon.current ?: LocalButtonProviderDefault.BackIcon,
     enabled: Boolean = true,
     visible: Boolean = true,
-    backdrop: Backdrop,
+    backdrop: Backdrop = LocalBackdrop.current ?: rememberDefaultBackdrop(),
     isBackgroundAdaptive: Boolean = true,
     onClick: () -> Unit
 ) {

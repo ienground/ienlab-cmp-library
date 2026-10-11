@@ -3,10 +3,12 @@ package zone.ien.utils.example
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.uikit.LocalUIViewController
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
@@ -47,15 +49,20 @@ import platform.UIKit.UIImageRenderingMode
 import platform.UIKit.UIImageSymbolConfiguration
 import platform.UIKit.UIImageSymbolScaleLarge
 import platform.UIKit.UIImageSymbolWeightBold
+import platform.UIKit.UIImpactFeedbackGenerator
+import platform.UIKit.UIImpactFeedbackStyle
 import platform.UIKit.UIKeyboardTypeDefault
 import platform.UIKit.UIKeyboardTypeNumberPad
 import platform.UIKit.UILayoutConstraintAxisVertical
 import platform.UIKit.UINavigationBar
 import platform.UIKit.UINavigationItem
+import platform.UIKit.UINotificationFeedbackGenerator
+import platform.UIKit.UINotificationFeedbackType
 import platform.UIKit.UIPickerView
 import platform.UIKit.UIPickerViewDataSourceProtocol
 import platform.UIKit.UIPickerViewDelegateProtocol
 import platform.UIKit.UIScreen
+import platform.UIKit.UISelectionFeedbackGenerator
 import platform.UIKit.UIStackView
 import platform.UIKit.UISwitch
 import platform.UIKit.UITextFieldTextDidChangeNotification
@@ -65,6 +72,7 @@ import platform.darwin.NSInteger
 import platform.darwin.NSObject
 import platform.posix.INFINITY
 import zone.ien.hig.adaptive.Theme
+import zone.ien.utils.ui.interactive.IenButton
 import zone.ien.utils.utils.Dlog
 
 actual val currentTheme: Theme = Theme.Cupertino

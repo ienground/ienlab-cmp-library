@@ -66,6 +66,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -159,6 +160,7 @@ import zone.ien.utils.icon.tabler.TablerIcons
 import zone.ien.utils.ui.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.interactive.IenDotCheckbox
 import zone.ien.utils.ui.window.ienTooltipPopupProperties
+import zone.ien.utils.ui.window.rememberIenTooltipPopupKey
 import zone.ien.utils.ui.primitives.IenIcon
 
 internal val LocalIenTopBarFloatingSlotHiddenRequester = staticCompositionLocalOf<((Boolean) -> Unit)?> { null }
@@ -393,15 +395,31 @@ fun IenScaffold(
 
 private fun ScrollableState.topEdgeProgress(fadeDistancePx: Float): Float = when (this) {
     is ScrollState -> topEdgeProgress(fadeDistancePx)
-    is LazyListState -> topEdgeProgress(fadeDistancePx)
-    is LazyGridState -> topEdgeProgress(fadeDistancePx)
+    is LazyListState -> if (layoutInfo.reverseLayout) {
+        bottomEdgeProgress(fadeDistancePx)
+    } else {
+        topEdgeProgress(fadeDistancePx)
+    }
+    is LazyGridState -> if (layoutInfo.reverseLayout) {
+        bottomEdgeProgress(fadeDistancePx)
+    } else {
+        topEdgeProgress(fadeDistancePx)
+    }
     else -> if (canScrollBackward) 1f else 0f
 }
 
 private fun ScrollableState.bottomEdgeProgress(fadeDistancePx: Float): Float = when (this) {
     is ScrollState -> bottomEdgeProgress(fadeDistancePx)
-    is LazyListState -> bottomEdgeProgress(fadeDistancePx)
-    is LazyGridState -> bottomEdgeProgress(fadeDistancePx)
+    is LazyListState -> if (layoutInfo.reverseLayout) {
+        topEdgeProgress(fadeDistancePx)
+    } else {
+        bottomEdgeProgress(fadeDistancePx)
+    }
+    is LazyGridState -> if (layoutInfo.reverseLayout) {
+        topEdgeProgress(fadeDistancePx)
+    } else {
+        bottomEdgeProgress(fadeDistancePx)
+    }
     else -> if (canScrollForward) 1f else 0f
 }
 
@@ -1929,29 +1947,32 @@ private fun IenTooltipImpl(
         }
 
         if (keepInComposition) {
-            Popup(
-                popupPositionProvider = remember(resolvedPlacement, resolvedOffset) {
-                    IenTooltipPositionProvider(resolvedPlacement, resolvedOffset, density) { ratio ->
-                        dynamicArrowRatio = ratio
-                    }
-                },
-                onDismissRequest = { updateOpen(false) },
-                properties = ienTooltipPopupProperties()
-            ) {
-                IenTooltipPopup(
-                    visible = isOpen,
-                    text = text,
-                    content = content,
-                    tone = tone,
-                    messageAlign = messageAlign,
-                    anchorPositionByRatio = dynamicArrowRatio,
-                    clipToEnd = clipToEnd,
-                    placement = resolvedPlacement,
-                    motionVariant = motionVariant,
-                    scale = motionScale,
-                    width = width,
-                    fitContentWidth = fitContentWidth,
-                )
+            val popupKey = rememberIenTooltipPopupKey()
+            key(popupKey) {
+                Popup(
+                    popupPositionProvider = remember(resolvedPlacement, resolvedOffset) {
+                        IenTooltipPositionProvider(resolvedPlacement, resolvedOffset, density) { ratio ->
+                            dynamicArrowRatio = ratio
+                        }
+                    },
+                    onDismissRequest = { updateOpen(false) },
+                    properties = ienTooltipPopupProperties()
+                ) {
+                    IenTooltipPopup(
+                        visible = isOpen,
+                        text = text,
+                        content = content,
+                        tone = tone,
+                        messageAlign = messageAlign,
+                        anchorPositionByRatio = dynamicArrowRatio,
+                        clipToEnd = clipToEnd,
+                        placement = resolvedPlacement,
+                        motionVariant = motionVariant,
+                        scale = motionScale,
+                        width = width,
+                        fitContentWidth = fitContentWidth,
+                    )
+                }
             }
         }
     }
@@ -3353,10 +3374,13 @@ fun IenDoubleBottomCTA(
 /**
  * 커스텀 좌/우 버튼 슬롯을 받아 화면 하단에 듀얼 CTA 버튼 영역을 구성하는 컴포저블입니다.
  *
- * @param leftButton 좌측 버튼 컴포저블 슬롯
- * @param rightButton 우측 버튼 컴포저블 슬롯
- * @param leftButtonWeight 좌측 버튼 영역의 상대 너비 비율
- * @param rightButtonWeight 우측 버튼 영역의 상대 너비 비율
+ * 한쪽 슬롯이 null이면 남은 버튼 영역이 비율과 관계없이 전체 너비를 차지합니다.
+ * 두 슬롯이 모두 null이면 버튼 영역을 표시하지 않습니다.
+ *
+ * @param leftButton 좌측 버튼 컴포저블 슬롯. null이면 좌측 영역을 생성하지 않습니다.
+ * @param rightButton 우측 버튼 컴포저블 슬롯. null이면 우측 영역을 생성하지 않습니다.
+ * @param leftButtonWeight 두 버튼이 모두 있을 때 좌측 버튼 영역의 상대 너비 비율
+ * @param rightButtonWeight 두 버튼이 모두 있을 때 우측 버튼 영역의 상대 너비 비율
  * @param modifier 적용할 Modifier
  * @param background 하단 바 배경 스타일 ([IenBottomCTABackground])
  * @param hasSafeAreaPadding 세이프 에어리어 패딩 계산 적용 여부
@@ -3373,8 +3397,8 @@ fun IenDoubleBottomCTA(
  */
 @Composable
 fun IenDoubleBottomCTA(
-    leftButton: @Composable RowScope.() -> Unit,
-    rightButton: @Composable RowScope.() -> Unit,
+    leftButton: (@Composable RowScope.() -> Unit)? = null,
+    rightButton: (@Composable RowScope.() -> Unit)? = null,
     modifier: Modifier = Modifier,
     background: IenBottomCTABackground = IenBottomCTABackground.Default,
     hasSafeAreaPadding: Boolean = true,
@@ -3391,11 +3415,14 @@ fun IenDoubleBottomCTA(
     leftButtonWeight: Float = 1f,
     rightButtonWeight: Float = 1f,
 ) {
-    require(leftButtonWeight.isFinite() && leftButtonWeight > 0f) {
-        "leftButtonWeight는 0보다 큰 유한한 값이어야 합니다."
-    }
-    require(rightButtonWeight.isFinite() && rightButtonWeight > 0f) {
-        "rightButtonWeight는 0보다 큰 유한한 값이어야 합니다."
+    val hasBothButtons = leftButton != null && rightButton != null
+    if (hasBothButtons) {
+        require(leftButtonWeight.isFinite() && leftButtonWeight > 0f) {
+            "leftButtonWeight는 0보다 큰 유한한 값이어야 합니다."
+        }
+        require(rightButtonWeight.isFinite() && rightButtonWeight > 0f) {
+            "rightButtonWeight는 0보다 큰 유한한 값이어야 합니다."
+        }
     }
 
     IenBottomCTAContainer(
@@ -3418,19 +3445,23 @@ fun IenDoubleBottomCTA(
             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                modifier = Modifier.weight(leftButtonWeight).fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                leftButton()
+            if (leftButton != null) {
+                Row(
+                    modifier = Modifier.weight(if (hasBothButtons) leftButtonWeight else 1f).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    leftButton()
+                }
             }
-            Row(
-                modifier = Modifier.weight(rightButtonWeight).fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                rightButton()
+            if (rightButton != null) {
+                Row(
+                    modifier = Modifier.weight(if (hasBothButtons) rightButtonWeight else 1f).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    rightButton()
+                }
             }
         }
     }
@@ -3551,10 +3582,13 @@ fun BoxScope.IenFixedBottomCTA(
 /**
  * [BoxScope] 내에서 화면 맨 하단에 상시 고정되는 듀얼 CTA 버튼 컴포저블입니다.
  *
- * @param leftButton 좌측 버튼 컴포저블 슬롯
- * @param rightButton 우측 버튼 컴포저블 슬롯
- * @param leftButtonWeight 좌측 버튼 영역의 상대 너비 비율
- * @param rightButtonWeight 우측 버튼 영역의 상대 너비 비율
+ * 한쪽 슬롯이 null이면 남은 버튼 영역이 비율과 관계없이 전체 너비를 차지합니다.
+ * 두 슬롯이 모두 null이면 버튼 영역을 표시하지 않습니다.
+ *
+ * @param leftButton 좌측 버튼 컴포저블 슬롯. null이면 좌측 영역을 생성하지 않습니다.
+ * @param rightButton 우측 버튼 컴포저블 슬롯. null이면 우측 영역을 생성하지 않습니다.
+ * @param leftButtonWeight 두 버튼이 모두 있을 때 좌측 버튼 영역의 상대 너비 비율
+ * @param rightButtonWeight 두 버튼이 모두 있을 때 우측 버튼 영역의 상대 너비 비율
  * @param modifier 적용할 Modifier
  * @param background 하단 바 배경 스타일 ([IenBottomCTABackground])
  * @param hasSafeAreaPadding 세이프 에어리어 패딩 계산 적용 여부
@@ -3569,8 +3603,8 @@ fun BoxScope.IenFixedBottomCTA(
  */
 @Composable
 fun BoxScope.IenFixedDoubleBottomCTA(
-    leftButton: @Composable RowScope.() -> Unit,
-    rightButton: @Composable RowScope.() -> Unit,
+    leftButton: (@Composable RowScope.() -> Unit)? = null,
+    rightButton: (@Composable RowScope.() -> Unit)? = null,
     modifier: Modifier = Modifier,
     background: IenBottomCTABackground = IenBottomCTABackground.Default,
     hasSafeAreaPadding: Boolean = true,

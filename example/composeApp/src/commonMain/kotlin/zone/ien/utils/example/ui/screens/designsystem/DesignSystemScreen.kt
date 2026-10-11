@@ -28,6 +28,7 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -246,6 +247,19 @@ import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
+import zone.ien.utils.ui.section.IenSection
+import zone.ien.utils.ui.section.button
+import zone.ien.utils.ui.section.checkbox
+import zone.ien.utils.ui.section.dangerAction
+import zone.ien.utils.ui.section.dropdown
+import zone.ien.utils.ui.section.item
+import zone.ien.utils.ui.section.link
+import zone.ien.utils.ui.section.radio
+import zone.ien.utils.ui.section.rangeSlider
+import zone.ien.utils.ui.section.secureTextField
+import zone.ien.utils.ui.section.slider
+import zone.ien.utils.ui.section.switch
+import zone.ien.utils.ui.section.textField
 import zone.ien.utils.ui.screen.IenAgreement
 import zone.ien.utils.ui.screen.IenAgreementBadge
 import zone.ien.utils.ui.screen.IenAgreementBadgeVariant
@@ -304,6 +318,8 @@ import zone.ien.utils.ui.screen.IenTopTitleSelector
 import zone.ien.utils.ui.screen.IenTopTitleSize
 import zone.ien.utils.ui.screen.IenTopTitleTextButton
 import zone.ien.utils.ui.screen.IenTopUpperAssetContent
+import zone.ien.utils.ui.section.IenLinkIcon
+import zone.ien.utils.ui.section.IenLinkIconToneVariant
 import zone.ien.utils.ui.utils.TextFieldDialogData
 import zone.ien.utils.ui.view.IenEmpty
 import zone.ien.utils.ui.view.IenNavigationBar
@@ -352,6 +368,7 @@ private val DesignSystemComponents = listOf(
     DesignSystemComponent("rating", "Rating", "입력", "편집 가능, 읽기 전용, 비활성 별점을 비교합니다."),
     DesignSystemComponent("result", "Result", "피드백", "완료·실패·빈 상태의 결과 화면을 구성합니다."),
     DesignSystemComponent("search-field", "SearchField", "입력", "검색어 입력, 삭제, 비활성 상태를 확인합니다."),
+    DesignSystemComponent("ien-section", "IenSection", "레이아웃", "제목·캡션과 SectionScope DSL로 항목을 구성하는 섹션 컨테이너입니다."),
     DesignSystemComponent("segmented-control", "SegmentedControl", "액션·선택", "세그먼트 선택과 정렬·크기 변형입니다."),
     DesignSystemComponent("skeleton", "Skeleton", "피드백", "콘텐츠 로딩 형태와 반복 패턴을 표현합니다."),
     DesignSystemComponent("slider", "Slider", "입력", "값 범위와 단계에 따른 슬라이더 동작입니다."),
@@ -499,7 +516,7 @@ private val ComponentPlaygroundControls = mapOf(
     ),
     "bottom-sheet" to listOf(
         toggleControl("visible", "시트 표시", false),
-        choiceControl("detent", "시트 높이", listOf("Content", "Medium", "Full")),
+        choiceControl("detent", "시트 높이", listOf("Content", "Medium", "Full"), "Medium"),
     ),
     "bubble" to listOf(
         choiceControl("background", "배경", listOf("Grey", "Brand")),
@@ -636,8 +653,14 @@ private val ComponentPlaygroundControls = mapOf(
         choiceControl("size", "크기", listOf("Small", "Medium", "Large", "ExtraLarge")),
         choiceControl("shape", "모양", listOf("Rounded", "Circle")),
     ),
-    "bottom-bar" to listOf(toggleControl("showFab", "플로팅 버튼 표시")),
-    "chat-bottom-bar" to listOf(disabledControl()),
+    "bottom-bar" to listOf(
+        toggleControl("visible", "하단 바 표시"),
+        toggleControl("showFab", "플로팅 버튼 표시"),
+    ),
+    "chat-bottom-bar" to listOf(
+        toggleControl("visible", "채팅 하단 바 표시"),
+        disabledControl(),
+    ),
     "navigation-bar" to listOf(
         choiceControl("type", "타입", listOf("nav", "nav2")),
         toggleControl("visible", "내비게이션 표시"),
@@ -1572,6 +1595,7 @@ internal fun DesignSystemComponentPreview(
         "rating" -> RatingSection(controlValues)
         "result" -> ResultSection(controlValues)
         "search-field" -> SearchFieldSection(controlValues)
+        "ien-section" -> IenSectionSection(controlValues)
         "segmented-control" -> SegmentedControlSection(controlValues)
         "skeleton" -> SkeletonSection(controlValues)
         "slider" -> SliderSection(controlValues)
@@ -2054,7 +2078,7 @@ fun BottomInfoSection(controls: Map<String, String> = emptyMap()) {
 @Composable
 fun BottomSheetSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
-        val detent = when (controls.enumValue("detent", "Content")) {
+        val detent = when (controls.enumValue("detent", "Medium")) {
             "Medium" -> IenSheetDetent.Medium
             "Full" -> IenSheetDetent.Full
             else -> IenSheetDetent.Content
@@ -2069,7 +2093,7 @@ fun BottomSheetSection(controls: Map<String, String> = emptyMap()) {
 
         ComponentSection(title = "BottomSheet") {
             IenButton(
-                onClick = { sheetState.show(IenSheetDetent.Content) },
+                onClick = { sheetState.show(detent) },
                 display = IenButtonDisplay.Block,
             ) {
                 Text("일반 바텀시트 열기")
@@ -4858,6 +4882,7 @@ fun BottomBarSection(controls: Map<String, String> = emptyMap()) {
                 shape = shape,
                 elevation = controls.intValue("elevation", 8).coerceIn(0, 24).dp,
                 contentPadding = PaddingValues(controls.intValue("contentPadding", 8).coerceIn(0, 24).dp),
+                visible = controls.booleanValue("visible", true),
             )
         }
     }
@@ -4874,6 +4899,7 @@ fun ChatBottomBarSection(controls: Map<String, String> = emptyMap()) {
                 maxLines = controls.intValue("maxLines", 4).coerceIn(1, 8),
                 showLeading = controls.booleanValue("showLeading", true),
                 showTrailing = controls.booleanValue("showTrailing", true),
+                visible = controls.booleanValue("visible", true),
             )
         }
     }
@@ -4886,6 +4912,7 @@ private fun ChatBottomBarExample(
     maxLines: Int = 4,
     showLeading: Boolean = true,
     showTrailing: Boolean = true,
+    visible: Boolean = true,
 ) {
     var chatMessage by remember { mutableStateOf("") }
     var sentMessage by remember { mutableStateOf<String?>(null) }
@@ -4938,6 +4965,7 @@ private fun ChatBottomBarExample(
         }) else null,
         inputState = IenTextFieldState(enabled = enabled),
         sendState = IenButtonState(enabled = enabled && chatMessage.isNotBlank()),
+        visible = visible,
     )
 }
 
@@ -5175,6 +5203,32 @@ fun BottomCTASection(controls: Map<String, String> = emptyMap()) {
                 rightButton = {
                     IenBottomCTAButton(
                         text = "저장",
+                        onClick = {},
+                    )
+                },
+            )
+            if (visible) IenDoubleBottomCTA(
+                background = IenBottomCTABackground.None,
+                hasPaddingBottom = false,
+                leftButtonWeight = 1f,
+                rightButtonWeight = 2f,
+                rightButton = null,
+                leftButton = {
+                    IenBottomCTAButton(
+                        text = "왼쪽 버튼만 표시",
+                        onClick = {},
+                        variant = IenButtonVariant.Weak,
+                    )
+                },
+            )
+            if (visible) IenDoubleBottomCTA(
+                background = IenBottomCTABackground.None,
+                hasPaddingBottom = false,
+                leftButtonWeight = 1f,
+                rightButtonWeight = 2f,
+                rightButton = {
+                    IenBottomCTAButton(
+                        text = "오른쪽 버튼만 표시",
                         onClick = {},
                     )
                 },
@@ -6456,6 +6510,132 @@ fun WheelPickerSection(controls: Map<String, String> = emptyMap()) {
                         IenDateWheelPicker(date, { date = it }, Modifier.fillMaxWidth(), enabled = enabled)
                     }
                 }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun IenSectionSection(controls: Map<String, String> = emptyMap()) {
+    IenTheme {
+        var switchChecked by remember { mutableStateOf(true) }
+        var checkboxChecked by remember { mutableStateOf(false) }
+        var selectedTheme by remember { mutableStateOf("system") }
+        var selectedPlan by remember { mutableStateOf("basic") }
+        var text by remember { mutableStateOf("") }
+        var sliderValue by remember { mutableStateOf(0.5f) }
+        var priceRange by remember { mutableStateOf(20f..80f) }
+        val passwordState = remember { TextFieldState() }
+
+        ComponentSection(title = controls.textValue("title", "IenSection")) {
+            IenSection(
+                title = { Text("계정 설정") },
+                caption = { Text("SectionScope DSL로 구성한 항목") },
+            ) {
+                item(
+                    supportingContent = { Text("item()") },
+                    title = { Text("기본 항목") },
+                )
+                item(
+                    trailingContent = {
+                        IenIcon(imageVector = SystemIcons.MoreVert, contentDescription = null)
+                    },
+                    title = { Text("사용자 지정 trailingContent") },
+                )
+                link(
+                    leadingContent = {
+                        IenLinkIcon(
+                            imageVector = SystemIcons.Search,
+                            tone = IenSemanticTone.Success
+                        )
+                    },
+                    onClick = {},
+                    caption = { Text("link()") },
+                    title = { Text("연결 항목") },
+                )
+                switch(
+                    leadingContent = {
+                        IenLinkIcon(
+                            imageVector = SystemIcons.Search
+                        )
+                    },
+                    checked = switchChecked,
+                    onCheckedChange = { switchChecked = it },
+                    title = { Text("알림") },
+                )
+                checkbox(
+                    leadingContent = {
+                        IenLinkIcon(
+                            imageVector = SystemIcons.Search,
+                            tone = IenSemanticTone.Success,
+                            toneVariant = IenLinkIconToneVariant.Solid
+                        )
+                    },
+                    checked = checkboxChecked,
+                    onCheckedChange = { checkboxChecked = it },
+                    title = { Text("약관 동의") },
+                )
+                radio(
+                    selected = selectedPlan == "basic",
+                    onClick = { selectedPlan = "basic" },
+                    title = { Text("기본 요금제") },
+                )
+                radio(
+                    selected = selectedPlan == "premium",
+                    onClick = { selectedPlan = "premium" },
+                    title = { Text("프리미엄 요금제") },
+                )
+                dropdown(
+                    itemsWithLabels = mapOf(
+                        "system" to "시스템 설정",
+                        "light" to "라이트",
+                        "dark" to "다크",
+                    ),
+                    currentItem = selectedTheme,
+                    onItemSelected = { selectedTheme = it },
+                    title = { Text("테마") },
+                )
+                textField(
+                    value = text,
+                    onValueChange = { text = it },
+                    placeholder = { Text("이름") },
+                    trailingContent = { _ ->
+                        IenIconButton(
+                            onClick = { text = "" },
+                            size = IenButtonSize.Small,
+                            variant = IenButtonVariant.Ghost,
+                            tone = IenSemanticTone.Neutral,
+                        ) {
+                            IenIcon(imageVector = SystemIcons.Close, contentDescription = "입력 지우기")
+                        }
+                    },
+                )
+                secureTextField(
+                    state = passwordState,
+                    placeholder = { Text("비밀번호") },
+                )
+                button(
+                    onClick = {},
+                    label = { Text("저장") },
+                )
+                slider(
+                    value = sliderValue,
+                    onValueChange = { sliderValue = it },
+                    title = "강도",
+                )
+                rangeSlider(
+                    value = priceRange,
+                    onValueChange = { priceRange = it },
+                    valueRange = 0f..100f,
+                    steps = 9,
+                    title = "가격 범위",
+                )
+                dangerAction(
+                    onClick = { text = "" },
+                    caption = { Text("입력한 내용을 비웁니다") },
+                    title = { Text("입력 내용 초기화") },
+                )
             }
         }
     }

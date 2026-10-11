@@ -96,6 +96,7 @@ export const catalog = [
     ["IenSearchField", "IenSearchFieldSearchIcon", "IenSearchFieldDeleteButton"],
     "interactive/IenTextField.kt",
   ),
+  component("ien-section", "IenSection", "레이아웃", "제목·캡션과 SectionScope DSL로 항목을 구성하는 섹션 컨테이너입니다.", ["IenSection"], "section/Section.kt"),
   component("segmented-control", "SegmentedControl", "액션·선택", "세그먼트 선택과 정렬·크기 변형입니다.", ["IenSegmentedControl", "IenSegmentedControlItem"], "interactive/IenSelection.kt"),
   component("skeleton", "Skeleton", "피드백", "콘텐츠 로딩 형태와 직접 조합한 자리 표시자를 표현합니다.", ["IenSkeleton", "IenSkeletonElement", "IenSkeletonMotionGroup", "IenSkeletonPattern"], "feedback/IenFeedback.kt"),
   component("slider", "Slider", "입력", "값 범위와 단계에 따른 슬라이더 동작입니다.", ["IenSlider"], "interactive/IenControls.kt"),

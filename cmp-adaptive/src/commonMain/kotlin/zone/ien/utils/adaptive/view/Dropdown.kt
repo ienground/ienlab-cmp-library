@@ -47,6 +47,7 @@ import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.utils.adaptive.screen.LocalBackdrop
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.menu.IenMenu
@@ -439,7 +440,7 @@ private class DropdownMenuAdaptation: Adaptation<HigDropdownMenuAdaptation, IenD
         val paddingValues = CupertinoDropdownMenuDefaults.PaddingValues
         val containerColor = CupertinoDropdownMenuDefaults.ContainerColor
         val width = CupertinoDropdownMenuDefaults.DefaultWidth
-        val backdrop = rememberDefaultBackdrop()
+        val backdrop = LocalBackdrop.current ?: rememberDefaultBackdrop()
 
         return remember(paddingValues, containerColor, width, backdrop) {
             HigDropdownMenuAdaptation(

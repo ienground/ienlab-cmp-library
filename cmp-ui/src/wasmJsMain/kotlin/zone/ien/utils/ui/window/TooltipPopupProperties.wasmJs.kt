@@ -1,5 +1,6 @@
 package zone.ien.utils.ui.window
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.PopupProperties
 
@@ -12,3 +13,6 @@ internal actual fun ienTooltipPopupProperties(): PopupProperties = PopupProperti
     usePlatformDefaultWidth = false,
     usePlatformInsets = false,
 )
+
+@Composable
+internal actual fun rememberIenTooltipPopupKey(): Int = 0

@@ -29,7 +29,7 @@ import zone.ien.utils.pref.LocalPrefsDataStore
  * @param defaultValue 스위치의 기본값
  * @param onCheckedChange 스위치 상태가 변경될 때 트리거되는 선택적 콜백
  * @param enabled 스위치의 활성화 여부
- * @param leadingIcon 제목 앞에 표시할 선택적 아이콘
+ * @param leadingContent 제목 앞에 표시할 콘텐츠
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -42,7 +42,7 @@ fun SectionScope.SwitchPref(
     defaultValue: Boolean,
     onCheckedChange: ((Boolean) -> Unit)? = null,
     enabled: Boolean = true,
-    leadingIcon: (@Composable () -> Unit)? = null,
+    leadingContent: (@Composable () -> Unit)? = null,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val dataStore = LocalPrefsDataStore.current
@@ -65,7 +65,7 @@ fun SectionScope.SwitchPref(
 
     AdaptiveSectionSwitchItem(
         modifier = modifier,
-        leadingContent = leadingIcon,
+        leadingContent = leadingContent,
         checked = checked,
         onCheckedChange = { edit(it) },
         enabled = enabled,

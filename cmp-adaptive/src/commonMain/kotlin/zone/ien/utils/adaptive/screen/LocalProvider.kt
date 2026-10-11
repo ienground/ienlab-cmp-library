@@ -3,8 +3,15 @@ package zone.ien.utils.adaptive.screen
 import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.kyant.backdrop.backdrops.LayerBackdrop
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+
+/**
+ * 가장 가까운 적응형 상단바 스캐폴드가 상단바·하단바 등의 스캐폴드 슬롯에 제공하는 배경 레이어입니다.
+ * 화면 콘텐츠와 스캐폴드 밖에서는 null이며, 컴포넌트는 각자의 기본 backdrop을 사용합니다.
+ */
+val LocalBackdrop: ProvidableCompositionLocal<LayerBackdrop?> = staticCompositionLocalOf { null }
 
 /**
  * 현재 상단바 어댑테이션 설정을 제공하는 CompositionLocal

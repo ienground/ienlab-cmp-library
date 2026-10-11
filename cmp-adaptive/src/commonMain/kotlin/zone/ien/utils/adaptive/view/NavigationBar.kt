@@ -44,7 +44,7 @@ import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.currentTheme
-import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.utils.adaptive.screen.LocalBackdrop
 import zone.ien.utils.adaptive.theme.ienCupertinoNavigationBarColors
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.foundation.IenSemanticTone
@@ -475,7 +475,7 @@ private class NavigationBarAdaptation: Adaptation<CupertinoNavigationBarAdaptati
     override fun rememberCupertinoAdaptation(): CupertinoNavigationBarAdaptation {
         val colors = ienCupertinoNavigationBarColors()
         val windowInsets = CupertinoNavigationBarDefaults.windowInsets
-        val backdrop = rememberLayerBackdrop()
+        val backdrop = LocalBackdrop.current ?: rememberLayerBackdrop()
 
         return remember(colors, windowInsets, backdrop) {
             CupertinoNavigationBarAdaptation(

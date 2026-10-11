@@ -31,7 +31,6 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
-import zone.ien.utils.adaptive.utils.getSurfaceTopAppBarAdaptation
 import zone.ien.utils.adaptive.view.AdaptiveNavigationBar
 import zone.ien.utils.adaptive.view.NavigationBarItem
 import zone.ien.utils.ui.view.IenNavigationBarType
@@ -83,8 +82,11 @@ fun NavigationScreen(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
         AdaptiveTopAppBarScaffold(
-            adaptation = getSurfaceTopAppBarAdaptation(backdrop),
-            navigationIcon = { AdaptiveBackButton(backdrop = backdrop, onClick = navigateBack) },
+            backdrop = backdrop,
+            adaptation = {
+                material { isCenterAligned = true }
+            },
+            navigationIcon = { AdaptiveBackButton(onClick = navigateBack) },
             bottomBar = {
                 AdaptiveNavigationBar(
                     selectedTabIndex = { if (selected) 0 else 1 },
@@ -99,7 +101,6 @@ fun NavigationScreen(
                                 IenNavigationBarType.Type1
                             }
                         }
-                        cupertino { this.backdrop = backdrop }
                     },
                     items = listOf(
                         NavigationBarItem(
