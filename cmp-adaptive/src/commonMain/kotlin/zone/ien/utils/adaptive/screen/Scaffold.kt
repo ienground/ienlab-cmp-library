@@ -75,6 +75,7 @@ import zone.ien.hig.adaptive.Adaptation
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.cupertinoScrollEdge
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.menu.HigActionMenu
 import zone.ien.utils.adaptive.menu.HigActionsMenu
@@ -111,6 +112,7 @@ internal fun cupertinoActionsEndSpacing(hasActions: Boolean): Dp =
  * @param floatingActionButton 플로팅 액션 버튼
  * @param fabPosition 플로팅 액션 버튼 위치
  * @param higFabPosition HIG 플로팅 액션 버튼 위치
+ * @param contentEdge 콘텐츠 모서리 효과 설정. scrollableState를 지정하면 Cupertino 상단바의 블러도 복원된 스크롤 위치에 맞춥니다.
  * @param topBarMode 상단바 표시 방식
  * @param adaptation 어댑테이션 설정
  * @param content 콘텐츠
@@ -162,6 +164,7 @@ fun AdaptiveTopAppBarScaffold(
  * 명시적인 배경 레이어를 상단바와 하단바 등 스캐폴드 슬롯에 제공하는 스캐폴드입니다.
  *
  * @param backdrop 기본 배경 레이어. Cupertino adaptation에서 덮어쓰면 해당 레이어를 공유합니다.
+ * @param contentEdge 콘텐츠 모서리 효과 설정. scrollableState를 지정하면 Cupertino 상단바의 블러도 복원된 스크롤 위치에 맞춥니다.
  */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -364,6 +367,9 @@ fun AdaptiveTopAppBarScaffold(
                     contentWindowInsets = it.contentWindowInsets,
                     hasNavigationTitle = topBarMode == TopBarMode.Expanded,
                     content = { contentPadding ->
+                        contentEdge.scrollableState?.let { scrollState ->
+                            Modifier.cupertinoScrollEdge(scrollState)
+                        }
                         CompositionLocalProvider(
                             LocalBackdrop provides null,
                             LocalTopBarScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState),
@@ -403,6 +409,7 @@ fun AdaptiveTopAppBarScaffold(
  * @param floatingActionButton 플로팅 액션 버튼
  * @param fabPosition 플로팅 액션 버튼 위치
  * @param higFabPosition HIG 플로팅 액션 버튼 위치
+ * @param contentEdge 콘텐츠 모서리 효과 설정. scrollableState를 지정하면 Cupertino 상단바의 블러도 복원된 스크롤 위치에 맞춥니다.
  * @param topBarMode 상단바 표시 방식
  * @param adaptation 어댑테이션 설정
  * @param content 콘텐츠
@@ -454,6 +461,7 @@ fun AdaptiveTopAppBarScaffold(
  * 명시적인 배경 레이어를 상단바와 하단바 등 스캐폴드 슬롯에 제공하는 스캐폴드입니다.
  *
  * @param backdrop 기본 배경 레이어. Cupertino adaptation에서 덮어쓰면 해당 레이어를 공유합니다.
+ * @param contentEdge 콘텐츠 모서리 효과 설정. scrollableState를 지정하면 Cupertino 상단바의 블러도 복원된 스크롤 위치에 맞춥니다.
  */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class, ExperimentalMaterial3Api::class)
 @Composable

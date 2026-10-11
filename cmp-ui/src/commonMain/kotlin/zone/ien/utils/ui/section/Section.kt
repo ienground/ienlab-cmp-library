@@ -81,7 +81,6 @@ fun IenProvideSectionStyle(
             .conditional(fullHeight) { fillMaxHeight() }
             .conditional(scrollState != null) { scrollState?.let { this.verticalScroll(it) } ?: this }
             .clip(shape)
-            .ienSectionBackground()
             .then(modifier)
         ,
         content = {
