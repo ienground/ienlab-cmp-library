@@ -5207,6 +5207,32 @@ fun BottomCTASection(controls: Map<String, String> = emptyMap()) {
                     )
                 },
             )
+            if (visible) IenDoubleBottomCTA(
+                background = IenBottomCTABackground.None,
+                hasPaddingBottom = false,
+                leftButtonWeight = 1f,
+                rightButtonWeight = 2f,
+                rightButton = null,
+                leftButton = {
+                    IenBottomCTAButton(
+                        text = "왼쪽 버튼만 표시",
+                        onClick = {},
+                        variant = IenButtonVariant.Weak,
+                    )
+                },
+            )
+            if (visible) IenDoubleBottomCTA(
+                background = IenBottomCTABackground.None,
+                hasPaddingBottom = false,
+                leftButtonWeight = 1f,
+                rightButtonWeight = 2f,
+                rightButton = {
+                    IenBottomCTAButton(
+                        text = "오른쪽 버튼만 표시",
+                        onClick = {},
+                    )
+                },
+            )
             if (controls.booleanValue("fixed", true)) {
                 Box(
                     modifier = Modifier

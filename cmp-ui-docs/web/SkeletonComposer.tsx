@@ -9,7 +9,16 @@ import { DropdownMenu } from "radix-ui";
 import { highlightKotlin } from "./ColorSchemeBuilder";
 import { copyTextToClipboard } from "./clipboard";
 
-type ElementKind = "Block" | "Row" | "Column" | "Box" | "Spacer";
+type PresetKind = "Title" | "Subtitle" | "List" | "ListWithIcon" | "Card";
+type ElementKind = "Block" | "Row" | "Column" | "Box" | "Spacer" | PresetKind | "ListRowTexts";
+const listRowTextsTypes = [
+  "OneRowTypeA", "OneRowTypeB", "OneRowTypeC",
+  "RightOneRowTypeA", "RightOneRowTypeB", "RightOneRowTypeC", "RightOneRowTypeD", "RightOneRowTypeE",
+  "TwoRowTypeA", "TwoRowTypeB", "TwoRowTypeC", "TwoRowTypeD", "TwoRowTypeE", "TwoRowTypeF", "TwoRowTypeG",
+  "RightTwoRowTypeA", "RightTwoRowTypeB", "RightTwoRowTypeC", "RightTwoRowTypeD", "RightTwoRowTypeE",
+  "ThreeRowTypeA", "ThreeRowTypeB", "ThreeRowTypeC", "ThreeRowTypeD", "ThreeRowTypeE", "ThreeRowTypeF",
+] as const;
+type ListRowTextsType = typeof listRowTextsTypes[number];
 type BoxAlignment = "Center" | "TopStart" | "BottomEnd";
 type WidthValue =
   | { mode: "fill" }
@@ -94,7 +103,18 @@ interface BoxNode extends ContainerNodeBase {
 }
 
 type ContainerNode = RowNode | ColumnNode | BoxNode;
-type SkeletonNode = BlockNode | SpacerNode | ContainerNode;
+interface PresetNode {
+  id: string;
+  type: PresetKind;
+}
+
+interface ListRowTextsNode {
+  id: string;
+  type: "ListRowTexts";
+  textType: ListRowTextsType;
+}
+
+type SkeletonNode = BlockNode | SpacerNode | ContainerNode | PresetNode | ListRowTextsNode;
 type PreviewLayout = "Root" | ElementKind;
 
 const elementLabels: Record<ElementKind, string> = {
@@ -103,8 +123,17 @@ const elementLabels: Record<ElementKind, string> = {
   Column: "열",
   Box: "겹치기",
   Spacer: "간격",
+  Title: "제목 (Title)",
+  Subtitle: "부제목 (Subtitle)",
+  List: "리스트 (List)",
+  ListWithIcon: "아이콘 리스트 (ListWithIcon)",
+  Card: "카드 (Card)",
+  ListRowTexts: "리스트 행 텍스트 (ListRowTexts)",
 };
-const elementKinds: ElementKind[] = ["Block", "Row", "Column", "Box", "Spacer"];
+const elementKinds: ElementKind[] = [
+  "Block", "Row", "Column", "Box", "Spacer",
+  "Title", "Subtitle", "List", "ListWithIcon", "Card", "ListRowTexts",
+];
 const spacingTokens: SpacingToken[] = [
   "none",
   "xxxs",
@@ -151,6 +180,14 @@ function createNodeId(): string {
 function createNode(type: ElementKind): SkeletonNode {
   const id = createNodeId();
   switch (type) {
+    case "Title":
+    case "Subtitle":
+    case "List":
+    case "ListWithIcon":
+    case "Card":
+      return { id, type };
+    case "ListRowTexts":
+      return { id, type, textType: "OneRowTypeA" };
     case "Block":
       return {
         id,
@@ -390,6 +427,12 @@ function generateNodeCode(node: SkeletonNode, indentLevel: number): string {
     return `IenSkeletonElement.Spacer(${parameters.join(", ")})`;
   }
 
+  if (!isContainer(node)) {
+    return node.type === "ListRowTexts"
+      ? `IenSkeletonElement.ListRowTexts(type = IenListRowTextsType.${node.textType})`
+      : `IenSkeletonElement.${node.type}`;
+  }
+
   const parameters: string[] = [];
   const modifier = elementModifier(node);
   if (node.type === "Row") {
@@ -439,6 +482,9 @@ function generateKotlinCode(nodes: SkeletonNode[]): string {
     "import zone.ien.utils.ui.feedback.IenSkeletonElement",
     "import zone.ien.utils.ui.feedback.IenSkeletonRepeat",
   ];
+  if (containsListRowTexts(nodes)) {
+    imports.push("import zone.ien.utils.ui.list.IenListRowTextsType");
+  }
   if (containsThemeToken(nodes)) {
     imports.push("import zone.ien.utils.ui.foundation.IenTheme");
   }
@@ -458,11 +504,17 @@ function generateKotlinCode(nodes: SkeletonNode[]): string {
   ].join("\n");
 }
 
+function containsListRowTexts(nodes: SkeletonNode[]): boolean {
+  return nodes.some((node) => node.type === "ListRowTexts" ||
+    (isContainer(node) && containsListRowTexts(node.children)));
+}
+
 function containsThemeToken(nodes: SkeletonNode[]): boolean {
   return nodes.some((node) => {
     if (node.type === "Spacer") {
       return node.width.unit !== "dp" || node.height.unit !== "dp";
     }
+    if (node.type !== "Block" && !isContainer(node)) return false;
     if (node.width.mode === "radius") return true;
     if (node.height !== null && typeof node.height !== "number") return true;
     if (isContainer(node)) {
@@ -478,7 +530,7 @@ function containsThemeToken(nodes: SkeletonNode[]): boolean {
 function containsTypographyHeight(nodes: SkeletonNode[]): boolean {
   return nodes.some((node) => {
     if (node.type === "Spacer") return false;
-    if (node.type === "Block") return false;
+    if (!isContainer(node)) return false;
     if (typeof node.height === "object" && node.height?.unit === "typography") {
       return true;
     }
@@ -513,9 +565,11 @@ function previewStyle(
 function SkeletonPreviewNode({
   node,
   parentLayout,
+  index,
 }: {
   node: SkeletonNode;
   parentLayout: PreviewLayout;
+  index: number;
 }) {
   if (node.type === "Spacer") {
     return (
@@ -539,6 +593,63 @@ function SkeletonPreviewNode({
     );
   }
 
+  if (!isContainer(node)) {
+    const block = (width: string, height: number, circle = false) => (
+      <div
+        aria-hidden="true"
+        className={`skeleton-preview-block${circle ? " circle" : ""}`}
+        style={{ width, height, flexShrink: 0 }}
+      />
+    );
+    if (node.type === "Title") return block("42%", 24);
+    if (node.type === "Subtitle") return block("34%", 16);
+    if (node.type === "Card") {
+      return <div aria-hidden="true" className="skeleton-preview-block" style={{ width: "100%", height: 132, borderRadius: radiusTokenValues.default, flexShrink: 0 }} />;
+    }
+    const widthStyle: CSSProperties = parentLayout === "Row"
+      ? { flex: "1 1 0%", minWidth: 0 }
+      : { width: "100%" };
+    if (node.type === "List") {
+      return (
+        <div style={{ ...widthStyle, height: 48, display: "flex", alignItems: "center" }}>
+          {block(`${[92, 78, 86][index % 3]}%`, 18)}
+        </div>
+      );
+    }
+    if (node.type === "ListWithIcon") {
+      return (
+        <div className="skeleton-preview-node row" style={{ ...widthStyle, height: 56, gap: 16 }}>
+          {block("40px", 40, true)}
+          <div className="skeleton-preview-node column" style={{ flex: "1 1 0%", gap: 8 }}>
+            {block(`${[70, 56, 64][index % 3]}%`, 18)}
+            {block(`${[38, 44, 32][index % 3]}%`, 14)}
+          </div>
+        </div>
+      );
+    }
+    if (node.type !== "ListRowTexts") return null;
+    const type = node.textType;
+    const rightAligned = type.startsWith("Right");
+    const rowCount = type.startsWith("Three") ? 3 : type.includes("Two") ? 2 : 1;
+    const topTypography: "title2" | "label1" | "body1" = type === "TwoRowTypeG" ? "title2"
+      : ["OneRowTypeB", "OneRowTypeC", "TwoRowTypeD", "TwoRowTypeE", "ThreeRowTypeC", "ThreeRowTypeD"].includes(type)
+        ? "label1" : "body1";
+    const bottomTypography = type === "TwoRowTypeF" || type === "ThreeRowTypeF" ? "label2" : "caption";
+    const fontSizes = { title2: 20, body1: 16, body2: 15, label1: 14, label2: 13, caption: 12 };
+    const textRow = (width: string, typography: keyof typeof fontSizes) => (
+      <div style={{ width: "100%", height: typographyLineHeights[typography], display: "flex", alignItems: "center", justifyContent: rightAligned ? "flex-end" : "flex-start" }}>
+        {block(width, fontSizes[typography])}
+      </div>
+    );
+    return (
+      <div className="skeleton-preview-node column" style={{ ...widthStyle, gap: 2 }}>
+        {textRow("70%", topTypography)}
+        {rowCount === 3 && textRow("55%", "body2")}
+        {rowCount >= 2 && textRow("40%", bottomTypography)}
+      </div>
+    );
+  }
+
   const style = previewStyle(node, parentLayout);
   if (node.type === "Row" || node.type === "Column") {
     style.gap = `${spacingPixels(node.spacing)}px`;
@@ -550,8 +661,8 @@ function SkeletonPreviewNode({
       style={style}
       data-alignment={node.type === "Box" ? node.alignment : undefined}
     >
-      {node.children.map((child) => (
-        <SkeletonPreviewNode key={child.id} node={child} parentLayout={node.type} />
+      {node.children.map((child, childIndex) => (
+        <SkeletonPreviewNode key={child.id} node={child} parentLayout={node.type} index={index + childIndex + 1} />
       ))}
     </div>
   );
@@ -942,6 +1053,23 @@ function SkeletonNodeEditor({
         </Button>
       </div>
       <div className="skeleton-node-fields">
+        {node.type === "ListRowTexts" && (
+          <label className="skeleton-select-field">
+            <span>텍스트 타입</span>
+            <select
+              aria-label="리스트 행 텍스트 타입"
+              value={node.textType}
+              onChange={(event) => {
+                const textType = listRowTextsTypes.find((type) => type === event.currentTarget.value);
+                if (textType) patch((current) => current.type === "ListRowTexts" ? { ...current, textType } : current);
+              }}
+            >
+              {listRowTextsTypes.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </label>
+        )}
         {node.type === "Block" && (
           <>
             <WidthEditor
@@ -1143,7 +1271,7 @@ export function SkeletonComposer() {
         <div>
           <p className="panel-kicker">SKELETON COMPOSER</p>
           <h3 id="skeleton-composer-title">스켈레톤 조합기</h3>
-          <p>블록과 행·열·겹치기를 편집하고 Kotlin 코드를 복사하세요.</p>
+          <p>기본 요소와 리스트 행 텍스트를 조합하고 Kotlin 코드를 복사하세요.</p>
         </div>
         <Badge variant="outline">IenSkeletonElement</Badge>
       </div>
@@ -1158,8 +1286,8 @@ export function SkeletonComposer() {
           </div>
           <div className="skeleton-preview-stage" role="img" aria-label="현재 스켈레톤 조합">
             <div className="skeleton-preview-root">
-              {nodes.map((node) => (
-                <SkeletonPreviewNode key={node.id} node={node} parentLayout="Root" />
+              {nodes.map((node, index) => (
+                <SkeletonPreviewNode key={node.id} node={node} parentLayout="Root" index={index} />
               ))}
             </div>
           </div>

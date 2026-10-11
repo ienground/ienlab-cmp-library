@@ -377,7 +377,7 @@ fun IenBottomSheet(
                                 (IenSheetHorizontalInset.roundToPx() * (1f - progress))
                                     .roundToInt()
                                     .coerceAtMost(constraints.maxWidth / 2)
-                            val minHeight =
+                            val sheetHeight =
                                 if (isExpandable) {
                                     (
                                         constraints.maxHeight *
@@ -392,7 +392,8 @@ fun IenBottomSheet(
                                     constraints.copy(
                                         minWidth = 0,
                                         maxWidth = (constraints.maxWidth - horizontalInset * 2).coerceAtLeast(0),
-                                        minHeight = minHeight,
+                                        minHeight = sheetHeight,
+                                        maxHeight = if (isExpandable) sheetHeight else constraints.maxHeight,
                                     ),
                                 )
                             layout(placeable.width + horizontalInset * 2, placeable.height) {
