@@ -16,7 +16,6 @@ import kotlinx.coroutines.tasks.await
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
-import zone.ien.utils.firebase.auth.FirebaseAuthGateway
 import zone.ien.utils.firebase.auth.LaunchingSignInState
 import zone.ien.utils.firebase.auth.NoOpSignInState
 import zone.ien.utils.firebase.auth.SignInState
@@ -25,7 +24,6 @@ import zone.ien.utils.firebase.auth.SignInState
 actual fun rememberFirebaseAppleSignInState(
     requestScopes: List<AppleSignInRequestScope>,
     linkAccount: Boolean,
-    gateway: FirebaseAuthGateway,
     onResult: (Result<FirebaseUser?>) -> Unit,
 ): SignInState {
     if (LocalInspectionMode.current) return NoOpSignInState
@@ -36,7 +34,7 @@ actual fun rememberFirebaseAppleSignInState(
     val currentLinkAccount by rememberUpdatedState(linkAccount)
     val currentOnResult by rememberUpdatedState(onResult)
 
-    return remember(scope, gateway) {
+    return remember(scope) {
         LaunchingSignInState(scope) {
             val activity = context.findActivity()
             if (activity == null) {
