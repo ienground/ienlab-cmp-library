@@ -37,7 +37,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(projects.cmpCommon)
-            implementation(libs.compose.resources)
+            api(projects.cmpFirebaseCore)
             implementation(libs.compose.material3)
 
             implementation(libs.kdatetime)

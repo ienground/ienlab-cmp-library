@@ -31,9 +31,9 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.compose.material3)
             implementation(libs.compose.resources)
-            implementation(libs.bundles.filekit)
             implementation(libs.firebase.storage)
 
+            api(projects.cmpFilekitCore)
             implementation(projects.cmpCommon)
             implementation(projects.cmpUtils)
         }
