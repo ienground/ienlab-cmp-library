@@ -101,6 +101,7 @@ private val menuItems = listOf(
     HomeMenuItem("Lazy Section", RootRoute.LazySection, Color(0xFF43A047)),
     HomeMenuItem("Playground", RootRoute.Playground, Color(0xFF00ACC1)),
     HomeMenuItem("Ien Playground", RootRoute.IenPlayground, Color(0xFF8B5CF6)),
+    HomeMenuItem("진동 테스트", RootRoute.HapticFeedbackTest, Color(0xFFE57373)),
     HomeMenuItem("Adaptive Playground", RootRoute.AdaptivePlayground, Color(0xFF0F766E)),
     HomeMenuItem("Navigation", RootRoute.Navigation, Color(0xFFFDD835)),
     HomeMenuItem("Firebase Auth", RootRoute.FirebaseAuth, Color(0xFFE65100)),

@@ -30,12 +30,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.progressBarRangeInfo
@@ -56,7 +54,7 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 
 /**
- * 중앙 항목에 스냅되는 세로 휠 선택기. 선택 상태는 호출자가 소유합니다.
+ * 중앙 항목에 스냅되는 세로 휠 선택기. 선택 상태는 호출자가 소유하며 항목 변경 시 햅틱과 소리 피드백을 제공합니다.
  * JWheelPicker의 중앙 여백 및 원통형 회전 효과를 공통 Compose로 이식했습니다.
  * 원본: https://github.com/oOJohn6Oo/JWheelPicker (WTFPL)
  *
@@ -94,7 +92,7 @@ fun <T> IenWheelPicker(
     }
     val state = rememberLazyListState(initialFirstVisibleItemIndex = selectedIndex)
     val scope = rememberCoroutineScope()
-    val haptic = LocalHapticFeedback.current
+    val soundFeedback = rememberIenWheelPickerSoundFeedback()
     val currentSelectedIndex by rememberUpdatedState(selectedIndex)
     val currentOnChange by rememberUpdatedState(onSelectedIndexChange)
     val currentEnabled by rememberUpdatedState(enabled)
@@ -112,12 +110,12 @@ fun <T> IenWheelPicker(
             }
         }
     }
-    LaunchedEffect(state, items.size) {
+    LaunchedEffect(state, items.size, soundFeedback) {
         var wasScrolling = false
         var previousIndex = selectedIndex
         snapshotFlow { state.isScrollInProgress to state.wheelCenterIndex() }.collect { (scrolling, index) ->
             if (scrolling && !synchronizing && currentEnabled && index != previousIndex && index in items.indices) {
-                if (currentHapticEnabled) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                soundFeedback.playTick(currentHapticEnabled)
             }
             if (wasScrolling && !scrolling && !synchronizing && currentEnabled &&
                 index in items.indices && index != currentSelectedIndex
@@ -143,6 +141,9 @@ fun <T> IenWheelPicker(
                 if (!enabled) disabled()
                 else setProgress { value ->
                     val index = value.roundToInt().coerceIn(items.indices)
+                    if (index != selectedIndex) {
+                        soundFeedback.playTick(currentHapticEnabled)
+                    }
                     onSelectedIndexChange(index)
                     true
                 }

@@ -16,6 +16,7 @@ import zone.ien.utils.example.ui.screens.designsystem.DesignSystemScreen
 import zone.ien.utils.example.ui.screens.lazy.LazySectionScreen
 import zone.ien.utils.example.ui.screens.navigation.NavigationScreen
 import zone.ien.utils.example.ui.screens.playground.AdaptivePlaygroundScreen
+import zone.ien.utils.example.ui.screens.playground.HapticFeedbackTestScreen
 import zone.ien.utils.example.ui.screens.playground.PlaygroundScreen
 import zone.ien.utils.example.ui.screens.playground.IenPlaygroundScreen
 import zone.ien.utils.example.ui.screens.section.SectionScreen
@@ -35,6 +36,7 @@ sealed interface RootRoute: NavKey {
     @Serializable data object Settings: RootRoute
     @Serializable data object Playground: RootRoute
     @Serializable data object IenPlayground: RootRoute
+    @Serializable data object HapticFeedbackTest: RootRoute
     @Serializable data object AdaptivePlayground: RootRoute
     @Serializable data object Section: RootRoute
     @Serializable data object LazySection: RootRoute
@@ -81,6 +83,11 @@ fun RootNavigationGraph(
             }
             entry<RootRoute.IenPlayground> {
                 IenPlaygroundScreen(
+                    navigateBack = { backStack.navigateBack() }
+                )
+            }
+            entry<RootRoute.HapticFeedbackTest> {
+                HapticFeedbackTestScreen(
                     navigateBack = { backStack.navigateBack() }
                 )
             }
