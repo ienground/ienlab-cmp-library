@@ -33,6 +33,7 @@ import zone.ien.utils.pref.PrefsScreen
 import zone.ien.utils.pref.item.SwitchPref
 import zone.ien.utils.pref.item.TextFieldPref
 import zone.ien.utils.pref.item.TextPref
+import zone.ien.utils.ui.interactive.IenSwitch
 import zone.ien.utils.ui.interactive.IenTextField
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
@@ -47,6 +48,7 @@ fun SettingsScreen(
     val backdrop = rememberDefaultBackdrop()
     val dataStore: DataStore<Preferences> = koinInject(named(DEFAULT_DATASTORE))
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
+    var useAdaptivePrefs by remember { mutableStateOf(true) }
     var textFieldValue by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
 
@@ -59,6 +61,11 @@ fun SettingsScreen(
                 scrollableState = scrollState,
             ),
             actions = {
+                Text("Adaptive")
+                IenSwitch(
+                    checked = useAdaptivePrefs,
+                    onCheckedChange = { useAdaptivePrefs = it },
+                )
                 AdaptiveSwitch(
                     checked = isMaterialTheme,
                     onCheckedChange = { isMaterialTheme = it },
@@ -68,6 +75,7 @@ fun SettingsScreen(
         ) { pv, title ->
             PrefsScreen(
                 dataStore = dataStore,
+                adaptive = useAdaptivePrefs,
                 title = title,
                 scrollState = scrollState,
                 backdrop = backdrop,
@@ -81,7 +89,10 @@ fun SettingsScreen(
                         summaryOn = "this is on",
                         summaryOff = "this is off",
                         defaultValue = true,
-                        key = booleanPreferencesKey("test")
+                        key = booleanPreferencesKey("test"),
+                        onTrackContent = { Text("켜짐") },
+                        offTrackContent = { Text("꺼짐") },
+                        adaptation = { cupertino { showSupportingContent = true } },
                     )
                     TextPref(
                         title = "Title",

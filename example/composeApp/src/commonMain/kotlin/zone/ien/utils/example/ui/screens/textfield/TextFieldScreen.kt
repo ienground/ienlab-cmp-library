@@ -15,7 +15,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -43,6 +42,7 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.save
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconButton
@@ -104,12 +104,12 @@ fun TextFieldScreen(
                             value = text,
                             onValueChange = { text = it },
                             placeholder = { Text(text = stringResource(Res.string.save)) },
-                            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+                            cursorBrush = SolidColor(IenTheme.colors.textPrimary),
                             contentPadding = PaddingValues(vertical = 12.dp),
                             maxLines = 6,
                             modifier = Modifier
                                 .focusRequester(focusRequester)
-                                .background(MaterialTheme.colorScheme.surface, ContinuousRoundedRectangle(24.dp))
+                                .background(IenTheme.colors.surface, ContinuousRoundedRectangle(24.dp))
                                 .padding(horizontal = 16.dp)
                                 .weight(1f)
 

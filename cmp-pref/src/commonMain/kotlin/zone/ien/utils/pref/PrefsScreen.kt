@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -19,6 +18,34 @@ import com.kyant.backdrop.backdrops.LayerBackdrop
 import zone.ien.hig.section.SectionStyle
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.section.AdaptiveProvideSectionStyle
+import zone.ien.utils.ui.section.IenProvideSectionStyle
+
+/**
+ * 기존 위치 인자 호출을 유지하는 설정 화면입니다.
+ */
+@Composable
+fun PrefsScreen(
+    modifier: Modifier = Modifier,
+    dataStore: DataStore<Preferences>,
+    title: @Composable () -> Unit = {},
+    fullHeight: Boolean = true,
+    scrollState: ScrollState? = rememberScrollState(),
+    shape: Shape = RectangleShape,
+    backdrop: LayerBackdrop = rememberDefaultBackdrop(),
+    content: @Composable (ColumnScope.() -> Unit)
+) {
+    PrefsScreen(
+        modifier = modifier,
+        dataStore = dataStore,
+        title = title,
+        fullHeight = fullHeight,
+        scrollState = scrollState,
+        shape = shape,
+        backdrop = backdrop,
+        content = content,
+        adaptive = true,
+    )
+}
 
 /**
  * DataStore 지원을 포함한 전체 설정 화면을 생성하는 Composable 함수입니다.
@@ -33,22 +60,42 @@ import zone.ien.utils.adaptive.section.AdaptiveProvideSectionStyle
  * @param scrollState 스크롤에 사용될 스크롤 상태
  * @param shape 화면 컨테이너의 모양
  * @param backdrop 화면의 백드롭 구성
+ * @param adaptive 상위 Adaptive 테마를 따를지 여부. false이면 하위 설정 전체에 Material3/Ien을 사용합니다.
+ * @param style Adaptive 섹션 스타일
  * @param content 설정 항목을 포함하는 Composable 컨텐츠 블록
  */
 @Composable
 fun PrefsScreen(
+    modifier: Modifier = Modifier,
     dataStore: DataStore<Preferences>,
     title: @Composable () -> Unit = {},
-    modifier: Modifier = Modifier,
     fullHeight: Boolean = true,
     scrollState: ScrollState? = rememberScrollState(),
     shape: Shape = RectangleShape,
     backdrop: LayerBackdrop = rememberDefaultBackdrop(),
+    adaptive: Boolean = true,
+    style: SectionStyle = SectionStyle.InsetGrouped,
     content: @Composable (ColumnScope.() -> Unit)
 ) {
-    CompositionLocalProvider(LocalPrefsDataStore provides dataStore) {
+    CompositionLocalProvider(
+        LocalPrefsDataStore provides dataStore,
+        LocalPrefsAdaptive provides adaptive,
+    ) {
+        if (!adaptive) {
+            IenProvideSectionStyle(
+                modifier = modifier,
+                fullHeight = fullHeight,
+                scrollState = scrollState,
+                shape = shape,
+                title = title,
+            ) {
+                content()
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            return@CompositionLocalProvider
+        }
         AdaptiveProvideSectionStyle(
-            style = SectionStyle.InsetGrouped,
+            style = style,
             modifier = modifier,
             fullHeight = fullHeight,
             scrollState = scrollState,
@@ -70,3 +117,5 @@ fun PrefsScreen(
 val LocalPrefsDataStore = staticCompositionLocalOf<DataStore<Preferences>> {
     error("No DataStore provided. Ensure content is wrapped in PrefsScreen.")
 }
+
+internal val LocalPrefsAdaptive = staticCompositionLocalOf { true }

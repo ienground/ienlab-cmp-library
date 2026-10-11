@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -311,8 +310,8 @@ private fun DropdownMenuSectionTitle(
     title: @Composable () -> Unit
 ) {
     ProvideTextStyle(
-        value = MaterialTheme.typography.labelSmall.copy(
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+        value = IenTheme.typography.caption.copy(
+            color = IenTheme.colors.textSecondary
         )
     ) {
         Box(
@@ -384,7 +383,7 @@ private fun DropdownMenuSectionNative.Action.IenMenuItem() = IenMenu.DropdownIte
 ) {
     Text(
         text = text,
-        color = if (isDestructive) MaterialTheme.colorScheme.error else Color.Unspecified,
+        color = if (isDestructive) IenTheme.colors.danger else Color.Unspecified,
     )
 }
 

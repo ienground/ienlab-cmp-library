@@ -37,10 +37,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
@@ -714,8 +712,8 @@ internal class TopAppBarScaffoldAdaptation(
         val isBackgroundGradient = LocalIsBackgroundGradient.current
         val isDropdownNative = true
         val colors = CupertinoTopAppBarDefaults.topAppBarColors()
-        val scaffoldContainerColor = MaterialTheme.colorScheme.background// CupertinoScaffoldDefaults.containerColor
-        val scaffoldContentColor = contentColorFor(scaffoldContainerColor) // CupertinoScaffoldDefaults.contentColor
+        val scaffoldContainerColor = CupertinoScaffoldDefaults.containerColor
+        val scaffoldContentColor = CupertinoScaffoldDefaults.contentColor
 
         return remember(topBarWindowInsets, contentWindowInsets, backdrop,isDropdownNative, isCenterAligned, isBackgroundAdaptive, isBackgroundGradient, colors, scaffoldContainerColor, scaffoldContentColor) {
             HigTopAppBarScaffoldAdaptation(
@@ -740,8 +738,8 @@ internal class TopAppBarScaffoldAdaptation(
         val contentWindowInsets = ScaffoldDefaults.contentWindowInsets
         val isScrollTint = LocalIsScrollTint.current
         val isCenterAligned = LocalIsM3TopBarCenterAligned.current
-        val scaffoldContainerColor = MaterialTheme.colorScheme.background
-        val scaffoldContentColor = contentColorFor(scaffoldContainerColor)
+        val scaffoldContainerColor = IenTheme.colors.background
+        val scaffoldContentColor = IenTheme.colors.textPrimary
 
         return remember(topBarWindowInsets, contentWindowInsets, isScrollTint, isCenterAligned, scaffoldContainerColor, scaffoldContentColor) {
             IenTopAppBarScaffoldAdaptation(

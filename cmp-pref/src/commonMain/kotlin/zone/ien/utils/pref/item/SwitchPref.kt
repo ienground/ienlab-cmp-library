@@ -1,5 +1,6 @@
 package zone.ien.utils.pref.item
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -10,10 +11,47 @@ import androidx.compose.ui.Modifier
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.launch
+import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.section.SectionScope
 import zone.ien.utils.adaptive.section.AdaptiveSectionSwitchItem
+import zone.ien.utils.adaptive.section.HigSectionItemAdaptation
+import zone.ien.utils.adaptive.section.IenSectionItemAdaptation
+import zone.ien.utils.pref.LocalPrefsAdaptive
 import zone.ien.utils.pref.LocalPrefsDataStore
+import zone.ien.utils.ui.section.IenSectionColors
+import zone.ien.utils.ui.section.IenSectionLinkDefault
+import zone.ien.utils.ui.section.switch
+
+/**
+ * 기존 위치 인자와 선행 콘텐츠 후행 람다 호출을 유지하는 스위치 설정입니다.
+ */
+@OptIn(ExperimentalAdaptiveApi::class)
+@Composable
+fun SectionScope.SwitchPref(
+    modifier: Modifier = Modifier,
+    title: String,
+    summaryOn: String? = null,
+    summaryOff: String? = null,
+    key: Preferences.Key<Boolean>,
+    defaultValue: Boolean,
+    onCheckedChange: ((Boolean) -> Unit)? = null,
+    enabled: Boolean = true,
+    leadingContent: (@Composable () -> Unit)? = null,
+) {
+    SwitchPref(
+        modifier = modifier,
+        title = title,
+        summaryOn = summaryOn,
+        summaryOff = summaryOff,
+        key = key,
+        defaultValue = defaultValue,
+        onCheckedChange = onCheckedChange,
+        enabled = enabled,
+        leadingContent = leadingContent,
+        colors = IenSectionLinkDefault.colors(),
+    )
+}
 
 /**
  * 스위치 설정 항목을 생성하는 Composable 함수입니다.
@@ -30,6 +68,13 @@ import zone.ien.utils.pref.LocalPrefsDataStore
  * @param onCheckedChange 스위치 상태가 변경될 때 트리거되는 선택적 콜백
  * @param enabled 스위치의 활성화 여부
  * @param leadingContent 제목 앞에 표시할 콘텐츠
+ * @param colors Ien 설정 항목 색상
+ * @param interactionSource Ien 컴포넌트의 상호작용 소스
+ * @param adaptation Adaptive 모드의 플랫폼별 설정
+ * @param thumbContent Ien 스위치 손잡이 콘텐츠
+ * @param trackContent Ien 스위치 트랙 콘텐츠
+ * @param onTrackContent Ien 스위치가 켜졌을 때 표시할 트랙 콘텐츠
+ * @param offTrackContent Ien 스위치가 꺼졌을 때 표시할 트랙 콘텐츠
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -43,6 +88,13 @@ fun SectionScope.SwitchPref(
     onCheckedChange: ((Boolean) -> Unit)? = null,
     enabled: Boolean = true,
     leadingContent: (@Composable () -> Unit)? = null,
+    colors: IenSectionColors = IenSectionLinkDefault.colors(),
+    thumbContent: (@Composable () -> Unit)? = null,
+    interactionSource: MutableInteractionSource? = null,
+    trackContent: (@Composable () -> Unit)? = null,
+    onTrackContent: (@Composable () -> Unit)? = null,
+    offTrackContent: (@Composable () -> Unit)? = null,
+    adaptation: AdaptationScope<HigSectionItemAdaptation, IenSectionItemAdaptation>.() -> Unit = {},
 ) {
     val coroutineScope = rememberCoroutineScope()
     val dataStore = LocalPrefsDataStore.current
@@ -63,6 +115,25 @@ fun SectionScope.SwitchPref(
         }
     }
 
+    if (!LocalPrefsAdaptive.current) {
+        switch(
+            modifier = modifier,
+            leadingContent = leadingContent,
+            checked = checked,
+            onCheckedChange = { edit(it) },
+            enabled = enabled,
+            supportingContent = if (checked) summaryOn?.let { { Text(it) } }
+                else summaryOff?.let { { Text(it) } },
+            colors = colors,
+            thumbContent = thumbContent,
+            interactionSource = interactionSource,
+            trackContent = trackContent,
+            onTrackContent = onTrackContent,
+            offTrackContent = offTrackContent,
+            title = { Text(title) },
+        )
+        return
+    }
     AdaptiveSectionSwitchItem(
         modifier = modifier,
         leadingContent = leadingContent,
@@ -72,6 +143,16 @@ fun SectionScope.SwitchPref(
         supportingContent =
             if (checked) summaryOn?.let { { Text(text = it) } }
             else summaryOff?.let { { Text(text = it) } },
+        colors = colors,
+        thumbContent = thumbContent,
+        interactionSource = interactionSource,
+        trackContent = trackContent,
+        onTrackContent = onTrackContent,
+        offTrackContent = offTrackContent,
+        adaptation = {
+            material { this.colors = colors }
+            adaptation()
+        },
         title = { Text(text = title) }
     )
 }
