@@ -4,7 +4,7 @@ kotlin = "2.4.21"
 android-minSdk = "29"
 android-compileSdk = "37"
 android-targetSdk = "37"
-lib-version-name = "3.7.0-alpha05-dev10"
+lib-version-name = "3.7.0-alpha05-dev11"
 
 # plugin
 compose-plugin = "1.12.1"
@@ -15,6 +15,7 @@ kotlinx-browser = "0.5.0"
 
 # firebase
 kmp-firebase = "1.0.0"
+kmp-firebase-gitlive = "3.0.0-alpha02"
 firebase-firestore = "26.6.0"
 firebase-storage = "22.0.2"
 firebase-common = "23.0.0"
@@ -62,6 +63,12 @@ firebase-firestore = { group = "zone.ien.firebase", name = "firebase-firestore",
 firebase-auth = { group = "zone.ien.firebase", name = "firebase-auth", version.ref = "kmp-firebase" }
 firebase-functions = { group = "zone.ien.firebase", name = "firebase-functions", version.ref = "kmp-firebase" }
 firebase-storage = { group = "zone.ien.firebase", name = "firebase-storage", version.ref = "kmp-firebase" }
+
+firebase-gitlive-firestore = { group = "dev.gitlive", name = "firebase-firestore", version.ref = "kmp-firebase-gitlive" }
+firebase-gitlive-auth = { group = "dev.gitlive", name = "firebase-auth", version.ref = "kmp-firebase-gitlive" }
+firebase-gitlive-functions = { group = "dev.gitlive", name = "firebase-functions", version.ref = "kmp-firebase-gitlive" }
+firebase-gitlive-storage = { group = "dev.gitlive", name = "firebase-storage", version.ref = "kmp-firebase-gitlive" }
+
 firebase-firestore-android = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebase-firestore" }
 firebase-auth-android = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebase-auth" }
 firebase-storage-android = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebase-storage" }

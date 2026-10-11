@@ -42,9 +42,9 @@ kotlin {
 
             implementation(libs.kdatetime)
             implementation(libs.kotlin.coroutine)
-            api(libs.firebase.auth)
-            implementation(libs.firebase.firestore)
-            api(libs.firebase.functions)
+            api(libs.firebase.gitlive.auth)
+            api(libs.firebase.gitlive.firestore)
+            api(libs.firebase.gitlive.functions)
         }
 
         commonTest.dependencies {
@@ -52,9 +52,7 @@ kotlin {
         }
 
         androidMain.dependencies {
-            implementation(libs.firebase.common.android)
-            api(libs.firebase.auth.android)
-            implementation(libs.firebase.firestore.android)
+            implementation(libs.firebase.auth.android)
             implementation(libs.androidx.credentials)
             implementation(libs.androidx.credentials.play.services)
             implementation(libs.googleid)

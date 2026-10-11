@@ -1,12 +1,12 @@
 package zone.ien.utils.firebase.auth
 
-import zone.ien.firebase.Firebase
-import zone.ien.firebase.auth.FirebaseAuth
-import zone.ien.firebase.auth.FirebaseUser
-import zone.ien.firebase.auth.GoogleAuthProvider
-import zone.ien.firebase.auth.OAuthProvider
-import zone.ien.firebase.auth.auth
-import zone.ien.firebase.auth.AuthCredential as ZoneFirebaseAuthCredential
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.FirebaseAuth
+import dev.gitlive.firebase.auth.FirebaseUser
+import dev.gitlive.firebase.auth.GoogleAuthProvider
+import dev.gitlive.firebase.auth.OAuthProvider
+import dev.gitlive.firebase.auth.auth
+import dev.gitlive.firebase.auth.AuthCredential as GitLiveAuthCredential
 
 /** Firebase SDK 호출 경계입니다. 커스텀 백엔드나 테스트 대역으로 교체할 수 있습니다. */
 interface FirebaseAuthGateway : FirebaseAuthSessionGateway {
@@ -22,10 +22,10 @@ interface FirebaseAuthGateway : FirebaseAuthSessionGateway {
 
     override fun currentUser(): FirebaseAuthUser?
 
-    fun signOut()
+    suspend fun signOut()
 }
 
-/** `zone.ien.firebase.auth`를 사용하는 기본 [FirebaseAuthGateway]입니다. */
+/** GitLive Firebase Authentication을 사용하는 기본 [FirebaseAuthGateway]입니다. */
 class ZoneFirebaseAuthGateway(
     private val auth: FirebaseAuth = Firebase.auth,
 ) : FirebaseAuthGateway {
@@ -36,7 +36,7 @@ class ZoneFirebaseAuthGateway(
         val firebaseCredential = credential.toFirebaseCredential()
         val currentUser = auth.currentUser
         val result = if (linkAccount && currentUser != null) {
-            currentUser.link(firebaseCredential)
+            currentUser.linkWithCredential(firebaseCredential)
         } else {
             auth.signInWithCredential(firebaseCredential)
         }
@@ -46,13 +46,18 @@ class ZoneFirebaseAuthGateway(
 
     override fun currentUser(): FirebaseAuthUser? = auth.currentUser?.toAuthUser()
 
-    override fun signOut() = auth.signOut()
+    override suspend fun signOut() = auth.signOut()
 
-    private fun AuthCredential.toFirebaseCredential(): ZoneFirebaseAuthCredential = when (this) {
+    private fun AuthCredential.toFirebaseCredential(): GitLiveAuthCredential = when (this) {
         is AuthCredential.IdToken -> if (providerId == AuthProviderIds.Google) {
-            GoogleAuthProvider.getCredential(idToken, accessToken)
+            GoogleAuthProvider.credential(idToken, accessToken)
         } else {
-            OAuthProvider(providerId).getCredential(idToken, rawNonce, accessToken)
+            OAuthProvider.credential(
+                providerId = providerId,
+                accessToken = accessToken,
+                idToken = idToken,
+                rawNonce = rawNonce,
+            )
         }
     }
 
@@ -61,12 +66,12 @@ class ZoneFirebaseAuthGateway(
             uid = uid,
             email = email,
             displayName = displayName,
-            photoUrl = photoUrl,
+            photoUrl = photoURL,
             providerId = providerId,
         )
 }
 
-/** 공통 인증 흐름에 Firebase SDK 기본 세션을 연결합니다. */
+/** 공통 인증 흐름에 GitLive Firebase 세션을 연결합니다. */
 class FirebaseAuthenticator(
     private val gateway: FirebaseAuthGateway = ZoneFirebaseAuthGateway(),
 ) : FirebaseSignInFlow {
@@ -84,5 +89,5 @@ class FirebaseAuthenticator(
 
     fun currentUser(): FirebaseAuthUser? = core.currentUser()
 
-    fun signOut() = gateway.signOut()
+    suspend fun signOut() = gateway.signOut()
 }

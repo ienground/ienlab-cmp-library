@@ -2,7 +2,7 @@ package zone.ien.utils.firebase.auth
 
 import androidx.compose.runtime.Composable
 
-/** Firebase 인증 SDK에 맞는 기본 인증기를 연결해 인증 상태를 생성합니다. */
+/** GitLive Firebase 인증 SDK에 맞는 기본 인증기를 연결해 인증 상태를 생성합니다. */
 @Composable
 fun rememberFirebaseSignInState(
     provider: AuthProvider,
