@@ -63,18 +63,15 @@ fun App() {
     //                modifier = it
     //            )
 
-                HapticTestScreen()
-//                RootNavigationGraph(
-//                    modifier = it,
-//                    backStack = backStack,
-//                    iconStyle = iconStyle,
-//                    onIconStyleChange = { iconStyle = it },
-//                )
+//                HapticTestScreen()
+                RootNavigationGraph(
+                    modifier = it,
+                    backStack = backStack,
+                    iconStyle = iconStyle,
+                    onIconStyleChange = { iconStyle = it },
+                )
             }
         }
 
     }
 }
-
-@Composable
-expect fun HapticTestScreen()
