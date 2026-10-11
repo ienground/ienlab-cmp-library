@@ -2,13 +2,12 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.android.lint)
-    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.vanniktech.mavenPublish)
 }
 
 kotlin {
     android {
-        namespace = "zone.ien.utils.filekit"
+        namespace = "zone.ien.utils.filekit.gitlive"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
         androidResources {
@@ -29,31 +28,18 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.compose.material3)
-            implementation(libs.compose.resources)
-            implementation(libs.firebase.storage)
-
             api(projects.cmpFilekitCore)
-            implementation(projects.cmpCommon)
-            implementation(projects.cmpUtils)
+            api(libs.firebase.gitlive.storage)
         }
 
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
 
-        androidMain.dependencies {
-            implementation(libs.firebase.common.android)
-            implementation(libs.firebase.storage.android)
-        }
-
         getByName("androidDeviceTest").dependencies {
             implementation(libs.runner)
             implementation(libs.core)
             implementation(libs.junit)
-        }
-
-        iosMain.dependencies {
         }
     }
 }
