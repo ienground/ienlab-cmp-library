@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.home
 
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.FlowRow
@@ -137,6 +138,7 @@ fun HomeScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     IenAdaptiveTheme(
+        values = arrayOf(LocalHapticFeedback provides LocalHapticFeedback.current),
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
         AdaptiveTopAppBarScaffold(

@@ -24,6 +24,7 @@ import zone.ien.utils.example.ui.navigation.RootRoute
 import zone.ien.utils.firebase.auth.google.GoogleAuthCredentials
 import zone.ien.utils.firebase.auth.google.GoogleAuthProvider
 import zone.ien.utils.navigation.getConfig
+import zone.ien.utils.ui.feedback.IenHapticFeedbackProvider
 import zone.ien.utils.ui.interactive.IenButton
 import zone.ien.utils.utils.Dlog
 
@@ -56,23 +57,17 @@ fun App() {
         IenAdaptiveTheme(
             target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino,
         ) {
-            RootWrapper(
-    //            showKeyboardDirection = false
-            ) {
-    //            TextFieldScreen(
-    //                modifier = it
-    //            )
-
-                HapticTestScreen()
-//                RootNavigationGraph(
-//                    modifier = it,
-//                    backStack = backStack,
-//                    iconStyle = iconStyle,
-//                    onIconStyleChange = { iconStyle = it },
-//                )
+            IenHapticFeedbackProvider {
+                RootWrapper {
+                    RootNavigationGraph(
+                        modifier = it,
+                        backStack = backStack,
+                        iconStyle = iconStyle,
+                        onIconStyleChange = { iconStyle = it },
+                    )
+                }
             }
         }
-
     }
 }
 

@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.navigation
 
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -79,6 +80,7 @@ fun NavigationScreen(
     }
 
     IenAdaptiveTheme(
+        values = arrayOf(LocalHapticFeedback provides LocalHapticFeedback.current),
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
         AdaptiveTopAppBarScaffold(

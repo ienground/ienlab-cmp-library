@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.auth
 
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -60,7 +61,10 @@ fun FirebaseAuthScreen(
         }
     )
 
-    IenAdaptiveTheme(target = Theme.Material3) {
+    IenAdaptiveTheme(
+        target = Theme.Material3,
+        values = arrayOf(LocalHapticFeedback provides LocalHapticFeedback.current),
+    ) {
         AdaptiveTopAppBarScaffold(
             topBarMode = TopBarMode.Expanded,
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },

@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.lazy
 
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -43,6 +44,7 @@ fun LazySectionScreen(
     var enabled by remember { mutableStateOf(false) }
 
     IenAdaptiveTheme(
+        values = arrayOf(LocalHapticFeedback provides LocalHapticFeedback.current),
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
         AdaptiveTopAppBarScaffold(

@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.playground
 
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
@@ -57,6 +58,7 @@ fun PlaygroundScreen(
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
     var visible by remember { mutableStateOf(true) }
     IenAdaptiveTheme(
+        values = arrayOf(LocalHapticFeedback provides LocalHapticFeedback.current),
         target = Theme.Cupertino
 //        target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {

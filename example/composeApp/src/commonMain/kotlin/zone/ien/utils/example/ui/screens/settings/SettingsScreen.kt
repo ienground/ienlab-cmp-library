@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.settings
 
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -51,6 +52,7 @@ fun SettingsScreen(
     val scrollState = rememberScrollState()
 
     IenAdaptiveTheme(
+        values = arrayOf(LocalHapticFeedback provides LocalHapticFeedback.current),
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
         AdaptiveTopAppBarScaffold(

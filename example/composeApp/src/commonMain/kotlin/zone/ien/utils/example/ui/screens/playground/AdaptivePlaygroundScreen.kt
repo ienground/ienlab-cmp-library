@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.playground
 
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -103,6 +104,7 @@ fun AdaptivePlaygroundScreen(
     var isNativeNavigationBar by remember { mutableStateOf(true) }
 
     IenAdaptiveTheme(
+        values = arrayOf(LocalHapticFeedback provides LocalHapticFeedback.current),
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino,
         darkTheme = darkTheme,
     ) {
