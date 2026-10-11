@@ -1,3 +1,5 @@
+@file:JvmName("SignInStateCoreKt")
+
 package zone.ien.utils.firebase.auth
 
 import androidx.compose.runtime.Composable
@@ -12,6 +14,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
+import kotlin.jvm.JvmName
 
 /** 버튼 등에 연결해 Firebase 인증 흐름을 시작하는 상태입니다. */
 @Stable
