@@ -10,12 +10,14 @@ import platform.Foundation.create
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 actual suspend fun ByteArray.toStorageData(): Data {
-    usePinned { pinned ->
-        val data = NSData.create(
-            bytes = pinned.addressOf(0),
-            length = size.toULong()
-        )
+    if (isEmpty()) return Data(NSData())
 
-        return Data(data)
+    return usePinned { pinned ->
+        Data(
+            NSData.create(
+                bytes = pinned.addressOf(0),
+                length = size.toULong(),
+            ),
+        )
     }
 }

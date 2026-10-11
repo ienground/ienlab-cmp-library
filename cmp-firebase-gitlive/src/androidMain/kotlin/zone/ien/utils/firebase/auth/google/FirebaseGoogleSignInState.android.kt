@@ -18,10 +18,10 @@ import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
 import zone.ien.utils.firebase.auth.AuthCredential
 import zone.ien.utils.firebase.auth.AuthProviderIds
-import zone.ien.utils.firebase.auth.FirebaseAuthGateway
 import zone.ien.utils.firebase.auth.LaunchingSignInState
 import zone.ien.utils.firebase.auth.NoOpSignInState
 import zone.ien.utils.firebase.auth.SignInState
+import zone.ien.utils.firebase.auth.ZoneFirebaseAuthGateway
 
 @Composable
 actual fun rememberFirebaseGoogleSignInState(
@@ -29,7 +29,6 @@ actual fun rememberFirebaseGoogleSignInState(
     filterByAuthorizedAccounts: Boolean,
     isAutoSelectEnabled: Boolean,
     scopes: List<String>,
-    gateway: FirebaseAuthGateway,
     onResult: (Result<FirebaseUser?>) -> Unit,
 ): SignInState {
     if (LocalInspectionMode.current) return NoOpSignInState
@@ -37,6 +36,7 @@ actual fun rememberFirebaseGoogleSignInState(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val googleAuthProvider = remember { GoogleAuthProvider.get() }
+    val gateway = remember { ZoneFirebaseAuthGateway() }
     val currentLinkAccount by rememberUpdatedState(linkAccount)
     val currentFilter by rememberUpdatedState(filterByAuthorizedAccounts)
     val currentAutoSelect by rememberUpdatedState(isAutoSelectEnabled)

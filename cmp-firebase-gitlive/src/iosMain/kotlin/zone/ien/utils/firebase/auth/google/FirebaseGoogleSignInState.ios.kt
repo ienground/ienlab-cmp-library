@@ -20,9 +20,6 @@ import swiftPMImport.dev.gitlive.firebase.auth.FIROAuthProvider
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
-import zone.ien.utils.firebase.auth.AuthCredential
-import zone.ien.utils.firebase.auth.AuthProviderIds
-import zone.ien.utils.firebase.auth.FirebaseAuthGateway
 import zone.ien.utils.firebase.auth.LaunchingSignInState
 import zone.ien.utils.firebase.auth.NoOpSignInState
 import zone.ien.utils.firebase.auth.SignInState
@@ -36,7 +33,6 @@ actual fun rememberFirebaseGoogleSignInState(
     /** Android Credential Manager 전용 (iOS는 무시됨) */
     isAutoSelectEnabled: Boolean,
     scopes: List<String>,
-    gateway: FirebaseAuthGateway,
     onResult: (Result<FirebaseUser?>) -> Unit,
 ): SignInState {
     if (LocalInspectionMode.current) return NoOpSignInState
@@ -47,7 +43,7 @@ actual fun rememberFirebaseGoogleSignInState(
     val currentLinkAccount by rememberUpdatedState(linkAccount)
     val currentOnResult by rememberUpdatedState(onResult)
 
-    return remember(scope, googleAuthProvider, gateway) {
+    return remember(scope, googleAuthProvider) {
         LaunchingSignInState(scope) {
             val serverId = googleAuthProvider.credentials.serverId
             try {

@@ -44,22 +44,22 @@ import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
 import zone.ien.utils.firebase.auth.AuthCredential
 import zone.ien.utils.firebase.auth.AuthProviderIds
-import zone.ien.utils.firebase.auth.FirebaseAuthGateway
 import zone.ien.utils.firebase.auth.LaunchingSignInState
 import zone.ien.utils.firebase.auth.NoOpSignInState
 import zone.ien.utils.firebase.auth.SignInState
+import zone.ien.utils.firebase.auth.ZoneFirebaseAuthGateway
 import kotlin.coroutines.resume
 
 @Composable
 actual fun rememberFirebaseAppleSignInState(
     requestScopes: List<AppleSignInRequestScope>,
     linkAccount: Boolean,
-    gateway: FirebaseAuthGateway,
     onResult: (Result<FirebaseUser?>) -> Unit,
 ): SignInState {
     if (LocalInspectionMode.current) return NoOpSignInState
 
     val scope = rememberCoroutineScope()
+    val gateway = remember { ZoneFirebaseAuthGateway() }
     val currentScopes by rememberUpdatedState(requestScopes)
     val currentLinkAccount by rememberUpdatedState(linkAccount)
     val currentOnResult by rememberUpdatedState(onResult)
@@ -127,7 +127,7 @@ private suspend fun signInToFirebaseApple(
     rawNonce: String,
     fullName: platform.Foundation.NSPersonNameComponents?,
     linkAccount: Boolean,
-    gateway: FirebaseAuthGateway,
+    gateway: ZoneFirebaseAuthGateway,
 ): Result<FirebaseUser?> = try {
     gateway.signIn(
         credential = AuthCredential.IdToken(
