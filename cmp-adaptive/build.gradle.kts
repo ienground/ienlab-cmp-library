@@ -34,7 +34,7 @@ kotlin {
             implementation(libs.compose.preview)
             implementation(libs.compose.resources)
 
-            implementation(libs.backdrop)
+            api(libs.backdrop)
             implementation(libs.capsule)
             implementation(libs.bundles.hig)
 

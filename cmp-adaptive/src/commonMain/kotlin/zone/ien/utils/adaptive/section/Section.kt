@@ -3,9 +3,11 @@ package zone.ien.utils.adaptive.section
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -15,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.capsule.ContinuousRoundedRectangle
@@ -34,7 +37,7 @@ import zone.ien.hig.section.rememberSectionState
 import zone.ien.hig.section.sectionContainerBackground
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.screen.LocalTopBarScaffoldScrollState
-import zone.ien.utils.ui.section.IenProvideSectionStyle
+import zone.ien.utils.ui.screen.LocalIenScaffoldScrollState
 import zone.ien.utils.ui.section.IenSection
 import zone.ien.utils.ui.section.ienSectionBackground
 import zone.ien.utils.ui.utils.conditional
@@ -53,6 +56,49 @@ fun Modifier.sectionBackground(
     return this
         .conditional(currentTheme == Theme.Material3) { ienSectionBackground() }
         .conditional(currentTheme == Theme.Cupertino) { sectionContainerBackground(sectionStyle) }
+}
+
+/**
+ * IEN 섹션 스타일과 Backdrop을 적용하는 컴포저블
+ *
+ * Backdrop을 내부 스크롤 modifier보다 먼저 적용합니다.
+ *
+ * @param backdrop 섹션에 적용할 Backdrop
+ * @param modifier 섹션에 적용할 Modifier
+ * @param fullHeight 섹션의 높이를 화면 전체로 설정할지 여부
+ * @param scrollState 섹션 내부의 스크롤 상태를 관리하는 ScrollState
+ * @param shape 섹션의 모양을 정의하는 Shape
+ * @param title 섹션의 제목을 표시하는 컴포저블
+ * @param content 섹션의 내용을 표시하는 컴포저블 블록
+ */
+@Composable
+fun IenProvideSectionStyle(
+    backdrop: LayerBackdrop,
+    modifier: Modifier = Modifier,
+    fullHeight: Boolean = true,
+    scrollState: ScrollState? = LocalIenScaffoldScrollState.current ?: rememberScrollState(),
+    shape: Shape = RectangleShape,
+    title: @Composable (() -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier
+            .conditional(fullHeight) { fillMaxHeight() }
+            .layerBackdrop(backdrop)
+            .conditional(scrollState != null) { scrollState?.let { this.verticalScroll(it) } ?: this }
+            .clip(shape)
+            .then(modifier),
+        content = {
+            if (title != null) {
+                title()
+            } else {
+                Spacer(modifier = Modifier)
+            }
+            content()
+            Spacer(modifier = Modifier)
+        }
+    )
 }
 
 /**
@@ -82,6 +128,7 @@ fun AdaptiveProvideSectionStyle(
     AdaptiveWidget(
         material = {
             IenProvideSectionStyle(
+                backdrop = backdrop,
                 modifier = modifier,
                 fullHeight = fullHeight,
                 scrollState = scrollState,
