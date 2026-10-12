@@ -44,7 +44,7 @@ private class AndroidIenWheelPickerSoundFeedback(
         if (enableHapticFeedback) {
             hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
         }
-        if (soundLoaded) soundPool.play(soundId, 0.2f, 0.2f, 1, 0, 1f)
+        if (soundLoaded) soundPool.play(soundId, 1f, 1f, 1, 0, 1f)
     }
 
     fun release() = soundPool.release()
