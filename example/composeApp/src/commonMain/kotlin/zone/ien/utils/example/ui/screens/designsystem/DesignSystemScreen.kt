@@ -3257,11 +3257,17 @@ fun ResultSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
         ComponentSection(title = "Result") {
             IenResult(
-                title = controls.textValue("title", "처리 준비 완료"),
-                description = controls.textValue(
-                    "description",
-                    "Result는 성공, 실패, 빈 상태 화면을 같은 정보 구조로 표현합니다.",
-                ).takeIf { controls.booleanValue("showDescription", true) },
+                title = { Text(controls.textValue("title", "처리 준비 완료")) },
+                description = if (controls.booleanValue("showDescription", true)) {
+                    {
+                        Text(
+                            controls.textValue(
+                                "description",
+                                "Result는 성공, 실패, 빈 상태 화면을 같은 정보 구조로 표현합니다.",
+                            ),
+                        )
+                    }
+                } else null,
                 tone = IenResultTone.entries.firstOrNull {
                     it.name == controls.enumValue("tone", "Success")
                 } ?: IenResultTone.Success,

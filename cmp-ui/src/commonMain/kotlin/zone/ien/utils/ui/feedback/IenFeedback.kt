@@ -72,6 +72,7 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -105,6 +106,7 @@ import zone.ien.utils.ui.list.IenListRowTexts
 import zone.ien.utils.ui.list.IenListRowTextsType
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.shimmer.IenPlaceholderDefaults
 import zone.ien.utils.ui.shimmer.IenPlaceholderHighlight
@@ -2300,9 +2302,9 @@ enum class IenResultTone { Success, Failure, Empty, Info }
 /**
  * 특정 액션 또는 작업의 결과 화면(예: 빈 페이지, 오류 안내, 성공 알림 등)을 레이아웃으로 렌더링하는 범용 결과 표시 컴포저블입니다.
  *
- * @param title 결과 화면에 보여줄 메인 제목 문구
+ * @param title 결과 화면에 보여줄 메인 제목 컴포저블
  * @param modifier 적용할 [Modifier]
- * @param description 메인 제목 하단에 배치할 보조 상세 설명문
+ * @param description 메인 제목 하단에 배치할 보조 설명 컴포저블
  * @param tone 결과 상태 및 아이콘 프레임의 시맨틱 톤 ([IenResultTone])
  * @param icon 결과 톤이 적용된 원형 프레임 안에 배치할 아이콘 콘텐츠
  * @param primaryAction 주요 클릭 이벤트/액션 버튼 컴포저블
@@ -2310,9 +2312,9 @@ enum class IenResultTone { Success, Failure, Empty, Info }
  */
 @Composable
 fun IenResult(
-    title: String,
+    title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    description: String? = null,
+    description: (@Composable () -> Unit)? = null,
     tone: IenResultTone = IenResultTone.Info,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     primaryAction: (@Composable () -> Unit)? = null,
@@ -2323,7 +2325,10 @@ fun IenResult(
             .fillMaxWidth()
             .padding(IenTheme.spacing.xl),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+        verticalArrangement = Arrangement.spacedBy(
+            IenTheme.spacing.md,
+            Alignment.CenterVertically,
+        ),
     ) {
         val iconTone = when (tone) {
             IenResultTone.Success -> IenSemanticTone.Success
@@ -2343,9 +2348,26 @@ fun IenResult(
                 icon?.invoke(this)
             }
         }
-        Text(title, style = IenTheme.typography.title2)
+        IenProvideTextStyle(
+            style = IenTheme.typography.title2.copy(
+                color = IenTheme.colors.textPrimary,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+            ),
+        ) {
+            Box(modifier = Modifier.padding(top = 8.dp)) {
+                title()
+            }
+        }
         if (description != null) {
-            Text(description, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
+            IenProvideTextStyle(
+                style = IenTheme.typography.body2.copy(
+                    color = IenTheme.colors.textSecondary,
+                    textAlign = TextAlign.Center,
+                ),
+            ) {
+                description()
+            }
         }
         primaryAction?.invoke()
         secondaryAction?.invoke()
