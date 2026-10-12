@@ -46,6 +46,7 @@ import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.section.IenProvideSectionStyle
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.TopBarMode
+import zone.ien.utils.example.ui.keyboardDismissAction
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -128,6 +129,7 @@ fun SectionScreen(
                     AdaptiveSectionTextField(
                         value = text,
                         onValueChange = { text = it },
+                        modifier = Modifier.keyboardDismissAction(),
                         trailingContent = {
                             IenIconButton(
                                 onClick = { resultStore.setResult("text", text) },

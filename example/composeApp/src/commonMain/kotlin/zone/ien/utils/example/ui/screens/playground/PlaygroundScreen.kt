@@ -46,6 +46,7 @@ import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.ui.shimmer.m3Placeholder
 import zone.ien.utils.ui.utils.TextFieldDialogData
+import zone.ien.utils.example.ui.keyboardDismissAction
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
@@ -244,6 +245,7 @@ private fun ScreenBody(
     var text by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     TextFieldDialog(
+        modifier = Modifier.keyboardDismissAction(),
         visible = showTextFieldDialog,
         title = "Hello Title",
         textFields = mapOf(

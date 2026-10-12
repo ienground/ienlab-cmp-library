@@ -66,6 +66,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.tabler.line.Add
+import zone.ien.utils.example.ui.keyboardDismissAction
 import zone.ien.utils.ui.content.IenBubble
 import zone.ien.utils.ui.content.IenBubbleBackground
 import zone.ien.utils.ui.content.IenBubbleTail
@@ -162,6 +163,9 @@ import zone.ien.utils.ui.interactive.IenIconToggleButton
 import zone.ien.utils.ui.interactive.IenInputChip
 import zone.ien.utils.ui.interactive.IenKeyboardAction
 import zone.ien.utils.ui.interactive.IenLineCheckbox
+import zone.ien.utils.ui.interactive.IenRadioButton
+import zone.ien.utils.ui.interactive.IenRadioGroup
+import zone.ien.utils.ui.interactive.IenRadioGroupItem
 import zone.ien.utils.ui.interactive.IenNumberKeypad
 import zone.ien.utils.ui.interactive.IenNumericSpinner
 import zone.ien.utils.ui.interactive.IenNumericSpinnerSize
@@ -350,6 +354,7 @@ private val DesignSystemComponents = listOf(
     DesignSystemComponent("chip", "Chip", "액션·선택", "선택·입력·제안 목적의 칩을 비교합니다."),
     DesignSystemComponent("fab", "FAB", "액션·선택", "주요 동작을 강조하는 플로팅 액션 버튼입니다."),
     DesignSystemComponent("checkbox", "Checkbox", "액션·선택", "원형·선형 체크박스의 상태를 비교합니다."),
+    DesignSystemComponent("radio-button", "RadioButton", "액션·선택", "라디오 버튼과 그룹의 단일 선택·비활성 상태를 확인합니다."),
     DesignSystemComponent("highlight", "Highlight", "콘텐츠", "문장 안의 강조 구간을 표현합니다."),
     DesignSystemComponent("icon-button", "IconButton", "액션·선택", "아이콘 버튼과 토글 버튼의 상태를 확인합니다."),
     DesignSystemComponent("list-footer", "ListFooter", "콘텐츠", "목록 하단의 추가 정보와 구분선을 표시합니다."),
@@ -366,6 +371,7 @@ private val DesignSystemComponents = listOf(
     DesignSystemComponent("progress-indicator", "ProgressIndicator", "피드백", "원형·물결·선형 진행 표시기를 비교합니다."),
     DesignSystemComponent("progress-stepper", "ProgressStepper", "피드백", "단계별 진행 상태와 레이아웃 변형을 표시합니다."),
     DesignSystemComponent("rating", "Rating", "입력", "편집 가능, 읽기 전용, 비활성 별점을 비교합니다."),
+    DesignSystemComponent("empty", "IenEmpty", "피드백", "표시할 데이터가 없을 때 안내와 후속 동작을 표시합니다."),
     DesignSystemComponent("result", "Result", "피드백", "완료·실패·빈 상태의 결과 화면을 구성합니다."),
     DesignSystemComponent("search-field", "SearchField", "입력", "검색어 입력, 삭제, 비활성 상태를 확인합니다."),
     DesignSystemComponent("ien-section", "IenSection", "레이아웃", "제목·캡션과 SectionScope DSL로 항목을 구성하는 섹션 컨테이너입니다."),
@@ -565,6 +571,14 @@ private val ComponentPlaygroundControls = mapOf(
         choiceControl("variant", "형태", listOf("Circle", "Line")),
         toggleControl("checked", "선택 상태"),
         disabledControl(),
+    ),
+    "radio-button" to listOf(
+        choiceControl("variant", "형태", listOf("Group", "Single")),
+        choiceControl("value", "선택값", listOf("없음", "32 GB", "64 GB", "128 GB", "256 GB"), "128 GB"),
+        disabledControl(),
+        toggleControl("disableLastItem", "마지막 항목 비활성", false),
+        toggleControl("showLabel", "라벨 표시", true),
+        numberControl("size", "크기", 24, 16, 40),
     ),
     "icon-button" to listOf(
         choiceControl("variant", "표시 방식", listOf("Fill", "Weak", "Line", "Ghost")),
@@ -1263,7 +1277,9 @@ internal fun DesignSystemPlayground(
                                     IenTextField(
                                         value = values[control.key] ?: control.defaultValue,
                                         onValueChange = { value -> values[control.key] = value },
-                                        modifier = Modifier.fillMaxWidth(),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .keyboardDismissAction(),
                                         label = control.label,
                                         keyboardOptions = KeyboardOptions(
                                             keyboardType = when {
@@ -1464,6 +1480,7 @@ private fun DesignSystemCatalog(
         IenTextField(
             value = query,
             onValueChange = onQueryChange,
+            modifier = Modifier.keyboardDismissAction(),
             label = "컴포넌트 검색",
             placeholder = "이름 또는 기능으로 검색",
         )
@@ -1577,6 +1594,7 @@ internal fun DesignSystemComponentPreview(
         "chip" -> ChipSection(controlValues)
         "fab" -> FabSection(controlValues)
         "checkbox" -> CheckboxSection(controlValues)
+        "radio-button" -> RadioButtonSection(controlValues)
         "highlight" -> HighlightSection(controlValues)
         "icon-button" -> IconButtonSection(controlValues)
         "list-footer" -> ListFooterSection(controlValues)
@@ -1593,6 +1611,7 @@ internal fun DesignSystemComponentPreview(
         "progress-indicator" -> ProgressIndicatorSection(controlValues)
         "progress-stepper" -> ProgressStepperSection(controlValues)
         "rating" -> RatingSection(controlValues)
+        "empty" -> IenEmptySection()
         "result" -> ResultSection(controlValues)
         "search-field" -> SearchFieldSection(controlValues)
         "ien-section" -> IenSectionSection(controlValues)
@@ -2634,6 +2653,44 @@ fun CheckboxSection(controls: Map<String, String> = emptyMap()) {
 
 @Preview
 @Composable
+fun RadioButtonSection(controls: Map<String, String> = emptyMap()) {
+    IenTheme {
+        val options = listOf(32, 64, 128, 256)
+        var selected by remember(controls["value"]) {
+            mutableStateOf(options.firstOrNull { "$it GB" == controls.enumValue("value", "128 GB") })
+        }
+        val enabled = !controls.disabledValue()
+        val size = controls.intValue("size", 24).coerceIn(16, 40).dp
+        ComponentSection(title = "RadioButton") {
+            if (controls.enumValue("variant", "Group") == "Group") {
+                IenRadioGroup(
+                    items = options.map { value ->
+                        IenRadioGroupItem(
+                            value = value,
+                            label = "$value GB",
+                            enabled = value != 256 || !controls.booleanValue("disableLastItem", false),
+                        )
+                    },
+                    value = selected,
+                    onChange = { selected = it },
+                    enabled = enabled,
+                    size = size,
+                )
+            } else {
+                IenRadioButton(
+                    selected = selected == 128,
+                    onClick = { selected = 128 },
+                    enabled = enabled,
+                    size = size,
+                    label = "128 GB".takeIf { controls.booleanValue("showLabel", true) },
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
 fun HighlightSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
         ComponentSection(title = "Highlight") {
@@ -3209,11 +3266,9 @@ fun ResultSection(controls: Map<String, String> = emptyMap()) {
                     it.name == controls.enumValue("tone", "Success")
                 } ?: IenResultTone.Success,
                 icon = {
-                    Box(
-                        modifier = Modifier
-                            .size(18.dp)
-                            .clip(CircleShape)
-                            .background(IenTheme.colors.success),
+                    IenIcon(
+                        imageVector = SystemIcons.Save,
+                        contentDescription = null,
                     )
                 },
                 primaryAction = if (controls.booleanValue("showPrimaryAction", true)) ({
@@ -3242,12 +3297,14 @@ fun SearchFieldSection(controls: Map<String, String> = emptyMap()) {
             IenSearchField(
                 value = search,
                 onValueChange = { search = it },
+                modifier = Modifier.keyboardDismissAction(),
                 placeholder = controls.textValue("placeholder", "검색어를 입력하세요"),
                 state = IenTextFieldState(enabled = !controls.disabledValue()),
             )
             IenSearchField(
                 value = deletableSearch,
                 onValueChange = { deletableSearch = it },
+                modifier = Modifier.keyboardDismissAction(),
                 placeholder = "검색어를 입력하고 삭제 버튼을 눌러보세요",
                 onDeleteClick = { deleteCount += 1 },
             )
@@ -3266,6 +3323,7 @@ fun SearchFieldSection(controls: Map<String, String> = emptyMap()) {
                     IenSearchField(
                         value = fixedSearch,
                         onValueChange = { fixedSearch = it },
+                        modifier = Modifier.keyboardDismissAction(),
                         placeholder = "상단 고정 검색",
                         fixed = controls.booleanValue("fixed", true),
                         takeSpace = controls.booleanValue("takeSpace", true),
@@ -3281,6 +3339,7 @@ fun SearchFieldSection(controls: Map<String, String> = emptyMap()) {
             IenSearchField(
                 value = disabledSearch,
                 onValueChange = { disabledSearch = it },
+                modifier = Modifier.keyboardDismissAction(),
                 placeholder = "비활성 검색",
                 state = IenTextFieldState(enabled = false),
             )
@@ -4798,33 +4857,40 @@ fun AssetSection(controls: Map<String, String> = emptyMap()) {
             ) {
                 Text("IEN")
             }
-            if (!LocalComponentVariantShowcase.current) {
-                IenEmpty(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(400.dp),
-                    icon = {
-                        this.size = IenAssetFrameSize.Large
-                        this.tone = IenSemanticTone.Success
-                        this.shape = IenAssetFrameShape.Circle
-                        this.contentDescription = "빈 상태 아이콘"
-                        content { contentModifier ->
-                            IenIcon(
-                                imageVector = SystemIcons.Save,
-                                contentDescription = null,
-                                modifier = contentModifier,
-                            )
-                        }
-                    },
-                    title = { Text("표시할 데이터가 없어요") },
-                    content = { Text("새로운 데이터가 추가되면 이곳에 표시됩니다.") },
-                    buttons = {
-                        IenButton(onClick = {}) {
-                            Text("새로고침")
-                        }
-                    },
-                )
-            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun IenEmptySection() {
+    IenTheme {
+        ComponentSection(title = "IenEmpty") {
+            IenEmpty(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(400.dp),
+                icon = {
+                    this.size = IenAssetFrameSize.Large
+                    this.tone = IenSemanticTone.Success
+                    this.shape = IenAssetFrameShape.Circle
+                    this.contentDescription = "빈 상태 아이콘"
+                    content { contentModifier ->
+                        IenIcon(
+                            imageVector = SystemIcons.Save,
+                            contentDescription = null,
+                            modifier = contentModifier,
+                        )
+                    }
+                },
+                title = { Text("표시할 데이터가 없어요") },
+                content = { Text("새로운 데이터가 추가되면 이곳에 표시됩니다.") },
+                buttons = {
+                    IenButton(onClick = {}) {
+                        Text("새로고침")
+                    }
+                },
+            )
         }
     }
 }
@@ -4939,6 +5005,7 @@ private fun ChatBottomBarExample(
         },
         placeholder = placeholder,
         maxLines = maxLines,
+        inputModifier = Modifier.keyboardDismissAction(),
         leadingContent = if (showLeading) ({
             IenIconButton(
                 onClick = {},
@@ -5699,6 +5766,7 @@ fun DialogSection(controls: Map<String, String> = emptyMap()) {
         )
 
         IenTextFieldDialog(
+            modifier = Modifier.keyboardDismissAction(),
             visible = showTextFieldDialog,
             title = "프로필 편집",
             message = "표시 이름을 입력하세요.",
@@ -6152,6 +6220,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
                 IenTextField(
                     value = value,
                     onValueChange = { value = it },
+                    modifier = Modifier.keyboardDismissAction(),
                     label = label,
                     required = required,
                     labelOption = labelOption,
@@ -6189,6 +6258,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
             IenTextField(
                 value = text,
                 onValueChange = { text = it },
+                modifier = Modifier.keyboardDismissAction(),
                 label = label,
                 required = required,
                 labelOption = labelOption,
@@ -6206,6 +6276,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
             IenTextField(
                 value = number,
                 onValueChange = { if (it.checkDecimal()) number = it },
+                modifier = Modifier.keyboardDismissAction(),
                 label = "이름 · Required · LengthLimit.Error",
                 required = true,
                 placeholder = "이름을 입력하세요",
@@ -6218,6 +6289,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
             IenTextField(
                 value = lineText,
                 onValueChange = { lineText = it },
+                modifier = Modifier.keyboardDismissAction(),
                 label = "주소 · LengthLimit.None",
                 labelOption = IenTextFieldLabelOption.Sustain,
                 placeholder = "주소를 입력하세요",
@@ -6229,6 +6301,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
             IenTextField(
                 value = bigText,
                 onValueChange = { bigText = it },
+                modifier = Modifier.keyboardDismissAction(),
                 label = "큰 금액",
                 placeholder = "0",
                 variant = IenTextFieldVariant.Big,
@@ -6240,6 +6313,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
             IenTextField(
                 value = amountText,
                 onValueChange = { amountText = it },
+                modifier = Modifier.keyboardDismissAction(),
                 label = "Hero 입력",
                 labelOption = IenTextFieldLabelOption.Sustain,
                 placeholder = "0",
@@ -6253,6 +6327,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
                 value = clearText,
                 onValueChange = { clearText = it },
                 onClear = {},
+                modifier = Modifier.keyboardDismissAction(),
                 label = "Clearable · LengthLimit.Block",
                 labelOption = IenTextFieldLabelOption.Sustain,
                 placeholder = "입력 후 지울 수 있어요",
@@ -6261,6 +6336,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
             IenPasswordTextField(
                 value = passwordText,
                 onValueChange = { passwordText = it },
+                modifier = Modifier.keyboardDismissAction(),
                 label = "비밀번호 · LengthLimit.Block",
                 required = true,
                 placeholder = "비밀번호 입력",
@@ -6278,6 +6354,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
             IenTextField(
                 value = "",
                 onValueChange = {},
+                modifier = Modifier.keyboardDismissAction(),
                 label = "오류 상태",
                 placeholder = "필수 값",
                 hasError = true,
@@ -6297,6 +6374,7 @@ fun SplitTextFieldSection(controls: Map<String, String> = emptyMap()) {
                 value = splitText,
                 onValueChange = { splitText = it },
                 length = controls.intValue("fieldCount", 4).coerceIn(2, 8),
+                modifier = Modifier.keyboardDismissAction(),
                 placeholderChar = controls.textValue("placeholderChar", "•").firstOrNull() ?: '•',
                 mask = controls.booleanValue("mask", false),
                 state = IenTextFieldState(enabled = !controls.disabledValue()),
@@ -6324,7 +6402,9 @@ fun TextAreaSection(controls: Map<String, String> = emptyMap()) {
             IenTextArea(
                 value = textArea,
                 onValueChange = { textArea = it },
-                modifier = Modifier.height((maxLines * 48).dp),
+                modifier = Modifier
+                    .height((maxLines * 48).dp)
+                    .keyboardDismissAction(),
                 label = label,
                 required = controls.booleanValue("required", true),
                 placeholder = placeholder,
@@ -6599,6 +6679,7 @@ fun IenSectionSection(controls: Map<String, String> = emptyMap()) {
                 textField(
                     value = text,
                     onValueChange = { text = it },
+                    modifier = Modifier.keyboardDismissAction(),
                     placeholder = { Text("이름") },
                     trailingContent = { _ ->
                         IenIconButton(
@@ -6613,6 +6694,7 @@ fun IenSectionSection(controls: Map<String, String> = emptyMap()) {
                 )
                 secureTextField(
                     state = passwordState,
+                    modifier = Modifier.keyboardDismissAction(),
                     placeholder = { Text("비밀번호") },
                 )
                 button(

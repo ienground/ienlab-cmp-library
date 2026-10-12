@@ -71,6 +71,7 @@ export const catalog = [
     ["IenCircleCheckbox", "IenDotCheckbox", "IenLineCheckbox"],
     "interactive/IenSelection.kt",
   ),
+  component("radio-button", "RadioButton", "액션·선택", "라디오 버튼과 그룹의 단일 선택·비활성 상태를 확인합니다.", ["IenRadioButton", "IenRadioGroup", "IenRadioGroupItem"], "interactive/IenSelection.kt"),
   component("highlight", "Highlight", "콘텐츠", "문장 안의 강조 구간을 표현합니다.", ["IenHighlightText"], "content/IenContent.kt"),
   component("icon-button", "IconButton", "액션·선택", "아이콘 버튼과 토글 버튼의 상태를 확인합니다.", ["IenIconButton", "IenIconToggleButton"], "interactive/IenButton.kt"),
   component("list-footer", "ListFooter", "콘텐츠", "목록 하단의 추가 정보와 구분선을 표시합니다.", ["IenListFooter"], "list/IenList.kt"),
@@ -87,6 +88,7 @@ export const catalog = [
   component("progress-indicator", "ProgressIndicator", "피드백", "원형·물결·선형 진행 표시기를 비교합니다.", ["IenCircularProgressIndicator", "IenCircularWavyProgressIndicator", "IenLinearProgressIndicator"], "feedback/IenProgress.kt"),
   component("progress-stepper", "ProgressStepper", "피드백", "단계별 진행 상태와 레이아웃 변형을 표시합니다.", ["IenProgressStepper", "IenProgressStep"], "feedback/IenFeedback.kt"),
   component("rating", "Rating", "입력", "편집 가능, 읽기 전용, 비활성 별점을 비교합니다.", ["IenRating"], "interactive/IenInputExtras.kt"),
+  component("empty", "IenEmpty", "피드백", "표시할 데이터가 없을 때 안내와 후속 동작을 표시합니다.", ["IenEmpty", "IenEmptyIconScope"], "view/Empty.kt"),
   component("result", "Result", "피드백", "완료·실패·빈 상태의 결과 화면을 구성합니다.", ["IenResult"], "feedback/IenFeedback.kt"),
   component(
     "search-field",

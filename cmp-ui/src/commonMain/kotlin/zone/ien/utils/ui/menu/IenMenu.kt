@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
@@ -71,6 +72,8 @@ internal fun IenAnimatedPopup(
     transformOrigin: TransformOrigin,
     content: @Composable () -> Unit,
 ) {
+    if (LocalInspectionMode.current) return
+
     val motion = IenTheme.motion
     var keepPopupVisible by remember { mutableStateOf(expanded) }
     var popupPositioned by remember { mutableStateOf(false) }

@@ -4,7 +4,6 @@
 
 package zone.ien.utils.ui.list
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.Spring
@@ -187,8 +186,8 @@ class IenSwipeBoxActionsBuilder {
  */
 @Composable
 fun IenSwipeBox(
-    state: AnchoredDraggableState<IenSwipeBoxStates> = rememberIenSwipeBoxState(),
     modifier: Modifier = Modifier,
+    state: AnchoredDraggableState<IenSwipeBoxStates> = rememberIenSwipeBoxState(),
     itemWidth: Dp = IenSwipeBoxDefaults.actionItemWidth,
     height: Dp = Dp.Unspecified,
     startToEndFullSwipeEnabled: Boolean = IenSwipeBoxDefaults.allowFullSwipe,
@@ -274,12 +273,9 @@ fun IenSwipeBox(
             }
             val revealedWidth = with(density) { kotlin.math.abs(offset).toDp() }
             val isSwiping = offset != 0f
-            val foregroundColor by animateColorAsState(
-                targetValue = if (isSwiping) {
-                    IenTheme.colors.surfaceVariant
-                } else {
-                    IenTheme.colors.surface
-                },
+            val swipeBackgroundColor = IenTheme.colors.surfaceVariant
+            val foregroundColorAlpha by animateFloatAsState(
+                targetValue = if (isSwiping) swipeBackgroundColor.alpha else 0f,
                 animationSpec = ienSwipeAnimationSpec(),
             )
             val foregroundCornerRadius by animateDpAsState(
@@ -425,7 +421,15 @@ fun IenSwipeBox(
                             contentHeightPx = coordinates.size.height
                         }
                         .clip(ContinuousRoundedRectangle(foregroundCornerRadius))
-                        .background(foregroundColor),
+                        .then(
+                            if (isSwiping || foregroundColorAlpha > 0f) {
+                                Modifier.background(
+                                    swipeBackgroundColor.copy(alpha = foregroundColorAlpha),
+                                )
+                            } else {
+                                Modifier
+                            },
+                        ),
                 ) {
                     content()
                 }

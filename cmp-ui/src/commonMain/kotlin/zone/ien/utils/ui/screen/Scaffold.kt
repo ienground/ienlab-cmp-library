@@ -154,7 +154,8 @@ fun IenTopAppBarScaffold(
     mode: TopBarMode = LocalTopBarMode.current,
     content: @Composable (PaddingValues) -> Unit
 ) {
-    var menuExpanded by remember { mutableStateOf(false) }
+    val hasVisibleActions = actions.any { it.visible }
+    var menuExpanded by remember(hasVisibleActions) { mutableStateOf(false) }
 
     IenTopAppBarScaffold(
         modifier = modifier,
@@ -163,7 +164,7 @@ fun IenTopAppBarScaffold(
         topBarModifier = topBarModifier,
         showTopBar = showTopBar,
         navigationIcon = navigationIcon,
-        actions = actions.takeIf { it.isNotEmpty() }?.let {
+        actions = actions.takeIf { hasVisibleActions }?.let {
             {
                 Row(
                     modifier = Modifier.animateContentSizeWithoutClipping(),

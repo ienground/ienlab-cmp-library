@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -79,6 +80,13 @@ fun BaseTooltipBox(
     tooltipText: @Composable (Modifier, String) -> Unit,
     content: @Composable () -> Unit
 ) {
+    if (LocalInspectionMode.current) {
+        Box(modifier = modifier) {
+            content()
+        }
+        return
+    }
+
     TooltipBox(
         positionProvider = TooltipDefaults.rememberTooltipPositionProvider(positioning = positioning),
         state = rememberTooltipState(isPersistent = isPersistent),

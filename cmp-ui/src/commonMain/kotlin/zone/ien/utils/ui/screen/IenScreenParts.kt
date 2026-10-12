@@ -107,6 +107,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import kotlinx.coroutines.delay
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -1946,7 +1947,7 @@ private fun IenTooltipImpl(
             Text("?", style = IenTheme.typography.label1, color = IenTheme.colors.brand)
         }
 
-        if (keepInComposition) {
+        if (keepInComposition && !LocalInspectionMode.current) {
             val popupKey = rememberIenTooltipPopupKey()
             key(popupKey) {
                 Popup(

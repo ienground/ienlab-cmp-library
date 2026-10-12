@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -30,8 +31,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.RangeSlider
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -68,6 +67,7 @@ import zone.ien.utils.ui.interactive.IenButtonContainer
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenCircleCheckbox
+import zone.ien.utils.ui.interactive.IenRadioButton
 import zone.ien.utils.ui.interactive.IenSlider
 import zone.ien.utils.ui.interactive.IenSwitch
 import zone.ien.utils.ui.menu.IenMenu
@@ -312,16 +312,10 @@ fun SectionScope.radio(
         enabled = enabled,
         leadingContent = leadingContent,
         trailingContent = {
-            RadioButton(
+            IenRadioButton(
                 selected = selected,
                 onClick = null,
                 enabled = enabled,
-                colors = RadioButtonDefaults.colors(
-                    selectedColor = IenTheme.colors.brand,
-                    unselectedColor = IenTheme.colors.border,
-                    disabledSelectedColor = IenTheme.colors.textDisabled,
-                    disabledUnselectedColor = IenTheme.colors.textDisabled,
-                ),
             )
         },
         supportingContent = supportingContent,
@@ -442,6 +436,16 @@ fun <T> SectionScope.dropdown(
                     itemsWithLabels.forEach { (item, label) ->
                         IenMenu.DropdownItem(
                             text = label,
+                            left = {
+                                Box(
+                                    modifier = Modifier.size(IenTheme.icon.md),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    if (item == currentItem) {
+                                        IenIcon(imageVector = SystemIcons.Check, contentDescription = null)
+                                    }
+                                }
+                            },
                             selected = item == currentItem,
                             onClick = {
                                 onItemSelected(item)

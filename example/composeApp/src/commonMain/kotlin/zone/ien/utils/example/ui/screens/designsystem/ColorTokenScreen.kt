@@ -52,6 +52,7 @@ import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.utils.toClipEntry
+import zone.ien.utils.example.ui.keyboardDismissAction
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
@@ -152,7 +153,9 @@ fun ColorTokenScreen(
                                 copied = false
                                 copyFailed = false
                             },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .keyboardDismissAction(),
                             label = "앱 이름",
                             placeholder = "예: Lovehero",
                         )
@@ -376,7 +379,9 @@ private fun ColorOverrideRow(
         IenTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .keyboardDismissAction(),
             label = role,
             hasError = !valid,
             help = if (valid) null else "#RRGGBB 또는 #RRGGBBAA",

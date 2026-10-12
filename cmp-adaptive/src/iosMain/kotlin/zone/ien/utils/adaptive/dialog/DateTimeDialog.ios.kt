@@ -44,6 +44,8 @@ import platform.UIKit.UISheetPresentationControllerDetentIdentifier
 import platform.UIKit.UIViewController
 import platform.UIKit.sheetPresentationController
 import platform.darwin.NSObject
+import zone.ien.hig.toUIColor
+import zone.ien.utils.ui.foundation.IenTheme
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 @Composable
@@ -55,6 +57,7 @@ private fun BaseDateTimePickerDialog(
     onDismiss: () -> Unit,
     onConfirm: (NSDate) -> Unit
 ) {
+    val nativeTintColor = IenTheme.colors.brand.toUIColor()
     val delegate = remember(visible) { object: NSObject(), UISheetPresentationControllerDelegateProtocol {
         override fun presentationControllerDidDismiss(presentationController: UIPresentationController) {
             onDismiss()
@@ -73,8 +76,12 @@ private fun BaseDateTimePickerDialog(
 
     LaunchedEffect(visible) {
         if (visible) {
-            val viewController = UIViewController()
-            val navBar = UINavigationBar()
+            val viewController = UIViewController().apply {
+                view.tintColor = nativeTintColor
+            }
+            val navBar = UINavigationBar().apply {
+                tintColor = nativeTintColor
+            }
             val navItem = UINavigationItem(title = title)
 
             navItem.leftBarButtonItem = UIBarButtonItem(

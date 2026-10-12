@@ -22,7 +22,6 @@ import zone.ien.utils.ui.foundation.LocalIenTokens
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.foundation.IenTokens
 import zone.ien.utils.ui.foundation.IenTypography
-import zone.ien.utils.ui.foundation.defaultIenTokens
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -30,7 +29,7 @@ fun IenAdaptiveTheme(
     target: Theme,
     darkTheme: Boolean = isSystemInDarkTheme(),
     useDynamicColor: Boolean = false,
-    tokens: IenTokens = defaultIenTokens(),
+    tokens: IenTokens = LocalIenTokens.current,
     vararg values: ProvidedValue<*>,
     content: @Composable () -> Unit,
 ) {

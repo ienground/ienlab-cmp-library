@@ -15,6 +15,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -540,6 +542,163 @@ private fun IenCheckMark(
         modifier = modifier,
         tint = color,
     )
+}
+
+/**
+ * 원형 테두리와 내부 점으로 단일 선택 상태를 표시합니다. 라벨을 포함한 전체 영역을 눌러 선택할 수 있습니다.
+ *
+ * @param selected 현재 선택 여부. 선택된 항목을 다시 눌러도 해제하지 않습니다.
+ * @param onClick 선택 요청 콜백. null이면 상위 항목에서 클릭을 처리하는 표시 전용으로 사용합니다.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param enabled 활성화 여부. 비활성 항목을 누르면 흔들리며 선택 콜백은 호출하지 않습니다.
+ * @param size 원형 표시의 크기.
+ * @param label 원형 표시 옆에 표시할 라벨.
+ */
+@Composable
+fun IenRadioButton(
+    selected: Boolean,
+    onClick: (() -> Unit)?,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    size: Dp = 24.dp,
+    label: String? = null,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    var pressed by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (pressed && enabled) 0.95f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+        label = "ienRadioButtonPressScale",
+    )
+    val borderColor by animateColorAsState(
+        targetValue = if (selected) IenTheme.colors.brand else IenTheme.colors.borderStrong,
+        animationSpec = tween(durationMillis = 200),
+        label = "ienRadioButtonBorderColor",
+    )
+    val dotScale by animateFloatAsState(
+        targetValue = if (selected) 1f else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+        label = "ienRadioButtonDotScale",
+    )
+
+    Row(
+        modifier = modifier.then(
+            if (onClick != null) {
+                Modifier
+                    .defaultMinSize(
+                        minWidth = IenTheme.state.minimumTouchTarget,
+                        minHeight = IenTheme.state.minimumTouchTarget,
+                    )
+                    .shakeOnDisabledClick(enabled)
+                    .instantPress(enabled) { pressed = it }
+                    .selectable(
+                        selected = selected,
+                        enabled = enabled,
+                        role = Role.RadioButton,
+                        interactionSource = interactionSource,
+                        indication = null,
+                    ) {
+                        if (!selected) onClick()
+                    }
+            } else {
+                Modifier
+            },
+        ),
+        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }
+                .alpha(if (enabled) 1f else IenTheme.state.disabledAlpha)
+                .size(size)
+                .drawIenBorder(
+                    BorderStroke(1.5.dp, borderColor),
+                    shape = androidx.compose.foundation.shape.CircleShape,
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(size * 0.5f)
+                    .graphicsLayer {
+                        scaleX = dotScale
+                        scaleY = dotScale
+                        alpha = dotScale
+                    }
+                    .background(
+                        brush = toneGradientBrush(IenSemanticTone.Brand),
+                        shape = androidx.compose.foundation.shape.CircleShape,
+                    ),
+            )
+        }
+        if (label != null) {
+            Text(
+                text = label,
+                style = IenTheme.typography.body2,
+                color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
+            )
+        }
+    }
+}
+
+/**
+ * [IenRadioGroup]에서 표시할 선택지입니다.
+ *
+ * @property value 선택지를 식별하는 고유 값.
+ * @property label 선택지에 표시할 라벨.
+ * @property enabled 개별 선택지의 활성화 여부.
+ */
+data class IenRadioGroupItem<T : Any>(
+    val value: T,
+    val label: String,
+    val enabled: Boolean = true,
+)
+
+/**
+ * 라디오 선택지를 세로로 배치하며 외부 선택값에 해당하는 하나의 항목만 선택 상태로 표시합니다.
+ *
+ * @param items 고유 값을 갖는 선택지 목록.
+ * @param value 현재 선택값. null이면 아무 항목도 선택하지 않습니다.
+ * @param onChange 다른 활성 항목을 선택했을 때 호출되는 콜백.
+ * @param modifier 그룹에 적용할 [Modifier].
+ * @param enabled 전체 그룹의 활성화 여부.
+ * @param size 각 항목의 원형 표시 크기.
+ */
+@Composable
+fun <T : Any> IenRadioGroup(
+    items: List<IenRadioGroupItem<T>>,
+    value: T?,
+    onChange: (T) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    size: Dp = 24.dp,
+) {
+    Column(
+        modifier = modifier.selectableGroup(),
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
+    ) {
+        items.forEach { item ->
+            key(item.value) {
+                IenRadioButton(
+                    selected = item.value == value,
+                    onClick = { onChange(item.value) },
+                    enabled = enabled && item.enabled,
+                    size = size,
+                    label = item.label,
+                )
+            }
+        }
+    }
 }
 
 /**

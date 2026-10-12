@@ -29,7 +29,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
 import org.jetbrains.compose.resources.stringResource
@@ -50,6 +49,7 @@ import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.view.textfield.PlaceholderBasicTextField
+import zone.ien.utils.example.ui.keyboardDismissAction
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAdaptiveApi::class)
 @Composable
@@ -59,7 +59,6 @@ fun TextFieldScreen(
     val backdrop = rememberDefaultBackdrop()
 
     val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
     val lazyListState = rememberLazyListState()
     val snackbarState = remember { SnackbarHostState() }
     var text by remember { mutableStateOf("") }
@@ -112,6 +111,7 @@ fun TextFieldScreen(
                                 .background(IenTheme.colors.surface, ContinuousRoundedRectangle(24.dp))
                                 .padding(horizontal = 16.dp)
                                 .weight(1f)
+                                .keyboardDismissAction()
 
                         )
                         IenIconButton(

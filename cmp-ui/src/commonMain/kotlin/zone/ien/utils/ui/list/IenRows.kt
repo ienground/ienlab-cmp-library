@@ -283,6 +283,60 @@ fun IenListRow(
 }
 
 /**
+ * 하나의 여백 값을 수직과 수평 여백에 동일하게 적용해 리스트 행을 구성합니다.
+ *
+ * @param contents 중앙 메인 콘텐츠 영역 컴포저블
+ * @param modifier 적용할 Modifier
+ * @param left 좌측 영역 컴포저블 (예: 아이콘, 썸네일 등)
+ * @param right 우측 영역 컴포저블 (예: 스위치, 라디오 버튼 등)
+ * @param border 구분선 스타일 ([IenListRowBorder])
+ * @param disabled 비활성화 여부
+ * @param disabledStyle 비활성화 상태 스타일 ([IenListRowDisabledStyle])
+ * @param padding 수직과 수평에 동일하게 적용할 여백 ([IenListRowPadding])
+ * @param leftAlignment 좌측 영역 수직 정렬 ([IenListRowAlignment])
+ * @param rightAlignment 우측 영역 수직 정렬 ([IenListRowAlignment])
+ * @param withArrow 우측 끝 화살표 아이콘 노출 여부
+ * @param withTouchEffect 터치 효과(피드백) 적용 여부
+ * @param touchEffectColor 눌림 상태에서 적용할 배경색
+ * @param onClick 클릭 이벤트 콜백
+ */
+@Composable
+fun IenListRow(
+    contents: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    left: (@Composable () -> Unit)? = null,
+    right: (@Composable RowScope.() -> Unit)? = null,
+    border: IenListRowBorder = IenListRowBorder.Indented,
+    disabled: Boolean = false,
+    disabledStyle: IenListRowDisabledStyle = IenListRowDisabledStyle.Type1,
+    leftAlignment: IenListRowAlignment = IenListRowAlignment.Center,
+    rightAlignment: IenListRowAlignment = IenListRowAlignment.Center,
+    withArrow: Boolean = false,
+    withTouchEffect: Boolean = false,
+    touchEffectColor: Color = IenTheme.colors.surfaceVariant,
+    padding: IenListRowPadding,
+    onClick: (() -> Unit)? = null,
+) {
+    IenListRow(
+        contents = contents,
+        modifier = modifier,
+        left = left,
+        right = right,
+        border = border,
+        disabled = disabled,
+        disabledStyle = disabledStyle,
+        verticalPadding = padding,
+        horizontalPadding = padding,
+        leftAlignment = leftAlignment,
+        rightAlignment = rightAlignment,
+        withArrow = withArrow,
+        withTouchEffect = withTouchEffect,
+        touchEffectColor = touchEffectColor,
+        onClick = onClick,
+    )
+}
+
+/**
  * 문자열 형태의 제목과 부제목을 전달받아 리스트 행을 구성하는 편리한 컴포저블입니다.
  *
  * @param title 제목 텍스트
@@ -334,6 +388,54 @@ fun IenListRow(
                 topColor = if (selected) IenTheme.colors.brand else null,
             )
         },
+    )
+}
+
+/**
+ * 하나의 여백 값을 수직과 수평 여백에 동일하게 적용해 제목 기반 리스트 행을 구성합니다.
+ *
+ * @param title 제목 텍스트
+ * @param modifier 적용할 Modifier
+ * @param subtitle 부제목 텍스트 (선택사항)
+ * @param enabled 행 활성화 여부
+ * @param selected 행 선택 상태 여부 (true인 경우 제목 텍스트 색상이 강조됨)
+ * @param onClick 클릭 이벤트 콜백
+ * @param leading 좌측 영역 컴포저블
+ * @param trailing 우측 영역 컴포저블
+ * @param border 구분선 스타일 ([IenListRowBorder])
+ * @param padding 수직과 수평에 동일하게 적용할 여백 ([IenListRowPadding])
+ * @param withArrow 우측 끝 화살표 아이콘 노출 여부
+ * @param touchEffectColor 눌림 상태에서 적용할 배경색
+ */
+@Composable
+fun IenListRow(
+    title: String,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    enabled: Boolean = true,
+    selected: Boolean = false,
+    onClick: (() -> Unit)? = null,
+    leading: (@Composable () -> Unit)? = null,
+    trailing: (@Composable RowScope.() -> Unit)? = null,
+    border: IenListRowBorder = IenListRowBorder.Indented,
+    withArrow: Boolean = false,
+    touchEffectColor: Color = IenTheme.colors.surfaceVariant,
+    padding: IenListRowPadding,
+) {
+    IenListRow(
+        title = title,
+        modifier = modifier,
+        subtitle = subtitle,
+        enabled = enabled,
+        selected = selected,
+        onClick = onClick,
+        leading = leading,
+        trailing = trailing,
+        border = border,
+        verticalPadding = padding,
+        horizontalPadding = padding,
+        withArrow = withArrow,
+        touchEffectColor = touchEffectColor,
     )
 }
 

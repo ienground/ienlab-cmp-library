@@ -81,10 +81,7 @@ import zone.ien.utils.utils.moveToBackground
 import zone.ien.utils.utils.shareText
 import zone.ien.utils.utils.ui.enableNativeInput
 import zone.ien.utils.utils.ui.rememberRepeatClick
-import zone.ien.inputactions.InputAction
-import zone.ien.inputactions.InputActionStyle
-import zone.ien.inputactions.inputActions
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import zone.ien.utils.example.ui.keyboardDismissAction
 
 
 private data class HomeMenuItem(
@@ -134,7 +131,6 @@ fun HomeScreen(
     var bottomText by remember { mutableStateOf("") }
     var nativeInputText by remember { mutableStateOf("") }
     var textFieldText by remember { mutableStateOf("") }
-    val keyboardController = LocalSoftwareKeyboardController.current
 
     IenAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
@@ -314,15 +310,7 @@ fun HomeScreen(
                     onValueChange = { bottomText = it },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .inputActions(
-                            InputAction(
-                                title = "Done",
-                                style = InputActionStyle.Done,
-                                onClick = {
-                                    keyboardController?.hide()
-                                }
-                            )
-                        )
+                        .keyboardDismissAction()
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -502,26 +490,14 @@ fun HomeScreen(
                     keyboardOptions = KeyboardOptions.Default.enableNativeInput(),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .inputActions(
-                            InputAction(
-                                title = "Done",
-                                style = InputActionStyle.Done,
-                                onClick = {}
-                            )
-                        )
+                        .keyboardDismissAction()
                 )
                 IenTextField(
                     value = textFieldText,
                     onValueChange = { textFieldText = it },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .inputActions(
-                            InputAction(
-                                title = "Done",
-                                style = InputActionStyle.Done,
-                                onClick = {}
-                            )
-                        )
+                        .keyboardDismissAction()
                 )
                 BasicTextField(
                     state = rememberTextFieldState(),
@@ -535,13 +511,7 @@ fun HomeScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .inputActions(
-                            InputAction(
-                                title = "Done",
-                                style = InputActionStyle.Done,
-                                onClick = {}
-                            )
-                        )
+                        .keyboardDismissAction()
                 )
                 BasicTextField(
                     state = rememberTextFieldState(),
@@ -554,13 +524,7 @@ fun HomeScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .inputActions(
-                            InputAction(
-                                title = "Done",
-                                style = InputActionStyle.Done,
-                                onClick = {}
-                            )
-                        )
+                        .keyboardDismissAction()
                 )
                 Spacer(modifier = Modifier.height(96.dp))
             }

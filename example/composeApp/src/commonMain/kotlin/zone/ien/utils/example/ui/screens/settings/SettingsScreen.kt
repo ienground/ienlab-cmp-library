@@ -38,6 +38,7 @@ import zone.ien.utils.ui.interactive.IenTextField
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.utils.sendEmail
+import zone.ien.utils.example.ui.keyboardDismissAction
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -130,9 +131,12 @@ fun SettingsScreen(
                     IenTextField(
                         value = textFieldValue,
                         onValueChange = { textFieldValue = it },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .keyboardDismissAction(),
                     )
                     TextFieldPref(
+                        dialogModifier = Modifier.keyboardDismissAction(),
                         leadingContent = {
                             IenIcon(
                                 imageVector = SystemIcons.Delete,
@@ -146,6 +150,7 @@ fun SettingsScreen(
                         defaultValue = "!hi"
                     )
                     TextFieldPref(
+                        dialogModifier = Modifier.keyboardDismissAction(),
                         leadingContent = {
                             IenIcon(
                                 imageVector = SystemIcons.Delete,
@@ -159,6 +164,7 @@ fun SettingsScreen(
                         defaultValue = 1254
                     )
                     TextFieldPref(
+                        dialogModifier = Modifier.keyboardDismissAction(),
                         leadingContent = {
                             IenIcon(
                                 imageVector = SystemIcons.Delete,
@@ -172,6 +178,7 @@ fun SettingsScreen(
                         defaultValue = 1254
                     )
                     TextFieldPref(
+                        dialogModifier = Modifier.keyboardDismissAction(),
                         leadingContent = {
                             IenIcon(
                                 imageVector = SystemIcons.Delete,
@@ -189,6 +196,7 @@ fun SettingsScreen(
                     title = { Text(text = "Pref Group") }
                 ) {
                     TextFieldPref(
+                        dialogModifier = Modifier.keyboardDismissAction(),
                         leadingContent = { IenIcon(imageVector = SystemIcons.Delete, contentDescription = null) },
                         title = "Title OnClick",
                         summary = { "내 숫자는 ${it}" },
@@ -197,6 +205,7 @@ fun SettingsScreen(
                         defaultValue = 1254
                     )
                     TextFieldPref(
+                        dialogModifier = Modifier.keyboardDismissAction(),
                         leadingContent = { IenIcon(imageVector = SystemIcons.Delete, contentDescription = null) },
                         title = "Title OnClick",
                         summary = { "내 숫자는 ${it}" },

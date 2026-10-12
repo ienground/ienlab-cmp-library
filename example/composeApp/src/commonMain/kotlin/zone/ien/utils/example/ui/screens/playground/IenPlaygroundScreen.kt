@@ -66,6 +66,7 @@ import zone.ien.utils.ui.view.IenEmpty
 import zone.ien.utils.ui.view.IenAsteriskTextWrapper
 import zone.ien.utils.ui.view.IenTooltipBox
 import zone.ien.utils.ui.menu.ActionMenuItem
+import zone.ien.utils.example.ui.keyboardDismissAction
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
@@ -153,6 +154,7 @@ fun IenPlaygroundScreen(
                         value = chatMessage,
                         onValueChange = { chatMessage = it },
                         onSend = { chatMessage = "" },
+                        inputModifier = Modifier.keyboardDismissAction(),
                         visible = chatBottomBarVisible,
                         windowInsets = chatBottomBarWindowInsets,
                     )
@@ -216,6 +218,12 @@ fun IenPlaygroundScreen(
                 IenSection(
                     title = { Text("Dialogs") }
                 ) {
+                    item(
+                        title = { Text("UIKit 브랜드 색상 확인") },
+                        supportingContent = {
+                            Text("화면 우측 아래에서 브랜드색을 고른 뒤 아래 다이얼로그나 선택기를 열어 색을 확인하세요.")
+                        },
+                    )
                     switch(
                         checked = darkTheme,
                         onCheckedChange = { darkTheme = it },
@@ -362,17 +370,20 @@ fun IenPlaygroundScreen(
                     textField(
                         value = sectionTextFieldValue,
                         onValueChange = { sectionTextFieldValue = it },
+                        modifier = Modifier.keyboardDismissAction(),
                         placeholder = { Text("Placeholder Text") }
                     )
                     textField(
                         value = "비활성 입력 값",
                         onValueChange = {},
+                        modifier = Modifier.keyboardDismissAction(),
                         enabled = false,
                         placeholder = { Text("Disabled Input") }
                     )
                     textField(
                         value = sectionErrorValue,
                         onValueChange = { sectionErrorValue = it },
+                        modifier = Modifier.keyboardDismissAction(),
                         isError = sectionEmailHasError,
                         singleLine = true,
                         placeholder = { Text("이메일 주소") }
@@ -387,6 +398,7 @@ fun IenPlaygroundScreen(
                     }
                     secureTextField(
                         state = secureTextFieldState,
+                        modifier = Modifier.keyboardDismissAction(),
                         placeholder = { Text("Password Input") }
                     )
                     item(
@@ -547,6 +559,7 @@ fun IenPlaygroundScreen(
         }
 
         IenTextFieldDialog(
+            modifier = Modifier.keyboardDismissAction(),
             visible = showTextFieldDialog,
             title = "Profile Edit",
             message = "Enter your display name and status message.",
