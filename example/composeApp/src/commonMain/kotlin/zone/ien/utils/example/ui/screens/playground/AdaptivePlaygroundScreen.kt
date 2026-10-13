@@ -99,6 +99,7 @@ fun AdaptivePlaygroundScreen(
     var segmentedIndex by remember { mutableIntStateOf(0) }
     var swipeActionCount by remember { mutableIntStateOf(0) }
     var topBarMode by remember { mutableStateOf(TopBarMode.Expanded) }
+    var showSubtitle by remember { mutableStateOf(true) }
     var selectedNavigationIndex by remember { mutableIntStateOf(0) }
     var isNativeNavigationBar by remember { mutableStateOf(true) }
 
@@ -114,7 +115,9 @@ fun AdaptivePlaygroundScreen(
                 )
             },
             title = { Text("Adaptive Playground") },
-            subtitle = { Text(if (isMaterialTheme) "Material3 + Ien" else "Cupertino + HIG") },
+            subtitle = if (showSubtitle) {
+                { Text(if (isMaterialTheme) "Material3 + Ien" else "Cupertino + HIG") }
+            } else null,
             modifier = modifier,
             contentEdge = IenScaffoldContentEdge(
                 scrollableState = scrollState,
@@ -186,6 +189,11 @@ fun AdaptivePlaygroundScreen(
                         text = "Native navigation bar",
                         checked = isNativeNavigationBar,
                         onCheckedChange = { isNativeNavigationBar = it },
+                    )
+                    PlaygroundSwitchRow(
+                        text = "Show subtitle",
+                        checked = showSubtitle,
+                        onCheckedChange = { showSubtitle = it },
                     )
                     AdaptiveSegmentedControl(
                         items = listOf(

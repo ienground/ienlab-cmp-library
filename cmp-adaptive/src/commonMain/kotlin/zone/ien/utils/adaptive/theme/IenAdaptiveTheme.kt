@@ -143,7 +143,7 @@ fun IenTypography.toCupertinoTypography(): zone.ien.hig.theme.Typography {
         title1 = title1,
         title2 = title2,
         title3 = title3,
-        headline = label1,
+        headline = title3,
         body = body1,
         callout = body2,
         subhead = body2,
