@@ -17,8 +17,8 @@ import zone.ien.hig.section.SectionScope
 import zone.ien.utils.adaptive.section.AdaptiveSectionSwitchItem
 import zone.ien.utils.adaptive.section.HigSectionItemAdaptation
 import zone.ien.utils.adaptive.section.IenSectionItemAdaptation
-import zone.ien.utils.pref.LocalPrefsAdaptive
 import zone.ien.utils.pref.LocalPrefsDataStore
+import zone.ien.utils.pref.LocalPrefsSwitchAdaptive
 import zone.ien.utils.ui.section.IenSectionColors
 import zone.ien.utils.ui.section.IenSectionLinkDefault
 import zone.ien.utils.ui.section.switch
@@ -115,7 +115,7 @@ fun SectionScope.SwitchPref(
         }
     }
 
-    if (!LocalPrefsAdaptive.current) {
+    if (!LocalPrefsSwitchAdaptive.current) {
         switch(
             modifier = modifier,
             leadingContent = leadingContent,

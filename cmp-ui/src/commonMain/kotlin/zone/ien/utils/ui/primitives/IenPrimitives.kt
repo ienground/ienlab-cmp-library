@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -219,25 +221,49 @@ fun IenIcon(
     }
 }
 
-/**
- * 요소 간의 구분을 위해 제공하는 수평선(구분선) 컴포저블입니다.
- *
- * @param modifier 구분선의 레이아웃을 조절할 [Modifier]
- * @param color 구분선 선의 칠할 색상
- * @param thickness 수평선 선 굵기 ([Dp])
- */
-@Composable
-fun IenDivider(
-    modifier: Modifier = Modifier,
-    color: Color = IenTheme.colors.border,
-    thickness: Dp = IenTheme.stroke.thin,
-) {
-    Spacer(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(thickness)
-            .background(color),
-    )
+/** 요소를 구분하는 수평선과 수직선을 제공합니다. */
+object IenDivider {
+    /**
+     * 가로 방향의 구분선을 표시합니다.
+     *
+     * @param modifier 구분선의 레이아웃을 조절할 [Modifier]
+     * @param color 구분선 색상
+     * @param thickness 구분선 두께 ([Dp])
+     */
+    @Composable
+    fun Horizontal(
+        modifier: Modifier = Modifier,
+        color: Color = IenTheme.colors.border,
+        thickness: Dp = IenTheme.stroke.thin,
+    ) {
+        Spacer(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(thickness)
+                .background(color),
+        )
+    }
+
+    /**
+     * 세로 방향의 구분선을 표시합니다.
+     *
+     * @param modifier 구분선의 레이아웃을 조절할 [Modifier]
+     * @param color 구분선 색상
+     * @param thickness 구분선 두께 ([Dp])
+     */
+    @Composable
+    fun Vertical(
+        modifier: Modifier = Modifier,
+        color: Color = IenTheme.colors.border,
+        thickness: Dp = IenTheme.stroke.thin,
+    ) {
+        Spacer(
+            modifier = modifier
+                .fillMaxHeight()
+                .width(thickness)
+                .background(color),
+        )
+    }
 }
 
 /**

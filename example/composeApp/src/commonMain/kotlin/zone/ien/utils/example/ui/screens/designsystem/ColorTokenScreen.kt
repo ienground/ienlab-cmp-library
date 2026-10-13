@@ -483,7 +483,7 @@ private fun ColorTokenGroup(
             verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
         ) {
             Text(title, style = IenTheme.typography.title3)
-            IenDivider()
+            IenDivider.Horizontal()
             tokens.forEach { token ->
                 ColorTokenRow(token)
             }

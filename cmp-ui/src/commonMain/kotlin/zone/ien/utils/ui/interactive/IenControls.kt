@@ -41,6 +41,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -224,6 +225,135 @@ fun IenSlider(
     }
 }
 
+/**
+ * 선택한 최소값과 최대값을 조절하는 범위 슬라이더 컴포저블.
+ *
+ * @param value 현재 선택된 값 범위.
+ * @param onValueChange 값 범위가 변경될 때 호출되는 콜백 함수.
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param valueRange 선택 가능한 최소값과 최대값. 기본값은 0f..1f.
+ * @param steps 슬라이더 트랙 상의 단계 수. 0일 경우 연속적으로 선택 가능합니다.
+ * @param enabled 활성화 여부. false일 경우 값이 변경되지 않으며 클릭 시 흔들림 효과가 발생합니다.
+ * @param label 슬라이더 좌측에 표시될 이름 또는 라벨 텍스트.
+ * @param valueLabel 슬라이더 우측에 표시될 현재 선택 범위 관련 텍스트.
+ */
+@Composable
+fun IenRangeSlider(
+    value: ClosedFloatingPointRange<Float>,
+    onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
+    modifier: Modifier = Modifier,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    steps: Int = 0,
+    enabled: Boolean = true,
+    label: String? = null,
+    valueLabel: String? = null,
+) {
+    val startInteractionSource = remember { MutableInteractionSource() }
+    val endInteractionSource = remember { MutableInteractionSource() }
+    val density = LocalDensity.current
+    val shakeOffset = remember { Animatable(0f) }
+    val coroutineScope = rememberCoroutineScope()
+
+    fun shakeDisabledSlider() {
+        coroutineScope.launch {
+            val shakeDistance = with(density) { 6.dp.toPx() }
+            shakeOffset.snapTo(0f)
+            shakeOffset.animateTo(
+                targetValue = 0f,
+                animationSpec = keyframes {
+                    durationMillis = 200
+                    -shakeDistance at 30
+                    shakeDistance at 70
+                    -shakeDistance * 0.6f at 110
+                    shakeDistance * 0.6f at 150
+                    0f at 200
+                },
+            )
+        }
+    }
+
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (label != null) {
+            Text(label, modifier = Modifier.weight(0.8f), style = IenTheme.typography.body2)
+        }
+        RangeSlider(
+            value = value.start.coerceIn(valueRange)..value.endInclusive.coerceIn(valueRange),
+            onValueChange = onValueChange,
+            modifier = Modifier
+                .weight(1.4f)
+                .then(
+                    if (enabled) {
+                        Modifier
+                    } else {
+                        Modifier.pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent(PointerEventPass.Initial)
+                                    if (event.changes.any { it.changedToDownIgnoreConsumed() }) {
+                                        shakeDisabledSlider()
+                                    }
+                                }
+                            }
+                        }
+                    },
+                )
+                .offset { IntOffset(x = shakeOffset.value.roundToInt(), y = 0) },
+            valueRange = valueRange,
+            steps = steps,
+            enabled = enabled,
+            startInteractionSource = startInteractionSource,
+            endInteractionSource = endInteractionSource,
+            colors = SliderDefaults.colors(
+                thumbColor = Color.Transparent,
+                disabledThumbColor = Color.Transparent,
+                activeTrackColor = Color.Transparent,
+                disabledActiveTrackColor = Color.Transparent,
+                inactiveTrackColor = IenTheme.colors.brandWeak,
+                disabledInactiveTrackColor = IenTheme.colors.brandWeak.copy(alpha = IenTheme.state.disabledAlpha),
+            ),
+            startThumb = {
+                IenSliderThumb(
+                    interactionSource = startInteractionSource,
+                    enabled = enabled,
+                )
+            },
+            endThumb = {
+                IenSliderThumb(
+                    interactionSource = endInteractionSource,
+                    enabled = enabled,
+                )
+            },
+            track = { rangeSliderState ->
+                IenRangeSliderTrack(
+                    startFraction = ienRangeSliderFraction(
+                        value = rangeSliderState.activeRangeStart,
+                        valueRange = rangeSliderState.valueRange,
+                    ),
+                    endFraction = ienRangeSliderFraction(
+                        value = rangeSliderState.activeRangeEnd,
+                        valueRange = rangeSliderState.valueRange,
+                    ),
+                    tickFractions = remember(steps) { ienSliderTickFractions(steps) },
+                    enabled = enabled,
+                )
+            },
+        )
+        if (valueLabel != null) {
+            Text(
+                text = valueLabel,
+                modifier = Modifier.widthIn(min = IenSliderValueLabelMinWidth),
+                style = IenTheme.typography.label2,
+                color = IenTheme.colors.textSecondary,
+                textAlign = TextAlign.End,
+            )
+        }
+    }
+}
+
 @Composable
 private fun IenSliderThumb(
     interactionSource: MutableInteractionSource,
@@ -331,6 +461,102 @@ private fun IenSliderTrack(
             )
         }
     }
+}
+
+@Composable
+private fun IenRangeSliderTrack(
+    startFraction: Float,
+    endFraction: Float,
+    tickFractions: List<Float>,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val activeBrush = if (enabled) {
+        toneGradientBrush(IenSemanticTone.Brand)
+    } else {
+        SolidColor(IenTheme.colors.textDisabled)
+    }
+    val inactiveColor = IenTheme.colors.brandWeak.copy(
+        alpha = if (enabled) 1f else IenTheme.state.disabledAlpha,
+    )
+    val indicatorColor = if (enabled) IenTheme.colors.brand else IenTheme.colors.textDisabled
+    val trackCornerRadius = IenTheme.radius.md
+    Canvas(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IenSliderTrackHeight),
+    ) {
+        val corner = trackCornerRadius.toPx()
+        val insideCorner = IenSliderTrackInsideCorner.toPx()
+        val thumbGap = IenSliderThumbWidth.toPx() / 2f + IenSliderThumbTrackGap.toPx()
+        val start = size.width * startFraction.coerceIn(0f, 1f)
+        val end = size.width * endFraction.coerceIn(startFraction, 1f)
+        val leftInactiveEnd = (start - thumbGap).coerceAtLeast(0f)
+        val activeStart = (start + thumbGap).coerceAtMost(size.width)
+        val activeEnd = (end - thumbGap).coerceAtLeast(0f)
+        val rightInactiveStart = (end + thumbGap).coerceAtMost(size.width)
+
+        if (leftInactiveEnd > 0f) {
+            drawSliderTrackSegment(
+                topLeft = Offset.Zero,
+                size = Size(leftInactiveEnd, size.height),
+                startCorner = corner,
+                endCorner = insideCorner,
+                color = inactiveColor,
+                keepEndCorner = false,
+            )
+        }
+        if (activeEnd > activeStart) {
+            drawSliderTrackSegment(
+                topLeft = Offset(activeStart, 0f),
+                size = Size(activeEnd - activeStart, size.height),
+                startCorner = insideCorner,
+                endCorner = insideCorner,
+                brush = activeBrush,
+                keepEndCorner = false,
+            )
+        }
+        if (rightInactiveStart < size.width) {
+            drawSliderTrackSegment(
+                topLeft = Offset(rightInactiveStart, 0f),
+                size = Size(size.width - rightInactiveStart, size.height),
+                startCorner = insideCorner,
+                endCorner = corner,
+                color = inactiveColor,
+                keepEndCorner = true,
+            )
+        }
+
+        val indicatorRadius = IenSliderTickSize.toPx() / 2f
+        val tickStart = corner
+        val tickEnd = size.width - corner
+        tickFractions.forEachIndexed { index, tick ->
+            if (index == tickFractions.lastIndex) return@forEachIndexed
+
+            val centerX = tickStart + (tickEnd - tickStart) * tick
+            if (
+                centerX in (start - thumbGap)..(start + thumbGap) ||
+                centerX in (end - thumbGap)..(end + thumbGap)
+            ) {
+                return@forEachIndexed
+            }
+
+            drawCircle(
+                color = if (tick in startFraction..endFraction) inactiveColor else indicatorColor,
+                radius = indicatorRadius,
+                center = Offset(centerX, center.y),
+            )
+        }
+    }
+}
+
+private fun ienRangeSliderFraction(
+    value: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
+): Float {
+    val rangeSize = valueRange.endInclusive - valueRange.start
+    if (rangeSize == 0f) return 0f
+    return ((value - valueRange.start) / rangeSize).coerceIn(0f, 1f)
 }
 
 private fun ienSliderTickFractions(steps: Int): List<Float> {

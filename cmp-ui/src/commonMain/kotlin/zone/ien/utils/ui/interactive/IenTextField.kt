@@ -815,7 +815,7 @@ private fun IenTextFieldContainer(
         IenTextFieldVariant.Line -> {
             Column(modifier = modifier.fillMaxWidth()) {
                 content()
-                IenDivider(color = borderColor, thickness = IenTheme.stroke.thin)
+                IenDivider.Horizontal(color = borderColor, thickness = IenTheme.stroke.thin)
             }
         }
     }

@@ -349,7 +349,7 @@ fun IenAuthForm(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        IenDivider(
+                        IenDivider.Horizontal(
                             modifier = Modifier.weight(1f)
                         )
                         Text(
@@ -357,7 +357,7 @@ fun IenAuthForm(
                             style = IenTheme.typography.label2,
                             color = IenTheme.colors.textSecondary,
                         )
-                        IenDivider(
+                        IenDivider.Horizontal(
                             modifier = Modifier.weight(1f)
                         )
                     }

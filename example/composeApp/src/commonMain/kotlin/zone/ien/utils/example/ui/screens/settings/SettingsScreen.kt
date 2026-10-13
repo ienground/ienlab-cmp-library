@@ -30,6 +30,7 @@ import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.material.rounded.Delete
 import zone.ien.utils.pref.PrefsGroup
 import zone.ien.utils.pref.PrefsScreen
+import zone.ien.utils.pref.PrefsScreenType
 import zone.ien.utils.pref.item.SwitchPref
 import zone.ien.utils.pref.item.TextFieldPref
 import zone.ien.utils.pref.item.TextPref
@@ -76,7 +77,7 @@ fun SettingsScreen(
         ) { pv, title ->
             PrefsScreen(
                 dataStore = dataStore,
-                adaptive = useAdaptivePrefs,
+                type = if (useAdaptivePrefs) PrefsScreenType.Adaptive else PrefsScreenType.IEN,
                 title = title,
                 scrollState = scrollState,
                 backdrop = backdrop,

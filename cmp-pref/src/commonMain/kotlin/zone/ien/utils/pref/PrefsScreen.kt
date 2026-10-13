@@ -20,6 +20,18 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.section.AdaptiveProvideSectionStyle
 import zone.ien.utils.ui.section.IenProvideSectionStyle
 
+/** 설정 화면에서 사용할 스타일과 항목 적응 범위입니다. */
+enum class PrefsScreenType {
+    /** 화면, 그룹, 항목에 IEN 컴포넌트를 사용합니다. */
+    IEN,
+
+    /** 화면, 그룹, 항목을 현재 플랫폼에 맞게 적응시킵니다. */
+    Adaptive,
+
+    /** 화면과 일반 항목은 IEN을 사용하고 스위치 항목만 Adaptive로 표시합니다. */
+    HalfAdaptive,
+}
+
 /**
  * 기존 위치 인자 호출을 유지하는 설정 화면입니다.
  */
@@ -43,7 +55,7 @@ fun PrefsScreen(
         shape = shape,
         backdrop = backdrop,
         content = content,
-        adaptive = true,
+        type = PrefsScreenType.Adaptive,
     )
 }
 
@@ -60,7 +72,7 @@ fun PrefsScreen(
  * @param scrollState 스크롤에 사용될 스크롤 상태
  * @param shape 화면 컨테이너의 모양
  * @param backdrop 화면의 백드롭 구성
- * @param adaptive 상위 Adaptive 테마를 따를지 여부. false이면 하위 설정 전체에 Material3/Ien을 사용합니다.
+ * @param type 화면, 그룹 및 설정 항목에 적용할 적응 모드
  * @param style Adaptive 섹션 스타일
  * @param content 설정 항목을 포함하는 Composable 컨텐츠 블록
  */
@@ -73,15 +85,16 @@ fun PrefsScreen(
     scrollState: ScrollState? = rememberScrollState(),
     shape: Shape = RectangleShape,
     backdrop: LayerBackdrop = rememberDefaultBackdrop(),
-    adaptive: Boolean = true,
+    type: PrefsScreenType = PrefsScreenType.Adaptive,
     style: SectionStyle = SectionStyle.InsetGrouped,
     content: @Composable (ColumnScope.() -> Unit)
 ) {
     CompositionLocalProvider(
         LocalPrefsDataStore provides dataStore,
-        LocalPrefsAdaptive provides adaptive,
+        LocalPrefsAdaptive provides (type == PrefsScreenType.Adaptive),
+        LocalPrefsSwitchAdaptive provides (type != PrefsScreenType.IEN),
     ) {
-        if (!adaptive) {
+        if (type != PrefsScreenType.Adaptive) {
             IenProvideSectionStyle(
                 modifier = modifier,
                 fullHeight = fullHeight,
@@ -119,3 +132,4 @@ val LocalPrefsDataStore = staticCompositionLocalOf<DataStore<Preferences>> {
 }
 
 internal val LocalPrefsAdaptive = staticCompositionLocalOf { true }
+internal val LocalPrefsSwitchAdaptive = staticCompositionLocalOf { true }

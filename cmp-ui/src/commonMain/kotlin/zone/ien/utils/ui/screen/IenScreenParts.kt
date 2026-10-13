@@ -724,7 +724,7 @@ fun IenTopBar(
             )
         }
         if (showDivider) {
-            IenDivider()
+            IenDivider.Horizontal()
         }
     }
 }
@@ -3047,7 +3047,7 @@ fun IenAgreement(
                     )
                 }
             )
-            IenDivider()
+            IenDivider.Horizontal()
             items.forEach { item ->
                 IenAgreement(
                     variant = if (item.indent) IenAgreementVariant.Small else itemVariant,

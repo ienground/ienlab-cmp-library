@@ -176,6 +176,7 @@ import zone.ien.utils.ui.interactive.IenRatingVariant
 import zone.ien.utils.ui.interactive.IenSearchField
 import zone.ien.utils.ui.interactive.IenSecureKeyboardLanguage
 import zone.ien.utils.ui.interactive.IenSecureKeyboardState
+import zone.ien.utils.ui.interactive.IenRangeSlider
 import zone.ien.utils.ui.interactive.IenSegmentedControl
 import zone.ien.utils.ui.interactive.IenSegmentedControlAlignment
 import zone.ien.utils.ui.interactive.IenSegmentedControlItem
@@ -1162,7 +1163,7 @@ internal fun DesignSystemPlayground(
                         }
                     }
                 }
-                IenDivider()
+                IenDivider.Horizontal()
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.TopCenter,
@@ -1333,7 +1334,7 @@ internal fun DesignSystemPlayground(
                                 }
                             }
                         }
-                        if (control != variantControls.last()) IenDivider()
+                        if (control != variantControls.last()) IenDivider.Horizontal()
                     }
                 }
             }
@@ -3557,16 +3558,31 @@ fun SliderSection(controls: Map<String, String> = emptyMap()) {
         var sliderValue by remember(controls["value"], rangeStart, rangeEnd) {
             mutableStateOf((controls.intValue("value", 35) / 100f).coerceIn(valueRange))
         }
+        val rangeLength = rangeEnd - rangeStart
+        var rangeSliderValue by remember(controls["rangeValue"], rangeStart, rangeEnd) {
+            mutableStateOf((rangeStart + rangeLength * 0.2f)..(rangeStart + rangeLength * 0.7f))
+        }
         ComponentSection(title = "Slider") {
-            IenSlider(
-                value = sliderValue.coerceIn(valueRange),
-                onValueChange = { sliderValue = it },
-                label = "비율",
-                valueLabel = "${(sliderValue * 100).toInt()}%",
-                steps = controls.intValue("steps", 0).coerceIn(0, 10),
-                valueRange = valueRange,
-                enabled = !controls.disabledValue(),
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
+                IenSlider(
+                    value = sliderValue.coerceIn(valueRange),
+                    onValueChange = { sliderValue = it },
+                    label = "비율",
+                    valueLabel = "${(sliderValue * 100).toInt()}%",
+                    steps = controls.intValue("steps", 0).coerceIn(0, 10),
+                    valueRange = valueRange,
+                    enabled = !controls.disabledValue(),
+                )
+                IenRangeSlider(
+                    value = rangeSliderValue,
+                    onValueChange = { rangeSliderValue = it },
+                    label = "범위",
+                    valueLabel = "${(rangeSliderValue.start * 100).toInt()}–${(rangeSliderValue.endInclusive * 100).toInt()}%",
+                    steps = controls.intValue("steps", 0).coerceIn(0, 10),
+                    valueRange = valueRange,
+                    enabled = !controls.disabledValue(),
+                )
+            }
         }
     }
 }
@@ -3779,7 +3795,7 @@ fun StepperSection(controls: Map<String, String> = emptyMap()) {
                 )
             }
 
-            IenDivider()
+            IenDivider.Horizontal()
             Text("IenStepperAssetFrameShape", style = IenTheme.typography.label1)
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
                 Column(
@@ -4447,7 +4463,7 @@ fun TopSection(controls: Map<String, String> = emptyMap()) {
                 },
             )
 
-            IenDivider()
+            IenDivider.Horizontal()
             Text("IenTopSelectorType", style = IenTheme.typography.label1)
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
                 IenTopSubtitleSelector(
@@ -4614,7 +4630,7 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
                 }
             )
 
-            IenDivider()
+            IenDivider.Horizontal()
 
             Text(
                 text = "2. 접었다 펼치는 아코디언 동의 (Collapsible)",
@@ -4673,7 +4689,7 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
                 }
             }
 
-            IenDivider()
+            IenDivider.Horizontal()
 
             Text(
                 text = "3. 여러 동의 항목 그룹화 (Group)",
@@ -4717,7 +4733,7 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
                 )
             }
 
-            IenDivider()
+            IenDivider.Horizontal()
 
             Text(
                 text = "4. 동적 들여쓰기 동의 (IndentPushable)",
@@ -4775,7 +4791,7 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
                 }
             }
 
-            IenDivider()
+            IenDivider.Horizontal()
 
             Text(
                 text = "5. 기존 리스트형 어댑터 동의 (하위 호환용)",
@@ -4791,7 +4807,7 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
                 }
             )
 
-            IenDivider()
+            IenDivider.Horizontal()
             Text(text = "6. 선택한 크기 변형", style = IenTheme.typography.label1)
             IenAgreement(
                 variant = agreementVariant,
@@ -4799,7 +4815,7 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
                 middle = { IenAgreementText(text = "IenAgreementVariant.${agreementVariant.name}") },
             )
 
-            IenDivider()
+            IenDivider.Horizontal()
             Text(
                 text = "7. IenAgreementBadgeVariant & CheckboxVariant",
                 style = IenTheme.typography.label1
@@ -5816,7 +5832,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
                 enabled = enabled,
             )
-            IenDivider()
+            IenDivider.Horizontal()
             Text("커스텀 배열: $customAlphabetValue", style = IenTheme.typography.body2)
             IenAlphabetKeypad(
                 alphabets = listOf(
@@ -5835,7 +5851,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
                 enabled = enabled,
             )
-            IenDivider()
+            IenDivider.Horizontal()
             Text("보안 알파벳 키보드: $alphabetValue", style = IenTheme.typography.body2)
             IenAlphabetKeyboard(
                 onAction = { action ->
@@ -5844,7 +5860,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 randomized = controls.booleanValue("randomized", false),
                 enabled = enabled,
             )
-            IenDivider()
+            IenDivider.Horizontal()
             Text("Number Keypad: $numberValue", style = IenTheme.typography.body2)
             IenNumberKeypad(
                 onKeyClick = { numberValue += it },
@@ -5852,7 +5868,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
                 enabled = enabled,
             )
-            IenDivider()
+            IenDivider.Horizontal()
             Text("커스텀 숫자 배열: $customNumberValue", style = IenTheme.typography.body2)
             IenNumberKeypad(
                 numbers = listOf(1, 3, 5, 7, 9, 2, 4, 6, 8, 0),
@@ -5860,7 +5876,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 onBackspaceClick = { customNumberValue = customNumberValue.dropLast(1) },
                 enabled = enabled,
             )
-            IenDivider()
+            IenDivider.Horizontal()
             Text(
                 text = "보안 숫자 입력: $secureNumberValue / 더미: $secureNoiseValue",
                 style = IenTheme.typography.body2,
@@ -5878,7 +5894,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
                 enabled = enabled,
             )
-            IenDivider()
+            IenDivider.Horizontal()
             Text("Full Secure Keypad: $fullSecureValue", style = IenTheme.typography.body2)
             IenFullSecureKeypad(
                 state = fullSecureKeypadState,
@@ -5890,7 +5906,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 submitDisabled = fullSecureValue.isEmpty(),
                 enabled = enabled,
             )
-            IenDivider()
+            IenDivider.Horizontal()
             IenFullSecureKeyboard(
                 state = IenSecureKeyboardState(
                     value = secureValue,
@@ -6104,7 +6120,7 @@ fun ListRowSection(controls: Map<String, String> = emptyMap()) {
             )
             IenListRowLoader(type = IenListRowLoaderType.Bar)
 
-            IenDivider()
+            IenDivider.Horizontal()
             Text("IenListRowTextsType", style = IenTheme.typography.label1)
             IenListRow(
                 contents = {
@@ -6118,7 +6134,7 @@ fun ListRowSection(controls: Map<String, String> = emptyMap()) {
                 border = IenListRowBorder.Indented,
             )
 
-            IenDivider()
+            IenDivider.Horizontal()
             Text("IenListRowDisabledStyle", style = IenTheme.typography.label1)
             IenListRow(
                 contents = {
@@ -6143,7 +6159,7 @@ fun ListRowSection(controls: Map<String, String> = emptyMap()) {
                 border = IenListRowBorder.Indented,
             )
 
-            IenDivider()
+            IenDivider.Horizontal()
             Text("IenListRowAssetShape & Size", style = IenTheme.typography.label1)
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
                 IenListRowAssetText(
@@ -6173,7 +6189,7 @@ fun ListRowSection(controls: Map<String, String> = emptyMap()) {
                 )
             }
 
-            IenDivider()
+            IenDivider.Horizontal()
             Text("IenListRowBorder", style = IenTheme.typography.label1)
             IenListRow(
                 contents = {
@@ -6447,7 +6463,16 @@ fun PrimitivesSection(controls: Map<String, String> = emptyMap()) {
             ) {
                 Text("BorderBox 프리미티브", color = IenTheme.colors.textSecondary)
             }
-            IenDivider(thickness = controls.intValue("dividerThickness", 1).coerceIn(1, 8).dp)
+            IenDivider.Horizontal(thickness = controls.intValue("dividerThickness", 1).coerceIn(1, 8).dp)
+            Row(
+                modifier = Modifier.height(IenTheme.state.minimumTouchTarget),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("세로 구분선")
+                IenDivider.Vertical()
+                Text("구분된 콘텐츠")
+            }
             IenSurface(color = playgroundSurfaceColor(controls.enumValue("surfaceColor", "brandWeak")), shape = shape) {
                 Text("${controls.enumValue("shape", "Rounded")} 표면", modifier = Modifier.padding(IenTheme.spacing.md), color = IenTheme.colors.brand)
             }
@@ -6500,7 +6525,7 @@ private fun ComponentSection(
             verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
         ) {
             Text(title, style = IenTheme.typography.title3)
-            IenDivider()
+            IenDivider.Horizontal()
             content()
         }
     }

@@ -45,6 +45,7 @@ import zone.ien.utils.adaptive.component.AdaptiveIconButton
 import zone.ien.utils.adaptive.component.AdaptiveIconToggleButton
 import zone.ien.utils.adaptive.component.AdaptiveLineCheckbox
 import zone.ien.utils.adaptive.component.AdaptiveMediumFloatingActionButton
+import zone.ien.utils.adaptive.component.AdaptiveRangeSlider
 import zone.ien.utils.adaptive.component.AdaptiveSegmentedControl
 import zone.ien.utils.adaptive.component.AdaptiveSlider
 import zone.ien.utils.adaptive.component.AdaptiveSwitch
@@ -96,6 +97,7 @@ fun AdaptivePlaygroundScreen(
     var iconToggleChecked by remember { mutableStateOf(false) }
     var showPlaceholder by remember { mutableStateOf(true) }
     var sliderValue by remember { mutableFloatStateOf(0.64f) }
+    var sliderRange by remember { mutableStateOf(0.2f..0.7f) }
     var segmentedIndex by remember { mutableIntStateOf(0) }
     var swipeActionCount by remember { mutableIntStateOf(0) }
     var topBarMode by remember { mutableStateOf(TopBarMode.Expanded) }
@@ -508,6 +510,14 @@ fun AdaptivePlaygroundScreen(
                         enabled = enabled,
                         label = "Slider",
                         valueLabel = "${(sliderValue * 100).toInt()}%",
+                    )
+                    AdaptiveRangeSlider(
+                        value = sliderRange,
+                        onValueChange = { sliderRange = it },
+                        enabled = enabled,
+                    )
+                    Text(
+                        text = "범위 ${(sliderRange.start * 100).toInt()}%–${(sliderRange.endInclusive * 100).toInt()}%",
                     )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
