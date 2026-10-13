@@ -434,23 +434,13 @@ fun <T> SectionScope.dropdown(
             dropdown = {
                 IenMenu.Dropdown {
                     itemsWithLabels.forEach { (item, label) ->
-                        IenMenu.DropdownItem(
-                            text = label,
-                            left = {
-                                Box(
-                                    modifier = Modifier.size(IenTheme.icon.md),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    if (item == currentItem) {
-                                        IenIcon(imageVector = SystemIcons.Check, contentDescription = null)
-                                    }
-                                }
-                            },
-                            selected = item == currentItem,
-                            onClick = {
-                                onItemSelected(item)
+                        IenMenu.DropdownCheckItem(
+                            checked = item == currentItem,
+                            onCheckedChange = { checked ->
+                                if (checked) onItemSelected(item)
                                 expanded = false
                             },
+                            text = label,
                         )
                     }
                 }

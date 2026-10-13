@@ -122,8 +122,7 @@ fun SectionScope.SwitchPref(
             checked = checked,
             onCheckedChange = { edit(it) },
             enabled = enabled,
-            supportingContent = if (checked) summaryOn?.let { { Text(it) } }
-                else summaryOff?.let { { Text(it) } },
+            supportingContent = if (checked) summaryOn?.let { { Text(it) } } else summaryOff?.let { { Text(it) } },
             colors = colors,
             thumbContent = thumbContent,
             interactionSource = interactionSource,

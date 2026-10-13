@@ -241,6 +241,7 @@ import zone.ien.utils.ui.list.IenSwipeBoxItem
 import zone.ien.utils.ui.list.IenTableRow
 import zone.ien.utils.ui.list.IenTableRowAlign
 import zone.ien.utils.ui.menu.IenMenu
+import zone.ien.utils.ui.menu.IenMenuItem
 import zone.ien.utils.ui.menu.IenModal
 import zone.ien.utils.ui.primitives.IenAssetFrame
 import zone.ien.utils.ui.primitives.IenAssetFrameShape
@@ -2977,6 +2978,7 @@ fun ProgressIndicatorSection(controls: Map<String, String> = emptyMap()) {
 fun MenuSection(controls: Map<String, String> = emptyMap()) {
     var menuOpen by remember(controls["visible"]) { mutableStateOf(controls.booleanValue("visible", false)) }
     var checkedMenu by remember { mutableIntStateOf(1) }
+    var lastMenuAction by remember { mutableStateOf("없음") }
 
     IenTheme {
         ComponentSection(title = "Menu") {
@@ -3041,6 +3043,44 @@ fun MenuSection(controls: Map<String, String> = emptyMap()) {
                     Text("메뉴 열기")
                 }
             }
+
+            Text("목록형 메뉴", style = IenTheme.typography.caption, color = IenTheme.colors.textTertiary)
+            IenMenu(
+                items = listOf(
+                    IenMenuItem(
+                        title = "프로필 편집",
+                        description = "이름과 프로필 사진을 변경합니다.",
+                        onClick = { lastMenuAction = "프로필 편집" },
+                        leading = {
+                            IenIcon(imageVector = SystemIcons.Edit, contentDescription = null)
+                        },
+                        trailing = {
+                            IenIcon(imageVector = SystemIcons.ChevronRight, contentDescription = null)
+                        },
+                    ),
+                    IenMenuItem(
+                        title = "알림 설정",
+                        description = "받을 알림을 관리합니다.",
+                        onClick = { lastMenuAction = "알림 설정" },
+                    ),
+                    IenMenuItem(
+                        title = "로그아웃",
+                        onClick = { lastMenuAction = "로그아웃" },
+                        enabled = !controls.disabledValue(),
+                        tone = IenSemanticTone.Danger,
+                    ),
+                ),
+                header = {
+                    Text("계정", style = IenTheme.typography.body2)
+                },
+                footer = {
+                    Text(
+                        text = "마지막 선택: $lastMenuAction",
+                        style = IenTheme.typography.caption,
+                        color = IenTheme.colors.textTertiary,
+                    )
+                },
+            )
         }
     }
 }
