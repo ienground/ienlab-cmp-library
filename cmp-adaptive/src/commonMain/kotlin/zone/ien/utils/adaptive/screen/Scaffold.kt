@@ -325,7 +325,9 @@ fun AdaptiveTopAppBarScaffold(
                                     navigationIcon = { navigationIcon?.invoke() },
                                     actions = {
                                         Row(
-                                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(
+                                                IenTheme.spacing.xxs + IenTheme.spacing.xxxs,
+                                            ),
                                             verticalAlignment = Alignment.CenterVertically,
                                             content = {
                                                 actions?.invoke(this)
@@ -535,7 +537,7 @@ fun AdaptiveTopAppBarScaffold(
         },
         cupertino = {
             scaffold {
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(IenTheme.spacing.xs))
 
                 @Composable
                 fun liquidButton(
@@ -566,7 +568,7 @@ fun AdaptiveTopAppBarScaffold(
                             colors = colors,
                             backdrop = backdrop,
                             isBackgroundAdaptive = isBackgroundAdaptive,
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+                            contentPadding = PaddingValues(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm - IenTheme.spacing.xxxs),
                             modifier = modifier.widthIn(min = 48.dp, max = 360.dp),
                         ) {
                             content()
@@ -599,7 +601,7 @@ fun AdaptiveTopAppBarScaffold(
                             }
                         ) {
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xl),
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
                                     .animateContentSizeWithoutClipping()
@@ -796,7 +798,7 @@ private fun IenNavigationTitle(
     Column(
         modifier = Modifier
             .animateContentSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.xs)
             .alpha(animatedAlpha)
             .onGloballyPositioned {
                 actualTitleHeight = it.size.height.toFloat()
@@ -804,7 +806,7 @@ private fun IenNavigationTitle(
                 offsetDifference = (topBarHeight - it.boundsInWindow().top) + scaffoldTop
                 onVisibilityChange(!topAppBarExists || offsetDifference < it.size.height)
             },
-        verticalArrangement = Arrangement.spacedBy(2.dp),
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxxs),
     ) {
         IenProvideTextStyle(IenTheme.typography.display, IenTheme.colors.textPrimary) {
             title()

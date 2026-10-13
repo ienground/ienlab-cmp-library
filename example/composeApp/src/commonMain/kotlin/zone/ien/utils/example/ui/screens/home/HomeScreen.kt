@@ -247,7 +247,9 @@ fun HomeScreen(
                             )
                         }
                     },
-                    modifier = Modifier.conditional(currentTheme == Theme.Cupertino) { padding(start = 16.dp) }
+                    modifier = Modifier.conditional(currentTheme == Theme.Cupertino) {
+                        padding(start = IenTheme.spacing.md)
+                    }
                 ) {
                     AdaptiveDropdownMenuNative(
                         expanded = childExpanded,
@@ -315,7 +317,7 @@ fun HomeScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = IenTheme.spacing.md)
                         .fillMaxWidth()
                 ) {
                     Text(
@@ -328,13 +330,13 @@ fun HomeScreen(
                     )
                 }
                 Column(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(horizontal = IenTheme.spacing.md),
+                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 ) {
                     Text(text = "아이콘 스타일")
                     FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                     ) {
                         val iconStyles = listOf(
                             IconStyle.Tabler to "Tabler",
@@ -357,7 +359,7 @@ fun HomeScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = IenTheme.spacing.md)
                         .fillMaxWidth()
                 ) {
                     Text(
@@ -405,7 +407,7 @@ fun HomeScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .padding(horizontal = 16.dp)
+                            .padding(horizontal = IenTheme.spacing.md)
                             .fillMaxWidth()
                     ) {
                         Text(
@@ -424,7 +426,7 @@ fun HomeScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .padding(horizontal = 16.dp)
+                            .padding(horizontal = IenTheme.spacing.md)
                             .fillMaxWidth()
                     ) {
                         Text(
@@ -441,7 +443,7 @@ fun HomeScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = IenTheme.spacing.md)
                         .fillMaxWidth()
                 ) {
                     Text(
@@ -457,8 +459,8 @@ fun HomeScreen(
                 // --- 2-column grid menu ---
                 Column(
                     modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                        .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.xs),
+                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
                 ) {
                     Text(
                         text = "MENU",
@@ -468,7 +470,7 @@ fun HomeScreen(
                     menuItems.chunked(2).forEach { rowItems ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
                         ) {
                             rowItems.forEach { item ->
                                 HomeMenuCard(
@@ -549,7 +551,7 @@ private fun HomeMenuCard(
             border = color.copy(alpha = 0.35f),
         ),
         onClick = onClick,
-        contentPadding = PaddingValues(12.dp),
+        contentPadding = PaddingValues(IenTheme.spacing.sm),
     ) {
         Box(
             modifier = Modifier.fillMaxWidth(),

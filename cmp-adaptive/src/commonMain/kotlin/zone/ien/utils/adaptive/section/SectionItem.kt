@@ -1036,7 +1036,7 @@ fun SectionScope.AdaptiveSectionSlider(
             SectionItem(
                 title = {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         it.startIcon?.let {

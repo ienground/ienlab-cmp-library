@@ -310,7 +310,7 @@ fun ColorTokenScreen(
                             text = highlightKotlin(code),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(IenTheme.colors.surfaceWeak, RoundedCornerShape(12.dp))
+                                .background(IenTheme.colors.surfaceWeak, RoundedCornerShape(IenTheme.radius.default))
                                 .padding(IenTheme.spacing.md),
                             style = IenTheme.typography.caption.copy(
                                 fontFamily = FontFamily.Monospace,

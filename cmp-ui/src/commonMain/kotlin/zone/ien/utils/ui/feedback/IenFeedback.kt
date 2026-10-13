@@ -99,6 +99,7 @@ import zone.ien.utils.ui.primitives.IenAssetFrameShape
 import zone.ien.utils.ui.primitives.IenAssetFrameSize
 import zone.ien.utils.ui.foundation.IenColorScheme
 import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenSpacing
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.toneGradientBrush
 import zone.ien.utils.ui.list.IenListRow
@@ -136,8 +137,6 @@ enum class IenSheetDetent { Content, Medium, Full }
 private const val IenSheetMediumHeightFraction = 0.5f
 private const val IenSheetFullHeightFraction = 0.92f
 private const val IenSheetExpansionSnapFraction = 0.5f
-private val IenSheetHorizontalInset = 14.dp
-
 private fun IenSheetDetent.isExpandable(): Boolean = this != IenSheetDetent.Content
 
 private fun IenSheetDetent.expansionProgress(): Float =
@@ -221,7 +220,7 @@ fun IenBottomSheet(
     header: (@Composable () -> Unit)? = null,
     headerDescription: (@Composable () -> Unit)? = null,
     cta: (@Composable () -> Unit)? = null,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.xl, vertical = IenTheme.spacing.xs),
     content: @Composable ColumnScope.() -> Unit,
 ) {
     IenBottomSheetInternal(
@@ -269,7 +268,7 @@ fun IenBottomSheet(
     header: (@Composable () -> Unit)? = null,
     headerDescription: (@Composable () -> Unit)? = null,
     cta: (@Composable () -> Unit)? = null,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.xl, vertical = IenTheme.spacing.xs),
     content: @Composable ColumnScope.() -> Unit,
 ) {
     IenBottomSheetInternal(
@@ -309,6 +308,7 @@ private fun IenBottomSheetInternal(
     var mounted by remember { mutableStateOf(state.visible) }
     val density = LocalDensity.current
     val thresholdPx = with(density) { 150.dp.toPx() }
+    val sheetHorizontalInset = IenTheme.spacing.sm + IenTheme.spacing.xxxs
 
     val motion = IenTheme.motion
     val normalMillis = motion.normalMillis
@@ -479,7 +479,7 @@ private fun IenBottomSheetInternal(
                             val isExpandable = state.detent.isExpandable()
                             val progress = if (isExpandable) expansionProgress.value else 1f
                             val horizontalInset =
-                                (IenSheetHorizontalInset.roundToPx() * (1f - progress))
+                                (sheetHorizontalInset.roundToPx() * (1f - progress))
                                     .roundToInt()
                                     .coerceAtMost(constraints.maxWidth / 2)
                             val sheetHeight =
@@ -514,7 +514,7 @@ private fun IenBottomSheetInternal(
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(0.dp),
+                        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.none),
                     ) {
                         Column(
                             modifier = dragModifier.fillMaxWidth(),
@@ -523,27 +523,27 @@ private fun IenBottomSheetInternal(
                             if (showDragHandle) {
                                 Box(
                                     modifier = Modifier
-                                        .padding(vertical = 12.dp)
+                                        .padding(vertical = IenTheme.spacing.sm)
                                         .width(36.dp)
                                         .height(4.dp)
                                         .clip(ContinuousCapsule)
                                         .background(IenTheme.colors.borderStrong),
                                 )
                             } else {
-                                Spacer(modifier = Modifier.height(16.dp))
+                                Spacer(modifier = Modifier.height(IenTheme.spacing.md))
                             }
 
                             if (header != null || headerDescription != null) {
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 24.dp, vertical = 8.dp),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                        .padding(horizontal = IenTheme.spacing.xl, vertical = IenTheme.spacing.xs),
+                                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs)
                                 ) {
                                     header?.invoke()
                                     headerDescription?.invoke()
                                 }
-                                Spacer(modifier = Modifier.height(8.dp))
+                                Spacer(modifier = Modifier.height(IenTheme.spacing.xs))
                             }
                         }
 
@@ -557,13 +557,13 @@ private fun IenBottomSheetInternal(
                         }
 
                         if (cta != null) {
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(IenTheme.spacing.xs))
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .navigationBarsPadding()
-                                    .padding(horizontal = 24.dp)
-                                    .padding(bottom = 16.dp)
+                                    .padding(horizontal = IenTheme.spacing.xl)
+                                    .padding(bottom = IenTheme.spacing.md)
                             ) {
                                 cta()
                             }
@@ -571,7 +571,7 @@ private fun IenBottomSheetInternal(
                             Spacer(
                                 modifier = Modifier
                                     .navigationBarsPadding()
-                                    .height(16.dp)
+                                    .height(IenTheme.spacing.md)
                             )
                         }
                     }
@@ -609,7 +609,7 @@ fun IenBottomSheetSelect(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(0.dp)
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.none)
     ) {
         options.forEach { option ->
             val isSelected = option.value == value
@@ -1114,7 +1114,7 @@ private fun IenSnackbarContent(
     )
     IenSurface(
         modifier = modifier
-            .shadow(elevation = 6.dp, shape = ContinuousRoundedRectangle(22.dp), clip = false)
+            .shadow(elevation = 6.dp, shape = ContinuousRoundedRectangle(IenTheme.radius.xl), clip = false)
             .then(sizeModifier)
             .semantics {
                 liveRegion = LiveRegionMode.Polite
@@ -1122,7 +1122,7 @@ private fun IenSnackbarContent(
             },
         color = container,
         contentColor = Color.White,
-        shape = ContinuousRoundedRectangle(22.dp),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.xl),
     ) {
         Row(
             modifier = Modifier.padding(horizontal = IenTheme.spacing.lg, vertical = IenTheme.spacing.md),
@@ -1178,7 +1178,7 @@ fun IenSnackbarActionButton(
 fun IenSnackbarIcon(
     modifier: Modifier = Modifier,
     tone: IenSemanticTone = IenSemanticTone.Success,
-    size: Dp = 20.dp,
+    size: Dp = IenTheme.icon.md,
 ) {
     val color = when (tone) {
         IenSemanticTone.Neutral -> IenTheme.colors.surface
@@ -1539,49 +1539,50 @@ sealed interface IenSkeletonElement {
         val contentAlignment: Alignment = Alignment.TopStart,
     ) : IenSkeletonElement
     /** 요소들 사이의 여백을 나타내는 여백 스켈레톤 */
-    data class Spacer(val height: Dp, val width: Dp = 0.dp) : IenSkeletonElement
+    data class Spacer(val height: Dp, val width: Dp = IenSpacing().none) : IenSkeletonElement
 }
 
 private const val IenSkeletonMotionDurationMillis = 1200L
 
 private val LocalIenSkeletonBlockMotionEnabled = staticCompositionLocalOf { true }
 
+@Composable
 private fun IenSkeletonPattern.elements(): List<IenSkeletonElement> = when (this) {
     IenSkeletonPattern.TopList -> listOf(
         IenSkeletonElement.Title,
-        IenSkeletonElement.Spacer(4.dp),
+        IenSkeletonElement.Spacer(IenTheme.spacing.xxs),
         IenSkeletonElement.List,
     )
 
     IenSkeletonPattern.TopListWithIcon -> listOf(
         IenSkeletonElement.Title,
-        IenSkeletonElement.Spacer(4.dp),
+        IenSkeletonElement.Spacer(IenTheme.spacing.xxs),
         IenSkeletonElement.ListWithIcon,
     )
 
     IenSkeletonPattern.AmountTopList -> listOf(
         IenSkeletonElement.Title,
         IenSkeletonElement.Subtitle,
-        IenSkeletonElement.Spacer(8.dp),
+        IenSkeletonElement.Spacer(IenTheme.spacing.xs),
         IenSkeletonElement.List,
     )
 
     IenSkeletonPattern.AmountTopListWithIcon -> listOf(
         IenSkeletonElement.Title,
         IenSkeletonElement.Subtitle,
-        IenSkeletonElement.Spacer(8.dp),
+        IenSkeletonElement.Spacer(IenTheme.spacing.xs),
         IenSkeletonElement.ListWithIcon,
     )
 
     IenSkeletonPattern.SubtitleList -> listOf(
         IenSkeletonElement.Subtitle,
-        IenSkeletonElement.Spacer(4.dp),
+        IenSkeletonElement.Spacer(IenTheme.spacing.xxs),
         IenSkeletonElement.List,
     )
 
     IenSkeletonPattern.SubtitleListWithIcon -> listOf(
         IenSkeletonElement.Subtitle,
-        IenSkeletonElement.Spacer(4.dp),
+        IenSkeletonElement.Spacer(IenTheme.spacing.xxs),
         IenSkeletonElement.ListWithIcon,
     )
 
@@ -2355,7 +2356,7 @@ fun IenResult(
                 textAlign = TextAlign.Center,
             ),
         ) {
-            Box(modifier = Modifier.padding(top = 8.dp)) {
+            Box(modifier = Modifier.padding(top = IenTheme.spacing.xs)) {
                 title()
             }
         }

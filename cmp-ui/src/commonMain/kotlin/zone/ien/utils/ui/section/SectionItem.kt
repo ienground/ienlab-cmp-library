@@ -967,7 +967,7 @@ fun SectionScope.button(
         variant = IenButtonVariant.Fill,
         tone = IenSemanticTone.Brand,
         shape = ContinuousRoundedRectangle(IenTheme.radius.default),
-        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+        contentPadding = PaddingValues(horizontal = IenTheme.spacing.xl, vertical = IenTheme.spacing.md),
         modifier = modifier
             .heightIn(min = 56.dp),
     ) {

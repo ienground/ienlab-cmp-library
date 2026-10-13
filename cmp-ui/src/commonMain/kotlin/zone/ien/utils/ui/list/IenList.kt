@@ -107,11 +107,11 @@ fun IenListHeader(
         Column(modifier = Modifier.weight(1f)) {
             if (description != null && descriptionPosition == IenListHeaderDescriptionPosition.Top) {
                 description()
-                Box(modifier = Modifier.padding(bottom = 2.dp))
+                Box(modifier = Modifier.padding(bottom = IenTheme.spacing.xxxs))
             }
             title()
             if (description != null && descriptionPosition == IenListHeaderDescriptionPosition.Bottom) {
-                Box(modifier = Modifier.padding(top = 2.dp))
+                Box(modifier = Modifier.padding(top = IenTheme.spacing.xxxs))
                 description()
             }
         }
@@ -244,7 +244,7 @@ fun IenListFooter(
     icon: (@Composable () -> Unit)? = null,
     hairline: (@Composable () -> Unit)? = null,
     shadow: (@Composable () -> Unit)? = null,
-    shape: Shape = ContinuousRoundedRectangle(0.dp),
+    shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.none),
     content: @Composable () -> Unit
 ) {
     Column(
@@ -306,7 +306,7 @@ fun IenListFooter(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 48.dp)
-                    .padding(horizontal = IenTheme.spacing.md, vertical = 12.dp),
+                    .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -314,7 +314,7 @@ fun IenListFooter(
                     content()
                 }
                 if (icon != null) {
-                    Box(modifier = Modifier.padding(start = 4.dp))
+                    Box(modifier = Modifier.padding(start = IenTheme.spacing.xxs))
                     CompositionLocalProvider(LocalContentColor provides iconColor) {
                         icon()
                     }
@@ -343,7 +343,7 @@ fun IenListFooter(
     border: IenListFooterBorder = IenListFooterBorder.Full,
     textColor: Color = IenTheme.colors.brand,
     icon: (@Composable () -> Unit)? = null,
-    shape: Shape = ContinuousRoundedRectangle(0.dp),
+    shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.none),
 ) {
     IenListFooter(
         onClick = onClick,

@@ -160,7 +160,7 @@ fun AdaptiveDropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
-    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    offset: DpOffset = DpOffset(IenTheme.spacing.none, IenTheme.spacing.none),
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(clippingEnabled = false),
     adaptation: AdaptationScope<HigDropdownMenuAdaptation, IenDropdownMenuAdaptation>.() -> Unit = {},
@@ -249,7 +249,7 @@ fun AdaptiveDropdownMenuNative(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
-    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    offset: DpOffset = DpOffset(IenTheme.spacing.none, IenTheme.spacing.none),
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(clippingEnabled = false),
     adaptation: AdaptationScope<HigDropdownMenuAdaptation, IenDropdownMenuAdaptation>.() -> Unit = {},
@@ -316,8 +316,8 @@ private fun DropdownMenuSectionTitle(
     ) {
         Box(
             modifier = Modifier
-                .padding(top = 8.dp)
-                .padding(horizontal = 12.dp)
+                .padding(top = IenTheme.spacing.xs)
+                .padding(horizontal = IenTheme.spacing.sm)
         ) {
             title()
         }

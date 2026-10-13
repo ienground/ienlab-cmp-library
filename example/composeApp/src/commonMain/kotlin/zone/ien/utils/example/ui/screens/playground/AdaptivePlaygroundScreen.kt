@@ -166,8 +166,8 @@ fun AdaptivePlaygroundScreen(
                     .background(IenTheme.colors.background)
                     .verticalScroll(scrollState)
                     .padding(paddingValues)
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
+                    .padding(horizontal = IenTheme.spacing.lg, vertical = IenTheme.spacing.md),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.lg),
             ) {
                 title()
 
@@ -313,7 +313,7 @@ fun AdaptivePlaygroundScreen(
                     ) {
                         Text("Adaptation override")
                     }
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
                         AdaptiveTextButton(
                             onClick = {},
                             state = IenButtonState(enabled = enabled),
@@ -431,8 +431,8 @@ fun AdaptivePlaygroundScreen(
                                 color = IenTheme.colors.surfaceRaised,
                                 shape = ContinuousRoundedRectangle(IenTheme.radius.default),
                             )
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            .padding(IenTheme.spacing.md),
+                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Box(
@@ -448,7 +448,7 @@ fun AdaptivePlaygroundScreen(
                         )
                         Column(
                             modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                         ) {
                             Text(
                                 text = "Avery Johnson",
@@ -494,7 +494,7 @@ fun AdaptivePlaygroundScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(horizontal = 16.dp),
+                                .padding(horizontal = IenTheme.spacing.md),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text("왼쪽으로 밀어 액션을 확인하세요")
@@ -521,7 +521,7 @@ fun AdaptivePlaygroundScreen(
                     )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.lg),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         AdaptiveCircularProgressIndicator()
@@ -529,7 +529,7 @@ fun AdaptivePlaygroundScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(IenTheme.spacing.xl))
             }
         }
     }
@@ -542,7 +542,7 @@ private fun PlaygroundGroup(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
     ) {
         Text(
             text = title,
@@ -551,7 +551,7 @@ private fun PlaygroundGroup(
         )
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
             content = content,
         )
     }
@@ -583,7 +583,7 @@ private fun SampleIcon() {
     IenIcon(
         imageVector = SystemIcons.Save,
         contentDescription = null,
-        modifier = Modifier.size(20.dp),
+        modifier = Modifier.size(IenTheme.icon.md),
     )
 }
 

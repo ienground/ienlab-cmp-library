@@ -31,6 +31,7 @@ import zone.ien.utils.icon.material.rounded.Delete
 import zone.ien.utils.pref.PrefsGroup
 import zone.ien.utils.pref.PrefsScreen
 import zone.ien.utils.pref.PrefsScreenType
+import zone.ien.utils.pref.item.DropdownPref
 import zone.ien.utils.pref.item.SwitchPref
 import zone.ien.utils.pref.item.TextFieldPref
 import zone.ien.utils.pref.item.TextPref
@@ -86,6 +87,16 @@ fun SettingsScreen(
                 PrefsGroup(
                     title = { Text(text = "Pref Group") }
                 ) {
+                    DropdownPref(
+                        title = "화면 모드",
+                        key = stringPreferencesKey("display_mode"),
+                        defaultValue = "system",
+                        itemsWithLabels = mapOf(
+                            "system" to "시스템 따름",
+                            "light" to "라이트",
+                            "dark" to "다크",
+                        ),
+                    )
                     SwitchPref(
                         title = "Hi",
                         summaryOn = "this is on",

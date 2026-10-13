@@ -227,7 +227,7 @@ fun IenListRow(
         if (border == IenListRowBorder.Indented) {
             Box(
                 modifier = Modifier
-                    .padding(start = horizontalPadding.value + 20.dp)
+                    .padding(start = horizontalPadding.value + IenTheme.spacing.lg)
                     .fillMaxWidth()
                     .height(IenTheme.stroke.hairline)
                     .background(IenTheme.colors.border),
@@ -704,7 +704,7 @@ private val IenListRowAssetSize.value: Dp
 
 @Composable
 private fun IenListRowAssetShape.toShape(): Shape = when (this) {
-    IenListRowAssetShape.Original -> ContinuousRoundedRectangle(0.dp)
+    IenListRowAssetShape.Original -> ContinuousRoundedRectangle(IenTheme.radius.none)
     IenListRowAssetShape.Squircle -> ContinuousRoundedRectangle(IenTheme.radius.lg)
     IenListRowAssetShape.Card -> ContinuousRoundedRectangle(IenTheme.radius.default)
     IenListRowAssetShape.Square -> ContinuousRoundedRectangle(IenTheme.radius.sm)

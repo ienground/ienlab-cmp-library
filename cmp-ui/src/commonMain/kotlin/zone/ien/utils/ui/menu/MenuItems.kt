@@ -163,7 +163,7 @@ fun IenActionsMenu(
                                     if (item.badge != 0) {
                                         IenBadge(
                                             modifier = Modifier
-                                                .offset(x = (-8).dp, y = 8.dp),
+                                                .offset(x = -IenTheme.spacing.xs, y = IenTheme.spacing.xs),
                                             text = if (item.badge > 0) item.badge.toString() else "",
                                             size = IenBadgeSize.Small,
                                             variant = IenBadgeVariant.Fill,

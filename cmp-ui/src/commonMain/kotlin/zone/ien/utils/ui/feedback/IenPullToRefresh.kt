@@ -89,7 +89,7 @@ fun IenPullToRefreshBox(
     contentAlignment: Alignment = Alignment.TopStart,
     enabled: Boolean = true,
     threshold: Dp = IenPullToRefreshDefaults.PositionalThreshold,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
+    contentPadding: PaddingValues = PaddingValues(IenTheme.spacing.none),
     indicator: @Composable BoxScope.() -> Unit = {
         IenPullToRefreshIndicator(
             state = state,
@@ -188,6 +188,7 @@ fun IenPullToRefreshIndicator(
     } else {
         rememberUpdatedState(0f)
     }
+    val dotRadius = IenTheme.radius.xs
 
     Box(
         modifier = modifier
@@ -203,7 +204,7 @@ fun IenPullToRefreshIndicator(
                 shadow = Shadow(
                     radius = 16.dp,
                     color = colors.textPrimary.copy(alpha = .08f),
-                    offset = DpOffset(0.dp, 4.dp),
+                    offset = DpOffset(IenTheme.spacing.none, IenTheme.spacing.xxs),
                 ),
             )
             .drawIenBorder(
@@ -234,7 +235,7 @@ fun IenPullToRefreshIndicator(
                 val scale = if (isRefreshing) .72f + .46f * wave else 1f
                 drawCircle(
                     color = color,
-                    radius = (if (index == 1) 4.dp else 3.5.dp).toPx() * scale,
+                    radius = (if (index == 1) dotRadius else 3.5.dp).toPx() * scale,
                     center = Offset(
                         x = center.x + (index - 1) * 13.dp.toPx() * progress,
                         y = center.y - 6.dp.toPx() * wave,

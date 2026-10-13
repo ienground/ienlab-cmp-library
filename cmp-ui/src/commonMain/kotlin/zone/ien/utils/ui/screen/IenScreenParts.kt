@@ -116,6 +116,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenSpacing
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButton
 import zone.ien.utils.ui.interactive.IenButtonContainer
@@ -625,7 +626,10 @@ fun IenTopBar(
     titleAlignment: IenTopBarTitleAlignment = IenTopBarTitleAlignment.Start,
     showDivider: Boolean = false,
     windowInsets: WindowInsets = WindowInsets.statusBars,
-    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.md, vertical = 6.dp),
+    contentPadding: PaddingValues = PaddingValues(
+        horizontal = IenTheme.spacing.md,
+        vertical = IenTheme.spacing.xxs + IenTheme.spacing.xxxs,
+    ),
     contentHeight: Dp = 64.dp,
     containerColor: Color = Color.Transparent,
     floatingSlots: Boolean = true,
@@ -687,7 +691,10 @@ fun IenTopBar(
     titleAlignment: IenTopBarTitleAlignment = IenTopBarTitleAlignment.Start,
     showDivider: Boolean = false,
     windowInsets: WindowInsets = WindowInsets.statusBars,
-    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.md, vertical = 6.dp),
+    contentPadding: PaddingValues = PaddingValues(
+        horizontal = IenTheme.spacing.md,
+        vertical = IenTheme.spacing.xxs + IenTheme.spacing.xxxs,
+    ),
     contentHeight: Dp = 64.dp,
     containerColor: Color = Color.Transparent,
     floatingSlots: Boolean = true,
@@ -1003,8 +1010,8 @@ private fun IenTopBarFloatingSlot(
 fun IenTop(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    upperGap: Dp = 24.dp,
-    lowerGap: Dp = 24.dp,
+    upperGap: Dp = IenTheme.spacing.xl,
+    lowerGap: Dp = IenTheme.spacing.xl,
     upper: (@Composable () -> Unit)? = null,
     lower: (@Composable () -> Unit)? = null,
     subtitleTop: (@Composable () -> Unit)? = null,
@@ -1563,25 +1570,45 @@ class IenTooltipPositionProvider(
     private val density: Density,
     private val onArrowRatioCalculated: (Float) -> Unit
 ) : PopupPositionProvider {
+    private var shadowPadding: Dp = IenSpacing().none
+    private var safeMargin: Dp = IenSpacing().md
+
+    internal constructor(
+        placement: IenTooltipPlacement,
+        offset: Dp,
+        density: Density,
+        shadowPadding: Dp,
+        safeMargin: Dp,
+        onArrowRatioCalculated: (Float) -> Unit,
+    ) : this(placement, offset, density, onArrowRatioCalculated) {
+        this.shadowPadding = shadowPadding
+        this.safeMargin = safeMargin
+    }
+
     override fun calculatePosition(
         anchorBounds: IntRect,
         windowSize: IntSize,
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize
     ): IntOffset {
-        val preferredX = anchorBounds.left + (anchorBounds.width - popupContentSize.width) / 2
+        val shadowPaddingPx = with(density) { shadowPadding.roundToPx() }
+        val tooltipSize = IntSize(
+            width = (popupContentSize.width - shadowPaddingPx * 2).coerceAtLeast(0),
+            height = (popupContentSize.height - shadowPaddingPx * 2).coerceAtLeast(0),
+        )
+        val preferredX = anchorBounds.left + (anchorBounds.width - tooltipSize.width) / 2
         val offsetPx = with(density) { offset.toPx().toInt() }
-        val safeMarginPx = with(density) { 16.dp.toPx() }
+        val safeMarginPx = with(density) { safeMargin.toPx() }
 
         val minX = safeMarginPx.toInt()
-        val maxX = (windowSize.width - popupContentSize.width - safeMarginPx)
+        val maxX = (windowSize.width - tooltipSize.width - safeMarginPx)
             .toInt()
             .coerceAtLeast(minX)
         val x = when (placement) {
             IenTooltipPlacement.Top,
             IenTooltipPlacement.Bottom -> preferredX.coerceIn(minX, maxX)
             IenTooltipPlacement.Left -> {
-                (anchorBounds.left - popupContentSize.width - offsetPx)
+                (anchorBounds.left - tooltipSize.width - offsetPx)
                     .coerceIn(minX, maxX)
             }
             IenTooltipPlacement.Right -> {
@@ -1592,16 +1619,16 @@ class IenTooltipPositionProvider(
 
         val y = when (placement) {
             IenTooltipPlacement.Top -> {
-                anchorBounds.top - popupContentSize.height - offsetPx
+                anchorBounds.top - tooltipSize.height - offsetPx
             }
             IenTooltipPlacement.Bottom -> {
                 anchorBounds.bottom + offsetPx
             }
             IenTooltipPlacement.Left,
             IenTooltipPlacement.Right -> {
-                val centeredY = anchorBounds.top + (anchorBounds.height - popupContentSize.height) / 2
+                val centeredY = anchorBounds.top + (anchorBounds.height - tooltipSize.height) / 2
                 val minY = safeMarginPx.toInt()
-                val maxY = (windowSize.height - popupContentSize.height - safeMarginPx)
+                val maxY = (windowSize.height - tooltipSize.height - safeMarginPx)
                     .toInt()
                     .coerceAtLeast(minY)
                 centeredY.coerceIn(minY, maxY)
@@ -1613,16 +1640,16 @@ class IenTooltipPositionProvider(
         val arrowRatio = when (placement) {
             IenTooltipPlacement.Top,
             IenTooltipPlacement.Bottom -> {
-                if (popupContentSize.width > 0) {
-                    ((anchorCenterX - x) / popupContentSize.width).coerceIn(0.12f, 0.88f)
+                if (tooltipSize.width > 0) {
+                    ((anchorCenterX - x) / tooltipSize.width).coerceIn(0.12f, 0.88f)
                 } else {
                     0.5f
                 }
             }
             IenTooltipPlacement.Left,
             IenTooltipPlacement.Right -> {
-                if (popupContentSize.height > 0) {
-                    ((anchorCenterY - y) / popupContentSize.height).coerceIn(0.12f, 0.88f)
+                if (tooltipSize.height > 0) {
+                    ((anchorCenterY - y) / tooltipSize.height).coerceIn(0.12f, 0.88f)
                 } else {
                     0.5f
                 }
@@ -1631,7 +1658,7 @@ class IenTooltipPositionProvider(
 
         onArrowRatioCalculated(arrowRatio)
 
-        return IntOffset(x, y)
+        return IntOffset(x - shadowPaddingPx, y - shadowPaddingPx)
     }
 }
 
@@ -1882,7 +1909,7 @@ private fun IenTooltipImpl(
     } else {
         placement
     }
-    val resolvedOffset = offset ?: 8.dp
+    val resolvedOffset = offset ?: IenTheme.spacing.xs
     val motionScale by animateFloatAsState(
         targetValue = if (isOpen) 1f else motionVariant.hiddenScale(),
         animationSpec = spring(
@@ -1949,10 +1976,17 @@ private fun IenTooltipImpl(
 
         if (keepInComposition && !LocalInspectionMode.current) {
             val popupKey = rememberIenTooltipPopupKey()
+            val safeMargin = IenTheme.spacing.md
             key(popupKey) {
                 Popup(
-                    popupPositionProvider = remember(resolvedPlacement, resolvedOffset) {
-                        IenTooltipPositionProvider(resolvedPlacement, resolvedOffset, density) { ratio ->
+                    popupPositionProvider = remember(resolvedPlacement, resolvedOffset, density, safeMargin) {
+                        IenTooltipPositionProvider(
+                            placement = resolvedPlacement,
+                            offset = resolvedOffset,
+                            density = density,
+                            shadowPadding = IenTooltipShadowPadding,
+                            safeMargin = safeMargin,
+                        ) { ratio ->
                             dynamicArrowRatio = ratio
                         }
                     },
@@ -2025,6 +2059,8 @@ enum class IenTooltipClipToEnd {
     Right,
 }
 
+private val IenTooltipShadowPadding = 48.dp
+
 @Composable
 private fun IenTooltipPopup(
     visible: Boolean,
@@ -2088,6 +2124,7 @@ private fun IenTooltipPopup(
                         IenTooltipPlacement.Right -> 0f
                     }
                 }
+                .padding(IenTooltipShadowPadding)
                 .then(if (width != null) Modifier.width(width) else Modifier.widthIn(max = 280.dp)),
             contentAlignment = Alignment.Center
         ) {
@@ -2439,7 +2476,7 @@ fun IenAgreementCheckbox(
             )
         }
         IenAgreementCheckboxVariant.Hidden -> {
-            Spacer(modifier = modifier.size(24.dp))
+            Spacer(modifier = modifier.size(IenTheme.spacing.xl))
         }
     }
 }
@@ -2552,7 +2589,10 @@ fun IenAgreementBadge(
         modifier = modifier
             .clip(RoundedCornerShape(IenTheme.radius.xs))
             .background(resolvedBg)
-            .padding(horizontal = 6.dp, vertical = 3.dp),
+            .padding(
+                horizontal = IenTheme.spacing.xxs + IenTheme.spacing.xxxs,
+                vertical = IenTheme.spacing.xxxs + IenTheme.spacing.xxxs / 2f,
+            ),
     ) {
         Text(text = text, style = IenTheme.typography.caption, color = resolvedText)
     }
@@ -2605,7 +2645,10 @@ fun IenAgreementDescription(
     variant: IenAgreementDescriptionVariant = IenAgreementDescriptionVariant.Normal,
     indent: Int = 0,
 ) {
-    val startPadding = (LocalIenAgreementIndent.current + indent).agreementIndentPadding() + IenTheme.spacing.md + 32.dp
+    val startPadding =
+        (LocalIenAgreementIndent.current + indent).agreementIndentPadding() +
+            IenTheme.spacing.md +
+            IenTheme.spacing.xxl
     if (variant == IenAgreementDescriptionVariant.Box) {
         Box(
             modifier = modifier
@@ -2724,7 +2767,8 @@ fun IenAgreementGroup(
     showGradient: Boolean = true,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val lineStart = IenTheme.spacing.md + 12.dp
+    val lineStart = IenTheme.spacing.md + IenTheme.spacing.sm
+    val lineWidth = IenTheme.stroke.thick
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -2743,13 +2787,13 @@ fun IenAgreementGroup(
                             ),
                             start = Offset(x, 0f),
                             end = Offset(x, size.height),
-                            strokeWidth = 2.dp.toPx(),
+                            strokeWidth = lineWidth.toPx(),
                             cap = StrokeCap.Round,
                         )
                     }
                 } else Modifier
             ),
-        verticalArrangement = Arrangement.spacedBy(0.dp)
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.none)
     ) {
         content()
     }
@@ -2786,7 +2830,7 @@ fun IenAgreementCollapsible(
     ) {
         Column(
             modifier = modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(0.dp)
+            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.none)
         ) {
             content()
         }
@@ -2832,7 +2876,7 @@ fun IenAgreementCollapsibleContent(
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(0.dp)
+            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.none)
         ) {
             content()
         }
@@ -2872,7 +2916,7 @@ fun IenAgreementIndentPushable(
     ) {
         Column(
             modifier = modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(0.dp)
+            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.none)
         ) {
             content()
         }
@@ -2917,7 +2961,7 @@ fun IenAgreementIndentPushableContent(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(0.dp)
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.none)
     ) {
         content()
     }
@@ -3174,7 +3218,7 @@ internal fun IenBottomCTAButtonContent(
             ) { state ->
                 when (state) {
                     CtaIconAreaState.None -> {
-                        Spacer(modifier = Modifier.size(0.dp))
+                        Spacer(modifier = Modifier.size(IenTheme.spacing.none))
                     }
                     CtaIconAreaState.Icon -> {
                         Box(
@@ -3682,10 +3726,12 @@ private fun IenBottomCTAContainer(
         animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow),
     )
     val navigationBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    val keyboardBottom = if (fixedAboveKeyboard) WindowInsets.ime.asPaddingValues().calculateBottomPadding() else 0.dp
-    val defaultBottom = 20.dp
+    val keyboardBottom =
+        if (fixedAboveKeyboard) WindowInsets.ime.asPaddingValues().calculateBottomPadding()
+        else IenTheme.spacing.none
+    val defaultBottom = IenTheme.spacing.lg
     val safeBottom = when {
-        !hasPaddingBottom -> 0.dp
+        !hasPaddingBottom -> IenTheme.spacing.none
         hasSafeAreaPadding -> if (navigationBottom > defaultBottom) navigationBottom else defaultBottom
         else -> defaultBottom
     }

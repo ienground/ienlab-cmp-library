@@ -138,7 +138,7 @@ fun App() {
                         onColorSelected = { selectedBrandColorName = it.name },
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
-                            .padding(16.dp),
+                            .padding(IenTheme.spacing.md),
                     )
                 }
             }
@@ -160,7 +160,7 @@ private fun SampleBrandColorSelector(
         onOpen = { onExpandedChange(true) },
         onClose = { onExpandedChange(false) },
         placement = IenMenu.Placement.TopEnd,
-        offset = DpOffset(0.dp, 8.dp),
+        offset = DpOffset(IenTheme.spacing.none, IenTheme.spacing.xs),
         dropdown = {
             IenMenu.Dropdown(
                 onDismissRequest = { onExpandedChange(false) },
@@ -177,7 +177,7 @@ private fun SampleBrandColorSelector(
                         left = {
                             Box(
                                 modifier = Modifier
-                                    .size(16.dp)
+                                    .size(IenTheme.icon.sm)
                                     .background(color.lightBrand, CircleShape),
                             )
                         },
@@ -192,13 +192,13 @@ private fun SampleBrandColorSelector(
             tonalElevation = IenTheme.elevation.floating,
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(
                     modifier = Modifier
-                        .size(12.dp)
+                        .size(IenTheme.icon.xs)
                         .background(IenTheme.colors.onBrand, CircleShape),
                 )
                 Text(

@@ -303,12 +303,12 @@ fun IenNavigationBar2(
             Box(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .padding(horizontal = 8.dp, vertical = 18.dp),
+                    .padding(horizontal = IenTheme.spacing.xs, vertical = IenTheme.spacing.md + IenTheme.spacing.xxxs),
             ) {
                 Surface(
                     color = colors.containerColor,
                     shape = ContinuousCapsule(),
-                    tonalElevation = 0.dp,
+                    tonalElevation = IenTheme.elevation.none,
                     shadowElevation = 18.dp,
                     modifier = Modifier
                         .width(IntrinsicSize.Max)
@@ -324,8 +324,8 @@ fun IenNavigationBar2(
                                 .fillMaxHeight()
                                 .fillMaxWidth()
                                 .selectableGroup()
-                                .padding(horizontal = 10.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                .padding(horizontal = IenTheme.spacing.sm - IenTheme.spacing.xxxs),
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                             verticalAlignment = Alignment.CenterVertically,
                             content = content,
                         )
@@ -413,13 +413,13 @@ private fun IenNavigationBarImpl(
                 Box(
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                        .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.md),
                 ) {
                     val containerShape = ContinuousCapsule()
                     Surface(
                         color = Color.Transparent,
                         shape = containerShape,
-                        tonalElevation = 0.dp,
+                        tonalElevation = IenTheme.elevation.none,
                         shadowElevation = 18.dp,
                         modifier = Modifier
                             .height(78.dp)
@@ -435,7 +435,7 @@ private fun IenNavigationBarImpl(
                                     },
                                     shape = containerShape,
                                 )
-                                .padding(horizontal = 8.dp, vertical = 8.dp),
+                                .padding(horizontal = IenTheme.spacing.xs, vertical = IenTheme.spacing.xs),
                         ) {
                             if (selectedBounds != null) {
                                 Box(
@@ -450,7 +450,7 @@ private fun IenNavigationBarImpl(
                                 )
                             }
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.fillMaxHeight(),
                             ) {
@@ -589,8 +589,8 @@ fun RowScope.IenNavigationBarItem(
                 .then(
                     when {
                         direction == IenNavigationBarItemDirection.Vertical ->
-                            Modifier.padding(horizontal = 4.dp)
-                        showLabel -> Modifier.padding(horizontal = 24.dp)
+                            Modifier.padding(horizontal = IenTheme.spacing.xxs)
+                        showLabel -> Modifier.padding(horizontal = IenTheme.spacing.xl)
                         else -> Modifier.width(48.dp)
                     }
                 )
@@ -607,7 +607,7 @@ fun RowScope.IenNavigationBarItem(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.width(IntrinsicSize.Max),
                         ) {
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(IenTheme.spacing.xs))
                             ProvideTextStyle(
                                 IenTheme.typography.label2.copy(color = textColor)
                             ) {
@@ -627,8 +627,8 @@ fun RowScope.IenNavigationBarItem(
                         }
 
                         if (showLabel) {
-                            Spacer(modifier = Modifier.height(3.dp))
-                            Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                            Spacer(modifier = Modifier.height(IenTheme.spacing.xxxs + IenTheme.spacing.xxxs / 2f))
+                            Box(modifier = Modifier.padding(horizontal = IenTheme.spacing.md)) {
                                 ProvideTextStyle(
                                     IenTheme.typography.label2.copy(color = textColor)
                                 ) {
@@ -754,7 +754,10 @@ private fun RowScope.IenNavigationBar2Item(
                         badge = badge,
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .offset(x = 6.dp, y = (-1).dp)
+                            .offset(
+                                x = IenTheme.spacing.xxs + IenTheme.spacing.xxxs,
+                                y = -(IenTheme.spacing.xxxs / 2f),
+                            )
                             .wrapContentSize(Alignment.TopEnd, unbounded = true),
                     )
                 }
@@ -775,7 +778,7 @@ private fun RowScope.IenNavigationBar2Item(
                 ) {
                     navigationBarIcon()
                     if (showLabel) {
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(IenTheme.spacing.xs))
                         navigationBarLabel()
                     }
                 }
@@ -789,7 +792,7 @@ private fun RowScope.IenNavigationBar2Item(
                 ) {
                     navigationBarIcon()
                     if (showLabel) {
-                        Spacer(modifier = Modifier.height(5.dp))
+                        Spacer(modifier = Modifier.height(IenTheme.spacing.xxs + IenTheme.spacing.xxxs / 2f))
                         navigationBarLabel()
                     }
                 }
@@ -848,7 +851,7 @@ private fun IenNavigationBarPreview() {
         IenNavigationBar(
             selectedIndex = selectedIndex,
             itemCount = 4,
-            windowInsets = WindowInsets(0.dp)
+            windowInsets = WindowInsets(IenTheme.spacing.none)
         ) {
             IenNavigationBarItem(
                 index = 0,
@@ -886,7 +889,7 @@ private fun IenNavigationBarPreview1() {
         IenNavigationBar(
             selectedIndex = 1,
             itemCount = 4,
-            windowInsets = WindowInsets(0.dp)
+            windowInsets = WindowInsets(IenTheme.spacing.none)
         ) {
             IenNavigationBarItem(
                 index = 0,
@@ -923,7 +926,7 @@ private fun IenNavigationBarPreviewDisabled() {
         IenNavigationBar(
             selectedIndex = 0,
             itemCount = 4,
-            windowInsets = WindowInsets(0.dp)
+            windowInsets = WindowInsets(IenTheme.spacing.none)
         ) {
             IenNavigationBarItem(
                 index = 0,

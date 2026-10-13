@@ -340,7 +340,7 @@ fun IenClickable(
 fun IenLoaderPrimitive(
     modifier: Modifier = Modifier,
     color: Color = LocalContentColor.current,
-    strokeWidth: Dp = 2.dp,
+    strokeWidth: Dp = IenTheme.stroke.thick,
 ) {
     CircularProgressIndicator(
         modifier = modifier.size(IenTheme.icon.md),

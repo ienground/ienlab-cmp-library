@@ -127,12 +127,12 @@ fun IenPlaygroundScreen(
         val bottomBarWindowInsets = if (!navigationBarVisible && bottomBarVisible) {
             IenBottomBarDefaults.windowInsets
         } else {
-            WindowInsets(0.dp)
+            WindowInsets(IenTheme.spacing.none)
         }
         val chatBottomBarWindowInsets = if (!navigationBarVisible && !bottomBarVisible && chatBottomBarVisible) {
             IenBottomBarDefaults.windowInsets
         } else {
-            WindowInsets(0.dp)
+            WindowInsets(IenTheme.spacing.none)
         }
 
         IenTopAppBarScaffold(
@@ -211,8 +211,8 @@ fun IenPlaygroundScreen(
                     .background(IenTheme.colors.background)
                     .verticalScroll(scrollState)
                     .padding(paddingValues)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+                    .padding(IenTheme.spacing.md),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xl)
             ) {
                 // ─── Dialogs Section ───
                 IenSection(

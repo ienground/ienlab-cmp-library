@@ -156,7 +156,7 @@ fun <T> IenWheelPicker(
         LazyColumn(
             modifier = Modifier.fillMaxWidth().height(maxHeight).nestedScroll(WheelParentScrollConsumer),
             state = state,
-            contentPadding = PaddingValues(vertical = ((maxHeight - rowHeight) / 2).coerceAtLeast(0.dp)),
+            contentPadding = PaddingValues(vertical = ((maxHeight - rowHeight) / 2).coerceAtLeast(IenTheme.spacing.none)),
             flingBehavior = rememberSnapFlingBehavior(state),
             userScrollEnabled = enabled,
             overscrollEffect = null,

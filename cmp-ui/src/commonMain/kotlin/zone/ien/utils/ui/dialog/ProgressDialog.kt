@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import zone.ien.utils.ui.foundation.IenTheme
 
 /**
  * IenProgressDialog은 진행 상태를 표시하는 다이얼로그를 제공하는 컴포저블입니다.
@@ -42,11 +43,11 @@ fun IenProgressDialog(
             modifier = Modifier.fillMaxWidth()
         ) {
             if (isLoadingIndicator) {
-                LoadingIndicator(modifier = Modifier.padding(16.dp))
+                LoadingIndicator(modifier = Modifier.padding(IenTheme.spacing.md))
             } else if (isWavyIndicator) {
-                CircularWavyProgressIndicator(modifier = Modifier.padding(16.dp))
+                CircularWavyProgressIndicator(modifier = Modifier.padding(IenTheme.spacing.md))
             } else {
-                CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                CircularProgressIndicator(modifier = Modifier.padding(IenTheme.spacing.md))
             }
         }
     }
@@ -86,12 +87,12 @@ fun IenProgressDialog(
             if (isWavyIndicator) {
                 CircularWavyProgressIndicator(
                     progress = { currentProgress },
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(IenTheme.spacing.md)
                 )
             } else {
                 CircularProgressIndicator(
                     progress = { currentProgress },
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(IenTheme.spacing.md)
                 )
             }
         }

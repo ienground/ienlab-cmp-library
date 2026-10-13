@@ -42,7 +42,7 @@ fun LazyListScope.ienSection(
     item(contentType = SplitPaddingContentType) {
         Spacer(
             Modifier
-                .height(16.dp)
+                .height(IenTheme.spacing.md)
                 .fillMaxWidth(),
         )
     }
@@ -106,7 +106,7 @@ private fun LazyListScope.itemsAndCaption(
     items.fastForEachIndexed { index, item ->
         item(item.key, item.contentType) {
             val shape = ContinuousRoundedRectangle(IenTheme.radius.lg)
-            val itemShape = ContinuousRoundedRectangle(0.dp)
+            val itemShape = ContinuousRoundedRectangle(IenTheme.radius.none)
             val hasDivider =
                 index != items.lastIndex &&
                     item.dividerPadding != null &&
@@ -125,7 +125,7 @@ private fun LazyListScope.itemsAndCaption(
             Column(
                 modifier = Modifier
                     .animateItem()
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = IenTheme.spacing.md)
                     .then(clipModifier)
                     .background(IenTheme.colors.surfaceRaised)
                     .sectionContainerBorder(index = index, lastIndex = items.lastIndex)

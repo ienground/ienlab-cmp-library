@@ -26,6 +26,7 @@ import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.IconData
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
 
 /**
@@ -66,7 +67,7 @@ fun HigTextFieldIconButton(
         shape = CircleShape,
         border = null,
         interactionSource = interactionSource,
-        contentPadding = PaddingValues(0.dp),
+        contentPadding = PaddingValues(IenTheme.spacing.none),
         content = {
             Box(
                 contentAlignment = Alignment.Center,

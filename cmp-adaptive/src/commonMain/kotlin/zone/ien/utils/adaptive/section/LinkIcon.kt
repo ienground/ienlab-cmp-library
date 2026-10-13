@@ -31,6 +31,7 @@ import zone.ien.hig.section.CupertinoLabelIconDefaults
 import zone.ien.hig.section.CupertinoLinkIcon
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.section.IenLinkIcon
 import zone.ien.utils.ui.section.IenLinkIconColors
 import zone.ien.utils.ui.section.IenLinkIconDefaults
@@ -298,7 +299,7 @@ fun CupertinoLinkIconText(
         modifier
             .clip(shape)
             .background(containerColor)
-            .padding(6.dp)
+            .padding(IenTheme.spacing.xxs + IenTheme.spacing.xxxs)
             .size(CupertinoIconDefaults.MediumSize)
             .wrapContentHeight(align = Alignment.CenterVertically, unbounded = true)
 )

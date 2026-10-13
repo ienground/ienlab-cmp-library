@@ -96,7 +96,7 @@ fun TextFieldScreen(
                     Row(
                         verticalAlignment = Alignment.Bottom,
                         modifier = Modifier
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .padding(horizontal = IenTheme.spacing.xs, vertical = IenTheme.spacing.xxs)
                             .fillMaxWidth()
                     ) {
                         PlaceholderBasicTextField(
@@ -104,12 +104,12 @@ fun TextFieldScreen(
                             onValueChange = { text = it },
                             placeholder = { Text(text = stringResource(Res.string.save)) },
                             cursorBrush = SolidColor(IenTheme.colors.textPrimary),
-                            contentPadding = PaddingValues(vertical = 12.dp),
+                            contentPadding = PaddingValues(vertical = IenTheme.spacing.sm),
                             maxLines = 6,
                             modifier = Modifier
                                 .focusRequester(focusRequester)
-                                .background(IenTheme.colors.surface, ContinuousRoundedRectangle(24.dp))
-                                .padding(horizontal = 16.dp)
+                                .background(IenTheme.colors.surface, ContinuousRoundedRectangle(IenTheme.radius.xl))
+                                .padding(horizontal = IenTheme.spacing.md)
                                 .weight(1f)
                                 .keyboardDismissAction()
 

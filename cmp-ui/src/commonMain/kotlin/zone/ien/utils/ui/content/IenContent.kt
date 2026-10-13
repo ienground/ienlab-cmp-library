@@ -52,14 +52,17 @@ fun IenBubble(
     modifier: Modifier = Modifier,
     tone: IenSemanticTone = IenSemanticTone.Neutral,
     tail: IenBubbleTail = IenBubbleTail.None,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
+    contentPadding: PaddingValues = PaddingValues(
+        horizontal = IenTheme.spacing.sm + IenTheme.spacing.xxxs,
+        vertical = IenTheme.spacing.sm - IenTheme.spacing.xxxs,
+    ),
 ) {
     val container = if (tone == IenSemanticTone.Neutral) IenTheme.colors.surfaceWeak else toneWeakColor(tone)
     val content = if (tone == IenSemanticTone.Neutral) IenTheme.colors.textPrimary else toneColor(tone)
 
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(0.dp),
+        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.none),
         verticalAlignment = Alignment.Bottom,
     ) {
         if (tail == IenBubbleTail.Start) {
@@ -87,10 +90,10 @@ fun IenBubble(
 private fun BubbleTail(color: Color) {
     Box(
         modifier = Modifier
-            .padding(bottom = 5.dp)
+            .padding(bottom = IenTheme.spacing.xxs + IenTheme.spacing.xxxs / 2f)
             .rotate(45f)
             .background(color)
-            .padding(4.dp),
+            .padding(IenTheme.spacing.xxs),
     )
 }
 

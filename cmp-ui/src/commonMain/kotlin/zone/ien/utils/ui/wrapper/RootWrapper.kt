@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.utils.dragToKeyboardClose
 import zone.ien.utils.ui.utils.keyboardAsState
@@ -30,7 +31,7 @@ fun IenRootWrapper(
     val isKeyboardVisible by keyboardAsState()
 
     IenScaffold(
-        contentWindowInsets = WindowInsets(0.dp),
+        contentWindowInsets = WindowInsets(IenTheme.spacing.none),
         modifier = modifier
     ) {
         Box(

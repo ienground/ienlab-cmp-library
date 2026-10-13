@@ -33,6 +33,7 @@ import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.adaptive.view.AdaptiveNavigationBar
 import zone.ien.utils.adaptive.view.NavigationBarItem
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.view.IenNavigationBarType
 import zone.ien.utils.icon.Adaptive
 import zone.ien.utils.icon.IconData
@@ -66,7 +67,7 @@ fun NavigationScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.xs),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {

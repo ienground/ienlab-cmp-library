@@ -458,9 +458,9 @@ object IenMenu {
             dismissOnBackPress = true,
             clippingEnabled = false,
         ),
-        shape: Shape = ContinuousRoundedRectangle(28.dp),
+        shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.xl),
         containerColor: Color = IenTheme.colors.surfaceRaised,
-        shadowElevation: Dp = ShadowPadding - 24.dp,
+        shadowElevation: Dp = ShadowPadding - IenTheme.elevation.overlay,
         border: BorderStroke? = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border.copy(alpha = 0.35f)),
         scrollState: ScrollState = rememberScrollState(),
         minWidth: Dp = 180.dp,
@@ -517,7 +517,7 @@ object IenMenu {
         open: Boolean,
         onClose: () -> Unit,
         modifier: Modifier = Modifier,
-        offset: DpOffset = DpOffset(0.dp, 8.dp),
+        offset: DpOffset = DpOffset(IenTheme.spacing.none, IenTheme.spacing.xs),
         placement: Placement = Placement.BottomStart,
         properties: PopupProperties = PopupProperties(
             focusable = true,
@@ -626,7 +626,7 @@ object IenMenu {
      * @param modifier 드롭다운 컨테이너에 적용할 Modifier
      * @param onDismissRequest 드롭다운 영역 밖을 터치하거나 닫기를 원할 때 호출되는 콜백 함수
      * @param header 드롭다운 최상단에 표시할 헤더 컴포저블
-     * @param shape 드롭다운 모서리 둥글기 모양 (기본값: 28.dp ContinuousRoundedRectangle)
+     * @param shape 드롭다운 모서리 둥글기 모양 (기본값: IenTheme.radius.xl ContinuousRoundedRectangle)
      * @param minWidth 최소 너비 (기본값: 180.dp)
      * @param maxWidth 최대 너비 (기본값: 280.dp)
      * @param content 드롭다운 항목들을 포함할 내부 컴포저블
@@ -636,9 +636,9 @@ object IenMenu {
         modifier: Modifier = Modifier,
         onDismissRequest: (() -> Unit)? = null,
         header: (@Composable () -> Unit)? = null,
-        shape: Shape = ContinuousRoundedRectangle(28.dp),
+        shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.xl),
         containerColor: Color = IenTheme.colors.surfaceRaised,
-        shadowElevation: Dp = ShadowPadding - 24.dp,
+        shadowElevation: Dp = ShadowPadding - IenTheme.elevation.overlay,
         border: BorderStroke? = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border.copy(alpha = 0.35f)),
         scrollState: ScrollState = rememberScrollState(),
         minWidth: Dp = 180.dp,
@@ -675,7 +675,9 @@ object IenMenu {
                         .fillMaxWidth()
                         .clip(shape)
                         .verticalScroll(scrollState)
-                        .padding(vertical = IenTheme.spacing.sm),
+                        .padding(
+                            vertical = if (header == null) IenTheme.spacing.xs else IenTheme.spacing.sm,
+                        ),
                 ) {
                     header?.invoke()
                     content()
@@ -718,7 +720,7 @@ object IenMenu {
         Box(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = IenTheme.spacing.xs),
+                .padding(horizontal = IenTheme.spacing.xl, vertical = IenTheme.spacing.xs),
         ) {
             content()
         }
@@ -925,8 +927,8 @@ object IenMenu {
                 Box(
                     modifier = Modifier
                         .matchParentSize()
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
-                        .clip(ContinuousRoundedRectangle(12.dp))
+                        .padding(horizontal = IenTheme.radius.xl - IenTheme.spacing.sm, vertical = IenTheme.spacing.xxs)
+                        .clip(ContinuousRoundedRectangle(IenTheme.radius.sm))
                         .graphicsLayer(alpha = if (pressAlpha > 0f) pressAlpha else 0.4f)
                         .background(if (selected) IenTheme.colors.brandWeak else IenTheme.colors.surfaceVariant),
                 )
@@ -935,7 +937,7 @@ object IenMenu {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                    .padding(horizontal = IenTheme.radius.sm * 2, vertical = IenTheme.radius.sm),
                 horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -954,14 +956,14 @@ object IenMenu {
         enabled: Boolean,
     ) {
         Box(
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier.size(IenTheme.icon.md),
             contentAlignment = Alignment.Center,
         ) {
             if (checked) {
                 IenIcon(
                     imageVector = SystemIcons.Check,
                     contentDescription = "선택됨",
-                    modifier = Modifier.size(16.dp),
+                    modifier = Modifier.size(IenTheme.icon.sm),
                     tint = if (enabled) IenTheme.colors.brand else IenTheme.colors.textDisabled,
                 )
             }

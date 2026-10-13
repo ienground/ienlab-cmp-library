@@ -18,6 +18,7 @@ import com.kyant.backdrop.backdrops.LayerBackdrop
 import zone.ien.hig.section.SectionStyle
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.section.AdaptiveProvideSectionStyle
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.section.IenProvideSectionStyle
 
 /** 설정 화면에서 사용할 스타일과 항목 적응 범위입니다. */
@@ -103,7 +104,7 @@ fun PrefsScreen(
                 title = title,
             ) {
                 content()
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(IenTheme.spacing.md))
             }
             return@CompositionLocalProvider
         }
@@ -117,7 +118,7 @@ fun PrefsScreen(
             title = title,
             content = {
                 content()
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(IenTheme.spacing.md))
             }
         )
     }

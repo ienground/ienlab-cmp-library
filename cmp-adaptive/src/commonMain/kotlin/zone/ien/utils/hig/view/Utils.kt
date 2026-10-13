@@ -12,6 +12,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.systemRed
+import zone.ien.utils.ui.foundation.IenTheme
 
 @Composable
 fun HigAsteriskTextWrapper(
@@ -21,7 +22,7 @@ fun HigAsteriskTextWrapper(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
         modifier = modifier
     ) {
         ProvideTextStyle(

@@ -107,7 +107,7 @@ fun AdaptiveButton(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(),
     shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
-    contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.lg, vertical = IenTheme.spacing.sm + IenTheme.spacing.xxxs),
     colors: IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     display: IenButtonDisplay = IenButtonDisplay.Inline,
@@ -264,7 +264,7 @@ fun AdaptiveTonalButton(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(),
     shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
-    contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.lg, vertical = IenTheme.spacing.sm + IenTheme.spacing.xxxs),
     colors: IenButtonColors = IenButtonDefault.colors(variant = IenButtonVariant.Weak, tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     display: IenButtonDisplay = IenButtonDisplay.Inline,
@@ -506,7 +506,7 @@ fun AdaptiveToggleButton(
     shapes: IenToggleButtonShapes = IenToggleButtonDefault.shapes(),
     variants: IenToggleButtonVariants = IenToggleButtonDefault.variants(),
     colors: IenToggleButtonColors = IenToggleButtonDefault.colors(),
-    contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.lg, vertical = IenTheme.spacing.sm + IenTheme.spacing.xxxs),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     display: IenButtonDisplay = IenButtonDisplay.Inline,
     adaptation: AdaptationScope<HigToggleButtonAdaptation, IenToggleButtonAdaptation>.() -> Unit = {},
@@ -708,7 +708,7 @@ fun AdaptiveExtendedFloatingActionButton(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(),
     shape: Shape = ContinuousCapsule(),
-    contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.lg, vertical = IenTheme.spacing.md),
     colors: IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     adaptation: AdaptationScope<HigButtonAdaptation, IenExtendedFloatingActionButtonAdaptation>.() -> Unit = {},
@@ -1266,7 +1266,7 @@ fun AdaptiveBackButton(
             cupertino = {
                 CupertinoLiquidIconButton(
                     modifier = modifier
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = IenTheme.spacing.md)
                         .graphicsLayer {
                             this.alpha = alpha
                             this.compositingStrategy = CompositingStrategy.ModulateAlpha

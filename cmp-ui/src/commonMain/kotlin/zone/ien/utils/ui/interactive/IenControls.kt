@@ -412,6 +412,7 @@ private fun IenSliderTrack(
     )
     val indicatorColor = if (enabled) IenTheme.colors.brand else IenTheme.colors.textDisabled
     val trackCornerRadius = IenTheme.radius.md
+    val thumbTrackGap = IenTheme.spacing.xxs + IenTheme.spacing.xxxs
     Canvas(
         modifier = modifier
             .fillMaxWidth()
@@ -419,7 +420,7 @@ private fun IenSliderTrack(
     ) {
         val corner = trackCornerRadius.toPx()
         val insideCorner = IenSliderTrackInsideCorner.toPx()
-        val thumbGap = IenSliderThumbWidth.toPx() / 2f + IenSliderThumbTrackGap.toPx()
+        val thumbGap = IenSliderThumbWidth.toPx() / 2f + thumbTrackGap.toPx()
         val activeEnd = size.width * fraction.coerceIn(0f, 1f)
         val inactiveStart = activeEnd + thumbGap
         val activeWidth = max(0f, activeEnd - thumbGap)
@@ -481,6 +482,7 @@ private fun IenRangeSliderTrack(
     )
     val indicatorColor = if (enabled) IenTheme.colors.brand else IenTheme.colors.textDisabled
     val trackCornerRadius = IenTheme.radius.md
+    val thumbTrackGap = IenTheme.spacing.xxs + IenTheme.spacing.xxxs
     Canvas(
         modifier = modifier
             .fillMaxWidth()
@@ -488,7 +490,7 @@ private fun IenRangeSliderTrack(
     ) {
         val corner = trackCornerRadius.toPx()
         val insideCorner = IenSliderTrackInsideCorner.toPx()
-        val thumbGap = IenSliderThumbWidth.toPx() / 2f + IenSliderThumbTrackGap.toPx()
+        val thumbGap = IenSliderThumbWidth.toPx() / 2f + thumbTrackGap.toPx()
         val start = size.width * startFraction.coerceIn(0f, 1f)
         val end = size.width * endFraction.coerceIn(startFraction, 1f)
         val leftInactiveEnd = (start - thumbGap).coerceAtLeast(0f)
@@ -607,7 +609,6 @@ private val IenSliderThumbWidth = 4.dp
 private val IenSliderThumbHeight = 44.dp
 private val IenSliderThumbSize = DpSize(IenSliderThumbWidth, IenSliderThumbHeight)
 private val IenSliderActiveThumbSize = DpSize(IenSliderThumbWidth / 2, IenSliderThumbHeight)
-private val IenSliderThumbTrackGap = 6.dp
 private val IenSliderTrackInsideCorner = 2.dp
 private val IenSliderTickSize = 4.dp
 private val IenSliderValueLabelMinWidth = 48.dp
@@ -697,7 +698,7 @@ fun IenStepper(
         modifier = modifier.semantics {
             this.contentDescription = contentDescription
         },
-        verticalArrangement = Arrangement.spacedBy(0.dp),
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.none),
     ) {
         scope.content()
     }
@@ -792,7 +793,7 @@ fun IenStepperRow(
             modifier = modifier
                 .fillMaxWidth()
                 .heightIn(min = 72.dp)
-                .padding(vertical = 4.dp),
+                .padding(vertical = IenTheme.spacing.xxs),
             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
             verticalAlignment = Alignment.Top,
         ) {
@@ -807,7 +808,7 @@ fun IenStepperRow(
                     left()
                 }
                 if (!hideLine) {
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(IenTheme.spacing.xxs + IenTheme.spacing.xxxs))
                     Box(
                         modifier = Modifier
                             .width(IenTheme.stroke.thick)
@@ -822,7 +823,7 @@ fun IenStepperRow(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(top = 2.dp, bottom = IenTheme.spacing.md),
+                    .padding(top = IenTheme.spacing.xxxs, bottom = IenTheme.spacing.md),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
             ) {
                 center()
@@ -831,7 +832,7 @@ fun IenStepperRow(
             if (right != null) {
                 Box(
                     modifier = Modifier
-                        .padding(top = 2.dp)
+                        .padding(top = IenTheme.spacing.xxxs)
                         .height(40.dp),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -885,7 +886,7 @@ fun IenStepperTexts(
 
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(3.dp),
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxxs + IenTheme.spacing.xxxs / 2f),
     ) {
         Text(
             text = title,
@@ -1006,7 +1007,7 @@ fun IenStepperAssetFrame(
         IenStepperAssetFrameShape.CircleMedium -> ContinuousCapsule()
         IenStepperAssetFrameShape.RoundedMedium -> ContinuousRoundedRectangle(IenTheme.radius.default)
         IenStepperAssetFrameShape.CleanW24,
-        IenStepperAssetFrameShape.CleanW32 -> ContinuousRoundedRectangle(0.dp)
+        IenStepperAssetFrameShape.CleanW32 -> ContinuousRoundedRectangle(IenTheme.radius.none)
     }
 
     IenSurface(
@@ -1047,7 +1048,7 @@ fun IenStepperRightArrow(
         IenIcon(
             imageVector = SystemIcons.ChevronRight,
             contentDescription = null,
-            modifier = Modifier.size(16.dp),
+            modifier = Modifier.size(IenTheme.icon.sm),
             tint = color,
         )
     }
@@ -1188,7 +1189,7 @@ fun IenTab(
         IenTabSize.Small -> 48.dp
         IenTabSize.Large -> 56.dp
     }
-    val gap = itemGap ?: if (fluid) IenTheme.spacing.xl else 0.dp
+    val gap = itemGap ?: if (fluid) IenTheme.spacing.xl else IenTheme.spacing.none
     val density = LocalDensity.current
     val scrollState = rememberScrollState()
     var itemBounds by remember(items) { mutableStateOf<Map<Int, IenTabItemBounds>>(emptyMap()) }
@@ -1317,7 +1318,7 @@ fun IenTab(
                             this.contentDescription = item.ariaLabel
                                 ?: if (badge != 0) contentDescription else item.text
                         }
-                        .padding(horizontal = if (fluid) IenTheme.spacing.xs else 0.dp),
+                        .padding(horizontal = if (fluid) IenTheme.spacing.xs else IenTheme.spacing.none),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Bottom,
                 ) {

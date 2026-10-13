@@ -145,11 +145,11 @@ fun IenTooltipText(
     label: String
 ) {
     val colors = resolveIenTooltipColors(IenSemanticTone.Neutral, IenTheme.colors)
-    val shape = ContinuousRoundedRectangle(12.dp)
+    val shape = ContinuousRoundedRectangle(IenTheme.radius.default)
     val outerPadding = when (positioning) {
-        TooltipAnchorPosition.Above -> PaddingValues(start = 16.dp, end = 16.dp, top = 32.dp)
-        TooltipAnchorPosition.Below -> PaddingValues(start = 16.dp, end = 16.dp, bottom = 32.dp)
-        else -> PaddingValues(16.dp)
+        TooltipAnchorPosition.Above -> PaddingValues(start = IenTheme.spacing.md, end = IenTheme.spacing.md, top = IenTheme.spacing.xxl)
+        TooltipAnchorPosition.Below -> PaddingValues(start = IenTheme.spacing.md, end = IenTheme.spacing.md, bottom = IenTheme.spacing.xxl)
+        else -> PaddingValues(IenTheme.spacing.md)
     }
     val contentAlignment = when (positioning) {
         TooltipAnchorPosition.Above -> Alignment.BottomCenter
@@ -177,7 +177,10 @@ fun IenTooltipText(
         ) {
             Text(
                 text = label,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                modifier = Modifier.padding(
+                    horizontal = IenTheme.spacing.md,
+                    vertical = IenTheme.spacing.sm - IenTheme.spacing.xxxs,
+                ),
                 style = IenTheme.typography.label2.copy(fontWeight = FontWeight.Bold),
                 color = colors.content,
                 textAlign = TextAlign.Center,

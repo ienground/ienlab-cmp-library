@@ -92,7 +92,7 @@ fun IenEmpty(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs, Alignment.CenterVertically),
         modifier = modifier
     ) {
         icon?.let { iconContent ->
@@ -107,7 +107,7 @@ fun IenEmpty(
             )
         ) {
             Box(
-                modifier = Modifier.padding(top = 8.dp)
+                modifier = Modifier.padding(top = IenTheme.spacing.xs)
             ) {
                 title()
             }
@@ -122,11 +122,11 @@ fun IenEmpty(
         }
         buttons?.let {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
                 content = it,
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(IenTheme.spacing.md)
                     .fillMaxWidth()
             )
         }

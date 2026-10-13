@@ -203,8 +203,8 @@ fun IenSwitch(
                         Box(
                             modifier = Modifier
                                 .align(Alignment.CenterStart)
-                                .offset(x = 4.dp)
-                                .size(16.dp),
+                                .offset(x = IenTheme.spacing.xxs)
+                                .size(IenTheme.icon.sm),
                             contentAlignment = Alignment.Center,
                         ) {
                             content()
@@ -215,7 +215,7 @@ fun IenSwitch(
                             modifier = Modifier
                                 .align(Alignment.CenterStart)
                                 .offset(x = 52.dp)
-                                .size(16.dp),
+                                .size(IenTheme.icon.sm),
                             contentAlignment = Alignment.Center,
                         ) {
                             content()
@@ -622,7 +622,7 @@ fun IenRadioButton(
                 .alpha(if (enabled) 1f else IenTheme.state.disabledAlpha)
                 .size(size)
                 .drawIenBorder(
-                    BorderStroke(1.5.dp, borderColor),
+                    BorderStroke(IenTheme.stroke.medium, borderColor),
                     shape = androidx.compose.foundation.shape.CircleShape,
                 ),
             contentAlignment = Alignment.Center,
@@ -824,7 +824,7 @@ fun IenCircleCheckbox(
                 .size(size)
                 .then(checkboxBackgroundModifier)
                 .drawIenBorder(
-                    BorderStroke(1.5.dp, borderAnimColor),
+                    BorderStroke(IenTheme.stroke.medium, borderAnimColor),
                     shape = androidx.compose.foundation.shape.CircleShape
                 ),
             contentAlignment = Alignment.Center
@@ -969,7 +969,7 @@ fun IenDotCheckbox(
                 .size(size)
                 .then(dotBackgroundModifier)
                 .drawIenBorder(
-                    BorderStroke(1.5.dp, borderAnimColor),
+                    BorderStroke(IenTheme.stroke.medium, borderAnimColor),
                     shape = androidx.compose.foundation.shape.CircleShape
                 ),
         )

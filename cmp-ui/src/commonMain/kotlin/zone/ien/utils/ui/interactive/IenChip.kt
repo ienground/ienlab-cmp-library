@@ -46,6 +46,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousCapsule
 import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenSpacing
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
@@ -120,7 +121,17 @@ object IenChipDefault {
     )
 
     /** Chip의 기본 내부 여백입니다. */
-    val ContentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+    val ContentPadding = PaddingValues(
+        horizontal = IenSpacing().sm,
+        vertical = IenSpacing().xxs + IenSpacing().xxxs,
+    )
+
+    /** Chip의 테마 간격을 반영한 기본 내부 여백을 반환합니다. */
+    @Composable
+    fun contentPadding(): PaddingValues = PaddingValues(
+        horizontal = IenTheme.spacing.sm,
+        vertical = IenTheme.spacing.xxs + IenTheme.spacing.xxxs,
+    )
 }
 
 /** 작업을 실행하는 Assist Chip입니다. */
@@ -455,7 +466,7 @@ private fun IenChipContainer(
                 IenProvideTextStyle(IenTheme.typography.label2, animatedContent) {
                     AnimatedContent(
                         targetState = state.loading,
-                        modifier = Modifier.padding(IenChipDefault.ContentPadding),
+                        modifier = Modifier.padding(IenChipDefault.contentPadding()),
                         transitionSpec = {
                             fadeIn(tween(fastAnimationMillis)) togetherWith
                                 fadeOut(tween(instantAnimationMillis))

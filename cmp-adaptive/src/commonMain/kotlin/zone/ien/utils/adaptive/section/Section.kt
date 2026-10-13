@@ -37,6 +37,7 @@ import zone.ien.hig.section.rememberSectionState
 import zone.ien.hig.section.sectionContainerBackground
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.screen.LocalTopBarScaffoldScrollState
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.screen.LocalIenScaffoldScrollState
 import zone.ien.utils.ui.section.IenSection
 import zone.ien.utils.ui.section.ienSectionBackground
@@ -82,7 +83,7 @@ fun IenProvideSectionStyle(
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
         modifier = Modifier
             .conditional(fullHeight) { fillMaxHeight() }
             .layerBackdrop(backdrop)

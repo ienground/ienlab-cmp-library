@@ -2071,7 +2071,7 @@ fun BorderSection(controls: Map<String, String> = emptyMap()) {
 @Preview
 @Composable
 fun BottomInfoSection(controls: Map<String, String> = emptyMap()) {
-    val padding = controls.intValue("padding", 24).coerceIn(0, 48).dp
+    val padding = controls.intValue("padding", IenTheme.spacing.xl.value.toInt()).coerceIn(0, 48).dp
     IenTheme {
         val backgroundColor = playgroundSurfaceColor(controls.enumValue("background", "surfaceWeak"))
         val bottomGradient = when (controls.enumValue("gradient", "Default")) {
@@ -2083,7 +2083,7 @@ fun BottomInfoSection(controls: Map<String, String> = emptyMap()) {
             IenBottomInfo(
                 bottomGradient = bottomGradient,
                 backgroundColor = backgroundColor,
-                contentPadding = PaddingValues(horizontal = padding, vertical = 16.dp),
+                contentPadding = PaddingValues(horizontal = padding, vertical = IenTheme.spacing.md),
             ) {
                 Text(
                     text = "하단 안내는 결제, 확인, 폼 화면에서 보조 정보를 안정적으로 보여줍니다.",
@@ -2119,7 +2119,7 @@ fun BottomSheetSection(controls: Map<String, String> = emptyMap()) {
             ) {
                 Text("일반 바텀시트 열기")
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(IenTheme.spacing.xs))
             IenButton(
                 onClick = { selectSheetState.show(IenSheetDetent.Content) },
                 display = IenButtonDisplay.Block,
@@ -2174,7 +2174,7 @@ fun BottomSheetSection(controls: Map<String, String> = emptyMap()) {
         IenBottomSheet(
             state = selectSheetState,
             header = { Text("좋아하는 동물을 선택해주세요.", style = IenTheme.typography.title3) },
-            contentPadding = PaddingValues(0.dp)
+            contentPadding = PaddingValues(IenTheme.spacing.none)
         ) {
             IenBottomSheetSelect(
                 options = listOf(
@@ -2245,8 +2245,8 @@ fun ButtonSection(controls: Map<String, String> = emptyMap()) {
                 variant = buttonVariant,
                 tone = controls.toneValue("tone", IenSemanticTone.Brand),
                 contentPadding = PaddingValues(
-                    horizontal = controls.intValue("contentPadding", 16).coerceIn(0, 32).dp,
-                    vertical = controls.intValue("verticalContentPadding", 8).coerceIn(0, 32).dp,
+                    horizontal = controls.intValue("contentPadding", IenTheme.spacing.md.value.toInt()).coerceIn(0, 32).dp,
+                    vertical = controls.intValue("verticalContentPadding", IenTheme.spacing.xs.value.toInt()).coerceIn(0, 32).dp,
                 ),
                 state = IenButtonState(
                     enabled = !controls.disabledValue(),
@@ -2437,7 +2437,7 @@ fun CardSection(controls: Map<String, String> = emptyMap()) {
                 toneVariant = cardToneVariant,
                 shape = shape,
                 contentPadding = PaddingValues(
-                    controls.intValue("contentPadding", 16).coerceIn(0, 32).dp,
+                    controls.intValue("contentPadding", IenTheme.spacing.md.value.toInt()).coerceIn(0, 32).dp,
                 ),
                 onClick = {
                     clickedCard = "${controls.enumValue("tone", "Neutral")} · ${controls.enumValue("variant", "Filled")}"
@@ -2860,13 +2860,13 @@ fun PullToRefreshSection(controls: Map<String, String> = emptyMap()) {
                 enabled = controls.booleanValue("enabled", true) && !loading,
                 threshold = controls.intValue("threshold", 56).coerceIn(36, 96).dp,
                 contentPadding = PaddingValues(
-                    top = controls.intValue("topPadding", 0).coerceIn(0, 160).dp,
+                    top = controls.intValue("topPadding", IenTheme.spacing.none.value.toInt()).coerceIn(0, 160).dp,
                 ),
             ) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     state = listState,
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 106.dp),
+                    contentPadding = PaddingValues(start = IenTheme.spacing.md, end = IenTheme.spacing.md, bottom = 106.dp),
                 ) {
                     if (loading) {
                         item {
@@ -2950,14 +2950,14 @@ fun ProgressIndicatorSection(controls: Map<String, String> = emptyMap()) {
                     IenCircularWavyProgressIndicator(
                         progress = { progress },
                         color = color,
-                        gapSize = controls.intValue("gapSize", 4).coerceIn(0, 16).dp,
+                        gapSize = controls.intValue("gapSize", IenTheme.spacing.xxs.value.toInt()).coerceIn(0, 16).dp,
                         wavelength = controls.intValue("wavelength", 40).coerceIn(8, 100).dp,
                         amplitude = { controls.intValue("waveAmplitude", 100).coerceIn(0, 200) / 100f },
                     )
                 } else {
                     IenCircularWavyProgressIndicator(
                         color = color,
-                        gapSize = controls.intValue("gapSize", 4).coerceIn(0, 16).dp,
+                        gapSize = controls.intValue("gapSize", IenTheme.spacing.xxs.value.toInt()).coerceIn(0, 16).dp,
                         wavelength = controls.intValue("wavelength", 40).coerceIn(8, 100).dp,
                         amplitude = controls.intValue("waveAmplitude", 100).coerceIn(0, 200) / 100f,
                     )
@@ -2966,7 +2966,7 @@ fun ProgressIndicatorSection(controls: Map<String, String> = emptyMap()) {
                 else -> IenCircularProgressIndicator(
                     color = color,
                     strokeWidth = controls.intValue("strokeWidth", 4).coerceIn(1, 12).dp,
-                    gapSize = controls.intValue("gapSize", 4).coerceIn(0, 16).dp,
+                    gapSize = controls.intValue("gapSize", IenTheme.spacing.xxs.value.toInt()).coerceIn(0, 16).dp,
                 )
             }
         }
@@ -2989,7 +2989,7 @@ fun MenuSection(controls: Map<String, String> = emptyMap()) {
                 placement = IenMenu.Placement.entries.firstOrNull {
                     it.name == controls.enumValue("placement", "AnchorTopStart")
                 } ?: IenMenu.Placement.AnchorTopStart,
-                offset = DpOffset(0.dp, controls.intValue("offset", 8).coerceIn(0, 32).dp),
+                offset = DpOffset(IenTheme.spacing.none, controls.intValue("offset", IenTheme.spacing.xs.value.toInt()).coerceIn(0, 32).dp),
                 dropdown = {
                     IenMenu.Dropdown(
                         onDismissRequest = { menuOpen = false },
@@ -3523,9 +3523,9 @@ fun SkeletonSection(controls: Map<String, String> = emptyMap()) {
                     custom = listOf(
                         IenSkeletonElement.Title,
                         IenSkeletonElement.Subtitle,
-                        IenSkeletonElement.Spacer(12.dp),
+                        IenSkeletonElement.Spacer(IenTheme.spacing.sm),
                         IenSkeletonElement.Card,
-                        IenSkeletonElement.Spacer(8.dp),
+                        IenSkeletonElement.Spacer(IenTheme.spacing.xs),
                         IenSkeletonElement.ListWithIcon,
                     ),
                     repeatLastItemCount = IenSkeletonRepeat.Count(2),
@@ -3558,7 +3558,7 @@ fun SkeletonSection(controls: Map<String, String> = emptyMap()) {
                                 ),
                             ),
                         ),
-                        IenSkeletonElement.Spacer(height = 12.dp),
+                        IenSkeletonElement.Spacer(height = IenTheme.spacing.sm),
                         IenSkeletonElement.Box(
                             modifier = Modifier.size(width = 180.dp, height = 112.dp),
                             contentAlignment = Alignment.Center,
@@ -3907,7 +3907,7 @@ fun SwitchSection(controls: Map<String, String> = emptyMap()) {
                             IenIcon(
                                 imageVector = SystemIcons.Check,
                                 contentDescription = null,
-                                size = 16.dp,
+                                size = IenTheme.icon.sm,
                                 tint = IenTheme.colors.surface,
                             )
                         },
@@ -3915,7 +3915,7 @@ fun SwitchSection(controls: Map<String, String> = emptyMap()) {
                             IenIcon(
                                 imageVector = SystemIcons.Close,
                                 contentDescription = null,
-                                size = 16.dp,
+                                size = IenTheme.icon.sm,
                                 tint = IenTheme.colors.surface,
                             )
                         },
@@ -3950,7 +3950,14 @@ fun TabSection(controls: Map<String, String> = emptyMap()) {
                 onSelectedIndexChange = { tabSelected = it },
                 size = size,
                 fluid = fluid,
-                itemGap = controls.intValue("itemGap", if (fluid) 36 else 8).coerceIn(0, 32).dp,
+                itemGap = controls.intValue(
+                    "itemGap",
+                    if (fluid) {
+                        IenTheme.spacing.xxl.value.toInt()
+                    } else {
+                        IenTheme.spacing.xs.value.toInt()
+                    },
+                ).coerceIn(0, 32).dp,
                 modifier = Modifier.fillMaxWidth(),
                 ariaLabel = "주문 정보 탭",
             )
@@ -4307,11 +4314,11 @@ fun TopSection(controls: Map<String, String> = emptyMap()) {
     val selectorType = IenTopSelectorType.entries.firstOrNull {
         it.name == controls.enumValue("selectorType", "Arrow")
     } ?: IenTopSelectorType.Arrow
-    val upperGap = controls.intValue("upperGap", 24).coerceIn(0, 48).dp
-    val lowerGap = controls.intValue("lowerGap", 24).coerceIn(0, 48).dp
+    val upperGap = controls.intValue("upperGap", IenTheme.spacing.xl.value.toInt()).coerceIn(0, 48).dp
+    val lowerGap = controls.intValue("lowerGap", IenTheme.spacing.xl.value.toInt()).coerceIn(0, 48).dp
     val contentPadding = PaddingValues(
-        horizontal = controls.intValue("contentPadding", 24).coerceIn(0, 48).dp,
-        vertical = controls.intValue("contentPaddingVertical", 0).coerceIn(0, 48).dp,
+        horizontal = controls.intValue("contentPadding", IenTheme.spacing.xl.value.toInt()).coerceIn(0, 48).dp,
+        vertical = controls.intValue("contentPaddingVertical", IenTheme.spacing.none.value.toInt()).coerceIn(0, 48).dp,
     )
     val rightVerticalAlign = IenTopRightVerticalAlign.entries.firstOrNull {
         it.name == controls.enumValue("rightVerticalAlign", "Center")
@@ -5009,7 +5016,7 @@ fun BottomBarSection(controls: Map<String, String> = emptyMap()) {
                 containerColor = playgroundSurfaceColor(controls.enumValue("container", "surface")),
                 shape = shape,
                 elevation = controls.intValue("elevation", 8).coerceIn(0, 24).dp,
-                contentPadding = PaddingValues(controls.intValue("contentPadding", 8).coerceIn(0, 24).dp),
+                contentPadding = PaddingValues(controls.intValue("contentPadding", IenTheme.spacing.xs.value.toInt()).coerceIn(0, 24).dp),
                 visible = controls.booleanValue("visible", true),
             )
         }
@@ -5133,7 +5140,7 @@ fun NavigationBarSection(controls: Map<String, String> = emptyMap()) {
                 IenNavigationBar(
                     selectedIndex = selectedTabIndex.coerceIn(0, itemCount - 1),
                     itemCount = itemCount,
-                    windowInsets = WindowInsets(0.dp),
+                    windowInsets = WindowInsets(IenTheme.spacing.none),
                     visible = visible,
                 ) {
                     items.take(itemCount).forEachIndexed { index, (label, icon) ->
@@ -5160,7 +5167,7 @@ fun NavigationBarSection(controls: Map<String, String> = emptyMap()) {
                 IenNavigationBar2(
                     selectedIndex = selectedTabIndex.coerceIn(0, itemCount - 1),
                     itemCount = itemCount,
-                    windowInsets = WindowInsets(0.dp),
+                    windowInsets = WindowInsets(IenTheme.spacing.none),
                     visible = visible,
                 ) {
                     floatingTabItems.take(itemCount).forEachIndexed { index, item ->
@@ -6382,8 +6389,8 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
                 variant = IenTextFieldVariant.Hero,
                 suffix = "원",
                 format = numberFormat,
-                paddingTop = 24.dp,
-                paddingBottom = 24.dp,
+                paddingTop = IenTheme.spacing.xl,
+                paddingBottom = IenTheme.spacing.xl,
             )
             IenClearableTextField(
                 value = clearText,

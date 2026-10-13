@@ -27,6 +27,7 @@ import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.firebase.auth.apple.rememberFirebaseAppleSignInState
 import zone.ien.utils.firebase.auth.google.rememberFirebaseGoogleSignInState
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButton
 import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonVariant
@@ -71,11 +72,11 @@ fun FirebaseAuthScreen(
             modifier = modifier,
         ) { pv, title ->
             Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())
                     .padding(pv)
-                    .padding(horizontal = 24.dp)
+                    .padding(horizontal = IenTheme.spacing.xl)
             ) {
                 title()
 
@@ -83,7 +84,7 @@ fun FirebaseAuthScreen(
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)
                 ) {
                     IenButton(
                         onClick = { googleSignInState.launch() },
@@ -100,7 +101,7 @@ fun FirebaseAuthScreen(
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)
                 ) {
                     IenButton(
                         onClick = { appleSignInState.launch() },
@@ -116,7 +117,7 @@ fun FirebaseAuthScreen(
                 }
 
                 currentUser?.let { user ->
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(IenTheme.spacing.md))
                     Text("현재 로그인된 사용자:")
                     Text("UID: ${user.uid}")
                     Text("Email: ${user.email ?: "N/A"}")
@@ -134,7 +135,7 @@ fun FirebaseAuthScreen(
                 }
 
                 lastResult?.let { res ->
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(IenTheme.spacing.xs))
                     val user = res.getOrNull()
                     val error = res.exceptionOrNull()
                     if (user != null) {

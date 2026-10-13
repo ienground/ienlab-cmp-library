@@ -268,7 +268,7 @@ fun IenButton(
         .heightIn(min = height)
 
     val resolvedShape = if (display == IenButtonDisplay.Full) {
-        ContinuousRoundedRectangle(0.dp)
+        ContinuousRoundedRectangle(IenTheme.radius.none)
     } else {
         shape
     }
@@ -379,7 +379,7 @@ fun IenToggleButton(
         .animateContentSizeWithoutClipping(animationSpec = toggleButtonAnimationSpec())
         .semantics { selected = checked }
     val targetShape = if (display == IenButtonDisplay.Full) {
-        ContinuousRoundedRectangle(0.dp)
+        ContinuousRoundedRectangle(IenTheme.radius.none)
     } else if (checked) {
         shapes.checked
     } else {
@@ -570,7 +570,7 @@ fun IenIconButton(
         state = state,
         shape = shape,
         colors = colors,
-        contentPadding = PaddingValues(0.dp),
+        contentPadding = PaddingValues(IenTheme.spacing.none),
         interactionSource = interactionSource,
         scalePressed = 0.95f,
         content = innerContent,
@@ -627,7 +627,7 @@ fun IenIconToggleButton(
         variant = if (checked) variants.checked else variants.unchecked,
         state = state,
         shape = resolvedShape,
-        contentPadding = PaddingValues(0.dp),
+        contentPadding = PaddingValues(IenTheme.spacing.none),
         interactionSource = interactionSource,
         scalePressed = 0.95f,
         colors = colors.resolve(checked = checked, enabled = state.enabled),
@@ -682,7 +682,7 @@ fun IenFab(
         state = state,
         shape = shape,
         colors = colors,
-        contentPadding = PaddingValues(0.dp),
+        contentPadding = PaddingValues(IenTheme.spacing.none),
         interactionSource = interactionSource,
         scalePressed = 0.95f,
     ) {
@@ -757,7 +757,7 @@ fun IenFab(
                     enter = expandHorizontally(expandFrom = Alignment.Start) + fadeIn(),
                     exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
                 ) {
-                    Box(modifier = Modifier.padding(start = 12.dp)) {
+                    Box(modifier = Modifier.padding(start = IenTheme.spacing.sm)) {
                         text()
                     }
                 }
@@ -788,7 +788,7 @@ fun IenExtendedFab(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(),
     shape: Shape = ContinuousCapsule(),
-    contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.lg, vertical = IenTheme.spacing.md),
     colors: IenButtonColors = IenButtonDefault.colors(variant = variant, tone = tone),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
@@ -1223,10 +1223,11 @@ internal fun IenButtonSize.buttonHeight(): Dp = when (this) {
     IenButtonSize.Large -> 52.dp
 }
 
+@Composable
 internal fun IenButtonSize.buttonPadding(): PaddingValues = when (this) {
-    IenButtonSize.Small -> PaddingValues(horizontal = 12.dp, vertical = 8.dp)
-    IenButtonSize.Medium -> PaddingValues(horizontal = 16.dp, vertical = 10.dp)
-    IenButtonSize.Large -> PaddingValues(horizontal = 20.dp, vertical = 14.dp)
+    IenButtonSize.Small -> PaddingValues(horizontal = IenTheme.spacing.sm, vertical = IenTheme.spacing.xs)
+    IenButtonSize.Medium -> PaddingValues(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm - IenTheme.spacing.xxxs)
+    IenButtonSize.Large -> PaddingValues(horizontal = IenTheme.spacing.lg, vertical = IenTheme.spacing.sm + IenTheme.spacing.xxxs)
 }
 
 private fun IenFabSize.fabSize(): Dp = when (this) {
@@ -1260,13 +1261,14 @@ private fun IenTextButtonSize.minHeight(): Dp = when (this) {
     IenTextButtonSize.XXLarge -> 48.dp
 }
 
+@Composable
 private fun IenTextButtonSize.contentPadding(): PaddingValues = when (this) {
-    IenTextButtonSize.XSmall -> PaddingValues(horizontal = 4.dp, vertical = 4.dp)
-    IenTextButtonSize.Small -> PaddingValues(horizontal = 5.dp, vertical = 5.dp)
-    IenTextButtonSize.Medium -> PaddingValues(horizontal = 6.dp, vertical = 6.dp)
-    IenTextButtonSize.Large -> PaddingValues(horizontal = 7.dp, vertical = 7.dp)
-    IenTextButtonSize.XLarge -> PaddingValues(horizontal = 8.dp, vertical = 8.dp)
-    IenTextButtonSize.XXLarge -> PaddingValues(horizontal = 8.dp, vertical = 8.dp)
+    IenTextButtonSize.XSmall -> PaddingValues(horizontal = IenTheme.spacing.xxs, vertical = IenTheme.spacing.xxs)
+    IenTextButtonSize.Small -> PaddingValues(horizontal = IenTheme.spacing.xxs + IenTheme.spacing.xxxs / 2f, vertical = IenTheme.spacing.xxs + IenTheme.spacing.xxxs / 2f)
+    IenTextButtonSize.Medium -> PaddingValues(horizontal = IenTheme.spacing.xxs + IenTheme.spacing.xxxs, vertical = IenTheme.spacing.xxs + IenTheme.spacing.xxxs)
+    IenTextButtonSize.Large -> PaddingValues(horizontal = IenTheme.spacing.xxs + IenTheme.spacing.xxxs * 1.5f, vertical = IenTheme.spacing.xxs + IenTheme.spacing.xxxs * 1.5f)
+    IenTextButtonSize.XLarge -> PaddingValues(horizontal = IenTheme.spacing.xs, vertical = IenTheme.spacing.xs)
+    IenTextButtonSize.XXLarge -> PaddingValues(horizontal = IenTheme.spacing.xs, vertical = IenTheme.spacing.xs)
 }
 
 private fun IenTextButtonSize.iconGap(): Dp = when (this) {
@@ -1298,7 +1300,7 @@ internal fun IenButtonContainer(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     state: IenButtonState = IenButtonState(),
     shape: Shape = ContinuousRoundedRectangle(IenTheme.radius.default),
-    contentPadding: PaddingValues = PaddingValues(0.dp),
+    contentPadding: PaddingValues = PaddingValues(IenTheme.spacing.none),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     onClickLabel: String? = null,
     scalePressed: Float = 0.975f,
