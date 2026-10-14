@@ -2,36 +2,14 @@ package zone.ien.utils.utils
 
 import java.util.Locale
 
-/**
- * Android용 소수점 형식화 클래스.
- * 
- * 이 클래스는 Android 플랫폼에서 소수점 숫자를 형식화하는 구현을 제공합니다.
- * 
- * @see DecimalFormat
- * @see DoubleFormat
- */
-actual class DecimalFormat {
-    /**
-     * 소수점 숫자를 문자열로 형식화합니다.
-     * 
-     * @param number 형식화할 소수점 숫자
-     * @return 형식화된 문자열 표현
-     */
-    actual fun format(number: Double): String {
-        val df = java.text.DecimalFormat("###,###")
-        return df.format(number)
-    }
+actual class DecimalFormat actual constructor(pattern: String) {
+    private val formatter = java.text.DecimalFormat(pattern)
 
-    /**
-     * 정수 숫자를 문자열로 형식화합니다.
-     * 
-     * @param number 형식화할 정수 숫자
-     * @return 형식화된 문자열 표현
-     */
-    actual fun format(number: Int): String {
-        val df = java.text.DecimalFormat("###,###")
-        return df.format(number)
-    }
+    actual constructor() : this("#,##0")
+
+    actual fun format(number: Double): String = formatter.format(number)
+
+    actual fun format(number: Int): String = formatter.format(number)
 }
 
 /**
