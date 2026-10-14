@@ -2374,3 +2374,26 @@ fun IenResult(
         secondaryAction?.invoke()
     }
 }
+
+/** 기존 문자열 인자 호출을 현재 결과 슬롯 API로 전달합니다. */
+@Deprecated("Use the composable title and description slots instead.")
+@Composable
+fun IenResult(
+    title: String,
+    modifier: Modifier = Modifier,
+    description: String? = null,
+    tone: IenResultTone = IenResultTone.Info,
+    icon: (@Composable BoxScope.() -> Unit)? = null,
+    primaryAction: (@Composable () -> Unit)? = null,
+    secondaryAction: (@Composable () -> Unit)? = null,
+) {
+    IenResult(
+        title = { Text(title) },
+        modifier = modifier,
+        description = description?.let { text -> { Text(text) } },
+        tone = tone,
+        icon = icon,
+        primaryAction = primaryAction,
+        secondaryAction = secondaryAction,
+    )
+}

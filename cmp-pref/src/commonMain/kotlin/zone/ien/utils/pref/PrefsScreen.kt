@@ -38,9 +38,9 @@ enum class PrefsScreenType {
  */
 @Composable
 fun PrefsScreen(
-    modifier: Modifier = Modifier,
     dataStore: DataStore<Preferences>,
     title: @Composable () -> Unit = {},
+    modifier: Modifier = Modifier,
     fullHeight: Boolean = true,
     scrollState: ScrollState? = rememberScrollState(),
     shape: Shape = RectangleShape,

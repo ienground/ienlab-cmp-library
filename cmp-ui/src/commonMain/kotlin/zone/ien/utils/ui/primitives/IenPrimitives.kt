@@ -223,6 +223,21 @@ fun IenIcon(
 
 /** 요소를 구분하는 수평선과 수직선을 제공합니다. */
 object IenDivider {
+    /** 기존 수평 구분선 호출을 유지합니다. */
+    @Deprecated("Use IenDivider.Horizontal instead.")
+    @Composable
+    operator fun invoke(
+        modifier: Modifier = Modifier,
+        color: Color = IenTheme.colors.border,
+        thickness: Dp = IenTheme.stroke.thin,
+    ) {
+        Horizontal(
+            modifier = modifier,
+            color = color,
+            thickness = thickness,
+        )
+    }
+
     /**
      * 가로 방향의 구분선을 표시합니다.
      *
