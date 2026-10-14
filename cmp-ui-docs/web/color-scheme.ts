@@ -141,6 +141,8 @@ export function generateColorSchemes(seeds: ColorSeeds): ColorSchemes {
     const seed = seeds[group.base];
     if (!isHexColor(seed, false))
       throw new Error("기준 색상은 #RRGGBB 형식이어야 합니다.");
+    if (seed.toUpperCase() === defaults.light[group.base].toUpperCase())
+      continue;
     for (const mode of ["light", "dark"] as const) {
       const scheme = schemes[mode];
       const base =
@@ -184,15 +186,34 @@ export function generateKotlinTheme(
   iconStyle: IconStyle = "material-filled",
 ): string {
   const name = toKotlinIdentifier(appName);
+  const needsColorImport = (["light", "dark"] as const).some((mode) =>
+    colorRoles.some(
+      (role) =>
+        colorToArgb(schemes[mode][role]) !==
+        colorToArgb(defaults[mode][role]),
+    ),
+  );
   function declaration(mode: ColorMode, colorName: string): string {
     const defaultName = mode === "light" ? "lightColors" : "darkColors";
-    return `internal val ${colorName} = DefaultColors.${defaultName}.copy(\n${colorRoles.map((role) => `    ${role} = Color(0x${colorToArgb(schemes[mode][role])}),`).join("\n")}\n)`;
+    const overrides = colorRoles
+      .filter(
+        (role) =>
+          colorToArgb(schemes[mode][role]) !==
+          colorToArgb(defaults[mode][role]),
+      )
+      .map(
+        (role) => `    ${role} = Color(0x${colorToArgb(schemes[mode][role])}),`,
+      )
+      .join("\n");
+    const defaultColors = `DefaultColors.${defaultName}`;
+    return overrides
+      ? `internal val ${colorName} = ${defaultColors}.copy(\n${overrides}\n)`
+      : `internal val ${colorName} = ${defaultColors}`;
   }
   return `import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.graphics.Color
-import zone.ien.utils.icon.IconStyle
+${needsColorImport ? "import androidx.compose.ui.graphics.Color\n" : ""}import zone.ien.utils.icon.IconStyle
 import zone.ien.utils.icon.LocalIconStyle
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.foundation.defaultIenTokens

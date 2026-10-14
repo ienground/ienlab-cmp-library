@@ -52,20 +52,20 @@
 | `border` | `#E5E8EB` | 기본 구분선과 테두리 |
 | `borderStrong` | `#D1D6DB` | 강조 테두리 |
 | `overlay` | `rgba(0, 0, 0, 0.60)` | 모달 뒤 가림막 |
-| `brand` | `#3182F6` | 주요 행동과 선택 |
+| `brand` | `#7C4DFF` | 주요 행동과 선택 |
 | `onBrand` | `#FFFFFF` | 브랜드색 위 콘텐츠 |
-| `brandWeak` | `#E8F3FF` | 약한 브랜드 배경 |
-| `onBrandWeak` | `#3182F6` | 약한 브랜드 배경 위 콘텐츠 |
-| `success` | `#03B26C` | 성공 |
+| `brandWeak` | `#F2EDFF` | 약한 브랜드 배경 |
+| `onBrandWeak` | `#6B3FE0` | 약한 브랜드 배경 위 콘텐츠 |
+| `success` | `#13884B` | 성공 |
 | `successWeak` | `#F0FAF6` | 약한 성공 배경 |
-| `warning` | `#FE9800` | 경고 |
+| `warning` | `#BA5D00` | 경고 |
 | `warningWeak` | `#FFF3E0` | 약한 경고 배경 |
-| `danger` | `#F04452` | 오류와 삭제 |
+| `danger` | `#D4414D` | 오류와 삭제 |
 | `dangerWeak` | `#FFEEEE` | 약한 오류 배경 |
-| `info` | `#18A5A5` | 정보 |
-| `infoWeak` | `#EDF8F8` | 약한 정보 배경 |
+| `info` | `#2F74DA` | 정보 |
+| `infoWeak` | `#E8F3FF` | 약한 정보 배경 |
 
-`success`, `warning`, `danger`, `info` 위의 콘텐츠는 `#FFFFFF`를 사용한다. 각 약한 배경 위에는 같은 의미의 기본색을 사용한다.
+채워진 의미 색상 위에는 `#FFFFFF`를 사용한다. 각 약한 배경 위에는 같은 의미의 기본색을 사용한다.
 
 ### 다크 모드
 
@@ -83,18 +83,20 @@
 | `border` | `#333D4B` | 기본 구분선과 테두리 |
 | `borderStrong` | `#4E5968` | 강조 테두리 |
 | `overlay` | `rgba(0, 0, 0, 0.70)` | 모달 뒤 가림막 |
-| `brand` | `#64A8FF` | 주요 행동과 선택 |
-| `onBrand` | `#FFFFFF` | 브랜드색 위 콘텐츠 |
-| `brandWeak` | `#17365D` | 약한 브랜드 배경 |
-| `onBrandWeak` | `#64A8FF` | 약한 브랜드 배경 위 콘텐츠 |
+| `brand` | `#B69CFF` | 주요 행동과 선택 |
+| `onBrand` | `#101318` | 브랜드색 위 콘텐츠 |
+| `brandWeak` | `#30264F` | 약한 브랜드 배경 |
+| `onBrandWeak` | `#B69CFF` | 약한 브랜드 배경 위 콘텐츠 |
 | `success` | `#3FD599` | 성공 |
 | `successWeak` | `#113B2B` | 약한 성공 배경 |
 | `warning` | `#FFBD51` | 경고 |
 | `warningWeak` | `#4A3211` | 약한 경고 배경 |
 | `danger` | `#FB8890` | 오류와 삭제 |
 | `dangerWeak` | `#4A1D22` | 약한 오류 배경 |
-| `info` | `#58C7C7` | 정보 |
-| `infoWeak` | `#123A3A` | 약한 정보 배경 |
+| `info` | `#64A8FF` | 정보 |
+| `infoWeak` | `#17365D` | 약한 정보 배경 |
+
+채워진 의미 색상 위에는 `#101318`을 사용한다. 각 약한 배경 위에는 같은 의미의 밝은 기본색을 사용한다.
 
 ### 색상 적용 규칙
 
