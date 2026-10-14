@@ -74,7 +74,7 @@ fun DocsApp(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .verticalScroll(rememberScrollState())
-                                .padding(24.dp)
+                                .padding(IenTheme.spacing.xl)
                                 .onSizeChanged { size ->
                                     onContentHeight(with(density) { size.height.toDp().value.roundToInt() })
                                 },
@@ -93,7 +93,7 @@ fun DocsApp(
                             hostState = snackbarHostState,
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
-                                .padding(16.dp),
+                                .padding(IenTheme.spacing.md),
                         )
                     }
                 }

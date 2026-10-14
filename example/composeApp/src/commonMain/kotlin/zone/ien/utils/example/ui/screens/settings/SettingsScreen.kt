@@ -30,13 +30,17 @@ import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.material.rounded.Delete
 import zone.ien.utils.pref.PrefsGroup
 import zone.ien.utils.pref.PrefsScreen
+import zone.ien.utils.pref.PrefsScreenType
+import zone.ien.utils.pref.item.DropdownPref
 import zone.ien.utils.pref.item.SwitchPref
 import zone.ien.utils.pref.item.TextFieldPref
 import zone.ien.utils.pref.item.TextPref
+import zone.ien.utils.ui.interactive.IenSwitch
 import zone.ien.utils.ui.interactive.IenTextField
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.utils.sendEmail
+import zone.ien.utils.example.ui.keyboardDismissAction
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -47,6 +51,7 @@ fun SettingsScreen(
     val backdrop = rememberDefaultBackdrop()
     val dataStore: DataStore<Preferences> = koinInject(named(DEFAULT_DATASTORE))
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
+    var useAdaptivePrefs by remember { mutableStateOf(true) }
     var textFieldValue by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
 
@@ -59,6 +64,11 @@ fun SettingsScreen(
                 scrollableState = scrollState,
             ),
             actions = {
+                Text("Adaptive")
+                IenSwitch(
+                    checked = useAdaptivePrefs,
+                    onCheckedChange = { useAdaptivePrefs = it },
+                )
                 AdaptiveSwitch(
                     checked = isMaterialTheme,
                     onCheckedChange = { isMaterialTheme = it },
@@ -68,6 +78,7 @@ fun SettingsScreen(
         ) { pv, title ->
             PrefsScreen(
                 dataStore = dataStore,
+                type = if (useAdaptivePrefs) PrefsScreenType.Adaptive else PrefsScreenType.IEN,
                 title = title,
                 scrollState = scrollState,
                 backdrop = backdrop,
@@ -76,12 +87,25 @@ fun SettingsScreen(
                 PrefsGroup(
                     title = { Text(text = "Pref Group") }
                 ) {
+                    DropdownPref(
+                        title = "화면 모드",
+                        key = stringPreferencesKey("display_mode"),
+                        defaultValue = "system",
+                        itemsWithLabels = mapOf(
+                            "system" to "시스템 따름",
+                            "light" to "라이트",
+                            "dark" to "다크",
+                        ),
+                    )
                     SwitchPref(
                         title = "Hi",
                         summaryOn = "this is on",
                         summaryOff = "this is off",
                         defaultValue = true,
-                        key = booleanPreferencesKey("test")
+                        key = booleanPreferencesKey("test"),
+                        onTrackContent = { Text("켜짐") },
+                        offTrackContent = { Text("꺼짐") },
+                        adaptation = { cupertino { showSupportingContent = true } },
                     )
                     TextPref(
                         title = "Title",
@@ -119,9 +143,12 @@ fun SettingsScreen(
                     IenTextField(
                         value = textFieldValue,
                         onValueChange = { textFieldValue = it },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .keyboardDismissAction(),
                     )
                     TextFieldPref(
+                        dialogModifier = Modifier.keyboardDismissAction(),
                         leadingContent = {
                             IenIcon(
                                 imageVector = SystemIcons.Delete,
@@ -135,6 +162,7 @@ fun SettingsScreen(
                         defaultValue = "!hi"
                     )
                     TextFieldPref(
+                        dialogModifier = Modifier.keyboardDismissAction(),
                         leadingContent = {
                             IenIcon(
                                 imageVector = SystemIcons.Delete,
@@ -148,6 +176,7 @@ fun SettingsScreen(
                         defaultValue = 1254
                     )
                     TextFieldPref(
+                        dialogModifier = Modifier.keyboardDismissAction(),
                         leadingContent = {
                             IenIcon(
                                 imageVector = SystemIcons.Delete,
@@ -161,6 +190,7 @@ fun SettingsScreen(
                         defaultValue = 1254
                     )
                     TextFieldPref(
+                        dialogModifier = Modifier.keyboardDismissAction(),
                         leadingContent = {
                             IenIcon(
                                 imageVector = SystemIcons.Delete,
@@ -178,6 +208,7 @@ fun SettingsScreen(
                     title = { Text(text = "Pref Group") }
                 ) {
                     TextFieldPref(
+                        dialogModifier = Modifier.keyboardDismissAction(),
                         leadingContent = { IenIcon(imageVector = SystemIcons.Delete, contentDescription = null) },
                         title = "Title OnClick",
                         summary = { "내 숫자는 ${it}" },
@@ -186,6 +217,7 @@ fun SettingsScreen(
                         defaultValue = 1254
                     )
                     TextFieldPref(
+                        dialogModifier = Modifier.keyboardDismissAction(),
                         leadingContent = { IenIcon(imageVector = SystemIcons.Delete, contentDescription = null) },
                         title = "Title OnClick",
                         summary = { "내 숫자는 ${it}" },

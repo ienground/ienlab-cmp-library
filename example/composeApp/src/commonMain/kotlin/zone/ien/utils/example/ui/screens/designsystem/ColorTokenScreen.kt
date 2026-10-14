@@ -52,6 +52,7 @@ import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.utils.toClipEntry
+import zone.ien.utils.example.ui.keyboardDismissAction
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
@@ -152,7 +153,9 @@ fun ColorTokenScreen(
                                 copied = false
                                 copyFailed = false
                             },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .keyboardDismissAction(),
                             label = "앱 이름",
                             placeholder = "예: Lovehero",
                         )
@@ -307,7 +310,7 @@ fun ColorTokenScreen(
                             text = highlightKotlin(code),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(IenTheme.colors.surfaceWeak, RoundedCornerShape(12.dp))
+                                .background(IenTheme.colors.surfaceWeak, RoundedCornerShape(IenTheme.radius.default))
                                 .padding(IenTheme.spacing.md),
                             style = IenTheme.typography.caption.copy(
                                 fontFamily = FontFamily.Monospace,
@@ -376,7 +379,9 @@ private fun ColorOverrideRow(
         IenTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .keyboardDismissAction(),
             label = role,
             hasError = !valid,
             help = if (valid) null else "#RRGGBB 또는 #RRGGBBAA",
@@ -478,7 +483,7 @@ private fun ColorTokenGroup(
             verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
         ) {
             Text(title, style = IenTheme.typography.title3)
-            IenDivider()
+            IenDivider.Horizontal()
             tokens.forEach { token ->
                 ColorTokenRow(token)
             }

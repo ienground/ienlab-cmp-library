@@ -379,9 +379,9 @@ fun IenTextField(
                     )
                     .padding(
                         PaddingValues(
-                            start = if (variant == IenTextFieldVariant.Line) 0.dp else 14.dp,
+                            start = if (variant == IenTextFieldVariant.Line) IenTheme.spacing.none else IenTheme.spacing.sm + IenTheme.spacing.xxxs,
                             top = paddingTop ?: fieldVerticalPadding,
-                            end = if (variant == IenTextFieldVariant.Line) 0.dp else 14.dp,
+                            end = if (variant == IenTextFieldVariant.Line) IenTheme.spacing.none else IenTheme.spacing.sm + IenTheme.spacing.xxxs,
                             bottom = paddingBottom ?: fieldVerticalPadding,
                         ),
                     ),
@@ -426,7 +426,7 @@ fun IenTextField(
                             ) {
                                 IenTheme.spacing.xs
                             } else {
-                                0.dp
+                                IenTheme.spacing.none
                             },
                         ),
                     enabled = state.enabled && (!state.readOnly || readOnlyTextSelectionEnabled),
@@ -774,7 +774,7 @@ private fun IenTextFieldLabel(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxxs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -815,7 +815,7 @@ private fun IenTextFieldContainer(
         IenTextFieldVariant.Line -> {
             Column(modifier = modifier.fillMaxWidth()) {
                 content()
-                IenDivider(color = borderColor, thickness = IenTheme.stroke.thin)
+                IenDivider.Horizontal(color = borderColor, thickness = IenTheme.stroke.thin)
             }
         }
     }
@@ -890,7 +890,7 @@ private fun IenTextFieldClearButton(
         IenIcon(
             imageVector = SystemIcons.Close,
             contentDescription = null,
-            modifier = Modifier.size(16.dp),
+            modifier = Modifier.size(IenTheme.icon.sm),
             tint = Color(0xFF8B95A1),
         )
     }
@@ -927,7 +927,7 @@ private fun IenTextFieldArrowDown(
     IenIcon(
         imageVector = SystemIcons.ChevronDown,
         contentDescription = null,
-        modifier = modifier.size(24.dp),
+        modifier = modifier.size(IenTheme.icon.lg),
         tint = Color(0xFF6B7684),
     )
 }
@@ -1132,7 +1132,7 @@ private fun IenSearchFieldInput(
         shape = ContinuousRoundedRectangle(IenTheme.radius.lg),
     ) {
         Row(
-            modifier = Modifier.padding(start = 14.dp, end = 8.dp),
+            modifier = Modifier.padding(start = IenTheme.spacing.sm + IenTheme.spacing.xxxs, end = IenTheme.spacing.xs),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             leading?.invoke()

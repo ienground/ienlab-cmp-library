@@ -1,5 +1,8 @@
 package zone.ien.utils.pref.item
 
+import androidx.compose.foundation.Indication
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.ProvideTextStyle
@@ -19,11 +22,18 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.section.SectionScope
 import zone.ien.utils.adaptive.dialog.AlertDialog
 import zone.ien.utils.adaptive.dialog.TextFieldDialog
+import zone.ien.utils.adaptive.section.HigSectionLinkAdaptation
+import zone.ien.utils.adaptive.section.IenSectionLinkAdaptation
+import zone.ien.utils.pref.LocalPrefsAdaptive
 import zone.ien.utils.pref.LocalPrefsDataStore
+import zone.ien.utils.ui.dialog.IenTextFieldDialog
+import zone.ien.utils.ui.section.IenSectionColors
+import zone.ien.utils.ui.section.IenSectionLinkDefault
 import zone.ien.utils.ui.utils.TextFieldDialogData
 import zone.ien.utils.utils.checkDecimal
 
@@ -40,6 +50,15 @@ import zone.ien.utils.utils.checkDecimal
  * @param defaultValue 텍스트 필드의 기본값
  * @param enabled 설정의 활성화 여부
  * @param leadingContent 제목 앞에 표시할 콘텐츠
+ * @param colors Ien 설정 항목 색상
+ * @param interactionSource Ien 컴포넌트의 상호작용 소스
+ * @param adaptation Adaptive 모드의 플랫폼별 설정
+ * @param onClickLabel 클릭 동작의 접근성 레이블
+ * @param indication 클릭 시 시각적 피드백
+ * @param trailingContent 설정 항목 뒤에 표시할 콘텐츠
+ * @param dialogModifier 다이얼로그에 적용할 Modifier
+ * @param textFieldData 입력 필드 옵션. 초기값은 저장된 설정값을 사용합니다.
+ * @param dialogMessage 다이얼로그 설명
  * @param showIcon 앞쪽 콘텐츠를 표시할지 여부
  */
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -53,6 +72,15 @@ fun SectionScope.TextFieldPref(
     enabled: Boolean = true,
     leadingContent: @Composable (() -> Unit)? = null,
     showIcon: Boolean = false,
+    onClickLabel: String? = null,
+    indication: Indication? = LocalIndication.current,
+    interactionSource: MutableInteractionSource? = null,
+    colors: IenSectionColors = IenSectionLinkDefault.colors(),
+    trailingContent: @Composable () -> Unit = {},
+    adaptation: AdaptationScope<HigSectionLinkAdaptation, IenSectionLinkAdaptation>.() -> Unit = {},
+    dialogModifier: Modifier = Modifier,
+    textFieldData: TextFieldDialogData = TextFieldDialogData(),
+    dialogMessage: String? = null,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var showDialog by rememberSaveable { mutableStateOf(false) }
@@ -78,21 +106,28 @@ fun SectionScope.TextFieldPref(
         enabled = enabled,
         summary = summary(value),
         leadingContent = if (showIcon) leadingContent else null,
+        onClickLabel = onClickLabel,
+        indication = indication,
+        interactionSource = interactionSource,
+        colors = colors,
         adaptation = {
             cupertino {
                 this.showSupportingContent = true
                 this.isCaption = false
             }
+            adaptation()
         },
-        trailingContent = {}
+        trailingContent = trailingContent
     )
 
-    TextFieldDialog(
+    PrefsTextFieldDialog(
+        modifier = dialogModifier,
+        message = dialogMessage,
         visible = showDialog,
         icon = leadingContent,
         title = title,
         textFields = mapOf(
-            "value" to TextFieldDialogData(
+            "value" to textFieldData.copy(
                 initialValue = textValue
             )
         ),
@@ -117,8 +152,18 @@ fun SectionScope.TextFieldPref(
  * @param defaultValue 텍스트 필드의 기본값
  * @param enabled 이 설정을 활성화/비활성화하기 위한 Preferences.Key와 기본 불리언 값의 쌍
  * @param leadingContent 제목 앞에 표시할 콘텐츠
+ * @param colors Ien 설정 항목 색상
+ * @param interactionSource Ien 컴포넌트의 상호작용 소스
+ * @param adaptation Adaptive 모드의 플랫폼별 설정
+ * @param onClickLabel 클릭 동작의 접근성 레이블
+ * @param indication 클릭 시 시각적 피드백
+ * @param trailingContent 설정 항목 뒤에 표시할 콘텐츠
+ * @param dialogModifier 다이얼로그에 적용할 Modifier
+ * @param textFieldData 입력 필드 옵션. 초기값은 저장된 설정값을 사용합니다.
+ * @param dialogMessage 다이얼로그 설명
  * @param showIcon 앞쪽 콘텐츠를 표시할지 여부
  */
+@OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun SectionScope.TextFieldPref(
     modifier: Modifier = Modifier,
@@ -129,6 +174,15 @@ fun SectionScope.TextFieldPref(
     enabled: Pair<Preferences.Key<Boolean>, Boolean>,
     leadingContent: @Composable (() -> Unit)? = null,
     showIcon: Boolean = false,
+    onClickLabel: String? = null,
+    indication: Indication? = LocalIndication.current,
+    interactionSource: MutableInteractionSource? = null,
+    colors: IenSectionColors = IenSectionLinkDefault.colors(),
+    trailingContent: @Composable () -> Unit = {},
+    adaptation: AdaptationScope<HigSectionLinkAdaptation, IenSectionLinkAdaptation>.() -> Unit = {},
+    dialogModifier: Modifier = Modifier,
+    textFieldData: TextFieldDialogData = TextFieldDialogData(),
+    dialogMessage: String? = null,
 ) {
     val dataStore = LocalPrefsDataStore.current
     val prefs by remember { dataStore.data }.collectAsState(initial = null)
@@ -145,6 +199,16 @@ fun SectionScope.TextFieldPref(
         enabled = checked,
         leadingContent = leadingContent,
         showIcon = showIcon,
+        onClickLabel = onClickLabel,
+        indication = indication,
+        interactionSource = interactionSource,
+        colors = colors,
+        trailingContent = trailingContent,
+        adaptation = adaptation,
+        dialogModifier = dialogModifier,
+        textFieldData = textFieldData,
+        dialogMessage = dialogMessage,
+
     )
 }
 
@@ -162,6 +226,15 @@ fun SectionScope.TextFieldPref(
  * @param onlyDecimal 십진수 입력만 허용할지 여부
  * @param enabled 설정의 활성화 여부
  * @param leadingContent 제목 앞에 표시할 콘텐츠
+ * @param colors Ien 설정 항목 색상
+ * @param interactionSource Ien 컴포넌트의 상호작용 소스
+ * @param adaptation Adaptive 모드의 플랫폼별 설정
+ * @param onClickLabel 클릭 동작의 접근성 레이블
+ * @param indication 클릭 시 시각적 피드백
+ * @param trailingContent 설정 항목 뒤에 표시할 콘텐츠
+ * @param dialogModifier 다이얼로그에 적용할 Modifier
+ * @param textFieldData 입력 필드 옵션. 초기값은 저장된 설정값을 사용합니다.
+ * @param dialogMessage 다이얼로그 설명
  * @param showIcon 앞쪽 콘텐츠를 표시할지 여부
  */
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -176,6 +249,15 @@ fun SectionScope.TextFieldPref(
     enabled: Boolean = true,
     leadingContent: @Composable (() -> Unit)? = null,
     showIcon: Boolean = false,
+    onClickLabel: String? = null,
+    indication: Indication? = LocalIndication.current,
+    interactionSource: MutableInteractionSource? = null,
+    colors: IenSectionColors = IenSectionLinkDefault.colors(),
+    trailingContent: @Composable () -> Unit = {},
+    adaptation: AdaptationScope<HigSectionLinkAdaptation, IenSectionLinkAdaptation>.() -> Unit = {},
+    dialogModifier: Modifier = Modifier,
+    textFieldData: TextFieldDialogData = TextFieldDialogData(),
+    dialogMessage: String? = null,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var showDialog by rememberSaveable { mutableStateOf(false) }
@@ -211,24 +293,33 @@ fun SectionScope.TextFieldPref(
         enabled = enabled,
         summary = summary(value),
         leadingContent = if (showIcon) leadingContent else null,
-        trailingContent = {},
+        trailingContent = trailingContent,
+        onClickLabel = onClickLabel,
+        indication = indication,
+        interactionSource = interactionSource,
+        colors = colors,
         adaptation = {
             cupertino {
                 isCaption = true
                 showSupportingContent = true
             }
+            adaptation()
         }
     )
 
-    TextFieldDialog(
+    PrefsTextFieldDialog(
+        modifier = dialogModifier,
+        message = dialogMessage,
         visible = showDialog,
         icon = leadingContent,
         title = title,
         textFields = mapOf(
-            "value" to TextFieldDialogData(
-                keyboardType = KeyboardType.Decimal,
+            "value" to textFieldData.copy(
+                keyboardType = if (textFieldData.keyboardType == KeyboardType.Unspecified) KeyboardType.Decimal else textFieldData.keyboardType,
                 initialValue = textValue,
-                onValueChange = { it.takeIf { !onlyDecimal || it.checkDecimal() }  }
+                onValueChange = { input ->
+                    textFieldData.onValueChange(input)?.takeIf { !onlyDecimal || it.checkDecimal() }
+                }
             )
         ),
         onDismiss = { showDialog = false },
@@ -254,8 +345,18 @@ fun SectionScope.TextFieldPref(
  * @param onlyDecimal 십진수 입력만 허용할지 여부
  * @param enabled 이 설정을 활성화/비활성화하기 위한 Preferences.Key와 기본 불리언 값의 쌍
  * @param leadingContent 제목 앞에 표시할 콘텐츠
+ * @param colors Ien 설정 항목 색상
+ * @param interactionSource Ien 컴포넌트의 상호작용 소스
+ * @param adaptation Adaptive 모드의 플랫폼별 설정
+ * @param onClickLabel 클릭 동작의 접근성 레이블
+ * @param indication 클릭 시 시각적 피드백
+ * @param trailingContent 설정 항목 뒤에 표시할 콘텐츠
+ * @param dialogModifier 다이얼로그에 적용할 Modifier
+ * @param textFieldData 입력 필드 옵션. 초기값은 저장된 설정값을 사용합니다.
+ * @param dialogMessage 다이얼로그 설명
  * @param showIcon 선행 아이콘을 표시할지 여부
  */
+@OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun SectionScope.TextFieldPref(
     modifier: Modifier = Modifier,
@@ -267,6 +368,15 @@ fun SectionScope.TextFieldPref(
     enabled: Pair<Preferences.Key<Boolean>, Boolean>,
     leadingContent: @Composable (() -> Unit)? = null,
     showIcon: Boolean = false,
+    onClickLabel: String? = null,
+    indication: Indication? = LocalIndication.current,
+    interactionSource: MutableInteractionSource? = null,
+    colors: IenSectionColors = IenSectionLinkDefault.colors(),
+    trailingContent: @Composable () -> Unit = {},
+    adaptation: AdaptationScope<HigSectionLinkAdaptation, IenSectionLinkAdaptation>.() -> Unit = {},
+    dialogModifier: Modifier = Modifier,
+    textFieldData: TextFieldDialogData = TextFieldDialogData(),
+    dialogMessage: String? = null,
 ) {
     val dataStore = LocalPrefsDataStore.current
     val prefs by remember { dataStore.data }.collectAsState(initial = null)
@@ -284,5 +394,40 @@ fun SectionScope.TextFieldPref(
         enabled = checked,
         leadingContent = leadingContent,
         showIcon = showIcon,
+        onClickLabel = onClickLabel,
+        indication = indication,
+        interactionSource = interactionSource,
+        colors = colors,
+        trailingContent = trailingContent,
+        adaptation = adaptation,
+        dialogModifier = dialogModifier,
+        textFieldData = textFieldData,
+        dialogMessage = dialogMessage,
+
     )
+}
+
+
+@Composable
+private fun PrefsTextFieldDialog(
+    modifier: Modifier,
+    visible: Boolean,
+    icon: (@Composable () -> Unit)?,
+    title: String,
+    message: String?,
+    textFields: Map<String, TextFieldDialogData>,
+    onDismiss: () -> Unit,
+    onConfirm: (Map<String, String>) -> Unit,
+) {
+    if (LocalPrefsAdaptive.current) {
+        TextFieldDialog(
+            modifier = modifier, visible = visible, icon = icon, title = title,
+            message = message, textFields = textFields, onDismiss = onDismiss, onConfirm = onConfirm,
+        )
+    } else {
+        IenTextFieldDialog(
+            modifier = modifier, visible = visible, icon = icon, title = title,
+            message = message, textFields = textFields, onDismiss = onDismiss, onConfirm = onConfirm,
+        )
+    }
 }

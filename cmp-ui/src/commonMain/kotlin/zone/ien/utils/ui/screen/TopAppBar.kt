@@ -8,6 +8,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.screen.IenTopBar
 import zone.ien.utils.ui.screen.IenTopBarTitleAlignment
 
@@ -47,7 +48,7 @@ fun IenTopAppBar(
         titleAlignment = if (isCenterAligned) IenTopBarTitleAlignment.Center else IenTopBarTitleAlignment.Start,
         contentPadding = when (mode) {
             TopBarMode.Static,
-            TopBarMode.Expanded -> PaddingValues(horizontal = 16.dp)
+            TopBarMode.Expanded -> PaddingValues(horizontal = IenTheme.spacing.md)
         },
         contentHeight = when (mode) {
             TopBarMode.Static,

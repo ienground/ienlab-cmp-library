@@ -71,6 +71,8 @@ import platform.UIKit.systemBlueColor
 import platform.UIKit.systemGroupedBackgroundColor
 import platform.darwin.NSInteger
 import platform.darwin.NSObject
+import zone.ien.hig.toUIColor
+import zone.ien.utils.ui.foundation.IenTheme
 
 /**
  * @param dropdownMenuItem is not used at iOS.
@@ -87,6 +89,7 @@ actual fun <T> ExposedDropdownMenuBox(
     dropdownMenuItem: @Composable (text: @Composable () -> Unit, onClick: () -> Unit) -> Unit,
     textField: @Composable (value: String, trailingIcon: @Composable () -> Unit) -> Unit
 ) {
+    val nativeTintColor = IenTheme.colors.brand.toUIColor()
     var expanded by remember { mutableStateOf(false) }
     var pickerRef by remember { mutableStateOf<UIPickerView?>(null) }
     var tempCurrentItem by remember { mutableStateOf(currentItem) }
@@ -116,8 +119,12 @@ actual fun <T> ExposedDropdownMenuBox(
     LaunchedEffect(expanded, currentItem, itemsWithLabels) {
         if (expanded) {
             tempCurrentItem = currentItem?.takeIf { it in itemsWithLabels.keys }
-            val viewController = UIViewController()
-            val navBar = UINavigationBar()
+            val viewController = UIViewController().apply {
+                view.tintColor = nativeTintColor
+            }
+            val navBar = UINavigationBar().apply {
+                tintColor = nativeTintColor
+            }
             val navItem = UINavigationItem(title = title)
 
             navItem.leftBarButtonItem = UIBarButtonItem(
@@ -238,6 +245,7 @@ actual fun <T> ExposedDropdownMenuBox(
     dropdownMenuItem: @Composable (text: @Composable () -> Unit, onClick: () -> Unit, checked: Boolean) -> Unit,
     textField: @Composable (value: String, trailingIcon: @Composable () -> Unit) -> Unit
 ) {
+    val nativeTintColor = IenTheme.colors.brand.toUIColor()
     var expanded by remember { mutableStateOf(false) }
     var pickerRef by remember { mutableStateOf<UIPickerView?>(null) }
     var tempCurrentItems by remember { mutableStateOf(currentItems.filter { it in itemsWithLabels.keys }) }
@@ -265,6 +273,8 @@ actual fun <T> ExposedDropdownMenuBox(
             tempCurrentItems = initialItems
             val pickerViewController = ListPickerViewController(itemsWithLabels, initialItems) {
                 tempCurrentItems = it
+            }.apply {
+                view.tintColor = nativeTintColor
             }
 
             pickerViewController.navigationItem.title = title
@@ -282,7 +292,9 @@ actual fun <T> ExposedDropdownMenuBox(
             )
 
             // 🔥 navController 생성 (container 역할만)
-            val navController = UINavigationController(rootViewController = pickerViewController)
+            val navController = UINavigationController(rootViewController = pickerViewController).apply {
+                view.tintColor = nativeTintColor
+            }
             val sheet = navController.sheetPresentationController
             sheet?.detents = listOf(UISheetPresentationControllerDetent.largeDetent())
             sheet?.delegate = sheetDelegate

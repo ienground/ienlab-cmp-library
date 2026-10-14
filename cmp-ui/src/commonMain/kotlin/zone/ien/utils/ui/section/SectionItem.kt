@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -30,8 +31,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.RangeSlider
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -68,6 +67,7 @@ import zone.ien.utils.ui.interactive.IenButtonContainer
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenCircleCheckbox
+import zone.ien.utils.ui.interactive.IenRadioButton
 import zone.ien.utils.ui.interactive.IenSlider
 import zone.ien.utils.ui.interactive.IenSwitch
 import zone.ien.utils.ui.menu.IenMenu
@@ -154,18 +154,7 @@ fun SectionScope.item(
 }
 
 /**
- * 섹션 스위치 항목 컴포저블
- * 
- * 이 컴포저블은 스위치 형태의 섹션 항목을 표시합니다.
- * 스위치의 상태를 변경할 수 있으며, 클릭 시 스위치 상태를 토글합니다.
- * 
- * @param modifier 적용할 Modifier
- * @param leadingContent 앞쪽 콘텐츠
- * @param checked 스위치의 현재 상태 (켜짐/꺼짐)
- * @param onCheckedChange 스위치 상태가 변경될 때 호출되는 함수
- * @param enabled 활성화 상태
- * @param supportingContent 지원 콘텐츠
- * @param title 제목
+ * 기존 위치 인자 호출을 유지하는 스위치 항목입니다.
  */
 @Composable
 fun SectionScope.switch(
@@ -177,13 +166,68 @@ fun SectionScope.switch(
     supportingContent: @Composable (() -> Unit)? = null,
     title: @Composable () -> Unit
 ) {
+    switch(
+        modifier = modifier,
+        leadingContent = leadingContent,
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        enabled = enabled,
+        supportingContent = supportingContent,
+        title = title,
+        colors = IenSectionLinkDefault.colors(),
+    )
+}
+
+/**
+ * 섹션 스위치 항목 컴포저블
+ * 
+ * 이 컴포저블은 스위치 형태의 섹션 항목을 표시합니다.
+ * 스위치의 상태를 변경할 수 있으며, 클릭 시 스위치 상태를 토글합니다.
+ * 
+ * @param modifier 적용할 Modifier
+ * @param leadingContent 앞쪽 콘텐츠
+ * @param checked 스위치의 현재 상태 (켜짐/꺼짐)
+ * @param onCheckedChange 스위치 상태가 변경될 때 호출되는 함수
+ * @param enabled 활성화 상태
+ * @param supportingContent 지원 콘텐츠
+ * @param colors Ien 항목 색상
+ * @param thumbContent Ien 스위치 손잡이 콘텐츠
+ * @param interactionSource Ien 스위치의 상호작용 소스
+ * @param trackContent Ien 스위치 트랙 콘텐츠
+ * @param onTrackContent 켜졌을 때 표시할 트랙 콘텐츠
+ * @param offTrackContent 꺼졌을 때 표시할 트랙 콘텐츠
+ * @param title 제목
+ */
+@Composable
+fun SectionScope.switch(
+    modifier: Modifier = Modifier,
+    leadingContent: (@Composable () -> Unit)? = null,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
+    supportingContent: @Composable (() -> Unit)? = null,
+    colors: IenSectionColors = IenSectionLinkDefault.colors(),
+    thumbContent: (@Composable () -> Unit)? = null,
+    interactionSource: MutableInteractionSource? = null,
+    trackContent: (@Composable () -> Unit)? = null,
+    onTrackContent: (@Composable () -> Unit)? = null,
+    offTrackContent: (@Composable () -> Unit)? = null,
+    title: @Composable () -> Unit
+) {
     item(
+        colors = colors,
+        enabled = enabled,
         leadingContent = leadingContent,
         trailingContent = {
             IenSwitch(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = enabled,
+                thumbContent = thumbContent,
+                interactionSource = interactionSource,
+                trackContent = trackContent,
+                onTrackContent = onTrackContent,
+                offTrackContent = offTrackContent,
             )
         },
         supportingContent = supportingContent,
@@ -268,16 +312,10 @@ fun SectionScope.radio(
         enabled = enabled,
         leadingContent = leadingContent,
         trailingContent = {
-            RadioButton(
+            IenRadioButton(
                 selected = selected,
                 onClick = null,
                 enabled = enabled,
-                colors = RadioButtonDefaults.colors(
-                    selectedColor = IenTheme.colors.brand,
-                    unselectedColor = IenTheme.colors.border,
-                    disabledSelectedColor = IenTheme.colors.textDisabled,
-                    disabledUnselectedColor = IenTheme.colors.textDisabled,
-                ),
             )
         },
         supportingContent = supportingContent,
@@ -396,13 +434,13 @@ fun <T> SectionScope.dropdown(
             dropdown = {
                 IenMenu.Dropdown {
                     itemsWithLabels.forEach { (item, label) ->
-                        IenMenu.DropdownItem(
-                            text = label,
-                            selected = item == currentItem,
-                            onClick = {
-                                onItemSelected(item)
+                        IenMenu.DropdownCheckItem(
+                            checked = item == currentItem,
+                            onCheckedChange = { checked ->
+                                if (checked) onItemSelected(item)
                                 expanded = false
                             },
+                            text = label,
                         )
                     }
                 }
@@ -929,7 +967,7 @@ fun SectionScope.button(
         variant = IenButtonVariant.Fill,
         tone = IenSemanticTone.Brand,
         shape = ContinuousRoundedRectangle(IenTheme.radius.default),
-        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+        contentPadding = PaddingValues(horizontal = IenTheme.spacing.xl, vertical = IenTheme.spacing.md),
         modifier = modifier
             .heightIn(min = 56.dp),
     ) {

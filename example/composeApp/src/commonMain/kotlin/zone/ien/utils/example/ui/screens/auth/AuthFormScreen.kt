@@ -53,6 +53,7 @@ import zone.ien.utils.ui.interactive.IenTextFieldState
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.screen.TopBarMode
+import zone.ien.utils.example.ui.keyboardDismissAction
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -270,7 +271,9 @@ fun AuthFormScreen(
                                 mode = it
                                 status = IenAuthFormStatus.Idle
                             },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .keyboardDismissAction(),
                         )
                         if (mode == IenAuthFormMode.Login) {
                             IenTextButton(

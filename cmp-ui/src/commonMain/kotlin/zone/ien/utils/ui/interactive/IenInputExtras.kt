@@ -421,7 +421,7 @@ private fun numericSpinnerSpec(size: IenNumericSpinnerSize): NumericSpinnerSpec 
             outerHorizontalPadding = IenTheme.spacing.xxs,
             radius = IenTheme.radius.default,
             numberRadius = IenTheme.radius.default,
-            numberElevation = 4.dp,
+            numberElevation = IenTheme.elevation.raised,
             numberTextStyle = IenTheme.typography.label1,
             buttonTextStyle = IenTheme.typography.title3,
         )

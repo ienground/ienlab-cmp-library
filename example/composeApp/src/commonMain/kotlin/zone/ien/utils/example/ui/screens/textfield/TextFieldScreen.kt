@@ -15,7 +15,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -30,7 +29,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
 import org.jetbrains.compose.resources.stringResource
@@ -43,6 +41,7 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.save
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconButton
@@ -50,6 +49,7 @@ import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.view.textfield.PlaceholderBasicTextField
+import zone.ien.utils.example.ui.keyboardDismissAction
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAdaptiveApi::class)
 @Composable
@@ -59,7 +59,6 @@ fun TextFieldScreen(
     val backdrop = rememberDefaultBackdrop()
 
     val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
     val lazyListState = rememberLazyListState()
     val snackbarState = remember { SnackbarHostState() }
     var text by remember { mutableStateOf("") }
@@ -97,21 +96,22 @@ fun TextFieldScreen(
                     Row(
                         verticalAlignment = Alignment.Bottom,
                         modifier = Modifier
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .padding(horizontal = IenTheme.spacing.xs, vertical = IenTheme.spacing.xxs)
                             .fillMaxWidth()
                     ) {
                         PlaceholderBasicTextField(
                             value = text,
                             onValueChange = { text = it },
                             placeholder = { Text(text = stringResource(Res.string.save)) },
-                            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
-                            contentPadding = PaddingValues(vertical = 12.dp),
+                            cursorBrush = SolidColor(IenTheme.colors.textPrimary),
+                            contentPadding = PaddingValues(vertical = IenTheme.spacing.sm),
                             maxLines = 6,
                             modifier = Modifier
                                 .focusRequester(focusRequester)
-                                .background(MaterialTheme.colorScheme.surface, ContinuousRoundedRectangle(24.dp))
-                                .padding(horizontal = 16.dp)
+                                .background(IenTheme.colors.surface, ContinuousRoundedRectangle(IenTheme.radius.xl))
+                                .padding(horizontal = IenTheme.spacing.md)
                                 .weight(1f)
+                                .keyboardDismissAction()
 
                         )
                         IenIconButton(

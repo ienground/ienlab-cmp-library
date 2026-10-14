@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -161,7 +160,7 @@ fun AdaptiveDropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
-    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    offset: DpOffset = DpOffset(IenTheme.spacing.none, IenTheme.spacing.none),
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(clippingEnabled = false),
     adaptation: AdaptationScope<HigDropdownMenuAdaptation, IenDropdownMenuAdaptation>.() -> Unit = {},
@@ -250,7 +249,7 @@ fun AdaptiveDropdownMenuNative(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
-    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    offset: DpOffset = DpOffset(IenTheme.spacing.none, IenTheme.spacing.none),
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(clippingEnabled = false),
     adaptation: AdaptationScope<HigDropdownMenuAdaptation, IenDropdownMenuAdaptation>.() -> Unit = {},
@@ -311,14 +310,14 @@ private fun DropdownMenuSectionTitle(
     title: @Composable () -> Unit
 ) {
     ProvideTextStyle(
-        value = MaterialTheme.typography.labelSmall.copy(
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+        value = IenTheme.typography.caption.copy(
+            color = IenTheme.colors.textSecondary
         )
     ) {
         Box(
             modifier = Modifier
-                .padding(top = 8.dp)
-                .padding(horizontal = 12.dp)
+                .padding(top = IenTheme.spacing.xs)
+                .padding(horizontal = IenTheme.spacing.sm)
         ) {
             title()
         }
@@ -384,7 +383,7 @@ private fun DropdownMenuSectionNative.Action.IenMenuItem() = IenMenu.DropdownIte
 ) {
     Text(
         text = text,
-        color = if (isDestructive) MaterialTheme.colorScheme.error else Color.Unspecified,
+        color = if (isDestructive) IenTheme.colors.danger else Color.Unspecified,
     )
 }
 

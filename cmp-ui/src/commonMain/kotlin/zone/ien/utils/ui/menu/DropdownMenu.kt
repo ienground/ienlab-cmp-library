@@ -70,7 +70,7 @@ fun IenDropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
-    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    offset: DpOffset = DpOffset(IenTheme.spacing.none, IenTheme.spacing.none),
     matchAnchorTop: Boolean = false,
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = DefaultMenuProperties,
@@ -121,7 +121,7 @@ fun IenDropdownMenu(
                 shape = shape,
                 color = containerColor,
                 tonalElevation = tonalElevation,
-                shadowElevation = 0.dp,
+                shadowElevation = IenTheme.elevation.none,
                 border = null,
             ) {
                 Column(

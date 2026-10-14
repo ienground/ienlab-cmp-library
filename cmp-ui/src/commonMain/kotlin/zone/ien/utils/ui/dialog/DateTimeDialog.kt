@@ -99,9 +99,9 @@ fun IenDatePickerDialog(
             modifier = modifier,
             maxWidth = 360.dp,
             fixedWidth = 360.dp,
-            contentPadding = PaddingValues(0.dp),
+            contentPadding = PaddingValues(IenTheme.spacing.none),
             usePlatformDefaultWidth = false,
-            horizontalMargin = 16.dp,
+            horizontalMargin = IenTheme.spacing.md,
         ) {
             Column(
                 modifier = Modifier
@@ -113,7 +113,7 @@ fun IenDatePickerDialog(
                     text = title,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 24.dp, end = 24.dp, top = 16.dp),
+                        .padding(start = IenTheme.spacing.xl, end = IenTheme.spacing.xl, top = IenTheme.spacing.md),
                 )
                 IenDateWheelPicker(
                     value = selectedDate,
@@ -123,15 +123,15 @@ fun IenDatePickerDialog(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp),
+                        .padding(horizontal = IenTheme.spacing.xl),
                     yearRange = yearRange,
                     selectableDates = selectableDates,
                 )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp)
-                        .padding(top = 8.dp, bottom = 24.dp),
+                        .padding(horizontal = IenTheme.spacing.xl)
+                        .padding(top = IenTheme.spacing.xs, bottom = IenTheme.spacing.xl),
                     horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 ) {
                     IenConfirmDialogCancelButton(
@@ -197,7 +197,7 @@ fun IenTimePickerDialog(
             maxWidth = 360.dp,
             fixedWidth = 360.dp,
             usePlatformDefaultWidth = false,
-            horizontalMargin = 16.dp,
+            horizontalMargin = IenTheme.spacing.md,
         ) {
             IenAlertDialogTitle(text = title)
             IenTimeWheelPicker(
@@ -207,7 +207,7 @@ fun IenTimePickerDialog(
                 showSeconds = false,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = IenTheme.spacing.xl),
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -271,7 +271,7 @@ fun IenDatePicker(
                 text = title,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 24.dp, end = 24.dp, top = 16.dp)
+                    .padding(start = IenTheme.spacing.xl, end = IenTheme.spacing.xl, top = IenTheme.spacing.md)
             )
         },
         modifier = modifier,

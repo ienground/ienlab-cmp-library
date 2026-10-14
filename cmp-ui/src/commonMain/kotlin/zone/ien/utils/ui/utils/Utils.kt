@@ -26,9 +26,11 @@ import kotlin.math.roundToInt
  * 
  * 사용 예시:
  * ```kotlin
+ * import zone.ien.utils.ui.foundation.IenTheme
+ *
  * modifier
  *     .conditional(shouldApplyPadding) {
- *         padding(16.dp)
+ *         padding(IenTheme.spacing.md)
  *     }
  *     .conditional(shouldApplyBackground) {
  *         background(Color.Blue)

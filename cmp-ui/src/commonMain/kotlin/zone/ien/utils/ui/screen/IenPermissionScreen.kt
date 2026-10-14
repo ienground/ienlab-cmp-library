@@ -86,7 +86,7 @@ fun IenPermissionScreen(
     ) {
         IenTop(
             upperGap = IenTheme.spacing.xxl,
-            lowerGap = 0.dp,
+            lowerGap = IenTheme.spacing.none,
             upper = {
                 IenTopUpperAssetContent {
                     IenAssetFrame(
@@ -117,7 +117,7 @@ fun IenPermissionScreen(
                     modifier = Modifier.padding(top = IenTheme.spacing.md),
                 )
             },
-            contentPadding = PaddingValues(0.dp),
+            contentPadding = PaddingValues(IenTheme.spacing.none),
         )
 
         IenPermissionSection(
@@ -171,7 +171,7 @@ private fun IenPermissionItemRow(item: IenPermissionItem) {
                     imageVector = item.icon,
                     contentDescription = item.iconContentDescription,
                     tint = IenTheme.colors.onBrandWeak,
-                    size = 24.dp,
+                    size = IenTheme.icon.lg,
                 )
             }
         },

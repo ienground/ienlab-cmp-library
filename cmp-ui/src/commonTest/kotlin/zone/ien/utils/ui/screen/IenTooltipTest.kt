@@ -96,6 +96,45 @@ class IenTooltipTest {
         assertEquals(0.5f, bottomArrowRatio)
     }
 
+    @Test
+    fun `그림자 여백은 툴팁 본체 위치와 화살표 정렬을 바꾸지 않는다`() {
+        val density = Density(2f)
+        val padding = 48.dp
+        val paddingPx = with(density) { padding.roundToPx() }
+        val bodySize = IntSize(160, 240)
+        val popupSize = IntSize(bodySize.width + paddingPx * 2, bodySize.height + paddingPx * 2)
+        val windowSize = IntSize(1000, 1000)
+        val anchors = listOf(
+            IntRect(400, 400, 440, 440),
+            IntRect(0, 0, 40, 40),
+            IntRect(960, 960, 1000, 1000),
+        )
+
+        for (placement in IenTooltipPlacement.entries) {
+            for (anchor in anchors) {
+                var bodyArrowRatio = 0f
+                var popupArrowRatio = 0f
+                val bodyPosition = IenTooltipPositionProvider(
+                    placement, 8.dp, density,
+                ) { bodyArrowRatio = it }.calculatePosition(
+                    anchor, windowSize, LayoutDirection.Ltr, bodySize,
+                )
+                val popupPosition = IenTooltipPositionProvider(
+                    placement, 8.dp, density, padding,
+                ) { popupArrowRatio = it }.calculatePosition(
+                    anchor, windowSize, LayoutDirection.Ltr, popupSize,
+                )
+
+                assertEquals(
+                    bodyPosition,
+                    IntOffset(popupPosition.x + paddingPx, popupPosition.y + paddingPx),
+                    "placement=$placement, anchor=$anchor",
+                )
+                assertEquals(bodyArrowRatio, popupArrowRatio)
+            }
+        }
+    }
+
     private val fitContentTooltip: @Composable () -> Unit = {
         IenTooltip(
             text = "도움말",

@@ -62,11 +62,11 @@ fun BaseDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 24.dp)
+                    .padding(vertical = IenTheme.spacing.xl)
             ) {
                 icon?.let {
                     CompositionLocalProvider(LocalContentColor provides IenTheme.colors.brand) {
-                        Box(Modifier.padding(bottom = 16.dp).align(Alignment.CenterHorizontally)) {
+                        Box(Modifier.padding(bottom = IenTheme.spacing.md).align(Alignment.CenterHorizontally)) {
                             icon()
                         }
                     }
@@ -77,8 +77,8 @@ fun BaseDialog(
                     ) {
                         Box(
                             Modifier
-                                .padding(horizontal = 16.dp)
-                                .padding(bottom = 16.dp)
+                                .padding(horizontal = IenTheme.spacing.md)
+                                .padding(bottom = IenTheme.spacing.md)
                                 .align(
                                     if (icon == null) {
                                         Alignment.Start
@@ -100,8 +100,8 @@ fun BaseDialog(
                 ) {
                     Box(
                         Modifier.weight(weight = 1f, fill = false)
-                            .padding(horizontal = 16.dp)
-                            .padding(bottom = 24.dp)
+                            .padding(horizontal = IenTheme.spacing.md)
+                            .padding(bottom = IenTheme.spacing.xl)
                             .align(Alignment.Start)
                     ) {
                         content?.invoke()
@@ -110,9 +110,9 @@ fun BaseDialog(
                 buttons?.invoke(
                     Modifier
                         .fillMaxWidth()
-                        .padding(top = 16.dp)
+                        .padding(top = IenTheme.spacing.md)
                         .height(40.dp)
-                        .padding(horizontal = 24.dp)
+                        .padding(horizontal = IenTheme.spacing.xl)
                 )
             }
         }

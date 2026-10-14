@@ -92,13 +92,13 @@ fun IenMenu(
         Column(Modifier.padding(vertical = IenTheme.spacing.xs)) {
             if (header != null) {
                 Column(Modifier.padding(IenTheme.spacing.md), content = header)
-                IenDivider()
+                IenDivider.Horizontal()
             }
             items.forEach { item ->
                 IenMenuItemRow(item)
             }
             if (footer != null) {
-                IenDivider()
+                IenDivider.Horizontal()
                 Column(Modifier.padding(IenTheme.spacing.md), content = footer)
             }
         }

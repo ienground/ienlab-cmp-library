@@ -16,6 +16,8 @@ import platform.UIKit.UIAlertController
 import platform.UIKit.UIAlertControllerStyleAlert
 import platform.UIKit.UIProgressView
 import platform.UIKit.UIProgressViewStyle
+import zone.ien.hig.toUIColor
+import zone.ien.utils.ui.foundation.IenTheme
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
@@ -26,16 +28,19 @@ actual fun ProgressDialog(
     isWavyIndicator: Boolean
 ) {
     val viewController = LocalUIViewController.current
+    val nativeTintColor = IenTheme.colors.brand.toUIColor()
 
     var alertRef by remember { mutableStateOf<UIAlertController?>(null) }
 
     LaunchedEffect(visible) {
         if (visible) {
             val alert = UIAlertController.alertControllerWithTitle("\n", null, UIAlertControllerStyleAlert)
+            alert.view.tintColor = nativeTintColor
 
             val loadingIndicator = UIActivityIndicatorView()
 
             loadingIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleLarge
+            loadingIndicator.color = nativeTintColor
             loadingIndicator.hidesWhenStopped = true
             loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
             loadingIndicator.startAnimating()
@@ -65,6 +70,7 @@ actual fun ProgressDialog(
 ) {
     val viewController = LocalUIViewController.current
     val currentProgress = progress()
+    val nativeTintColor = IenTheme.colors.brand.toUIColor()
 
     var alertRef by remember { mutableStateOf<UIAlertController?>(null) }
     var progressViewRef by remember { mutableStateOf<UIProgressView?>(null) }
@@ -72,11 +78,12 @@ actual fun ProgressDialog(
     LaunchedEffect(visible) {
         if (visible) {
             val alert = UIAlertController.alertControllerWithTitle("\n", null, UIAlertControllerStyleAlert)
+            alert.view.tintColor = nativeTintColor
 
             val margin = 16.0
             val progressView = UIProgressView(UIProgressViewStyle.UIProgressViewStyleDefault).apply {
                 translatesAutoresizingMaskIntoConstraints = false
-                tintColor = viewController.view.tintColor
+                tintColor = nativeTintColor
             }
 
             alert.view.addSubview(progressView)

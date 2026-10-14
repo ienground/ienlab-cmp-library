@@ -72,11 +72,15 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.drawPlainBackdrop
+import com.kyant.backdrop.effects.blur
 import com.kyant.capsule.ContinuousCapsule
 import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlinx.coroutines.delay
@@ -90,8 +94,12 @@ import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.tabler.TablerIcons
 import zone.ien.utils.icon.tabler.line.Check
 import zone.ien.utils.icon.tabler.line.Close
+import zone.ien.utils.ui.primitives.IenAssetFrame
+import zone.ien.utils.ui.primitives.IenAssetFrameShape
+import zone.ien.utils.ui.primitives.IenAssetFrameSize
 import zone.ien.utils.ui.foundation.IenColorScheme
 import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenSpacing
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.toneGradientBrush
 import zone.ien.utils.ui.list.IenListRow
@@ -99,6 +107,7 @@ import zone.ien.utils.ui.list.IenListRowTexts
 import zone.ien.utils.ui.list.IenListRowTextsType
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.shimmer.IenPlaceholderDefaults
 import zone.ien.utils.ui.shimmer.IenPlaceholderHighlight
@@ -128,8 +137,6 @@ enum class IenSheetDetent { Content, Medium, Full }
 private const val IenSheetMediumHeightFraction = 0.5f
 private const val IenSheetFullHeightFraction = 0.92f
 private const val IenSheetExpansionSnapFraction = 0.5f
-private val IenSheetHorizontalInset = 14.dp
-
 private fun IenSheetDetent.isExpandable(): Boolean = this != IenSheetDetent.Content
 
 private fun IenSheetDetent.expansionProgress(): Float =
@@ -213,7 +220,86 @@ fun IenBottomSheet(
     header: (@Composable () -> Unit)? = null,
     headerDescription: (@Composable () -> Unit)? = null,
     cta: (@Composable () -> Unit)? = null,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.xl, vertical = IenTheme.spacing.xs),
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    IenBottomSheetInternal(
+        state = state,
+        modifier = modifier,
+        dismissOnScrimClick = dismissOnScrimClick,
+        showDragHandle = showDragHandle,
+        disableDimmer = disableDimmer,
+        disableFocusLock = disableFocusLock,
+        header = header,
+        headerDescription = headerDescription,
+        cta = cta,
+        contentPadding = contentPadding,
+        backdrop = null,
+        content = content,
+    )
+}
+
+/**
+ * 캡처된 배경을 바텀시트 표면에 흐림 효과로 표시합니다.
+ * 캡처 원본은 바텀시트 바깥의 배경 콘텐츠에만 적용해야 합니다.
+ *
+ * @param state 바텀시트의 상태 제어 객체 ([IenBottomSheetState])
+ * @param backdrop 바텀시트 뒤의 화면을 캡처한 배경 레이어. null이면 기본 표면을 사용합니다.
+ * @param modifier 바텀시트에 적용할 [Modifier]
+ * @param dismissOnScrimClick 바깥 영역(스크림) 클릭 시 바텀시트를 닫을지 여부
+ * @param showDragHandle 바텀시트 상단에 드래그 핸들 바를 표시할지 여부
+ * @param disableDimmer 배경을 어둡게 처리(dimming)할지 여부
+ * @param disableFocusLock 포커스 잠금(Focus Lock)을 해제할지 여부
+ * @param header 바텀시트 상단에 들어갈 헤더 타이틀 컴포저블
+ * @param headerDescription 헤더 아래에 들어갈 설명문 컴포저블
+ * @param cta 바텀시트 하단에 고정되는 작업 버튼(Call To Action) 영역 컴포저블
+ * @param contentPadding 콘텐츠 영역의 내부 여백 ([PaddingValues])
+ * @param content 바텀시트의 내부 콘텐츠 영역을 정의하는 컴포저블 블록
+ */
+@Composable
+fun IenBottomSheet(
+    state: IenBottomSheetState,
+    backdrop: LayerBackdrop?,
+    modifier: Modifier = Modifier,
+    dismissOnScrimClick: Boolean = true,
+    showDragHandle: Boolean = true,
+    disableDimmer: Boolean = false,
+    disableFocusLock: Boolean = false,
+    header: (@Composable () -> Unit)? = null,
+    headerDescription: (@Composable () -> Unit)? = null,
+    cta: (@Composable () -> Unit)? = null,
+    contentPadding: PaddingValues = PaddingValues(horizontal = IenTheme.spacing.xl, vertical = IenTheme.spacing.xs),
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    IenBottomSheetInternal(
+        state = state,
+        modifier = modifier,
+        dismissOnScrimClick = dismissOnScrimClick,
+        showDragHandle = showDragHandle,
+        disableDimmer = disableDimmer,
+        disableFocusLock = disableFocusLock,
+        header = header,
+        headerDescription = headerDescription,
+        cta = cta,
+        contentPadding = contentPadding,
+        backdrop = backdrop,
+        content = content,
+    )
+}
+
+@Composable
+private fun IenBottomSheetInternal(
+    state: IenBottomSheetState,
+    modifier: Modifier,
+    dismissOnScrimClick: Boolean,
+    showDragHandle: Boolean,
+    disableDimmer: Boolean,
+    disableFocusLock: Boolean,
+    header: (@Composable () -> Unit)?,
+    headerDescription: (@Composable () -> Unit)?,
+    cta: (@Composable () -> Unit)?,
+    contentPadding: PaddingValues,
+    backdrop: LayerBackdrop?,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -222,6 +308,7 @@ fun IenBottomSheet(
     var mounted by remember { mutableStateOf(state.visible) }
     val density = LocalDensity.current
     val thresholdPx = with(density) { 150.dp.toPx() }
+    val sheetHorizontalInset = IenTheme.spacing.sm + IenTheme.spacing.xxxs
 
     val motion = IenTheme.motion
     val normalMillis = motion.normalMillis
@@ -335,6 +422,24 @@ fun IenBottomSheet(
             )
         }
         val overlayColor = if (disableDimmer) Color.Transparent else IenTheme.colors.overlay
+        val sheetShape = ContinuousRoundedRectangle(
+            topStart = IenTheme.radius.lg,
+            topEnd = IenTheme.radius.lg,
+        )
+        val sheetBackdropModifier = if (backdrop != null) {
+            Modifier.drawPlainBackdrop(
+                backdrop = backdrop,
+                shape = { sheetShape },
+                effects = { blur(24.dp.toPx()) },
+            )
+        } else {
+            Modifier
+        }
+        val sheetSurfaceColor = if (backdrop != null) {
+            IenTheme.colors.surfaceRaised.copy(alpha = 0.72f)
+        } else {
+            IenTheme.colors.surfaceRaised
+        }
         Box(
             modifier = modifier
                 .fillMaxSize()
@@ -368,13 +473,13 @@ fun IenBottomSheet(
                     .offset { IntOffset(0, dragOffsetY.value.roundToInt()) }
             ) {
                 IenSurface(
-                    modifier = Modifier
+                    modifier = sheetBackdropModifier
                         .fillMaxWidth()
                         .layout { measurable, constraints ->
                             val isExpandable = state.detent.isExpandable()
                             val progress = if (isExpandable) expansionProgress.value else 1f
                             val horizontalInset =
-                                (IenSheetHorizontalInset.roundToPx() * (1f - progress))
+                                (sheetHorizontalInset.roundToPx() * (1f - progress))
                                     .roundToInt()
                                     .coerceAtMost(constraints.maxWidth / 2)
                             val sheetHeight =
@@ -404,12 +509,12 @@ fun IenBottomSheet(
                             indication = null,
                             interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
                         ) { },
-                    color = IenTheme.colors.surfaceRaised,
-                    shape = ContinuousRoundedRectangle(topStart = IenTheme.radius.lg, topEnd = IenTheme.radius.lg),
+                    color = sheetSurfaceColor,
+                    shape = sheetShape,
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(0.dp),
+                        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.none),
                     ) {
                         Column(
                             modifier = dragModifier.fillMaxWidth(),
@@ -418,27 +523,27 @@ fun IenBottomSheet(
                             if (showDragHandle) {
                                 Box(
                                     modifier = Modifier
-                                        .padding(vertical = 12.dp)
+                                        .padding(vertical = IenTheme.spacing.sm)
                                         .width(36.dp)
                                         .height(4.dp)
                                         .clip(ContinuousCapsule)
                                         .background(IenTheme.colors.borderStrong),
                                 )
                             } else {
-                                Spacer(modifier = Modifier.height(16.dp))
+                                Spacer(modifier = Modifier.height(IenTheme.spacing.md))
                             }
 
                             if (header != null || headerDescription != null) {
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 24.dp, vertical = 8.dp),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                        .padding(horizontal = IenTheme.spacing.xl, vertical = IenTheme.spacing.xs),
+                                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs)
                                 ) {
                                     header?.invoke()
                                     headerDescription?.invoke()
                                 }
-                                Spacer(modifier = Modifier.height(8.dp))
+                                Spacer(modifier = Modifier.height(IenTheme.spacing.xs))
                             }
                         }
 
@@ -452,13 +557,13 @@ fun IenBottomSheet(
                         }
 
                         if (cta != null) {
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(IenTheme.spacing.xs))
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .navigationBarsPadding()
-                                    .padding(horizontal = 24.dp)
-                                    .padding(bottom = 16.dp)
+                                    .padding(horizontal = IenTheme.spacing.xl)
+                                    .padding(bottom = IenTheme.spacing.md)
                             ) {
                                 cta()
                             }
@@ -466,7 +571,7 @@ fun IenBottomSheet(
                             Spacer(
                                 modifier = Modifier
                                     .navigationBarsPadding()
-                                    .height(16.dp)
+                                    .height(IenTheme.spacing.md)
                             )
                         }
                     }
@@ -504,7 +609,7 @@ fun IenBottomSheetSelect(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(0.dp)
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.none)
     ) {
         options.forEach { option ->
             val isSelected = option.value == value
@@ -1009,7 +1114,7 @@ private fun IenSnackbarContent(
     )
     IenSurface(
         modifier = modifier
-            .shadow(elevation = 6.dp, shape = ContinuousRoundedRectangle(22.dp), clip = false)
+            .shadow(elevation = 6.dp, shape = ContinuousRoundedRectangle(IenTheme.radius.xl), clip = false)
             .then(sizeModifier)
             .semantics {
                 liveRegion = LiveRegionMode.Polite
@@ -1017,7 +1122,7 @@ private fun IenSnackbarContent(
             },
         color = container,
         contentColor = Color.White,
-        shape = ContinuousRoundedRectangle(22.dp),
+        shape = ContinuousRoundedRectangle(IenTheme.radius.xl),
     ) {
         Row(
             modifier = Modifier.padding(horizontal = IenTheme.spacing.lg, vertical = IenTheme.spacing.md),
@@ -1073,7 +1178,7 @@ fun IenSnackbarActionButton(
 fun IenSnackbarIcon(
     modifier: Modifier = Modifier,
     tone: IenSemanticTone = IenSemanticTone.Success,
-    size: Dp = 20.dp,
+    size: Dp = IenTheme.icon.md,
 ) {
     val color = when (tone) {
         IenSemanticTone.Neutral -> IenTheme.colors.surface
@@ -1434,49 +1539,50 @@ sealed interface IenSkeletonElement {
         val contentAlignment: Alignment = Alignment.TopStart,
     ) : IenSkeletonElement
     /** 요소들 사이의 여백을 나타내는 여백 스켈레톤 */
-    data class Spacer(val height: Dp, val width: Dp = 0.dp) : IenSkeletonElement
+    data class Spacer(val height: Dp, val width: Dp = IenSpacing().none) : IenSkeletonElement
 }
 
 private const val IenSkeletonMotionDurationMillis = 1200L
 
 private val LocalIenSkeletonBlockMotionEnabled = staticCompositionLocalOf { true }
 
+@Composable
 private fun IenSkeletonPattern.elements(): List<IenSkeletonElement> = when (this) {
     IenSkeletonPattern.TopList -> listOf(
         IenSkeletonElement.Title,
-        IenSkeletonElement.Spacer(4.dp),
+        IenSkeletonElement.Spacer(IenTheme.spacing.xxs),
         IenSkeletonElement.List,
     )
 
     IenSkeletonPattern.TopListWithIcon -> listOf(
         IenSkeletonElement.Title,
-        IenSkeletonElement.Spacer(4.dp),
+        IenSkeletonElement.Spacer(IenTheme.spacing.xxs),
         IenSkeletonElement.ListWithIcon,
     )
 
     IenSkeletonPattern.AmountTopList -> listOf(
         IenSkeletonElement.Title,
         IenSkeletonElement.Subtitle,
-        IenSkeletonElement.Spacer(8.dp),
+        IenSkeletonElement.Spacer(IenTheme.spacing.xs),
         IenSkeletonElement.List,
     )
 
     IenSkeletonPattern.AmountTopListWithIcon -> listOf(
         IenSkeletonElement.Title,
         IenSkeletonElement.Subtitle,
-        IenSkeletonElement.Spacer(8.dp),
+        IenSkeletonElement.Spacer(IenTheme.spacing.xs),
         IenSkeletonElement.ListWithIcon,
     )
 
     IenSkeletonPattern.SubtitleList -> listOf(
         IenSkeletonElement.Subtitle,
-        IenSkeletonElement.Spacer(4.dp),
+        IenSkeletonElement.Spacer(IenTheme.spacing.xxs),
         IenSkeletonElement.List,
     )
 
     IenSkeletonPattern.SubtitleListWithIcon -> listOf(
         IenSkeletonElement.Subtitle,
-        IenSkeletonElement.Spacer(4.dp),
+        IenSkeletonElement.Spacer(IenTheme.spacing.xxs),
         IenSkeletonElement.ListWithIcon,
     )
 
@@ -2197,19 +2303,19 @@ enum class IenResultTone { Success, Failure, Empty, Info }
 /**
  * 특정 액션 또는 작업의 결과 화면(예: 빈 페이지, 오류 안내, 성공 알림 등)을 레이아웃으로 렌더링하는 범용 결과 표시 컴포저블입니다.
  *
- * @param title 결과 화면에 보여줄 메인 제목 문구
+ * @param title 결과 화면에 보여줄 메인 제목 컴포저블
  * @param modifier 적용할 [Modifier]
- * @param description 메인 제목 하단에 배치할 보조 상세 설명문
- * @param tone 결과의 상태 유형 테마 ([IenResultTone])
- * @param icon 상단 서클 내부에 렌더링할 아이콘 등 추가 요소 컴포저블
+ * @param description 메인 제목 하단에 배치할 보조 설명 컴포저블
+ * @param tone 결과 상태 및 아이콘 프레임의 시맨틱 톤 ([IenResultTone])
+ * @param icon 결과 톤이 적용된 원형 프레임 안에 배치할 아이콘 콘텐츠
  * @param primaryAction 주요 클릭 이벤트/액션 버튼 컴포저블
  * @param secondaryAction 보조 클릭 이벤트/액션 버튼 컴포저블
  */
 @Composable
 fun IenResult(
-    title: String,
+    title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    description: String? = null,
+    description: (@Composable () -> Unit)? = null,
     tone: IenResultTone = IenResultTone.Info,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     primaryAction: (@Composable () -> Unit)? = null,
@@ -2220,28 +2326,74 @@ fun IenResult(
             .fillMaxWidth()
             .padding(IenTheme.spacing.xl),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+        verticalArrangement = Arrangement.spacedBy(
+            IenTheme.spacing.md,
+            Alignment.CenterVertically,
+        ),
     ) {
-        val iconColor = when (tone) {
-            IenResultTone.Success -> IenTheme.colors.successWeak
-            IenResultTone.Failure -> IenTheme.colors.dangerWeak
-            IenResultTone.Empty -> IenTheme.colors.surfaceWeak
-            IenResultTone.Info -> IenTheme.colors.infoWeak
+        val iconTone = when (tone) {
+            IenResultTone.Success -> IenSemanticTone.Success
+            IenResultTone.Failure -> IenSemanticTone.Danger
+            IenResultTone.Empty -> IenSemanticTone.Neutral
+            IenResultTone.Info -> IenSemanticTone.Info
         }
-        Box(
-            modifier = Modifier
-                .size(56.dp)
-                .clip(CircleShape)
-                .background(iconColor),
-            contentAlignment = Alignment.Center,
+        IenAssetFrame(
+            size = IenAssetFrameSize.Large,
+            tone = iconTone,
+            shape = IenAssetFrameShape.Circle,
         ) {
-            icon?.invoke(this)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                icon?.invoke(this)
+            }
         }
-        Text(title, style = IenTheme.typography.title2)
+        IenProvideTextStyle(
+            style = IenTheme.typography.title2.copy(
+                color = IenTheme.colors.textPrimary,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+            ),
+        ) {
+            Box(modifier = Modifier.padding(top = IenTheme.spacing.xs)) {
+                title()
+            }
+        }
         if (description != null) {
-            Text(description, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
+            IenProvideTextStyle(
+                style = IenTheme.typography.body2.copy(
+                    color = IenTheme.colors.textSecondary,
+                    textAlign = TextAlign.Center,
+                ),
+            ) {
+                description()
+            }
         }
         primaryAction?.invoke()
         secondaryAction?.invoke()
     }
+}
+
+/** 기존 문자열 인자 호출을 현재 결과 슬롯 API로 전달합니다. */
+@Deprecated("Use the composable title and description slots instead.")
+@Composable
+fun IenResult(
+    title: String,
+    modifier: Modifier = Modifier,
+    description: String? = null,
+    tone: IenResultTone = IenResultTone.Info,
+    icon: (@Composable BoxScope.() -> Unit)? = null,
+    primaryAction: (@Composable () -> Unit)? = null,
+    secondaryAction: (@Composable () -> Unit)? = null,
+) {
+    IenResult(
+        title = { Text(title) },
+        modifier = modifier,
+        description = description?.let { text -> { Text(text) } },
+        tone = tone,
+        icon = icon,
+        primaryAction = primaryAction,
+        secondaryAction = secondaryAction,
+    )
 }

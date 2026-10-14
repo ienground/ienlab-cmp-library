@@ -76,12 +76,11 @@ fun IenProvideSectionStyle(
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
         modifier = Modifier
             .conditional(fullHeight) { fillMaxHeight() }
             .conditional(scrollState != null) { scrollState?.let { this.verticalScroll(it) } ?: this }
             .clip(shape)
-            .ienSectionBackground()
             .then(modifier)
         ,
         content = {
@@ -132,7 +131,7 @@ fun IenSection(
         val itemGap = IenTheme.stroke.hairline
         IenSurface(
             modifier = Modifier
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = IenTheme.spacing.md)
                 .clip(ContinuousRoundedRectangle(IenTheme.radius.lg)),
             color = IenTheme.colors.surfaceRaised,
             shape = ContinuousRoundedRectangle(IenTheme.radius.lg),

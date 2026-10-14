@@ -42,7 +42,7 @@ fun IenBorder(
         IenBorderVariant.Padding24 -> Box(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = IenTheme.spacing.xl)
                 .height(thickness)
                 .background(color),
         )
@@ -68,10 +68,10 @@ fun IenBottomInfo(
     bottomGradient: IenBottomGradient = IenBottomGradient.Default,
     backgroundColor: Color = IenTheme.colors.surfaceWeak,
     contentPadding: PaddingValues = PaddingValues(
-        start = 24.dp,
-        end = 24.dp,
-        top = 24.dp,
-        bottom = 16.dp
+        start = IenTheme.spacing.xl,
+        end = IenTheme.spacing.xl,
+        top = IenTheme.spacing.xl,
+        bottom = IenTheme.spacing.md,
     ),
     content: @Composable () -> Unit,
 ) {

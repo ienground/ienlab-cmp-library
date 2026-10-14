@@ -35,8 +35,10 @@ kotlin {
             implementation(libs.hig)
             implementation(libs.hig.adaptive)
             implementation(libs.backdrop)
+            api(libs.capsule)
             implementation(libs.datastore.pref)
 
+            api(projects.cmpUi)
             implementation(projects.cmpCommon)
             implementation(projects.cmpIcon)
             implementation(projects.cmpUtils)

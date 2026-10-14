@@ -27,13 +27,6 @@ import zone.ien.utils.ui.foundation.IenTheme
 private val ScrollingBubbleSize = 112.dp
 private val ScrollingBubbleMinThumbHeight = 48.dp
 private val ScrollingBubbleScrollbarWidth = 4.dp
-private val ScrollingBubbleGap = 8.dp
-private val ScrollingBubbleShape = RoundedCornerShape(
-    topStart = 56.dp,
-    topEnd = 0.dp,
-    bottomEnd = 0.dp,
-    bottomStart = 56.dp,
-)
 
 private data class ScrollingBubbleData(
     val index: Int,
@@ -85,6 +78,16 @@ fun ScrollingBubble(
             }
         }
     }
+    val radius = IenTheme.radius
+    val spacing = IenTheme.spacing
+    val bubbleShape = remember(radius) {
+        RoundedCornerShape(
+            topStart = radius.full,
+            topEnd = radius.none,
+            bottomEnd = radius.none,
+            bottomStart = radius.full,
+        )
+    }
 
     BoxWithConstraints(modifier = modifier) {
         content()
@@ -94,7 +97,7 @@ fun ScrollingBubble(
         val bubbleHeightPx = with(density) { ScrollingBubbleSize.toPx() }
         val minimumThumbHeightPx = with(density) { ScrollingBubbleMinThumbHeight.toPx() }
         val horizontalOffsetPx = with(density) {
-            -(ScrollingBubbleScrollbarWidth + ScrollingBubbleGap).roundToPx()
+            -(ScrollingBubbleScrollbarWidth + spacing.xs).roundToPx()
         }
         val data = bubbleData
         val position = data?.let { data ->
@@ -135,7 +138,7 @@ fun ScrollingBubble(
                     .align(Alignment.TopEnd)
                     .offset { IntOffset(horizontalOffsetPx, position.bubbleTop.roundToInt()) }
                     .size(ScrollingBubbleSize)
-                    .clip(ScrollingBubbleShape)
+                    .clip(bubbleShape)
                     .background(IenTheme.colors.brand),
                 contentAlignment = Alignment.Center,
             ) {

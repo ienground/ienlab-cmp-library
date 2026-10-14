@@ -48,6 +48,8 @@ import platform.darwin.NSObject
 import platform.darwin.nil
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.close
+import zone.ien.hig.toUIColor
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.TextFieldDialogData
 
 internal fun KeyboardType.toHig() = when (this) {
@@ -95,6 +97,7 @@ actual fun TextFieldDialog(
     styleConfirm: UIAlertActionStyle,
     onConfirm: (Map<String, String>) -> Unit
 ) {
+    val nativeTintColor = IenTheme.colors.brand.toUIColor()
     val textStates = remember(visible, textFields.keys) {
         mutableStateMapOf<String, String>().apply {
             textFields.forEach { (key, data) ->
@@ -139,6 +142,7 @@ actual fun TextFieldDialog(
                 textField?.returnKeyType = field.imeAction.toHig()
 
                 val toolbar = UIToolbar()
+                toolbar.tintColor = nativeTintColor
                 toolbar.sizeToFit()
 
                 val flexSpace = UIBarButtonItem(barButtonSystemItem = UIBarButtonSystemItem.UIBarButtonSystemItemFlexibleSpace, target = null, action = null)

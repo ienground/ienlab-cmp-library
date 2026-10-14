@@ -81,15 +81,43 @@ test("자동 생성한 모든 상태 색상의 전경과 배경 대비가 4.5 �
   }
 });
 
+test("변경하지 않은 기준색 그룹은 기본 팔레트를 유지한다", () => {
+  const defaults = defaultColorSchemes();
+  assert.deepEqual(generateColorSchemes(defaultColorSeeds()), defaults);
+
+  const seeds = defaultColorSeeds();
+  seeds.brand = "#7650F0";
+  const schemes = generateColorSchemes(seeds);
+  const unchangedGroups = semanticGroups.filter(({ base }) => base !== "brand");
+  const kotlinTheme = generateKotlinTheme(schemes);
+  for (const group of unchangedGroups) {
+    for (const mode of ["light", "dark"] as const) {
+      for (const role of [group.base, group.on, group.weak, group.onWeak]) {
+        assert.equal(schemes[mode][role], defaults[mode][role]);
+        assert.ok(!kotlinTheme.includes(`    ${role} = Color(`));
+      }
+    }
+  }
+});
+
 test("알파값과 Kotlin ARGB 코드 및 Compose 쿼리가 보존된다", () => {
   assert.equal(colorToArgb("#12345680"), "80123456");
   assert.equal(colorToArgb("#abcdef"), "FFABCDEF");
   const schemes = defaultColorSchemes();
+  schemes.light.brand = "#12345680";
+  schemes.dark.warning = "#abcdef";
   const code = generateKotlinTheme(schemes);
-  for (const role of colorRoles) {
-    assert.equal(code.match(new RegExp(`    ${role} = Color`, "g"))?.length, 2);
-  }
-  assert.ok(code.includes("overlay = Color(0x99000000)"));
+  assert.ok(
+    code.includes(
+      "internal val AppLightColors = DefaultColors.lightColors.copy(\n    brand = Color(0x80123456),\n)",
+    ),
+  );
+  assert.ok(
+    code.includes(
+      "internal val AppDarkColors = DefaultColors.darkColors.copy(\n    warning = Color(0xFFABCDEF),\n)",
+    ),
+  );
+  assert.ok(!code.includes("overlay = Color(0x99000000)"));
   assert.ok(code.includes("lightColors = AppLightColors"));
   assert.equal(
     new URLSearchParams(composeColorQuery(schemes.dark)).get("color.overlay"),
@@ -105,14 +133,15 @@ test("앱 이름으로 유효한 Kotlin 테마 식별자를 생성한다", () =>
 
   assert.ok(
     code.includes(
-      "internal val LoveHeroLightColors = DefaultColors.lightColors.copy(",
+      "internal val LoveHeroLightColors = DefaultColors.lightColors\n",
     ),
   );
   assert.ok(
     code.includes(
-      "internal val LoveHeroDarkColors = DefaultColors.darkColors.copy(",
+      "internal val LoveHeroDarkColors = DefaultColors.darkColors\n",
     ),
   );
+  assert.ok(!code.includes("import androidx.compose.ui.graphics.Color"));
   assert.ok(code.includes("fun LoveHeroTheme("));
 });
 

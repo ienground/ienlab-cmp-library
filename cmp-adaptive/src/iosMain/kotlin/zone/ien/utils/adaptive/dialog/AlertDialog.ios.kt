@@ -14,7 +14,9 @@ import platform.UIKit.UIAlertActionStyleDefault
 import platform.UIKit.UIAlertActionStyleDestructive
 import platform.UIKit.UIAlertController
 import platform.UIKit.UIAlertControllerStyleAlert
+import zone.ien.hig.toUIColor
 import zone.ien.utils.ui.dialog.IenDialogButtonLayout
+import zone.ien.utils.ui.foundation.IenTheme
 
 /**
  * 알림 다이얼로그 버튼 스타일을 UIKit 스타일로 변환하는 함수
@@ -45,6 +47,7 @@ fun HigBaseAlertDialog(
     buttons: (UIAlertController) -> Unit
 ) {
     val viewController = LocalUIViewController.current
+    val nativeTintColor = IenTheme.colors.brand.toUIColor()
     var alertRef by remember { mutableStateOf<UIAlertController?>(null) }
 
     LaunchedEffect(visible) {
@@ -56,6 +59,7 @@ fun HigBaseAlertDialog(
             )
 
             buttons(alert)
+            alert.view.tintColor = nativeTintColor
 
             alertRef = alert
             viewController.presentViewController(alert, animated = true, completion = null)

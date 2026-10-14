@@ -4,7 +4,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
-import zone.ien.utils.ui.utils.IenDecimalFormat
 
 /**
  * MoneyCommaVisualTransformation은 금액에 콤마를 추가하여 표시하는 VisualTransformation입니다.
@@ -15,8 +14,6 @@ import zone.ien.utils.ui.utils.IenDecimalFormat
  * @param symbol 표시할 통화 기호 (기본값은 "₩")
  */
 open class MoneyCommaVisualTransformation(private val symbol: String) : VisualTransformation {
-    private val decimalFormat = IenDecimalFormat()
-
     /**
      * 입력된 숫자 텍스트에 천 단위 콤마와 통화 기호를 추가하고 오프셋을 매핑합니다.
      *
@@ -31,10 +28,16 @@ open class MoneyCommaVisualTransformation(private val symbol: String) : VisualTr
             return TransformedText(AnnotatedString(symbol + "0"), MoneyCommaOffsetMapping(raw.length, 2))
         }
         // 콤마 포매팅 + 원기호 붙이기
-        val formatted = symbol + decimalFormat.format(raw.toInt())
+        val formatted = symbol + raw.toInt().formatWithGroupingSeparator()
 
         return TransformedText(AnnotatedString(formatted), MoneyCommaOffsetMapping(raw.length, formatted.length))
     }
+}
+
+private fun Int.formatWithGroupingSeparator(): String {
+    val digits = toString()
+    val sign = if (digits.startsWith('-')) "-" else ""
+    return sign + digits.removePrefix("-").reversed().chunked(3).joinToString(",").reversed()
 }
 
 /**

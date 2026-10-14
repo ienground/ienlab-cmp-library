@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -19,6 +18,47 @@ import com.kyant.backdrop.backdrops.LayerBackdrop
 import zone.ien.hig.section.SectionStyle
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.section.AdaptiveProvideSectionStyle
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.section.IenProvideSectionStyle
+
+/** 설정 화면에서 사용할 스타일과 항목 적응 범위입니다. */
+enum class PrefsScreenType {
+    /** 화면, 그룹, 항목에 IEN 컴포넌트를 사용합니다. */
+    IEN,
+
+    /** 화면, 그룹, 항목을 현재 플랫폼에 맞게 적응시킵니다. */
+    Adaptive,
+
+    /** 화면과 일반 항목은 IEN을 사용하고 스위치 항목만 Adaptive로 표시합니다. */
+    HalfAdaptive,
+}
+
+/**
+ * 기존 위치 인자 호출을 유지하는 설정 화면입니다.
+ */
+@Composable
+fun PrefsScreen(
+    dataStore: DataStore<Preferences>,
+    title: @Composable () -> Unit = {},
+    modifier: Modifier = Modifier,
+    fullHeight: Boolean = true,
+    scrollState: ScrollState? = rememberScrollState(),
+    shape: Shape = RectangleShape,
+    backdrop: LayerBackdrop = rememberDefaultBackdrop(),
+    content: @Composable (ColumnScope.() -> Unit)
+) {
+    PrefsScreen(
+        modifier = modifier,
+        dataStore = dataStore,
+        title = title,
+        fullHeight = fullHeight,
+        scrollState = scrollState,
+        shape = shape,
+        backdrop = backdrop,
+        content = content,
+        type = PrefsScreenType.Adaptive,
+    )
+}
 
 /**
  * DataStore 지원을 포함한 전체 설정 화면을 생성하는 Composable 함수입니다.
@@ -33,22 +73,43 @@ import zone.ien.utils.adaptive.section.AdaptiveProvideSectionStyle
  * @param scrollState 스크롤에 사용될 스크롤 상태
  * @param shape 화면 컨테이너의 모양
  * @param backdrop 화면의 백드롭 구성
+ * @param type 화면, 그룹 및 설정 항목에 적용할 적응 모드
+ * @param style Adaptive 섹션 스타일
  * @param content 설정 항목을 포함하는 Composable 컨텐츠 블록
  */
 @Composable
 fun PrefsScreen(
+    modifier: Modifier = Modifier,
     dataStore: DataStore<Preferences>,
     title: @Composable () -> Unit = {},
-    modifier: Modifier = Modifier,
     fullHeight: Boolean = true,
     scrollState: ScrollState? = rememberScrollState(),
     shape: Shape = RectangleShape,
     backdrop: LayerBackdrop = rememberDefaultBackdrop(),
+    type: PrefsScreenType = PrefsScreenType.Adaptive,
+    style: SectionStyle = SectionStyle.InsetGrouped,
     content: @Composable (ColumnScope.() -> Unit)
 ) {
-    CompositionLocalProvider(LocalPrefsDataStore provides dataStore) {
+    CompositionLocalProvider(
+        LocalPrefsDataStore provides dataStore,
+        LocalPrefsAdaptive provides (type == PrefsScreenType.Adaptive),
+        LocalPrefsSwitchAdaptive provides (type != PrefsScreenType.IEN),
+    ) {
+        if (type != PrefsScreenType.Adaptive) {
+            IenProvideSectionStyle(
+                modifier = modifier,
+                fullHeight = fullHeight,
+                scrollState = scrollState,
+                shape = shape,
+                title = title,
+            ) {
+                content()
+                Spacer(modifier = Modifier.height(IenTheme.spacing.md))
+            }
+            return@CompositionLocalProvider
+        }
         AdaptiveProvideSectionStyle(
-            style = SectionStyle.InsetGrouped,
+            style = style,
             modifier = modifier,
             fullHeight = fullHeight,
             scrollState = scrollState,
@@ -57,7 +118,7 @@ fun PrefsScreen(
             title = title,
             content = {
                 content()
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(IenTheme.spacing.md))
             }
         )
     }
@@ -70,3 +131,6 @@ fun PrefsScreen(
 val LocalPrefsDataStore = staticCompositionLocalOf<DataStore<Preferences>> {
     error("No DataStore provided. Ensure content is wrapped in PrefsScreen.")
 }
+
+internal val LocalPrefsAdaptive = staticCompositionLocalOf { true }
+internal val LocalPrefsSwitchAdaptive = staticCompositionLocalOf { true }

@@ -216,9 +216,9 @@ fun IenAuthForm(
                         }
                     }
                 },
-            upperGap = 0.dp,
-            lowerGap = 0.dp,
-            contentPadding = PaddingValues(0.dp),
+            upperGap = IenTheme.spacing.none,
+            lowerGap = IenTheme.spacing.none,
+            contentPadding = PaddingValues(IenTheme.spacing.none),
         )
 
         Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
@@ -349,7 +349,7 @@ fun IenAuthForm(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        IenDivider(
+                        IenDivider.Horizontal(
                             modifier = Modifier.weight(1f)
                         )
                         Text(
@@ -357,7 +357,7 @@ fun IenAuthForm(
                             style = IenTheme.typography.label2,
                             color = IenTheme.colors.textSecondary,
                         )
-                        IenDivider(
+                        IenDivider.Horizontal(
                             modifier = Modifier.weight(1f)
                         )
                     }

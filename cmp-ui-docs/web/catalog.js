@@ -71,6 +71,7 @@ export const catalog = [
     ["IenCircleCheckbox", "IenDotCheckbox", "IenLineCheckbox"],
     "interactive/IenSelection.kt",
   ),
+  component("radio-button", "RadioButton", "액션·선택", "라디오 버튼과 그룹의 단일 선택·비활성 상태를 확인합니다.", ["IenRadioButton", "IenRadioGroup", "IenRadioGroupItem"], "interactive/IenSelection.kt"),
   component("highlight", "Highlight", "콘텐츠", "문장 안의 강조 구간을 표현합니다.", ["IenHighlightText"], "content/IenContent.kt"),
   component("icon-button", "IconButton", "액션·선택", "아이콘 버튼과 토글 버튼의 상태를 확인합니다.", ["IenIconButton", "IenIconToggleButton"], "interactive/IenButton.kt"),
   component("list-footer", "ListFooter", "콘텐츠", "목록 하단의 추가 정보와 구분선을 표시합니다.", ["IenListFooter"], "list/IenList.kt"),
@@ -87,6 +88,7 @@ export const catalog = [
   component("progress-indicator", "ProgressIndicator", "피드백", "원형·물결·선형 진행 표시기를 비교합니다.", ["IenCircularProgressIndicator", "IenCircularWavyProgressIndicator", "IenLinearProgressIndicator"], "feedback/IenProgress.kt"),
   component("progress-stepper", "ProgressStepper", "피드백", "단계별 진행 상태와 레이아웃 변형을 표시합니다.", ["IenProgressStepper", "IenProgressStep"], "feedback/IenFeedback.kt"),
   component("rating", "Rating", "입력", "편집 가능, 읽기 전용, 비활성 별점을 비교합니다.", ["IenRating"], "interactive/IenInputExtras.kt"),
+  component("empty", "IenEmpty", "피드백", "표시할 데이터가 없을 때 안내와 후속 동작을 표시합니다.", ["IenEmpty", "IenEmptyIconScope"], "view/Empty.kt"),
   component("result", "Result", "피드백", "완료·실패·빈 상태의 결과 화면을 구성합니다.", ["IenResult"], "feedback/IenFeedback.kt"),
   component(
     "search-field",
@@ -99,7 +101,7 @@ export const catalog = [
   component("ien-section", "IenSection", "레이아웃", "제목·캡션과 SectionScope DSL로 항목을 구성하는 섹션 컨테이너입니다.", ["IenSection"], "section/Section.kt"),
   component("segmented-control", "SegmentedControl", "액션·선택", "세그먼트 선택과 정렬·크기 변형입니다.", ["IenSegmentedControl", "IenSegmentedControlItem"], "interactive/IenSelection.kt"),
   component("skeleton", "Skeleton", "피드백", "콘텐츠 로딩 형태와 직접 조합한 자리 표시자를 표현합니다.", ["IenSkeleton", "IenSkeletonElement", "IenSkeletonMotionGroup", "IenSkeletonPattern"], "feedback/IenFeedback.kt"),
-  component("slider", "Slider", "입력", "값 범위와 단계에 따른 슬라이더 동작입니다.", ["IenSlider"], "interactive/IenControls.kt"),
+  component("slider", "Slider", "입력", "단일 값과 값 범위를 조절하는 슬라이더입니다.", ["IenSlider", "IenRangeSlider"], "interactive/IenControls.kt"),
   component("swipe-box", "SwipeBox", "액션·선택", "스와이프에 연결된 보조 액션을 확인합니다.", ["IenSwipeBox", "IenSwipeBoxItem", "rememberIenSwipeBoxState"], "list/IenSwipeBox.kt"),
   component(
     "stepper",

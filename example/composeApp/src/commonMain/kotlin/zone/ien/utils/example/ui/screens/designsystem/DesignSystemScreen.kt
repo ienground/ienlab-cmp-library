@@ -66,6 +66,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.tabler.line.Add
+import zone.ien.utils.example.ui.keyboardDismissAction
 import zone.ien.utils.ui.content.IenBubble
 import zone.ien.utils.ui.content.IenBubbleBackground
 import zone.ien.utils.ui.content.IenBubbleTail
@@ -162,6 +163,9 @@ import zone.ien.utils.ui.interactive.IenIconToggleButton
 import zone.ien.utils.ui.interactive.IenInputChip
 import zone.ien.utils.ui.interactive.IenKeyboardAction
 import zone.ien.utils.ui.interactive.IenLineCheckbox
+import zone.ien.utils.ui.interactive.IenRadioButton
+import zone.ien.utils.ui.interactive.IenRadioGroup
+import zone.ien.utils.ui.interactive.IenRadioGroupItem
 import zone.ien.utils.ui.interactive.IenNumberKeypad
 import zone.ien.utils.ui.interactive.IenNumericSpinner
 import zone.ien.utils.ui.interactive.IenNumericSpinnerSize
@@ -172,6 +176,7 @@ import zone.ien.utils.ui.interactive.IenRatingVariant
 import zone.ien.utils.ui.interactive.IenSearchField
 import zone.ien.utils.ui.interactive.IenSecureKeyboardLanguage
 import zone.ien.utils.ui.interactive.IenSecureKeyboardState
+import zone.ien.utils.ui.interactive.IenRangeSlider
 import zone.ien.utils.ui.interactive.IenSegmentedControl
 import zone.ien.utils.ui.interactive.IenSegmentedControlAlignment
 import zone.ien.utils.ui.interactive.IenSegmentedControlItem
@@ -236,6 +241,7 @@ import zone.ien.utils.ui.list.IenSwipeBoxItem
 import zone.ien.utils.ui.list.IenTableRow
 import zone.ien.utils.ui.list.IenTableRowAlign
 import zone.ien.utils.ui.menu.IenMenu
+import zone.ien.utils.ui.menu.IenMenuItem
 import zone.ien.utils.ui.menu.IenModal
 import zone.ien.utils.ui.primitives.IenAssetFrame
 import zone.ien.utils.ui.primitives.IenAssetFrameShape
@@ -350,6 +356,7 @@ private val DesignSystemComponents = listOf(
     DesignSystemComponent("chip", "Chip", "액션·선택", "선택·입력·제안 목적의 칩을 비교합니다."),
     DesignSystemComponent("fab", "FAB", "액션·선택", "주요 동작을 강조하는 플로팅 액션 버튼입니다."),
     DesignSystemComponent("checkbox", "Checkbox", "액션·선택", "원형·선형 체크박스의 상태를 비교합니다."),
+    DesignSystemComponent("radio-button", "RadioButton", "액션·선택", "라디오 버튼과 그룹의 단일 선택·비활성 상태를 확인합니다."),
     DesignSystemComponent("highlight", "Highlight", "콘텐츠", "문장 안의 강조 구간을 표현합니다."),
     DesignSystemComponent("icon-button", "IconButton", "액션·선택", "아이콘 버튼과 토글 버튼의 상태를 확인합니다."),
     DesignSystemComponent("list-footer", "ListFooter", "콘텐츠", "목록 하단의 추가 정보와 구분선을 표시합니다."),
@@ -366,6 +373,7 @@ private val DesignSystemComponents = listOf(
     DesignSystemComponent("progress-indicator", "ProgressIndicator", "피드백", "원형·물결·선형 진행 표시기를 비교합니다."),
     DesignSystemComponent("progress-stepper", "ProgressStepper", "피드백", "단계별 진행 상태와 레이아웃 변형을 표시합니다."),
     DesignSystemComponent("rating", "Rating", "입력", "편집 가능, 읽기 전용, 비활성 별점을 비교합니다."),
+    DesignSystemComponent("empty", "IenEmpty", "피드백", "표시할 데이터가 없을 때 안내와 후속 동작을 표시합니다."),
     DesignSystemComponent("result", "Result", "피드백", "완료·실패·빈 상태의 결과 화면을 구성합니다."),
     DesignSystemComponent("search-field", "SearchField", "입력", "검색어 입력, 삭제, 비활성 상태를 확인합니다."),
     DesignSystemComponent("ien-section", "IenSection", "레이아웃", "제목·캡션과 SectionScope DSL로 항목을 구성하는 섹션 컨테이너입니다."),
@@ -565,6 +573,14 @@ private val ComponentPlaygroundControls = mapOf(
         choiceControl("variant", "형태", listOf("Circle", "Line")),
         toggleControl("checked", "선택 상태"),
         disabledControl(),
+    ),
+    "radio-button" to listOf(
+        choiceControl("variant", "형태", listOf("Group", "Single")),
+        choiceControl("value", "선택값", listOf("없음", "32 GB", "64 GB", "128 GB", "256 GB"), "128 GB"),
+        disabledControl(),
+        toggleControl("disableLastItem", "마지막 항목 비활성", false),
+        toggleControl("showLabel", "라벨 표시", true),
+        numberControl("size", "크기", 24, 16, 40),
     ),
     "icon-button" to listOf(
         choiceControl("variant", "표시 방식", listOf("Fill", "Weak", "Line", "Ghost")),
@@ -1148,7 +1164,7 @@ internal fun DesignSystemPlayground(
                         }
                     }
                 }
-                IenDivider()
+                IenDivider.Horizontal()
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.TopCenter,
@@ -1263,7 +1279,9 @@ internal fun DesignSystemPlayground(
                                     IenTextField(
                                         value = values[control.key] ?: control.defaultValue,
                                         onValueChange = { value -> values[control.key] = value },
-                                        modifier = Modifier.fillMaxWidth(),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .keyboardDismissAction(),
                                         label = control.label,
                                         keyboardOptions = KeyboardOptions(
                                             keyboardType = when {
@@ -1317,7 +1335,7 @@ internal fun DesignSystemPlayground(
                                 }
                             }
                         }
-                        if (control != variantControls.last()) IenDivider()
+                        if (control != variantControls.last()) IenDivider.Horizontal()
                     }
                 }
             }
@@ -1464,6 +1482,7 @@ private fun DesignSystemCatalog(
         IenTextField(
             value = query,
             onValueChange = onQueryChange,
+            modifier = Modifier.keyboardDismissAction(),
             label = "컴포넌트 검색",
             placeholder = "이름 또는 기능으로 검색",
         )
@@ -1577,6 +1596,7 @@ internal fun DesignSystemComponentPreview(
         "chip" -> ChipSection(controlValues)
         "fab" -> FabSection(controlValues)
         "checkbox" -> CheckboxSection(controlValues)
+        "radio-button" -> RadioButtonSection(controlValues)
         "highlight" -> HighlightSection(controlValues)
         "icon-button" -> IconButtonSection(controlValues)
         "list-footer" -> ListFooterSection(controlValues)
@@ -1593,6 +1613,7 @@ internal fun DesignSystemComponentPreview(
         "progress-indicator" -> ProgressIndicatorSection(controlValues)
         "progress-stepper" -> ProgressStepperSection(controlValues)
         "rating" -> RatingSection(controlValues)
+        "empty" -> IenEmptySection()
         "result" -> ResultSection(controlValues)
         "search-field" -> SearchFieldSection(controlValues)
         "ien-section" -> IenSectionSection(controlValues)
@@ -2050,7 +2071,7 @@ fun BorderSection(controls: Map<String, String> = emptyMap()) {
 @Preview
 @Composable
 fun BottomInfoSection(controls: Map<String, String> = emptyMap()) {
-    val padding = controls.intValue("padding", 24).coerceIn(0, 48).dp
+    val padding = controls.intValue("padding", IenTheme.spacing.xl.value.toInt()).coerceIn(0, 48).dp
     IenTheme {
         val backgroundColor = playgroundSurfaceColor(controls.enumValue("background", "surfaceWeak"))
         val bottomGradient = when (controls.enumValue("gradient", "Default")) {
@@ -2062,7 +2083,7 @@ fun BottomInfoSection(controls: Map<String, String> = emptyMap()) {
             IenBottomInfo(
                 bottomGradient = bottomGradient,
                 backgroundColor = backgroundColor,
-                contentPadding = PaddingValues(horizontal = padding, vertical = 16.dp),
+                contentPadding = PaddingValues(horizontal = padding, vertical = IenTheme.spacing.md),
             ) {
                 Text(
                     text = "하단 안내는 결제, 확인, 폼 화면에서 보조 정보를 안정적으로 보여줍니다.",
@@ -2098,7 +2119,7 @@ fun BottomSheetSection(controls: Map<String, String> = emptyMap()) {
             ) {
                 Text("일반 바텀시트 열기")
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(IenTheme.spacing.xs))
             IenButton(
                 onClick = { selectSheetState.show(IenSheetDetent.Content) },
                 display = IenButtonDisplay.Block,
@@ -2153,7 +2174,7 @@ fun BottomSheetSection(controls: Map<String, String> = emptyMap()) {
         IenBottomSheet(
             state = selectSheetState,
             header = { Text("좋아하는 동물을 선택해주세요.", style = IenTheme.typography.title3) },
-            contentPadding = PaddingValues(0.dp)
+            contentPadding = PaddingValues(IenTheme.spacing.none)
         ) {
             IenBottomSheetSelect(
                 options = listOf(
@@ -2224,8 +2245,8 @@ fun ButtonSection(controls: Map<String, String> = emptyMap()) {
                 variant = buttonVariant,
                 tone = controls.toneValue("tone", IenSemanticTone.Brand),
                 contentPadding = PaddingValues(
-                    horizontal = controls.intValue("contentPadding", 16).coerceIn(0, 32).dp,
-                    vertical = controls.intValue("verticalContentPadding", 8).coerceIn(0, 32).dp,
+                    horizontal = controls.intValue("contentPadding", IenTheme.spacing.md.value.toInt()).coerceIn(0, 32).dp,
+                    vertical = controls.intValue("verticalContentPadding", IenTheme.spacing.xs.value.toInt()).coerceIn(0, 32).dp,
                 ),
                 state = IenButtonState(
                     enabled = !controls.disabledValue(),
@@ -2416,7 +2437,7 @@ fun CardSection(controls: Map<String, String> = emptyMap()) {
                 toneVariant = cardToneVariant,
                 shape = shape,
                 contentPadding = PaddingValues(
-                    controls.intValue("contentPadding", 16).coerceIn(0, 32).dp,
+                    controls.intValue("contentPadding", IenTheme.spacing.md.value.toInt()).coerceIn(0, 32).dp,
                 ),
                 onClick = {
                     clickedCard = "${controls.enumValue("tone", "Neutral")} · ${controls.enumValue("variant", "Filled")}"
@@ -2634,6 +2655,44 @@ fun CheckboxSection(controls: Map<String, String> = emptyMap()) {
 
 @Preview
 @Composable
+fun RadioButtonSection(controls: Map<String, String> = emptyMap()) {
+    IenTheme {
+        val options = listOf(32, 64, 128, 256)
+        var selected by remember(controls["value"]) {
+            mutableStateOf(options.firstOrNull { "$it GB" == controls.enumValue("value", "128 GB") })
+        }
+        val enabled = !controls.disabledValue()
+        val size = controls.intValue("size", 24).coerceIn(16, 40).dp
+        ComponentSection(title = "RadioButton") {
+            if (controls.enumValue("variant", "Group") == "Group") {
+                IenRadioGroup(
+                    items = options.map { value ->
+                        IenRadioGroupItem(
+                            value = value,
+                            label = "$value GB",
+                            enabled = value != 256 || !controls.booleanValue("disableLastItem", false),
+                        )
+                    },
+                    value = selected,
+                    onChange = { selected = it },
+                    enabled = enabled,
+                    size = size,
+                )
+            } else {
+                IenRadioButton(
+                    selected = selected == 128,
+                    onClick = { selected = 128 },
+                    enabled = enabled,
+                    size = size,
+                    label = "128 GB".takeIf { controls.booleanValue("showLabel", true) },
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
 fun HighlightSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
         ComponentSection(title = "Highlight") {
@@ -2801,13 +2860,13 @@ fun PullToRefreshSection(controls: Map<String, String> = emptyMap()) {
                 enabled = controls.booleanValue("enabled", true) && !loading,
                 threshold = controls.intValue("threshold", 56).coerceIn(36, 96).dp,
                 contentPadding = PaddingValues(
-                    top = controls.intValue("topPadding", 0).coerceIn(0, 160).dp,
+                    top = controls.intValue("topPadding", IenTheme.spacing.none.value.toInt()).coerceIn(0, 160).dp,
                 ),
             ) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     state = listState,
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 106.dp),
+                    contentPadding = PaddingValues(start = IenTheme.spacing.md, end = IenTheme.spacing.md, bottom = 106.dp),
                 ) {
                     if (loading) {
                         item {
@@ -2891,14 +2950,14 @@ fun ProgressIndicatorSection(controls: Map<String, String> = emptyMap()) {
                     IenCircularWavyProgressIndicator(
                         progress = { progress },
                         color = color,
-                        gapSize = controls.intValue("gapSize", 4).coerceIn(0, 16).dp,
+                        gapSize = controls.intValue("gapSize", IenTheme.spacing.xxs.value.toInt()).coerceIn(0, 16).dp,
                         wavelength = controls.intValue("wavelength", 40).coerceIn(8, 100).dp,
                         amplitude = { controls.intValue("waveAmplitude", 100).coerceIn(0, 200) / 100f },
                     )
                 } else {
                     IenCircularWavyProgressIndicator(
                         color = color,
-                        gapSize = controls.intValue("gapSize", 4).coerceIn(0, 16).dp,
+                        gapSize = controls.intValue("gapSize", IenTheme.spacing.xxs.value.toInt()).coerceIn(0, 16).dp,
                         wavelength = controls.intValue("wavelength", 40).coerceIn(8, 100).dp,
                         amplitude = controls.intValue("waveAmplitude", 100).coerceIn(0, 200) / 100f,
                     )
@@ -2907,7 +2966,7 @@ fun ProgressIndicatorSection(controls: Map<String, String> = emptyMap()) {
                 else -> IenCircularProgressIndicator(
                     color = color,
                     strokeWidth = controls.intValue("strokeWidth", 4).coerceIn(1, 12).dp,
-                    gapSize = controls.intValue("gapSize", 4).coerceIn(0, 16).dp,
+                    gapSize = controls.intValue("gapSize", IenTheme.spacing.xxs.value.toInt()).coerceIn(0, 16).dp,
                 )
             }
         }
@@ -2919,6 +2978,7 @@ fun ProgressIndicatorSection(controls: Map<String, String> = emptyMap()) {
 fun MenuSection(controls: Map<String, String> = emptyMap()) {
     var menuOpen by remember(controls["visible"]) { mutableStateOf(controls.booleanValue("visible", false)) }
     var checkedMenu by remember { mutableIntStateOf(1) }
+    var lastMenuAction by remember { mutableStateOf("없음") }
 
     IenTheme {
         ComponentSection(title = "Menu") {
@@ -2929,7 +2989,7 @@ fun MenuSection(controls: Map<String, String> = emptyMap()) {
                 placement = IenMenu.Placement.entries.firstOrNull {
                     it.name == controls.enumValue("placement", "AnchorTopStart")
                 } ?: IenMenu.Placement.AnchorTopStart,
-                offset = DpOffset(0.dp, controls.intValue("offset", 8).coerceIn(0, 32).dp),
+                offset = DpOffset(IenTheme.spacing.none, controls.intValue("offset", IenTheme.spacing.xs.value.toInt()).coerceIn(0, 32).dp),
                 dropdown = {
                     IenMenu.Dropdown(
                         onDismissRequest = { menuOpen = false },
@@ -2983,6 +3043,44 @@ fun MenuSection(controls: Map<String, String> = emptyMap()) {
                     Text("메뉴 열기")
                 }
             }
+
+            Text("목록형 메뉴", style = IenTheme.typography.caption, color = IenTheme.colors.textTertiary)
+            IenMenu(
+                items = listOf(
+                    IenMenuItem(
+                        title = "프로필 편집",
+                        description = "이름과 프로필 사진을 변경합니다.",
+                        onClick = { lastMenuAction = "프로필 편집" },
+                        leading = {
+                            IenIcon(imageVector = SystemIcons.Edit, contentDescription = null)
+                        },
+                        trailing = {
+                            IenIcon(imageVector = SystemIcons.ChevronRight, contentDescription = null)
+                        },
+                    ),
+                    IenMenuItem(
+                        title = "알림 설정",
+                        description = "받을 알림을 관리합니다.",
+                        onClick = { lastMenuAction = "알림 설정" },
+                    ),
+                    IenMenuItem(
+                        title = "로그아웃",
+                        onClick = { lastMenuAction = "로그아웃" },
+                        enabled = !controls.disabledValue(),
+                        tone = IenSemanticTone.Danger,
+                    ),
+                ),
+                header = {
+                    Text("계정", style = IenTheme.typography.body2)
+                },
+                footer = {
+                    Text(
+                        text = "마지막 선택: $lastMenuAction",
+                        style = IenTheme.typography.caption,
+                        color = IenTheme.colors.textTertiary,
+                    )
+                },
+            )
         }
     }
 }
@@ -3200,20 +3298,24 @@ fun ResultSection(controls: Map<String, String> = emptyMap()) {
     IenTheme {
         ComponentSection(title = "Result") {
             IenResult(
-                title = controls.textValue("title", "처리 준비 완료"),
-                description = controls.textValue(
-                    "description",
-                    "Result는 성공, 실패, 빈 상태 화면을 같은 정보 구조로 표현합니다.",
-                ).takeIf { controls.booleanValue("showDescription", true) },
+                title = { Text(controls.textValue("title", "처리 준비 완료")) },
+                description = if (controls.booleanValue("showDescription", true)) {
+                    {
+                        Text(
+                            controls.textValue(
+                                "description",
+                                "Result는 성공, 실패, 빈 상태 화면을 같은 정보 구조로 표현합니다.",
+                            ),
+                        )
+                    }
+                } else null,
                 tone = IenResultTone.entries.firstOrNull {
                     it.name == controls.enumValue("tone", "Success")
                 } ?: IenResultTone.Success,
                 icon = {
-                    Box(
-                        modifier = Modifier
-                            .size(18.dp)
-                            .clip(CircleShape)
-                            .background(IenTheme.colors.success),
+                    IenIcon(
+                        imageVector = SystemIcons.Save,
+                        contentDescription = null,
                     )
                 },
                 primaryAction = if (controls.booleanValue("showPrimaryAction", true)) ({
@@ -3242,12 +3344,14 @@ fun SearchFieldSection(controls: Map<String, String> = emptyMap()) {
             IenSearchField(
                 value = search,
                 onValueChange = { search = it },
+                modifier = Modifier.keyboardDismissAction(),
                 placeholder = controls.textValue("placeholder", "검색어를 입력하세요"),
                 state = IenTextFieldState(enabled = !controls.disabledValue()),
             )
             IenSearchField(
                 value = deletableSearch,
                 onValueChange = { deletableSearch = it },
+                modifier = Modifier.keyboardDismissAction(),
                 placeholder = "검색어를 입력하고 삭제 버튼을 눌러보세요",
                 onDeleteClick = { deleteCount += 1 },
             )
@@ -3266,6 +3370,7 @@ fun SearchFieldSection(controls: Map<String, String> = emptyMap()) {
                     IenSearchField(
                         value = fixedSearch,
                         onValueChange = { fixedSearch = it },
+                        modifier = Modifier.keyboardDismissAction(),
                         placeholder = "상단 고정 검색",
                         fixed = controls.booleanValue("fixed", true),
                         takeSpace = controls.booleanValue("takeSpace", true),
@@ -3281,6 +3386,7 @@ fun SearchFieldSection(controls: Map<String, String> = emptyMap()) {
             IenSearchField(
                 value = disabledSearch,
                 onValueChange = { disabledSearch = it },
+                modifier = Modifier.keyboardDismissAction(),
                 placeholder = "비활성 검색",
                 state = IenTextFieldState(enabled = false),
             )
@@ -3417,9 +3523,9 @@ fun SkeletonSection(controls: Map<String, String> = emptyMap()) {
                     custom = listOf(
                         IenSkeletonElement.Title,
                         IenSkeletonElement.Subtitle,
-                        IenSkeletonElement.Spacer(12.dp),
+                        IenSkeletonElement.Spacer(IenTheme.spacing.sm),
                         IenSkeletonElement.Card,
-                        IenSkeletonElement.Spacer(8.dp),
+                        IenSkeletonElement.Spacer(IenTheme.spacing.xs),
                         IenSkeletonElement.ListWithIcon,
                     ),
                     repeatLastItemCount = IenSkeletonRepeat.Count(2),
@@ -3452,7 +3558,7 @@ fun SkeletonSection(controls: Map<String, String> = emptyMap()) {
                                 ),
                             ),
                         ),
-                        IenSkeletonElement.Spacer(height = 12.dp),
+                        IenSkeletonElement.Spacer(height = IenTheme.spacing.sm),
                         IenSkeletonElement.Box(
                             modifier = Modifier.size(width = 180.dp, height = 112.dp),
                             contentAlignment = Alignment.Center,
@@ -3492,16 +3598,31 @@ fun SliderSection(controls: Map<String, String> = emptyMap()) {
         var sliderValue by remember(controls["value"], rangeStart, rangeEnd) {
             mutableStateOf((controls.intValue("value", 35) / 100f).coerceIn(valueRange))
         }
+        val rangeLength = rangeEnd - rangeStart
+        var rangeSliderValue by remember(controls["rangeValue"], rangeStart, rangeEnd) {
+            mutableStateOf((rangeStart + rangeLength * 0.2f)..(rangeStart + rangeLength * 0.7f))
+        }
         ComponentSection(title = "Slider") {
-            IenSlider(
-                value = sliderValue.coerceIn(valueRange),
-                onValueChange = { sliderValue = it },
-                label = "비율",
-                valueLabel = "${(sliderValue * 100).toInt()}%",
-                steps = controls.intValue("steps", 0).coerceIn(0, 10),
-                valueRange = valueRange,
-                enabled = !controls.disabledValue(),
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
+                IenSlider(
+                    value = sliderValue.coerceIn(valueRange),
+                    onValueChange = { sliderValue = it },
+                    label = "비율",
+                    valueLabel = "${(sliderValue * 100).toInt()}%",
+                    steps = controls.intValue("steps", 0).coerceIn(0, 10),
+                    valueRange = valueRange,
+                    enabled = !controls.disabledValue(),
+                )
+                IenRangeSlider(
+                    value = rangeSliderValue,
+                    onValueChange = { rangeSliderValue = it },
+                    label = "범위",
+                    valueLabel = "${(rangeSliderValue.start * 100).toInt()}–${(rangeSliderValue.endInclusive * 100).toInt()}%",
+                    steps = controls.intValue("steps", 0).coerceIn(0, 10),
+                    valueRange = valueRange,
+                    enabled = !controls.disabledValue(),
+                )
+            }
         }
     }
 }
@@ -3714,7 +3835,7 @@ fun StepperSection(controls: Map<String, String> = emptyMap()) {
                 )
             }
 
-            IenDivider()
+            IenDivider.Horizontal()
             Text("IenStepperAssetFrameShape", style = IenTheme.typography.label1)
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
                 Column(
@@ -3786,7 +3907,7 @@ fun SwitchSection(controls: Map<String, String> = emptyMap()) {
                             IenIcon(
                                 imageVector = SystemIcons.Check,
                                 contentDescription = null,
-                                size = 16.dp,
+                                size = IenTheme.icon.sm,
                                 tint = IenTheme.colors.surface,
                             )
                         },
@@ -3794,7 +3915,7 @@ fun SwitchSection(controls: Map<String, String> = emptyMap()) {
                             IenIcon(
                                 imageVector = SystemIcons.Close,
                                 contentDescription = null,
-                                size = 16.dp,
+                                size = IenTheme.icon.sm,
                                 tint = IenTheme.colors.surface,
                             )
                         },
@@ -3829,7 +3950,14 @@ fun TabSection(controls: Map<String, String> = emptyMap()) {
                 onSelectedIndexChange = { tabSelected = it },
                 size = size,
                 fluid = fluid,
-                itemGap = controls.intValue("itemGap", if (fluid) 36 else 8).coerceIn(0, 32).dp,
+                itemGap = controls.intValue(
+                    "itemGap",
+                    if (fluid) {
+                        IenTheme.spacing.xxl.value.toInt()
+                    } else {
+                        IenTheme.spacing.xs.value.toInt()
+                    },
+                ).coerceIn(0, 32).dp,
                 modifier = Modifier.fillMaxWidth(),
                 ariaLabel = "주문 정보 탭",
             )
@@ -4186,11 +4314,11 @@ fun TopSection(controls: Map<String, String> = emptyMap()) {
     val selectorType = IenTopSelectorType.entries.firstOrNull {
         it.name == controls.enumValue("selectorType", "Arrow")
     } ?: IenTopSelectorType.Arrow
-    val upperGap = controls.intValue("upperGap", 24).coerceIn(0, 48).dp
-    val lowerGap = controls.intValue("lowerGap", 24).coerceIn(0, 48).dp
+    val upperGap = controls.intValue("upperGap", IenTheme.spacing.xl.value.toInt()).coerceIn(0, 48).dp
+    val lowerGap = controls.intValue("lowerGap", IenTheme.spacing.xl.value.toInt()).coerceIn(0, 48).dp
     val contentPadding = PaddingValues(
-        horizontal = controls.intValue("contentPadding", 24).coerceIn(0, 48).dp,
-        vertical = controls.intValue("contentPaddingVertical", 0).coerceIn(0, 48).dp,
+        horizontal = controls.intValue("contentPadding", IenTheme.spacing.xl.value.toInt()).coerceIn(0, 48).dp,
+        vertical = controls.intValue("contentPaddingVertical", IenTheme.spacing.none.value.toInt()).coerceIn(0, 48).dp,
     )
     val rightVerticalAlign = IenTopRightVerticalAlign.entries.firstOrNull {
         it.name == controls.enumValue("rightVerticalAlign", "Center")
@@ -4382,7 +4510,7 @@ fun TopSection(controls: Map<String, String> = emptyMap()) {
                 },
             )
 
-            IenDivider()
+            IenDivider.Horizontal()
             Text("IenTopSelectorType", style = IenTheme.typography.label1)
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
                 IenTopSubtitleSelector(
@@ -4549,7 +4677,7 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
                 }
             )
 
-            IenDivider()
+            IenDivider.Horizontal()
 
             Text(
                 text = "2. 접었다 펼치는 아코디언 동의 (Collapsible)",
@@ -4608,7 +4736,7 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
                 }
             }
 
-            IenDivider()
+            IenDivider.Horizontal()
 
             Text(
                 text = "3. 여러 동의 항목 그룹화 (Group)",
@@ -4652,7 +4780,7 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
                 )
             }
 
-            IenDivider()
+            IenDivider.Horizontal()
 
             Text(
                 text = "4. 동적 들여쓰기 동의 (IndentPushable)",
@@ -4710,7 +4838,7 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
                 }
             }
 
-            IenDivider()
+            IenDivider.Horizontal()
 
             Text(
                 text = "5. 기존 리스트형 어댑터 동의 (하위 호환용)",
@@ -4726,7 +4854,7 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
                 }
             )
 
-            IenDivider()
+            IenDivider.Horizontal()
             Text(text = "6. 선택한 크기 변형", style = IenTheme.typography.label1)
             IenAgreement(
                 variant = agreementVariant,
@@ -4734,7 +4862,7 @@ fun AgreementSection(controls: Map<String, String> = emptyMap()) {
                 middle = { IenAgreementText(text = "IenAgreementVariant.${agreementVariant.name}") },
             )
 
-            IenDivider()
+            IenDivider.Horizontal()
             Text(
                 text = "7. IenAgreementBadgeVariant & CheckboxVariant",
                 style = IenTheme.typography.label1
@@ -4798,33 +4926,40 @@ fun AssetSection(controls: Map<String, String> = emptyMap()) {
             ) {
                 Text("IEN")
             }
-            if (!LocalComponentVariantShowcase.current) {
-                IenEmpty(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(400.dp),
-                    icon = {
-                        this.size = IenAssetFrameSize.Large
-                        this.tone = IenSemanticTone.Success
-                        this.shape = IenAssetFrameShape.Circle
-                        this.contentDescription = "빈 상태 아이콘"
-                        content { contentModifier ->
-                            IenIcon(
-                                imageVector = SystemIcons.Save,
-                                contentDescription = null,
-                                modifier = contentModifier,
-                            )
-                        }
-                    },
-                    title = { Text("표시할 데이터가 없어요") },
-                    content = { Text("새로운 데이터가 추가되면 이곳에 표시됩니다.") },
-                    buttons = {
-                        IenButton(onClick = {}) {
-                            Text("새로고침")
-                        }
-                    },
-                )
-            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun IenEmptySection() {
+    IenTheme {
+        ComponentSection(title = "IenEmpty") {
+            IenEmpty(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(400.dp),
+                icon = {
+                    this.size = IenAssetFrameSize.Large
+                    this.tone = IenSemanticTone.Success
+                    this.shape = IenAssetFrameShape.Circle
+                    this.contentDescription = "빈 상태 아이콘"
+                    content { contentModifier ->
+                        IenIcon(
+                            imageVector = SystemIcons.Save,
+                            contentDescription = null,
+                            modifier = contentModifier,
+                        )
+                    }
+                },
+                title = { Text("표시할 데이터가 없어요") },
+                content = { Text("새로운 데이터가 추가되면 이곳에 표시됩니다.") },
+                buttons = {
+                    IenButton(onClick = {}) {
+                        Text("새로고침")
+                    }
+                },
+            )
         }
     }
 }
@@ -4881,7 +5016,7 @@ fun BottomBarSection(controls: Map<String, String> = emptyMap()) {
                 containerColor = playgroundSurfaceColor(controls.enumValue("container", "surface")),
                 shape = shape,
                 elevation = controls.intValue("elevation", 8).coerceIn(0, 24).dp,
-                contentPadding = PaddingValues(controls.intValue("contentPadding", 8).coerceIn(0, 24).dp),
+                contentPadding = PaddingValues(controls.intValue("contentPadding", IenTheme.spacing.xs.value.toInt()).coerceIn(0, 24).dp),
                 visible = controls.booleanValue("visible", true),
             )
         }
@@ -4939,6 +5074,7 @@ private fun ChatBottomBarExample(
         },
         placeholder = placeholder,
         maxLines = maxLines,
+        inputModifier = Modifier.keyboardDismissAction(),
         leadingContent = if (showLeading) ({
             IenIconButton(
                 onClick = {},
@@ -5004,7 +5140,7 @@ fun NavigationBarSection(controls: Map<String, String> = emptyMap()) {
                 IenNavigationBar(
                     selectedIndex = selectedTabIndex.coerceIn(0, itemCount - 1),
                     itemCount = itemCount,
-                    windowInsets = WindowInsets(0.dp),
+                    windowInsets = WindowInsets(IenTheme.spacing.none),
                     visible = visible,
                 ) {
                     items.take(itemCount).forEachIndexed { index, (label, icon) ->
@@ -5031,7 +5167,7 @@ fun NavigationBarSection(controls: Map<String, String> = emptyMap()) {
                 IenNavigationBar2(
                     selectedIndex = selectedTabIndex.coerceIn(0, itemCount - 1),
                     itemCount = itemCount,
-                    windowInsets = WindowInsets(0.dp),
+                    windowInsets = WindowInsets(IenTheme.spacing.none),
                     visible = visible,
                 ) {
                     floatingTabItems.take(itemCount).forEachIndexed { index, item ->
@@ -5699,6 +5835,7 @@ fun DialogSection(controls: Map<String, String> = emptyMap()) {
         )
 
         IenTextFieldDialog(
+            modifier = Modifier.keyboardDismissAction(),
             visible = showTextFieldDialog,
             title = "프로필 편집",
             message = "표시 이름을 입력하세요.",
@@ -5742,7 +5879,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
                 enabled = enabled,
             )
-            IenDivider()
+            IenDivider.Horizontal()
             Text("커스텀 배열: $customAlphabetValue", style = IenTheme.typography.body2)
             IenAlphabetKeypad(
                 alphabets = listOf(
@@ -5761,7 +5898,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
                 enabled = enabled,
             )
-            IenDivider()
+            IenDivider.Horizontal()
             Text("보안 알파벳 키보드: $alphabetValue", style = IenTheme.typography.body2)
             IenAlphabetKeyboard(
                 onAction = { action ->
@@ -5770,7 +5907,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 randomized = controls.booleanValue("randomized", false),
                 enabled = enabled,
             )
-            IenDivider()
+            IenDivider.Horizontal()
             Text("Number Keypad: $numberValue", style = IenTheme.typography.body2)
             IenNumberKeypad(
                 onKeyClick = { numberValue += it },
@@ -5778,7 +5915,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
                 enabled = enabled,
             )
-            IenDivider()
+            IenDivider.Horizontal()
             Text("커스텀 숫자 배열: $customNumberValue", style = IenTheme.typography.body2)
             IenNumberKeypad(
                 numbers = listOf(1, 3, 5, 7, 9, 2, 4, 6, 8, 0),
@@ -5786,7 +5923,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 onBackspaceClick = { customNumberValue = customNumberValue.dropLast(1) },
                 enabled = enabled,
             )
-            IenDivider()
+            IenDivider.Horizontal()
             Text(
                 text = "보안 숫자 입력: $secureNumberValue / 더미: $secureNoiseValue",
                 style = IenTheme.typography.body2,
@@ -5804,7 +5941,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
                 enabled = enabled,
             )
-            IenDivider()
+            IenDivider.Horizontal()
             Text("Full Secure Keypad: $fullSecureValue", style = IenTheme.typography.body2)
             IenFullSecureKeypad(
                 state = fullSecureKeypadState,
@@ -5816,7 +5953,7 @@ fun KeypadSection(controls: Map<String, String> = emptyMap()) {
                 submitDisabled = fullSecureValue.isEmpty(),
                 enabled = enabled,
             )
-            IenDivider()
+            IenDivider.Horizontal()
             IenFullSecureKeyboard(
                 state = IenSecureKeyboardState(
                     value = secureValue,
@@ -6030,7 +6167,7 @@ fun ListRowSection(controls: Map<String, String> = emptyMap()) {
             )
             IenListRowLoader(type = IenListRowLoaderType.Bar)
 
-            IenDivider()
+            IenDivider.Horizontal()
             Text("IenListRowTextsType", style = IenTheme.typography.label1)
             IenListRow(
                 contents = {
@@ -6044,7 +6181,7 @@ fun ListRowSection(controls: Map<String, String> = emptyMap()) {
                 border = IenListRowBorder.Indented,
             )
 
-            IenDivider()
+            IenDivider.Horizontal()
             Text("IenListRowDisabledStyle", style = IenTheme.typography.label1)
             IenListRow(
                 contents = {
@@ -6069,7 +6206,7 @@ fun ListRowSection(controls: Map<String, String> = emptyMap()) {
                 border = IenListRowBorder.Indented,
             )
 
-            IenDivider()
+            IenDivider.Horizontal()
             Text("IenListRowAssetShape & Size", style = IenTheme.typography.label1)
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
                 IenListRowAssetText(
@@ -6099,7 +6236,7 @@ fun ListRowSection(controls: Map<String, String> = emptyMap()) {
                 )
             }
 
-            IenDivider()
+            IenDivider.Horizontal()
             Text("IenListRowBorder", style = IenTheme.typography.label1)
             IenListRow(
                 contents = {
@@ -6152,6 +6289,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
                 IenTextField(
                     value = value,
                     onValueChange = { value = it },
+                    modifier = Modifier.keyboardDismissAction(),
                     label = label,
                     required = required,
                     labelOption = labelOption,
@@ -6189,6 +6327,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
             IenTextField(
                 value = text,
                 onValueChange = { text = it },
+                modifier = Modifier.keyboardDismissAction(),
                 label = label,
                 required = required,
                 labelOption = labelOption,
@@ -6206,6 +6345,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
             IenTextField(
                 value = number,
                 onValueChange = { if (it.checkDecimal()) number = it },
+                modifier = Modifier.keyboardDismissAction(),
                 label = "이름 · Required · LengthLimit.Error",
                 required = true,
                 placeholder = "이름을 입력하세요",
@@ -6218,6 +6358,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
             IenTextField(
                 value = lineText,
                 onValueChange = { lineText = it },
+                modifier = Modifier.keyboardDismissAction(),
                 label = "주소 · LengthLimit.None",
                 labelOption = IenTextFieldLabelOption.Sustain,
                 placeholder = "주소를 입력하세요",
@@ -6229,6 +6370,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
             IenTextField(
                 value = bigText,
                 onValueChange = { bigText = it },
+                modifier = Modifier.keyboardDismissAction(),
                 label = "큰 금액",
                 placeholder = "0",
                 variant = IenTextFieldVariant.Big,
@@ -6240,19 +6382,21 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
             IenTextField(
                 value = amountText,
                 onValueChange = { amountText = it },
+                modifier = Modifier.keyboardDismissAction(),
                 label = "Hero 입력",
                 labelOption = IenTextFieldLabelOption.Sustain,
                 placeholder = "0",
                 variant = IenTextFieldVariant.Hero,
                 suffix = "원",
                 format = numberFormat,
-                paddingTop = 24.dp,
-                paddingBottom = 24.dp,
+                paddingTop = IenTheme.spacing.xl,
+                paddingBottom = IenTheme.spacing.xl,
             )
             IenClearableTextField(
                 value = clearText,
                 onValueChange = { clearText = it },
                 onClear = {},
+                modifier = Modifier.keyboardDismissAction(),
                 label = "Clearable · LengthLimit.Block",
                 labelOption = IenTextFieldLabelOption.Sustain,
                 placeholder = "입력 후 지울 수 있어요",
@@ -6261,6 +6405,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
             IenPasswordTextField(
                 value = passwordText,
                 onValueChange = { passwordText = it },
+                modifier = Modifier.keyboardDismissAction(),
                 label = "비밀번호 · LengthLimit.Block",
                 required = true,
                 placeholder = "비밀번호 입력",
@@ -6278,6 +6423,7 @@ fun TextFieldSection(controls: Map<String, String> = emptyMap()) {
             IenTextField(
                 value = "",
                 onValueChange = {},
+                modifier = Modifier.keyboardDismissAction(),
                 label = "오류 상태",
                 placeholder = "필수 값",
                 hasError = true,
@@ -6297,6 +6443,7 @@ fun SplitTextFieldSection(controls: Map<String, String> = emptyMap()) {
                 value = splitText,
                 onValueChange = { splitText = it },
                 length = controls.intValue("fieldCount", 4).coerceIn(2, 8),
+                modifier = Modifier.keyboardDismissAction(),
                 placeholderChar = controls.textValue("placeholderChar", "•").firstOrNull() ?: '•',
                 mask = controls.booleanValue("mask", false),
                 state = IenTextFieldState(enabled = !controls.disabledValue()),
@@ -6324,7 +6471,9 @@ fun TextAreaSection(controls: Map<String, String> = emptyMap()) {
             IenTextArea(
                 value = textArea,
                 onValueChange = { textArea = it },
-                modifier = Modifier.height((maxLines * 48).dp),
+                modifier = Modifier
+                    .height((maxLines * 48).dp)
+                    .keyboardDismissAction(),
                 label = label,
                 required = controls.booleanValue("required", true),
                 placeholder = placeholder,
@@ -6361,7 +6510,16 @@ fun PrimitivesSection(controls: Map<String, String> = emptyMap()) {
             ) {
                 Text("BorderBox 프리미티브", color = IenTheme.colors.textSecondary)
             }
-            IenDivider(thickness = controls.intValue("dividerThickness", 1).coerceIn(1, 8).dp)
+            IenDivider.Horizontal(thickness = controls.intValue("dividerThickness", 1).coerceIn(1, 8).dp)
+            Row(
+                modifier = Modifier.height(IenTheme.state.minimumTouchTarget),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("세로 구분선")
+                IenDivider.Vertical()
+                Text("구분된 콘텐츠")
+            }
             IenSurface(color = playgroundSurfaceColor(controls.enumValue("surfaceColor", "brandWeak")), shape = shape) {
                 Text("${controls.enumValue("shape", "Rounded")} 표면", modifier = Modifier.padding(IenTheme.spacing.md), color = IenTheme.colors.brand)
             }
@@ -6414,7 +6572,7 @@ private fun ComponentSection(
             verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
         ) {
             Text(title, style = IenTheme.typography.title3)
-            IenDivider()
+            IenDivider.Horizontal()
             content()
         }
     }
@@ -6599,6 +6757,7 @@ fun IenSectionSection(controls: Map<String, String> = emptyMap()) {
                 textField(
                     value = text,
                     onValueChange = { text = it },
+                    modifier = Modifier.keyboardDismissAction(),
                     placeholder = { Text("이름") },
                     trailingContent = { _ ->
                         IenIconButton(
@@ -6613,6 +6772,7 @@ fun IenSectionSection(controls: Map<String, String> = emptyMap()) {
                 )
                 secureTextField(
                     state = passwordState,
+                    modifier = Modifier.keyboardDismissAction(),
                     placeholder = { Text("비밀번호") },
                 )
                 button(

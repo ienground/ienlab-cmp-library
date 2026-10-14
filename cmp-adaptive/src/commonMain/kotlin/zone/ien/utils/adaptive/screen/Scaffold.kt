@@ -37,10 +37,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
@@ -77,6 +75,7 @@ import zone.ien.hig.adaptive.Adaptation
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.cupertinoScrollEdge
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.menu.HigActionMenu
 import zone.ien.utils.adaptive.menu.HigActionsMenu
@@ -113,6 +112,7 @@ internal fun cupertinoActionsEndSpacing(hasActions: Boolean): Dp =
  * @param floatingActionButton 플로팅 액션 버튼
  * @param fabPosition 플로팅 액션 버튼 위치
  * @param higFabPosition HIG 플로팅 액션 버튼 위치
+ * @param contentEdge 콘텐츠 모서리 효과 설정. scrollableState를 지정하면 Cupertino 상단바의 블러도 복원된 스크롤 위치에 맞춥니다.
  * @param topBarMode 상단바 표시 방식
  * @param adaptation 어댑테이션 설정
  * @param content 콘텐츠
@@ -164,6 +164,7 @@ fun AdaptiveTopAppBarScaffold(
  * 명시적인 배경 레이어를 상단바와 하단바 등 스캐폴드 슬롯에 제공하는 스캐폴드입니다.
  *
  * @param backdrop 기본 배경 레이어. Cupertino adaptation에서 덮어쓰면 해당 레이어를 공유합니다.
+ * @param contentEdge 콘텐츠 모서리 효과 설정. scrollableState를 지정하면 Cupertino 상단바의 블러도 복원된 스크롤 위치에 맞춥니다.
  */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -324,7 +325,9 @@ fun AdaptiveTopAppBarScaffold(
                                     navigationIcon = { navigationIcon?.invoke() },
                                     actions = {
                                         Row(
-                                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(
+                                                IenTheme.spacing.xxs + IenTheme.spacing.xxxs,
+                                            ),
                                             verticalAlignment = Alignment.CenterVertically,
                                             content = {
                                                 actions?.invoke(this)
@@ -366,6 +369,9 @@ fun AdaptiveTopAppBarScaffold(
                     contentWindowInsets = it.contentWindowInsets,
                     hasNavigationTitle = topBarMode == TopBarMode.Expanded,
                     content = { contentPadding ->
+                        contentEdge.scrollableState?.let { scrollState ->
+                            Modifier.cupertinoScrollEdge(scrollState)
+                        }
                         CompositionLocalProvider(
                             LocalBackdrop provides null,
                             LocalTopBarScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState),
@@ -405,6 +411,7 @@ fun AdaptiveTopAppBarScaffold(
  * @param floatingActionButton 플로팅 액션 버튼
  * @param fabPosition 플로팅 액션 버튼 위치
  * @param higFabPosition HIG 플로팅 액션 버튼 위치
+ * @param contentEdge 콘텐츠 모서리 효과 설정. scrollableState를 지정하면 Cupertino 상단바의 블러도 복원된 스크롤 위치에 맞춥니다.
  * @param topBarMode 상단바 표시 방식
  * @param adaptation 어댑테이션 설정
  * @param content 콘텐츠
@@ -456,6 +463,7 @@ fun AdaptiveTopAppBarScaffold(
  * 명시적인 배경 레이어를 상단바와 하단바 등 스캐폴드 슬롯에 제공하는 스캐폴드입니다.
  *
  * @param backdrop 기본 배경 레이어. Cupertino adaptation에서 덮어쓰면 해당 레이어를 공유합니다.
+ * @param contentEdge 콘텐츠 모서리 효과 설정. scrollableState를 지정하면 Cupertino 상단바의 블러도 복원된 스크롤 위치에 맞춥니다.
  */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -529,7 +537,7 @@ fun AdaptiveTopAppBarScaffold(
         },
         cupertino = {
             scaffold {
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(IenTheme.spacing.xs))
 
                 @Composable
                 fun liquidButton(
@@ -560,7 +568,7 @@ fun AdaptiveTopAppBarScaffold(
                             colors = colors,
                             backdrop = backdrop,
                             isBackgroundAdaptive = isBackgroundAdaptive,
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+                            contentPadding = PaddingValues(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm - IenTheme.spacing.xxxs),
                             modifier = modifier.widthIn(min = 48.dp, max = 360.dp),
                         ) {
                             content()
@@ -593,7 +601,7 @@ fun AdaptiveTopAppBarScaffold(
                             }
                         ) {
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xl),
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
                                     .animateContentSizeWithoutClipping()
@@ -714,8 +722,8 @@ internal class TopAppBarScaffoldAdaptation(
         val isBackgroundGradient = LocalIsBackgroundGradient.current
         val isDropdownNative = true
         val colors = CupertinoTopAppBarDefaults.topAppBarColors()
-        val scaffoldContainerColor = MaterialTheme.colorScheme.background// CupertinoScaffoldDefaults.containerColor
-        val scaffoldContentColor = contentColorFor(scaffoldContainerColor) // CupertinoScaffoldDefaults.contentColor
+        val scaffoldContainerColor = CupertinoScaffoldDefaults.containerColor
+        val scaffoldContentColor = CupertinoScaffoldDefaults.contentColor
 
         return remember(topBarWindowInsets, contentWindowInsets, backdrop,isDropdownNative, isCenterAligned, isBackgroundAdaptive, isBackgroundGradient, colors, scaffoldContainerColor, scaffoldContentColor) {
             HigTopAppBarScaffoldAdaptation(
@@ -740,8 +748,8 @@ internal class TopAppBarScaffoldAdaptation(
         val contentWindowInsets = ScaffoldDefaults.contentWindowInsets
         val isScrollTint = LocalIsScrollTint.current
         val isCenterAligned = LocalIsM3TopBarCenterAligned.current
-        val scaffoldContainerColor = MaterialTheme.colorScheme.background
-        val scaffoldContentColor = contentColorFor(scaffoldContainerColor)
+        val scaffoldContainerColor = IenTheme.colors.background
+        val scaffoldContentColor = IenTheme.colors.textPrimary
 
         return remember(topBarWindowInsets, contentWindowInsets, isScrollTint, isCenterAligned, scaffoldContainerColor, scaffoldContentColor) {
             IenTopAppBarScaffoldAdaptation(
@@ -790,7 +798,7 @@ private fun IenNavigationTitle(
     Column(
         modifier = Modifier
             .animateContentSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.xs)
             .alpha(animatedAlpha)
             .onGloballyPositioned {
                 actualTitleHeight = it.size.height.toFloat()
@@ -798,7 +806,7 @@ private fun IenNavigationTitle(
                 offsetDifference = (topBarHeight - it.boundsInWindow().top) + scaffoldTop
                 onVisibilityChange(!topAppBarExists || offsetDifference < it.size.height)
             },
-        verticalArrangement = Arrangement.spacedBy(2.dp),
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxxs),
     ) {
         IenProvideTextStyle(IenTheme.typography.display, IenTheme.colors.textPrimary) {
             title()

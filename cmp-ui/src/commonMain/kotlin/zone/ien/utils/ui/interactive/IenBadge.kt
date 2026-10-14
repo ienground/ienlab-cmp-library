@@ -106,8 +106,9 @@ private fun IenBadgeSize.textStyle() = when (this) {
     IenBadgeSize.Large -> IenTheme.typography.label1
 }
 
+@Composable
 private fun IenBadgeSize.padding() = when (this) {
-    IenBadgeSize.Small -> PaddingValues(horizontal = 6.dp, vertical = 2.dp)
-    IenBadgeSize.Medium -> PaddingValues(horizontal = 8.dp, vertical = 3.dp)
-    IenBadgeSize.Large -> PaddingValues(horizontal = 10.dp, vertical = 5.dp)
+    IenBadgeSize.Small -> PaddingValues(horizontal = IenTheme.spacing.xxs + IenTheme.spacing.xxxs, vertical = IenTheme.spacing.xxxs)
+    IenBadgeSize.Medium -> PaddingValues(horizontal = IenTheme.spacing.xs, vertical = IenTheme.spacing.xxxs + IenTheme.spacing.xxxs / 2f)
+    IenBadgeSize.Large -> PaddingValues(horizontal = IenTheme.spacing.sm - IenTheme.spacing.xxxs, vertical = IenTheme.spacing.xxs + IenTheme.spacing.xxxs / 2f)
 }

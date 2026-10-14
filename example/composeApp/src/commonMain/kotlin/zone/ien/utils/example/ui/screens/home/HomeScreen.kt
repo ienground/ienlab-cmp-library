@@ -81,10 +81,7 @@ import zone.ien.utils.utils.moveToBackground
 import zone.ien.utils.utils.shareText
 import zone.ien.utils.utils.ui.enableNativeInput
 import zone.ien.utils.utils.ui.rememberRepeatClick
-import zone.ien.inputactions.InputAction
-import zone.ien.inputactions.InputActionStyle
-import zone.ien.inputactions.inputActions
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import zone.ien.utils.example.ui.keyboardDismissAction
 
 
 private data class HomeMenuItem(
@@ -134,7 +131,6 @@ fun HomeScreen(
     var bottomText by remember { mutableStateOf("") }
     var nativeInputText by remember { mutableStateOf("") }
     var textFieldText by remember { mutableStateOf("") }
-    val keyboardController = LocalSoftwareKeyboardController.current
 
     IenAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
@@ -251,7 +247,9 @@ fun HomeScreen(
                             )
                         }
                     },
-                    modifier = Modifier.conditional(currentTheme == Theme.Cupertino) { padding(start = 16.dp) }
+                    modifier = Modifier.conditional(currentTheme == Theme.Cupertino) {
+                        padding(start = IenTheme.spacing.md)
+                    }
                 ) {
                     AdaptiveDropdownMenuNative(
                         expanded = childExpanded,
@@ -314,20 +312,12 @@ fun HomeScreen(
                     onValueChange = { bottomText = it },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .inputActions(
-                            InputAction(
-                                title = "Done",
-                                style = InputActionStyle.Done,
-                                onClick = {
-                                    keyboardController?.hide()
-                                }
-                            )
-                        )
+                        .keyboardDismissAction()
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = IenTheme.spacing.md)
                         .fillMaxWidth()
                 ) {
                     Text(
@@ -340,13 +330,13 @@ fun HomeScreen(
                     )
                 }
                 Column(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(horizontal = IenTheme.spacing.md),
+                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 ) {
                     Text(text = "아이콘 스타일")
                     FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                     ) {
                         val iconStyles = listOf(
                             IconStyle.Tabler to "Tabler",
@@ -369,7 +359,7 @@ fun HomeScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = IenTheme.spacing.md)
                         .fillMaxWidth()
                 ) {
                     Text(
@@ -417,7 +407,7 @@ fun HomeScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .padding(horizontal = 16.dp)
+                            .padding(horizontal = IenTheme.spacing.md)
                             .fillMaxWidth()
                     ) {
                         Text(
@@ -436,7 +426,7 @@ fun HomeScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .padding(horizontal = 16.dp)
+                            .padding(horizontal = IenTheme.spacing.md)
                             .fillMaxWidth()
                     ) {
                         Text(
@@ -453,7 +443,7 @@ fun HomeScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = IenTheme.spacing.md)
                         .fillMaxWidth()
                 ) {
                     Text(
@@ -469,8 +459,8 @@ fun HomeScreen(
                 // --- 2-column grid menu ---
                 Column(
                     modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                        .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.xs),
+                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
                 ) {
                     Text(
                         text = "MENU",
@@ -480,7 +470,7 @@ fun HomeScreen(
                     menuItems.chunked(2).forEach { rowItems ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
                         ) {
                             rowItems.forEach { item ->
                                 HomeMenuCard(
@@ -502,26 +492,14 @@ fun HomeScreen(
                     keyboardOptions = KeyboardOptions.Default.enableNativeInput(),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .inputActions(
-                            InputAction(
-                                title = "Done",
-                                style = InputActionStyle.Done,
-                                onClick = {}
-                            )
-                        )
+                        .keyboardDismissAction()
                 )
                 IenTextField(
                     value = textFieldText,
                     onValueChange = { textFieldText = it },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .inputActions(
-                            InputAction(
-                                title = "Done",
-                                style = InputActionStyle.Done,
-                                onClick = {}
-                            )
-                        )
+                        .keyboardDismissAction()
                 )
                 BasicTextField(
                     state = rememberTextFieldState(),
@@ -535,13 +513,7 @@ fun HomeScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .inputActions(
-                            InputAction(
-                                title = "Done",
-                                style = InputActionStyle.Done,
-                                onClick = {}
-                            )
-                        )
+                        .keyboardDismissAction()
                 )
                 BasicTextField(
                     state = rememberTextFieldState(),
@@ -554,13 +526,7 @@ fun HomeScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .inputActions(
-                            InputAction(
-                                title = "Done",
-                                style = InputActionStyle.Done,
-                                onClick = {}
-                            )
-                        )
+                        .keyboardDismissAction()
                 )
                 Spacer(modifier = Modifier.height(96.dp))
             }
@@ -585,7 +551,7 @@ private fun HomeMenuCard(
             border = color.copy(alpha = 0.35f),
         ),
         onClick = onClick,
-        contentPadding = PaddingValues(12.dp),
+        contentPadding = PaddingValues(IenTheme.spacing.sm),
     ) {
         Box(
             modifier = Modifier.fillMaxWidth(),

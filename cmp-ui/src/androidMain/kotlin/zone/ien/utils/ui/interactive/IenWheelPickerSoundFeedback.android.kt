@@ -11,7 +11,12 @@ import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalInspectionMode
 import zone.ien.utils.cmp_ui.generated.resources.Res
+
+private object PreviewIenWheelPickerSoundFeedback : IenWheelPickerSoundFeedback {
+    override fun playTick(enableHapticFeedback: Boolean) = Unit
+}
 
 private class AndroidIenWheelPickerSoundFeedback(
     context: Context,
@@ -44,7 +49,7 @@ private class AndroidIenWheelPickerSoundFeedback(
         if (enableHapticFeedback) {
             hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
         }
-        if (soundLoaded) soundPool.play(soundId, 0.2f, 0.2f, 1, 0, 1f)
+        if (soundLoaded) soundPool.play(soundId, 1f, 1f, 1, 0, 1f)
     }
 
     fun release() = soundPool.release()
@@ -52,6 +57,8 @@ private class AndroidIenWheelPickerSoundFeedback(
 
 @Composable
 internal actual fun rememberIenWheelPickerSoundFeedback(): IenWheelPickerSoundFeedback {
+    if (LocalInspectionMode.current) return PreviewIenWheelPickerSoundFeedback
+
     val context = LocalContext.current
     val hapticFeedback = LocalHapticFeedback.current
     val feedback = remember(context, hapticFeedback) {

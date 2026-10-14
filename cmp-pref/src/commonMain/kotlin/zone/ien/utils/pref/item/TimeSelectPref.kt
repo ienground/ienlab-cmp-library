@@ -1,5 +1,8 @@
 package zone.ien.utils.pref.item
 
+import androidx.compose.foundation.Indication
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -12,10 +15,17 @@ import androidx.compose.ui.Modifier
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.launch
+import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.section.SectionScope
 import zone.ien.utils.adaptive.dialog.TimePickerDialog
+import zone.ien.utils.adaptive.section.HigSectionLinkAdaptation
+import zone.ien.utils.adaptive.section.IenSectionLinkAdaptation
+import zone.ien.utils.pref.LocalPrefsAdaptive
 import zone.ien.utils.pref.LocalPrefsDataStore
+import zone.ien.utils.ui.dialog.IenTimePickerDialog
+import zone.ien.utils.ui.section.IenSectionColors
+import zone.ien.utils.ui.section.IenSectionLinkDefault
 
 /**
  * TimePicker 다이얼로그를 통해 시간을 선택하는 설정 항목을 생성하는 Composable 함수입니다.
@@ -30,6 +40,14 @@ import zone.ien.utils.pref.LocalPrefsDataStore
  * @param defaultValue 시간의 기본값 (분 단위 Int, 0-1439)
  * @param enabled 설정의 활성화 여부
  * @param leadingContent 제목 앞에 표시할 콘텐츠
+ * @param colors Ien 설정 항목 색상
+ * @param interactionSource Ien 컴포넌트의 상호작용 소스
+ * @param adaptation Adaptive 모드의 플랫폼별 설정
+ * @param onClickLabel 클릭 동작의 접근성 레이블
+ * @param indication 클릭 시 시각적 피드백
+ * @param trailingContent 설정 항목 뒤에 표시할 콘텐츠
+ * @param dialogModifier 다이얼로그에 적용할 Modifier
+ * @param is24Hour 24시간 표시 여부. Adaptive iOS에서는 시스템 설정을 따릅니다.
  * @param showIcon 앞쪽 콘텐츠를 표시할지 여부
  */
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -43,6 +61,14 @@ fun SectionScope.TimeSelectPref(
     enabled: Boolean = true,
     leadingContent: @Composable (() -> Unit)? = null,
     showIcon: Boolean = false,
+    onClickLabel: String? = null,
+    indication: Indication? = LocalIndication.current,
+    interactionSource: MutableInteractionSource? = null,
+    colors: IenSectionColors = IenSectionLinkDefault.colors(),
+    trailingContent: @Composable () -> Unit = {},
+    adaptation: AdaptationScope<HigSectionLinkAdaptation, IenSectionLinkAdaptation>.() -> Unit = {},
+    dialogModifier: Modifier = Modifier,
+    is24Hour: Boolean = false,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var showDialog by rememberSaveable { mutableStateOf(false) }
@@ -57,16 +83,23 @@ fun SectionScope.TimeSelectPref(
         enabled = enabled,
         summary = summary(value),
         leadingContent = if (showIcon) leadingContent else null,
-        trailingContent = {},
+        trailingContent = trailingContent,
+        onClickLabel = onClickLabel,
+        indication = indication,
+        interactionSource = interactionSource,
+        colors = colors,
         adaptation = {
             cupertino {
                 this.showSupportingContent = true
                 this.isCaption = false
             }
+            adaptation()
         },
     )
 
-    TimePickerDialog(
+    PrefsTimePickerDialog(
+        modifier = dialogModifier,
+        is24Hour = is24Hour,
         visible = showDialog,
         initialHour = value / 60,
         initialMinute = value % 60,
@@ -97,8 +130,17 @@ fun SectionScope.TimeSelectPref(
  * @param defaultValue 시간의 기본값 (분 단위 Int, 0-1439)
  * @param enabled 이 설정을 활성화/비활성화하기 위한 Preferences.Key와 기본 불리언 값의 쌍
  * @param leadingContent 제목 앞에 표시할 콘텐츠
+ * @param colors Ien 설정 항목 색상
+ * @param interactionSource Ien 컴포넌트의 상호작용 소스
+ * @param adaptation Adaptive 모드의 플랫폼별 설정
+ * @param onClickLabel 클릭 동작의 접근성 레이블
+ * @param indication 클릭 시 시각적 피드백
+ * @param trailingContent 설정 항목 뒤에 표시할 콘텐츠
+ * @param dialogModifier 다이얼로그에 적용할 Modifier
+ * @param is24Hour 24시간 표시 여부. Adaptive iOS에서는 시스템 설정을 따릅니다.
  * @param showIcon 앞쪽 콘텐츠를 표시할지 여부
  */
+@OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun SectionScope.TimeSelectPref(
     modifier: Modifier = Modifier,
@@ -109,6 +151,14 @@ fun SectionScope.TimeSelectPref(
     enabled: Pair<Preferences.Key<Boolean>, Boolean>,
     leadingContent: @Composable (() -> Unit)? = null,
     showIcon: Boolean = false,
+    onClickLabel: String? = null,
+    indication: Indication? = LocalIndication.current,
+    interactionSource: MutableInteractionSource? = null,
+    colors: IenSectionColors = IenSectionLinkDefault.colors(),
+    trailingContent: @Composable () -> Unit = {},
+    adaptation: AdaptationScope<HigSectionLinkAdaptation, IenSectionLinkAdaptation>.() -> Unit = {},
+    dialogModifier: Modifier = Modifier,
+    is24Hour: Boolean = false,
 ) {
     val dataStore = LocalPrefsDataStore.current
     val prefs by remember { dataStore.data }.collectAsState(initial = null)
@@ -123,5 +173,39 @@ fun SectionScope.TimeSelectPref(
         enabled = checked,
         leadingContent = leadingContent,
         showIcon = showIcon,
+        onClickLabel = onClickLabel,
+        indication = indication,
+        interactionSource = interactionSource,
+        colors = colors,
+        trailingContent = trailingContent,
+        adaptation = adaptation,
+        dialogModifier = dialogModifier,
+        is24Hour = is24Hour,
+
     )
+}
+
+
+@Composable
+private fun PrefsTimePickerDialog(
+    modifier: Modifier,
+    visible: Boolean,
+    initialHour: Int,
+    initialMinute: Int,
+    is24Hour: Boolean,
+    title: String,
+    onDismiss: () -> Unit,
+    onConfirm: (Int, Int) -> Unit,
+) {
+    if (LocalPrefsAdaptive.current) {
+        TimePickerDialog(
+            modifier = modifier, visible = visible, initialHour = initialHour, initialMinute = initialMinute,
+            is24Hour = is24Hour, title = title, onDismiss = onDismiss, onConfirm = onConfirm,
+        )
+    } else {
+        IenTimePickerDialog(
+            modifier = modifier, visible = visible, initialHour = initialHour, initialMinute = initialMinute,
+            is24Hour = is24Hour, title = title, onDismiss = onDismiss, onConfirm = onConfirm,
+        )
+    }
 }

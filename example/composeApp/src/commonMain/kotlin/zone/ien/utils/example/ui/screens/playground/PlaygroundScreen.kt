@@ -41,11 +41,13 @@ import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.example.Android
 import zone.ien.utils.example.isIos
 import zone.ien.utils.icon.IconData
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.ui.shimmer.m3Placeholder
 import zone.ien.utils.ui.utils.TextFieldDialogData
+import zone.ien.utils.example.ui.keyboardDismissAction
 
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
@@ -128,7 +130,7 @@ fun PlaygroundScreen(
 ////                            CupertinoLiquidIconButton(
 ////                                onClick = {},
 ////                                backdrop = backdrop,
-////                                modifier = Modifier.padding(start = 16.dp)
+////                                modifier = Modifier.padding(start = IenTheme.spacing.md)
 ////                            ) {
 ////                                CupertinoIcon(
 ////                                    imageVector = CupertinoIcons.Default.ChevronBackward,
@@ -184,8 +186,8 @@ private fun ScreenBody(
 ) {
     var showTextFieldDialog by remember { mutableStateOf(false) }
     Column(
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-        modifier = modifier.padding(horizontal = 24.dp)
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xl),
+        modifier = modifier.padding(horizontal = IenTheme.spacing.xl)
     ) {
         title()
         Box(
@@ -200,7 +202,7 @@ private fun ScreenBody(
 
         Box(
             modifier = Modifier
-                .shadow(4.dp)
+                .shadow(IenTheme.elevation.raised)
                 .background(Color.Red)
                 .size(100.dp)
         )
@@ -216,7 +218,7 @@ private fun ScreenBody(
         ) {
             Box(
                 modifier = Modifier
-                    .shadow(4.dp)
+                    .shadow(IenTheme.elevation.raised)
                     .background(Color.Red)
                     .size(100.dp)
             )
@@ -231,7 +233,7 @@ private fun ScreenBody(
                 onClick = { showTextFieldDialog = true },
                 backdrop = rememberDefaultBackdrop(),
                 modifier = Modifier
-//                    .padding(32.dp)
+//                    .padding(IenTheme.spacing.xxl)
             ) {
                 IenIcon(
                     imageVector = Android,
@@ -244,6 +246,7 @@ private fun ScreenBody(
     var text by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     TextFieldDialog(
+        modifier = Modifier.keyboardDismissAction(),
         visible = showTextFieldDialog,
         title = "Hello Title",
         textFields = mapOf(

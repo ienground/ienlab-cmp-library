@@ -42,8 +42,8 @@ fun HapticFeedbackTestScreen(
                     .fillMaxSize()
                     .verticalScroll(scrollState)
                     .padding(contentPadding)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                    .padding(IenTheme.spacing.md),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
             ) {
                 IenSection(title = { Text("HapticFeedbackType") }) {
                     hapticFeedbackTypes.forEach { type ->

@@ -55,10 +55,10 @@ fun IenBubble(
 
     val isLeft = (background == IenBubbleBackground.Grey)
     val shape = ContinuousRoundedRectangle(
-        topStart = if (isLeft) 4.dp else 16.dp,
-        topEnd = if (isLeft) 16.dp else 4.dp,
-        bottomStart = if (isLeft && !withTail) 4.dp else 16.dp,
-        bottomEnd = if (!isLeft && !withTail) 4.dp else 16.dp,
+        topStart = if (isLeft) IenTheme.radius.xs else IenTheme.radius.lg,
+        topEnd = if (isLeft) IenTheme.radius.lg else IenTheme.radius.xs,
+        bottomStart = if (isLeft && !withTail) IenTheme.radius.xs else IenTheme.radius.lg,
+        bottomEnd = if (!isLeft && !withTail) IenTheme.radius.xs else IenTheme.radius.lg,
     )
     val backgroundModifier = if (background == IenBubbleBackground.Brand) {
         Modifier.background(
@@ -75,7 +75,7 @@ fun IenBubble(
     Box(
         modifier = modifier
             .then(backgroundModifier)
-            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm - IenTheme.spacing.xxxs)
     ) {
         CompositionLocalProvider(LocalContentColor provides contentColor) {
             children()

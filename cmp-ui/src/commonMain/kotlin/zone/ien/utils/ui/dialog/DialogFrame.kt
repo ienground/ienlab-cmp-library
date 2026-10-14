@@ -49,7 +49,7 @@ internal fun IenDialogFrame(
     dismissOnBackPress: Boolean = true,
     dismissOnClickOutside: Boolean = true,
     usePlatformDefaultWidth: Boolean = true,
-    horizontalMargin: Dp = 24.dp,
+    horizontalMargin: Dp = IenTheme.spacing.xl,
     fixedWidth: Dp? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {

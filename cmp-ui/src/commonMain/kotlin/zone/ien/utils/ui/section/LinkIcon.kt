@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.toneColor
 import zone.ien.utils.ui.interactive.toneOnColor
 import zone.ien.utils.ui.interactive.toneWeakColor
@@ -96,8 +97,8 @@ fun IenLinkIcon(
         modifier
             .clip(shape)
             .background(colors.container)
-            .padding(6.dp)
-            .size(20.dp)
+            .padding(IenTheme.spacing.xxs + IenTheme.spacing.xxxs)
+            .size(IenTheme.icon.md)
 )
 
 /** [ImageVector]를 사용하는 링크 아이콘을 표시합니다. */
@@ -138,7 +139,7 @@ fun IenLinkIconText(
         modifier
             .clip(shape)
             .background(colors.container)
-            .padding(6.dp)
-            .size(20.dp)
+            .padding(IenTheme.spacing.xxs + IenTheme.spacing.xxxs)
+            .size(IenTheme.icon.md)
             .wrapContentHeight(align = Alignment.CenterVertically, unbounded = true)
 )

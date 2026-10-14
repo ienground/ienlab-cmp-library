@@ -27,7 +27,7 @@ fun IenAsteriskTextWrapper(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
         modifier = modifier
     ) {
         ProvideTextStyle(

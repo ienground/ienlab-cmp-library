@@ -16,7 +16,6 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -125,7 +124,7 @@ fun SectionScope.AdaptiveSectionItem(
                         title()
                         if (it.showSupportingContent) {
                             ProvideTextStyle(
-                                value = MaterialTheme.typography.bodyMedium.copy(color = CupertinoTheme.colorScheme.secondaryLabel)
+                                value = CupertinoTheme.typography.body.copy(color = CupertinoTheme.colorScheme.secondaryLabel)
                             ) {
                                 supportingContent?.invoke()
                             }
@@ -205,6 +204,34 @@ internal class SectionItemAdaptation: Adaptation<HigSectionItemAdaptation, IenSe
 }
 
 /**
+ * 기존 위치 인자 호출을 유지하는 스위치 항목입니다.
+ */
+@OptIn(ExperimentalAdaptiveApi::class)
+@Composable
+fun SectionScope.AdaptiveSectionSwitchItem(
+    modifier: Modifier = Modifier,
+    leadingContent: (@Composable () -> Unit)? = null,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
+    supportingContent: @Composable (() -> Unit)? = null,
+    adaptation: AdaptationScope<HigSectionItemAdaptation, IenSectionItemAdaptation>.() -> Unit = {},
+    title: @Composable () -> Unit
+) {
+    AdaptiveSectionSwitchItem(
+        modifier = modifier,
+        leadingContent = leadingContent,
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        enabled = enabled,
+        supportingContent = supportingContent,
+        adaptation = adaptation,
+        title = title,
+        colors = IenSectionLinkDefault.colors(),
+    )
+}
+
+/**
  * 적응형 섹션 스위치 항목 컴포저블
  *
  * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
@@ -214,6 +241,12 @@ internal class SectionItemAdaptation: Adaptation<HigSectionItemAdaptation, IenSe
  * @param enabled 항목 활성화 여부
  * @param supportingContent 보조 콘텐츠
  * @param adaptation 적응형 스타일 설정을 위한 범위
+ * @param colors Ien 항목 색상
+ * @param thumbContent Ien 스위치 손잡이 콘텐츠
+ * @param interactionSource Ien 스위치의 상호작용 소스
+ * @param trackContent Ien 스위치 트랙 콘텐츠
+ * @param onTrackContent 켜졌을 때 표시할 트랙 콘텐츠
+ * @param offTrackContent 꺼졌을 때 표시할 트랙 콘텐츠
  * @param title 항목 제목
  */
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
@@ -226,11 +259,20 @@ fun SectionScope.AdaptiveSectionSwitchItem(
     enabled: Boolean = true,
     supportingContent: @Composable (() -> Unit)? = null,
     adaptation: AdaptationScope<HigSectionItemAdaptation, IenSectionItemAdaptation>.() -> Unit = {},
+    colors: IenSectionColors = IenSectionLinkDefault.colors(),
+    thumbContent: (@Composable () -> Unit)? = null,
+    interactionSource: MutableInteractionSource? = null,
+    trackContent: (@Composable () -> Unit)? = null,
+    onTrackContent: (@Composable () -> Unit)? = null,
+    offTrackContent: (@Composable () -> Unit)? = null,
     title: @Composable () -> Unit
 ) {
     AdaptiveWidget(
         adaptation = remember { SectionItemAdaptation() },
-        adaptationScope = adaptation,
+        adaptationScope = {
+            material { this.colors = colors }
+            adaptation()
+        },
         material = {
             switch(
                 modifier = modifier,
@@ -239,6 +281,12 @@ fun SectionScope.AdaptiveSectionSwitchItem(
                 onCheckedChange = onCheckedChange,
                 enabled = enabled,
                 supportingContent = supportingContent,
+                colors = it.colors,
+                thumbContent = thumbContent,
+                interactionSource = interactionSource,
+                trackContent = trackContent,
+                onTrackContent = onTrackContent,
+                offTrackContent = offTrackContent,
                 title = title
             )
         },
@@ -264,7 +312,7 @@ fun SectionScope.AdaptiveSectionSwitchItem(
                         title()
                         if (it.showSupportingContent) {
                             ProvideTextStyle(
-                                value = MaterialTheme.typography.bodyMedium.copy(color = CupertinoTheme.colorScheme.secondaryLabel)
+                                value = CupertinoTheme.typography.body.copy(color = CupertinoTheme.colorScheme.secondaryLabel)
                             ) {
                                 supportingContent?.invoke()
                             }
@@ -331,7 +379,7 @@ fun SectionScope.AdaptiveSectionCheckboxItem(
                         title()
                         if (it.showSupportingContent) {
                             ProvideTextStyle(
-                                value = MaterialTheme.typography.bodyMedium.copy(color = CupertinoTheme.colorScheme.secondaryLabel)
+                                value = CupertinoTheme.typography.body.copy(color = CupertinoTheme.colorScheme.secondaryLabel)
                             ) {
                                 supportingContent?.invoke()
                             }
@@ -771,7 +819,7 @@ fun SectionScope.AdaptiveSectionLink(
                         title()
                         if (it.showSupportingContent && !it.isCaption) {
                             ProvideTextStyle(
-                                value = MaterialTheme.typography.bodyMedium.copy(color = CupertinoTheme.colorScheme.secondaryLabel)
+                                value = CupertinoTheme.typography.body.copy(color = CupertinoTheme.colorScheme.secondaryLabel)
                             ) {
                                 caption?.invoke()
                             }
@@ -988,7 +1036,7 @@ fun SectionScope.AdaptiveSectionSlider(
             SectionItem(
                 title = {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         it.startIcon?.let {

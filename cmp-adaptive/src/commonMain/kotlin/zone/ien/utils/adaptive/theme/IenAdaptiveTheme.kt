@@ -22,7 +22,6 @@ import zone.ien.utils.ui.foundation.LocalIenTokens
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.foundation.IenTokens
 import zone.ien.utils.ui.foundation.IenTypography
-import zone.ien.utils.ui.foundation.defaultIenTokens
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -30,7 +29,7 @@ fun IenAdaptiveTheme(
     target: Theme,
     darkTheme: Boolean = isSystemInDarkTheme(),
     useDynamicColor: Boolean = false,
-    tokens: IenTokens = defaultIenTokens(),
+    tokens: IenTokens = LocalIenTokens.current,
     vararg values: ProvidedValue<*>,
     content: @Composable () -> Unit,
 ) {
@@ -144,7 +143,7 @@ fun IenTypography.toCupertinoTypography(): zone.ien.hig.theme.Typography {
         title1 = title1,
         title2 = title2,
         title3 = title3,
-        headline = label1,
+        headline = title3,
         body = body1,
         callout = body2,
         subhead = body2,

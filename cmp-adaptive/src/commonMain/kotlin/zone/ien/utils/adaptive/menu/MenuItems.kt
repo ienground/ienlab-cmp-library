@@ -62,7 +62,7 @@ fun HigActionMenu(
                             size = IenBadgeSize.Small,
                             variant = IenBadgeVariant.Fill,
                             tone = IenSemanticTone.Danger,
-                            modifier = Modifier//.offset(x = (-8).dp, y = 8.dp)
+                            modifier = Modifier//.offset(x = -IenTheme.spacing.xs, y = IenTheme.spacing.xs)
                         )
                     }
                 }

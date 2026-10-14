@@ -27,6 +27,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import zone.ien.utils.ui.primitives.IenIcon
 
@@ -103,7 +104,7 @@ fun IenTextFieldIconButton(
                 exit = fadeOut(tween(700))
             ) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(IenTheme.icon.md)
                 )
             }
         }

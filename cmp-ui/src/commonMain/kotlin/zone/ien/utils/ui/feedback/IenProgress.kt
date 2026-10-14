@@ -38,7 +38,7 @@ fun IenCircularProgressIndicator(
     strokeWidth: Dp = 4.dp,
     trackColor: Color = IenTheme.colors.brandWeak,
     strokeCap: StrokeCap = StrokeCap.Round,
-    gapSize: Dp = 4.dp,
+    gapSize: Dp = IenTheme.spacing.xxs,
 ) {
     CircularProgressIndicator(
         modifier = modifier,
@@ -71,7 +71,7 @@ fun IenCircularWavyProgressIndicator(
     trackColor: Color = IenTheme.colors.brandWeak,
     stroke: Stroke? = null,
     trackStroke: Stroke? = null,
-    gapSize: Dp = 4.dp,
+    gapSize: Dp = IenTheme.spacing.xxs,
     @FloatRange(from = 0.0, to = 1.0) amplitude: Float = 1f,
     wavelength: Dp = 40.dp,
     waveSpeed: Dp = wavelength,
@@ -112,7 +112,7 @@ fun IenCircularWavyProgressIndicator(
     trackColor: Color = IenTheme.colors.brandWeak,
     stroke: Stroke? = null,
     trackStroke: Stroke? = null,
-    gapSize: Dp = 4.dp,
+    gapSize: Dp = IenTheme.spacing.xxs,
     amplitude: ((progress: Float) -> Float)? = null,
     wavelength: Dp = 40.dp,
     waveSpeed: Dp = wavelength,

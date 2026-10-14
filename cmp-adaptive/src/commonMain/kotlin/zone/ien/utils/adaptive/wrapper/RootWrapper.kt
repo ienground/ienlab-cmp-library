@@ -16,6 +16,7 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.inputactions.InputActionsHost
 import zone.ien.utils.ui.feedback.IenToastProvider
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.dragToKeyboardClose
 import zone.ien.utils.ui.utils.keyboardAsState
 
@@ -42,7 +43,7 @@ fun RootWrapper(
     IenToastProvider(modifier = modifier) {
         InputActionsHost {
             AdaptiveScaffold(
-                contentWindowInsets = WindowInsets(0.dp),
+                contentWindowInsets = WindowInsets(IenTheme.spacing.none),
             ) {
                 Box(
                     modifier = Modifier

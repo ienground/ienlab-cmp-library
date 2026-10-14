@@ -374,12 +374,16 @@ buildkonfig {
 | `cmp-navigation` | Navigation3 기반 네비게이션 | navigation3, serialization |
 | `cmp-date` | 날짜/시간 컴포넌트 | kdatetime, compose |
 | `cmp-icon` | 아이콘 시스템 | compose, hig-adaptive |
-| `cmp-utils` | 플랫폼 유틸리티 (Dlog, etc.) | compose, kotlinx-io |
+| `cmp-utils` | 플랫폼 유틸리티 (Dlog, DecimalFormat 등) | compose, kotlinx-io |
 | `cmp-pref` | 설정 저장소 (DataStore) | compose, datastore |
 | `cmp-filekit` | 파일 관리 (FileKit) | filekit-dialogs |
 | `cmp-coil` | 이미지 로딩 (Coil3) | coil-compose |
 | `cmp-firebase` | Firebase Auth + Firestore (KMPAuth 대체) | zone.ien.firebase SDK |
 | `cmp-ui-docs` | UI 문서 | - |
+
+숫자 포맷에는 `cmp-utils`의 `zone.ien.utils.utils.DecimalFormat`을 사용합니다.
+Android와 iOS에서 `DecimalFormat("0.##").format(12.3456)`은 `"12.35"`를 반환합니다.
+인자 없는 생성자는 천 단위 구분과 소수점 없는 표시를 유지합니다. 구분 기호와 통화 기호는 현재 로케일을 따릅니다.
 
 ### 기술 스택
 

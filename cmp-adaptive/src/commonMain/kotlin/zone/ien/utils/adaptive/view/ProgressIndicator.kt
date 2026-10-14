@@ -32,6 +32,7 @@ import zone.ien.hig.theme.Gray
 import zone.ien.utils.ui.feedback.IenCircularProgressIndicator
 import zone.ien.utils.ui.feedback.IenCircularWavyProgressIndicator
 import zone.ien.utils.ui.feedback.IenLoadingIndicator
+import zone.ien.utils.ui.foundation.IenSpacing
 import zone.ien.utils.ui.foundation.IenTheme
 
 /**
@@ -243,7 +244,7 @@ class IenCircularProgressIndicatorAdaptation(
     strokeWidth: Dp = 4.dp,
     trackColor: Color = Color.Unspecified,
     strokeCap: StrokeCap = StrokeCap.Round,
-    gapSize: Dp = 4.dp,
+    gapSize: Dp = IenSpacing().xxs,
 ) {
     var modifier: Modifier by mutableStateOf(modifier)
     var color: Color by mutableStateOf(color)
@@ -259,7 +260,7 @@ class IenWavyCircularProgressIndicatorAdaptation(
     trackColor: Color = Color.Unspecified,
     stroke: Stroke? = null,
     trackStroke: Stroke? = null,
-    gapSize: Dp = 4.dp,
+    gapSize: Dp = IenSpacing().xxs,
     @FloatRange(from = 0.0, to = 1.0) amplitude: Float = 1f,
     wavelength: Dp = 40.dp,
     waveSpeed: Dp = wavelength
@@ -281,7 +282,7 @@ class IenWavyCircularDeterminedProgressIndicatorAdaptation(
     trackColor: Color = Color.Unspecified,
     stroke: Stroke? = null,
     trackStroke: Stroke? = null,
-    gapSize: Dp = 4.dp,
+    gapSize: Dp = IenSpacing().xxs,
     amplitude: ((progress: Float) -> Float)? = null,
     wavelength: Dp = 40.dp,
     waveSpeed: Dp = wavelength
@@ -346,7 +347,7 @@ private class CircularProgressIndicatorAdaptation: BaseCircularProgressIndicator
         val strokeWidth: Dp = 4.dp
         val trackColor: Color = IenTheme.colors.brandWeak
         val strokeCap: StrokeCap = StrokeCap.Round
-        val gapSize: Dp = 4.dp
+        val gapSize: Dp = IenTheme.spacing.xxs
 
         return remember(modifier, color, strokeWidth, trackColor, strokeCap, gapSize) {
             IenCircularProgressIndicatorAdaptation(
@@ -364,7 +365,7 @@ private class WavyProgressIndicatorAdaptation: BaseCircularProgressIndicatorAdap
         val trackColor: Color = IenTheme.colors.brandWeak
         val stroke: Stroke? = null
         val trackStroke: Stroke? = null
-        val gapSize: Dp = 4.dp
+        val gapSize: Dp = IenTheme.spacing.xxs
         val amplitude: Float = 1f
         val wavelength: Dp = 40.dp
         val waveSpeed: Dp = wavelength
@@ -385,7 +386,7 @@ private class WavyProgressDeterminedIndicatorAdaptation: BaseCircularProgressInd
         val trackColor: Color = IenTheme.colors.brandWeak
         val stroke: Stroke? = null
         val trackStroke: Stroke? = null
-        val gapSize: Dp = 4.dp
+        val gapSize: Dp = IenTheme.spacing.xxs
         val amplitude: ((progress: Float) -> Float)? = null
         val wavelength: Dp = 40.dp
         val waveSpeed: Dp = wavelength

@@ -118,7 +118,7 @@ fun PlaceholderBasicTextField(
                 singleLine = singleLine,
                 enabled = enabled,
                 interactionSource = iS,
-                contentPadding = contentPadding ?: (if (leadingIcon != null || trailingIcon != null) PaddingValues(vertical = 16.dp) else PaddingValues(0.dp)),
+                contentPadding = contentPadding ?: (if (leadingIcon != null || trailingIcon != null) PaddingValues(vertical = IenTheme.spacing.md) else PaddingValues(IenTheme.spacing.none)),
                 container = {}
             )
         }
@@ -201,7 +201,7 @@ fun PlaceholderBasicTextField(
                 singleLine = singleLine,
                 enabled = enabled,
                 interactionSource = iS,
-                contentPadding = contentPadding ?: (if (leadingIcon != null || trailingIcon != null) PaddingValues(vertical = 16.dp) else PaddingValues(0.dp)),
+                contentPadding = contentPadding ?: (if (leadingIcon != null || trailingIcon != null) PaddingValues(vertical = IenTheme.spacing.md) else PaddingValues(IenTheme.spacing.none)),
                 container = {}
             )
         }
@@ -319,7 +319,7 @@ fun PlaceholderBasicSecureTextField(
                     supportingText = supportingText,
                     isError = isError,
                     colors = colors,
-                    contentPadding = contentPadding ?: (if (leadingIcon != null || trailingIcon != null) PaddingValues(vertical = 16.dp) else PaddingValues(0.dp)),
+                    contentPadding = contentPadding ?: (if (leadingIcon != null || trailingIcon != null) PaddingValues(vertical = IenTheme.spacing.md) else PaddingValues(IenTheme.spacing.none)),
                     container = {},
                 ),
         )

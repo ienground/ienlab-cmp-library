@@ -17,6 +17,11 @@ import zone.ien.utils.adaptive.section.HigSectionItemAdaptation
 import zone.ien.utils.adaptive.section.HigSectionLinkAdaptation
 import zone.ien.utils.adaptive.section.IenSectionItemAdaptation
 import zone.ien.utils.adaptive.section.IenSectionLinkAdaptation
+import zone.ien.utils.pref.LocalPrefsAdaptive
+import zone.ien.utils.ui.section.IenSectionColors
+import zone.ien.utils.ui.section.IenSectionLinkDefault
+import zone.ien.utils.ui.section.item
+import zone.ien.utils.ui.section.link
 
 
 /**
@@ -35,6 +40,7 @@ import zone.ien.utils.adaptive.section.IenSectionLinkAdaptation
  * @param summary 표시할 선택적 요약 텍스트
  * @param trailingContent 항목 뒤에 표시할 콘텐츠
  * @param adaptation 플랫폼별(iOS/Android) 적응형 구성
+ * @param colors Ien 항목 색상
  * @param title 이 설정 항목의 제목 텍스트
  */
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -49,14 +55,33 @@ fun SectionScope.TextPref(
     interactionSource: MutableInteractionSource? = null,
     summary: String? = null,
     trailingContent: @Composable () -> Unit = {
-        AdaptiveWidget(
-            material = {},
-            cupertino = { CupertinoSectionDefaults.LabelChevron() }
-        )
+        if (LocalPrefsAdaptive.current) {
+            AdaptiveWidget(
+                material = {},
+                cupertino = { CupertinoSectionDefaults.LabelChevron() }
+            )
+        }
     },
     adaptation: AdaptationScope<HigSectionLinkAdaptation, IenSectionLinkAdaptation>.() -> Unit = {},
     title: String,
+    colors: IenSectionColors = IenSectionLinkDefault.colors(),
 ) {
+    if (!LocalPrefsAdaptive.current) {
+        link(
+            onClick = onClick,
+            modifier = modifier,
+            enabled = enabled,
+            leadingContent = leadingContent,
+            trailingContent = trailingContent,
+            onClickLabel = onClickLabel,
+            indication = indication,
+            interactionSource = interactionSource,
+            colors = colors,
+            caption = summary?.let { { Text(text = it) } },
+            title = { Text(text = title) },
+        )
+        return
+    }
     AdaptiveSectionLink(
         onClick = onClick,
         modifier = modifier,
@@ -67,7 +92,10 @@ fun SectionScope.TextPref(
         interactionSource = interactionSource,
         caption = summary?.let { { Text(text = it) } },
         trailingContent = trailingContent,
-        adaptation = adaptation,
+        adaptation = {
+            material { this.colors = colors }
+            adaptation()
+        },
         title = { Text(text = title) }
     )
 }
@@ -83,6 +111,7 @@ fun SectionScope.TextPref(
  * @param trailingContent 제목 뒤에 표시할 선택적 콘텐츠
  * @param summary 표시할 선택적 요약 텍스트
  * @param adaptation 플랫폼별(iOS/Android) 적응형 구성
+ * @param colors Ien 항목 색상
  * @param title 이 설정 항목의 제목 텍스트
  */
 @OptIn(ExperimentalAdaptiveApi::class)
@@ -94,13 +123,28 @@ fun SectionScope.TextPref(
     summary: String? = null,
     adaptation: AdaptationScope<HigSectionItemAdaptation, IenSectionItemAdaptation>.() -> Unit = {},
     title: String,
+    colors: IenSectionColors = IenSectionLinkDefault.colors(),
 ) {
+    if (!LocalPrefsAdaptive.current) {
+        item(
+            modifier = modifier,
+            leadingContent = leadingContent,
+            trailingContent = trailingContent,
+            supportingContent = summary?.let { { Text(text = it) } },
+            colors = colors,
+            title = { Text(text = title) },
+        )
+        return
+    }
     AdaptiveSectionItem(
         modifier = modifier,
         leadingContent = leadingContent,
         trailingContent = trailingContent,
         supportingContent = summary?.let { { Text(text = it) } },
-        adaptation = adaptation,
+        adaptation = {
+            material { this.colors = colors }
+            adaptation()
+        },
         title = { Text(text = title) }
     )
 }

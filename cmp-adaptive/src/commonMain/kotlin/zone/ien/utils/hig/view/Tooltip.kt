@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.view.BaseTooltipBox
 
 
@@ -68,7 +69,7 @@ fun HigTooltipText(
         text = label,
         style = CupertinoTheme.typography.caption1,
         modifier = modifier
-            .background(CupertinoTheme.colorScheme.systemFill, ContinuousRoundedRectangle(4.dp))
-            .padding(4.dp)
+            .background(CupertinoTheme.colorScheme.systemFill, ContinuousRoundedRectangle(IenTheme.radius.xs))
+            .padding(IenTheme.spacing.xxs)
     )
 }
