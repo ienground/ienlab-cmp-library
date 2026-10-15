@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.defaultDarkIenColorScheme
@@ -114,13 +115,17 @@ class IenTooltipTest {
             for (anchor in anchors) {
                 var bodyArrowRatio = 0f
                 var popupArrowRatio = 0f
-                val bodyPosition = IenTooltipPositionProvider(
-                    placement, 8.dp, density,
-                ) { bodyArrowRatio = it }.calculatePosition(
+                val bodyPosition = createIenTooltipPopupPositionProvider(
+                    placement = placement,
+                    offset = 8.dp,
+                    density = density,
+                    safeMargin = 16.dp,
+                    onArrowRatioCalculated = { bodyArrowRatio = it },
+                ).calculatePosition(
                     anchor, windowSize, LayoutDirection.Ltr, bodySize,
                 )
                 val popupPosition = IenTooltipPositionProvider(
-                    placement, 8.dp, density, padding,
+                    placement, 8.dp, density, padding, 16.dp,
                 ) { popupArrowRatio = it }.calculatePosition(
                     anchor, windowSize, LayoutDirection.Ltr, popupSize,
                 )
@@ -132,6 +137,26 @@ class IenTooltipTest {
                 )
                 assertEquals(bodyArrowRatio, popupArrowRatio)
             }
+        }
+    }
+
+    @Test
+    fun `툴팁 Popup의 입력 영역은 앵커 버튼을 덮지 않는다`() {
+        val anchor = IntRect(400, 400, 440, 440)
+        val bodySize = IntSize(80, 40)
+        for (placement in IenTooltipPlacement.entries) {
+            val provider = createIenTooltipPopupPositionProvider(
+                placement = placement,
+                offset = 8.dp,
+                density = Density(1f),
+                safeMargin = 16.dp,
+                onArrowRatioCalculated = {},
+            )
+            val position = provider.calculatePosition(
+                anchor, IntSize(1000, 1000), LayoutDirection.Ltr, bodySize,
+            )
+            val inputBounds = IntRect(position, bodySize)
+            assertFalse(inputBounds.overlaps(anchor), "placement=$placement")
         }
     }
 

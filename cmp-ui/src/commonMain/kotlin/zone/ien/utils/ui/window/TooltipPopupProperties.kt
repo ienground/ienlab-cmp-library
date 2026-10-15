@@ -8,3 +8,6 @@ internal expect fun ienTooltipPopupProperties(): PopupProperties
 /** iOS 복귀 시 초기화된 입력 범위를 복구하도록 팝업의 재생성 키를 제공합니다. */
 @Composable
 internal expect fun rememberIenTooltipPopupKey(): Int
+
+/** 별도 그림자 창이 필요한 플랫폼에서 터치를 받지 않는 창 속성을 제공합니다. */
+internal expect fun ienTooltipShadowPopupProperties(): PopupProperties?

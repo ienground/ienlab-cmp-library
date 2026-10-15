@@ -16,3 +16,5 @@ internal actual fun ienTooltipPopupProperties(): PopupProperties = PopupProperti
 
 @Composable
 internal actual fun rememberIenTooltipPopupKey(): Int = 0
+
+internal actual fun ienTooltipShadowPopupProperties(): PopupProperties? = null

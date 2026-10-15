@@ -34,6 +34,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -59,11 +61,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenSpacing
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.view.resolveIenTooltipColors
+import zone.ien.utils.ui.window.ienTooltipShadowPopupProperties
 import zone.ien.utils.ui.window.ienTooltipPopupProperties
 import zone.ien.utils.ui.window.rememberIenTooltipPopupKey
 
@@ -172,6 +176,21 @@ class IenTooltipPositionProvider(
         return IntOffset(x - shadowPaddingPx, y - shadowPaddingPx)
     }
 }
+
+internal fun createIenTooltipPopupPositionProvider(
+    placement: IenTooltipPlacement,
+    offset: Dp,
+    density: Density,
+    safeMargin: Dp,
+    onArrowRatioCalculated: (Float) -> Unit,
+): IenTooltipPositionProvider = IenTooltipPositionProvider(
+    placement = placement,
+    offset = offset,
+    density = density,
+    shadowPadding = IenSpacing().none,
+    safeMargin = safeMargin,
+    onArrowRatioCalculated = onArrowRatioCalculated,
+)
 
 /**
  * 말풍선 화살표가 포함된 툴팁 배경 모양([Shape])을 정의하는 클래스입니다.
@@ -448,6 +467,9 @@ private fun IenTooltipImpl(
         }
     }
 
+    var tooltipBodySize by remember { mutableStateOf(IntSize.Zero) }
+    val shadowPopupProperties = ienTooltipShadowPopupProperties()
+
     var dynamicArrowRatio by remember { mutableStateOf(anchorPositionByRatio) }
     LaunchedEffect(anchorPositionByRatio) {
         dynamicArrowRatio = anchorPositionByRatio
@@ -489,13 +511,44 @@ private fun IenTooltipImpl(
             val popupKey = rememberIenTooltipPopupKey()
             val safeMargin = IenTheme.spacing.md
             key(popupKey) {
+                if (shadowPopupProperties != null) {
+                    Popup(
+                        popupPositionProvider = remember(resolvedPlacement, resolvedOffset, density, safeMargin) {
+                            IenTooltipPositionProvider(
+                                placement = resolvedPlacement,
+                                offset = resolvedOffset,
+                                density = density,
+                                shadowPadding = IenTooltipShadowPadding,
+                                safeMargin = safeMargin,
+                                onArrowRatioCalculated = {},
+                            )
+                        },
+                        properties = shadowPopupProperties,
+                    ) {
+                        IenTooltipPopup(
+                            visible = isOpen,
+                            text = null,
+                            content = null,
+                            tone = tone,
+                            messageAlign = messageAlign,
+                            anchorPositionByRatio = dynamicArrowRatio,
+                            clipToEnd = clipToEnd,
+                            placement = resolvedPlacement,
+                            motionVariant = motionVariant,
+                            scale = motionScale,
+                            width = width,
+                            fitContentWidth = fitContentWidth,
+                            shadowOnly = true,
+                            bodySize = tooltipBodySize,
+                        )
+                    }
+                }
                 Popup(
                     popupPositionProvider = remember(resolvedPlacement, resolvedOffset, density, safeMargin) {
-                        IenTooltipPositionProvider(
+                        createIenTooltipPopupPositionProvider(
                             placement = resolvedPlacement,
                             offset = resolvedOffset,
                             density = density,
-                            shadowPadding = IenTooltipShadowPadding,
                             safeMargin = safeMargin,
                         ) { ratio ->
                             dynamicArrowRatio = ratio
@@ -517,6 +570,8 @@ private fun IenTooltipImpl(
                         scale = motionScale,
                         width = width,
                         fitContentWidth = fitContentWidth,
+                        drawShadow = shadowPopupProperties == null,
+                        onBodySizeChanged = { tooltipBodySize = it },
                     )
                 }
             }
@@ -586,6 +641,10 @@ private fun IenTooltipPopup(
     scale: Float,
     width: Dp?,
     fitContentWidth: Boolean,
+    shadowOnly: Boolean = false,
+    bodySize: IntSize = IntSize.Zero,
+    drawShadow: Boolean = true,
+    onBodySizeChanged: (IntSize) -> Unit = {},
 ) {
     val tooltipColors = resolveIenTooltipColors(tone, IenTheme.colors)
     val arrowRatio = anchorPositionByRatio.coerceIn(0.05f, 0.95f)
@@ -612,6 +671,18 @@ private fun IenTooltipPopup(
     }
 
     AnimatedVisibility(
+        modifier = if (shadowOnly) Modifier else Modifier.layout { measurable, constraints ->
+            val padding = IenTooltipShadowPadding.roundToPx()
+            val placeable = measurable.measure(
+                constraints.offset(horizontal = padding * 2, vertical = padding * 2),
+            )
+            layout(
+                width = (placeable.width - padding * 2).coerceAtLeast(0),
+                height = (placeable.height - padding * 2).coerceAtLeast(0),
+            ) {
+                placeable.place(-padding, -padding)
+            }
+        },
         visible = visible,
         enter = fadeIn(tween(IenTheme.motion.fastMillis)),
         exit = fadeOut(tween(IenTheme.motion.fastMillis)),
@@ -636,17 +707,26 @@ private fun IenTooltipPopup(
                     }
                 }
                 .padding(IenTooltipShadowPadding)
-                .then(if (width != null) Modifier.width(width) else Modifier.widthIn(max = 280.dp)),
+                .then(
+                    if (shadowOnly) {
+                        with(density) { Modifier.size(bodySize.width.toDp(), bodySize.height.toDp()) }
+                    } else if (width != null) Modifier.width(width) else Modifier.widthIn(max = 280.dp),
+                ),
             contentAlignment = Alignment.Center
         ) {
-            IenSurface(
-                modifier = Modifier.shadow(
+            val shadowModifier = if (drawShadow) {
+                Modifier.shadow(
                     elevation = 16.dp,
                     shape = tooltipShape,
                     clip = false,
                     ambientColor = Color(0x80001D3A),
-                    spotColor = Color(0x80001D3A)
-                ),
+                    spotColor = Color(0x80001D3A),
+                )
+            } else Modifier
+            if (shadowOnly) {
+                Box(Modifier.matchParentSize().then(shadowModifier))
+            } else IenSurface(
+                modifier = shadowModifier.onSizeChanged(onBodySizeChanged),
                 color = tooltipColors.container,
                 contentColor = tooltipColors.content,
                 shape = tooltipShape,

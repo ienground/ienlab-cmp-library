@@ -40,3 +40,5 @@ internal actual fun rememberIenTooltipPopupKey(): Int {
     }
     return generation
 }
+
+internal actual fun ienTooltipShadowPopupProperties(): PopupProperties? = null

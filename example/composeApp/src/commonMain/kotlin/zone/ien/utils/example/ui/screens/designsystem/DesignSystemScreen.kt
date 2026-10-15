@@ -4210,7 +4210,21 @@ fun TooltipSection(controls: Map<String, String> = emptyMap()) {
     }
     IenTheme {
         var controlledTooltipOpen by remember { mutableStateOf(false) }
+        var anchorClickCount by remember { mutableIntStateOf(0) }
         ComponentSection(title = "Tooltip") {
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                IenTooltip(
+                    text = "항상 표시되는 툴팁",
+                    open = true,
+                    fitContentWidth = true,
+                    placement = IenTooltipPlacement.Left,
+                    anchor = {
+                        IenButton(onClick = { anchorClickCount++ }) {
+                            Text("클릭 $anchorClickCount")
+                        }
+                    },
+                )
+            }
             IenTooltip(
                 text = tooltipText,
                 placement = placement,
