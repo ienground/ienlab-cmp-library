@@ -922,6 +922,7 @@ object IenMenu {
                     role = role,
                     onClick = onClick,
                 ),
+            contentAlignment = Alignment.CenterStart,
         ) {
             if (pressAlpha > 0f || selected) {
                 Box(
