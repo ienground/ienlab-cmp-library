@@ -42,6 +42,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.error
@@ -354,6 +356,127 @@ fun IenTextField(
     } else {
         IenTheme.spacing.sm + IenTheme.spacing.xxxs
     }
+    val prefixContent: @Composable () -> Unit = {
+        prefix?.let {
+            Text(
+                text = it,
+                style = fieldTextStyle,
+                color = if (state.enabled) IenTheme.colors.textSecondary else IenTheme.colors.textDisabled,
+            )
+        }
+    }
+    val suffixContent: @Composable () -> Unit = {
+        suffix?.let {
+            Text(
+                text = it,
+                style = fieldTextStyle,
+                color = if (state.enabled) IenTheme.colors.textSecondary else IenTheme.colors.textDisabled,
+            )
+        }
+    }
+    val inputTextField: @Composable (Modifier, Dp, Dp) -> Unit =
+        { inputModifier, startAdornmentInset, endAdornmentInset ->
+            BasicTextField(
+                value = displayedFieldValue,
+                onValueChange = { next ->
+                    val nextValue = format?.reset?.invoke(next.text) ?: next.text
+                    if (lengthLimit.blocks(nextValue)) return@BasicTextField
+
+                    fieldValue = next
+                    onValueChange(nextValue)
+                },
+                modifier = inputModifier
+                    .then(if (fillsBoxSingleLine) Modifier.fillMaxHeight() else Modifier)
+                    .onFocusChanged {
+                        if (it.isFocused && !wasFocused) {
+                            onFocus?.invoke()
+                        }
+                        if (!it.isFocused && wasFocused) {
+                            onBlur?.invoke()
+                        }
+                        wasFocused = it.isFocused
+                    }
+                    .then(
+                        if (fillsBoxSingleLine || !hasFieldAdornment) {
+                            Modifier
+                        } else {
+                            Modifier.padding(horizontal = IenTheme.spacing.xs)
+                        },
+                    ),
+                enabled = state.enabled && (!state.readOnly || readOnlyTextSelectionEnabled),
+                readOnly = state.readOnly,
+                singleLine = singleLine,
+                minLines = minLines,
+                maxLines = maxLines,
+                textStyle = fieldTextStyle.copy(color = textColor),
+                keyboardOptions = keyboardOptions,
+                keyboardActions = keyboardActions,
+                visualTransformation = visualTransformation,
+                interactionSource = interactionSource,
+                cursorBrush = SolidColor(IenTheme.colors.brand),
+                decorationBox = { innerTextField ->
+                    Box(
+                        modifier = if (fillsBoxSingleLine) {
+                            Modifier.fillMaxSize()
+                        } else {
+                            Modifier
+                                .fillMaxWidth()
+                                .then(
+                                    if (singleLine) {
+                                        Modifier.height(fieldContentMinHeight(variant))
+                                    } else {
+                                        Modifier.defaultMinSize(minHeight = fieldContentMinHeight(variant))
+                                    },
+                                )
+                        },
+                        contentAlignment = if (singleLine) Alignment.CenterStart else Alignment.TopStart,
+                    ) {
+                        val textContent: @Composable () -> Unit = {
+                            if (fieldValue.text.isEmpty() && placeholder != null) {
+                                Text(
+                                    text = placeholder,
+                                    style = fieldTextStyle,
+                                    color = IenTheme.colors.textTertiary,
+                                    maxLines = if (singleLine) 1 else maxLines,
+                                )
+                            }
+                            innerTextField()
+                        }
+
+                        if (fillsBoxSingleLine) {
+                            val horizontalAdornmentPadding = if (hasFieldAdornment) {
+                                IenTheme.spacing.xs
+                            } else {
+                                IenTheme.spacing.none
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(
+                                        start = if (hasLeadingFieldContent) {
+                                            startAdornmentInset + horizontalAdornmentPadding
+                                        } else {
+                                            fieldHorizontalPadding + horizontalAdornmentPadding
+                                        },
+                                        top = paddingTop ?: fieldVerticalPadding,
+                                        end = if (hasTrailingFieldContent) {
+                                            endAdornmentInset + horizontalAdornmentPadding
+                                        } else {
+                                            fieldHorizontalPadding + horizontalAdornmentPadding
+                                        },
+                                        bottom = paddingBottom ?: fieldVerticalPadding,
+                                    ),
+                                contentAlignment = Alignment.CenterStart,
+                            ) {
+                                textContent()
+                            }
+                        } else {
+                            textContent()
+                        }
+                    }
+                },
+            )
+        }
 
     Column(
         modifier = modifier
@@ -376,186 +499,97 @@ fun IenTextField(
             borderColor = borderColor,
             modifier = Modifier.offset(x = shakeOffset.value.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .then(
-                        if (
-                            singleLine &&
-                            variant == IenTextFieldVariant.Box &&
-                            paddingTop == null &&
-                            paddingBottom == null
-                        ) {
-                            Modifier.height(52.dp)
-                        } else {
-                            Modifier.defaultMinSize(minHeight = 28.dp)
-                        },
-                    )
-                    .padding(
-                        PaddingValues(
-                            start = if (fillsBoxSingleLine) IenTheme.spacing.none else fieldHorizontalPadding,
-                            top = if (fillsBoxSingleLine) IenTheme.spacing.none else paddingTop ?: fieldVerticalPadding,
-                            end = if (fillsBoxSingleLine) IenTheme.spacing.none else fieldHorizontalPadding,
-                            bottom = if (fillsBoxSingleLine) IenTheme.spacing.none else paddingBottom ?: fieldVerticalPadding,
-                        ),
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                leading?.let { content ->
-                    if (fillsBoxSingleLine) {
-                        Box(modifier = Modifier.padding(start = fieldHorizontalPadding)) {
-                            content()
-                        }
-                    } else {
-                        content()
-                    }
-                }
-                prefix?.let {
-                    val prefixText: @Composable () -> Unit = {
-                        Text(
-                            text = it,
-                            style = fieldTextStyle,
-                            color = if (state.enabled) IenTheme.colors.textSecondary else IenTheme.colors.textDisabled,
-                        )
-                    }
-                    if (fillsBoxSingleLine && leading == null) {
-                        Box(modifier = Modifier.padding(start = fieldHorizontalPadding)) {
-                            prefixText()
-                        }
-                    } else {
-                        prefixText()
-                    }
-                    Spacer(Modifier.width(IenTheme.spacing.xs))
-                }
-                BasicTextField(
-                    value = displayedFieldValue,
-                    onValueChange = { next ->
-                        val nextValue = format?.reset?.invoke(next.text) ?: next.text
-                        if (lengthLimit.blocks(nextValue)) return@BasicTextField
+            if (fillsBoxSingleLine) {
+                var leadingContentWidth by remember { mutableStateOf(0) }
+                var trailingContentWidth by remember { mutableStateOf(0) }
+                val density = LocalDensity.current
+                val leadingContentInset = with(density) { leadingContentWidth.toDp() }
+                val trailingContentInset = with(density) { trailingContentWidth.toDp() }
 
-                        fieldValue = next
-                        onValueChange(nextValue)
-                    },
+                Box(
                     modifier = Modifier
-                        .weight(1f)
-                        .then(if (fillsBoxSingleLine) Modifier.fillMaxHeight() else Modifier)
-                        .onFocusChanged {
-                            if (it.isFocused && !wasFocused) {
-                                onFocus?.invoke()
+                        .fillMaxWidth()
+                        .height(52.dp),
+                ) {
+                    inputTextField(Modifier.fillMaxSize(), leadingContentInset, trailingContentInset)
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .onSizeChanged { leadingContentWidth = it.width },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        leading?.let { content ->
+                            Box(modifier = Modifier.padding(start = fieldHorizontalPadding)) {
+                                content()
                             }
-                            if (!it.isFocused && wasFocused) {
-                                onBlur?.invoke()
-                            }
-                            wasFocused = it.isFocused
                         }
-                        .then(
-                            if (fillsBoxSingleLine || !hasFieldAdornment) {
-                                Modifier
+                        if (prefix != null) {
+                            if (leading == null) {
+                                Box(modifier = Modifier.padding(start = fieldHorizontalPadding)) {
+                                    prefixContent()
+                                }
                             } else {
-                                Modifier.padding(horizontal = IenTheme.spacing.xs)
-                            },
+                                prefixContent()
+                            }
+                            Spacer(Modifier.width(IenTheme.spacing.xs))
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .onSizeChanged { trailingContentWidth = it.width },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        suffix?.let {
+                            Spacer(Modifier.width(IenTheme.spacing.xs))
+                            if (trailing == null && right == null) {
+                                Box(modifier = Modifier.padding(end = fieldHorizontalPadding)) {
+                                    suffixContent()
+                                }
+                            } else {
+                                suffixContent()
+                            }
+                        }
+                        trailing?.let { content ->
+                            if (right == null) {
+                                Box(modifier = Modifier.padding(end = fieldHorizontalPadding)) {
+                                    content()
+                                }
+                            } else {
+                                content()
+                            }
+                        }
+                        right?.let { content ->
+                            Box(modifier = Modifier.padding(end = fieldHorizontalPadding)) {
+                                content()
+                            }
+                        }
+                    }
+                }
+            } else {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .defaultMinSize(minHeight = 28.dp)
+                        .padding(
+                            PaddingValues(
+                                start = fieldHorizontalPadding,
+                                top = paddingTop ?: fieldVerticalPadding,
+                                end = fieldHorizontalPadding,
+                                bottom = paddingBottom ?: fieldVerticalPadding,
+                            ),
                         ),
-                    enabled = state.enabled && (!state.readOnly || readOnlyTextSelectionEnabled),
-                    readOnly = state.readOnly,
-                    singleLine = singleLine,
-                    minLines = minLines,
-                    maxLines = maxLines,
-                    textStyle = fieldTextStyle.copy(color = textColor),
-                    keyboardOptions = keyboardOptions,
-                    keyboardActions = keyboardActions,
-                    visualTransformation = visualTransformation,
-                    interactionSource = interactionSource,
-                    cursorBrush = SolidColor(IenTheme.colors.brand),
-                    decorationBox = { innerTextField ->
-                        Box(
-                            modifier = if (fillsBoxSingleLine) {
-                                Modifier.fillMaxSize()
-                            } else {
-                                Modifier
-                                    .fillMaxWidth()
-                                    .then(
-                                        if (singleLine) {
-                                            Modifier.height(fieldContentMinHeight(variant))
-                                        } else {
-                                            Modifier.defaultMinSize(minHeight = fieldContentMinHeight(variant))
-                                        },
-                                    )
-                            },
-                            contentAlignment = if (singleLine) Alignment.CenterStart else Alignment.TopStart,
-                        ) {
-                            val textContent: @Composable () -> Unit = {
-                                if (fieldValue.text.isEmpty() && placeholder != null) {
-                                    Text(
-                                        text = placeholder,
-                                        style = fieldTextStyle,
-                                        color = IenTheme.colors.textTertiary,
-                                        maxLines = if (singleLine) 1 else maxLines,
-                                    )
-                                }
-                                innerTextField()
-                            }
-
-                            if (fillsBoxSingleLine) {
-                                val horizontalAdornmentPadding = if (hasFieldAdornment) {
-                                    IenTheme.spacing.xs
-                                } else {
-                                    IenTheme.spacing.none
-                                }
-                                Row(
-                                    modifier = Modifier.fillMaxSize(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .fillMaxHeight()
-                                            .padding(
-                                                start = if (hasLeadingFieldContent) horizontalAdornmentPadding else fieldHorizontalPadding + horizontalAdornmentPadding,
-                                                top = paddingTop ?: fieldVerticalPadding,
-                                                end = if (hasTrailingFieldContent) horizontalAdornmentPadding else fieldHorizontalPadding + horizontalAdornmentPadding,
-                                                bottom = paddingBottom ?: fieldVerticalPadding,
-                                            ),
-                                        contentAlignment = Alignment.CenterStart,
-                                    ) {
-                                        textContent()
-                                    }
-                                    suffix?.let { value ->
-                                        Spacer(Modifier.width(IenTheme.spacing.xs))
-                                        Text(
-                                            text = value,
-                                            style = fieldTextStyle,
-                                            color = if (state.enabled) IenTheme.colors.textSecondary else IenTheme.colors.textDisabled,
-                                        )
-                                    }
-                                    trailing?.let { content ->
-                                        if (right == null) {
-                                            Box(modifier = Modifier.padding(end = fieldHorizontalPadding)) {
-                                                content()
-                                            }
-                                        } else {
-                                            content()
-                                        }
-                                    }
-                                    right?.let { content ->
-                                        Box(modifier = Modifier.padding(end = fieldHorizontalPadding)) {
-                                            content()
-                                        }
-                                    }
-                                }
-                            } else {
-                                textContent()
-                            }
-                        }
-                    },
-                )
-                if (!fillsBoxSingleLine) {
-                    suffix?.let { value ->
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    leading?.invoke()
+                    if (prefix != null) {
+                        prefixContent()
                         Spacer(Modifier.width(IenTheme.spacing.xs))
-                        Text(
-                            text = value,
-                            style = fieldTextStyle,
-                            color = if (state.enabled) IenTheme.colors.textSecondary else IenTheme.colors.textDisabled,
-                        )
+                    }
+                    inputTextField(Modifier.weight(1f), 0.dp, 0.dp)
+                    if (suffix != null) {
+                        Spacer(Modifier.width(IenTheme.spacing.xs))
+                        suffixContent()
                     }
                     trailing?.invoke()
                     right?.invoke()
