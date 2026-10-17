@@ -2704,6 +2704,7 @@ fun HighlightSection(controls: Map<String, String> = emptyMap()) {
                 highlights = listOf(controls.textValue("highlight", "Highlight"), "강조"),
                 tone = controls.toneValue("tone", IenSemanticTone.Brand),
                 ignoreCase = controls.booleanValue("ignoreCase", true),
+                bold = controls.booleanValue("bold", false),
             )
         }
     }
@@ -3172,8 +3173,13 @@ fun ParagraphSection(controls: Map<String, String> = emptyMap()) {
                     "body",
                     "Paragraph는 본문 타이포그래피와 Highlight를 함께 사용해 긴 설명을 안정적으로 표시합니다.",
                 ),
-                emphasis = controls.textValue("emphasis", "Highlight").takeIf { it.isNotBlank() },
+                emphasis = controls.textValue("emphasis", "Highlight, 본문")
+                    .split(',')
+                    .map(String::trim)
+                    .filter(String::isNotEmpty),
                 footer = controls.textValue("footer", "토큰 기반 줄 높이와 색상을 사용합니다."),
+                tone = controls.toneValue("tone", IenSemanticTone.Brand),
+                bold = controls.booleanValue("bold", false),
             )
         }
     }
