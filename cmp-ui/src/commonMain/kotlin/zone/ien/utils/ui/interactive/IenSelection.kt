@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousCapsule
 import kotlinx.coroutines.launch
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.tabler.TablerIcons
 import zone.ien.utils.icon.tabler.line.Check
@@ -543,7 +544,7 @@ private fun IenCheckMark(
     modifier: Modifier = Modifier,
 ) {
     IenIcon(
-        imageVector = SystemIcons.Check,
+        icon = IconData.Vector(SystemIcons.Check),
         contentDescription = null,
         modifier = modifier,
         tint = color,
@@ -836,7 +837,7 @@ fun IenCircleCheckbox(
             contentAlignment = Alignment.Center
         ) {
             IenIcon(
-                imageVector = SystemIcons.Check,
+                icon = IconData.Vector(SystemIcons.Check),
                 contentDescription = null,
                 tint = checkAnimColor,
                 modifier = Modifier.size(size * 0.65f)
@@ -1080,7 +1081,7 @@ fun IenLineCheckbox(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IenIcon(
-            imageVector = SystemIcons.Check,
+            icon = IconData.Vector(SystemIcons.Check),
             contentDescription = null,
             tint = checkAnimColor,
             modifier = Modifier

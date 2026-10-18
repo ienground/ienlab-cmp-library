@@ -16,8 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,7 +44,7 @@ import zone.ien.utils.ui.section.IenLinkIconToneVariant
  * @param adaptation 적응형 스타일 설정을 위한 범위
  * @param contentDescription 접근성 설명
  */
-@OptIn(ExperimentalAdaptiveApi::class)
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun AdaptiveLinkIcon(
     icon: IconData,
@@ -54,58 +52,32 @@ fun AdaptiveLinkIcon(
     adaptation: AdaptationScope<CupertinoLinkIconAdaptation, IenLinkIconAdaptation>.() -> Unit = { },
     contentDescription: String? = null
 ) {
-    when (icon) {
-        is IconData.Vector -> {
-            AdaptiveLinkIcon(
-                imageVector = icon.imageVector,
-                modifier = modifier,
-                adaptation = adaptation,
-                contentDescription = contentDescription
-            )
-        }
-        is IconData.Paint -> {
-            AdaptiveLinkIcon(
-                painter = icon.painter,
-                modifier = modifier,
-                adaptation = adaptation,
-                contentDescription = contentDescription
-            )
-        }
-    }
-}
-
-/**
- * 적응형 링크 아이콘 컴포저블 (ImageVector 버전)
- *
- * @param imageVector 이미지 벡터
- * @param modifier 사용자 정의 스타일을 적용하기 위해 사용되는 Modifier
- * @param adaptation 적응형 스타일 설정을 위한 범위
- * @param contentDescription 접근성 설명
- */
-@OptIn(ExperimentalAdaptiveApi::class)
-@Composable
-fun AdaptiveLinkIcon(
-    imageVector: ImageVector,
-    modifier: Modifier = Modifier,
-    adaptation: AdaptationScope<CupertinoLinkIconAdaptation, IenLinkIconAdaptation>.() -> Unit = { },
-    contentDescription: String? = null,
-) {
     AdaptiveWidget(
         adaptation = remember { LinkIconAdaptation() },
         adaptationScope = adaptation,
         cupertino = {
-            CupertinoLinkIcon(
-                imageVector = imageVector,
-                containerColor = it.containerColor,
-                tint = it.tint,
-                shape = it.shape,
-                contentDescription = contentDescription,
-                modifier = modifier
-            )
+            when (icon) {
+                is IconData.Vector -> CupertinoLinkIcon(
+                    imageVector = icon.imageVector,
+                    containerColor = it.containerColor,
+                    tint = it.tint,
+                    shape = it.shape,
+                    contentDescription = contentDescription,
+                    modifier = modifier
+                )
+                is IconData.Paint -> CupertinoLinkIcon(
+                    painter = icon.painter,
+                    containerColor = it.containerColor,
+                    tint = it.tint,
+                    shape = it.shape,
+                    contentDescription = contentDescription,
+                    modifier = modifier
+                )
+            }
         },
         material = {
             IenLinkIcon(
-                imageVector = imageVector,
+                icon = icon,
                 tone = it.tone,
                 toneVariant = it.toneVariant,
                 colors = it.colors ?: IenLinkIconDefaults.colors(it.tone, it.toneVariant),
@@ -150,41 +122,6 @@ fun AdaptiveLinkIconText(
                 toneVariant = it.toneVariant,
                 colors = it.colors ?: IenLinkIconDefaults.colors(it.tone, it.toneVariant),
                 shape = it.shape,
-                modifier = modifier
-            )
-        }
-    )
-}
-
-@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
-@Composable
-fun AdaptiveLinkIcon(
-    painter: Painter,
-    modifier: Modifier = Modifier,
-    adaptation: AdaptationScope<CupertinoLinkIconAdaptation, IenLinkIconAdaptation>.() -> Unit = { },
-    contentDescription: String? = null,
-) {
-    AdaptiveWidget(
-        adaptation = remember { LinkIconAdaptation() },
-        adaptationScope = adaptation,
-        cupertino = {
-            CupertinoLinkIcon(
-                painter = painter,
-                containerColor = it.containerColor,
-                tint = it.tint,
-                shape = it.shape,
-                contentDescription = contentDescription,
-                modifier = modifier
-            )
-        },
-        material = {
-            IenLinkIcon(
-                painter = painter,
-                tone = it.tone,
-                toneVariant = it.toneVariant,
-                colors = it.colors ?: IenLinkIconDefaults.colors(it.tone, it.toneVariant),
-                shape = it.shape,
-                contentDescription = contentDescription,
                 modifier = modifier
             )
         }

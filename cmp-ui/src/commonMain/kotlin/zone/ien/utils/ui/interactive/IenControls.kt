@@ -70,7 +70,6 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
@@ -97,6 +96,7 @@ import zone.ien.utils.cmp_ui.generated.resources.next
 import zone.ien.utils.cmp_ui.generated.resources.stepper_step_list
 import zone.ien.utils.cmp_ui.generated.resources.tab_list
 import zone.ien.utils.cmp_ui.generated.resources.tab_update_indicator_desc
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.tabler.TablerIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
@@ -1046,7 +1046,7 @@ fun IenStepperRightArrow(
         contentAlignment = Alignment.Center,
     ) {
         IenIcon(
-            imageVector = SystemIcons.ChevronRight,
+            icon = IconData.Vector(SystemIcons.ChevronRight),
             contentDescription = null,
             modifier = Modifier.size(IenTheme.icon.sm),
             tint = color,
@@ -1120,8 +1120,8 @@ private fun StepperAction(
  * @property key 탭을 식별하기 위한 선택적 키 객체.
  * @property redBean 기존 호출부 호환을 위한 우상단 점 배지 노출 여부.
  * @property ariaLabel 접근성 스크린 리더용 설명 텍스트.
- * @property icon 탭에 기본 표시될 아이콘 [ImageVector].
- * @property selectedIcon 탭이 선택되었을 때 표시할 아이콘 [ImageVector].
+ * @property icon 탭에 기본 표시될 아이콘 데이터.
+ * @property selectedIcon 탭이 선택되었을 때 표시할 아이콘 데이터.
  * @property badge 0이면 숨기고, 음수이면 우상단 점으로 표시합니다. 양수는 라벨 오른쪽에 표시하며, 100 이상은 `99+`로 표시합니다.
  */
 @Immutable
@@ -1131,8 +1131,8 @@ data class IenTabItem(
     val key: Any? = null,
     val redBean: Boolean = false,
     val ariaLabel: String? = null,
-    val icon: ImageVector? = null,
-    val selectedIcon: ImageVector? = null,
+    val icon: IconData? = null,
+    val selectedIcon: IconData? = null,
     val badge: Int = 0,
 )
 

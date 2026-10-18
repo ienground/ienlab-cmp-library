@@ -6,6 +6,7 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.version_update_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.version_update_dialog_title
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.primitives.IenIcon
 
@@ -27,7 +28,7 @@ fun IenUpdateAlertDialog(
     IenAlertDialog(
         modifier = modifier,
         visible = visible,
-        icon = { IenIcon(imageVector = SystemIcons.Update, contentDescription = null) },
+        icon = { IenIcon(icon = IconData.Vector(SystemIcons.Update), contentDescription = null) },
         title = stringResource(Res.string.version_update_dialog_title),
         message = stringResource(Res.string.version_update_dialog_content, appName),
         onDismiss = onDismiss,

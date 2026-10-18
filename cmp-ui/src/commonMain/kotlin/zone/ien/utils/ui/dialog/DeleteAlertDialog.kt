@@ -6,6 +6,7 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.delete_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.delete_dialog_title
 import org.jetbrains.compose.resources.stringResource
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.primitives.IenIcon
 
@@ -31,7 +32,7 @@ fun IenDeleteAlertDialog(
     IenAlertDialog(
         modifier = modifier,
         visible = visible,
-        icon = { IenIcon(imageVector = SystemIcons.Delete, contentDescription = null) },
+        icon = { IenIcon(icon = IconData.Vector(SystemIcons.Delete), contentDescription = null) },
         title = stringResource(Res.string.delete_dialog_title),
         message = stringResource(Res.string.delete_dialog_content),
         onDismiss = onDismiss,

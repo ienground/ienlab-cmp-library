@@ -56,6 +56,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.selected
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.tabler.line.Check
 import zone.ien.utils.ui.foundation.IenTheme
@@ -562,7 +563,7 @@ fun IenBottomSheetSelect(
                 trailing = {
                     if (isSelected) {
                         IenIcon(
-                            imageVector = SystemIcons.Check,
+                            icon = IconData.Vector(SystemIcons.Check),
                             contentDescription = stringResource(Res.string.selected),
                             tint = IenTheme.colors.brand
                         )

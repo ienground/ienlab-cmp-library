@@ -236,7 +236,7 @@ private fun ScreenBody(
 //                    .padding(IenTheme.spacing.xxl)
             ) {
                 IenIcon(
-                    imageVector = Android,
+                    icon = IconData.Vector(Android),
                     contentDescription = null
                 )
             }

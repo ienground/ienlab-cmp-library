@@ -35,6 +35,7 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.loading
 import zone.ien.utils.cmp_ui.generated.resources.progress_stepper_step
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.tabler.line.Check
 import zone.ien.utils.ui.foundation.IenSemanticTone
@@ -375,7 +376,7 @@ private fun ProgressStepMarker(
     ) {
         when {
             showFinishedCheck -> IenIcon(
-                imageVector = SystemIcons.Check,
+                icon = IconData.Vector(SystemIcons.Check),
                 contentDescription = null,
                 tint = IenTheme.colors.onBrand,
                 size = IenTheme.icon.sm,

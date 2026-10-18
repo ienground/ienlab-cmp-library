@@ -69,6 +69,7 @@ import zone.ien.utils.cmp_ui.generated.resources.search
 import zone.ien.utils.cmp_ui.generated.resources.search_input
 import zone.ien.utils.cmp_ui.generated.resources.segmented_input
 import zone.ien.utils.cmp_ui.generated.resources.show_password
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.tabler.TablerIcons
 import zone.ien.utils.icon.tabler.line.Close
@@ -1007,7 +1008,7 @@ private fun IenTextFieldClearButton(
         contentAlignment = Alignment.Center,
     ) {
         IenIcon(
-            imageVector = SystemIcons.Close,
+            icon = IconData.Vector(SystemIcons.Close),
             contentDescription = null,
             modifier = Modifier.size(IenTheme.icon.sm),
             tint = Color(0xFF8B95A1),
@@ -1032,7 +1033,7 @@ private fun IenTextFieldPasswordButton(
         state = IenButtonState(enabled = enabled),
     ) {
         IenIcon(
-            imageVector = if (visible) SystemIcons.EyeOff else SystemIcons.Eye,
+            icon = IconData.Vector(if (visible) SystemIcons.EyeOff else SystemIcons.Eye),
             contentDescription = contentDescription,
             tint = IenTheme.colors.brand,
         )
@@ -1044,7 +1045,7 @@ private fun IenTextFieldArrowDown(
     modifier: Modifier = Modifier,
 ) {
     IenIcon(
-        imageVector = SystemIcons.ChevronDown,
+        icon = IconData.Vector(SystemIcons.ChevronDown),
         contentDescription = null,
         modifier = modifier.size(IenTheme.icon.lg),
         tint = Color(0xFF6B7684),
@@ -1311,7 +1312,7 @@ fun IenSearchFieldSearchIcon(
 ) {
     val color = searchFieldIconColor()
     IenIcon(
-        imageVector = SystemIcons.Search,
+        icon = IconData.Vector(SystemIcons.Search),
         contentDescription = contentDescription,
         modifier = modifier
             .width(size)
@@ -1354,7 +1355,7 @@ fun IenSearchFieldDeleteButton(
             shape = ContinuousCapsule(),
         ) {
             IenIcon(
-                imageVector = SystemIcons.Close,
+                icon = IconData.Vector(SystemIcons.Close),
                 contentDescription = null,
                 tint = contentColor,
                 modifier = Modifier.size(18.dp)

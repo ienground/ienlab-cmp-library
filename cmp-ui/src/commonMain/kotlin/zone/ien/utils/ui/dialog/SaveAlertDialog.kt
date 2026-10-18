@@ -9,6 +9,7 @@ import zone.ien.utils.cmp_ui.generated.resources.save
 import zone.ien.utils.cmp_ui.generated.resources.save_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.save_dialog_title
 import org.jetbrains.compose.resources.stringResource
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.primitives.IenIcon
 
@@ -38,7 +39,7 @@ fun IenSaveAlertDialog(
     IenAlertDialog(
         modifier = modifier,
         visible = visible,
-        icon = { IenIcon(imageVector = SystemIcons.Save, contentDescription = null) },
+        icon = { IenIcon(icon = IconData.Vector(SystemIcons.Save), contentDescription = null) },
         title = stringResource(Res.string.save_dialog_title),
         message = stringResource(Res.string.save_dialog_content),
         textNeutral = stringResource(Res.string.not_save),

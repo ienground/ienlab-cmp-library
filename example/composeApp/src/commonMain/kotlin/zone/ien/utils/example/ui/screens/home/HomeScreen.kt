@@ -239,10 +239,10 @@ fun HomeScreen(
                                 text = "Hi",
                             )
                             IenIcon(
-                                painter = AdaptiveIcons.painter(
+                                icon = IconData.Paint(AdaptiveIcons.painter(
                                     material = { SystemIcons.ArrowDropDown },
                                     cupertino = { "chevron.down" }
-                                ),
+                                )),
                                 contentDescription = null
                             )
                         }
@@ -349,7 +349,7 @@ fun HomeScreen(
                                 IenFilterChip(
                                     selected = iconStyle == style,
                                     onSelectedChange = { onIconStyleChange(style) },
-                                    leadingIcon = { IenIcon(SystemIcons.Search, contentDescription = null) },
+                                    leadingIcon = { IenIcon(IconData.Vector(SystemIcons.Search), contentDescription = null) },
                                     label = { Text(text = label) },
                                 )
                             }

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Instant
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.dialog.IenAlertDialog
@@ -173,7 +174,7 @@ fun IenPlaygroundScreen(
                             onClick = { selectedNavIndex = 0 },
                             icon = {
                                 IenIcon(
-                                    imageVector = SystemIcons.Save,
+                                    icon = IconData.Vector(SystemIcons.Save),
                                     contentDescription = null
                                 )
                             },
@@ -184,7 +185,7 @@ fun IenPlaygroundScreen(
                             onClick = { selectedNavIndex = 1 },
                             icon = {
                                 IenIcon(
-                                    imageVector = SystemIcons.Edit,
+                                    icon = IconData.Vector(SystemIcons.Edit),
                                     contentDescription = null
                                 )
                             },
@@ -195,7 +196,7 @@ fun IenPlaygroundScreen(
                             onClick = { selectedNavIndex = 2 },
                             icon = {
                                 IenIcon(
-                                    imageVector = SystemIcons.Schedule,
+                                    icon = IconData.Vector(SystemIcons.Schedule),
                                     contentDescription = null
                                 )
                             },
@@ -493,7 +494,7 @@ fun IenPlaygroundScreen(
                                 icon = {
                                     content { modifier ->
                                         IenIcon(
-                                            imageVector = SystemIcons.Edit,
+                                            icon = IconData.Vector(SystemIcons.Edit),
                                             contentDescription = null,
                                             modifier = modifier,
                                         )

@@ -40,6 +40,7 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.state_collapsed
 import zone.ien.utils.cmp_ui.generated.resources.state_expanded
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
@@ -222,7 +223,7 @@ private fun IenBoardRowIcon(
         label = "IenBoardRowIconRotation",
     )
     IenIcon(
-        imageVector = SystemIcons.ChevronDown,
+        icon = IconData.Vector(SystemIcons.ChevronDown),
         contentDescription = null,
         modifier = modifier.rotate(rotation),
         tint = IenTheme.colors.textTertiary,

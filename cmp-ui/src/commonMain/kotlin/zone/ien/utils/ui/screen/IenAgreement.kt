@@ -50,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenDivider
 import zone.ien.utils.ui.primitives.IenSurface
@@ -427,7 +428,7 @@ fun IenAgreementRightArrow(
         label = "ienAgreementRightArrowRotation",
     )
     IenIcon(
-        imageVector = SystemIcons.ChevronDown,
+        icon = IconData.Vector(SystemIcons.ChevronDown),
         contentDescription = null,
         tint = IenTheme.colors.textDisabled,
         modifier = modifier

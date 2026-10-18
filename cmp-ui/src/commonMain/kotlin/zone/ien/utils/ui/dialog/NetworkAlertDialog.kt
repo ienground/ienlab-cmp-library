@@ -8,6 +8,7 @@ import zone.ien.utils.cmp_ui.generated.resources.close
 import zone.ien.utils.cmp_ui.generated.resources.network_dialog_content
 import zone.ien.utils.cmp_ui.generated.resources.network_dialog_title
 import zone.ien.utils.cmp_ui.generated.resources.retry
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.primitives.IenIcon
 
@@ -27,7 +28,7 @@ fun IenNetworkAlertDialog(
     IenAlertDialog(
         modifier = modifier,
         visible = visible,
-        icon = { IenIcon(imageVector = SystemIcons.CloudOff, contentDescription = null) },
+        icon = { IenIcon(icon = IconData.Vector(SystemIcons.CloudOff), contentDescription = null) },
         title = stringResource(Res.string.network_dialog_title),
         message = stringResource(Res.string.network_dialog_content),
         textDismiss = stringResource(Res.string.close),

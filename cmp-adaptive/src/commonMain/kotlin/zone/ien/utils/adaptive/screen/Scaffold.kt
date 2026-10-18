@@ -52,6 +52,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -96,6 +97,94 @@ import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
 internal fun cupertinoActionsEndSpacing(hasActions: Boolean): Dp =
     if (hasActions) 8.dp else 0.dp
+
+/**
+ * 현재 테마에 맞춰 IEN 또는 Cupertino 스캐폴드를 표시합니다.
+ *
+ * @param modifier 스캐폴드에 적용할 Modifier
+ * @param topBar 상단 바
+ * @param bottomBar 하단 바
+ * @param snackbarHost 스낵바 호스트
+ * @param floatingActionButton 플로팅 액션 버튼
+ * @param floatingActionButtonPosition 플로팅 액션 버튼 위치
+ * @param containerColor 컨테이너 색상. 지정하지 않으면 각 테마의 기본 색상을 사용합니다.
+ * @param contentColor 콘텐츠 색상. 지정하지 않으면 각 테마의 기본 색상을 사용합니다.
+ * @param contentWindowInsets 콘텐츠 윈도우 인셋. 지정하지 않으면 각 스캐폴드의 기본값을 사용합니다.
+ * @param contentEdge IEN 스캐폴드 콘텐츠 모서리 효과 설정
+ * @param content 스캐폴드 안에 표시할 콘텐츠
+ */
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
+@Composable
+fun AdaptiveScaffold(
+    modifier: Modifier = Modifier,
+    topBar: @Composable () -> Unit = {},
+    bottomBar: (@Composable () -> Unit)? = null,
+    snackbarHost: @Composable () -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
+    floatingActionButtonPosition: FabPosition = FabPosition.End,
+    containerColor: Color = Color.Unspecified,
+    contentColor: Color = Color.Unspecified,
+    contentWindowInsets: WindowInsets? = null,
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
+    content: @Composable (PaddingValues) -> Unit,
+) {
+    val backdrop = LocalBackdrop.current ?: rememberDefaultBackdrop()
+
+    AdaptiveWidget(
+        material = {
+            CompositionLocalProvider(LocalBackdrop provides backdrop) {
+                IenScaffold(
+                    modifier = modifier,
+                    topBar = topBar,
+                    bottomBar = bottomBar,
+                    snackbarHost = snackbarHost,
+                    floating = floatingActionButton,
+                    floatingActionButtonPosition = when (floatingActionButtonPosition) {
+                        FabPosition.End -> androidx.compose.material3.FabPosition.End
+                        else -> androidx.compose.material3.FabPosition.Center
+                    },
+                    containerColor = containerColor.takeOrElse { IenTheme.colors.background },
+                    contentColor = contentColor.takeOrElse { IenTheme.colors.textPrimary },
+                    contentWindowInsets = contentWindowInsets ?: ScaffoldDefaults.contentWindowInsets,
+                    contentEdge = contentEdge,
+                    content = { contentPadding ->
+                        CompositionLocalProvider(LocalBackdrop provides null) {
+                            content(contentPadding)
+                        }
+                    },
+                )
+            }
+        },
+        cupertino = {
+            CompositionLocalProvider(LocalBackdrop provides backdrop) {
+                CupertinoScaffold(
+                    modifier = modifier,
+                    topBar = topBar,
+                    bottomBar = { bottomBar?.invoke() },
+                    snackbarHost = snackbarHost,
+                    floatingActionButton = floatingActionButton,
+                    floatingActionButtonPosition = floatingActionButtonPosition,
+                    containerColor = containerColor.takeOrElse {
+                        CupertinoScaffoldDefaults.containerColor
+                    },
+                    contentColor = contentColor.takeOrElse {
+                        CupertinoScaffoldDefaults.contentColor
+                    },
+                    contentWindowInsets = contentWindowInsets
+                        ?: CupertinoScaffoldDefaults.contentWindowInsets,
+                    content = { contentPadding ->
+                        contentEdge.scrollableState?.let { scrollState ->
+                            Modifier.cupertinoScrollEdge(scrollState)
+                        }
+                        CompositionLocalProvider(LocalBackdrop provides null) {
+                            content(contentPadding)
+                        }
+                    },
+                )
+            }
+        },
+    )
+}
 
 /**
  * 적응형 상단바 스캐폴드 컴포저블

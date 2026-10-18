@@ -33,6 +33,7 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.interactive.IenAuthForm
 import zone.ien.utils.ui.interactive.IenAuthFormCopy
 import zone.ien.utils.ui.interactive.IenAuthFormMode
@@ -210,7 +211,7 @@ fun AuthFormScreen(
                                         },
                                     ) {
                                         IenIcon(
-                                            imageVector = CupertinoIcons.Outlined.AppleLogo,
+                                            icon = IconData.Vector(CupertinoIcons.Outlined.AppleLogo),
                                             contentDescription = null,
                                             tint = IenTheme.colors.textPrimary,
                                         )

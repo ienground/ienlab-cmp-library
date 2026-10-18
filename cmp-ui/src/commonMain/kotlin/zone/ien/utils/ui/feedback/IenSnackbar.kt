@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.tabler.line.Check
 import zone.ien.utils.icon.tabler.line.Close
@@ -367,7 +368,7 @@ fun IenSnackbarIcon(
         contentAlignment = Alignment.Center,
     ) {
         IenIcon(
-            imageVector = iconVector,
+            icon = IconData.Vector(iconVector),
             contentDescription = null,
             modifier = Modifier.size(size * 0.7f),
             tint = color,
