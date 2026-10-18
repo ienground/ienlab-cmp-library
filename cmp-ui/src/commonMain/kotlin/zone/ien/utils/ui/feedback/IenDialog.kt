@@ -17,12 +17,14 @@ import zone.ien.utils.ui.dialog.IenConfirmDialogTitle
  * @property text 버튼에 표시할 문구
  * @property onClick 버튼을 클릭했을 때 실행할 콜백 함수
  * @property tone 버튼의 시맨틱 톤 설정 ([IenSemanticTone])
+ * @property enabled 버튼 활성화 여부
  */
 @Immutable
 data class IenDialogAction(
     val text: String,
     val onClick: () -> Unit,
     val tone: IenSemanticTone = IenSemanticTone.Brand,
+    val enabled: Boolean = true,
 )
 
 /**
@@ -58,6 +60,7 @@ fun IenDialog(
             confirmText = confirm.text,
             onConfirmClick = confirm.onClick,
             tone = confirm.tone,
+            enabledConfirm = confirm.enabled,
         )
     } else {
         IenConfirmDialog(
@@ -75,6 +78,7 @@ fun IenDialog(
                     text = dismiss.text,
                     onClick = dismiss.onClick,
                     tone = dismiss.tone,
+                    enabled = dismiss.enabled,
                 )
             },
             confirmButton = {
@@ -82,6 +86,7 @@ fun IenDialog(
                     text = confirm.text,
                     onClick = confirm.onClick,
                     tone = confirm.tone,
+                    enabled = confirm.enabled,
                 )
             },
         )

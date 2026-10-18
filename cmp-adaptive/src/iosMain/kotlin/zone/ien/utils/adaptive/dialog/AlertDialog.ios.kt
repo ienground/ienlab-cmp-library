@@ -93,8 +93,15 @@ actual fun AlertDialog(
     message: String?,
     textDismiss: String,
     styleDismiss: UIAlertActionStyle,
+    enabledDismiss: Boolean,
     onDismiss: (() -> Unit)?
 ) {
+    var dismissActionRef by remember { mutableStateOf<UIAlertAction?>(null) }
+
+    LaunchedEffect(enabledDismiss) {
+        dismissActionRef?.enabled = enabledDismiss
+    }
+
     HigBaseAlertDialog(
         visible = visible,
         title = title,
@@ -107,7 +114,10 @@ actual fun AlertDialog(
                 handler = {
                     callback()
                 }
-            )
+            ).apply {
+                setEnabled(enabledDismiss)
+            }
+            dismissActionRef = dismissAction
             alertController.addAction(dismissAction)
         }
 
@@ -146,8 +156,19 @@ actual fun AlertDialog(
     styleConfirm: UIAlertActionStyle,
     onConfirm: () -> Unit,
     enabledConfirm: Boolean,
-    buttonLayout: IenDialogButtonLayout
+    buttonLayout: IenDialogButtonLayout,
+    enabledDismiss: Boolean,
 ) {
+    var dismissActionRef by remember { mutableStateOf<UIAlertAction?>(null) }
+    var confirmActionRef by remember { mutableStateOf<UIAlertAction?>(null) }
+
+    LaunchedEffect(enabledDismiss) {
+        dismissActionRef?.enabled = enabledDismiss
+    }
+    LaunchedEffect(enabledConfirm) {
+        confirmActionRef?.enabled = enabledConfirm
+    }
+
     HigBaseAlertDialog(
         visible = visible,
         title = title,
@@ -159,7 +180,10 @@ actual fun AlertDialog(
             handler = {
                 onDismiss()
             }
-        )
+        ).apply {
+            setEnabled(enabledDismiss)
+        }
+        dismissActionRef = dismissAction
         val confirmAction = UIAlertAction.actionWithTitle(
             title = textConfirm,
             style = styleConfirm.toStyle(),
@@ -169,6 +193,7 @@ actual fun AlertDialog(
         ).apply {
             setEnabled(enabledConfirm)
         }
+        confirmActionRef = confirmAction
 
         alertController.addAction(dismissAction)
         alertController.addAction(confirmAction)
@@ -216,8 +241,23 @@ actual fun AlertDialog(
     stylePositive: UIAlertActionStyle,
     onPositive: () -> Unit,
     enabledPositive: Boolean,
-    buttonLayout: IenDialogButtonLayout
+    buttonLayout: IenDialogButtonLayout,
+    enabledNegative: Boolean,
 ) {
+    var neutralActionRef by remember { mutableStateOf<UIAlertAction?>(null) }
+    var negativeActionRef by remember { mutableStateOf<UIAlertAction?>(null) }
+    var positiveActionRef by remember { mutableStateOf<UIAlertAction?>(null) }
+
+    LaunchedEffect(enabledNeutral) {
+        neutralActionRef?.enabled = enabledNeutral
+    }
+    LaunchedEffect(enabledNegative) {
+        negativeActionRef?.enabled = enabledNegative
+    }
+    LaunchedEffect(enabledPositive) {
+        positiveActionRef?.enabled = enabledPositive
+    }
+
     HigBaseAlertDialog(
         visible = visible,
         title = title,
@@ -232,13 +272,17 @@ actual fun AlertDialog(
         ).apply {
             setEnabled(enabledNeutral)
         }
+        neutralActionRef = neutralAction
         val negativeAction = UIAlertAction.actionWithTitle(
             title = textNegative,
             style = styleNegative.toStyle(),
             handler = {
                 onNegative()
             }
-        )
+        ).apply {
+            setEnabled(enabledNegative)
+        }
+        negativeActionRef = negativeAction
         val positiveAction = UIAlertAction.actionWithTitle(
             title = textPositive,
             style = stylePositive.toStyle(),
@@ -248,6 +292,7 @@ actual fun AlertDialog(
         ).apply {
             setEnabled(enabledPositive)
         }
+        positiveActionRef = positiveAction
 
         alertController.addAction(neutralAction)
         alertController.addAction(negativeAction)

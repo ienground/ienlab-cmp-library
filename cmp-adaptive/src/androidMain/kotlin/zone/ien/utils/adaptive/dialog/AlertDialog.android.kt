@@ -28,6 +28,7 @@ actual fun AlertDialog(
     message: String?,
     textDismiss: String,
     styleDismiss: UIAlertActionStyle,
+    enabledDismiss: Boolean,
     onDismiss: (() -> Unit)?
 ) {
     IenAlertDialog(
@@ -38,6 +39,7 @@ actual fun AlertDialog(
         message = message,
         textDismiss = textDismiss,
         onDismiss = onDismiss,
+        enabledDismiss = enabledDismiss,
         isDestructive = styleDismiss.isDestructive,
         styleDismiss = styleDismiss.toIenDialogActionStyle(),
     )
@@ -74,7 +76,8 @@ actual fun AlertDialog(
     styleConfirm: UIAlertActionStyle,
     onConfirm: () -> Unit,
     enabledConfirm: Boolean,
-    buttonLayout: IenDialogButtonLayout
+    buttonLayout: IenDialogButtonLayout,
+    enabledDismiss: Boolean,
 ) {
     IenAlertDialog(
         modifier = modifier,
@@ -84,6 +87,7 @@ actual fun AlertDialog(
         message = message,
         textDismiss = textDismiss,
         onDismiss = onDismiss,
+        enabledDismiss = enabledDismiss,
         textConfirm = textConfirm,
         onConfirm = onConfirm,
         enabledConfirm = enabledConfirm,
@@ -133,7 +137,8 @@ actual fun AlertDialog(
     stylePositive: UIAlertActionStyle,
     onPositive: () -> Unit,
     enabledPositive: Boolean,
-    buttonLayout: IenDialogButtonLayout
+    buttonLayout: IenDialogButtonLayout,
+    enabledNegative: Boolean,
 ) {
     IenAlertDialog(
         modifier = modifier,
@@ -147,6 +152,7 @@ actual fun AlertDialog(
         styleNeutral = styleNeutral.toIenDialogActionStyle(),
         textNegative = textNegative,
         onNegative = onNegative,
+        enabledNegative = enabledNegative,
         styleNegative = styleNegative.toIenDialogActionStyle(),
         textPositive = textPositive,
         onPositive = onPositive,

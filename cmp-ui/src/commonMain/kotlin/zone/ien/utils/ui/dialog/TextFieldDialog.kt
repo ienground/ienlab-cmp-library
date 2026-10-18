@@ -35,6 +35,7 @@ import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenPasswordTextField
 import zone.ien.utils.ui.interactive.IenTextField
+import zone.ien.utils.ui.interactive.IenTextFieldState
 import zone.ien.utils.ui.utils.TextFieldDialogData
 
 /**
@@ -111,8 +112,10 @@ fun IenBaseTextFieldDialog(
  * @param message 다이얼로그의 내용
  * @param textFields 입력 필드들의 데이터 정의
  * @param textDismiss 취소 버튼의 텍스트
+ * @param enabledDismiss 취소 버튼 활성화 여부
  * @param onDismiss 다이얼로그를 닫기 위한 콜백 함수
  * @param textConfirm 확인 버튼의 텍스트
+ * @param enabledConfirm 확인 버튼의 추가 활성화 조건
  * @param onConfirm 입력 데이터를 처리하기 위한 콜백 함수
  */
 @Composable
@@ -126,6 +129,8 @@ fun IenTextFieldDialog(
     textDismiss: String = stringResource(Res.string.cancel),
     onDismiss: () -> Unit,
     textConfirm: String = stringResource(Res.string.ok),
+    enabledDismiss: Boolean = true,
+    enabledConfirm: Boolean = true,
     onConfirm: (Map<String, String>) -> Unit,
 ) {
     val textStates = remember(visible, textFields.keys) {
@@ -136,12 +141,13 @@ fun IenTextFieldDialog(
         }
     }
 
-    val enabledConfirm by derivedStateOf {
+    val fieldsValid by derivedStateOf {
         textFields.all { (key, field) ->
             val text = textStates[key] ?: ""
             field.valid(text)
         }
     }
+    val isConfirmEnabled = enabledConfirm && fieldsValid
 
     IenBaseTextFieldDialog(
         modifier = modifier,
@@ -166,6 +172,7 @@ fun IenTextFieldDialog(
                             keyboardType = field.keyboardType,
                             imeAction = field.imeAction,
                         ),
+                        state = IenTextFieldState(enabled = field.enabled),
                         modifier = Modifier.fillMaxWidth(),
                     )
                 } else {
@@ -184,6 +191,7 @@ fun IenTextFieldDialog(
                         singleLine = field.maxLines == 1,
                         minLines = field.minLines,
                         maxLines = field.maxLines,
+                        state = IenTextFieldState(enabled = field.enabled),
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
@@ -194,6 +202,7 @@ fun IenTextFieldDialog(
                 IenConfirmDialogCancelButton(
                     text = textDismiss,
                     onClick = onDismiss,
+                    enabled = enabledDismiss,
                 )
             }
             Box(modifier = Modifier.weight(1f)) {
@@ -203,7 +212,7 @@ fun IenTextFieldDialog(
                     size = IenButtonSize.Large,
                     variant = IenButtonVariant.Fill,
                     tone = IenSemanticTone.Brand,
-                    state = IenButtonState(enabled = enabledConfirm),
+                    state = IenButtonState(enabled = isConfirmEnabled),
                     display = IenButtonDisplay.Block,
                 ) {
                     Text(textConfirm)
