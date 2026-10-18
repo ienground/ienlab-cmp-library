@@ -2,8 +2,7 @@ package zone.ien.utils.ui.interactive
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.FloatingActionButtonMenuScope
@@ -13,10 +12,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
@@ -35,6 +39,7 @@ class IenFabMenuScope internal constructor(
  *
  * [expanded]는 호출부에서 관리하며, 항목 선택 후 닫기와 화면 뒤로 가기 처리도 호출부에서 결정합니다.
  * 항목은 [IenFabMenuItem]으로 구성하고, [button]에는 [IenFabMenuButton]이나 기존 [IenFab]을 배치합니다.
+ * 접힌 상태에서는 [button]과 같은 크기를 차지하며, 메뉴의 내부 여백은 FAB의 바깥 여백에 추가하지 않습니다.
  * 화면 전체를 덮지 않으므로 Scaffold의 플로팅 버튼 영역 등에 배치할 수 있습니다.
  *
  * @param expanded 메뉴를 펼칠지 여부입니다.
@@ -51,21 +56,60 @@ fun IenFabMenu(
     horizontalAlignment: Alignment.Horizontal = Alignment.End,
     content: @Composable IenFabMenuScope.() -> Unit,
 ) {
-    Column(
+    val buttonMeasurement = remember { FabMenuButtonMeasurement() }
+    Layout(
         modifier = modifier,
-        horizontalAlignment = horizontalAlignment,
-        verticalArrangement = Arrangement.Bottom,
-    ) {
-        FloatingActionButtonMenu(
-            expanded = expanded,
-            button = button,
-            horizontalAlignment = horizontalAlignment,
-        ) {
-            val scope = remember(this) { IenFabMenuScope(this) }
-            scope.content()
+        content = {
+            FloatingActionButtonMenu(
+                expanded = expanded,
+                button = {
+                    Box(
+                        modifier = Modifier.layout { measurable, constraints ->
+                            val placeable = measurable.measure(constraints)
+                            buttonMeasurement.size = IntSize(placeable.width, placeable.height)
+                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                        },
+                    ) {
+                        button()
+                    }
+                },
+                horizontalAlignment = horizontalAlignment,
+            ) {
+                val scope = remember(this) { IenFabMenuScope(this) }
+                scope.content()
+            }
+        },
+    ) { measurables, constraints ->
+        val horizontalPadding = MaterialFabMenuHorizontalPadding.roundToPx()
+        val bottomPadding = MaterialFabMenuBottomPadding.roundToPx()
+        val menu = measurables.single().measure(
+            constraints
+                .offset(horizontal = horizontalPadding * 2, vertical = bottomPadding)
+                .copy(minWidth = 0, minHeight = 0),
+        )
+        val buttonSize = buttonMeasurement.size
+        val menuContentWidth = (menu.width - horizontalPadding * 2).coerceAtLeast(0)
+        val contentWidth = if (expanded) menuContentWidth else buttonSize.width
+        val contentHeight = if (expanded) menu.height - bottomPadding else buttonSize.height
+        val width = contentWidth.coerceIn(constraints.minWidth, constraints.maxWidth)
+        val height = contentHeight.coerceAtLeast(0).coerceIn(constraints.minHeight, constraints.maxHeight)
+        val nativeButtonX = horizontalPadding +
+            horizontalAlignment.align(buttonSize.width, menuContentWidth, layoutDirection)
+        val nativeButtonY = menu.height - buttonSize.height - bottomPadding
+        val buttonX = horizontalAlignment.align(buttonSize.width, width, layoutDirection)
+        val buttonY = height - buttonSize.height
+        layout(width, height) {
+            menu.place(buttonX - nativeButtonX, buttonY - nativeButtonY)
         }
     }
 }
+
+private class FabMenuButtonMeasurement {
+    var size: IntSize = IntSize.Zero
+}
+
+private val MaterialFabMenuHorizontalPadding = 16.dp
+private val MaterialFabMenuBottomPadding = 16.dp
 
 /**
  * 펼침 상태에 따라 열기 아이콘과 닫기 아이콘을 전환하는 Ien FAB입니다.
