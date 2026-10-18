@@ -20,10 +20,12 @@ import zone.ien.utils.ui.interactive.IenSegmentedControlSize
 
 /**
  * Material 분기에서 [IenSegmentedControl]을 사용하는 적응형 세그먼티드 컨트롤 컴포저블.
+ *
+ * @param isValueControlled 외부 값 제어 여부. null 값 자체를 제어하려면 true로 지정합니다.
  */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
-fun <T : Any> AdaptiveSegmentedControl(
+fun <T> AdaptiveSegmentedControl(
     items: List<IenSegmentedControlItem<T>>,
     modifier: Modifier = Modifier,
     value: T? = null,
@@ -32,11 +34,12 @@ fun <T : Any> AdaptiveSegmentedControl(
     size: IenSegmentedControlSize = IenSegmentedControlSize.Small,
     alignment: IenSegmentedControlAlignment = IenSegmentedControlAlignment.Fixed,
     enabled: Boolean = true,
+    isValueControlled: Boolean = value != null,
 ) {
     var localValue by remember(items, defaultValue) {
         mutableStateOf<T?>(defaultValue ?: items.firstOrNull { it.enabled }?.value ?: items.firstOrNull()?.value)
     }
-    val selectedValue = value ?: localValue
+    val selectedValue = if (isValueControlled) value else localValue
 
     AdaptiveWidget(
         material = {
@@ -49,6 +52,7 @@ fun <T : Any> AdaptiveSegmentedControl(
                 size = size,
                 alignment = alignment,
                 enabled = enabled,
+                isValueControlled = isValueControlled,
             )
         },
         cupertino = {
@@ -61,7 +65,7 @@ fun <T : Any> AdaptiveSegmentedControl(
                     CupertinoSegmentedControlTab(
                         onClick = {
                             if (itemEnabled && item.value != selectedValue) {
-                                if (value == null) {
+                                if (!isValueControlled) {
                                     localValue = item.value
                                 }
                                 onChange(item.value)
