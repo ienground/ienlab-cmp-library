@@ -155,6 +155,11 @@ import zone.ien.utils.ui.interactive.IenElevatedFilterChip
 import zone.ien.utils.ui.interactive.IenElevatedSuggestionChip
 import zone.ien.utils.ui.interactive.IenExtendedFab
 import zone.ien.utils.ui.interactive.IenFab
+import zone.ien.utils.ui.interactive.IenActionBar
+import zone.ien.utils.ui.interactive.IenActionBarSide
+import zone.ien.utils.ui.interactive.IenFabMenu
+import zone.ien.utils.ui.interactive.IenFabMenuButton
+import zone.ien.utils.ui.interactive.IenFabMenuItem
 import zone.ien.utils.ui.interactive.IenFabSize
 import zone.ien.utils.ui.interactive.IenFilterChip
 import zone.ien.utils.ui.interactive.IenFullSecureKeyboard
@@ -194,6 +199,7 @@ import zone.ien.utils.ui.interactive.IenStepperRightButton
 import zone.ien.utils.ui.interactive.IenStepperTexts
 import zone.ien.utils.ui.interactive.IenStepperTextsType
 import zone.ien.utils.ui.interactive.IenSuggestionChip
+import zone.ien.utils.ui.interactive.IenSplitButton
 import zone.ien.utils.ui.interactive.IenSwitch
 import zone.ien.utils.ui.interactive.IenTab
 import zone.ien.utils.ui.interactive.IenTabItem
@@ -353,9 +359,12 @@ private val DesignSystemComponents = listOf(
     DesignSystemComponent("bottom-sheet", "BottomSheet", "피드백", "선택 항목과 펼침 동작이 포함된 하단 시트입니다."),
     DesignSystemComponent("bubble", "Bubble", "콘텐츠", "메시지 방향과 꼬리 유무에 따른 말풍선 변형입니다."),
     DesignSystemComponent("button", "Button", "액션·선택", "버튼의 색상, 크기, 너비, 토글 상태를 확인합니다."),
+    DesignSystemComponent("split-button", "Split Button", "액션·선택", "주 동작과 메뉴를 여는 보조 동작을 분리한 버튼입니다."),
     DesignSystemComponent("card", "Card", "콘텐츠", "카드 표면과 의미에 따른 색상 변형을 표시합니다."),
     DesignSystemComponent("chip", "Chip", "액션·선택", "선택·입력·제안 목적의 칩을 비교합니다."),
     DesignSystemComponent("fab", "FAB", "액션·선택", "주요 동작을 강조하는 플로팅 액션 버튼입니다."),
+    DesignSystemComponent("action-bar", "Action Bar", "액션·선택", "선택 항목의 동작을 위·아래 가장자리에서 슬라이드하여 표시합니다."),
+    DesignSystemComponent("fab-menu", "FAB Menu", "액션·선택", "FAB에서 관련 동작을 순차적으로 펼치는 메뉴입니다."),
     DesignSystemComponent("checkbox", "Checkbox", "액션·선택", "원형·선형 체크박스의 상태를 비교합니다."),
     DesignSystemComponent("radio-button", "RadioButton", "액션·선택", "라디오 버튼과 그룹의 단일 선택·비활성 상태를 확인합니다."),
     DesignSystemComponent("highlight", "Highlight", "콘텐츠", "문장 안의 강조 구간을 표현합니다."),
@@ -531,6 +540,14 @@ private val ComponentPlaygroundControls = mapOf(
         choiceControl("background", "배경", listOf("Grey", "Brand")),
         toggleControl("withTail", "꼬리 표시"),
     ),
+    "split-button" to listOf(
+        choiceControl("variant", "표시 방식", listOf("Fill", "Weak", "Line", "Ghost")),
+        choiceControl("size", "크기", listOf("Small", "Medium", "Large"), "Medium"),
+        choiceControl("display", "배치", listOf("Inline", "Block", "Full"), "Inline"),
+        choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
+        disabledControl(),
+        toggleControl("loading", "로딩"),
+    ),
     "button" to listOf(
         choiceControl("variant", "표시 방식", listOf("Fill", "Weak", "Line", "Ghost")),
         choiceControl("size", "크기", listOf("Small", "Medium", "Large")),
@@ -569,6 +586,11 @@ private val ComponentPlaygroundControls = mapOf(
         disabledControl(),
         toggleControl("loading", "로딩 상태", false),
         toggleControl("extended", "확장 상태", false),
+    ),
+    "fab-menu" to listOf(
+        toggleControl("expanded", "펼침 상태", false),
+        choiceControl("alignment", "정렬", listOf("Start", "Center", "End"), "End"),
+        disabledControl(),
     ),
     "checkbox" to listOf(
         choiceControl("variant", "형태", listOf("Circle", "Line")),
@@ -750,6 +772,14 @@ private val ComponentPlaygroundControls = mapOf(
 )
 
 private val AdditionalComponentPlaygroundControls = mapOf(
+    "action-bar" to listOf(
+        toggleControl("open", "표시", true),
+        choiceControl("side", "표시 방향", listOf("Top", "Bottom"), "Bottom"),
+        choiceControl("align", "가로 정렬", listOf("Start", "Center", "End"), "Center"),
+        numberControl("sideOffset", "가장자리 간격", 16, 0, 64),
+        numberControl("alignOffset", "가로 위치 보정", 0, -64, 64),
+        toggleControl("showSelection", "선택 정보 표시", true),
+    ),
     "badge" to listOf(textControl("text", "레이블", "미리보기")),
     "board-row" to listOf(
         textControl("title", "제목", "배송 정보 자세히 보기"),
@@ -787,6 +817,9 @@ private val AdditionalComponentPlaygroundControls = mapOf(
     "fab" to listOf(
         choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
         textControl("text", "버튼 레이블", "작성하기"),
+    ),
+    "fab-menu" to listOf(
+        choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
     ),
     "icon-button" to listOf(choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand")),
     "checkbox" to listOf(
@@ -1592,10 +1625,13 @@ internal fun DesignSystemComponentPreview(
         "bottom-info" -> BottomInfoSection(controlValues)
         "bottom-sheet" -> BottomSheetSection(controlValues)
         "bubble" -> BubbleSection(controlValues)
+        "split-button" -> SplitButtonSection(controlValues)
         "button" -> ButtonSection(controlValues)
         "card" -> CardSection(controlValues)
         "chip" -> ChipSection(controlValues)
         "fab" -> FabSection(controlValues)
+        "action-bar" -> ActionBarSection(controlValues)
+        "fab-menu" -> FabMenuSection(controlValues)
         "checkbox" -> CheckboxSection(controlValues)
         "radio-button" -> RadioButtonSection(controlValues)
         "highlight" -> HighlightSection(controlValues)
@@ -2218,6 +2254,68 @@ fun BubbleSection(controls: Map<String, String> = emptyMap()) {
 
 @Preview
 @Composable
+fun SplitButtonSection(controls: Map<String, String> = emptyMap()) {
+    val variant = when (controls.enumValue("variant", "Fill")) {
+        "Weak" -> IenButtonVariant.Weak
+        "Line" -> IenButtonVariant.Line
+        "Ghost" -> IenButtonVariant.Ghost
+        else -> IenButtonVariant.Fill
+    }
+    val size = IenButtonSize.entries.firstOrNull { it.name == controls.enumValue("size", "Medium") }
+        ?: IenButtonSize.Medium
+    val display = IenButtonDisplay.entries.firstOrNull { it.name == controls.enumValue("display", "Inline") }
+        ?: IenButtonDisplay.Inline
+    IenTheme {
+        var expanded by remember { mutableStateOf(false) }
+        var action by remember { mutableStateOf("보내기") }
+        val enabled = !controls.disabledValue() && !controls.booleanValue("loading", false)
+        LaunchedEffect(enabled) {
+            if (!enabled) expanded = false
+        }
+        ComponentSection(title = "Split Button") {
+            Box {
+                IenSplitButton(
+                    onClick = { action = "전송 완료" },
+                    onTrailingClick = { expanded = !expanded },
+                    trailingContentDescription = "전송 옵션",
+                    expanded = expanded,
+                    size = size,
+                    variant = variant,
+                    tone = controls.toneValue("tone", IenSemanticTone.Brand),
+                    state = IenButtonState(
+                        enabled = !controls.disabledValue(),
+                        loading = controls.booleanValue("loading", false),
+                    ),
+                    display = display,
+                ) {
+                    Text(action)
+                }
+                IenMenu.PopupDropdown(
+                    expanded = expanded && enabled,
+                    onDismissRequest = { expanded = false },
+                ) {
+                    IenMenu.DropdownItem(
+                        text = "예약 전송",
+                        onClick = {
+                            action = "전송 예약됨"
+                            expanded = false
+                        },
+                    )
+                    IenMenu.DropdownItem(
+                        text = "초안 저장",
+                        onClick = {
+                            action = "초안 저장됨"
+                            expanded = false
+                        },
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
 fun ButtonSection(controls: Map<String, String> = emptyMap()) {
     val buttonVariant = when (controls.enumValue("variant", "Fill")) {
         "Weak" -> IenButtonVariant.Weak
@@ -2615,6 +2713,52 @@ fun FabSection(controls: Map<String, String> = emptyMap()) {
                     ) {
                         Text("비활성")
                     }
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun FabMenuSection(controls: Map<String, String> = emptyMap()) {
+    var expanded by remember(controls["expanded"]) {
+        mutableStateOf(controls.booleanValue("expanded", false))
+    }
+    var selectedAction by remember { mutableStateOf("동작을 선택해 주세요") }
+    val tone = controls.toneValue("tone", IenSemanticTone.Brand)
+    val alignment = when (controls.enumValue("alignment", "End")) {
+        "Start" -> Alignment.Start
+        "Center" -> Alignment.CenterHorizontally
+        else -> Alignment.End
+    }
+    IenTheme {
+        ComponentSection(title = "FAB Menu") {
+            Text(selectedAction, style = IenTheme.typography.body2)
+            IenFabMenu(
+                expanded = expanded,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = alignment,
+                button = {
+                    IenFabMenuButton(
+                        expanded = expanded,
+                        onExpandedChange = { expanded = it },
+                        contentDescription = if (expanded) "작성 메뉴 닫기" else "작성 메뉴 열기",
+                        tone = tone,
+                        state = IenButtonState(enabled = !controls.disabledValue()),
+                    )
+                },
+            ) {
+                listOf("새 문서", "새 메모", "새 일정").forEach { action ->
+                    IenFabMenuItem(
+                        onClick = {
+                            selectedAction = "$action 선택됨"
+                            expanded = false
+                        },
+                        text = { Text(action) },
+                        icon = { IenIcon(IconData.Vector(SystemIcons.Add), contentDescription = null) },
+                        tone = tone,
+                    )
                 }
             }
         }
@@ -6851,6 +6995,70 @@ fun IenSectionSection(controls: Map<String, String> = emptyMap()) {
                     caption = { Text("입력한 내용을 비웁니다") },
                     title = { Text("입력 내용 초기화") },
                 )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ActionBarSection(controls: Map<String, String> = emptyMap()) {
+    var open by remember(controls["open"]) { mutableStateOf(controls.booleanValue("open", true)) }
+    var selectedCount by remember { mutableStateOf(3) }
+    var lastAction by remember { mutableStateOf("항목을 선택하고 동작을 실행해 보세요") }
+    val side = if (controls.enumValue("side", "Bottom") == "Top") IenActionBarSide.Top else IenActionBarSide.Bottom
+    val align = when (controls.enumValue("align", "Center")) {
+        "Start" -> Alignment.Start
+        "End" -> Alignment.End
+        else -> Alignment.CenterHorizontally
+    }
+    IenTheme {
+        ComponentSection(title = "Action Bar") {
+            Box(Modifier.fillMaxWidth().height(320.dp)) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                ) {
+                    Text(lastAction, style = IenTheme.typography.body2)
+                    IenButton(onClick = {
+                        selectedCount = 3
+                        open = !open
+                    }, size = IenButtonSize.Small) {
+                        Text(if (open) "액션 바 닫기" else "3개 선택하고 열기")
+                    }
+                }
+                IenActionBar(
+                    open = open,
+                    onOpenChange = { open = it },
+                    side = side,
+                    align = align,
+                    sideOffset = controls.intValue("sideOffset", 16).dp,
+                    alignOffset = controls.intValue("alignOffset", 0).dp,
+                    windowInsets = WindowInsets(0),
+                    selection = if (controls.booleanValue("showSelection", true)) {
+                        { Text("${selectedCount}개 선택") }
+                    } else null,
+                ) {
+                    IenButton(
+                        onClick = {
+                            lastAction = "${selectedCount}개 보관됨"
+                            open = false
+                        },
+                        size = IenButtonSize.Small,
+                        variant = IenButtonVariant.Weak,
+                    ) { Text("보관") }
+                    IenButton(
+                        onClick = {
+                            lastAction = "${selectedCount}개 삭제됨"
+                            selectedCount = 0
+                            open = false
+                        },
+                        size = IenButtonSize.Small,
+                        variant = IenButtonVariant.Weak,
+                        tone = IenSemanticTone.Danger,
+                    ) { Text("삭제") }
+                }
             }
         }
     }

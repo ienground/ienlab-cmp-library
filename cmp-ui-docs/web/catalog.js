@@ -36,6 +36,7 @@ function component(
 }
 
 export const catalog = [
+  component("action-bar", "Action Bar", "액션·선택", "선택 항목의 동작을 위·아래 가장자리와 가로 정렬에 따라 슬라이드하여 표시합니다.", ["IenActionBar", "IenActionBarSide", "IenActionBarDefaults"], "interactive/IenActionBar.kt"),
   component("wheel-picker", "WheelPicker", "입력", "날짜·정확한 시각·시간/분/초 기간을 휠로 선택합니다.", ["IenDateWheelPicker", "IenTimeWheelPicker", "IenDurationWheelPicker"], "interactive/IenDateTimeWheelPicker.kt"),
   component("animated-layout", "AnimatedLayout", "레이아웃", "목록 항목이 추가되거나 제거될 때 크기와 표시 상태를 전환합니다.", ["IenAnimatedColumn", "IenAnimatedRow"], "layout/IenAnimatedLayout.kt"),
   component("animated-content", "AnimatedContent", "레이아웃", "상태가 바뀔 때 콘텐츠 전환 애니메이션을 확인합니다.", ["AnimatedContent"], "", "Compose UI"),
@@ -53,6 +54,7 @@ export const catalog = [
   ),
   component("bubble", "Bubble", "콘텐츠", "메시지 방향과 꼬리 유무에 따른 말풍선 변형입니다.", ["IenBubble"], "content/IenContent.kt"),
   component("button", "Button", "액션·선택", "버튼의 색상, 크기, 너비, 토글 상태를 확인합니다.", ["IenButton", "IenToggleButton"], "interactive/IenButton.kt"),
+  component("split-button", "Split Button", "액션·선택", "주 동작과 메뉴를 여는 보조 동작을 분리한 버튼입니다.", ["IenSplitButton"], "interactive/IenSplitButton.kt"),
   component("card", "Card", "콘텐츠", "카드 표면과 의미에 따른 색상 변형을 표시합니다.", ["IenCard"], "content/IenCard.kt"),
   component(
     "chip",
@@ -63,6 +65,7 @@ export const catalog = [
     "interactive/IenChip.kt",
   ),
   component("fab", "FAB", "액션·선택", "주요 동작을 강조하는 플로팅 액션 버튼입니다.", ["IenFab", "IenExtendedFab"], "interactive/IenButton.kt"),
+  component("fab-menu", "FAB Menu", "액션·선택", "FAB에서 관련 동작을 순차적으로 펼치는 메뉴입니다.", ["IenFabMenu", "IenFabMenuButton", "IenFabMenuItem", "IenFabMenuScope"], "interactive/IenFabMenu.kt"),
   component(
     "checkbox",
     "Checkbox",
