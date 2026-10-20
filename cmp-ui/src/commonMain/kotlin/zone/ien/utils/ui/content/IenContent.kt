@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
@@ -98,13 +99,14 @@ private fun BubbleTail(color: Color) {
 }
 
 /**
- * 지정된 텍스트 내에서 특정 하이라이트 키워드들을 강조 표시하는 텍스트 컴포넌트입니다.
+ * 지정된 텍스트 내에서 특정 하이라이트 키워드들을 색상으로 강조 표시하는 텍스트 컴포넌트입니다.
  *
  * @param text 전체 텍스트
  * @param highlights 강조 표시할 키워드 목록
  * @param modifier 레이아웃 및 스타일 수정을 위한 [Modifier]
  * @param tone 강조 표시 색상에 사용할 의미적 톤 설정 ([IenSemanticTone])
  * @param ignoreCase 키워드 매칭 시 대소문자를 구분하지 않을지 여부 (기본값: true)
+ * @param bold 강조 구간을 볼드체로 표시할지 여부 (기본값: false)
  */
 @Composable
 fun IenHighlightText(
@@ -113,6 +115,7 @@ fun IenHighlightText(
     modifier: Modifier = Modifier,
     tone: IenSemanticTone = IenSemanticTone.Brand,
     ignoreCase: Boolean = true,
+    bold: Boolean = false,
 ) {
     val highlightColor = toneColor(tone)
     val annotated = buildAnnotatedString {
@@ -135,7 +138,12 @@ fun IenHighlightText(
             val start = match.first
             val end = start + match.second
             if (cursor < start) append(text.substring(cursor, start))
-            withStyle(SpanStyle(color = highlightColor)) {
+            withStyle(
+                SpanStyle(
+                    color = highlightColor,
+                    fontWeight = if (bold) FontWeight.Bold else null,
+                ),
+            ) {
                 append(text.substring(start, end))
             }
             cursor = end

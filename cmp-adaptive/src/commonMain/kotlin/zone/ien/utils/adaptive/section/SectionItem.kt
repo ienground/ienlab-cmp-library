@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -59,6 +58,7 @@ import zone.ien.utils.adaptive.theme.ienCupertinoSwitchColors
 import zone.ien.utils.adaptive.view.textfield.AdaptiveTextFieldClearButton
 import zone.ien.utils.hig.section.SectionSecureTextField
 import zone.ien.utils.hig.section.SectionTextField
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.section.button
 import zone.ien.utils.ui.section.checkbox
 import zone.ien.utils.ui.section.IenSectionColors
@@ -1041,7 +1041,7 @@ fun SectionScope.AdaptiveSectionSlider(
                     ) {
                         it.startIcon?.let {
                             IenIcon(
-                                imageVector = it,
+                                icon = it,
                                 contentDescription = null,
                             )
                         }
@@ -1056,7 +1056,7 @@ fun SectionScope.AdaptiveSectionSlider(
                         )
                         it.endIcon?.let {
                             IenIcon(
-                                imageVector = it,
+                                icon = it,
                                 contentDescription = null,
                             )
                         }
@@ -1101,11 +1101,11 @@ private fun SectionScope.AdaptiveSectionProgressBar(
  * @param endIcon 끝 아이콘
  */
 class HigSectionSliderAdaptation(
-    startIcon: ImageVector?,
-    endIcon: ImageVector?,
+    startIcon: IconData?,
+    endIcon: IconData?,
 ) {
-    var startIcon: ImageVector? by mutableStateOf(startIcon)
-    var endIcon: ImageVector? by mutableStateOf(endIcon)
+    var startIcon: IconData? by mutableStateOf(startIcon)
+    var endIcon: IconData? by mutableStateOf(endIcon)
 }
 
 /**
@@ -1116,10 +1116,10 @@ class HigSectionSliderAdaptation(
  */
 class IenSectionSliderAdaptation(
     title: String? = null,
-    icon: ImageVector?
+    icon: IconData?
 ) {
     var title: String? by mutableStateOf(title)
-    var icon: ImageVector? by mutableStateOf(icon)
+    var icon: IconData? by mutableStateOf(icon)
 }
 
 /**
@@ -1135,8 +1135,8 @@ private class SectionSliderAdaptation: Adaptation<HigSectionSliderAdaptation, Ie
      */
     @Composable
     override fun rememberCupertinoAdaptation(): HigSectionSliderAdaptation {
-        val startIcon: ImageVector? = null
-        val endIcon: ImageVector? = null
+        val startIcon: IconData? = null
+        val endIcon: IconData? = null
 
         return remember(startIcon, endIcon) {
             HigSectionSliderAdaptation(
@@ -1153,7 +1153,7 @@ private class SectionSliderAdaptation: Adaptation<HigSectionSliderAdaptation, Ie
     @Composable
     override fun rememberMaterialAdaptation(): IenSectionSliderAdaptation {
         val title: String? = null
-        val icon: ImageVector? = null
+        val icon: IconData? = null
 
         return remember(title, icon) {
             IenSectionSliderAdaptation(

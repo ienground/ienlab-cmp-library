@@ -64,6 +64,7 @@ import com.sunnychung.lib.multiplatform.kdatetime.KFixedTimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.tabler.line.Add
 import zone.ien.utils.example.ui.keyboardDismissAction
@@ -154,6 +155,11 @@ import zone.ien.utils.ui.interactive.IenElevatedFilterChip
 import zone.ien.utils.ui.interactive.IenElevatedSuggestionChip
 import zone.ien.utils.ui.interactive.IenExtendedFab
 import zone.ien.utils.ui.interactive.IenFab
+import zone.ien.utils.ui.interactive.IenActionBar
+import zone.ien.utils.ui.interactive.IenActionBarSide
+import zone.ien.utils.ui.interactive.IenFabMenu
+import zone.ien.utils.ui.interactive.IenFabMenuButton
+import zone.ien.utils.ui.interactive.IenFabMenuItem
 import zone.ien.utils.ui.interactive.IenFabSize
 import zone.ien.utils.ui.interactive.IenFilterChip
 import zone.ien.utils.ui.interactive.IenFullSecureKeyboard
@@ -193,6 +199,7 @@ import zone.ien.utils.ui.interactive.IenStepperRightButton
 import zone.ien.utils.ui.interactive.IenStepperTexts
 import zone.ien.utils.ui.interactive.IenStepperTextsType
 import zone.ien.utils.ui.interactive.IenSuggestionChip
+import zone.ien.utils.ui.interactive.IenSplitButton
 import zone.ien.utils.ui.interactive.IenSwitch
 import zone.ien.utils.ui.interactive.IenTab
 import zone.ien.utils.ui.interactive.IenTabItem
@@ -352,9 +359,12 @@ private val DesignSystemComponents = listOf(
     DesignSystemComponent("bottom-sheet", "BottomSheet", "피드백", "선택 항목과 펼침 동작이 포함된 하단 시트입니다."),
     DesignSystemComponent("bubble", "Bubble", "콘텐츠", "메시지 방향과 꼬리 유무에 따른 말풍선 변형입니다."),
     DesignSystemComponent("button", "Button", "액션·선택", "버튼의 색상, 크기, 너비, 토글 상태를 확인합니다."),
+    DesignSystemComponent("split-button", "Split Button", "액션·선택", "주 동작과 메뉴를 여는 보조 동작을 분리한 버튼입니다."),
     DesignSystemComponent("card", "Card", "콘텐츠", "카드 표면과 의미에 따른 색상 변형을 표시합니다."),
     DesignSystemComponent("chip", "Chip", "액션·선택", "선택·입력·제안 목적의 칩을 비교합니다."),
     DesignSystemComponent("fab", "FAB", "액션·선택", "주요 동작을 강조하는 플로팅 액션 버튼입니다."),
+    DesignSystemComponent("action-bar", "Action Bar", "액션·선택", "선택 항목의 동작을 위·아래 가장자리에서 슬라이드하여 표시합니다."),
+    DesignSystemComponent("fab-menu", "FAB Menu", "액션·선택", "FAB에서 관련 동작을 순차적으로 펼치는 메뉴입니다."),
     DesignSystemComponent("checkbox", "Checkbox", "액션·선택", "원형·선형 체크박스의 상태를 비교합니다."),
     DesignSystemComponent("radio-button", "RadioButton", "액션·선택", "라디오 버튼과 그룹의 단일 선택·비활성 상태를 확인합니다."),
     DesignSystemComponent("highlight", "Highlight", "콘텐츠", "문장 안의 강조 구간을 표현합니다."),
@@ -530,6 +540,14 @@ private val ComponentPlaygroundControls = mapOf(
         choiceControl("background", "배경", listOf("Grey", "Brand")),
         toggleControl("withTail", "꼬리 표시"),
     ),
+    "split-button" to listOf(
+        choiceControl("variant", "표시 방식", listOf("Fill", "Weak", "Line", "Ghost")),
+        choiceControl("size", "크기", listOf("Small", "Medium", "Large"), "Medium"),
+        choiceControl("display", "배치", listOf("Inline", "Block", "Full"), "Inline"),
+        choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
+        disabledControl(),
+        toggleControl("loading", "로딩"),
+    ),
     "button" to listOf(
         choiceControl("variant", "표시 방식", listOf("Fill", "Weak", "Line", "Ghost")),
         choiceControl("size", "크기", listOf("Small", "Medium", "Large")),
@@ -568,6 +586,11 @@ private val ComponentPlaygroundControls = mapOf(
         disabledControl(),
         toggleControl("loading", "로딩 상태", false),
         toggleControl("extended", "확장 상태", false),
+    ),
+    "fab-menu" to listOf(
+        toggleControl("expanded", "펼침 상태", false),
+        choiceControl("alignment", "정렬", listOf("Start", "Center", "End"), "End"),
+        disabledControl(),
     ),
     "checkbox" to listOf(
         choiceControl("variant", "형태", listOf("Circle", "Line")),
@@ -749,6 +772,14 @@ private val ComponentPlaygroundControls = mapOf(
 )
 
 private val AdditionalComponentPlaygroundControls = mapOf(
+    "action-bar" to listOf(
+        toggleControl("open", "표시", true),
+        choiceControl("side", "표시 방향", listOf("Top", "Bottom"), "Bottom"),
+        choiceControl("align", "가로 정렬", listOf("Start", "Center", "End"), "Center"),
+        numberControl("sideOffset", "가장자리 간격", 16, 0, 64),
+        numberControl("alignOffset", "가로 위치 보정", 0, -64, 64),
+        toggleControl("showSelection", "선택 정보 표시", true),
+    ),
     "badge" to listOf(textControl("text", "레이블", "미리보기")),
     "board-row" to listOf(
         textControl("title", "제목", "배송 정보 자세히 보기"),
@@ -786,6 +817,9 @@ private val AdditionalComponentPlaygroundControls = mapOf(
     "fab" to listOf(
         choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
         textControl("text", "버튼 레이블", "작성하기"),
+    ),
+    "fab-menu" to listOf(
+        choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
     ),
     "icon-button" to listOf(choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand")),
     "checkbox" to listOf(
@@ -1591,10 +1625,13 @@ internal fun DesignSystemComponentPreview(
         "bottom-info" -> BottomInfoSection(controlValues)
         "bottom-sheet" -> BottomSheetSection(controlValues)
         "bubble" -> BubbleSection(controlValues)
+        "split-button" -> SplitButtonSection(controlValues)
         "button" -> ButtonSection(controlValues)
         "card" -> CardSection(controlValues)
         "chip" -> ChipSection(controlValues)
         "fab" -> FabSection(controlValues)
+        "action-bar" -> ActionBarSection(controlValues)
+        "fab-menu" -> FabMenuSection(controlValues)
         "checkbox" -> CheckboxSection(controlValues)
         "radio-button" -> RadioButtonSection(controlValues)
         "highlight" -> HighlightSection(controlValues)
@@ -2217,6 +2254,68 @@ fun BubbleSection(controls: Map<String, String> = emptyMap()) {
 
 @Preview
 @Composable
+fun SplitButtonSection(controls: Map<String, String> = emptyMap()) {
+    val variant = when (controls.enumValue("variant", "Fill")) {
+        "Weak" -> IenButtonVariant.Weak
+        "Line" -> IenButtonVariant.Line
+        "Ghost" -> IenButtonVariant.Ghost
+        else -> IenButtonVariant.Fill
+    }
+    val size = IenButtonSize.entries.firstOrNull { it.name == controls.enumValue("size", "Medium") }
+        ?: IenButtonSize.Medium
+    val display = IenButtonDisplay.entries.firstOrNull { it.name == controls.enumValue("display", "Inline") }
+        ?: IenButtonDisplay.Inline
+    IenTheme {
+        var expanded by remember { mutableStateOf(false) }
+        var action by remember { mutableStateOf("보내기") }
+        val enabled = !controls.disabledValue() && !controls.booleanValue("loading", false)
+        LaunchedEffect(enabled) {
+            if (!enabled) expanded = false
+        }
+        ComponentSection(title = "Split Button") {
+            Box {
+                IenSplitButton(
+                    onClick = { action = "전송 완료" },
+                    onTrailingClick = { expanded = !expanded },
+                    trailingContentDescription = "전송 옵션",
+                    expanded = expanded,
+                    size = size,
+                    variant = variant,
+                    tone = controls.toneValue("tone", IenSemanticTone.Brand),
+                    state = IenButtonState(
+                        enabled = !controls.disabledValue(),
+                        loading = controls.booleanValue("loading", false),
+                    ),
+                    display = display,
+                ) {
+                    Text(action)
+                }
+                IenMenu.PopupDropdown(
+                    expanded = expanded && enabled,
+                    onDismissRequest = { expanded = false },
+                ) {
+                    IenMenu.DropdownItem(
+                        text = "예약 전송",
+                        onClick = {
+                            action = "전송 예약됨"
+                            expanded = false
+                        },
+                    )
+                    IenMenu.DropdownItem(
+                        text = "초안 저장",
+                        onClick = {
+                            action = "초안 저장됨"
+                            expanded = false
+                        },
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
 fun ButtonSection(controls: Map<String, String> = emptyMap()) {
     val buttonVariant = when (controls.enumValue("variant", "Fill")) {
         "Weak" -> IenButtonVariant.Weak
@@ -2358,7 +2457,7 @@ fun ButtonSection(controls: Map<String, String> = emptyMap()) {
                             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            IenIcon(imageVector = SystemIcons.Check, contentDescription = null)
+                            IenIcon(icon = IconData.Vector(SystemIcons.Check), contentDescription = null)
                             Text(if (shapeToggleChecked) "Capsule" else "Rounded")
                         }
                     }
@@ -2396,7 +2495,7 @@ fun ButtonSection(controls: Map<String, String> = emptyMap()) {
                         ),
                     ) {
                         IenIcon(
-                            imageVector = if (iconToggleChecked) SystemIcons.Check else SystemIcons.Close,
+                            icon = IconData.Vector(if (iconToggleChecked) SystemIcons.Check else SystemIcons.Close),
                             contentDescription = null,
                         )
                     }
@@ -2481,7 +2580,7 @@ fun ChipSection(controls: Map<String, String> = emptyMap()) {
                         tone = if (selected) IenSemanticTone.Success else IenSemanticTone.Brand,
                     ),
                     leadingIcon = if (selected) {
-                        { IenIcon(SystemIcons.Check, contentDescription = null) }
+                        { IenIcon(IconData.Vector(SystemIcons.Check), contentDescription = null) }
                     } else {
                         null
                     },
@@ -2507,7 +2606,7 @@ fun ChipSection(controls: Map<String, String> = emptyMap()) {
                         }
                     },
                     trailingIcon = {
-                        IenIcon(SystemIcons.Close, contentDescription = "입력 제거")
+                        IenIcon(IconData.Vector(SystemIcons.Close), contentDescription = "입력 제거")
                     },
                 ) { Text("Input") }
                 "Suggestion" -> IenSuggestionChip(
@@ -2517,7 +2616,7 @@ fun ChipSection(controls: Map<String, String> = emptyMap()) {
                 "ElevatedSuggestion" -> IenElevatedSuggestionChip(
                     onClick = {},
                     state = IenChipState(enabled = !disabled),
-                    icon = { IenIcon(SystemIcons.Check, contentDescription = null) },
+                    icon = { IenIcon(IconData.Vector(SystemIcons.Check), contentDescription = null) },
                 ) { Text("Elevated Suggestion") }
                 "GradientSuggestion" -> IenSuggestionChip(
                     onClick = {},
@@ -2534,7 +2633,7 @@ fun ChipSection(controls: Map<String, String> = emptyMap()) {
                     onClick = {},
                     state = IenChipState(enabled = !disabled),
                     leadingIcon = {
-                        IenIcon(SystemIcons.Check, contentDescription = null)
+                        IenIcon(IconData.Vector(SystemIcons.Check), contentDescription = null)
                     },
                 ) { Text(controls.textValue("text", "Assist")) }
             }
@@ -2564,7 +2663,7 @@ fun FabSection(controls: Map<String, String> = emptyMap()) {
             IenFab(
                 onClick = {},
                 icon = {
-                    IenIcon(imageVector = SystemIcons.Check, contentDescription = null)
+                    IenIcon(icon = IconData.Vector(SystemIcons.Check), contentDescription = null)
                 },
                 text = { Text(controls.textValue("text", "작성하기")) },
                 isExtended = extended,
@@ -2595,7 +2694,7 @@ fun FabSection(controls: Map<String, String> = emptyMap()) {
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             IenIcon(
-                                imageVector = SystemIcons.Check,
+                                icon = IconData.Vector(SystemIcons.Check),
                                 contentDescription = null
                             )
                             Text(controls.textValue("text", "작성하기"))
@@ -2614,6 +2713,52 @@ fun FabSection(controls: Map<String, String> = emptyMap()) {
                     ) {
                         Text("비활성")
                     }
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun FabMenuSection(controls: Map<String, String> = emptyMap()) {
+    var expanded by remember(controls["expanded"]) {
+        mutableStateOf(controls.booleanValue("expanded", false))
+    }
+    var selectedAction by remember { mutableStateOf("동작을 선택해 주세요") }
+    val tone = controls.toneValue("tone", IenSemanticTone.Brand)
+    val alignment = when (controls.enumValue("alignment", "End")) {
+        "Start" -> Alignment.Start
+        "Center" -> Alignment.CenterHorizontally
+        else -> Alignment.End
+    }
+    IenTheme {
+        ComponentSection(title = "FAB Menu") {
+            Text(selectedAction, style = IenTheme.typography.body2)
+            IenFabMenu(
+                expanded = expanded,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = alignment,
+                button = {
+                    IenFabMenuButton(
+                        expanded = expanded,
+                        onExpandedChange = { expanded = it },
+                        contentDescription = if (expanded) "작성 메뉴 닫기" else "작성 메뉴 열기",
+                        tone = tone,
+                        state = IenButtonState(enabled = !controls.disabledValue()),
+                    )
+                },
+            ) {
+                listOf("새 문서", "새 메모", "새 일정").forEach { action ->
+                    IenFabMenuItem(
+                        onClick = {
+                            selectedAction = "$action 선택됨"
+                            expanded = false
+                        },
+                        text = { Text(action) },
+                        icon = { IenIcon(IconData.Vector(SystemIcons.Add), contentDescription = null) },
+                        tone = tone,
+                    )
                 }
             }
         }
@@ -2704,6 +2849,7 @@ fun HighlightSection(controls: Map<String, String> = emptyMap()) {
                 highlights = listOf(controls.textValue("highlight", "Highlight"), "강조"),
                 tone = controls.toneValue("tone", IenSemanticTone.Brand),
                 ignoreCase = controls.booleanValue("ignoreCase", true),
+                bold = controls.booleanValue("bold", false),
             )
         }
     }
@@ -2735,7 +2881,7 @@ fun IconButtonSection(controls: Map<String, String> = emptyMap()) {
                     loading = controls.booleanValue("loading", false),
                 ),
             ) {
-                IenIcon(imageVector = SystemIcons.Check, contentDescription = "속성 적용 미리보기")
+                IenIcon(icon = IconData.Vector(SystemIcons.Check), contentDescription = "속성 적용 미리보기")
             }
         }
     }
@@ -2762,7 +2908,7 @@ fun ListFooterSection(controls: Map<String, String> = emptyMap()) {
                 border = IenListFooterBorder.Indented,
                 icon = {
                     IenIcon(
-                        imageVector = SystemIcons.Close,
+                        icon = IconData.Vector(SystemIcons.Close),
                         contentDescription = null,
                         tint = IenTheme.colors.brand
                     )
@@ -3003,7 +3149,7 @@ fun MenuSection(controls: Map<String, String> = emptyMap()) {
                             },
                             right = {
                                 IenMenu.DropdownIcon(
-                                    imageVector = SystemIcons.Close,
+                                    icon = IconData.Vector(SystemIcons.Close),
                                     tint = IenTheme.colors.textTertiary,
                                 )
                             },
@@ -3029,7 +3175,7 @@ fun MenuSection(controls: Map<String, String> = emptyMap()) {
                             onClick = { menuOpen = false },
                             right = {
                                 IenMenu.DropdownIcon(
-                                    imageVector = SystemIcons.Close,
+                                    icon = IconData.Vector(SystemIcons.Close),
                                     tint = IenTheme.colors.danger,
                                 )
                             },
@@ -3052,10 +3198,10 @@ fun MenuSection(controls: Map<String, String> = emptyMap()) {
                         description = "이름과 프로필 사진을 변경합니다.",
                         onClick = { lastMenuAction = "프로필 편집" },
                         leading = {
-                            IenIcon(imageVector = SystemIcons.Edit, contentDescription = null)
+                            IenIcon(icon = IconData.Vector(SystemIcons.Edit), contentDescription = null)
                         },
                         trailing = {
-                            IenIcon(imageVector = SystemIcons.ChevronRight, contentDescription = null)
+                            IenIcon(icon = IconData.Vector(SystemIcons.ChevronRight), contentDescription = null)
                         },
                     ),
                     IenMenuItem(
@@ -3172,8 +3318,13 @@ fun ParagraphSection(controls: Map<String, String> = emptyMap()) {
                     "body",
                     "Paragraph는 본문 타이포그래피와 Highlight를 함께 사용해 긴 설명을 안정적으로 표시합니다.",
                 ),
-                emphasis = controls.textValue("emphasis", "Highlight").takeIf { it.isNotBlank() },
+                emphasis = controls.textValue("emphasis", "Highlight, 본문")
+                    .split(',')
+                    .map(String::trim)
+                    .filter(String::isNotEmpty),
                 footer = controls.textValue("footer", "토큰 기반 줄 높이와 색상을 사용합니다."),
+                tone = controls.toneValue("tone", IenSemanticTone.Brand),
+                bold = controls.booleanValue("bold", false),
             )
         }
     }
@@ -3314,7 +3465,7 @@ fun ResultSection(controls: Map<String, String> = emptyMap()) {
                 } ?: IenResultTone.Success,
                 icon = {
                     IenIcon(
-                        imageVector = SystemIcons.Save,
+                        icon = IconData.Vector(SystemIcons.Save),
                         contentDescription = null,
                     )
                 },
@@ -3656,7 +3807,7 @@ fun SwipeBoxSection(controls: Map<String, String> = emptyMap()) {
                                 onClick = { swipeActionCount += 1 },
                                 tone = IenSemanticTone.Danger,
                                 onClickLabel = "삭제",
-                                icon = SystemIcons.Close,
+                                icon = IconData.Vector(SystemIcons.Close),
                                 label = "삭제",
                             )
                         }
@@ -3683,7 +3834,7 @@ fun SwipeBoxSection(controls: Map<String, String> = emptyMap()) {
                                 onClick = { swipeActionCount += 1 },
                                 tone = IenSemanticTone.Success,
                                 onClickLabel = "완료",
-                                icon = SystemIcons.Check,
+                                icon = IconData.Vector(SystemIcons.Check),
                                 label = "완료",
                             )
                         }
@@ -3711,7 +3862,7 @@ fun SwipeBoxSection(controls: Map<String, String> = emptyMap()) {
                                 onClick = { swipeActionCount += 1 },
                                 tone = IenSemanticTone.Success,
                                 onClickLabel = "완료",
-                                icon = SystemIcons.Check,
+                                icon = IconData.Vector(SystemIcons.Check),
                                 label = "완료",
                             )
                         }
@@ -3720,7 +3871,7 @@ fun SwipeBoxSection(controls: Map<String, String> = emptyMap()) {
                                 onClick = { swipeActionCount += 1 },
                                 tone = IenSemanticTone.Brand,
                                 onClickLabel = "보관",
-                                icon = SystemIcons.Save,
+                                icon = IconData.Vector(SystemIcons.Save),
                                 label = "보관",
                             )
                         }
@@ -3729,7 +3880,7 @@ fun SwipeBoxSection(controls: Map<String, String> = emptyMap()) {
                                 onClick = { swipeActionCount += 1 },
                                 tone = IenSemanticTone.Warning,
                                 onClickLabel = "더보기",
-                                icon = SystemIcons.MoreVert,
+                                icon = IconData.Vector(SystemIcons.MoreVert),
                                 label = "더보기",
                             )
                         }
@@ -3738,7 +3889,7 @@ fun SwipeBoxSection(controls: Map<String, String> = emptyMap()) {
                                 onClick = { swipeActionCount += 1 },
                                 tone = IenSemanticTone.Danger,
                                 onClickLabel = "삭제",
-                                icon = SystemIcons.Close,
+                                icon = IconData.Vector(SystemIcons.Close),
                                 label = "삭제",
                             )
                         }
@@ -3803,7 +3954,7 @@ fun StepperSection(controls: Map<String, String> = emptyMap()) {
                             ),
                         ) {
                             IenIcon(
-                                imageVector = SystemIcons.Check,
+                                icon = IconData.Vector(SystemIcons.Check),
                                 contentDescription = null
                             )
                         }
@@ -3843,7 +3994,7 @@ fun StepperSection(controls: Map<String, String> = emptyMap()) {
                     verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 ) {
                     IenStepperAssetFrame(shape = IenStepperAssetFrameShape.CircleMedium) {
-                        IenIcon(SystemIcons.Check, contentDescription = null)
+                        IenIcon(IconData.Vector(SystemIcons.Check), contentDescription = null)
                     }
                     Text("CircleMedium", style = IenTheme.typography.caption)
                 }
@@ -3852,7 +4003,7 @@ fun StepperSection(controls: Map<String, String> = emptyMap()) {
                     verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 ) {
                     IenStepperAssetFrame(shape = IenStepperAssetFrameShape.RoundedMedium) {
-                        IenIcon(SystemIcons.Check, contentDescription = null)
+                        IenIcon(IconData.Vector(SystemIcons.Check), contentDescription = null)
                     }
                     Text("RoundedMedium", style = IenTheme.typography.caption)
                 }
@@ -3861,7 +4012,7 @@ fun StepperSection(controls: Map<String, String> = emptyMap()) {
                     verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 ) {
                     IenStepperAssetFrame(shape = IenStepperAssetFrameShape.CleanW24) {
-                        IenIcon(SystemIcons.Check, contentDescription = null)
+                        IenIcon(IconData.Vector(SystemIcons.Check), contentDescription = null)
                     }
                     Text("CleanW24", style = IenTheme.typography.caption)
                 }
@@ -3870,7 +4021,7 @@ fun StepperSection(controls: Map<String, String> = emptyMap()) {
                     verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 ) {
                     IenStepperAssetFrame(shape = IenStepperAssetFrameShape.CleanW32) {
-                        IenIcon(SystemIcons.Check, contentDescription = null)
+                        IenIcon(IconData.Vector(SystemIcons.Check), contentDescription = null)
                     }
                     Text("CleanW32", style = IenTheme.typography.caption)
                 }
@@ -3905,7 +4056,7 @@ fun SwitchSection(controls: Map<String, String> = emptyMap()) {
                         enabled = !controls.disabledValue(),
                         onTrackContent = {
                             IenIcon(
-                                imageVector = SystemIcons.Check,
+                                icon = IconData.Vector(SystemIcons.Check),
                                 contentDescription = null,
                                 size = IenTheme.icon.sm,
                                 tint = IenTheme.colors.surface,
@@ -3913,7 +4064,7 @@ fun SwitchSection(controls: Map<String, String> = emptyMap()) {
                         },
                         offTrackContent = {
                             IenIcon(
-                                imageVector = SystemIcons.Close,
+                                icon = IconData.Vector(SystemIcons.Close),
                                 contentDescription = null,
                                 size = IenTheme.icon.sm,
                                 tint = IenTheme.colors.surface,
@@ -4210,7 +4361,21 @@ fun TooltipSection(controls: Map<String, String> = emptyMap()) {
     }
     IenTheme {
         var controlledTooltipOpen by remember { mutableStateOf(false) }
+        var anchorClickCount by remember { mutableIntStateOf(0) }
         ComponentSection(title = "Tooltip") {
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                IenTooltip(
+                    text = "항상 표시되는 툴팁",
+                    open = true,
+                    fitContentWidth = true,
+                    placement = IenTooltipPlacement.Left,
+                    anchor = {
+                        IenButton(onClick = { anchorClickCount++ }) {
+                            Text("클릭 $anchorClickCount")
+                        }
+                    },
+                )
+            }
             IenTooltip(
                 text = tooltipText,
                 placement = placement,
@@ -4946,7 +5111,7 @@ fun IenEmptySection() {
                     this.contentDescription = "빈 상태 아이콘"
                     content { contentModifier ->
                         IenIcon(
-                            imageVector = SystemIcons.Save,
+                            icon = IconData.Vector(SystemIcons.Save),
                             contentDescription = null,
                             modifier = contentModifier,
                         )
@@ -4983,7 +5148,7 @@ fun BottomBarSection(controls: Map<String, String> = emptyMap()) {
                         tone = IenSemanticTone.Neutral,
                     ) {
                         IenIcon(
-                            imageVector = SystemIcons.ArrowBack,
+                            icon = IconData.Vector(SystemIcons.ArrowBack),
                             contentDescription = "뒤로",
                         )
                     }
@@ -4998,7 +5163,7 @@ fun BottomBarSection(controls: Map<String, String> = emptyMap()) {
                         tone = IenSemanticTone.Neutral,
                     ) {
                         IenIcon(
-                            imageVector = SystemIcons.MoreVert,
+                            icon = IconData.Vector(SystemIcons.MoreVert),
                             contentDescription = "더 보기",
                         )
                     }
@@ -5007,7 +5172,7 @@ fun BottomBarSection(controls: Map<String, String> = emptyMap()) {
                     {
                         IenFab(onClick = {}) {
                             IenIcon(
-                                imageVector = SystemIcons.Check,
+                                icon = IconData.Vector(SystemIcons.Check),
                                 contentDescription = "확인",
                             )
                         }
@@ -5082,7 +5247,7 @@ private fun ChatBottomBarExample(
                 tone = IenSemanticTone.Neutral,
             ) {
                 IenIcon(
-                    imageVector = SystemIcons.Add,
+                    icon = IconData.Vector(SystemIcons.Add),
                     contentDescription = "첨부",
                 )
             }
@@ -5094,7 +5259,7 @@ private fun ChatBottomBarExample(
                 tone = IenSemanticTone.Neutral,
             ) {
                 IenIcon(
-                    imageVector = SystemIcons.MoreVert,
+                    icon = IconData.Vector(SystemIcons.MoreVert),
                     contentDescription = "더 보기",
                 )
             }
@@ -5147,7 +5312,7 @@ fun NavigationBarSection(controls: Map<String, String> = emptyMap()) {
                         IenNavigationBarItem(
                             index = index,
                             onClick = { selectedTabIndex = index },
-                            icon = { IenIcon(icon, contentDescription = null) },
+                            icon = { IenIcon(IconData.Vector(icon), contentDescription = null) },
                             label = { Text(label) },
                             direction = direction,
                             alwaysShowLabel = alwaysShowLabel,
@@ -5158,11 +5323,45 @@ fun NavigationBarSection(controls: Map<String, String> = emptyMap()) {
                 }
             } else {
                 val floatingTabItems = listOf(
-                    IenTabItem("홈", key = "home", icon = SystemIcons.Keyboard, selectedIcon = SystemIcons.Keyboard, badge = -1, enabled = enabled),
-                    IenTabItem("혜택", key = "benefit", icon = SystemIcons.Check, selectedIcon = SystemIcons.Check, badge = 1, enabled = enabled),
-                    IenTabItem("아이엔페이", key = "pay", icon = SystemIcons.Save, selectedIcon = SystemIcons.Save, badge = 99, enabled = enabled),
-                    IenTabItem("증권", key = "stock", icon = SystemIcons.CloudOff, selectedIcon = SystemIcons.CloudOff, badge = 120, enabled = enabled),
-                    IenTabItem("전체", key = "all", icon = SystemIcons.MoreVert, selectedIcon = SystemIcons.MoreVert, enabled = enabled),
+                    IenTabItem(
+                        "홈",
+                        key = "home",
+                        icon = IconData.Vector(SystemIcons.Keyboard),
+                        selectedIcon = IconData.Vector(SystemIcons.Keyboard),
+                        badge = -1,
+                        enabled = enabled,
+                    ),
+                    IenTabItem(
+                        "혜택",
+                        key = "benefit",
+                        icon = IconData.Vector(SystemIcons.Check),
+                        selectedIcon = IconData.Vector(SystemIcons.Check),
+                        badge = 1,
+                        enabled = enabled,
+                    ),
+                    IenTabItem(
+                        "아이엔페이",
+                        key = "pay",
+                        icon = IconData.Vector(SystemIcons.Save),
+                        selectedIcon = IconData.Vector(SystemIcons.Save),
+                        badge = 99,
+                        enabled = enabled,
+                    ),
+                    IenTabItem(
+                        "증권",
+                        key = "stock",
+                        icon = IconData.Vector(SystemIcons.CloudOff),
+                        selectedIcon = IconData.Vector(SystemIcons.CloudOff),
+                        badge = 120,
+                        enabled = enabled,
+                    ),
+                    IenTabItem(
+                        "전체",
+                        key = "all",
+                        icon = IconData.Vector(SystemIcons.MoreVert),
+                        selectedIcon = IconData.Vector(SystemIcons.MoreVert),
+                        enabled = enabled,
+                    ),
                 )
                 IenNavigationBar2(
                     selectedIndex = selectedTabIndex.coerceIn(0, itemCount - 1),
@@ -5174,9 +5373,9 @@ fun NavigationBarSection(controls: Map<String, String> = emptyMap()) {
                         IenNavigationBarItem(
                             index = index,
                             onClick = { selectedTabIndex = index },
-                            icon = { item.icon?.let { IenIcon(it, contentDescription = null) } },
+                            icon = { item.icon?.let { IenIcon(icon = it, contentDescription = null) } },
                             selectedIcon = item.selectedIcon?.let { selectedIcon ->
-                                { IenIcon(selectedIcon, contentDescription = null) }
+                                { IenIcon(icon = selectedIcon, contentDescription = null) }
                             },
                             label = { Text(item.text) },
                             direction = direction,
@@ -5244,7 +5443,7 @@ fun BottomCTASection(controls: Map<String, String> = emptyMap()) {
                 onClick = {},
                 icon = {
                     IenIcon(
-                        imageVector = SystemIcons.Check,
+                        icon = IconData.Vector(SystemIcons.Check),
                         contentDescription = null,
                         size = IenTheme.icon.md,
                     )
@@ -6697,14 +6896,14 @@ fun IenSectionSection(controls: Map<String, String> = emptyMap()) {
                 )
                 item(
                     trailingContent = {
-                        IenIcon(imageVector = SystemIcons.MoreVert, contentDescription = null)
+                        IenIcon(icon = IconData.Vector(SystemIcons.MoreVert), contentDescription = null)
                     },
                     title = { Text("사용자 지정 trailingContent") },
                 )
                 link(
                     leadingContent = {
                         IenLinkIcon(
-                            imageVector = SystemIcons.Search,
+                            icon = IconData.Vector(SystemIcons.Search),
                             tone = IenSemanticTone.Success
                         )
                     },
@@ -6715,7 +6914,7 @@ fun IenSectionSection(controls: Map<String, String> = emptyMap()) {
                 switch(
                     leadingContent = {
                         IenLinkIcon(
-                            imageVector = SystemIcons.Search
+                            icon = IconData.Vector(SystemIcons.Search)
                         )
                     },
                     checked = switchChecked,
@@ -6725,7 +6924,7 @@ fun IenSectionSection(controls: Map<String, String> = emptyMap()) {
                 checkbox(
                     leadingContent = {
                         IenLinkIcon(
-                            imageVector = SystemIcons.Search,
+                            icon = IconData.Vector(SystemIcons.Search),
                             tone = IenSemanticTone.Success,
                             toneVariant = IenLinkIconToneVariant.Solid
                         )
@@ -6766,7 +6965,7 @@ fun IenSectionSection(controls: Map<String, String> = emptyMap()) {
                             variant = IenButtonVariant.Ghost,
                             tone = IenSemanticTone.Neutral,
                         ) {
-                            IenIcon(imageVector = SystemIcons.Close, contentDescription = "입력 지우기")
+                            IenIcon(icon = IconData.Vector(SystemIcons.Close), contentDescription = "입력 지우기")
                         }
                     },
                 )
@@ -6796,6 +6995,70 @@ fun IenSectionSection(controls: Map<String, String> = emptyMap()) {
                     caption = { Text("입력한 내용을 비웁니다") },
                     title = { Text("입력 내용 초기화") },
                 )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ActionBarSection(controls: Map<String, String> = emptyMap()) {
+    var open by remember(controls["open"]) { mutableStateOf(controls.booleanValue("open", true)) }
+    var selectedCount by remember { mutableStateOf(3) }
+    var lastAction by remember { mutableStateOf("항목을 선택하고 동작을 실행해 보세요") }
+    val side = if (controls.enumValue("side", "Bottom") == "Top") IenActionBarSide.Top else IenActionBarSide.Bottom
+    val align = when (controls.enumValue("align", "Center")) {
+        "Start" -> Alignment.Start
+        "End" -> Alignment.End
+        else -> Alignment.CenterHorizontally
+    }
+    IenTheme {
+        ComponentSection(title = "Action Bar") {
+            Box(Modifier.fillMaxWidth().height(320.dp)) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                ) {
+                    Text(lastAction, style = IenTheme.typography.body2)
+                    IenButton(onClick = {
+                        selectedCount = 3
+                        open = !open
+                    }, size = IenButtonSize.Small) {
+                        Text(if (open) "액션 바 닫기" else "3개 선택하고 열기")
+                    }
+                }
+                IenActionBar(
+                    open = open,
+                    onOpenChange = { open = it },
+                    side = side,
+                    align = align,
+                    sideOffset = controls.intValue("sideOffset", 16).dp,
+                    alignOffset = controls.intValue("alignOffset", 0).dp,
+                    windowInsets = WindowInsets(0),
+                    selection = if (controls.booleanValue("showSelection", true)) {
+                        { Text("${selectedCount}개 선택") }
+                    } else null,
+                ) {
+                    IenButton(
+                        onClick = {
+                            lastAction = "${selectedCount}개 보관됨"
+                            open = false
+                        },
+                        size = IenButtonSize.Small,
+                        variant = IenButtonVariant.Weak,
+                    ) { Text("보관") }
+                    IenButton(
+                        onClick = {
+                            lastAction = "${selectedCount}개 삭제됨"
+                            selectedCount = 0
+                            open = false
+                        },
+                        size = IenButtonSize.Small,
+                        variant = IenButtonVariant.Weak,
+                        tone = IenSemanticTone.Danger,
+                    ) { Text("삭제") }
+                }
             }
         }
     }

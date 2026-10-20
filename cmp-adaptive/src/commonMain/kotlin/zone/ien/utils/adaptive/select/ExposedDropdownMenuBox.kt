@@ -86,7 +86,7 @@ expect fun <T> ExposedDropdownMenuBox(
     ) -> Unit = { text, onClick, checked ->
         IenMenu.DropdownItem(
             onClick = onClick,
-            left = if (checked) { { IenIcon(imageVector = SystemIcons.Check, contentDescription = null) } } else null,
+            left = if (checked) { { IenIcon(icon = IconData.Vector(SystemIcons.Check), contentDescription = null) } } else null,
             content = text,
         )
     },

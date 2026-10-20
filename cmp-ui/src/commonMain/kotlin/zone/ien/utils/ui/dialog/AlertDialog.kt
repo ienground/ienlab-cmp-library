@@ -97,6 +97,8 @@ fun IenBaseAlertDialog(
  * @param tone 버튼과 아이콘에 적용할 의미 색상
  * @param isDestructive true이면 Danger 톤으로 표시
  * @param styleDismiss 닫기 버튼의 의미 스타일
+ * @param enabledDismiss 닫기 버튼 활성화 여부
+ * @param description 본문에 표시할 커스텀 Composable. 지정하면 [message]를 대신합니다.
  */
 @Composable
 fun IenAlertDialog(
@@ -110,6 +112,8 @@ fun IenAlertDialog(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     isDestructive: Boolean = false,
     styleDismiss: IenDialogActionStyle = if (isDestructive) IenDialogActionStyle.Default else IenDialogActionStyle.Cancel,
+    enabledDismiss: Boolean = true,
+    description: (@Composable () -> Unit)? = null,
 ) {
     val resolvedTone = IenAlertDialogTone(tone = tone, isDestructive = isDestructive)
     val dismissStyle = IenDialogButtonStyle(
@@ -123,6 +127,7 @@ fun IenAlertDialog(
         icon = icon,
         title = title,
         message = message,
+        description = description,
         onDismiss = onDismiss ?: {},
         tone = resolvedTone,
         actions = {
@@ -130,7 +135,7 @@ fun IenAlertDialog(
                 IenDialogButton(
                     text = textDismiss,
                     onClick = it,
-                    enabled = true,
+                    enabled = enabledDismiss,
                     tone = dismissStyle.tone,
                     variant = dismissStyle.variant,
                 )
@@ -157,6 +162,8 @@ fun IenAlertDialog(
  * @param buttonLayout 확인/취소 버튼의 배치 방향
  * @param styleDismiss 취소 버튼의 의미 스타일
  * @param styleConfirm 확인 버튼의 의미 스타일
+ * @param enabledDismiss 취소 버튼 활성화 여부
+ * @param description 본문에 표시할 커스텀 Composable. 지정하면 [message]를 대신합니다.
  */
 @Composable
 fun IenAlertDialog(
@@ -175,6 +182,8 @@ fun IenAlertDialog(
     buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Horizontal,
     styleDismiss: IenDialogActionStyle = IenDialogActionStyle.Cancel,
     styleConfirm: IenDialogActionStyle = if (isDestructive) IenDialogActionStyle.Destructive else IenDialogActionStyle.Default,
+    enabledDismiss: Boolean = true,
+    description: (@Composable () -> Unit)? = null,
 ) {
     val resolvedTone = IenAlertDialogTone(tone = tone, isDestructive = isDestructive)
     val dismissStyle = IenDialogButtonStyle(
@@ -198,7 +207,7 @@ fun IenAlertDialog(
                 tone = resolvedTone,
             )
         },
-        description = message?.let {
+        description = description ?: message?.let {
             {
                 IenAlertDialogDescription(text = it)
             }
@@ -209,6 +218,7 @@ fun IenAlertDialog(
                 onClick = onDismiss,
                 tone = dismissStyle.tone,
                 variant = dismissStyle.variant,
+                enabled = enabledDismiss,
             )
         },
         confirmButton = {
@@ -246,6 +256,8 @@ fun IenAlertDialog(
  * @param styleNeutral 중립 버튼의 의미 스타일
  * @param styleNegative 부정 버튼의 의미 스타일
  * @param stylePositive 긍정 버튼의 의미 스타일
+ * @param enabledNegative 부정 버튼 활성화 여부
+ * @param description 본문에 표시할 커스텀 Composable. 지정하면 [message]를 대신합니다.
  */
 @Composable
 fun IenAlertDialog(
@@ -268,6 +280,8 @@ fun IenAlertDialog(
     styleNeutral: IenDialogActionStyle = IenDialogActionStyle.Default,
     styleNegative: IenDialogActionStyle = IenDialogActionStyle.Cancel,
     stylePositive: IenDialogActionStyle = if (isDestructive) IenDialogActionStyle.Destructive else IenDialogActionStyle.Default,
+    enabledNegative: Boolean = true,
+    description: (@Composable () -> Unit)? = null,
 ) {
     val resolvedTone = IenAlertDialogTone(tone = tone, isDestructive = isDestructive)
     val neutralStyle = IenDialogButtonStyle(
@@ -291,6 +305,7 @@ fun IenAlertDialog(
         icon = icon,
         title = title,
         message = message,
+        description = description,
         onDismiss = onNegative,
         tone = resolvedTone,
         actions = {
@@ -309,7 +324,7 @@ fun IenAlertDialog(
                     IenDialogButton(
                         text = textNegative,
                         onClick = onNegative,
-                        enabled = true,
+                        enabled = enabledNegative,
                         tone = negativeStyle.tone,
                         variant = negativeStyle.variant,
                     )
@@ -335,6 +350,7 @@ private fun IenAlertDialogFrame(
     icon: @Composable (() -> Unit)?,
     title: String?,
     message: String?,
+    description: (@Composable () -> Unit)? = null,
     onDismiss: () -> Unit,
     tone: IenSemanticTone,
     actions: @Composable () -> Unit,
@@ -350,7 +366,7 @@ private fun IenAlertDialogFrame(
                 tone = tone,
             )
         },
-        description = message?.let {
+        description = description ?: message?.let {
             {
                 IenAlertDialogDescription(text = it)
             }

@@ -10,11 +10,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
-import zone.ien.hig.adaptive.AdaptiveScaffold
 import zone.ien.hig.adaptive.AdaptiveWidget
-import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.inputactions.InputActionsHost
+import zone.ien.utils.adaptive.screen.AdaptiveScaffold
 import zone.ien.utils.ui.feedback.IenToastProvider
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.dragToKeyboardClose
@@ -30,7 +29,6 @@ import zone.ien.utils.ui.utils.keyboardAsState
  * @param notification 알림 콘텐츠 컴포저블
  * @param content 메인 콘텐츠 컴포저블
  */
-@OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun RootWrapper(
     modifier: Modifier = Modifier,

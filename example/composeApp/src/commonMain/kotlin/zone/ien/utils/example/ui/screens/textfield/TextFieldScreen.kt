@@ -39,6 +39,7 @@ import zone.ien.hig.adaptive.adaptiveComponent
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.save
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
@@ -123,7 +124,7 @@ fun TextFieldScreen(
                             tone = IenSemanticTone.Neutral,
                         ) {
                             IenIcon(
-                                imageVector = SystemIcons.Close,
+                                icon = IconData.Vector(SystemIcons.Close),
                                 contentDescription = null
                             )
                         }

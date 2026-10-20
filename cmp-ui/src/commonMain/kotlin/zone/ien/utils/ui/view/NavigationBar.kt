@@ -72,6 +72,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousCapsule
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
@@ -856,26 +857,26 @@ private fun IenNavigationBarPreview() {
             IenNavigationBarItem(
                 index = 0,
                 onClick = { selectedIndex = 0 },
-                icon = { IenIcon(SystemIcons.Save, contentDescription = null) },
+                icon = { IenIcon(IconData.Vector(SystemIcons.Save), contentDescription = null) },
                 label = { Text("홈") }
             )
             IenNavigationBarItem(
                 index = 1,
                 onClick = { selectedIndex = 1 },
-                icon = { IenIcon(SystemIcons.Edit, contentDescription = null) },
+                icon = { IenIcon(IconData.Vector(SystemIcons.Edit), contentDescription = null) },
                 label = { Text("기록") }
             )
             IenNavigationBarItem(
                 index = 2,
                 onClick = { selectedIndex = 2 },
-                icon = { IenIcon(SystemIcons.Schedule, contentDescription = null) },
+                icon = { IenIcon(IconData.Vector(SystemIcons.Schedule), contentDescription = null) },
                 label = { Text("통계") },
                 badge = 3,
             )
             IenNavigationBarItem(
                 index = 3,
                 onClick = { selectedIndex = 3 },
-                icon = { IenIcon(SystemIcons.Delete, contentDescription = null) },
+                icon = { IenIcon(IconData.Vector(SystemIcons.Delete), contentDescription = null) },
                 label = { Text("설정") }
             )
         }
@@ -894,25 +895,25 @@ private fun IenNavigationBarPreview1() {
             IenNavigationBarItem(
                 index = 0,
                 onClick = {},
-                icon = { IenIcon(SystemIcons.Save, contentDescription = null) },
+                icon = { IenIcon(IconData.Vector(SystemIcons.Save), contentDescription = null) },
                 label = { Text("홈") }
             )
             IenNavigationBarItem(
                 index = 1,
                 onClick = {},
-                icon = { IenIcon(SystemIcons.Edit, contentDescription = null) },
+                icon = { IenIcon(IconData.Vector(SystemIcons.Edit), contentDescription = null) },
                 label = { Text("기록") }
             )
             IenNavigationBarItem(
                 index = 2,
                 onClick = {},
-                icon = { IenIcon(SystemIcons.Schedule, contentDescription = null) },
+                icon = { IenIcon(IconData.Vector(SystemIcons.Schedule), contentDescription = null) },
                 label = { Text("통계") }
             )
             IenNavigationBarItem(
                 index = 3,
                 onClick = {},
-                icon = { IenIcon(SystemIcons.Delete, contentDescription = null) },
+                icon = { IenIcon(IconData.Vector(SystemIcons.Delete), contentDescription = null) },
                 label = { Text("설정") }
             )
         }
@@ -931,27 +932,27 @@ private fun IenNavigationBarPreviewDisabled() {
             IenNavigationBarItem(
                 index = 0,
                 onClick = {},
-                icon = { IenIcon(SystemIcons.Save, contentDescription = null) },
+                icon = { IenIcon(IconData.Vector(SystemIcons.Save), contentDescription = null) },
                 label = { Text("홈") }
             )
             IenNavigationBarItem(
                 index = 1,
                 onClick = {},
                 enabled = false,
-                icon = { IenIcon(SystemIcons.Edit, contentDescription = null) },
+                icon = { IenIcon(IconData.Vector(SystemIcons.Edit), contentDescription = null) },
                 label = { Text("기록") }
             )
             IenNavigationBarItem(
                 index = 2,
                 onClick = {},
                 enabled = false,
-                icon = { IenIcon(SystemIcons.Schedule, contentDescription = null) },
+                icon = { IenIcon(IconData.Vector(SystemIcons.Schedule), contentDescription = null) },
                 label = { Text("통계") }
             )
             IenNavigationBarItem(
                 index = 3,
                 onClick = {},
-                icon = { IenIcon(SystemIcons.Delete, contentDescription = null) },
+                icon = { IenIcon(IconData.Vector(SystemIcons.Delete), contentDescription = null) },
                 label = { Text("설정") }
             )
         }

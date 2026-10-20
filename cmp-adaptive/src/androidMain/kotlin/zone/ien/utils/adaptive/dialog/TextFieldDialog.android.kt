@@ -18,6 +18,8 @@ actual fun TextFieldDialog(
     onDismiss: () -> Unit,
     textConfirm: String,
     styleConfirm: UIAlertActionStyle,
+    enabledDismiss: Boolean,
+    enabledConfirm: Boolean,
     onConfirm: (Map<String, String>) -> Unit
 ) {
     IenTextFieldDialog(
@@ -28,8 +30,10 @@ actual fun TextFieldDialog(
         message = message,
         textFields = textFields,
         textDismiss = textDismiss,
+        enabledDismiss = enabledDismiss,
         onDismiss = onDismiss,
         textConfirm = textConfirm,
+        enabledConfirm = enabledConfirm,
         onConfirm = onConfirm
     )
 }

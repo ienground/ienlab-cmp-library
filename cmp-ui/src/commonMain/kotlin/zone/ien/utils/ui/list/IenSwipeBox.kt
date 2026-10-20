@@ -67,7 +67,6 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -82,6 +81,7 @@ import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButtonColors
@@ -457,7 +457,7 @@ fun RowScope.IenSwipeBoxItem(
     restoreOnClick: Boolean = true,
     onClickLabel: String? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    icon: ImageVector? = null,
+    icon: IconData? = null,
     label: String? = null,
     weight: Float = 1f,
     showLabelOnExpansion: Boolean = true,
@@ -499,7 +499,7 @@ fun RowScope.IenSwipeBoxItem(
     restoreOnClick: Boolean = true,
     onClickLabel: String? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    icon: ImageVector? = null,
+    icon: IconData? = null,
     label: @Composable () -> Unit,
     weight: Float = 1f,
     showLabelOnExpansion: Boolean = true,
@@ -534,7 +534,7 @@ private fun RowScope.IenSwipeBoxItemImpl(
     restoreOnClick: Boolean,
     onClickLabel: String?,
     interactionSource: MutableInteractionSource,
-    icon: ImageVector?,
+    icon: IconData?,
     labelContent: (@Composable () -> Unit)?,
     weight: Float,
     showLabelOnExpansion: Boolean,
@@ -656,7 +656,7 @@ private fun RowScope.IenSwipeBoxItemImpl(
                         ) {
                             icon?.let {
                                 IenIcon(
-                                    imageVector = it,
+                                    icon = it,
                                     contentDescription = onClickLabel,
                                     size = IenTheme.icon.sm,
                                 )

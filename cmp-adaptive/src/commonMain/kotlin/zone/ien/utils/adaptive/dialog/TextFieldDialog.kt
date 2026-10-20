@@ -18,9 +18,11 @@ import zone.ien.utils.ui.utils.TextFieldDialogData
  * @param message 다이얼로그 메시지
  * @param textFields 텍스트 필드 데이터 맵
  * @param textDismiss 취소 버튼 텍스트
+ * @param enabledDismiss 취소 버튼 활성화 여부
  * @param styleDismiss 취소 버튼 스타일
  * @param onDismiss 취소 버튼 클릭 시 실행할 함수
  * @param textConfirm 확인 버튼 텍스트
+ * @param enabledConfirm 확인 버튼의 추가 활성화 조건
  * @param styleConfirm 확인 버튼 스타일
  * @param onConfirm 확인 버튼 클릭 시 실행할 함수 (전달된 텍스트 필드 값 맵)
  * @return 텍스트 필드 다이얼로그 컴포저블
@@ -38,5 +40,7 @@ expect fun TextFieldDialog(
     onDismiss: () -> Unit,
     textConfirm: String = stringResource(Res.string.ok),
     styleConfirm: UIAlertActionStyle = UIAlertActionStyle.Default,
+    enabledDismiss: Boolean = true,
+    enabledConfirm: Boolean = true,
     onConfirm: (Map<String, String>) -> Unit,
 )

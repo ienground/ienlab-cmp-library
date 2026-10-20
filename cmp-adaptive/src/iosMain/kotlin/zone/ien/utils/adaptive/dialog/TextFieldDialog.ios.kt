@@ -95,6 +95,8 @@ actual fun TextFieldDialog(
     onDismiss: () -> Unit,
     textConfirm: String,
     styleConfirm: UIAlertActionStyle,
+    enabledDismiss: Boolean,
+    enabledConfirm: Boolean,
     onConfirm: (Map<String, String>) -> Unit
 ) {
     val nativeTintColor = IenTheme.colors.brand.toUIColor()
@@ -105,18 +107,33 @@ actual fun TextFieldDialog(
             }
         }
     }
+    val textFieldRefs = remember(visible, textFields.keys) {
+        mutableStateMapOf<String, UITextField>()
+    }
+    val fieldEnabledStates = textFields.mapValues { it.value.enabled }
 
-    val enabledConfirm by derivedStateOf {
+    LaunchedEffect(fieldEnabledStates) {
+        textFields.forEach { (key, field) ->
+            textFieldRefs[key]?.userInteractionEnabled = field.enabled
+        }
+    }
+
+    val fieldsValid by derivedStateOf {
         textFields.all { (key, field) ->
             val text = textStates[key] ?: ""
             field.valid(text)
         }
     }
+    val isConfirmEnabled = enabledConfirm && fieldsValid
 
     var confirmActionRef by remember { mutableStateOf<UIAlertAction?>(null) }
+    var dismissActionRef by remember { mutableStateOf<UIAlertAction?>(null) }
 
-    LaunchedEffect(enabledConfirm) {
-        confirmActionRef?.enabled = enabledConfirm
+    LaunchedEffect(isConfirmEnabled) {
+        confirmActionRef?.enabled = isConfirmEnabled
+    }
+    LaunchedEffect(enabledDismiss) {
+        dismissActionRef?.enabled = enabledDismiss
     }
 
     val doneLabel = stringResource(Res.string.close)
@@ -136,6 +153,8 @@ actual fun TextFieldDialog(
         textFields.forEach { (key, field) ->
             alertController.addTextFieldWithConfigurationHandler { textField ->
                 textField?.text = textStates[key]
+                textField?.userInteractionEnabled = field.enabled
+                textField?.let { textFieldRefs[key] = it }
                 textField?.secureTextEntry = field.keyboardType.isSecureText()
                 textField?.placeholder = field.placeholder
                 textField?.keyboardType = field.keyboardType.toHig()
@@ -207,7 +226,10 @@ actual fun TextFieldDialog(
             handler = {
                 onDismiss()
             }
-        )
+        ).apply {
+            setEnabled(enabledDismiss)
+        }
+        dismissActionRef = dismissAction
         val confirmAction = UIAlertAction.actionWithTitle(
             title = textConfirm,
             style = styleConfirm.toStyle(),
@@ -215,7 +237,7 @@ actual fun TextFieldDialog(
                 onConfirm(textStates.mapValues { it.value.trim() })
             }
         ).apply {
-            setEnabled(enabledConfirm)
+            setEnabled(isConfirmEnabled)
         }
         confirmActionRef = confirmAction
 

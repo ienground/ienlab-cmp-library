@@ -581,7 +581,7 @@ private fun PlaygroundSwitchRow(
 @Composable
 private fun SampleIcon() {
     IenIcon(
-        imageVector = SystemIcons.Save,
+        icon = IconData.Vector(SystemIcons.Save),
         contentDescription = null,
         modifier = Modifier.size(IenTheme.icon.md),
     )

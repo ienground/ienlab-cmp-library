@@ -368,6 +368,7 @@ buildkonfig {
 
 | 모듈 | 설명 | 주요 의존성 |
 |---|---|---|
+| `cmp-ui-kit` | 공통 UI 모듈 선택형 묶음 (Android/iOS) | cmp-common, cmp-icon, cmp-ui, cmp-adaptive |
 | `cmp-common` | 공통 유틸리티, HIG 기본 | compose, hig-core |
 | `cmp-ui` | 공통 UI 컴포넌트 (IenButton 등) | compose, cmp-common, cmp-utils |
 | `cmp-adaptive` | Adaptive (Material3 + Cupertino) UI | compose-material3, hig-adaptive |
@@ -380,6 +381,18 @@ buildkonfig {
 | `cmp-coil` | 이미지 로딩 (Coil3) | coil-compose |
 | `cmp-firebase` | Firebase Auth + Firestore (KMPAuth 대체) | zone.ien.firebase SDK |
 | `cmp-ui-docs` | UI 문서 | - |
+
+### 선택형 UI 묶음 사용
+
+Android/iOS 앱은 `cmp-ui-kit` 하나로 `cmp-common`, `cmp-icon`, `cmp-ui`, `cmp-adaptive`를 함께 사용할 수 있습니다. 기존 Kotlin 패키지와 컴포넌트 호출은 그대로 유지됩니다.
+
+```kotlin
+commonMain.dependencies {
+    implementation("zone.ien.utils:cmp-ui-kit:<version>")
+}
+```
+
+`cmp-ui-kit`은 `cmp-adaptive`의 현재 타깃에 맞춰 Android/iOS를 제공합니다. Wasm 앱은 기존처럼 필요한 모듈을 각각 의존성에 추가해 주세요.
 
 숫자 포맷에는 `cmp-utils`의 `zone.ien.utils.utils.DecimalFormat`을 사용합니다.
 Android와 iOS에서 `DecimalFormat("0.##").format(12.3456)`은 `"12.35"`를 반환합니다.

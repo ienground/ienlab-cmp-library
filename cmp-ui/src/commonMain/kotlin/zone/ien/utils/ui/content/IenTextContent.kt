@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenSurface
 
@@ -19,16 +20,20 @@ import zone.ien.utils.ui.primitives.IenSurface
  * @param title 문단의 제목 텍스트 (선택 사항)
  * @param body 문단의 본문 텍스트
  * @param modifier 레이아웃 및 스타일 수정을 위한 [Modifier]
- * @param emphasis 본문 텍스트 내에서 강조할 문자열 (선택 사항)
+ * @param emphasis 본문 텍스트 내에서 강조할 문자열 목록
  * @param footer 문단 하단에 표시할 설명이나 추가 정보 텍스트 (선택 사항)
+ * @param tone 강조 텍스트에 사용할 의미적 톤 설정 ([IenSemanticTone])
+ * @param bold 강조 구간을 볼드체로 표시할지 여부 (기본값: false)
  */
 @Composable
 fun IenParagraph(
     title: String? = null,
     body: String,
     modifier: Modifier = Modifier,
-    emphasis: String? = null,
+    emphasis: List<String> = emptyList(),
     footer: String? = null,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
+    bold: Boolean = false,
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -37,10 +42,12 @@ fun IenParagraph(
         if (title != null) {
             Text(title, style = IenTheme.typography.title3)
         }
-        if (emphasis != null) {
+        if (emphasis.any(String::isNotEmpty)) {
             IenHighlightText(
                 text = body,
-                highlights = listOf(emphasis),
+                highlights = emphasis,
+                tone = tone,
+                bold = bold,
             )
         } else {
             Text(body, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)

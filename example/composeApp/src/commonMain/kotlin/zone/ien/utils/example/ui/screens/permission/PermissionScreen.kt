@@ -8,6 +8,7 @@ import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.filled.Bell
 import zone.ien.hig.icons.filled.Lock
 import zone.ien.hig.icons.filled.Mic
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.screen.IenBottomCTA
 import zone.ien.utils.ui.screen.IenCloseButton
@@ -44,18 +45,18 @@ fun PermissionScreen(
                 description = "원활한 서비스 이용을 위해 다음 권한을 허용해주세요.",
                 items = listOf(
                     IenPermissionItem(
-                        icon = CupertinoIcons.Filled.Mic,
+                        icon = IconData.Vector(CupertinoIcons.Filled.Mic),
                         title = "녹음",
                         description = "확언과 책 내용을 목소리로 기록하기 위해 꼭 필요해요.",
                     ),
                     IenPermissionItem(
-                        icon = CupertinoIcons.Filled.Bell,
+                        icon = IconData.Vector(CupertinoIcons.Filled.Bell),
                         title = "알림",
                         description = "나의 기록 현황과 소중한 피드백 알림을 받아보세요.",
                         isRequired = false,
                     ),
                 ),
-                headerIcon = CupertinoIcons.Filled.Lock,
+                headerIcon = IconData.Vector(CupertinoIcons.Filled.Lock),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(contentPadding),

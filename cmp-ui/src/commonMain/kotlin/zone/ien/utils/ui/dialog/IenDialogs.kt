@@ -34,6 +34,7 @@ import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButton
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonDisplay
+import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.interactive.IenTextButtonSize
@@ -65,6 +66,8 @@ enum class IenDialogButtonLayout {
  * @param closeOnBackEvent 뒤로가기 버튼을 눌렀을 때 다이얼로그를 닫을지 여부
  * @param onEntered 다이얼로그가 화면에 나타날 때 호출되는 콜백 함수
  * @param onExited 다이얼로그가 화면에서 사라질 때 호출되는 콜백 함수
+ * @param enabledConfirm 확인 버튼 활성화 여부
+ * @param description 본문에 표시할 커스텀 Composable. 지정하면 [message]를 대신합니다.
  */
 @Composable
 fun IenAlertDialog(
@@ -80,6 +83,8 @@ fun IenAlertDialog(
     closeOnBackEvent: Boolean = true,
     onEntered: (() -> Unit)? = null,
     onExited: (() -> Unit)? = null,
+    enabledConfirm: Boolean = true,
+    description: (@Composable () -> Unit)? = null,
 ) {
     IenAlertDialog(
         visible = visible,
@@ -92,7 +97,7 @@ fun IenAlertDialog(
         title = {
             IenAlertDialogTitle(text = title)
         },
-        description = message?.let {
+        description = description ?: message?.let {
             {
                 IenAlertDialogDescription(text = it)
             }
@@ -102,6 +107,7 @@ fun IenAlertDialog(
                 text = confirmText,
                 onClick = onConfirmClick,
                 tone = tone,
+                enabled = enabledConfirm,
             )
         },
     )
@@ -166,6 +172,8 @@ fun IenAlertDialog(
  * @param onEntered 다이얼로그가 화면에 나타날 때 호출되는 콜백 함수
  * @param onExited 다이얼로그가 화면에서 사라질 때 호출되는 콜백 함수
  * @param buttonLayout 다이얼로그 하단 버튼의 배치 방향 (가로 또는 세로)
+ * @param enabledDismiss 취소 버튼 활성화 여부
+ * @param enabledConfirm 확인 버튼 활성화 여부
  */
 @Composable
 fun IenConfirmDialog(
@@ -183,6 +191,8 @@ fun IenConfirmDialog(
     onEntered: (() -> Unit)? = null,
     onExited: (() -> Unit)? = null,
     buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Horizontal,
+    enabledDismiss: Boolean = true,
+    enabledConfirm: Boolean = true,
 ) {
     IenConfirmDialog(
         visible = visible,
@@ -204,6 +214,7 @@ fun IenConfirmDialog(
             IenConfirmDialogCancelButton(
                 text = dismissText,
                 onClick = onDismissRequest,
+                enabled = enabledDismiss,
             )
         },
         confirmButton = {
@@ -211,6 +222,7 @@ fun IenConfirmDialog(
                 text = confirmText,
                 onClick = onConfirmClick,
                 tone = if (destructive) IenSemanticTone.Danger else IenSemanticTone.Brand,
+                enabled = enabledConfirm,
             )
         },
         buttonLayout = buttonLayout,
@@ -395,6 +407,7 @@ fun IenConfirmDialogDescription(
  * @param tone 버튼의 의미 색상 톤
  * @param size 버튼의 크기
  * @param variant 버튼의 형태 종류 (예: Clear 등)
+ * @param enabled 버튼 활성화 여부
  */
 @Composable
 fun IenAlertDialogAlertButton(
@@ -404,6 +417,7 @@ fun IenAlertDialogAlertButton(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     size: IenTextButtonSize = IenTextButtonSize.Medium,
     variant: IenTextButtonVariant = IenTextButtonVariant.Clear,
+    enabled: Boolean = true,
 ) {
     IenTextButton(
         onClick = onClick,
@@ -411,6 +425,7 @@ fun IenAlertDialogAlertButton(
         size = size,
         tone = tone,
         variant = variant,
+        state = IenButtonState(enabled = enabled),
     ) {
         Text(text)
     }
@@ -425,6 +440,7 @@ fun IenAlertDialogAlertButton(
  * @param tone 버튼의 의미 색상 톤
  * @param variant 버튼의 형태 종류 (예: Weak 등)
  * @param size 버튼의 크기
+ * @param enabled 버튼 활성화 여부
  */
 @Composable
 fun IenConfirmDialogCancelButton(
@@ -434,6 +450,7 @@ fun IenConfirmDialogCancelButton(
     tone: IenSemanticTone = IenSemanticTone.Neutral,
     variant: IenButtonVariant = IenButtonVariant.Weak,
     size: IenButtonSize = IenButtonSize.Large,
+    enabled: Boolean = true,
 ) {
     IenButton(
         onClick = onClick,
@@ -441,6 +458,7 @@ fun IenConfirmDialogCancelButton(
         size = size,
         variant = variant,
         tone = tone,
+        state = IenButtonState(enabled = enabled),
         display = IenButtonDisplay.Block,
     ) {
         Text(text)
@@ -456,6 +474,7 @@ fun IenConfirmDialogCancelButton(
  * @param tone 버튼의 의미 색상 톤
  * @param variant 버튼의 형태 종류 (예: Fill 등)
  * @param size 버튼의 크기
+ * @param enabled 버튼 활성화 여부
  */
 @Composable
 fun IenConfirmDialogConfirmButton(
@@ -465,6 +484,7 @@ fun IenConfirmDialogConfirmButton(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     variant: IenButtonVariant = IenButtonVariant.Fill,
     size: IenButtonSize = IenButtonSize.Large,
+    enabled: Boolean = true,
 ) {
     IenButton(
         onClick = onClick,
@@ -472,6 +492,7 @@ fun IenConfirmDialogConfirmButton(
         size = size,
         variant = variant,
         tone = tone,
+        state = IenButtonState(enabled = enabled),
         display = IenButtonDisplay.Block,
     ) {
         Text(text)

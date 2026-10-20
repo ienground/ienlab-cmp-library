@@ -1,31 +1,17 @@
 package zone.ien.utils.pref.item
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.launch
-import zone.ien.hig.adaptive.AdaptiveWidget
-import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.section.SectionScope
-import zone.ien.utils.adaptive.view.AdaptiveDropdownMenu
-import zone.ien.utils.adaptive.view.DropdownMenuSection
-import zone.ien.utils.icon.SystemIcons
-import zone.ien.utils.pref.LocalPrefsAdaptive
 import zone.ien.utils.pref.LocalPrefsDataStore
-import zone.ien.utils.ui.foundation.IenTheme
-import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.section.dropdown
 
 /**
@@ -44,7 +30,6 @@ import zone.ien.utils.ui.section.dropdown
  * @param leadingContent 제목 앞에 표시할 콘텐츠
  * @param onItemSelected 값을 저장한 뒤 호출할 콜백
  */
-@OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun <T> SectionScope.DropdownPref(
     modifier: Modifier = Modifier,
@@ -66,11 +51,8 @@ fun <T> SectionScope.DropdownPref(
         .firstOrNull { preferenceValueEquals(it.key, defaultValue) }
         ?.value
         .orEmpty()
-    val selectedLabel = selectedItem?.let(itemsWithLabels::get) ?: defaultLabel
-    var expanded by remember { mutableStateOf(false) }
 
     val selectItem: (T) -> Unit = { item ->
-        expanded = false
         if (!preferenceValueEquals(item, value)) {
             coroutineScope.launch {
                 try {
@@ -83,63 +65,16 @@ fun <T> SectionScope.DropdownPref(
         }
     }
 
-    if (!LocalPrefsAdaptive.current) {
-        dropdown(
-            itemsWithLabels = itemsWithLabels,
-            currentItem = selectedItem,
-            onItemSelected = selectItem,
-            modifier = modifier,
-            enabled = enabled,
-            leadingContent = leadingContent,
-            supportingContent = summary?.let { { Text(it) } },
-            defaultText = defaultLabel,
-            title = { Text(title) },
-        )
-        return
-    }
-
-    TextPref(
-        onClick = { if (enabled) expanded = true },
+    dropdown(
+        itemsWithLabels = itemsWithLabels,
+        currentItem = selectedItem,
+        onItemSelected = selectItem,
         modifier = modifier,
         enabled = enabled,
         leadingContent = leadingContent,
-        summary = summary,
-        title = title,
-        trailingContent = {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = selectedLabel,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                AdaptiveWidget(
-                    material = {
-                        IenIcon(imageVector = SystemIcons.ChevronDown, contentDescription = null)
-                    },
-                    cupertino = { zone.ien.hig.section.CupertinoSectionDefaults.LabelChevron() },
-                )
-            }
-        },
-    )
-
-    AdaptiveDropdownMenu(
-        expanded = expanded && enabled,
-        onDismissRequest = { expanded = false },
-        items = emptyList(),
-        sections = itemsWithLabels.map { (item, label) ->
-            DropdownMenuSection.Action(
-                text = { Text(label) },
-                onClick = { selectItem(item) },
-                icon = {
-                    if (preferenceValueEquals(item, selectedItem)) {
-                        IenIcon(imageVector = SystemIcons.Check, contentDescription = null)
-                    }
-                },
-            )
-        }.takeIf { it.isNotEmpty() }?.let { listOf(DropdownMenuSection(items = it)) }.orEmpty(),
+        supportingContent = summary?.let { { Text(it) } },
+        defaultText = defaultLabel,
+        title = { Text(title) },
     )
 }
 

@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousCapsule
 import com.kyant.capsule.ContinuousRoundedRectangle
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.tabler.TablerIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
@@ -868,7 +869,7 @@ fun IenTextButton(
                 content()
                 if (variant == IenTextButtonVariant.Arrow) {
                     IenIcon(
-                        imageVector = SystemIcons.ChevronRight,
+                        icon = IconData.Vector(SystemIcons.ChevronRight),
                         contentDescription = null,
                         tint = LocalContentColor.current,
                         modifier = Modifier.size(size.chevronSize())

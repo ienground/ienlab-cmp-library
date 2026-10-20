@@ -138,7 +138,7 @@ fun SectionScreen(
                                 tone = IenSemanticTone.Neutral,
                             ) {
                                 IenIcon(
-                                    imageVector = SystemIcons.Save,
+                                    icon = IconData.Vector(SystemIcons.Save),
                                     contentDescription = null
                                 )
                             }

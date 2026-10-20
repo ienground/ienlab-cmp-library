@@ -26,6 +26,7 @@ import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.example.di.KoinKey.DEFAULT_DATASTORE
 import zone.ien.utils.example.isIos
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.material.rounded.Delete
 import zone.ien.utils.pref.PrefsGroup
@@ -151,7 +152,7 @@ fun SettingsScreen(
                         dialogModifier = Modifier.keyboardDismissAction(),
                         leadingContent = {
                             IenIcon(
-                                imageVector = SystemIcons.Delete,
+                                icon = IconData.Vector(SystemIcons.Delete),
                                 contentDescription = null
                             )
                         },
@@ -165,7 +166,7 @@ fun SettingsScreen(
                         dialogModifier = Modifier.keyboardDismissAction(),
                         leadingContent = {
                             IenIcon(
-                                imageVector = SystemIcons.Delete,
+                                icon = IconData.Vector(SystemIcons.Delete),
                                 contentDescription = null
                             )
                         },
@@ -179,7 +180,7 @@ fun SettingsScreen(
                         dialogModifier = Modifier.keyboardDismissAction(),
                         leadingContent = {
                             IenIcon(
-                                imageVector = SystemIcons.Delete,
+                                icon = IconData.Vector(SystemIcons.Delete),
                                 contentDescription = null
                             )
                         },
@@ -193,7 +194,7 @@ fun SettingsScreen(
                         dialogModifier = Modifier.keyboardDismissAction(),
                         leadingContent = {
                             IenIcon(
-                                imageVector = SystemIcons.Delete,
+                                icon = IconData.Vector(SystemIcons.Delete),
                                 contentDescription = null
                             )
                         },
@@ -209,7 +210,7 @@ fun SettingsScreen(
                 ) {
                     TextFieldPref(
                         dialogModifier = Modifier.keyboardDismissAction(),
-                        leadingContent = { IenIcon(imageVector = SystemIcons.Delete, contentDescription = null) },
+                        leadingContent = { IenIcon(icon = IconData.Vector(SystemIcons.Delete), contentDescription = null) },
                         title = "Title OnClick",
                         summary = { "내 숫자는 ${it}" },
                         key = intPreferencesKey("real_num"),
@@ -218,7 +219,7 @@ fun SettingsScreen(
                     )
                     TextFieldPref(
                         dialogModifier = Modifier.keyboardDismissAction(),
-                        leadingContent = { IenIcon(imageVector = SystemIcons.Delete, contentDescription = null) },
+                        leadingContent = { IenIcon(icon = IconData.Vector(SystemIcons.Delete), contentDescription = null) },
                         title = "Title OnClick",
                         summary = { "내 숫자는 ${it}" },
                         key = intPreferencesKey("real_num"),

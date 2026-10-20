@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
@@ -145,7 +146,7 @@ private fun IenEmptyPreview() {
                 icon = {
                     content { modifier ->
                         IenIcon(
-                            imageVector = SystemIcons.Edit,
+                            icon = IconData.Vector(SystemIcons.Edit),
                             contentDescription = null,
                             modifier = modifier,
                         )

@@ -11,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
@@ -19,6 +18,7 @@ import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.permission_optional_section_title
 import zone.ien.utils.cmp_ui.generated.resources.permission_required_section_title
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.list.IenListHeaderDefaults
@@ -45,7 +45,7 @@ import zone.ien.utils.ui.utils.toBold
  */
 @Immutable
 data class IenPermissionItem(
-    val icon: ImageVector,
+    val icon: IconData,
     val title: String,
     val description: String,
     val iconContentDescription: String? = null,
@@ -73,7 +73,7 @@ fun IenPermissionScreen(
     title: String,
     description: String,
     items: List<IenPermissionItem>,
-    headerIcon: ImageVector,
+    headerIcon: IconData,
     modifier: Modifier = Modifier,
     headerIconContentDescription: String? = null,
     requiredSectionTitle: String = stringResource(Res.string.permission_required_section_title),
@@ -96,7 +96,7 @@ fun IenPermissionScreen(
                         contentDescription = headerIconContentDescription,
                     ) {
                         IenIcon(
-                            imageVector = headerIcon,
+                            icon = headerIcon,
                             contentDescription = null,
                         )
                     }
@@ -168,7 +168,7 @@ private fun IenPermissionItemRow(item: IenPermissionItem) {
                 backgroundColor = IenTheme.colors.brandWeak,
             ) {
                 IenIcon(
-                    imageVector = item.icon,
+                    icon = item.icon,
                     contentDescription = item.iconContentDescription,
                     tint = IenTheme.colors.onBrandWeak,
                     size = IenTheme.icon.lg,

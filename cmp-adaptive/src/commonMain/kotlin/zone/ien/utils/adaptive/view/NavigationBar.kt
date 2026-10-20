@@ -292,7 +292,9 @@ private fun AdaptiveNavigationBarNative(
                             onClick = item.onClick,
                             icon = {
                                 IenIcon(
-                                    painter = if (selected) item.selectedIcon ?: item.icon else item.icon,
+                                    icon = IconData.Paint(
+                                        if (selected) item.selectedIcon ?: item.icon else item.icon,
+                                    ),
                                     contentDescription = item.label,
                                 )
                             },

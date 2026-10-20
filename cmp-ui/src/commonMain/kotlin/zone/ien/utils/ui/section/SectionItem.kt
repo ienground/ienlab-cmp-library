@@ -49,7 +49,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.takeOrElse
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -59,6 +58,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.section.SectionScope
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.feedback.IenLinearProgressIndicator
 import zone.ien.utils.ui.foundation.IenSemanticTone
@@ -413,7 +413,7 @@ fun <T> SectionScope.dropdown(
                         overflow = TextOverflow.Ellipsis,
                     )
                     IenIcon(
-                        imageVector = SystemIcons.ChevronDown,
+                        icon = IconData.Vector(SystemIcons.ChevronDown),
                         contentDescription = null,
                         modifier = Modifier.rotate(chevronRotation),
                     )
@@ -1005,7 +1005,7 @@ private fun ienSectionTextFieldColor(
  * @param valueRange 슬라이더의 최소/최대 값 범위
  * @param steps 슬라이더 내 눈금의 개수 (0이면 연속적인 슬라이더)
  * @param title 슬라이더 위에 표시할 제목 (선택 사항)
- * @param icon 슬라이더에 사용할 이미지 벡터 아이콘 (선택 사항)
+ * @param icon 슬라이더에 사용할 아이콘 데이터 (선택 사항)
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -1017,7 +1017,7 @@ fun SectionScope.slider(
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     @IntRange(from = 0) steps: Int = 0,
     title: String? = null,
-    icon: ImageVector? = null
+    icon: IconData? = null
 ) {
     item(
         title = { title?.let { Text(text = it) } },

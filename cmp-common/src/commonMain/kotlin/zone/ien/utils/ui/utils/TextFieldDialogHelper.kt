@@ -10,6 +10,7 @@ import androidx.compose.ui.text.input.KeyboardType
  * 초기 값, 값 변경 처리, 유효성 검사, 그리고 텍스트 필드의 다양한 UI 관련 설정을 포함합니다.
  *
  * @property initialValue 텍스트 필드의 초기 값
+ * @property enabled 텍스트 필드의 활성화 여부
  * @property onValueChange 텍스트 필드 값 변경을 처리하는 함수 (null을 반환하면 변경 사항이 무시됨)
  * @property valid 텍스트 필드 값 유효성 검사 함수
  * @property placeholder 텍스트 필드의 placeholder 텍스트
@@ -30,5 +31,6 @@ data class TextFieldDialogData(
     val keyboardType: KeyboardType = KeyboardType.Unspecified,
     val imeAction: ImeAction = ImeAction.Unspecified,
     val maxLines: Int = Int.MAX_VALUE,
-    val minLines: Int = 1
+    val minLines: Int = 1,
+    val enabled: Boolean = true,
 )

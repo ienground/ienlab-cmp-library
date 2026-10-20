@@ -13,12 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.toneColor
@@ -72,7 +70,7 @@ object IenLinkIconDefaults {
 /**
  * 섹션에서 의미적 톤에 맞춘 링크 아이콘을 표시합니다.
  *
- * @param painter 표시할 아이콘을 그리는 Painter입니다.
+ * @param icon 표시할 아이콘 데이터입니다.
  * @param modifier 컴포저블에 적용할 [Modifier]입니다.
  * @param tone 링크 아이콘의 의미적 색상 톤입니다.
  * @param toneVariant 링크 아이콘 색상의 강도입니다.
@@ -82,7 +80,7 @@ object IenLinkIconDefaults {
  */
 @Composable
 fun IenLinkIcon(
-    painter: Painter,
+    icon: IconData,
     modifier: Modifier = Modifier,
     tone: IenSemanticTone = IenSemanticTone.Brand,
     toneVariant: IenLinkIconToneVariant = IenLinkIconToneVariant.Weak,
@@ -90,7 +88,7 @@ fun IenLinkIcon(
     shape: Shape = IenLinkIconDefaults.Shape,
     contentDescription: String? = null,
 ) = IenIcon(
-    painter = painter,
+    icon = icon,
     contentDescription = contentDescription,
     tint = colors.content,
     modifier =
@@ -99,26 +97,6 @@ fun IenLinkIcon(
             .background(colors.container)
             .padding(IenTheme.spacing.xxs + IenTheme.spacing.xxxs)
             .size(IenTheme.icon.md)
-)
-
-/** [ImageVector]를 사용하는 링크 아이콘을 표시합니다. */
-@Composable
-fun IenLinkIcon(
-    imageVector: ImageVector,
-    modifier: Modifier = Modifier,
-    tone: IenSemanticTone = IenSemanticTone.Brand,
-    toneVariant: IenLinkIconToneVariant = IenLinkIconToneVariant.Weak,
-    colors: IenLinkIconColors = IenLinkIconDefaults.colors(tone, toneVariant),
-    shape: Shape = IenLinkIconDefaults.Shape,
-    contentDescription: String? = null,
-) = IenLinkIcon(
-    painter = rememberVectorPainter(imageVector),
-    modifier = modifier,
-    tone = tone,
-    toneVariant = toneVariant,
-    colors = colors,
-    shape = shape,
-    contentDescription = contentDescription,
 )
 
 /** 링크 아이콘의 톤과 모양을 사용해 텍스트를 표시합니다. */

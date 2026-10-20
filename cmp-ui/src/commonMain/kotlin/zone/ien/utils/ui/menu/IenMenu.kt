@@ -38,7 +38,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -56,6 +55,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import com.kyant.capsule.ContinuousRoundedRectangle
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenIcon
@@ -870,20 +870,20 @@ object IenMenu {
     /**
      * 드롭다운 메뉴 항목에서 사용하기 위해 최적화된 아이콘 컴포저블입니다.
      *
-     * @param imageVector 표시할 [ImageVector]
+     * @param icon 표시할 아이콘 데이터
      * @param contentDescription 아이콘의 설명 텍스트
      * @param modifier 아이콘에 적용할 Modifier
      * @param tint 아이콘 색상 (기본값: textTertiary)
      */
     @Composable
     fun DropdownIcon(
-        imageVector: ImageVector,
+        icon: IconData,
         contentDescription: String? = null,
         modifier: Modifier = Modifier,
         tint: Color = IenTheme.colors.textTertiary,
     ) {
         IenIcon(
-            imageVector = imageVector,
+            icon = icon,
             contentDescription = contentDescription,
             modifier = modifier,
             tint = tint,
@@ -922,6 +922,7 @@ object IenMenu {
                     role = role,
                     onClick = onClick,
                 ),
+            contentAlignment = Alignment.CenterStart,
         ) {
             if (pressAlpha > 0f || selected) {
                 Box(
@@ -961,7 +962,7 @@ object IenMenu {
         ) {
             if (checked) {
                 IenIcon(
-                    imageVector = SystemIcons.Check,
+                    icon = IconData.Vector(SystemIcons.Check),
                     contentDescription = "선택됨",
                     modifier = Modifier.size(IenTheme.icon.sm),
                     tint = if (enabled) IenTheme.colors.brand else IenTheme.colors.textDisabled,

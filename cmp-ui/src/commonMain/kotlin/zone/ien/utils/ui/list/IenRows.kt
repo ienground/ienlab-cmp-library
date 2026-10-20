@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousCapsule
 import com.kyant.capsule.ContinuousRoundedRectangle
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
@@ -271,7 +272,7 @@ fun IenListRow(
                             LocalContentColor provides IenTheme.colors.textTertiary
                         ) {
                             IenIcon(
-                                imageVector = SystemIcons.ChevronRight,
+                                icon = IconData.Vector(SystemIcons.ChevronRight),
                                 contentDescription = null
                             )
                         }

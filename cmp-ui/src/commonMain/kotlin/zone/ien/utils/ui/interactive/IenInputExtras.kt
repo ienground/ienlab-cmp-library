@@ -85,6 +85,7 @@ import zone.ien.utils.cmp_ui.generated.resources.number_spinner
 import zone.ien.utils.cmp_ui.generated.resources.rate_stars
 import zone.ien.utils.cmp_ui.generated.resources.rating_score
 import zone.ien.utils.cmp_ui.generated.resources.rating_value
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.tabler.TablerIcons
 import zone.ien.utils.icon.tabler.fill.Star
@@ -809,7 +810,7 @@ private fun IenRatingStar(
             }
         } else {
             IenIcon(
-                imageVector = ratingIcon,
+                icon = IconData.Vector(ratingIcon),
                 contentDescription = null,
                 modifier = Modifier
                     .size(iconSize)

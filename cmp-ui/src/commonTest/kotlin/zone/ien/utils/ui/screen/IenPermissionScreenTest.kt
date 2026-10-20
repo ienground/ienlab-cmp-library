@@ -6,6 +6,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import zone.ien.utils.icon.IconData
 
 class IenPermissionScreenTest {
     @Test
@@ -18,12 +19,12 @@ class IenPermissionScreenTest {
             viewportHeight = 24f,
         ).build()
         val item = IenPermissionItem(
-            icon = icon,
+            icon = IconData.Vector(icon),
             title = "알림",
             description = "중요한 소식을 알려드립니다.",
         )
 
-        assertEquals(icon, item.icon)
+        assertEquals(IconData.Vector(icon), item.icon)
         assertEquals("알림", item.title)
         assertEquals("중요한 소식을 알려드립니다.", item.description)
         assertTrue(item.isRequired)

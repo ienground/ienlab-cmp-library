@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousCapsule
 import kotlinx.coroutines.launch
+import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.tabler.TablerIcons
 import zone.ien.utils.icon.tabler.line.Check
@@ -256,12 +257,12 @@ enum class IenSegmentedControlAlignment {
 /**
  * 세그먼티드 컨트롤의 개별 아이템 속성을 정의하는 데이터 클래스.
  *
- * @property value 아이템의 실제 식별 값. 문자열뿐 아니라 Boolean, Int 등 null이 아닌 모든 타입을 사용할 수 있습니다.
+ * @property value 아이템의 실제 식별 값. null을 포함한 모든 타입을 사용할 수 있습니다.
  * @property label 아이템에 표시될 라벨 텍스트.
  * @property enabled 개별 아이템의 활성화 여부.
  * @property size 개별 아이템에 적용할 오버라이드 크기 규격. null인 경우 컨트롤 기본 크기를 따릅니다.
  */
-data class IenSegmentedControlItem<T : Any>(
+data class IenSegmentedControlItem<T>(
     val value: T,
     val label: String,
     val enabled: Boolean = true,
@@ -278,15 +279,16 @@ private data class IenSegmentedControlItemBounds(
  *
  * @param items 표시할 옵션 아이템 목록 ([IenSegmentedControlItem]).
  * @param modifier 컴포저블에 적용할 [Modifier].
- * @param value 외부 상태로 제어되는 현재 선택된 값. null인 경우 컴포저블 내부 상태를 사용합니다.
+ * @param value 외부 상태로 제어되는 현재 선택된 값. 기본적으로 null이면 내부 상태를 사용합니다.
  * @param defaultValue 내부 상태로 제어될 때 처음에 선택될 기본 값.
  * @param onChange 선택 값이 변경되었을 때 호출되는 콜백 함수.
  * @param size 세그먼티드 컨트롤의 크기 규격 ([IenSegmentedControlSize]). 기본값은 [IenSegmentedControlSize.Small].
  * @param alignment 옵션 아이템들의 가로 너비 정렬 및 스크롤 옵션 ([IenSegmentedControlAlignment]). 기본값은 [IenSegmentedControlAlignment.Fixed].
  * @param enabled 활성화 여부. false일 경우 상호작용할 수 없습니다.
+ * @param isValueControlled 외부 값 제어 여부. 기본값은 value가 null이 아닌 경우 true이며, null 값 자체를 제어하려면 true로 지정합니다.
  */
 @Composable
-fun <T : Any> IenSegmentedControl(
+fun <T> IenSegmentedControl(
     items: List<IenSegmentedControlItem<T>>,
     modifier: Modifier = Modifier,
     value: T? = null,
@@ -295,19 +297,20 @@ fun <T : Any> IenSegmentedControl(
     size: IenSegmentedControlSize = IenSegmentedControlSize.Small,
     alignment: IenSegmentedControlAlignment = IenSegmentedControlAlignment.Fixed,
     enabled: Boolean = true,
+    isValueControlled: Boolean = value != null,
 ) {
     var localValue by remember(items, defaultValue) {
-        mutableStateOf<T?>(defaultValue ?: items.firstOrNull { it.enabled }?.value ?: items.firstOrNull()?.value)
+        mutableStateOf<T?>(defaultValue ?: (items.firstOrNull { it.enabled } ?: items.firstOrNull())?.value)
     }
-    val selectedValue = value ?: localValue
+    val selectedValue = if (isValueControlled) value else localValue
     val density = LocalDensity.current
     val scrollState = rememberScrollState()
-    var pressedValue by remember { mutableStateOf<T?>(null) }
+    var pressedIndex by remember { mutableStateOf(-1) }
     var itemBounds by remember(items) { mutableStateOf<Map<T, IenSegmentedControlItemBounds>>(emptyMap()) }
     var viewportWidthPx by remember { mutableStateOf(0) }
     val height = size.segmentedControlHeight()
     val itemHeight = height - IenTheme.spacing.xxs * 2
-    val selectedBounds = selectedValue?.let(itemBounds::get)
+    val selectedBounds = itemBounds.entries.firstOrNull { it.key == selectedValue }?.value
     val indicatorOffset by animateDpAsState(
         targetValue = selectedBounds?.left ?: 0.dp,
         animationSpec = spring(
@@ -371,11 +374,11 @@ fun <T : Any> IenSegmentedControl(
                 horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                items.forEach { item ->
+                items.forEachIndexed { index, item ->
                     val itemSize = item.size ?: size
                     val itemEnabled = enabled && item.enabled
                     val selected = item.value == selectedValue
-                    val itemPressed = pressedValue == item.value
+                    val itemPressed = pressedIndex == index
                     val itemScale by animateFloatAsState(
                         targetValue = if (itemPressed && itemEnabled) 0.92f else 1f,
                         animationSpec = spring(
@@ -419,7 +422,7 @@ fun <T : Any> IenSegmentedControl(
                             }
                             .shakeOnDisabledClick(itemEnabled)
                             .instantPress(itemEnabled) { pressed ->
-                                pressedValue = if (pressed) item.value else null
+                                pressedIndex = if (pressed) index else -1
                             }
                             .graphicsLayer {
                                 alpha = itemAlpha
@@ -434,7 +437,7 @@ fun <T : Any> IenSegmentedControl(
                                 indication = null,
                             ) {
                                 if (!selected) {
-                                    if (value == null) {
+                                    if (!isValueControlled) {
                                         localValue = item.value
                                     }
                                     onChange(item.value)
@@ -543,7 +546,7 @@ private fun IenCheckMark(
     modifier: Modifier = Modifier,
 ) {
     IenIcon(
-        imageVector = SystemIcons.Check,
+        icon = IconData.Vector(SystemIcons.Check),
         contentDescription = null,
         modifier = modifier,
         tint = color,
@@ -836,7 +839,7 @@ fun IenCircleCheckbox(
             contentAlignment = Alignment.Center
         ) {
             IenIcon(
-                imageVector = SystemIcons.Check,
+                icon = IconData.Vector(SystemIcons.Check),
                 contentDescription = null,
                 tint = checkAnimColor,
                 modifier = Modifier.size(size * 0.65f)
@@ -1080,7 +1083,7 @@ fun IenLineCheckbox(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IenIcon(
-            imageVector = SystemIcons.Check,
+            icon = IconData.Vector(SystemIcons.Check),
             contentDescription = null,
             tint = checkAnimColor,
             modifier = Modifier

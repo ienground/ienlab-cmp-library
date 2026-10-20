@@ -31,8 +31,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -136,57 +134,7 @@ fun IenProvideTextStyle(
 }
 
 /**
- * 지정된 벡터 드로어블 이미지([imageVector])를 렌더링하는 기본 아이콘 컴포저블입니다.
- *
- * @param imageVector 화면에 그릴 벡터 그래픽 데이터 ([ImageVector])
- * @param contentDescription 시각장애인 접근성을 위한 스크린 리더용 설명문
- * @param modifier 적용할 [Modifier]
- * @param tint 아이콘 문양에 칠할 전경색
- * @param size 아이콘의 전체 크기 ([Dp])
- */
-@Composable
-fun IenIcon(
-    imageVector: ImageVector,
-    contentDescription: String?,
-    modifier: Modifier = Modifier,
-    tint: Color = LocalContentColor.current,
-    size: Dp = IenTheme.icon.md,
-) {
-    Icon(
-        imageVector = imageVector,
-        contentDescription = contentDescription,
-        tint = tint,
-        modifier = modifier.size(size),
-    )
-}
-
-/**
- * 지정된 페인터 이미지([painter])를 렌더링하는 기본 아이콘 컴포저블입니다.
- *
- * @param painter 화면에 그릴 페인터 이미지 ([Painter])
- * @param contentDescription 시각장애인 접근성을 위한 스크린 리더용 설명문
- * @param modifier 적용할 [Modifier]
- * @param tint 아이콘 문양에 칠할 전경색
- * @param size 아이콘의 전체 크기 ([Dp])
- */
-@Composable
-fun IenIcon(
-    painter: Painter,
-    contentDescription: String?,
-    modifier: Modifier = Modifier,
-    tint: Color = LocalContentColor.current,
-    size: Dp = IenTheme.icon.md,
-) {
-    Icon(
-        painter = painter,
-        contentDescription = contentDescription,
-        tint = tint,
-        modifier = modifier.size(size),
-    )
-}
-
-/**
- * 아이콘 데이터([icon])에 포함된 벡터 또는 페인터를 렌더링합니다.
+ * 아이콘 데이터([icon])를 렌더링하는 기본 아이콘 컴포저블입니다.
  *
  * @param icon 화면에 그릴 아이콘 데이터
  * @param contentDescription 시각장애인 접근성을 위한 스크린 리더용 설명문
@@ -203,20 +151,17 @@ fun IenIcon(
     size: Dp = IenTheme.icon.md,
 ) {
     when (icon) {
-        is IconData.Vector -> IenIcon(
+        is IconData.Vector -> Icon(
             imageVector = icon.imageVector,
             contentDescription = contentDescription,
-            modifier = modifier,
             tint = tint,
-            size = size,
+            modifier = modifier.size(size),
         )
-
-        is IconData.Paint -> IenIcon(
+        is IconData.Paint -> Icon(
             painter = icon.painter,
             contentDescription = contentDescription,
-            modifier = modifier,
             tint = tint,
-            size = size,
+            modifier = modifier.size(size),
         )
     }
 }
