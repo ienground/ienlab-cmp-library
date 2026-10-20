@@ -5,22 +5,22 @@ import androidx.compose.ui.Modifier
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.move_to_app_store
-import zone.ien.utils.cmp_ui.generated.resources.version_update_dialog_content
-import zone.ien.utils.cmp_ui.generated.resources.version_update_dialog_title
 
 @Composable
 actual fun UpdateAlertDialog(
     modifier: Modifier,
     visible: Boolean,
     appName: String,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    title: String,
+    message: String,
 ) {
     AlertDialog(
         modifier = modifier,
         visible = visible,
         icon = null,
-        title = stringResource(Res.string.version_update_dialog_title),
-        message = stringResource(Res.string.version_update_dialog_content, appName),
+        title = title,
+        message = message,
         onDismiss = onDismiss,
         textDismiss = stringResource(Res.string.move_to_app_store)
     )

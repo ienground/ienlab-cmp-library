@@ -14,7 +14,9 @@ actual fun SaveAlertDialog(
     enabledUnsave: Boolean,
     onSave: () -> Unit,
     enabledSave: Boolean,
-    buttonLayout: IenDialogButtonLayout
+    buttonLayout: IenDialogButtonLayout,
+    title: String,
+    message: String,
 ) {
     IenSaveAlertDialog(
         modifier = modifier,
@@ -25,5 +27,7 @@ actual fun SaveAlertDialog(
         onSave = onSave,
         enabledSave = enabledSave,
         buttonLayout = buttonLayout,
+        title = title,
+        message = message,
     )
 }

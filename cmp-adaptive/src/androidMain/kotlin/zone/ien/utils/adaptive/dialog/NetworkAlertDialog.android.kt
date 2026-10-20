@@ -9,10 +9,14 @@ actual fun NetworkAlertDialog(
     modifier: Modifier,
     visible: Boolean,
     onDismiss: (() -> Unit)?,
+    title: String,
+    message: String,
 ) {
     IenNetworkAlertDialog(
         modifier = modifier,
         visible = visible,
         onDismiss = onDismiss,
+        title = title,
+        message = message,
     )
 }

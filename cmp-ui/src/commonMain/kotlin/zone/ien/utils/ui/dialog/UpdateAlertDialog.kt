@@ -17,6 +17,8 @@ import zone.ien.utils.ui.primitives.IenIcon
  * @param visible 다이얼로그의 표시 여부
  * @param appName 앱의 이름
  * @param onDismiss 다이얼로그를 닫기 위한 콜백 함수
+ * @param title 다이얼로그 제목
+ * @param message 다이얼로그 내용
  */
 @Composable
 fun IenUpdateAlertDialog(
@@ -24,13 +26,15 @@ fun IenUpdateAlertDialog(
     visible: Boolean,
     appName: String,
     onDismiss: () -> Unit,
+    title: String = stringResource(Res.string.version_update_dialog_title),
+    message: String = stringResource(Res.string.version_update_dialog_content, appName),
 ) {
     IenAlertDialog(
         modifier = modifier,
         visible = visible,
         icon = { IenIcon(icon = IconData.Vector(SystemIcons.Update), contentDescription = null) },
-        title = stringResource(Res.string.version_update_dialog_title),
-        message = stringResource(Res.string.version_update_dialog_content, appName),
+        title = title,
+        message = message,
         onDismiss = onDismiss,
         textDismiss = updateAlertDismissText
     )

@@ -22,7 +22,9 @@ actual fun DeleteAlertDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     enabledConfirm: Boolean,
-    buttonLayout: IenDialogButtonLayout
+    buttonLayout: IenDialogButtonLayout,
+    title: String,
+    message: String,
 ) {
     IenDeleteAlertDialog(
         modifier = modifier,
@@ -31,5 +33,7 @@ actual fun DeleteAlertDialog(
         onConfirm = onConfirm,
         enabledConfirm = enabledConfirm,
         buttonLayout = buttonLayout,
+        title = title,
+        message = message,
     )
 }

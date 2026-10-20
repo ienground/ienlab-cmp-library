@@ -6,8 +6,6 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
 import zone.ien.utils.cmp_ui.generated.resources.not_save
 import zone.ien.utils.cmp_ui.generated.resources.save
-import zone.ien.utils.cmp_ui.generated.resources.save_dialog_content
-import zone.ien.utils.cmp_ui.generated.resources.save_dialog_title
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.ui.dialog.IenDialogButtonLayout
 
@@ -32,13 +30,15 @@ actual fun SaveAlertDialog(
     enabledUnsave: Boolean,
     onSave: () -> Unit,
     enabledSave: Boolean,
-    buttonLayout: IenDialogButtonLayout
+    buttonLayout: IenDialogButtonLayout,
+    title: String,
+    message: String,
 ) {
     AlertDialog(
         visible = visible,
         icon = null,
-        title = stringResource(Res.string.save_dialog_title),
-        message = stringResource(Res.string.save_dialog_content),
+        title = title,
+        message = message,
         textNeutral = stringResource(Res.string.not_save),
         styleNeutral = UIAlertActionStyle.Destructive,
         onNeutral = onUnsave,
