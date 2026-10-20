@@ -300,7 +300,7 @@ fun <T> IenSegmentedControl(
     isValueControlled: Boolean = value != null,
 ) {
     var localValue by remember(items, defaultValue) {
-        mutableStateOf<T?>(defaultValue ?: items.firstOrNull { it.enabled }?.value ?: items.firstOrNull()?.value)
+        mutableStateOf<T?>(defaultValue ?: (items.firstOrNull { it.enabled } ?: items.firstOrNull())?.value)
     }
     val selectedValue = if (isValueControlled) value else localValue
     val density = LocalDensity.current
