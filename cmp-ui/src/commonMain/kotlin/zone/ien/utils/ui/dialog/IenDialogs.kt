@@ -67,6 +67,7 @@ enum class IenDialogButtonLayout {
  * @param onEntered 다이얼로그가 화면에 나타날 때 호출되는 콜백 함수
  * @param onExited 다이얼로그가 화면에서 사라질 때 호출되는 콜백 함수
  * @param enabledConfirm 확인 버튼 활성화 여부
+ * @param description 본문에 표시할 커스텀 Composable. 지정하면 [message]를 대신합니다.
  */
 @Composable
 fun IenAlertDialog(
@@ -83,6 +84,7 @@ fun IenAlertDialog(
     onEntered: (() -> Unit)? = null,
     onExited: (() -> Unit)? = null,
     enabledConfirm: Boolean = true,
+    description: (@Composable () -> Unit)? = null,
 ) {
     IenAlertDialog(
         visible = visible,
@@ -95,7 +97,7 @@ fun IenAlertDialog(
         title = {
             IenAlertDialogTitle(text = title)
         },
-        description = message?.let {
+        description = description ?: message?.let {
             {
                 IenAlertDialogDescription(text = it)
             }
