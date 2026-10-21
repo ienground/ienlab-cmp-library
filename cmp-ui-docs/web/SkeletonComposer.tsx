@@ -8,6 +8,7 @@ import { ChevronDown, ChevronUp, Copy, Plus, RotateCcw, Trash2 } from "lucide-re
 import { DropdownMenu } from "radix-ui";
 import { highlightKotlin } from "./ColorSchemeBuilder";
 import { copyTextToClipboard } from "./clipboard";
+import designTokens from "./generated-design-tokens.json";
 
 type PresetKind = "Title" | "Subtitle" | "List" | "ListWithIcon" | "Card";
 type ElementKind = "Block" | "Row" | "Column" | "Box" | "Spacer" | PresetKind | "ListRowTexts";
@@ -25,43 +26,15 @@ type WidthValue =
   | { mode: "fraction"; fraction: number }
   | { mode: "dp"; value: number }
   | { mode: "radius"; token: RadiusToken; multiplier: number };
-type SpacingToken =
-  | "none"
-  | "xxxs"
-  | "xxs"
-  | "xs"
-  | "sm"
-  | "md"
-  | "lg"
-  | "xl"
-  | "xxl"
-  | "xxxl";
+type SpacingToken = keyof typeof designTokens.spacing;
 type SpacingValue =
   | { unit: "dp"; value: number }
   | { unit: "token"; token: SpacingToken }
   | RadiusHeight;
 
-type TypographyToken =
-  | "display"
-  | "title1"
-  | "title2"
-  | "title3"
-  | "body1"
-  | "body2"
-  | "label1"
-  | "label2"
-  | "caption";
+type TypographyToken = keyof typeof designTokens.typography;
 
-const radiusTokenValues = {
-  none: 0,
-  xs: 4,
-  sm: 8,
-  default: 12,
-  md: 12,
-  lg: 16,
-  xl: 24,
-  full: 999,
-};
+const radiusTokenValues = designTokens.radius;
 type RadiusToken = keyof typeof radiusTokenValues;
 type RadiusHeight = { unit: "radius"; token: RadiusToken; multiplier: number };
 type HeightValue = number | RadiusHeight | { unit: "typography"; token: TypographyToken };
@@ -134,41 +107,11 @@ const elementKinds: ElementKind[] = [
   "Block", "Row", "Column", "Box", "Spacer",
   "Title", "Subtitle", "List", "ListWithIcon", "Card", "ListRowTexts",
 ];
-const spacingTokens: SpacingToken[] = [
-  "none",
-  "xxxs",
-  "xxs",
-  "xs",
-  "sm",
-  "md",
-  "lg",
-  "xl",
-  "xxl",
-  "xxxl",
-];
-const spacingTokenValues: Record<SpacingToken, number> = {
-  none: 0,
-  xxxs: 2,
-  xxs: 4,
-  xs: 8,
-  sm: 12,
-  md: 16,
-  lg: 20,
-  xl: 24,
-  xxl: 32,
-  xxxl: 40,
-};
-const typographyLineHeights: Record<TypographyToken, number> = {
-  display: 38,
-  title1: 32,
-  title2: 28,
-  title3: 26,
-  body1: 24,
-  body2: 22,
-  label1: 20,
-  label2: 18,
-  caption: 16,
-};
+const spacingTokenValues = designTokens.spacing;
+const spacingTokens = Object.keys(spacingTokenValues) as SpacingToken[];
+const typographyLineHeights = Object.fromEntries(
+  Object.entries(designTokens.typography).map(([name, style]) => [name, style.lineHeight]),
+) as Record<TypographyToken, number>;
 
 let nextNodeId = 0;
 

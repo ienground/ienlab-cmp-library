@@ -21,6 +21,7 @@ export default defineConfig(({ command }) => ({
     "import.meta.env.VITE_LIBRARY_VERSION": JSON.stringify(libraryVersion),
   },
   resolve: {
+    dedupe: ["react", "react-dom", "radix-ui", "class-variance-authority", "cn"],
     alias: {
       "@": fileURLToPath(new URL("./web", import.meta.url)),
     },

@@ -4,13 +4,14 @@
   "type": "module",
   "scripts": {
     "build:compose": "../gradlew :cmp-ui-docs:wasmJsBrowserDistribution --no-configuration-cache",
-    "dev": "npm run build:compose && npm run generate:api && npm run typecheck && npm run copy:compose && vite --host 0.0.0.0 --port 4800",
+    "dev": "npm run build:compose && npm run generate:api && npm run typecheck && npm run copy:compose && npm run build:registry && vite --host 0.0.0.0 --port 4800",
     "generate:api": "node scripts/generate-api-docs.mjs",
+    "build:registry": "npm run generate:api && shadcn build --cwd .. --output cmp-ui-docs/build/site/r registry.json",
     "typecheck": "tsc --noEmit",
     "test": "npm run generate:api && node --test web/color-scheme.test.ts",
     "build": "npm run generate:api && npm run typecheck && vite build",
     "copy:compose": "node scripts/copy-compose-preview.mjs",
-    "build:site": "npm run build && npm run copy:compose"
+    "build:site": "npm run build && npm run build:registry && npm run copy:compose"
   },
   "dependencies": {
     "@remixicon/react": "4.9.0",

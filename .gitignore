@@ -6,6 +6,8 @@ build
 node_modules
 cmp-ui-docs/web/generated-api-docs.json
 cmp-ui-docs/web/generated-color-scheme.json
+cmp-ui-docs/web/generated-design-tokens.json
+cmp-ui-docs/web/generated-design-tokens.css
 captures
 .externalNativeBuild
 .cxx
