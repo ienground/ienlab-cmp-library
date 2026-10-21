@@ -25,3 +25,6 @@ example/iosApp/iosApp/GoogleService-Info.plist
 example/iosApp/KotlinMultiplatformLinkedPackage/
 example/iosApp/iosApp.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
 cmp-ui/MIGRATION.md
+cmp-ui-docs/web/generated-web-catalog.json
+cmp-ui-docs/tsconfig.registry.json
+cmp-ui-docs/web/generated-web-sources.json

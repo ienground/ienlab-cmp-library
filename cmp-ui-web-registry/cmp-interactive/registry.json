@@ -1,0 +1,1903 @@
+{
+  "items": [
+    {
+      "name": "wheel-picker",
+      "type": "registry:ui",
+      "title": "WheelPicker",
+      "description": "날짜·시각·기간 값을 휠 방식으로 선택하는 CMP 입력 컴포넌트입니다.",
+      "files": [
+        {
+          "path": "wheel-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/wheel-picker.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens"
+      ],
+      "meta": {
+        "preview": "previews/wheel-picker.tsx",
+        "example": "import { IenDateWheelPicker, IenTimeWheelPicker, IenDurationWheelPicker } from \"@/components/ui/wheel-picker\"; <IenDateWheelPicker value={date} min={minDate} max={maxDate} onValueChange={setDate} />; <IenTimeWheelPicker value={time} use24HourFormat={false} onValueChange={setTime} />; <IenDurationWheelPicker value={seconds} maxHours={72} onValueChange={setSeconds} />",
+        "exports": [
+          "WheelPicker",
+          "IenWheelPicker",
+          "WheelPickerOption",
+          "WheelPickerProps",
+          "DateWheelPicker",
+          "IenDateWheelPicker",
+          "DateWheelPickerProps",
+          "TimeWheelPicker",
+          "IenTimeWheelPicker",
+          "TimeWheelPickerProps",
+          "TimeWheelField",
+          "DurationWheelPicker",
+          "IenDurationWheelPicker",
+          "DurationWheelPickerProps",
+          "DurationWheelField"
+        ],
+        "cmpIds": [
+          "wheel-picker"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenDateTimeWheelPicker.kt",
+        "cmpPublicApi": [
+          "IenDateWheelPicker",
+          "IenTimeWheelPicker",
+          "IenDurationWheelPicker"
+        ],
+        "constraints": [
+          "날짜 선택은 브라우저 현지 날짜 기준이며 min/max, isDateDisabled와 월별 일수·윤년을 반영합니다. 기본 선택 가능 연도는 1900..2100입니다.",
+          "시각 값은 HH:mm:ss 문자열, 기간 값은 초 단위 number로 표현합니다.",
+          "웹 브라우저에서는 Compose의 플랫폼 사운드·햅틱 휠 피드백을 제공하지 않습니다."
+        ],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "smoke-passed"
+        }
+      },
+      "dependencies": [
+        "cn"
+      ]
+    },
+    {
+      "name": "bottom-sheet",
+      "type": "registry:ui",
+      "title": "BottomSheet",
+      "description": "하단에서 열리는 콘텐츠 시트와 상태 제어를 제공합니다.",
+      "files": [
+        {
+          "path": "bottom-sheet.tsx",
+          "type": "registry:ui",
+          "target": "@ui/bottom-sheet.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/sheet",
+        "@ienlab/button",
+        "@ienlab/radio-group"
+      ],
+      "meta": {
+        "preview": "previews/bottom-sheet.tsx",
+        "example": "import { BottomSheet } from \"@/components/ui/bottom-sheet\"; const [open, setOpen] = useState(false); <BottomSheet open={open} onOpenChange={setOpen} title=\"옵션\">...</BottomSheet>",
+        "exports": [
+          "BottomSheet",
+          "IenBottomSheet",
+          "BottomSheetProps",
+          "BottomSheetSelect",
+          "IenBottomSheetSelect",
+          "BottomSheetSelectProps",
+          "BottomSheetOption"
+        ],
+        "cmpIds": [
+          "bottom-sheet"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/feedback/IenBottomSheet.kt",
+        "cmpPublicApi": [
+          "IenBottomSheet",
+          "IenBottomSheetSelect",
+          "IenBottomSheetState",
+          "IenSheetDetent",
+          "rememberIenBottomSheetState",
+          "IenBottomSheetOption"
+        ],
+        "constraints": [
+          "CMP의 Content·Medium·Full 스냅 detent 대신 웹 Sheet의 bottom 배치와 최대 높이를 사용합니다."
+        ],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn"
+      ]
+    },
+    {
+      "name": "split-button",
+      "type": "registry:ui",
+      "title": "Split Button",
+      "description": "주 동작과 보조 메뉴 동작을 분리한 버튼입니다.",
+      "files": [
+        {
+          "path": "split-button.tsx",
+          "type": "registry:ui",
+          "target": "@ui/split-button.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/button",
+        "@ienlab/dropdown-menu"
+      ],
+      "meta": {
+        "preview": "previews/split-button.tsx",
+        "example": "import { SplitButton } from \"@/components/ui/split-button\"; <SplitButton label=\"저장\" onClick={save} actions={[{ label: \"초안 저장\", onSelect: saveDraft }]} />",
+        "exports": [
+          "SplitButton",
+          "IenSplitButton",
+          "SplitButtonProps"
+        ],
+        "cmpIds": [
+          "split-button"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenSplitButton.kt",
+        "cmpPublicApi": [
+          "IenSplitButton"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "chip",
+      "type": "registry:ui",
+      "title": "Chip",
+      "description": "보조·필터·입력·제안 칩의 선택 및 제거 동작을 제공합니다.",
+      "files": [
+        {
+          "path": "chip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/chip.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens"
+      ],
+      "meta": {
+        "preview": "previews/chip.tsx",
+        "example": "import { Chip } from \"@/components/ui/chip\"; <Chip kind=\"filter\" selected={selected} onSelectedChange={setSelected}>즐겨찾기</Chip>",
+        "exports": [
+          "Chip",
+          "IenChip",
+          "ChipProps"
+        ],
+        "cmpIds": [
+          "chip"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenChip.kt",
+        "cmpPublicApi": [
+          "IenAssistChip",
+          "IenElevatedAssistChip",
+          "IenFilterChip",
+          "IenElevatedFilterChip",
+          "IenInputChip",
+          "IenSuggestionChip",
+          "IenElevatedSuggestionChip"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "fab",
+      "type": "registry:ui",
+      "title": "FAB",
+      "description": "주요 동작을 강조하는 플로팅 액션 버튼입니다.",
+      "files": [
+        {
+          "path": "fab.tsx",
+          "type": "registry:ui",
+          "target": "@ui/fab.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/button"
+      ],
+      "meta": {
+        "preview": "previews/fab.tsx",
+        "example": "import { Fab } from \"@/components/ui/fab\"; <Fab label=\"추가\" onClick={addItem}><Plus /></Fab>",
+        "exports": [
+          "Fab",
+          "IenFab",
+          "FabProps",
+          "ExtendedFab",
+          "IenExtendedFab"
+        ],
+        "cmpIds": [
+          "fab"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenButton.kt",
+        "cmpPublicApi": [
+          "IenFab",
+          "IenExtendedFab"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn"
+      ]
+    },
+    {
+      "name": "fab-menu",
+      "type": "registry:ui",
+      "title": "FAB Menu",
+      "description": "플로팅 버튼에서 보조 동작 목록을 펼칩니다.",
+      "files": [
+        {
+          "path": "fab-menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/fab-menu.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/button"
+      ],
+      "meta": {
+        "preview": "previews/fab-menu.tsx",
+        "example": "import { FabMenu } from \"@/components/ui/fab-menu\"; <FabMenu actions={[{ label: \"편집\", onSelect: edit }]} />",
+        "exports": [
+          "FabMenu",
+          "IenFabMenu",
+          "FabMenuProps"
+        ],
+        "cmpIds": [
+          "fab-menu"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenFabMenu.kt",
+        "cmpPublicApi": [
+          "IenFabMenu",
+          "IenFabMenuButton",
+          "IenFabMenuItem",
+          "IenFabMenuScope"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "radio-button",
+      "type": "registry:ui",
+      "title": "RadioButton",
+      "description": "단일 선택 상태와 설명을 지원하는 라디오 그룹 확장입니다.",
+      "files": [
+        {
+          "path": "radio-button.tsx",
+          "type": "registry:ui",
+          "target": "@ui/radio-button.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/radio-group"
+      ],
+      "meta": {
+        "preview": "previews/radio-button.tsx",
+        "example": "import { RadioButton } from \"@/components/ui/radio-button\"; <RadioButton value={plan} onValueChange={setPlan} options={plans} />",
+        "exports": [
+          "RadioButton",
+          "IenRadioButton",
+          "RadioButtonProps"
+        ],
+        "cmpIds": [
+          "radio-button"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenSelection.kt",
+        "cmpPublicApi": [
+          "IenRadioButton",
+          "IenRadioGroup",
+          "IenRadioGroupItem"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn"
+      ]
+    },
+    {
+      "name": "icon-button",
+      "type": "registry:ui",
+      "title": "IconButton",
+      "description": "아이콘 동작과 선택 상태 전환을 제공하는 버튼입니다.",
+      "files": [
+        {
+          "path": "icon-button.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icon-button.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/button"
+      ],
+      "meta": {
+        "preview": "previews/icon-button.tsx",
+        "example": "import { IconButton } from \"@/components/ui/icon-button\"; <IconButton label=\"즐겨찾기\" pressed={saved} onPressedChange={setSaved}><Heart /></IconButton>",
+        "exports": [
+          "IconButton",
+          "IenIconButton",
+          "IconButtonProps"
+        ],
+        "cmpIds": [
+          "icon-button"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenButton.kt",
+        "cmpPublicApi": [
+          "IenIconButton",
+          "IenIconToggleButton"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn"
+      ]
+    },
+    {
+      "name": "pull-to-refresh",
+      "type": "registry:ui",
+      "title": "PullToRefresh",
+      "description": "스크롤 콘텐츠의 아래로 당기기와 새로고침 상태를 제공합니다.",
+      "files": [
+        {
+          "path": "pull-to-refresh.tsx",
+          "type": "registry:ui",
+          "target": "@ui/pull-to-refresh.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens"
+      ],
+      "meta": {
+        "preview": "previews/pull-to-refresh.tsx",
+        "example": "import { PullToRefresh } from \"@/components/ui/pull-to-refresh\"; <PullToRefresh onRefresh={reload}><ItemList /></PullToRefresh>",
+        "exports": [
+          "PullToRefresh",
+          "IenPullToRefresh",
+          "PullToRefreshProps"
+        ],
+        "cmpIds": [
+          "pull-to-refresh"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/feedback/IenPullToRefresh.kt",
+        "cmpPublicApi": [
+          "IenPullToRefreshBox",
+          "IenPullToRefreshIndicator",
+          "IenPullToRefreshDefaults"
+        ],
+        "constraints": [
+          "브라우저의 최상단 스크롤 위치에서 포인터 당김으로 갱신하며 네이티브 진동 피드백은 제공하지 않습니다."
+        ],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "menu",
+      "type": "registry:ui",
+      "title": "Menu",
+      "description": "선택·삭제 등 메뉴 항목을 실행하는 드롭다운 메뉴입니다.",
+      "files": [
+        {
+          "path": "menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/menu.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/dropdown-menu",
+        "@ienlab/button"
+      ],
+      "meta": {
+        "preview": "previews/menu.tsx",
+        "example": "import { Menu } from \"@/components/ui/menu\"; <Menu items={[{ label: \"복사\", onSelect: copy }]} />",
+        "exports": [
+          "Menu",
+          "IenMenu",
+          "MenuProps"
+        ],
+        "cmpIds": [
+          "menu"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/menu/IenMenuModal.kt",
+        "cmpPublicApi": [
+          "IenMenu"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "modal",
+      "type": "registry:ui",
+      "title": "Modal",
+      "description": "제목·설명·본문·푸터를 갖는 모달과 열기 상태를 제공합니다.",
+      "files": [
+        {
+          "path": "modal.tsx",
+          "type": "registry:ui",
+          "target": "@ui/modal.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/dialog"
+      ],
+      "meta": {
+        "preview": "previews/modal.tsx",
+        "example": "import { Modal } from \"@/components/ui/modal\"; <Modal open={open} onOpenChange={setOpen} title=\"편집\">...</Modal>",
+        "exports": [
+          "Modal",
+          "IenModal",
+          "ModalProps"
+        ],
+        "cmpIds": [
+          "modal"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/menu/IenMenuModal.kt",
+        "cmpPublicApi": [
+          "IenModal"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn"
+      ]
+    },
+    {
+      "name": "numeric-spinner",
+      "type": "registry:ui",
+      "title": "NumericSpinner",
+      "description": "범위와 step에 따라 숫자를 증감하거나 직접 입력합니다.",
+      "files": [
+        {
+          "path": "numeric-spinner.tsx",
+          "type": "registry:ui",
+          "target": "@ui/numeric-spinner.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/input",
+        "@ienlab/button"
+      ],
+      "meta": {
+        "preview": "previews/numeric-spinner.tsx",
+        "example": "import { NumericSpinner } from \"@/components/ui/numeric-spinner\"; <NumericSpinner value={count} min={0} max={20} onValueChange={setCount} />",
+        "exports": [
+          "NumericSpinner",
+          "IenNumericSpinner",
+          "NumericSpinnerProps"
+        ],
+        "cmpIds": [
+          "numeric-spinner"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenInputExtras.kt",
+        "cmpPublicApi": [
+          "IenNumericSpinner"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "smoke-passed"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "rating",
+      "type": "registry:ui",
+      "title": "Rating",
+      "description": "편집 가능·읽기 전용 상태의 별점을 입력하고 표시합니다.",
+      "files": [
+        {
+          "path": "rating.tsx",
+          "type": "registry:ui",
+          "target": "@ui/rating.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens"
+      ],
+      "meta": {
+        "preview": "previews/rating.tsx",
+        "example": "import { Rating } from \"@/components/ui/rating\"; <Rating value={rating} onValueChange={setRating} max={5} />",
+        "exports": [
+          "Rating",
+          "IenRating",
+          "RatingProps"
+        ],
+        "cmpIds": [
+          "rating"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenInputExtras.kt",
+        "cmpPublicApi": [
+          "IenRating"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "search-field",
+      "type": "registry:ui",
+      "title": "SearchField",
+      "description": "검색어 입력, 지우기 및 제출을 지원하는 검색 필드입니다.",
+      "files": [
+        {
+          "path": "search-field.tsx",
+          "type": "registry:ui",
+          "target": "@ui/search-field.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/input",
+        "@ienlab/button"
+      ],
+      "meta": {
+        "preview": "previews/search-field.tsx",
+        "example": "import { SearchField } from \"@/components/ui/search-field\"; <SearchField value={query} onValueChange={setQuery} onSearch={search} />",
+        "exports": [
+          "SearchField",
+          "IenSearchField",
+          "SearchFieldProps"
+        ],
+        "cmpIds": [
+          "search-field"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenTextField.kt",
+        "cmpPublicApi": [
+          "IenSearchField",
+          "IenSearchFieldSearchIcon",
+          "IenSearchFieldDeleteButton"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "segmented-control",
+      "type": "registry:ui",
+      "title": "SegmentedControl",
+      "description": "하나의 값만 선택하는 세그먼트 컨트롤입니다.",
+      "files": [
+        {
+          "path": "segmented-control.tsx",
+          "type": "registry:ui",
+          "target": "@ui/segmented-control.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/toggle-group"
+      ],
+      "meta": {
+        "preview": "previews/segmented-control.tsx",
+        "example": "import { SegmentedControl } from \"@/components/ui/segmented-control\"; <SegmentedControl value={range} onValueChange={setRange} options={ranges} />",
+        "exports": [
+          "SegmentedControl",
+          "IenSegmentedControl",
+          "SegmentedControlProps"
+        ],
+        "cmpIds": [
+          "segmented-control"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenSelection.kt",
+        "cmpPublicApi": [
+          "IenSegmentedControl",
+          "IenSegmentedControlItem"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn"
+      ]
+    },
+    {
+      "name": "swipe-box",
+      "type": "registry:ui",
+      "title": "SwipeBox",
+      "description": "가로 스와이프로 행의 보조 액션을 표시합니다.",
+      "files": [
+        {
+          "path": "swipe-box.tsx",
+          "type": "registry:ui",
+          "target": "@ui/swipe-box.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens"
+      ],
+      "meta": {
+        "preview": "previews/swipe-box.tsx",
+        "example": "import { SwipeBox } from \"@/components/ui/swipe-box\"; <SwipeBox endAction={{ label: \"삭제\", onClick: remove }}><Row /></SwipeBox>",
+        "exports": [
+          "SwipeBox",
+          "IenSwipeBox",
+          "SwipeBoxProps"
+        ],
+        "cmpIds": [
+          "swipe-box"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/list/IenSwipeBox.kt",
+        "cmpPublicApi": [
+          "IenSwipeBox",
+          "IenSwipeBoxItem",
+          "rememberIenSwipeBoxState"
+        ],
+        "constraints": [
+          "브라우저에서는 포인터 스와이프 및 키보드로 보조 액션을 엽니다. 네이티브 햅틱 피드백은 제공하지 않습니다."
+        ],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn"
+      ]
+    },
+    {
+      "name": "stepper",
+      "type": "registry:ui",
+      "title": "Stepper",
+      "description": "순서가 있는 단계와 현재 진행 상태를 표시하고 허용 시 이동합니다.",
+      "files": [
+        {
+          "path": "stepper.tsx",
+          "type": "registry:ui",
+          "target": "@ui/stepper.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens"
+      ],
+      "meta": {
+        "preview": "previews/stepper.tsx",
+        "example": "import { Stepper } from \"@/components/ui/stepper\"; <Stepper steps={steps} currentStep={step} onStepChange={setStep} allowNavigation />",
+        "exports": [
+          "Stepper",
+          "IenStepper",
+          "StepperProps"
+        ],
+        "cmpIds": [
+          "stepper"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenControls.kt",
+        "cmpPublicApi": [
+          "IenStepper",
+          "IenStepperRow",
+          "IenStepperTexts",
+          "IenStepperTextsType",
+          "IenStepperNumberIcon",
+          "IenStepperAssetFrame",
+          "IenStepperAssetFrameShape",
+          "IenStepperAssetFrameColors",
+          "IenStepperAssetFrameDefaults",
+          "IenStepperRightArrow",
+          "IenStepperRightButton"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "tab",
+      "type": "registry:ui",
+      "title": "Tab",
+      "description": "탭 선택과 패널 전환을 지원하는 shadcn Tabs 확장입니다.",
+      "files": [
+        {
+          "path": "tab.tsx",
+          "type": "registry:ui",
+          "target": "@ui/tab.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/tabs"
+      ],
+      "meta": {
+        "preview": "previews/tab.tsx",
+        "example": "import { Tab } from \"@/components/ui/tab\"; <Tab value={tab} onValueChange={setTab} items={panels} />",
+        "exports": [
+          "Tab",
+          "IenTab",
+          "TabProps"
+        ],
+        "cmpIds": [
+          "tab"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenControls.kt",
+        "cmpPublicApi": [
+          "IenTab"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn"
+      ]
+    },
+    {
+      "name": "text-button",
+      "type": "registry:ui",
+      "title": "TextButton",
+      "description": "텍스트·밑줄·화살표 강조를 지원하는 버튼입니다.",
+      "files": [
+        {
+          "path": "text-button.tsx",
+          "type": "registry:ui",
+          "target": "@ui/text-button.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/button"
+      ],
+      "meta": {
+        "preview": "previews/text-button.tsx",
+        "example": "import { TextButton } from \"@/components/ui/text-button\"; <TextButton emphasis=\"arrow\" onClick={open}>더 보기</TextButton>",
+        "exports": [
+          "TextButton",
+          "IenTextButton",
+          "TextButtonProps"
+        ],
+        "cmpIds": [
+          "text-button"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenButton.kt",
+        "cmpPublicApi": [
+          "IenTextButton"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "snackbar",
+      "type": "registry:ui",
+      "title": "Snackbar",
+      "description": "자동 닫힘, 작업 동작과 상태 색상을 지원하는 스낵바입니다.",
+      "files": [
+        {
+          "path": "snackbar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/snackbar.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/button"
+      ],
+      "meta": {
+        "preview": "previews/snackbar.tsx",
+        "example": "import { Snackbar } from \"@/components/ui/snackbar\"; <Snackbar open={open} onOpenChange={setOpen} message=\"저장했습니다\" action={{ label: \"실행 취소\", onClick: undo }} />",
+        "exports": [
+          "Snackbar",
+          "IenSnackbar",
+          "SnackbarProps"
+        ],
+        "cmpIds": [
+          "snackbar"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/feedback/IenSnackbar.kt",
+        "cmpPublicApi": [
+          "IenSnackbar",
+          "IenSnackbarHost",
+          "IenSnackbarActionButton",
+          "IenSnackbarIcon"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "agreement",
+      "type": "registry:ui",
+      "title": "Agreement",
+      "description": "필수·선택 약관의 개별 및 전체 동의를 처리합니다.",
+      "files": [
+        {
+          "path": "agreement.tsx",
+          "type": "registry:ui",
+          "target": "@ui/agreement.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/checkbox"
+      ],
+      "meta": {
+        "preview": "previews/agreement.tsx",
+        "example": "import { Agreement } from \"@/components/ui/agreement\"; <Agreement items={terms} value={accepted} onValueChange={setAccepted} />",
+        "exports": [
+          "Agreement",
+          "IenAgreement",
+          "AgreementProps"
+        ],
+        "cmpIds": [
+          "agreement"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/screen/IenAgreement.kt",
+        "cmpPublicApi": [
+          "IenAgreement",
+          "IenAgreementCheckbox",
+          "IenAgreementText",
+          "IenAgreementNecessity",
+          "IenAgreementBadge",
+          "IenAgreementRightArrow",
+          "IenAgreementDescription",
+          "IenAgreementHeader",
+          "IenAgreementPressable",
+          "IenAgreementGroup",
+          "IenAgreementCollapsible",
+          "IenAgreementCollapsibleTrigger",
+          "IenAgreementCollapsibleContent",
+          "IenAgreementIndentPushable",
+          "IenAgreementIndentPushableTrigger",
+          "IenAgreementIndentPushableContent",
+          "IenAgreementVariant"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn"
+      ]
+    },
+    {
+      "name": "chat-bottom-bar",
+      "type": "registry:ui",
+      "title": "ChatBottomBar",
+      "description": "메시지 입력과 전송을 포함하는 채팅 하단 입력 영역입니다.",
+      "files": [
+        {
+          "path": "chat-bottom-bar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/chat-bottom-bar.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/textarea",
+        "@ienlab/button"
+      ],
+      "meta": {
+        "preview": "previews/chat-bottom-bar.tsx",
+        "example": "import { ChatBottomBar } from \"@/components/ui/chat-bottom-bar\"; <ChatBottomBar value={draft} onValueChange={setDraft} onSend={sendMessage} />",
+        "exports": [
+          "ChatBottomBar",
+          "IenChatBottomBar",
+          "ChatBottomBarProps"
+        ],
+        "cmpIds": [
+          "chat-bottom-bar"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/screen/IenChatBottomBar.kt",
+        "cmpPublicApi": [
+          "IenChatBottomBar"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "save-alert-dialog",
+      "type": "registry:ui",
+      "title": "SaveAlertDialog",
+      "description": "저장·취소·변경 사항 폐기 선택을 확인합니다.",
+      "files": [
+        {
+          "path": "save-alert-dialog.tsx",
+          "type": "registry:ui",
+          "target": "@ui/save-alert-dialog.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/alert-dialog"
+      ],
+      "meta": {
+        "preview": "previews/save-alert-dialog.tsx",
+        "example": "import { SaveAlertDialog } from \"@/components/ui/save-alert-dialog\"; <SaveAlertDialog open={open} onOpenChange={setOpen} onSave={save} onDiscard={discard} />",
+        "exports": [
+          "SaveAlertDialog",
+          "IenSaveAlertDialog",
+          "SaveAlertDialogProps"
+        ],
+        "cmpIds": [
+          "save-alert-dialog"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/dialog/SaveAlertDialog.kt",
+        "cmpPublicApi": [
+          "IenSaveAlertDialog"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      }
+    },
+    {
+      "name": "delete-alert-dialog",
+      "type": "registry:ui",
+      "title": "DeleteAlertDialog",
+      "description": "복구 불가능한 삭제 동작을 확인합니다.",
+      "files": [
+        {
+          "path": "delete-alert-dialog.tsx",
+          "type": "registry:ui",
+          "target": "@ui/delete-alert-dialog.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/alert-dialog"
+      ],
+      "meta": {
+        "preview": "previews/delete-alert-dialog.tsx",
+        "example": "import { DeleteAlertDialog } from \"@/components/ui/delete-alert-dialog\"; <DeleteAlertDialog open={open} onOpenChange={setOpen} onConfirm={remove} />",
+        "exports": [
+          "DeleteAlertDialog",
+          "IenDeleteAlertDialog",
+          "DeleteAlertDialogProps"
+        ],
+        "cmpIds": [
+          "delete-alert-dialog"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/dialog/DeleteAlertDialog.kt",
+        "cmpPublicApi": [
+          "IenDeleteAlertDialog"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      }
+    },
+    {
+      "name": "update-alert-dialog",
+      "type": "registry:ui",
+      "title": "UpdateAlertDialog",
+      "description": "앱 업데이트 안내와 업데이트 동작을 제공합니다.",
+      "files": [
+        {
+          "path": "update-alert-dialog.tsx",
+          "type": "registry:ui",
+          "target": "@ui/update-alert-dialog.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/alert-dialog"
+      ],
+      "meta": {
+        "preview": "previews/update-alert-dialog.tsx",
+        "example": "import { UpdateAlertDialog } from \"@/components/ui/update-alert-dialog\"; <UpdateAlertDialog open={open} onOpenChange={setOpen} appName=\"IEN\" onUpdate={update} />",
+        "exports": [
+          "UpdateAlertDialog",
+          "IenUpdateAlertDialog",
+          "UpdateAlertDialogProps"
+        ],
+        "cmpIds": [
+          "update-alert-dialog"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/dialog/UpdateAlertDialog.kt",
+        "cmpPublicApi": [
+          "IenUpdateAlertDialog"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      }
+    },
+    {
+      "name": "network-alert-dialog",
+      "type": "registry:ui",
+      "title": "NetworkAlertDialog",
+      "description": "네트워크 오류 안내와 다시 시도 동작을 제공합니다.",
+      "files": [
+        {
+          "path": "network-alert-dialog.tsx",
+          "type": "registry:ui",
+          "target": "@ui/network-alert-dialog.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/alert-dialog"
+      ],
+      "meta": {
+        "preview": "previews/network-alert-dialog.tsx",
+        "example": "import { NetworkAlertDialog } from \"@/components/ui/network-alert-dialog\"; <NetworkAlertDialog open={open} onOpenChange={setOpen} onRetry={retry} />",
+        "exports": [
+          "NetworkAlertDialog",
+          "IenNetworkAlertDialog",
+          "NetworkAlertDialogProps"
+        ],
+        "cmpIds": [
+          "network-alert-dialog"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/dialog/NetworkAlertDialog.kt",
+        "cmpPublicApi": [
+          "IenNetworkAlertDialog"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "progress-dialog",
+      "type": "registry:ui",
+      "title": "ProgressDialog",
+      "description": "닫기 동작을 제한한 진행 상태 다이얼로그입니다.",
+      "files": [
+        {
+          "path": "progress-dialog.tsx",
+          "type": "registry:ui",
+          "target": "@ui/progress-dialog.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/dialog",
+        "@ienlab/progress"
+      ],
+      "meta": {
+        "preview": "previews/progress-dialog.tsx",
+        "example": "import { ProgressDialog } from \"@/components/ui/progress-dialog\"; <ProgressDialog open={saving} title=\"저장 중\" value={progress} />",
+        "exports": [
+          "ProgressDialog",
+          "IenProgressDialog",
+          "ProgressDialogProps"
+        ],
+        "cmpIds": [
+          "progress-dialog"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/dialog/ProgressDialog.kt",
+        "cmpPublicApi": [
+          "IenProgressDialog"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      }
+    },
+    {
+      "name": "date-picker-dialog",
+      "type": "registry:ui",
+      "title": "DatePickerDialog",
+      "description": "날짜를 달력에서 선택하는 다이얼로그입니다.",
+      "files": [
+        {
+          "path": "date-picker-dialog.tsx",
+          "type": "registry:ui",
+          "target": "@ui/date-picker-dialog.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/dialog",
+        "@ienlab/button",
+        "@ienlab/wheel-picker"
+      ],
+      "meta": {
+        "preview": "previews/date-picker-dialog.tsx",
+        "example": "import { DatePickerDialog } from \"@/components/ui/date-picker-dialog\"; <DatePickerDialog open={open} onOpenChange={setOpen} value={date} yearRange={[1900, 2100]} onValueChange={setDate} onConfirm={(utcMillis) => saveDate(utcMillis)} />",
+        "exports": [
+          "DatePickerDialog",
+          "IenDatePickerDialog",
+          "DatePickerDialogProps"
+        ],
+        "cmpIds": [
+          "date-picker-dialog"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/dialog/DateTimeDialog.kt",
+        "cmpPublicApi": [
+          "IenDatePickerDialog"
+        ],
+        "constraints": [
+          "날짜는 휠에서 임시 선택하고 확인을 눌러 확정합니다. 값은 브라우저 현지 날짜를 담은 Date이며 onConfirm은 날짜의 UTC 자정 epoch 밀리초를 전달합니다.",
+          "yearRange, min/max, isDateDisabled로 선택 범위를 제한합니다."
+        ],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      }
+    },
+    {
+      "name": "time-picker-dialog",
+      "type": "registry:ui",
+      "title": "TimePickerDialog",
+      "description": "시각을 입력하고 확인하는 다이얼로그입니다.",
+      "files": [
+        {
+          "path": "time-picker-dialog.tsx",
+          "type": "registry:ui",
+          "target": "@ui/time-picker-dialog.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/dialog",
+        "@ienlab/button",
+        "@ienlab/wheel-picker"
+      ],
+      "meta": {
+        "preview": "previews/time-picker-dialog.tsx",
+        "example": "import { TimePickerDialog } from \"@/components/ui/time-picker-dialog\"; <TimePickerDialog open={open} onOpenChange={setOpen} initialHour={9} initialMinute={30} is24Hour={false} onConfirm={(hour, minute) => saveTime(hour, minute)} />",
+        "exports": [
+          "TimePickerDialog",
+          "IenTimePickerDialog",
+          "TimePickerDialogProps"
+        ],
+        "cmpIds": [
+          "time-picker-dialog"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/dialog/DateTimeDialog.kt",
+        "cmpPublicApi": [
+          "IenTimePickerDialog"
+        ],
+        "constraints": [
+          "시간 결과는 24시간제 HH:mm 문자열이며 초는 선택하지 않습니다. UI는 is24Hour에 따라 12/24시간 휠을 표시합니다.",
+          "웹 브라우저에서는 Compose의 플랫폼 햅틱 시간 선택 피드백을 제공하지 않습니다."
+        ],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      }
+    },
+    {
+      "name": "text-field-dialog",
+      "type": "registry:ui",
+      "title": "TextFieldDialog",
+      "description": "텍스트를 입력하고 확인 또는 취소하는 다이얼로그입니다.",
+      "files": [
+        {
+          "path": "text-field-dialog.tsx",
+          "type": "registry:ui",
+          "target": "@ui/text-field-dialog.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/dialog",
+        "@ienlab/input",
+        "@ienlab/button"
+      ],
+      "meta": {
+        "preview": "previews/text-field-dialog.tsx",
+        "example": "import { TextFieldDialog } from \"@/components/ui/text-field-dialog\"; <TextFieldDialog open={open} onOpenChange={setOpen} value={name} onConfirm={setName} />",
+        "exports": [
+          "TextFieldDialog",
+          "IenTextFieldDialog",
+          "TextFieldDialogProps"
+        ],
+        "cmpIds": [
+          "text-field-dialog"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/dialog/TextFieldDialog.kt",
+        "cmpPublicApi": [
+          "IenTextFieldDialog"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "smoke-passed"
+        }
+      }
+    },
+    {
+      "name": "keypad",
+      "type": "registry:ui",
+      "title": "Keypad",
+      "description": "숫자 입력과 마스킹을 제공하는 화면 키패드입니다.",
+      "files": [
+        {
+          "path": "keypad.tsx",
+          "type": "registry:ui",
+          "target": "@ui/keypad.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/button"
+      ],
+      "meta": {
+        "preview": "previews/keypad.tsx",
+        "example": "import { Keypad } from \"@/components/ui/keypad\"; <Keypad value={pin} onValueChange={setPin} maxLength={6} masked />",
+        "exports": [
+          "Keypad",
+          "IenKeypad",
+          "KeypadProps"
+        ],
+        "cmpIds": [
+          "keypad"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenKeypads.kt",
+        "cmpPublicApi": [
+          "IenAlphabetKeypad",
+          "IenAlphabetKeyboard",
+          "IenNumberKeypad",
+          "IenFullSecureKeypad",
+          "IenFullSecureKeyboard",
+          "rememberIenFullSecureKeypadState"
+        ],
+        "constraints": [
+          "브라우저는 입력 이벤트·화면 캡처·스크립트 접근을 차단할 수 없어 네이티브 보안 키패드와 동등한 보안성을 보장하지 않습니다."
+        ],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "text-field",
+      "type": "registry:ui",
+      "title": "TextField",
+      "description": "레이블, 입력, 안내 및 오류 상태를 함께 표시합니다.",
+      "files": [
+        {
+          "path": "text-field.tsx",
+          "type": "registry:ui",
+          "target": "@ui/text-field.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/input",
+        "@ienlab/button"
+      ],
+      "meta": {
+        "preview": "previews/text-field.tsx",
+        "example": "import { TextField } from \"@/components/ui/text-field\"; <TextField label=\"이메일\" value={email} onValueChange={setEmail} />",
+        "exports": [
+          "TextField",
+          "IenTextField",
+          "TextFieldProps",
+          "TextFieldStatus",
+          "ClearableTextField",
+          "IenClearableTextField",
+          "ClearableTextFieldProps",
+          "PasswordTextField",
+          "IenPasswordTextField",
+          "PasswordTextFieldProps",
+          "TextFieldButton",
+          "IenTextFieldButton",
+          "TextFieldButtonProps",
+          "TextFieldIconButton",
+          "IenTextFieldIconButton",
+          "TextFieldIconButtonProps",
+          "TextFieldClearButton",
+          "IenTextFieldClearButton",
+          "TextFieldClearButtonProps"
+        ],
+        "cmpIds": [
+          "text-field"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenTextField.kt",
+        "cmpPublicApi": [
+          "IenTextField",
+          "IenClearableTextField",
+          "IenPasswordTextField",
+          "IenTextFieldButton",
+          "IenTextFieldState",
+          "IenFieldStatus",
+          "IenTextFieldVariant",
+          "IenTextFieldLabelOption",
+          "IenTextFieldFormat",
+          "IenTextFieldLengthLimit"
+        ],
+        "constraints": [],
+        "cmpAdditionalSources": [
+          "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/view/textfield/Button.kt"
+        ],
+        "cmpAdditionalPublicApi": [
+          "IenTextFieldState",
+          "IenFieldStatus",
+          "IenTextFieldVariant",
+          "IenTextFieldLabelOption",
+          "IenTextFieldFormat",
+          "IenTextFieldLengthLimit",
+          "IenTextFieldIconButton",
+          "IenTextFieldClearButton"
+        ],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "split-text-field",
+      "type": "registry:ui",
+      "title": "SplitTextField",
+      "description": "인증 코드 등 분할 입력과 자동 포커스 이동을 제공합니다.",
+      "files": [
+        {
+          "path": "split-text-field.tsx",
+          "type": "registry:ui",
+          "target": "@ui/split-text-field.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/input"
+      ],
+      "meta": {
+        "preview": "previews/split-text-field.tsx",
+        "example": "import { SplitTextField } from \"@/components/ui/split-text-field\"; <SplitTextField value={code} onValueChange={setCode} length={6} type=\"numeric\" />",
+        "exports": [
+          "SplitTextField",
+          "IenSplitTextField",
+          "SplitTextFieldProps"
+        ],
+        "cmpIds": [
+          "split-text-field"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenTextField.kt",
+        "cmpPublicApi": [
+          "IenSplitTextField"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn"
+      ]
+    },
+    {
+      "name": "text-area",
+      "type": "registry:ui",
+      "title": "TextArea",
+      "description": "여러 줄 입력과 안내·오류 상태를 표시합니다.",
+      "files": [
+        {
+          "path": "text-area.tsx",
+          "type": "registry:ui",
+          "target": "@ui/text-area.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/textarea"
+      ],
+      "meta": {
+        "preview": "previews/text-area.tsx",
+        "example": "import { TextArea } from \"@/components/ui/text-area\"; <TextArea label=\"메모\" value={memo} onChange={handleChange} />",
+        "exports": [
+          "TextArea",
+          "IenTextArea",
+          "TextAreaProps"
+        ],
+        "cmpIds": [
+          "text-area"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenTextField.kt",
+        "cmpPublicApi": [
+          "IenTextArea"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn"
+      ]
+    },
+    {
+      "name": "auth-form",
+      "type": "registry:ui",
+      "title": "AuthForm",
+      "description": "로그인·회원가입·비밀번호 재설정 입력, 상태 표시, 제출 콜백을 제공하는 CMP 인증 폼입니다.",
+      "files": [
+        {
+          "path": "auth-form.tsx",
+          "type": "registry:ui",
+          "target": "@ui/auth-form.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/button",
+        "@ienlab/text-field"
+      ],
+      "dependencies": [
+        "cn",
+        "lucide-react"
+      ],
+      "meta": {
+        "preview": "previews/auth-form.tsx",
+        "example": "import { AuthForm } from \"@/components/ui/auth-form\"; <AuthForm mode={mode} email={email} password={password} copy={copy} onEmailChange={setEmail} onPasswordChange={setPassword} onSubmit={submit} onModeChange={setMode} />",
+        "exports": [
+          "AuthForm",
+          "IenAuthForm",
+          "AuthFormProps",
+          "AuthFormMode",
+          "AuthFormModeCopy",
+          "AuthFormCopy",
+          "AuthFormPasswordRule"
+        ],
+        "cmpIds": [],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenAuthForm.kt",
+        "cmpPublicApi": [
+          "IenAuthForm",
+          "IenAuthFormMode",
+          "IenAuthFormModeCopy",
+          "IenAuthFormCopy",
+          "IenPasswordRule",
+          "IenAuthGuestAction",
+          "IenAuthFormState",
+          "IenAuthFormStatus"
+        ],
+        "constraints": [
+          "UI 필드·모드·검증 상태와 onSubmit 콜백만 제공합니다. 인증 서버 및 Firebase 연결은 앱이 구현해야 합니다."
+        ],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      }
+    }
+  ]
+}

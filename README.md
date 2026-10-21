@@ -412,6 +412,48 @@ Android와 iOS에서 `DecimalFormat("0.##").format(12.3456)`은 `"12.35"`를 반
 
 ---
 
+## React · Next.js 레지스트리
+
+기존 CMP 디자인 토큰을 공유하는 React 컴포넌트를 shadcn CLI로 개별 설치할 수 있습니다. 공식 shadcn/ui 컴포넌트와 Form·Sonner, CMP 전용 컴포넌트를 포함한 129개 항목을 제공합니다.
+
+shadcn/ui를 초기화한 프로젝트에서 레지스트리를 등록한 뒤 필요한 항목만 설치합니다.
+
+```bash
+npx shadcn@latest registry add @ienlab="https://cmp.ien.zone/r/{name}.json"
+npx shadcn@latest add @ienlab/button
+npx shadcn@latest add @ienlab/numeric-spinner @ienlab/date-picker-dialog
+```
+
+```tsx
+import { Button } from "@/components/ui/button";
+
+export default function Example() {
+  return <Button variant="fill" tone="brand">저장</Button>;
+}
+```
+
+- IEN 색상·spacing·radius·typography·motion 토큰과 필요한 내부 컴포넌트·패키지는 CLI가 함께 설치합니다.
+- Tailwind CSS 4를 사용하며, `.dark` 조상 클래스에서 다크 토큰이 적용됩니다. 기존 shadcn의 전역 색상 변수는 덮어쓰지 않습니다.
+- 상태·이벤트·Context가 필요한 모듈만 클라이언트 경계를 선언합니다. Next.js에서 이벤트 핸들러를 작성하는 호출부에는 `"use client"`를 지정합니다.
+- 컴포넌트별 프리뷰, 설치, 공개 API, 전체 사용 코드와 CMP 비교 링크는 docs의 `/web/{name}/preview`, `/web/{name}/registry`에서 확인합니다.
+- 햅틱·네이티브 키보드 같은 플랫폼 차이는 각 항목의 플랫폼 차이 안내에 표시합니다. AuthForm은 입력·검증·콜백 UI이며 인증 서비스를 연결하지 않습니다.
+
+전체 항목 목록은 기존 Button·토큰 [정의](cmp-ui-web-registry/registry.json), [shadcn/ui 정의](cmp-ui-web-registry/shadcn/registry.json), [CMP 콘텐츠 정의](cmp-ui-web-registry/cmp-content/registry.json), [CMP 입력·상호작용 정의](cmp-ui-web-registry/cmp-interactive/registry.json)에 있습니다. 루트 `registry.json`이 이 목록을 포함하며, 기존 docs 배포 과정에서 `/r/{name}.json`을 생성합니다.
+
+### 문서와 레지스트리 빌드
+
+```bash
+npm --prefix cmp-ui-docs ci
+npm --prefix cmp-ui-docs test
+npm --prefix cmp-ui-docs run test:preview
+npm --prefix cmp-ui-docs run build:compose
+npm --prefix cmp-ui-docs run build:site
+```
+
+`generate:api`는 CMP 원본 토큰과 레지스트리 소스에서 docs 목록·API·사용 코드·타입 경로를 생성합니다. 생성물은 Git에 포함하지 않습니다. `test:preview`는 129개 컴포넌트의 서버 렌더링을 검사하며, 실제 브라우저 상호작용 검증은 별도로 수행해야 합니다.
+
+---
+
 ## 예제 앱 (example/)
 
 `example/` 디렉토리에는 Android와 iOS에서 라이브러리를 사용하는 방법을 보여주는 예제 앱이 포함되어 있습니다.

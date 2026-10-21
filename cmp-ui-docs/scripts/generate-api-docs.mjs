@@ -385,3 +385,39 @@ await writeFile(
   path.join(projectDirectory, "web/generated-design-tokens.css"),
   `/* CMP IenTheme와 웹 tokens.json에서 자동 생성합니다. */\n:root {\n${declarations({ ...tokenCssVars.light, ...docsVariables, ...docsColorVariables("light") })}\n}\n\n.dark {\n${declarations({ ...tokenCssVars.dark, ...docsColorVariables("dark") })}\n}\n\n@theme inline {\n${declarations(tailwindTheme)}\n}\n`,
 );
+
+const { collectRegistry, validateRegistry, createWebCatalog, registryModuleAliases } = await import("./registry.mjs");
+const allItems = await collectRegistry(path.join(repositoryDirectory, "registry.json"), repositoryDirectory);
+validateRegistry(allItems);
+await writeFile(path.join(projectDirectory, "web/generated-web-catalog.json"), JSON.stringify(createWebCatalog(allItems, catalog, repositoryDirectory), null, 2) + "\n");
+const modulePaths = Object.fromEntries(Object.entries(registryModuleAliases(allItems)).map(([name, source]) => [name, [path.relative(projectDirectory, source)]]));
+await writeFile(path.join(projectDirectory, "tsconfig.registry.json"), JSON.stringify({ compilerOptions: { paths: {
+  ...modulePaths,
+  "@/*": ["./web/*"],
+  "react": ["./node_modules/@types/react"],
+  "react/*": ["./node_modules/@types/react/*"],
+  "react-dom": ["./node_modules/@types/react-dom"],
+  "react-dom/*": ["./node_modules/@types/react-dom/*"],
+  "*": ["./node_modules/*"],
+} } }, null, 2) + "\n");
+function registryCss(rules) {
+  return Object.entries(rules).map(([name, value]) => value && typeof value === "object"
+    ? `${name} {\n${registryCss(value)}\n}`
+    : `  ${name}: ${value};`).join("\n");
+}
+const componentCss = allItems.filter((item) => item.css).map((item) => registryCss(item.css)).join("\n");
+if (componentCss) {
+  const cssFile = path.join(projectDirectory, "web/generated-design-tokens.css");
+  await writeFile(cssFile, (await readFile(cssFile, "utf8")) + "\n" + componentCss + "\n");
+}
+const registrySources = {};
+for (const item of allItems) {
+  for (const file of item.files) {
+    registrySources[path.relative(repositoryDirectory, file.absolutePath).split(path.sep).join("/")] = file.content;
+  }
+  if (item.meta?.preview) {
+    const file = path.resolve(path.dirname(item.manifestPath), item.meta.preview);
+    registrySources[path.relative(repositoryDirectory, file).split(path.sep).join("/")] = await readFile(file, "utf8");
+  }
+}
+await writeFile(path.join(projectDirectory, "web/generated-web-sources.json"), JSON.stringify(registrySources) + "\n");

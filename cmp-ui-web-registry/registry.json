@@ -20,7 +20,22 @@
       ],
       "registryDependencies": [
         "@ienlab/tokens"
-      ]
+      ],
+      "meta": {
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "smoke-passed"
+        }
+      }
     },
     {
       "name": "tokens",

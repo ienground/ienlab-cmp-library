@@ -1,0 +1,29 @@
+"use client";
+
+import * as React from "react";
+import { SplitButton } from "@/components/ui/split-button";
+
+export default function Preview() {
+  const [message, setMessage] = React.useState("저장할 수 있습니다.");
+  return (
+    <div className="grid justify-items-start gap-ien-sm">
+      <SplitButton
+        label="저장"
+        onClick={() => setMessage("저장했습니다.")}
+        actions={[
+          {
+            label: "다른 이름으로 저장",
+            onSelect: () => setMessage("다른 이름으로 저장을 선택했습니다."),
+          },
+          {
+            label: "초안 저장",
+            onSelect: () => setMessage("초안을 저장했습니다."),
+          },
+        ]}
+      />
+      <p aria-live="polite" className="text-ien-body2">
+        {message}
+      </p>
+    </div>
+  );
+}

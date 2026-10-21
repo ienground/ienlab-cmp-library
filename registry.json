@@ -2,5 +2,10 @@
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "ienlab",
   "homepage": "https://cmp.ien.zone",
-  "include": ["cmp-ui-web-registry/registry.json"]
+  "include": [
+    "cmp-ui-web-registry/registry.json",
+    "cmp-ui-web-registry/shadcn/registry.json",
+    "cmp-ui-web-registry/cmp-content/registry.json",
+    "cmp-ui-web-registry/cmp-interactive/registry.json"
+  ]
 }

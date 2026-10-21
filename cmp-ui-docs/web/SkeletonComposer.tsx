@@ -1,9 +1,9 @@
 import { useState } from "react";
 import type { CSSProperties } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Badge } from "./components/ui/badge";
+import { Button } from "./components/ui/button";
+import { Card } from "./components/ui/card";
+import { Input } from "./components/ui/input";
 import { ChevronDown, ChevronUp, Copy, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { DropdownMenu } from "radix-ui";
 import { highlightKotlin } from "./ColorSchemeBuilder";

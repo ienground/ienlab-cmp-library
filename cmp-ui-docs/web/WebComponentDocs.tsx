@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { ArrowUpRight, Check, Copy } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { ArrowUpRight } from "lucide-react";
+import { Button } from "./components/ui/button";
+import { Badge } from "./components/ui/badge";
+import { Card } from "./components/ui/card";
 import {
   Button as RegistryButton,
   type IenButtonSize,
@@ -12,7 +12,7 @@ import {
 import registry from "../../cmp-ui-web-registry/registry.json";
 import designTokens from "./generated-design-tokens.json";
 import buttonSource from "../../cmp-ui-web-registry/registry/ien-button.tsx?raw";
-import { copyTextToClipboard } from "./clipboard";
+import { CodeExample } from "./RegistryCodeExample";
 
 const buttonItem = registry.items.find((item) => item.name === "button");
 const tokensItem = registry.items.find((item) => item.name === "tokens");
@@ -24,28 +24,6 @@ const sizes = ["xs", "sm", "default", "lg"] as const;
 const setupCommand = 'npx shadcn@latest registry add @ienlab="https://cmp.ien.zone/r/{name}.json"';
 const installCommand = "npx shadcn@latest add @ienlab/button";
 
-function CodeExample({ label, code }: { label: string; code: string }) {
-  const [copyStatus, setCopyStatus] = useState("");
-
-  async function copyCode() {
-    const copied = await copyTextToClipboard(code);
-    setCopyStatus(copied ? "복사했습니다." : "복사하지 못했습니다. 코드를 선택해 복사해 주세요.");
-  }
-
-  return (
-    <div className="web-code-example">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-medium">{label}</h3>
-        <Button variant="outline" size="sm" onClick={copyCode}>
-          {copyStatus === "복사했습니다." ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
-          복사
-        </Button>
-      </div>
-      <pre className="api-signature" tabIndex={0} aria-label={label}><code>{code}</code></pre>
-      <p role="status" className="text-xs text-muted-foreground">{copyStatus}</p>
-    </div>
-  );
-}
 
 export function WebComponentDocs({
   tab,
@@ -162,7 +140,7 @@ export function WebComponentDocs({
             </RegistryButton>
             <p role="status" className="text-xs text-muted-foreground">클릭 {clickCount}회</p>
           </Card>
-          <CodeExample label="사용 예시" code={`import { Button } from "@/components/ui/button"\n\n<Button variant="${variant}" tone="${tone}" size="${size}"${disabled ? " disabled" : ""}${useGradient ? "" : " useGradient={false}"}>\n  버튼\n</Button>`} />
+          <CodeExample label="사용 예시" code={`import { Button } from "./components/ui/button"\n\n<Button variant="${variant}" tone="${tone}" size="${size}"${disabled ? " disabled" : ""}${useGradient ? "" : " useGradient={false}"}>\n  버튼\n</Button>`} />
           <div className="space-y-3">
             <h3 className="text-sm font-medium">전체 tone · variant</h3>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -193,7 +171,7 @@ export function WebComponentDocs({
         <div className="space-y-6">
           <CodeExample label="1. 프로젝트에 네임스페이스 등록 · 최초 한 번" code={setupCommand} />
           <CodeExample label="2. 버튼 설치" code={installCommand} />
-          <CodeExample label="3. React / Next.js에서 사용" code={'import { Button } from "@/components/ui/button"\n\n<Button variant="fill" tone="brand">저장</Button>\n<Button variant="weak" tone="danger" useGradient={false}>삭제</Button>'} />
+          <CodeExample label="3. React / Next.js에서 사용" code={'import { Button } from "./components/ui/button"\n\n<Button variant="fill" tone="brand">저장</Button>\n<Button variant="weak" tone="danger" useGradient={false}>삭제</Button>'} />
           <p className="text-sm text-muted-foreground">공통 디자인 토큰은 버튼의 의존성으로 함께 설치됩니다.</p>
           <CodeExample label="토큰만 설치" code="npx shadcn@latest add @ienlab/tokens" />
           <p className="text-sm text-muted-foreground">CMP IenTheme의 기본값을 16px 기준 rem으로 자동 변환합니다. 아래 수치는 기본 글꼴 크기에서의 px 값입니다.</p>

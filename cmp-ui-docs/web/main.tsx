@@ -32,20 +32,21 @@ import {
   useNavigate,
   useParams,
 } from "react-router";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "./components/ui/badge";
+import { Button } from "./components/ui/button";
+import { Card } from "./components/ui/card";
+import { Input } from "./components/ui/input";
+import { ScrollArea } from "./components/ui/scroll-area";
 import {
   Sheet,
   SheetClose,
   SheetContent,
   SheetTitle,
-} from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from "./components/ui/sheet";
+import { Skeleton } from "./components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 import { catalog, categories } from "./catalog.js";
+import { webCatalog } from "./web-registry";
 import apiDocs from "./generated-api-docs.json";
 import designTokens from "./generated-design-tokens.json";
 import ienlabLogo from "./assets/ienlab-logo.png";
@@ -64,6 +65,11 @@ const SkeletonComposer = lazy(() =>
   })),
 );
 
+const WebRegistryDocs = lazy(() =>
+  import("./WebRegistryDocs").then(({ WebRegistryDocs: component }) => ({
+    default: component,
+  })),
+);
 const WebComponentDocs = lazy(() =>
   import("./WebComponentDocs").then(({ WebComponentDocs: component }) => ({
     default: component,
@@ -260,12 +266,12 @@ function ComponentPage({
     useState<ColorSchemes | null>(null);
   const activeComponent = useMemo(
     () =>
-      catalog.find(
+      (isWebPage ? webCatalog : catalog).find(
         (item) =>
           item.id ===
           (isColorSchemePage ? lastComponentId : requestedComponentId),
       ),
-    [requestedComponentId, isColorSchemePage, lastComponentId],
+    [requestedComponentId, isColorSchemePage, lastComponentId, isWebPage],
   );
   useEffect(() => {
     const updateHeader = () => setHeaderScrolled(window.scrollY > 24);
@@ -345,9 +351,7 @@ function ComponentPage({
   }
 
   const filteredCatalog = useMemo(() => {
-    const availableCatalog = isWebPage
-      ? catalog.filter((item) => item.id === "button")
-      : catalog;
+    const availableCatalog = isWebPage ? webCatalog : catalog;
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) return availableCatalog;
 
@@ -417,7 +421,7 @@ function ComponentPage({
     !activeComponent ||
     (!isColorSchemePage &&
       (isWebPage
-        ? activeComponent.id !== "button" || (page !== "preview" && page !== "registry")
+        ? page !== "preview" && page !== "registry"
         : section !== "components" ||
           (page !== "preview" &&
             page !== "api" &&
@@ -470,7 +474,7 @@ function ComponentPage({
             aria-current={!isColorSchemePage && !isWebPage ? "page" : undefined}
           >
             <Link
-              to={`/components/${activeComponent.id}/preview`}
+              to={`/components/${isWebPage ? webCatalog.find((item) => item.id === activeComponent.id)?.cmpId || lastComponentId : activeComponent.id}/preview`}
               onClick={selectComponent}
             >
               컴포넌트
@@ -581,14 +585,12 @@ function ComponentPage({
                 <p className="component-description">
                   {isColorSchemePage
                     ? "IENLAB 테마의 색상을 만들고 Kotlin 코드로 내보냅니다."
-                    : isWebPage
-                      ? "shadcn/ui 기반의 React · Next.js 컴포넌트를 미리 보고 설치합니다."
-                      : activeComponent.description}
+                    : activeComponent.description}
                 </p>
               </div>
               {!isColorSchemePage && (
                 <Badge className="component-count" variant="secondary">
-                  {isWebPage ? "1 component" : `${catalog.length} components`}
+                  {`${isWebPage ? webCatalog.length : catalog.length} components`}
                 </Badge>
               )}
             </div>
@@ -626,7 +628,15 @@ function ComponentPage({
                 {isWebPage ? (
                   <TabsContent value={activeTab}>
                     <Suspense fallback={<p role="status">웹 컴포넌트를 불러오는 중입니다.</p>}>
-                      <WebComponentDocs tab={activeTab === "registry" ? "registry" : "preview"} />
+                      {activeComponent.id === "button" ? (
+                        <WebComponentDocs tab={activeTab === "registry" ? "registry" : "preview"} />
+                      ) : (
+                        <WebRegistryDocs
+                          key={activeComponent.id}
+                          componentId={activeComponent.id}
+                          tab={activeTab === "registry" ? "registry" : "preview"}
+                        />
+                      )}
                     </Suspense>
                   </TabsContent>
                 ) : (
@@ -760,7 +770,10 @@ function Sidebar({
   onSelect: () => void;
   query: string;
 }) {
-  const visibleCategories = categories
+  const navigationCategories = isWebPage
+    ? [...new Set(webCatalog.map((item) => item.category))]
+    : categories;
+  const visibleCategories = navigationCategories
     .map((category) => ({
       category,
       items: filteredCatalog.filter((item) => item.category === category),

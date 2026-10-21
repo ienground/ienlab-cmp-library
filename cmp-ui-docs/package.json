@@ -8,22 +8,34 @@
     "generate:api": "node scripts/generate-api-docs.mjs",
     "build:registry": "npm run generate:api && shadcn build --cwd .. --output cmp-ui-docs/build/site/r registry.json",
     "typecheck": "tsc --noEmit",
-    "test": "npm run generate:api && node --test web/color-scheme.test.ts",
+    "test": "npm run generate:api && node --test web/color-scheme.test.ts scripts/registry.test.mjs",
     "build": "npm run generate:api && npm run typecheck && vite build",
     "copy:compose": "node scripts/copy-compose-preview.mjs",
-    "build:site": "npm run build && npm run build:registry && npm run copy:compose"
+    "build:site": "npm run build && npm run build:registry && npm run copy:compose",
+    "test:preview": "npm run generate:api && node --test scripts/preview.test.mjs"
   },
   "dependencies": {
     "@remixicon/react": "4.9.0",
     "class-variance-authority": "^0.7.1",
+    "cmdk": "^1.1.1",
     "cn": "^0.4.0",
+    "date-fns": "^4.4.0",
+    "embla-carousel-react": "^8.6.0",
+    "input-otp": "^1.5.0",
     "lucide-react": "^1.49.0",
     "radix-ui": "^1.6.7",
     "react": "^19.3.0",
+    "react-day-picker": "^10.0.2",
     "react-dom": "^19.3.0",
-    "react-router": "^8.4.0"
+    "react-hook-form": "^7.90.0",
+    "react-resizable-panels": "^4.14.8",
+    "react-router": "^8.4.0",
+    "recharts": "^3.10.1",
+    "sonner": "^2.0.8",
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
+    "@babel/parser": "^8.0.7",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",
