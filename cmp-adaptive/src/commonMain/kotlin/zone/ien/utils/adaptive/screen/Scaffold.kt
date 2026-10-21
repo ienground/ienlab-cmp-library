@@ -607,22 +607,20 @@ fun AdaptiveTopAppBarScaffold(
         adaptation = remember(backdrop) { TopAppBarScaffoldAdaptation(backdrop) },
         adaptationScope = effectiveAdaptation,
         material = {
-            val menuItems = primaryAction?.let { actions + it } ?: actions
-            scaffold(menuItems.takeIf { it.isNotEmpty() }?.let {
-                {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
+            val actionContent: (@Composable (RowScope.() -> Unit))? =
+                if (actions.isNotEmpty() || primaryAction != null) {
+                    {
                         IenActionsMenu(
-                            items = it,
+                            items = actions,
                             isOpen = menuExpanded,
                             closeDropdown = { menuExpanded = false },
                             onToggleOverflow = { menuExpanded = !menuExpanded },
                             maxVisibleItems = 3,
+                            trailingAction = primaryAction,
                         )
                     }
-                }
-            })
+                } else null
+            scaffold(actionContent)
         },
         cupertino = {
             scaffold {

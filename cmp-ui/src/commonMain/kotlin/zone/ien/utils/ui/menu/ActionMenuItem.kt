@@ -75,11 +75,13 @@ sealed interface ActionMenuItem {
      * @property onClick 항목 클릭 시 호출되는 콜백 함수
      * @property visible 항목의 표시 여부
      * @property enabled 항목의 활성화 여부
+     * @property icon 항목의 아이콘
      */
     data class NeverShown(
         override val title: String,
         override val onClick: () -> Unit,
         override val visible: Boolean = true,
-        override val enabled: Boolean = true
+        override val enabled: Boolean = true,
+        val icon: IconData? = null,
     ): ActionMenuItem
 }

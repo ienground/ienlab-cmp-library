@@ -164,15 +164,19 @@ fun HigActionsMenu(
                 onDismissRequest = onToggleOverflow,
                 backdrop = LocalBackdrop.current ?: rememberDefaultBackdrop(),
                 items = menuItems.overflowItems.mapNotNull { item ->
+                    val icon = when (item) {
+                        is ActionMenuItem.IconMenuItem -> item.icon
+                        is ActionMenuItem.NeverShown -> item.icon
+                    }
                     CupertinoMenuItemData(
                         title = item.title,
-                        icon = if (item is ActionMenuItem.IconMenuItem && item.icon != null) {
-                            when (item.icon) {
-                                is IconData.Vector -> rememberVectorPainter((item.icon as IconData.Vector).imageVector)
-                                is IconData.Paint -> (item.icon as IconData.Paint).painter
+                        icon = icon?.let {
+                            when (it) {
+                                is IconData.Vector -> rememberVectorPainter(it.imageVector)
+                                is IconData.Paint -> it.painter
                                 else -> null
                             }
-                        } else null,
+                        },
                         onClick = item.onClick
                     ).takeIf { item.visible }
                 }
@@ -185,18 +189,20 @@ fun HigActionsMenu(
             ) {
                 menuItems.overflowItems.forEach { item ->
                     if (item.visible) {
+                        val icon = when (item) {
+                            is ActionMenuItem.IconMenuItem -> item.icon
+                            is ActionMenuItem.NeverShown -> item.icon
+                        }
                         MenuAction(
                             title = { Text(text = item.title) },
-                            leadingIcon = if (item is ActionMenuItem.IconMenuItem) {
-                                item.icon?.let {
-                                    {
-                                        IenIcon(
-                                            icon = it,
-                                            contentDescription = item.title
-                                        )
-                                    }
+                            leadingIcon = icon?.let {
+                                {
+                                    IenIcon(
+                                        icon = it,
+                                        contentDescription = item.title
+                                    )
                                 }
-                            } else null,
+                            },
                             trailingIcon = if (item is ActionMenuItem.IconMenuItem) {
                                 {
                                     if (item.badge != 0) {
