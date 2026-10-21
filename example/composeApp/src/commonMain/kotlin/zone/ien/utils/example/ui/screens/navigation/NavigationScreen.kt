@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
+import org.jetbrains.compose.resources.stringResource
 import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationBarItem
 import zone.ien.hig.ExperimentalCupertinoApi
@@ -79,6 +80,28 @@ fun NavigationScreen(
         }
     }
 
+    val items = listOf(
+        NavigationBarItem(
+            onClick = { selected = true },
+            icon = IconData.Adaptive(
+                material = { SystemIcons.Delete },
+                cupertino = { "trash.fill" }
+            ),
+            label = "Delete",
+            direction = itemDirection,
+        ),
+        NavigationBarItem(
+            onClick = { selected = false },
+            icon = IconData.Adaptive(
+                material = { SystemIcons.Save },
+                cupertino = { "checkmark" }
+            ),
+            label = "Very Long Save",
+            direction = itemDirection,
+            badge = 3,
+        )
+    )
+
     IenAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
     ) {
@@ -90,7 +113,7 @@ fun NavigationScreen(
             navigationIcon = { AdaptiveBackButton(onClick = navigateBack) },
             bottomBar = {
                 AdaptiveNavigationBar(
-                    selectedTabIndex = { if (selected) 0 else 1 },
+                    selectedTabIndex = if (selected) 0 else 1,
                     onTabSelected = { selected = it == 0 },
                     isNative = isNative,
                     adaptation = {
@@ -103,27 +126,7 @@ fun NavigationScreen(
                             }
                         }
                     },
-                    items = listOf(
-                        NavigationBarItem(
-                            onClick = { selected = true },
-                            icon = IconData.Adaptive(
-                                material = { SystemIcons.Delete },
-                                cupertino = { "trash.fill" }
-                            ),
-                            label = "Delete",
-                            direction = itemDirection,
-                        ),
-                        NavigationBarItem(
-                            onClick = { selected = false },
-                            icon = IconData.Adaptive(
-                                material = { SystemIcons.Save },
-                                cupertino = { "checkmark" }
-                            ),
-                            label = "Very Long Save",
-                            direction = itemDirection,
-                            badge = 3,
-                        )
-                    ),
+                    items = items,
                 )
             },
             modifier = modifier

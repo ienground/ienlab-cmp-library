@@ -127,7 +127,7 @@ fun AdaptivePlaygroundScreen(
             topBarMode = topBarMode,
             bottomBar = {
                 AdaptiveNavigationBar(
-                    selectedTabIndex = { selectedNavigationIndex },
+                    selectedTabIndex = selectedNavigationIndex,
                     onTabSelected = { selectedNavigationIndex = it },
                     isNative = isNativeNavigationBar,
                     items = listOf(

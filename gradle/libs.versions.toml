@@ -4,7 +4,7 @@ kotlin = "2.4.21"
 android-minSdk = "29"
 android-compileSdk = "37"
 android-targetSdk = "37"
-lib-version-name = "3.7.0-alpha08-dev05"
+lib-version-name = "3.7.0-alpha08-dev06"
 
 # plugin
 compose-plugin = "1.12.2"
@@ -30,7 +30,7 @@ haze = "2.0.1"
 hig = "27.0.1-alpha05"
 capsule = "2.1.4"
 placeholder = "1.0.4"
-compose-inputactions = "0.9.0-alpha06"
+compose-inputactions = "1.0.0"
 
 # functionality
 kdatetime = "1.2.0-dev01"
