@@ -120,42 +120,78 @@ enum class IenNumericSpinnerSize {
 }
 
 /**
- * 숫자를 증가시키거나 감소시킬 수 있는 인터랙티브 스피너 컴포저블.
+ * 숫자를 지정한 단위로 증가시키거나 감소시키는 인터랙티브 스피너.
  *
  * 사용자는 좌우 버튼을 탭하거나 중앙의 숫자 영역을 좌우로 드래그하여 값을 조절할 수 있습니다.
+ * 숫자 타입 추론을 위해 `number`, `defaultNumber`, `minNumber`, `maxNumber` 중 하나를 지정해야 합니다.
+ * 기본 숫자 타입인 [Byte], [Short], [Int], [Long], [Float], [Double]을 지원합니다.
  *
  * @param modifier 컴포저블에 적용할 [Modifier].
  * @param size 스피너의 크기 ([IenNumericSpinnerSize]). 기본값은 [IenNumericSpinnerSize.Medium].
  * @param number 외부 상태로 제어되는 현재 숫자 값. null인 경우 컴포저블 내부 상태를 사용합니다.
- * @param defaultNumber 내부 상태로 제어될 때의 초기 숫자 값. 기본값은 0.
- * @param minNumber 스피너가 가질 수 있는 최소 숫자 값. 기본값은 0.
- * @param maxNumber 스피너가 가질 수 있는 최대 숫자 값. 기본값은 999.
+ * @param defaultNumber 내부 상태로 제어될 때의 초기 숫자 값. 기본값은 최소값입니다.
+ * @param minNumber 스피너가 가질 수 있는 최소 숫자 값. 기본값은 0입니다.
+ * @param maxNumber 스피너가 가질 수 있는 최대 숫자 값. 기본값은 999입니다.
+ * @param step 증가 및 감소에 사용할 양수 단위. 현재 숫자 타입으로 변환되며 기본값은 1입니다. 소수 단위에는 [Float] 또는 [Double]을 사용합니다.
+ * @param numberFormatter 숫자를 화면과 접근성 설명에 표시할 문자열로 변환합니다.
  * @param disable 비활성화 여부. true일 경우 사용자의 입력을 받지 않습니다.
  * @param decreaseAriaLabel 감소 버튼의 접근성 설명 텍스트.
  * @param increaseAriaLabel 증가 버튼의 접근성 설명 텍스트.
  * @param onNumberChange 숫자가 변경되었을 때 호출되는 콜백 함수.
  */
 @Composable
-fun IenNumericSpinner(
+fun <T : Number> IenNumericSpinner(
     modifier: Modifier = Modifier,
     size: IenNumericSpinnerSize = IenNumericSpinnerSize.Medium,
-    number: Int? = null,
-    defaultNumber: Int = 0,
-    minNumber: Int = 0,
-    maxNumber: Int = 999,
+    number: T? = null,
+    defaultNumber: T? = null,
+    minNumber: T? = null,
+    maxNumber: T? = null,
+    step: Number = 1,
+    numberFormatter: (T) -> String = { it.toString() },
     disable: Boolean = false,
     decreaseAriaLabel: String = stringResource(Res.string.decrease),
     increaseAriaLabel: String = stringResource(Res.string.increase),
-    onNumberChange: (Int) -> Unit = {},
+    onNumberChange: (T) -> Unit = {},
 ) {
-    val min = minOf(minNumber, maxNumber)
-    val max = maxOf(minNumber, maxNumber)
-    val step = 1
-    var internalNumber by remember(min, max) { mutableIntStateOf(defaultNumber.coerceIn(min, max)) }
-    val currentNumber = (number ?: internalNumber).coerceIn(min, max)
+    val referenceNumber = checkNotNull(number ?: defaultNumber ?: minNumber ?: maxNumber) {
+        "number, defaultNumber, minNumber, maxNumber 중 하나는 지정해야 합니다."
+    }
+    require(
+        number?.isFiniteSpinnerNumber() != false &&
+            defaultNumber?.isFiniteSpinnerNumber() != false &&
+            minNumber?.isFiniteSpinnerNumber() != false &&
+            maxNumber?.isFiniteSpinnerNumber() != false
+    ) {
+        "숫자 값과 범위는 유한한 숫자여야 합니다."
+    }
+    val zero = convertSpinnerNumber(0, referenceNumber)
+    val firstBound = minNumber ?: zero
+    val secondBound = maxNumber ?: convertSpinnerNumber(999, referenceNumber)
+    val min: T
+    val max: T
+    if (compareSpinnerNumbers(firstBound, secondBound) <= 0) {
+        min = firstBound
+        max = secondBound
+    } else {
+        min = secondBound
+        max = firstBound
+    }
+    val stepValue = convertSpinnerNumber(step, referenceNumber)
+    require(
+        compareSpinnerNumbers(stepValue, zero) > 0 &&
+            step.isFiniteSpinnerNumber() &&
+            stepValue.isFiniteSpinnerNumber()
+    ) {
+        "step은 0보다 큰 유한한 숫자여야 합니다."
+    }
+    val initialNumber = coerceSpinnerNumber(defaultNumber ?: min, min, max)
+    var internalNumber by remember(min, max) { mutableStateOf(initialNumber) }
+    val currentNumber = coerceSpinnerNumber(number ?: internalNumber, min, max)
+    val displayedNumber = numberFormatter(currentNumber)
     val spec = numericSpinnerSpec(size)
-    val canDecrease = !disable && currentNumber > min
-    val canIncrease = !disable && currentNumber < max
+    val canDecrease = !disable && compareSpinnerNumbers(currentNumber, min) > 0
+    val canIncrease = !disable && compareSpinnerNumbers(currentNumber, max) < 0
     val density = LocalDensity.current
     val hapticFeedback = LocalHapticFeedback.current
     val shakeOffset = remember { Animatable(0f) }
@@ -221,12 +257,12 @@ fun IenNumericSpinner(
         }
     }
 
-    fun requestNumber(nextNumber: Int, available: Boolean) {
+    fun requestNumber(nextNumber: T, available: Boolean) {
         if (!available) {
             shake()
             return
         }
-        val coerced = nextNumber.coerceIn(min, max)
+        val coerced = coerceSpinnerNumber(nextNumber, min, max)
         if (coerced == currentNumber) return
         if (number == null) internalNumber = coerced
         hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -250,7 +286,7 @@ fun IenNumericSpinner(
             .widthIn(min = spec.minWidth)
             .semantics(mergeDescendants = true) {
                 this.contentDescription = surfaceContentDescription
-                stateDescription = currentNumber.toString()
+                stateDescription = displayedNumber
                 liveRegion = LiveRegionMode.Polite
                 if (disable) disabled()
             },
@@ -263,7 +299,7 @@ fun IenNumericSpinner(
             horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.none),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            val contentDescription = stringResource(Res.string.current_value, currentNumber)
+            val contentDescription = stringResource(Res.string.current_value, displayedNumber)
             SpinnerButton(
                 text = "-",
                 available = canDecrease,
@@ -272,7 +308,7 @@ fun IenNumericSpinner(
                 textStyle = spec.buttonTextStyle,
                 description = decreaseAriaLabel,
                 onPressedChange = { isMinusPressed = it },
-                onClick = { requestNumber(currentNumber - step, canDecrease) },
+                onClick = { requestNumber(addSpinnerStep(currentNumber, stepValue, -1), canDecrease) },
             )
             Box(
                 modifier = Modifier
@@ -304,8 +340,14 @@ fun IenNumericSpinner(
                             onDragEnd = {
                                 val threshold = 24.dp.toPx()
                                 when {
-                                    dragAmount <= -threshold -> requestNumber(currentNumber - step, canDecrease)
-                                    dragAmount >= threshold -> requestNumber(currentNumber + step, canIncrease)
+                                    dragAmount <= -threshold -> requestNumber(
+                                        addSpinnerStep(currentNumber, stepValue, -1),
+                                        canDecrease,
+                                    )
+                                    dragAmount >= threshold -> requestNumber(
+                                        addSpinnerStep(currentNumber, stepValue, 1),
+                                        canIncrease,
+                                    )
                                 }
                                 dragAmount = 0f
                                 settleNumberBox()
@@ -320,7 +362,7 @@ fun IenNumericSpinner(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = currentNumber.toString(),
+                    text = displayedNumber,
                     style = spec.numberTextStyle,
                     color = if (disable) IenTheme.colors.textDisabled else IenTheme.colors.textPrimary,
                     textAlign = TextAlign.Center,
@@ -335,10 +377,101 @@ fun IenNumericSpinner(
                 textStyle = spec.buttonTextStyle,
                 description = increaseAriaLabel,
                 onPressedChange = { isPlusPressed = it },
-                onClick = { requestNumber(currentNumber + step, canIncrease) },
+                onClick = { requestNumber(addSpinnerStep(currentNumber, stepValue, 1), canIncrease) },
             )
         }
     }
+}
+
+/**
+ * 정수 스피너 호출의 소스 호환성을 유지하는 오버로드입니다.
+ *
+ * @param modifier 컴포저블에 적용할 [Modifier].
+ * @param size 스피너의 크기 ([IenNumericSpinnerSize]). 기본값은 [IenNumericSpinnerSize.Medium].
+ * @param number 외부 상태로 제어되는 현재 숫자 값. null인 경우 컴포저블 내부 상태를 사용합니다.
+ * @param defaultNumber 내부 상태로 제어될 때의 초기 숫자 값. 기본값은 0.
+ * @param minNumber 스피너가 가질 수 있는 최소 숫자 값. 기본값은 0.
+ * @param maxNumber 스피너가 가질 수 있는 최대 숫자 값. 기본값은 999.
+ * @param disable 비활성화 여부. true일 경우 사용자의 입력을 받지 않습니다.
+ * @param decreaseAriaLabel 감소 버튼의 접근성 설명 텍스트.
+ * @param increaseAriaLabel 증가 버튼의 접근성 설명 텍스트.
+ * @param onNumberChange 숫자가 변경되었을 때 호출되는 콜백 함수.
+ */
+@Composable
+fun IenNumericSpinner(
+    modifier: Modifier = Modifier,
+    size: IenNumericSpinnerSize = IenNumericSpinnerSize.Medium,
+    number: Int? = null,
+    defaultNumber: Int = 0,
+    minNumber: Int = 0,
+    maxNumber: Int = 999,
+    disable: Boolean = false,
+    decreaseAriaLabel: String = stringResource(Res.string.decrease),
+    increaseAriaLabel: String = stringResource(Res.string.increase),
+    onNumberChange: (Int) -> Unit = {},
+) {
+    IenNumericSpinner<Int>(
+        modifier = modifier,
+        size = size,
+        number = number,
+        defaultNumber = defaultNumber,
+        minNumber = minNumber,
+        maxNumber = maxNumber,
+        step = 1,
+        numberFormatter = { it.toString() },
+        disable = disable,
+        decreaseAriaLabel = decreaseAriaLabel,
+        increaseAriaLabel = increaseAriaLabel,
+        onNumberChange = onNumberChange,
+    )
+}
+
+private fun <T : Number> coerceSpinnerNumber(value: T, min: T, max: T): T = when {
+    compareSpinnerNumbers(value, min) < 0 -> min
+    compareSpinnerNumbers(value, max) > 0 -> max
+    else -> value
+}
+
+private fun compareSpinnerNumbers(first: Number, second: Number): Int = when (first) {
+    is Byte -> first.compareTo(second.toByte())
+    is Short -> first.compareTo(second.toShort())
+    is Int -> first.compareTo(second.toInt())
+    is Long -> first.compareTo(second.toLong())
+    is Float -> first.compareTo(second.toFloat())
+    is Double -> first.compareTo(second.toDouble())
+    else -> throw IllegalArgumentException("지원하지 않는 숫자 타입입니다.")
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun <T : Number> convertSpinnerNumber(value: Number, reference: T): T = when (reference) {
+    is Byte -> value.toLong().coerceIn(Byte.MIN_VALUE.toLong(), Byte.MAX_VALUE.toLong()).toByte()
+    is Short -> value.toLong().coerceIn(Short.MIN_VALUE.toLong(), Short.MAX_VALUE.toLong()).toShort()
+    is Int -> value.toLong().coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong()).toInt()
+    is Long -> value.toLong()
+    is Float -> value.toFloat()
+    is Double -> value.toDouble()
+    else -> throw IllegalArgumentException("지원하지 않는 숫자 타입입니다.")
+} as T
+
+private fun <T : Number> addSpinnerStep(value: T, step: T, direction: Int): T {
+    val nextValue: Number = when (value) {
+        is Byte, is Short, is Int -> value.toLong() + step.toLong() * direction
+        is Long -> when {
+            direction > 0 && value > Long.MAX_VALUE - step.toLong() -> Long.MAX_VALUE
+            direction < 0 && value < Long.MIN_VALUE + step.toLong() -> Long.MIN_VALUE
+            else -> value + step.toLong() * direction
+        }
+        is Float -> value + step.toFloat() * direction
+        is Double -> value + step.toDouble() * direction
+        else -> throw IllegalArgumentException("지원하지 않는 숫자 타입입니다.")
+    }
+    return convertSpinnerNumber(nextValue, value)
+}
+
+private fun Number.isFiniteSpinnerNumber(): Boolean = when (this) {
+    is Float -> isFinite()
+    is Double -> isFinite()
+    else -> true
 }
 
 @Composable

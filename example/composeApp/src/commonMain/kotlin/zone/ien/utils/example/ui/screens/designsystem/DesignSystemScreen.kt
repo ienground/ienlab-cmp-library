@@ -3291,17 +3291,23 @@ fun NumericSpinnerSection(controls: Map<String, String> = emptyMap()) {
                 else -> IenNumericSpinnerSize.Medium
             }
             var value by remember(minimum, maximum, controls["number"]) {
-                mutableIntStateOf(controls.intValue("number", 2).coerceIn(minimum, maximum))
+                mutableStateOf(
+                    controls.intValue("number", 2)
+                        .toDouble()
+                        .coerceIn(minimum.toDouble(), maximum.toDouble())
+                )
             }
             IenNumericSpinner(
                 number = value,
                 onNumberChange = { value = it },
-                minNumber = minimum,
-                maxNumber = maximum,
+                minNumber = minimum.toDouble(),
+                maxNumber = maximum.toDouble(),
+                step = 0.5,
+                numberFormatter = { "${it}×" },
                 size = size,
                 disable = controls.disabledValue(),
-                decreaseAriaLabel = "수량 줄이기",
-                increaseAriaLabel = "수량 늘리기",
+                decreaseAriaLabel = "배율 줄이기",
+                increaseAriaLabel = "배율 늘리기",
             )
         }
     }

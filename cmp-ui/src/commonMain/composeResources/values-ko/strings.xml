@@ -52,7 +52,7 @@
     <string name="decrease">빼기</string>
     <string name="increase">더하기</string>
     <string name="number_spinner">숫자 스피너</string>
-    <string name="current_value">현재 값 %1$d</string>
+    <string name="current_value">현재 값 %1$s</string>
     <string name="current_rating_status">현재 별점 현황</string>
     <string name="rate_stars">별점 평가</string>
     <string name="rating_score">%1$d점</string>

@@ -4,7 +4,7 @@ kotlin = "2.4.21"
 android-minSdk = "29"
 android-compileSdk = "37"
 android-targetSdk = "37"
-lib-version-name = "3.7.0-alpha08-dev04"
+lib-version-name = "3.7.0-alpha08-dev05"
 
 # plugin
 compose-plugin = "1.12.2"
@@ -80,7 +80,9 @@ lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "life
 lifecycle-runtime = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
 
 compose-material3 = { group = "org.jetbrains.compose.material3", name = "material3", version.ref = "compose-plugin-experimental"}
+compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "compose-plugin" }
 compose-preview = { group = "org.jetbrains.compose.ui", name = "ui-tooling-preview", version.ref = "compose-plugin" }
+compose-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "compose-plugin" }
 compose-ui-tooling = { group = "org.jetbrains.compose.ui", name = "ui-tooling", version.ref = "compose-plugin" }
 compose-resources = { group = "org.jetbrains.compose.components", name = "components-resources", version.ref = "compose-plugin" }
 compose-navigation3 = { group = "org.jetbrains.androidx.navigation3", name = "navigation3-ui", version.ref = "compose-navigation3" }
