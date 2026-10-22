@@ -11,9 +11,11 @@ export default function Preview() {
         name="delivery"
         value={value}
         onValueChange={setValue}
+        size={24}
         options={[
           { value: "standard", label: "일반 배송", description: "2~3일 소요" },
           { value: "express", label: "빠른 배송", description: "내일 도착" },
+          { value: "store", label: "매장 수령", enabled: false },
         ]}
       />
       <p aria-live="polite" className="text-ien-caption">

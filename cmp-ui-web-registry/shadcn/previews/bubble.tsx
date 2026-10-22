@@ -6,16 +6,19 @@ import {
 } from "@/components/ui/bubble";
 export default function Preview() {
   return (
-    <BubbleGroup>
+    <BubbleGroup className="w-full">
+      <IenBubble tone="neutral" tail="start" align="start">
+        <BubbleContent>중립 톤의 시작 꼬리 말풍선입니다.</BubbleContent>
+      </IenBubble>
+      <IenBubble tone="brand" tail="end" align="end">
+        <BubbleContent>브랜드 톤의 끝 꼬리 말풍선입니다.</BubbleContent>
+      </IenBubble>
+      <IenBubble tone="warning" tail="start" align="start">
+        <BubbleContent>주의 톤도 같은 형태로 표시합니다.</BubbleContent>
+      </IenBubble>
       <Bubble background="grey">
-        <BubbleContent>안녕하세요. 확인하고 있어요.</BubbleContent>
+        <BubbleContent>기존 배경 API와 말풍선 형태도 유지합니다.</BubbleContent>
       </Bubble>
-      <IenBubble background="Brand">
-        <BubbleContent>IEN 말풍선입니다.</BubbleContent>
-      </IenBubble>
-      <IenBubble background="Grey">
-        <BubbleContent>기본 꼬리와 정렬을 확인할 수 있습니다.</BubbleContent>
-      </IenBubble>
     </BubbleGroup>
   );
 }

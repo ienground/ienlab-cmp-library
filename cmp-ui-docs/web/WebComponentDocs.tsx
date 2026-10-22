@@ -19,7 +19,7 @@ const tokensItem = registry.items.find((item) => item.name === "tokens");
 const dimensionGroups = ["spacing", "radius", "stroke", "elevation", "icon"] as const;
 const variants = ["fill", "weak", "line", "ghost"] as const;
 const tones = ["neutral", "brand", "success", "warning", "danger", "info"] as const;
-const sizes = ["xs", "sm", "default", "lg"] as const;
+const sizes = ["small", "medium", "large"] as const;
 
 const setupCommand = 'npx shadcn@latest registry add @ienlab="https://cmp.ien.zone/r/{name}.json"';
 const installCommand = "npx shadcn@latest add @ienlab/button";
@@ -32,7 +32,7 @@ export function WebComponentDocs({
 }) {
   const [variant, setVariant] = useState<IenButtonVariant>("fill");
   const [tone, setTone] = useState<IenSemanticTone>("brand");
-  const [size, setSize] = useState<IenButtonSize>("default");
+  const [size, setSize] = useState<IenButtonSize>("large");
   const [disabled, setDisabled] = useState(false);
   const [useGradient, setUseGradient] = useState(true);
   const [clickCount, setClickCount] = useState(0);
@@ -50,7 +50,7 @@ export function WebComponentDocs({
         <Badge className="runtime-badge" variant="outline">React · Next.js</Badge>
       </div>
       <p className="panel-description">
-        shadcn/ui Button의 크기, 아이콘, asChild, 포커스 및 비활성 동작에 IEN의 variant와 tone을 적용합니다.
+        CMP의 크기, 상태, 모서리, variant와 tone을 웹 버튼에 적용합니다. 글자 크기는 웹 기준을 사용합니다.
       </p>
       <p className="panel-description">
         누르면 중심 기준으로 {designTokens.web.button["pressed-scale"]}배 축소되며 검정 오버레이가 적용됩니다.
@@ -174,7 +174,7 @@ export function WebComponentDocs({
           <CodeExample label="3. React / Next.js에서 사용" code={'import { Button } from "./components/ui/button"\n\n<Button variant="fill" tone="brand">저장</Button>\n<Button variant="weak" tone="danger" useGradient={false}>삭제</Button>'} />
           <p className="text-sm text-muted-foreground">공통 디자인 토큰은 버튼의 의존성으로 함께 설치됩니다.</p>
           <CodeExample label="토큰만 설치" code="npx shadcn@latest add @ienlab/tokens" />
-          <p className="text-sm text-muted-foreground">CMP IenTheme의 기본값을 16px 기준 rem으로 자동 변환합니다. 아래 수치는 기본 글꼴 크기에서의 px 값입니다.</p>
+          <p className="text-sm text-muted-foreground">색상·간격·모서리는 CMP IenTheme을 따릅니다. 글자 크기는 shadcn/ui에 맞춘 웹 크기이며 단계 이름은 CMP와 같습니다.</p>
           <div className="grid gap-ien-md sm:grid-cols-2">
             {dimensionGroups.map((group) => (
               <Card key={group} className="gap-ien-sm p-ien-md">
@@ -192,7 +192,7 @@ export function WebComponentDocs({
             <Card className="gap-ien-sm p-ien-md">
               <h3 className="font-medium">typography</h3>
               <dl className="space-y-ien-xs text-xs">
-                {Object.entries(designTokens.typography).map(([name, style]) => (
+                {Object.entries(designTokens.web.typography).map(([name, style]) => (
                   <div key={name}>
                     <dt>{name}</dt>
                     <dd className="text-muted-foreground">크기 {style.fontSize}px · 행간 {style.lineHeight}px · 굵기 {style.fontWeight}</dd>

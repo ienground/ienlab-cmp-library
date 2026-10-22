@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export type IenActionBarSide = "top" | "bottom";
 export const IenActionBarDefaults = { maxWidth: 640 } as const;
@@ -12,6 +12,10 @@ export interface IenActionBarProps extends React.ComponentPropsWithRef<"div"> {
   side?: IenActionBarSide;
   align?: "start" | "center" | "end";
   sideOffset?: number | string;
+  alignOffset?: number | string;
+  contentPadding?: React.CSSProperties["padding"];
+  containerColor?: string;
+  contentColor?: string;
   maxWidth?: number | string;
   selection?: React.ReactNode;
   close?: React.ReactNode | false;
@@ -25,10 +29,15 @@ export function IenActionBar({
   align = "center",
   sideOffset = "var(--ien-spacing-md)",
   maxWidth = IenActionBarDefaults.maxWidth,
+  alignOffset = 0,
+  contentPadding,
+  containerColor,
+  contentColor,
   selection,
   close,
   children,
   className,
+  style,
   ...props
 }: IenActionBarProps) {
   const id = React.useId();
@@ -50,7 +59,7 @@ export function IenActionBar({
     >
       <div
         className={cn(
-          "pointer-events-auto absolute left-1/2 flex w-[min(calc(100%-2rem),var(--ien-action-bar-max))] -translate-x-1/2 items-center gap-ien-sm rounded-ien-xl border border-ien-border bg-ien-surface-raised p-ien-xs text-ien-text-primary shadow-[0_var(--ien-elevation-floating)_calc(var(--ien-elevation-floating)*2)_rgb(0_0_0/0.12)] transition-[opacity,transform] duration-[var(--ien-motion-normal)] motion-reduce:transition-none",
+          "pointer-events-auto absolute left-1/2 flex w-[min(calc(100%-2rem),var(--ien-action-bar-max))] -translate-x-1/2 items-center gap-ien-sm rounded-ien-xl border border-ien-border bg-ien-surface-raised p-ien-xs text-ien-text-primary shadow-[0_var(--ien-elevation-floating)_calc(var(--ien-elevation-floating)*2)_rgb(0_0_0/0.12)] transition-[opacity,translate,visibility] duration-[var(--ien-motion-normal)] ease-[var(--ien-motion-standard-easing)] motion-reduce:transition-none",
           side === "top"
             ? "top-[var(--ien-action-bar-offset)]"
             : "bottom-[var(--ien-action-bar-offset)]",
@@ -61,7 +70,7 @@ export function IenActionBar({
             : side === "top"
               ? "-translate-y-3 opacity-0"
               : "translate-y-3 opacity-0",
-          !open && "invisible",
+          !open && "invisible pointer-events-none",
           className,
         )}
         style={
@@ -70,6 +79,13 @@ export function IenActionBar({
               typeof maxWidth === "number" ? `${maxWidth}px` : maxWidth,
             "--ien-action-bar-offset":
               typeof sideOffset === "number" ? `${sideOffset}px` : sideOffset,
+            marginInlineStart: align === "end" ? undefined : alignOffset,
+            marginInlineEnd: align === "end" ? (typeof alignOffset === "number" ? -alignOffset : `calc(-1 * ${alignOffset})`) : undefined,
+            padding: contentPadding,
+            backgroundColor: containerColor,
+            color: contentColor,
+            transitionDelay: open ? "0s" : "0s, 0s, var(--ien-motion-normal)",
+            ...style,
           } as React.CSSProperties
         }
         role="toolbar"

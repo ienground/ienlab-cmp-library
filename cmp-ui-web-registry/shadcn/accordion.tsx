@@ -26,7 +26,7 @@
 
 import * as React from "react";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import { Accordion as AccordionPrimitive } from "radix-ui";
 
 function Accordion({
@@ -92,12 +92,12 @@ function AccordionContent({
   return (
     <AccordionPrimitive.Content
       data-slot="accordion-content"
-      className="overflow-hidden text-ien-body2 data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up"
+      className="overflow-hidden text-ien-body2 duration-[var(--ien-motion-normal)] ease-[var(--ien-motion-standard-easing)] data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up motion-reduce:animate-none"
       {...props}
     >
       <div
         className={cn(
-          "h-(--radix-accordion-content-height) pt-ien-none pb-[var(--ien-control-padding-inline)] [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-ien-text-primary [&_p:not(:last-child)]:mb-4",
+          "pt-ien-none pb-[var(--ien-control-padding-inline)] [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-ien-text-primary [&_p:not(:last-child)]:mb-4",
           className,
         )}
       >

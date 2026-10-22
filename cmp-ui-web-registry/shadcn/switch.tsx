@@ -24,58 +24,165 @@
  * SOFTWARE.
  */
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import { Switch as SwitchPrimitive } from "radix-ui";
-type SwitchTone =
-  "neutral" | "brand" | "success" | "warning" | "danger" | "info";
-type SwitchProps = React.ComponentProps<typeof SwitchPrimitive.Root> & {
-  size?: "sm" | "default";
+
+type SwitchTone = "neutral" | "brand" | "success" | "warning" | "danger" | "info";
+type SwitchSize = "sm" | "default";
+type SwitchTrackContent = {
+  on?: React.ReactNode;
+  off?: React.ReactNode;
+};
+type SwitchProps = Omit<
+  React.ComponentProps<typeof SwitchPrimitive.Root>,
+  "checked" | "defaultChecked" | "onCheckedChange" | "disabled"
+> & {
+  checked?: boolean;
+  defaultChecked?: boolean;
+  onCheckedChange?: (checked: boolean) => void;
+  enabled?: boolean;
+  disabled?: boolean;
+  size?: SwitchSize;
   tone?: SwitchTone;
   thumbContent?: React.ReactNode;
-  trackContent?: { on?: React.ReactNode; off?: React.ReactNode };
+  trackContent?: SwitchTrackContent;
 };
+
+function shakeElement(element: HTMLElement | null) {
+  element?.animate(
+    [
+      { translate: "0 0" },
+      { translate: "-6px 0" },
+      { translate: "6px 0" },
+      { translate: "-3.6px 0" },
+      { translate: "3.6px 0" },
+      { translate: "0 0" },
+    ],
+    { duration: 200 },
+  );
+}
+
 function Switch({
   className,
   size = "default",
   tone = "brand",
+  checked,
+  defaultChecked,
   onCheckedChange,
+  enabled = true,
+  disabled = false,
   thumbContent,
   trackContent,
+  onPointerDownCapture,
+  onKeyDownCapture,
+  style,
   ...props
 }: SwitchProps) {
-  const toneClass = {
-    neutral: "data-[state=checked]:bg-ien-surface-variant",
-    brand: "data-[state=checked]:bg-ien-brand",
-    success: "data-[state=checked]:bg-ien-success",
-    warning: "data-[state=checked]:bg-ien-warning",
-    danger: "data-[state=checked]:bg-ien-danger",
-    info: "data-[state=checked]:bg-ien-info",
-  }[tone];
+  const switchRef = React.useRef<HTMLButtonElement>(null);
+  const [internalChecked, setInternalChecked] = React.useState(
+    defaultChecked ?? false,
+  );
+  const isControlled = checked !== undefined;
+  const isChecked = checked ?? internalChecked;
+  const isInteractive = enabled && !disabled;
+  const onContent = trackContent?.on;
+  const offContent = trackContent?.off;
+  const large = size === "default";
+
+  const handleCheckedChange = (next: boolean) => {
+    if (!isInteractive) {
+      shakeElement(switchRef.current);
+      return;
+    }
+    if (!isControlled) setInternalChecked(next);
+    onCheckedChange?.(next);
+  };
 
   return (
     <SwitchPrimitive.Root
+      {...props}
+      ref={switchRef}
       data-slot="switch"
       data-size={size}
       data-tone={tone}
-      onCheckedChange={onCheckedChange}
+      data-enabled={isInteractive}
+      checked={isChecked}
+      aria-checked={isChecked}
+      aria-disabled={!isInteractive}
+      disabled={false}
+      tabIndex={isInteractive ? props.tabIndex : -1}
+      onCheckedChange={handleCheckedChange}
+      onPointerDownCapture={(event) => {
+        onPointerDownCapture?.(event);
+        if (!isInteractive && !event.defaultPrevented) {
+          event.preventDefault();
+          event.stopPropagation();
+          shakeElement(switchRef.current);
+        }
+      }}
+      onKeyDownCapture={(event) => {
+        onKeyDownCapture?.(event);
+        if (!isInteractive && !event.defaultPrevented) {
+          event.preventDefault();
+          event.stopPropagation();
+          shakeElement(switchRef.current);
+        }
+      }}
+      style={{ "--ien-switch-tone": `var(--ien-${tone})`, ...style } as React.CSSProperties}
       className={cn(
-        "peer group/switch relative inline-flex shrink-0 items-center rounded-ien-full border border-transparent transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ien-brand/50 disabled:cursor-not-allowed disabled:opacity-[var(--ien-state-disabled-alpha)] data-[size=default]:h-[1.15rem] data-[size=default]:w-8 data-[size=sm]:h-3.5 data-[size=sm]:w-6 data-[state=unchecked]:bg-ien-surface-variant",
-        toneClass,
+        "group/switch relative inline-flex shrink-0 items-center rounded-ien-full border-0 bg-transparent p-0 outline-none focus-visible:ring-[length:var(--ien-control-focus-ring-width)] focus-visible:ring-ien-brand/50 aria-disabled:cursor-not-allowed",
+        "data-[size=default]:h-8 data-[size=default]:w-[52px] data-[size=sm]:h-6 data-[size=sm]:w-10",
+        !isInteractive && "cursor-not-allowed",
         className,
       )}
-      {...props}
     >
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 flex items-center justify-between px-[3px] text-[9px] text-current"
-      >
-        {trackContent?.on}
-        <span />
-        {trackContent?.off}
-      </span>
+        className="pointer-events-none absolute inset-0 rounded-[inherit] bg-ien-border-strong transition-[background-color,opacity] duration-[var(--ien-motion-fast)] group-data-[state=checked]/switch:bg-[var(--ien-switch-tone)] group-data-[enabled=false]/switch:opacity-[var(--ien-state-disabled-alpha)] motion-reduce:transition-none"
+      />
+      {(onContent != null || offContent != null) && (
+        <span
+          aria-hidden="true"
+          className={cn(
+            "pointer-events-none absolute left-0 top-1/2 h-4 w-[52px] -translate-y-1/2 overflow-hidden text-[9px] leading-none text-current",
+            !large && "h-3 w-10",
+          )}
+        >
+          <span
+            className="absolute inset-y-0 left-0 w-[52px] transition-transform duration-[var(--ien-motion-fast)] ease-[var(--ien-motion-standard-easing)] motion-reduce:transition-none"
+            style={{
+              width: large ? 52 : 40,
+              transform: `translateX(${isChecked ? 0 : large ? -20 : -15}px)`,
+            }}
+          >
+            {onContent != null && (
+              <span className="absolute inset-y-0 left-1 flex w-4 items-center justify-center">
+                {onContent}
+              </span>
+            )}
+            {offContent != null && (
+              <span
+                className="absolute inset-y-0 flex w-4 items-center justify-center"
+                style={{ left: large ? 52 : 40 }}
+              >
+                {offContent}
+              </span>
+            )}
+          </span>
+        </span>
+      )}
       <SwitchPrimitive.Thumb
         data-slot="switch-thumb"
-        className="pointer-events-none relative z-10 block size-[var(--ien-icon-xs)] rounded-ien-full bg-ien-surface-raised shadow-sm transition-transform group-data-[size=default]/switch:data-[state=checked]:translate-x-[calc(100%+2px)] group-data-[size=sm]/switch:data-[state=checked]:translate-x-[calc(100%-1px)]"
+        className={cn(
+          "pointer-events-none absolute left-1 top-1/2 block -translate-y-1/2 rounded-ien-full bg-ien-surface shadow-sm transition-[width,transform] duration-[var(--ien-motion-fast)] ease-[var(--ien-motion-standard-easing)] motion-reduce:transition-none",
+          large
+            ? isChecked
+              ? "h-6 w-6 translate-x-5"
+              : "size-4 translate-x-0"
+            : isChecked
+              ? "h-[18px] w-[18px] translate-x-[15px]"
+              : "size-3 translate-x-0",
+        )}
       >
         {thumbContent}
       </SwitchPrimitive.Thumb>
@@ -83,32 +190,28 @@ function Switch({
   );
 }
 
-type IenSwitchProps = Omit<SwitchProps, "disabled" | "trackContent"> & {
-  enabled?: boolean;
+type IenSwitchProps = Omit<SwitchProps, "trackContent"> & {
   trackContent?: React.ReactNode;
   onTrackContent?: React.ReactNode;
   offTrackContent?: React.ReactNode;
 };
 
 function IenSwitch({
-  enabled = true,
   trackContent,
   onTrackContent,
   offTrackContent,
-  className,
   ...props
 }: IenSwitchProps) {
-  const onContent = onTrackContent ?? trackContent;
-  const offContent = offTrackContent ?? trackContent;
-
   return (
     <Switch
       {...props}
-      disabled={!enabled}
-      trackContent={{ on: onContent, off: offContent }}
-      className={cn("data-[state=unchecked]:bg-ien-border-strong", className)}
+      trackContent={{
+        on: onTrackContent ?? trackContent,
+        off: offTrackContent ?? trackContent,
+      }}
     />
   );
 }
+
 export type { SwitchTone, SwitchProps, IenSwitchProps };
 export { Switch, IenSwitch };

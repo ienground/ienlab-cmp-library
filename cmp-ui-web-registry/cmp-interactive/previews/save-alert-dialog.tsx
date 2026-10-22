@@ -13,6 +13,7 @@ export default function Preview() {
       <SaveAlertDialog
         open={open}
         onOpenChange={setOpen}
+        buttonLayout="vertical"
         onSave={() => setResult("변경 사항 저장됨")}
         onDiscard={() => setResult("변경 사항 폐기됨")}
       />

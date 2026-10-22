@@ -25,7 +25,115 @@
 
 import * as React from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
+
+const languageKeywords: Record<string, ReadonlySet<string>> = {
+  javascript: new Set([
+    "async", "await", "break", "case", "catch", "class", "const", "continue",
+    "default", "delete", "do", "else", "export", "extends", "false", "finally",
+    "for", "from", "function", "if", "import", "in", "instanceof", "let", "new",
+    "null", "of", "return", "static", "super", "switch", "this", "throw", "true",
+    "try", "typeof", "undefined", "var", "void", "while", "with", "yield",
+  ]),
+  typescript: new Set([
+    "any", "as", "asserts", "async", "await", "boolean", "break", "case", "catch",
+    "class", "const", "continue", "declare", "default", "delete", "do", "else",
+    "enum", "export", "extends", "false", "finally", "for", "from", "function",
+    "if", "implements", "import", "in", "infer", "instanceof", "interface", "is",
+    "keyof", "let", "namespace", "never", "new", "null", "number", "object", "of",
+    "private", "protected", "public", "readonly", "return", "static", "string",
+    "super", "switch", "this", "throw", "true", "try", "type", "typeof", "undefined",
+    "unique", "unknown", "var", "void", "while", "with", "yield",
+  ]),
+  kotlin: new Set([
+    "as", "break", "by", "catch", "class", "const", "continue", "data", "do", "else",
+    "enum", "false", "field", "file", "final", "finally", "for", "fun", "get", "if",
+    "import", "in", "init", "inline", "interface", "internal", "is", "lateinit", "object",
+    "open", "operator", "out", "override", "package", "private", "protected", "public",
+    "return", "sealed", "set", "suspend", "this", "throw", "true", "try", "typealias",
+    "val", "var", "when", "where", "while",
+  ]),
+};
+
+type SyntaxToken = {
+  value: string;
+  kind?: "annotation" | "comment" | "function" | "keyword" | "number" | "property" | "string" | "type";
+};
+
+const syntaxTokenClasses: Record<NonNullable<SyntaxToken["kind"]>, string> = {
+  annotation: "text-[var(--ien-syntax-annotation)]",
+  comment: "text-[var(--ien-syntax-comment)]",
+  function: "text-[var(--ien-syntax-function)]",
+  keyword: "text-[var(--ien-syntax-keyword)]",
+  number: "text-[var(--ien-syntax-number)]",
+  property: "text-[var(--ien-syntax-property)]",
+  string: "text-[var(--ien-syntax-string)]",
+  type: "text-[var(--ien-syntax-type)]",
+};
+
+function tokenize(code: string, language?: string): SyntaxToken[] {
+  const normalizedLanguage = language?.toLowerCase().replace(/[^a-z]/g, "");
+  const keywordSet = languageKeywords[
+    normalizedLanguage === "js" || normalizedLanguage === "jsx"
+      ? "javascript"
+      : normalizedLanguage === "ts" || normalizedLanguage === "tsx"
+        ? "typescript"
+        : normalizedLanguage ?? ""
+  ];
+  const expression = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->|"""[\s\S]*?"""|`(?:\\.|[^`\\])*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|@[A-Za-z_$][\w$]*|0[xX][\da-fA-F]+|\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?[fFdDlL]?\b|[A-Za-z_$][\w$]*|\s+|.)/g;
+  const tokens: SyntaxToken[] = [];
+  let match: RegExpExecArray | null;
+
+  while ((match = expression.exec(code)) !== null) {
+    const value = match[0];
+    if (/^\s+$/.test(value)) {
+      tokens.push({ value });
+      continue;
+    }
+
+    let kind: SyntaxToken["kind"];
+    if (value.startsWith("//") || value.startsWith("/*") || value.startsWith("<!--")) {
+      kind = "comment";
+    } else if (value.startsWith("\"") || value.startsWith("'") || value.startsWith("`")) {
+      kind = "string";
+    } else if (value.startsWith("@")) {
+      kind = "annotation";
+    } else if (/^(?:0[xX][\da-fA-F]+|\d)/.test(value)) {
+      kind = "number";
+    } else if (keywordSet?.has(value)) {
+      kind = "keyword";
+    } else if (/^[A-Z]/.test(value)) {
+      kind = "type";
+    } else if (/^\s*\(/.test(code.slice(expression.lastIndex))) {
+      kind = "function";
+    } else if (/^\s*[:=]/.test(code.slice(expression.lastIndex))) {
+      kind = "property";
+    }
+
+    tokens.push({ value, kind });
+  }
+
+  return tokens;
+}
+
+function HighlightedCode({ code, language }: { code: string; language?: string }) {
+  return (
+    <>
+      {tokenize(code, language).map(({ value, kind }, index) =>
+        kind ? (
+          <span
+            className={syntaxTokenClasses[kind]}
+            key={`${index}-${kind}`}
+          >
+            {value}
+          </span>
+        ) : (
+          <React.Fragment key={index}>{value}</React.Fragment>
+        ),
+      )}
+    </>
+  );
+}
 
 export type CodeBlockProps = React.ComponentProps<"div"> & {
   code: string;
@@ -51,7 +159,7 @@ function CodeBlock({
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
   };
-  const lines = code.replace(/\n$/, "").split("\n");
+  const lines = code.split("\n");
   return (
     <section
       data-slot="code-block"
@@ -91,6 +199,7 @@ function CodeBlock({
       <pre
         className="overflow-x-auto p-ien-md font-ien-mono text-ien-caption leading-relaxed"
         tabIndex={0}
+        aria-label={filename ? `${filename} 코드` : `${language ?? "소스"} 코드`}
       >
         <code>
           {showLineNumbers
@@ -103,16 +212,15 @@ function CodeBlock({
                     {index + 1}
                   </span>
                   <span className="table-cell">
-                    {line}
-                    {index < lines.length - 1 ? "\n" : ""}
+                    <HighlightedCode code={line} language={language} />
                   </span>
                 </span>
               ))
-            : code}
+            : <HighlightedCode code={code} language={language} />}
         </code>
       </pre>
     </section>
   );
 }
 
-export { CodeBlock };
+export { CodeBlock, HighlightedCode };

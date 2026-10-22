@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export interface IenPostProps extends React.ComponentPropsWithRef<"article"> {
   title: string;
@@ -23,7 +23,7 @@ export function IenPost({
   return (
     <article
       className={cn(
-        "flex w-full flex-col gap-ien-sm rounded-ien-default bg-ien-surface p-ien-md text-ien-text-primary",
+        "flex w-full flex-col gap-ien-sm bg-ien-surface p-ien-md text-ien-text-primary",
         className,
       )}
       {...props}
@@ -39,7 +39,7 @@ export function IenPost({
         <p className="text-ien-body2 text-ien-text-secondary">{description}</p>
       )}
       {media != null && (
-        <div className="overflow-hidden rounded-ien-default">{media}</div>
+        <div className="overflow-hidden">{media}</div>
       )}
       {action != null && <div>{action}</div>}
     </article>

@@ -25,7 +25,7 @@
  */
 
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import * as RechartsPrimitive from "recharts";
 import type { TooltipValueType } from "recharts";
 

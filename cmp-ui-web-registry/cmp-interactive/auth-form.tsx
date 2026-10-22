@@ -4,7 +4,7 @@ import * as React from "react";
 import { Check, Circle, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TextField, PasswordTextField } from "@/components/ui/text-field";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export type AuthFormMode = "login" | "sign-up" | "password-reset";
 export type AuthFormModeCopy = {

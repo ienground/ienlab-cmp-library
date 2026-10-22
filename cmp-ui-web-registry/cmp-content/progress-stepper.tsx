@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Check } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export type IenStepStatus = "pending" | "current" | "done" | "error";
 export type IenProgressStepperVariant = "compact" | "icon";
@@ -62,8 +62,9 @@ export function IenProgressStepper({
               <span
                 aria-hidden
                 className={cn(
-                  "absolute left-0 top-3.5 h-px w-1/2",
-                  index <= active ? "bg-ien-brand" : "bg-ien-border",
+                  "absolute left-0 h-px w-1/2",
+                  variant === "icon" ? "top-3.5" : "top-[5px]",
+                  index <= active ? "bg-ien-brand bg-[linear-gradient(to_bottom_right,color-mix(in_oklab,var(--ien-brand),var(--ien-on-brand)_18%),var(--ien-brand),color-mix(in_oklab,var(--ien-brand),var(--ien-on-brand)_36%))]" : "bg-ien-border",
                 )}
               />
             )}
@@ -71,8 +72,9 @@ export function IenProgressStepper({
               <span
                 aria-hidden
                 className={cn(
-                  "absolute right-0 top-3.5 h-px w-1/2",
-                  index < active ? "bg-ien-brand" : "bg-ien-border",
+                  "absolute right-0 h-px w-1/2",
+                  variant === "icon" ? "top-3.5" : "top-[5px]",
+                  index < active ? "bg-ien-brand bg-[linear-gradient(to_bottom_right,color-mix(in_oklab,var(--ien-brand),var(--ien-on-brand)_18%),var(--ien-brand),color-mix(in_oklab,var(--ien-brand),var(--ien-on-brand)_36%))]" : "bg-ien-border",
                 )}
               />
             )}
@@ -81,7 +83,9 @@ export function IenProgressStepper({
                 "relative z-[1] grid shrink-0 place-items-center rounded-full",
                 variant === "icon" ? "size-7" : "size-2.5",
                 statusColor,
+                status !== "pending" && "bg-[linear-gradient(to_bottom_right,color-mix(in_oklab,var(--ien-step-tone),var(--ien-step-on-tone)_18%),var(--ien-step-tone),color-mix(in_oklab,var(--ien-step-tone),var(--ien-step-on-tone)_36%))]",
               )}
+              style={{ "--ien-step-tone": status === "error" ? "var(--ien-danger)" : "var(--ien-brand)", "--ien-step-on-tone": status === "error" ? "var(--ien-on-danger)" : "var(--ien-on-brand)" } as React.CSSProperties}
               aria-current={status === "current" ? "step" : undefined}
             >
               {variant === "icon" &&
@@ -97,12 +101,12 @@ export function IenProgressStepper({
             {step.title != null && (
               <span
                 className={cn(
-                  "mt-ien-xs max-w-full text-ien-caption",
+                  "mt-ien-xs max-w-full line-clamp-2 text-ien-caption",
                   status === "pending"
                     ? "text-ien-text-tertiary"
                     : status === "error"
                       ? "text-ien-danger"
-                      : "text-ien-text-secondary",
+                      : status === "current" ? "text-ien-text-primary" : "text-ien-text-secondary",
                 )}
               >
                 {step.title}

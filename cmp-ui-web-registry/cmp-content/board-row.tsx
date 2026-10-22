@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { ChevronDown } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export interface IenBoardRowState {
   opened: boolean;
@@ -57,15 +57,12 @@ export function IenBoardRow({
 
   return (
     <div
-      className={cn(
-        "overflow-hidden rounded-ien-default bg-ien-surface",
-        className,
-      )}
+      className={cn("w-full", className)}
       {...props}
     >
       <button
         type="button"
-        className="flex min-h-[var(--ien-state-minimum-touch-target)] w-full items-center gap-ien-sm rounded-ien-default px-ien-md py-ien-sm text-left transition-colors hover:bg-ien-surface-weak focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ien-brand active:scale-[var(--ien-button-pressed-scale)]"
+        className="flex min-h-[var(--ien-state-minimum-touch-target)] w-full items-center gap-ien-sm rounded-ien-default px-ien-md py-ien-sm text-left transition-colors hover:bg-ien-surface-weak active:bg-ien-surface-variant focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ien-brand active:scale-[var(--ien-button-pressed-scale)]"
         aria-expanded={opened}
         aria-controls={panelId}
         onClick={() => changeOpened(!opened)}

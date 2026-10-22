@@ -25,7 +25,7 @@
 
 import * as React from "react";
 import { ArrowDownIcon } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export type MessageScrollerProps = React.ComponentProps<"div"> & {
   contentKey?: unknown;

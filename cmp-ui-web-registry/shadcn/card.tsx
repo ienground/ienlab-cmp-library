@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 type CardTone = "neutral" | "brand" | "success" | "warning" | "danger" | "info";
 type CardProps = React.ComponentProps<"div"> & {
@@ -114,7 +114,7 @@ function Card({
   variant = "filled",
   tone = "neutral",
   toneVariant = "solid",
-  useGradient = false,
+  useGradient = true,
   contentPadding = "default",
   onCardClick,
   onClick,
@@ -169,7 +169,7 @@ function Card({
           : undefined
       }
       className={cn(
-        "group/card flex flex-col gap-ien-md overflow-hidden rounded-ien-default border text-ien-body2",
+        "group/card flex flex-col gap-ien-md overflow-hidden rounded-ien-lg border text-ien-body2",
         isOutlined
           ? toneVariant === "weak"
             ? colors.outlinedWeakBorder

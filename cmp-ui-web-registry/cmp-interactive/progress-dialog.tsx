@@ -8,18 +8,30 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
+import { IenCircularProgressIndicator } from "@/components/ui/progress-indicator";
+import { IenLinearProgressIndicator } from "@/components/ui/progress-indicator";
+import { IenLoadingIndicator } from "@/components/ui/loading-indicator";
+
+export type ProgressDialogVariant = "loading" | "wavy" | "circular" | "linear";
 
 export type ProgressDialogProps = Omit<
   React.ComponentProps<typeof DialogContent>,
   "children" | "ref" | "className" | "onEscapeKeyDown" | "onInteractOutside"
 > & {
   ref?: React.Ref<HTMLDivElement>;
-  open: boolean;
+  open?: boolean;
+  visible?: boolean;
+  defaultOpen?: boolean;
   title?: React.ReactNode;
   description?: React.ReactNode;
   value?: number;
+  progress?: number | (() => number);
+  variant?: ProgressDialogVariant;
+  isLoadingIndicator?: boolean;
+  isWavyIndicator?: boolean;
   onOpenChange?: (open: boolean) => void;
+  onEntered?: () => void;
+  onExited?: () => void;
   onEscapeKeyDown?: React.ComponentProps<
     typeof DialogContent
   >["onEscapeKeyDown"];
@@ -30,23 +42,58 @@ export type ProgressDialogProps = Omit<
 
 function ProgressDialog({
   open,
+  visible,
+  defaultOpen,
   title = "처리 중",
   description,
   value,
+  progress,
+  variant,
+  isLoadingIndicator = true,
+  isWavyIndicator = true,
   onOpenChange,
+  onEntered,
+  onExited,
   ref,
   onEscapeKeyDown,
   onInteractOutside,
   ...contentProps
 }: ProgressDialogProps) {
-  const bounded =
+  const controlledOpen = visible ?? open;
+  const progressValue = typeof progress === "function" ? progress() : progress;
+  const boundedProgress =
+    progressValue === undefined
+      ? undefined
+      : Math.max(0, Math.min(1, progressValue));
+  const boundedValue =
     value === undefined ? undefined : Math.max(0, Math.min(100, value));
+  const resolvedVariant =
+    variant ??
+    (value !== undefined
+      ? "linear"
+      : progress !== undefined
+        ? isWavyIndicator
+          ? "wavy"
+          : "circular"
+        : isLoadingIndicator
+          ? "loading"
+          : isWavyIndicator
+            ? "wavy"
+            : "circular");
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={controlledOpen}
+      defaultOpen={controlledOpen === undefined ? defaultOpen : undefined}
+      onOpenChange={onOpenChange}
+    >
       <DialogContent
         {...contentProps}
         ref={ref}
         showCloseButton={false}
+        closeOnBackEvent={false}
+        closeOnDimmerClick={false}
+        onEntered={onEntered}
+        onExited={onExited}
         onEscapeKeyDown={(event) => {
           onEscapeKeyDown?.(event);
           event.preventDefault();
@@ -66,13 +113,32 @@ function ProgressDialog({
           )}
         </DialogHeader>
         <div role="status" aria-live="polite" className="grid gap-ien-xs">
-          <Progress
-            value={bounded}
-            aria-label={typeof title === "string" ? title : "진행 중"}
-          />
-          {bounded !== undefined && (
+          {resolvedVariant === "loading" && (
+            <IenLoadingIndicator
+              aria-label={typeof title === "string" ? title : "진행 중"}
+              className="mx-auto"
+            />
+          )}
+          {(resolvedVariant === "wavy" || resolvedVariant === "circular") && (
+            <IenCircularProgressIndicator
+              progress={boundedProgress}
+              wavy={resolvedVariant === "wavy"}
+              aria-label={typeof title === "string" ? title : "진행 중"}
+              className="mx-auto size-12"
+            />
+          )}
+          {resolvedVariant === "linear" && (
+            <IenLinearProgressIndicator
+              progress={
+                boundedProgress ??
+                (boundedValue === undefined ? undefined : boundedValue / 100)
+              }
+              aria-label={typeof title === "string" ? title : "진행 중"}
+            />
+          )}
+          {boundedValue !== undefined && resolvedVariant === "linear" && (
             <span className="text-right text-ien-caption text-ien-text-secondary">
-              {Math.round(bounded)}%
+              {Math.round(boundedValue)}%
             </span>
           )}
         </div>

@@ -25,7 +25,7 @@
  */
 
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import { Avatar as AvatarPrimitive } from "radix-ui";
 
 function Avatar({

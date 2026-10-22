@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import { IenHighlightText } from "./highlight";
 import type { IenSemanticTone } from "@/components/ui/highlight";
 

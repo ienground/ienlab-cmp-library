@@ -35,7 +35,7 @@ import {
 } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Slot } from "radix-ui";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,

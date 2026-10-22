@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export type IenProgressBarSize = "light" | "normal" | "bold";
 
@@ -42,13 +42,13 @@ export function IenProgressBar({
         aria-valuenow={percent}
       >
         <div
-          className="h-full rounded-full bg-[image:linear-gradient(120deg,color-mix(in_oklab,var(--ien-progress-color),white_18%),var(--ien-progress-color),color-mix(in_oklab,var(--ien-progress-color),black_8%))]"
+          className="h-full w-full origin-left rounded-full bg-[image:linear-gradient(120deg,color-mix(in_oklab,var(--ien-progress-color),white_18%),var(--ien-progress-color),color-mix(in_oklab,var(--ien-progress-color),black_8%))] motion-reduce:transition-none!"
           style={
             {
-              width: `${percent}%`,
+              transform: `scaleX(${safeProgress})`,
               "--ien-progress-color": color,
               transition: animate
-                ? "width var(--ien-motion-normal) var(--ien-motion-standard-easing)"
+                ? "transform var(--ien-motion-normal) var(--ien-motion-standard-easing)"
                 : "none",
             } as React.CSSProperties
           }

@@ -1,5 +1,6 @@
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
+import { IenLoaderPrimitive } from "@/components/ui/primitives";
 
 export type IenLoaderSize = "small" | "medium" | "large";
 
@@ -17,7 +18,11 @@ export function IenLoader({
   ...props
 }: IenLoaderProps) {
   const iconSize =
-    size === "small" ? "size-4" : size === "large" ? "size-8" : "size-6";
+    size === "small"
+      ? "var(--ien-icon-sm)"
+      : size === "large"
+        ? "var(--ien-icon-xl)"
+        : "var(--ien-icon-lg)";
   return (
     <div
       className={cn("flex flex-col items-center gap-ien-sm", className)}
@@ -26,12 +31,11 @@ export function IenLoader({
       {...props}
     >
       {indicator ?? (
-        <span
+        <IenLoaderPrimitive
           aria-hidden
-          className={cn(
-            "inline-block animate-spin rounded-full border-2 border-ien-brand border-r-transparent",
-            iconSize,
-          )}
+          color="var(--ien-brand)"
+          strokeWidth={2}
+          size={iconSize}
         />
       )}
       {label != null && (

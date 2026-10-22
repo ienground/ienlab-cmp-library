@@ -24,7 +24,7 @@
  * SOFTWARE.
  */
 
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import * as ResizablePrimitive from "react-resizable-panels";
 
 function ResizablePanelGroup({

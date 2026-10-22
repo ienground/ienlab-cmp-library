@@ -7,7 +7,7 @@ import { FabMenu } from "@/components/ui/fab-menu";
 export default function Preview() {
   const [action, setAction] = React.useState("동작을 선택하세요.");
   return (
-    <div className="grid justify-items-end gap-ien-sm">
+    <div className="grid min-h-64 content-end justify-items-end gap-ien-sm">
       <FabMenu
         actions={[
           {

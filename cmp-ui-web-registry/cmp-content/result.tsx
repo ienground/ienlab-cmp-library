@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Check, CircleHelp, SearchX, X } from "lucide-react";
 import { IenAssetFrame } from "@/components/ui/asset";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export type IenResultTone = "success" | "failure" | "empty" | "info";
 

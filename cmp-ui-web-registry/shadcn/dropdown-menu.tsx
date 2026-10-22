@@ -26,7 +26,7 @@
 
 import * as React from "react";
 import { CheckIcon, ChevronRightIcon } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui";
 
 function DropdownMenu({

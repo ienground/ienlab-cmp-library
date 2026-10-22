@@ -26,6 +26,8 @@ export type MenuProps = Omit<
   items: MenuItem[];
   trigger?: React.ReactNode;
   label?: string;
+  header?: React.ReactNode;
+  footer?: React.ReactNode;
   align?: "start" | "center" | "end";
 };
 
@@ -34,6 +36,8 @@ function Menu({
   trigger,
   label = "메뉴 열기",
   align = "end",
+  header,
+  footer,
   ref,
   ...triggerProps
 }: MenuProps) {
@@ -53,6 +57,7 @@ function Menu({
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align={align}>
+        {header}
         {items.map((item, index) => (
           <React.Fragment key={index}>
             {item.separatorBefore && <DropdownMenuSeparator />}
@@ -69,6 +74,7 @@ function Menu({
             </DropdownMenuItem>
           </React.Fragment>
         ))}
+        {footer}
       </DropdownMenuContent>
     </DropdownMenu>
   );

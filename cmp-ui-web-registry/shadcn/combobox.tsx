@@ -39,7 +39,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export type ComboboxOption = {
   value: string;

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import { Slot } from "radix-ui";
 
 import { Separator } from "@/components/ui/separator";

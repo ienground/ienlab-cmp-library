@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Archive, Trash2 } from "lucide-react";
 import { SwipeBox } from "@/components/ui/swipe-box";
 
 export default function Preview() {
@@ -12,10 +13,14 @@ export default function Preview() {
       <SwipeBox
         startAction={{
           label: "보관",
+          icon: <Archive aria-hidden="true" />,
+          onClickLabel: "항목 보관",
           onClick: () => setMessage("항목을 보관했습니다."),
         }}
         endAction={{
           label: "삭제",
+          icon: <Trash2 aria-hidden="true" />,
+          onClickLabel: "항목 삭제",
           tone: "danger",
           onClick: () => setMessage("삭제 동작을 선택했습니다."),
         }}

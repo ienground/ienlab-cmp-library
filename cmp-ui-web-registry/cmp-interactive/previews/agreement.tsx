@@ -10,6 +10,11 @@ export default function Preview() {
       <Agreement
         value={value}
         onValueChange={setValue}
+        title="모든 약관에 동의합니다"
+        variant="xLarge"
+        itemVariant="medium"
+        collapsible
+        showGradient
         items={[
           { id: "terms", label: "서비스 이용약관 동의", required: true },
           { id: "privacy", label: "개인정보 처리 동의", required: true },
@@ -17,6 +22,10 @@ export default function Preview() {
             id: "marketing",
             label: "혜택 및 소식 수신 동의",
             description: "선택 항목입니다.",
+            showOptional: true,
+            indent: true,
+            collapsible: true,
+            defaultCollapsed: true,
           },
         ]}
       />

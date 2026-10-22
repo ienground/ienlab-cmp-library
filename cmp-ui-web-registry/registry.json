@@ -38,10 +38,588 @@
       }
     },
     {
+      "name": "border",
+      "type": "registry:ui",
+      "title": "Border",
+      "description": "전체·들여쓰기 구분선과 높이형 공간 변형을 제공합니다.",
+      "dependencies": [
+        "cn",
+        "radix-ui"
+      ],
+      "files": [
+        {
+          "path": "cmp-content/border.tsx",
+          "type": "registry:ui",
+          "target": "@ui/border.tsx"
+        },
+        {
+          "path": "shadcn/separator.tsx",
+          "type": "registry:ui",
+          "target": "@ui/separator.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens"
+      ],
+      "meta": {
+        "category": "레이아웃",
+        "preview": "cmp-content/previews/border.tsx",
+        "example": "import { IenBorder } from \"@/components/ui/border\";\n<IenBorder variant=\"padding24\" />",
+        "exports": [
+          "IenBorderVariant",
+          "IenBorderProps",
+          "IenBorder",
+          "Border",
+          "Separator"
+        ],
+        "cmpIds": [
+          "border"
+        ],
+        "source": [
+          "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/layout/IenLayout.kt"
+        ],
+        "limitations": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      }
+    },
+    {
+      "name": "progress-bar",
+      "type": "registry:ui",
+      "title": "ProgressBar",
+      "description": "값을 0–1 범위로 제한해 애니메이션 진행 바와 백분율 레이블을 표시합니다.",
+      "dependencies": [
+        "cn",
+        "radix-ui"
+      ],
+      "files": [
+        {
+          "path": "cmp-content/progress-bar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/progress-bar.tsx"
+        },
+        {
+          "path": "shadcn/progress.tsx",
+          "type": "registry:ui",
+          "target": "@ui/progress.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens"
+      ],
+      "meta": {
+        "category": "피드백",
+        "preview": "cmp-content/previews/progress-bar.tsx",
+        "example": "import { IenProgressBar } from \"@/components/ui/progress-bar\";\n<IenProgressBar progress={progress} showLabel animate />",
+        "exports": [
+          "IenProgressBarSize",
+          "IenProgressBarProps",
+          "IenProgressBar",
+          "ProgressBar",
+          "Progress"
+        ],
+        "cmpIds": [
+          "progress-bar"
+        ],
+        "source": [
+          "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/feedback/IenProgressComponents.kt"
+        ],
+        "limitations": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      }
+    },
+    {
+      "name": "bottom-sheet",
+      "type": "registry:ui",
+      "title": "BottomSheet",
+      "description": "하단에서 열리는 콘텐츠 시트와 상태 제어를 제공합니다.",
+      "files": [
+        {
+          "path": "cmp-interactive/bottom-sheet.tsx",
+          "type": "registry:ui",
+          "target": "@ui/bottom-sheet.tsx"
+        },
+        {
+          "path": "shadcn/sheet.tsx",
+          "type": "registry:ui",
+          "target": "@ui/sheet.tsx"
+        },
+        {
+          "path": "shadcn/drawer.tsx",
+          "type": "registry:ui",
+          "target": "@ui/drawer.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/button",
+        "@ienlab/radio-button"
+      ],
+      "meta": {
+        "preview": "cmp-interactive/previews/bottom-sheet.tsx",
+        "example": "import { BottomSheet } from \"@/components/ui/bottom-sheet\"; const [open, setOpen] = useState(false); <BottomSheet open={open} onOpenChange={setOpen} title=\"옵션\">...</BottomSheet>",
+        "exports": [
+          "BottomSheetDetent",
+          "BottomSheetState",
+          "BottomSheetProps",
+          "BottomSheetOption",
+          "BottomSheetSelectProps",
+          "BottomSheet",
+          "IenBottomSheet",
+          "useBottomSheetState",
+          "useIenBottomSheetState",
+          "BottomSheetSelect",
+          "IenBottomSheetSelect",
+          "Sheet",
+          "SheetTrigger",
+          "SheetClose",
+          "SheetContent",
+          "SheetHeader",
+          "SheetFooter",
+          "SheetTitle",
+          "SheetDescription",
+          "Drawer",
+          "DrawerPortal",
+          "DrawerOverlay",
+          "DrawerTrigger",
+          "DrawerClose",
+          "DrawerContent",
+          "DrawerHeader",
+          "DrawerFooter",
+          "DrawerTitle",
+          "DrawerDescription"
+        ],
+        "cmpIds": [
+          "bottom-sheet"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/feedback/IenBottomSheet.kt",
+        "cmpPublicApi": [
+          "IenBottomSheet",
+          "IenBottomSheetSelect",
+          "IenBottomSheetState",
+          "IenSheetDetent",
+          "rememberIenBottomSheetState",
+          "IenBottomSheetOption"
+        ],
+        "constraints": [
+          "CMP의 Content·Medium·Full 스냅 detent 대신 웹 Sheet의 bottom 배치와 최대 높이를 사용합니다."
+        ],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "lucide-react",
+        "radix-ui",
+        "vaul"
+      ]
+    },
+    {
+      "name": "radio-button",
+      "type": "registry:ui",
+      "title": "RadioButton",
+      "description": "단일 선택 상태와 설명을 지원하는 라디오 그룹 확장입니다.",
+      "files": [
+        {
+          "path": "cmp-interactive/radio-button.tsx",
+          "type": "registry:ui",
+          "target": "@ui/radio-button.tsx"
+        },
+        {
+          "path": "shadcn/radio-group.tsx",
+          "type": "registry:ui",
+          "target": "@ui/radio-group.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/button"
+      ],
+      "meta": {
+        "preview": "cmp-interactive/previews/radio-button.tsx",
+        "example": "import { RadioButton } from \"@/components/ui/radio-button\"; <RadioButton value={plan} onValueChange={setPlan} options={plans} />",
+        "exports": [
+          "RadioButtonOption",
+          "RadioButtonProps",
+          "RadioButton",
+          "IenRadioButton",
+          "RadioGroup",
+          "RadioGroupItem"
+        ],
+        "cmpIds": [
+          "radio-button"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenSelection.kt",
+        "cmpPublicApi": [
+          "IenRadioButton",
+          "IenRadioGroup",
+          "IenRadioGroupItem"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "radix-ui"
+      ]
+    },
+    {
+      "name": "tab",
+      "type": "registry:ui",
+      "title": "Tab",
+      "description": "탭 선택과 패널 전환을 지원하는 shadcn Tabs 확장입니다.",
+      "files": [
+        {
+          "path": "cmp-interactive/tab.tsx",
+          "type": "registry:ui",
+          "target": "@ui/tab.tsx"
+        },
+        {
+          "path": "shadcn/tabs.tsx",
+          "type": "registry:ui",
+          "target": "@ui/tabs.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens"
+      ],
+      "meta": {
+        "preview": "cmp-interactive/previews/tab.tsx",
+        "example": "import { Tab } from \"@/components/ui/tab\"; <Tab value={tab} onValueChange={setTab} items={panels} />",
+        "exports": [
+          "TabItem",
+          "TabProps",
+          "Tab",
+          "IenTab",
+          "Tabs",
+          "TabsList",
+          "TabsTrigger",
+          "TabsContent",
+          "tabsListVariants"
+        ],
+        "cmpIds": [
+          "tab"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenControls.kt",
+        "cmpPublicApi": [
+          "IenTab"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "class-variance-authority",
+        "radix-ui"
+      ]
+    },
+    {
+      "name": "snackbar",
+      "type": "registry:ui",
+      "title": "Snackbar",
+      "description": "액션이 포함된 Snackbar와 상태 API로 표시하는 Toast를 하나의 알림 컴포넌트로 제공합니다.",
+      "files": [
+        {
+          "path": "cmp-interactive/snackbar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/snackbar.tsx"
+        },
+        {
+          "path": "shadcn/toast.tsx",
+          "type": "registry:ui",
+          "target": "@ui/toast.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/button"
+      ],
+      "meta": {
+        "preview": "cmp-interactive/previews/snackbar.tsx",
+        "example": "import { Snackbar, IenToastProvider, useIenToast } from \"@/components/ui/snackbar\";\n\n<Snackbar open={open} onOpenChange={setOpen} message=\"저장했습니다\" action={{ label: \"실행 취소\", onClick: undo }} />",
+        "exports": [
+          "SnackbarProps",
+          "Snackbar",
+          "IenSnackbar",
+          "IenToast",
+          "IenToastHost",
+          "IenToastProvider",
+          "useIenToast",
+          "useIenToastState",
+          "IenToastData",
+          "IenToastDuration",
+          "IenToastState",
+          "IenToastTone",
+          "ToastProvider",
+          "ToastViewport",
+          "Toast",
+          "ToastTitle",
+          "ToastDescription",
+          "ToastAction",
+          "ToastClose",
+          "toneClasses"
+        ],
+        "cmpIds": [
+          "snackbar",
+          "toast"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/feedback/IenSnackbar.kt",
+        "cmpPublicApi": [
+          "IenSnackbar",
+          "IenSnackbarHost",
+          "IenSnackbarActionButton",
+          "IenSnackbarIcon"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "lucide-react",
+        "radix-ui"
+      ]
+    },
+    {
+      "name": "text-field",
+      "type": "registry:ui",
+      "title": "TextField",
+      "description": "레이블, 입력, 안내 및 오류 상태를 함께 표시합니다.",
+      "files": [
+        {
+          "path": "cmp-interactive/text-field.tsx",
+          "type": "registry:ui",
+          "target": "@ui/text-field.tsx"
+        },
+        {
+          "path": "shadcn/input.tsx",
+          "type": "registry:ui",
+          "target": "@ui/input.tsx"
+        },
+        {
+          "path": "shadcn/textarea.tsx",
+          "type": "registry:ui",
+          "target": "@ui/textarea.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/button"
+      ],
+      "meta": {
+        "preview": "cmp-interactive/previews/text-field.tsx",
+        "example": "import { TextField } from \"@/components/ui/text-field\"; <TextField label=\"이메일\" value={email} onValueChange={setEmail} />",
+        "exports": [
+          "TextFieldStatus",
+          "IenTextFieldVariant",
+          "IenTextFieldLabelOption",
+          "IenTextFieldState",
+          "IenTextFieldFormat",
+          "IenTextFieldLengthLimit",
+          "TextFieldProps",
+          "ClearableTextFieldProps",
+          "PasswordTextFieldProps",
+          "TextFieldButtonProps",
+          "TextFieldIconButtonProps",
+          "TextFieldClearButtonProps",
+          "TextField",
+          "IenTextField",
+          "ClearableTextField",
+          "IenClearableTextField",
+          "PasswordTextField",
+          "IenPasswordTextField",
+          "TextFieldButton",
+          "IenTextFieldButton",
+          "TextFieldIconButton",
+          "IenTextFieldIconButton",
+          "TextFieldClearButton",
+          "IenTextFieldClearButton",
+          "Input"
+        ],
+        "cmpIds": [
+          "text-field"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenTextField.kt",
+        "cmpPublicApi": [
+          "IenTextField",
+          "IenClearableTextField",
+          "IenPasswordTextField",
+          "IenTextFieldButton",
+          "IenTextFieldState",
+          "IenFieldStatus",
+          "IenTextFieldVariant",
+          "IenTextFieldLabelOption",
+          "IenTextFieldFormat",
+          "IenTextFieldLengthLimit"
+        ],
+        "constraints": [],
+        "cmpAdditionalSources": [
+          "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/view/textfield/Button.kt"
+        ],
+        "cmpAdditionalPublicApi": [
+          "IenTextFieldState",
+          "IenFieldStatus",
+          "IenTextFieldVariant",
+          "IenTextFieldLabelOption",
+          "IenTextFieldFormat",
+          "IenTextFieldLengthLimit",
+          "IenTextFieldIconButton",
+          "IenTextFieldClearButton"
+        ],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "text-area",
+      "type": "registry:ui",
+      "title": "TextArea",
+      "description": "여러 줄 입력과 안내·오류 상태를 표시합니다.",
+      "files": [
+        {
+          "path": "cmp-interactive/text-area.tsx",
+          "type": "registry:ui",
+          "target": "@ui/text-area.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "@ienlab/tokens",
+        "@ienlab/text-field"
+      ],
+      "meta": {
+        "preview": "cmp-interactive/previews/text-area.tsx",
+        "example": "import { TextArea } from \"@/components/ui/text-area\"; <TextArea label=\"메모\" value={memo} onChange={handleChange} />",
+        "exports": [
+          "TextAreaProps",
+          "TextArea",
+          "IenTextArea",
+          "Textarea"
+        ],
+        "cmpIds": [
+          "text-area"
+        ],
+        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenTextField.kt",
+        "cmpPublicApi": [
+          "IenTextArea"
+        ],
+        "constraints": [],
+        "implementationStatus": "implemented",
+        "verification": {
+          "registry": "passed",
+          "documentation": "available",
+          "typecheck": "passed",
+          "ssr": "passed",
+          "reactCliInstall": "passed",
+          "reactProductionBuild": "passed",
+          "nextCliInstall": "passed",
+          "nextProductionBuild": "passed",
+          "browserRender": "passed",
+          "interaction": "not-individually-tested"
+        }
+      },
+      "dependencies": [
+        "cn"
+      ]
+    },
+    {
       "name": "tokens",
       "type": "registry:theme",
-      "title": "IEN 디자인 토큰",
+      "title": "Design Tokens",
       "description": "CMP의 색상·spacing·radius·typography·stroke·elevation·icon·motion·state와 웹 컴포넌트 토큰입니다.",
+      "dependencies": [
+        "cn"
+      ],
+      "files": [
+        {
+          "path": "registry/ien-utils.ts",
+          "type": "registry:lib",
+          "target": "@lib/ien-utils.ts"
+        }
+      ],
       "cssVars": {
         "theme": {
           "spacing-ien-none": "var(--ien-spacing-none)",
@@ -89,6 +667,14 @@
           "text-ien-caption": "var(--ien-font-size-caption)",
           "text-ien-caption--line-height": "var(--ien-line-height-caption)",
           "text-ien-caption--font-weight": "var(--ien-font-weight-caption)",
+          "color-ien-syntax-keyword": "var(--ien-syntax-keyword)",
+          "color-ien-syntax-type": "var(--ien-syntax-type)",
+          "color-ien-syntax-string": "var(--ien-syntax-string)",
+          "color-ien-syntax-number": "var(--ien-syntax-number)",
+          "color-ien-syntax-property": "var(--ien-syntax-property)",
+          "color-ien-syntax-annotation": "var(--ien-syntax-annotation)",
+          "color-ien-syntax-function": "var(--ien-syntax-function)",
+          "color-ien-syntax-comment": "var(--ien-syntax-comment)",
           "color-ien-background": "var(--ien-background)",
           "color-ien-surface": "var(--ien-surface)",
           "color-ien-surface-raised": "var(--ien-surface-raised)",
@@ -157,30 +743,30 @@
           "ien-icon-md": "1.25rem",
           "ien-icon-lg": "1.5rem",
           "ien-icon-xl": "2rem",
-          "ien-font-size-display": "1.875rem",
-          "ien-line-height-display": "2.375rem",
+          "ien-font-size-display": "2.25rem",
+          "ien-line-height-display": "2.5rem",
           "ien-font-weight-display": "700",
-          "ien-font-size-title1": "1.5rem",
-          "ien-line-height-title1": "2rem",
-          "ien-font-weight-title1": "700",
-          "ien-font-size-title2": "1.25rem",
-          "ien-line-height-title2": "1.75rem",
+          "ien-font-size-title1": "1.875rem",
+          "ien-line-height-title1": "2.25rem",
+          "ien-font-weight-title1": "600",
+          "ien-font-size-title2": "1.5rem",
+          "ien-line-height-title2": "2rem",
           "ien-font-weight-title2": "600",
-          "ien-font-size-title3": "1.125rem",
-          "ien-line-height-title3": "1.625rem",
+          "ien-font-size-title3": "1.25rem",
+          "ien-line-height-title3": "1.75rem",
           "ien-font-weight-title3": "600",
           "ien-font-size-body1": "1rem",
           "ien-line-height-body1": "1.5rem",
           "ien-font-weight-body1": "400",
-          "ien-font-size-body2": "0.9375rem",
-          "ien-line-height-body2": "1.375rem",
+          "ien-font-size-body2": "0.875rem",
+          "ien-line-height-body2": "1.25rem",
           "ien-font-weight-body2": "400",
           "ien-font-size-label1": "0.875rem",
           "ien-line-height-label1": "1.25rem",
-          "ien-font-weight-label1": "600",
-          "ien-font-size-label2": "0.8125rem",
-          "ien-line-height-label2": "1.125rem",
-          "ien-font-weight-label2": "600",
+          "ien-font-weight-label1": "500",
+          "ien-font-size-label2": "0.75rem",
+          "ien-line-height-label2": "1rem",
+          "ien-font-weight-label2": "500",
           "ien-font-size-caption": "0.75rem",
           "ien-line-height-caption": "1rem",
           "ien-font-weight-caption": "400",
@@ -197,32 +783,32 @@
           "ien-font-sans": "\"Pretendard\", sans-serif",
           "ien-font-mono": "\"JetBrains Mono\", monospace",
           "ien-font-display": "\"Inter Variable\", sans-serif",
-          "ien-control-radius-base": "0.625rem",
-          "ien-control-radius-sm": "0.375rem",
-          "ien-control-radius-md": "0.5rem",
-          "ien-control-radius-lg": "0.625rem",
-          "ien-control-radius-xl": "0.875rem",
-          "ien-control-radius-2xl": "1.125rem",
-          "ien-control-radius-3xl": "1.375rem",
-          "ien-control-radius-4xl": "1.625rem",
+          "ien-control-radius-base": "var(--ien-radius-default)",
+          "ien-control-radius-sm": "var(--ien-radius-xs)",
+          "ien-control-radius-md": "var(--ien-radius-sm)",
+          "ien-control-radius-lg": "var(--ien-radius-default)",
+          "ien-control-radius-xl": "var(--ien-radius-lg)",
+          "ien-control-radius-2xl": "var(--ien-radius-xl)",
+          "ien-control-radius-3xl": "var(--ien-radius-full)",
+          "ien-control-radius-4xl": "var(--ien-radius-full)",
           "ien-control-spacing-unit": "0.25rem",
           "ien-control-gap": "0.375rem",
           "ien-control-padding-inline": "0.625rem",
           "ien-control-focus-ring-width": "0.1875rem",
-          "ien-button-radius": "var(--ien-control-radius-4xl)",
-          "ien-button-radius-group": "var(--ien-control-radius-lg)",
-          "ien-button-height-xs": "1.5rem",
-          "ien-button-height-sm": "1.75rem",
-          "ien-button-height-default": "2rem",
-          "ien-button-height-lg": "2.25rem",
+          "ien-button-radius": "var(--ien-radius-default)",
+          "ien-button-radius-group": "var(--ien-radius-default)",
+          "ien-button-height-xs": "1.75rem",
+          "ien-button-height-sm": "2.25rem",
+          "ien-button-height-default": "3.25rem",
+          "ien-button-height-lg": "3.25rem",
           "ien-button-gap-xs": "var(--ien-spacing-xxs)",
           "ien-button-gap-sm": "var(--ien-spacing-xxs)",
           "ien-button-gap-default": "var(--ien-control-gap)",
           "ien-button-gap-lg": "var(--ien-control-gap)",
           "ien-button-padding-xs": "var(--ien-spacing-xs)",
-          "ien-button-padding-sm": "var(--ien-control-padding-inline)",
-          "ien-button-padding-default": "var(--ien-control-padding-inline)",
-          "ien-button-padding-lg": "var(--ien-control-padding-inline)",
+          "ien-button-padding-sm": "var(--ien-spacing-sm)",
+          "ien-button-padding-default": "var(--ien-spacing-lg)",
+          "ien-button-padding-lg": "var(--ien-spacing-lg)",
           "ien-button-icon-padding-xs": "var(--ien-control-gap)",
           "ien-button-icon-padding-sm": "var(--ien-control-gap)",
           "ien-button-icon-padding-default": "var(--ien-spacing-xs)",
@@ -232,17 +818,17 @@
           "ien-button-icon-default": "var(--ien-icon-sm)",
           "ien-button-icon-lg": "var(--ien-icon-sm)",
           "ien-button-font-size-xs": "var(--ien-font-size-caption)",
-          "ien-button-font-size-sm": "0.8rem",
-          "ien-button-font-size-default": "var(--ien-font-size-label1)",
-          "ien-button-font-size-lg": "var(--ien-font-size-label1)",
+          "ien-button-font-size-sm": "var(--ien-font-size-label2)",
+          "ien-button-font-size-default": "var(--ien-font-size-body1)",
+          "ien-button-font-size-lg": "var(--ien-font-size-body1)",
           "ien-button-line-height-xs": "var(--ien-line-height-caption)",
-          "ien-button-line-height-sm": "1.25rem",
-          "ien-button-line-height-default": "var(--ien-line-height-label1)",
-          "ien-button-line-height-lg": "var(--ien-line-height-label1)",
+          "ien-button-line-height-sm": "var(--ien-line-height-label2)",
+          "ien-button-line-height-default": "var(--ien-line-height-body1)",
+          "ien-button-line-height-lg": "var(--ien-line-height-body1)",
           "ien-button-pressed-scale": "0.975",
           "ien-button-pressed-overlay-fill": "rgb(0 0 0 / 8%)",
           "ien-button-pressed-overlay-clear": "rgb(0 0 0 / 4%)",
-          "ien-button-disabled-alpha": "0.5",
+          "ien-button-disabled-alpha": "1",
           "ien-button-focus-ring-width": "var(--ien-control-focus-ring-width)",
           "ien-button-focus-ring-alpha": "50%",
           "ien-button-gradient-fill-start": "18%",
@@ -251,6 +837,8 @@
           "ien-button-press-duration": "300ms",
           "ien-button-font-weight": "500",
           "ien-button-press-easing": "linear(0.000000, 0.058179, 0.182107, 0.323559, 0.458502, 0.576531, 0.674595, 0.753345, 0.815073, 0.862591, 0.898660, 0.925734, 0.945869, 0.960731, 0.971630, 0.979578, 0.985347, 0.989517, 0.992520, 0.994675, 0.996218, 0.997318, 0.998102, 0.998659, 0.999054, 0.999334, 0.999531, 0.999671, 0.999769, 0.999838, 1)",
+          "ien-motion-spring-duration": "800ms",
+          "ien-motion-spring-medium-bouncy": "linear(0.000000, 0.018669, 0.069413, 0.144584, 0.237037, 0.340300, 0.448681, 0.557338, 0.662293, 0.760425, 0.849426, 0.927734, 0.994459, 1.049288, 1.092398, 1.124355, 1.146025, 1.158491, 1.162971, 1.160750, 1.153123, 1.141346, 1.126596, 1.109946, 1.092341, 1.074591, 1.057363, 1.041185, 1.026452, 1.013433, 1.002289, 0.993083, 0.985795, 0.980342, 0.976587, 0.974359, 0.973461, 0.973685, 0.974820, 0.976658, 0.979007, 0.981688, 0.984545, 0.987443, 0.990269, 0.992934, 0.995372, 0.997535, 0.999395, 1.000939, 1.002170, 1.003099, 1.003748, 1.004144, 1.004318, 1.004305, 1.004138, 1.003853, 1.003479, 1.003048, 1.002585, 1.002112, 1.001649, 1.001210, 1.000807, 1.000448, 1.000137, 0.999879, 0.999671, 0.999513, 0.999401, 0.999331, 0.999298, 0.999296, 0.999320, 0.999365, 0.999424, 0.999493, 0.999568, 0.999645, 1)",
           "ien-background": "#FFFFFF",
           "ien-surface": "#FFFFFF",
           "ien-surface-raised": "#FFFFFF",
@@ -285,7 +873,15 @@
           "ien-on-info-weak": "#286ACA",
           "ien-neutral": "var(--ien-text-primary)",
           "ien-on-neutral": "var(--ien-surface-raised)",
-          "ien-neutral-weak": "var(--ien-surface-weak)"
+          "ien-neutral-weak": "var(--ien-surface-weak)",
+          "ien-syntax-keyword": "#a626a4",
+          "ien-syntax-type": "#4078f2",
+          "ien-syntax-string": "#50a14f",
+          "ien-syntax-number": "#986801",
+          "ien-syntax-property": "#e45649",
+          "ien-syntax-annotation": "#c18401",
+          "ien-syntax-function": "#4078f2",
+          "ien-syntax-comment": "#7f848e"
         },
         "dark": {
           "ien-background": "#101318",
@@ -322,7 +918,15 @@
           "ien-on-info-weak": "#64A8FF",
           "ien-neutral": "var(--ien-text-primary)",
           "ien-on-neutral": "var(--ien-surface-raised)",
-          "ien-neutral-weak": "var(--ien-surface-weak)"
+          "ien-neutral-weak": "var(--ien-surface-weak)",
+          "ien-syntax-keyword": "#c678dd",
+          "ien-syntax-type": "#61afef",
+          "ien-syntax-string": "#98c379",
+          "ien-syntax-number": "#d19a66",
+          "ien-syntax-property": "#e06c75",
+          "ien-syntax-annotation": "#e5c07b",
+          "ien-syntax-function": "#61afef",
+          "ien-syntax-comment": "#8b93a1"
         }
       }
     }

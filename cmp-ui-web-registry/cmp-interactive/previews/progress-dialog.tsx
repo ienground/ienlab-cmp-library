@@ -6,34 +6,33 @@ import { ProgressDialog } from "@/components/ui/progress-dialog";
 
 export default function Preview() {
   const [open, setOpen] = React.useState(false);
-  const [progress, setProgress] = React.useState(0);
-  React.useEffect(() => {
-    if (!open) return;
-    const timer = window.setInterval(
-      () =>
-        setProgress((value) => {
-          if (value >= 100) {
-            window.clearInterval(timer);
-            setOpen(false);
-            return 0;
-          }
-          return value + 10;
-        }),
-      300,
-    );
-    return () => window.clearInterval(timer);
-  }, [open]);
+  const [variant, setVariant] = React.useState<"loading" | "wavy" | "circular" | "linear">("wavy");
   return (
     <div className="grid justify-items-start gap-ien-sm">
+      <div className="flex flex-wrap gap-ien-xs">
+        {(["loading", "wavy", "circular", "linear"] as const).map((item) => (
+          <Button
+            key={item}
+            variant={variant === item ? "fill" : "weak"}
+            tone={variant === item ? "brand" : "neutral"}
+            onClick={() => setVariant(item)}
+          >
+            {item}
+          </Button>
+        ))}
+      </div>
       <Button
-        onClick={() => {
-          setProgress(0);
-          setOpen(true);
-        }}
+        onClick={() => setOpen(true)}
       >
-        업로드 시작
+        진행 상태 보기
       </Button>
-      <ProgressDialog open={open} title="파일 업로드 중" value={progress} />
+      <ProgressDialog
+        open={open}
+        title="파일 업로드 중"
+        description="잠시 기다려 주세요."
+        variant={variant}
+        progress={0.64}
+      />
     </div>
   );
 }

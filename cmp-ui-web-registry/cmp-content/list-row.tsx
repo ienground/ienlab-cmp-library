@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { ChevronRight } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export type IenListRowBorder = "indented" | "none";
 export type IenListRowDisabledStyle = "type1" | "type2";
@@ -187,7 +187,7 @@ export function IenListRow({
       {border === "indented" && (
         <div
           aria-hidden
-          className="h-px bg-ien-border"
+          className="h-[var(--ien-stroke-hairline)] bg-ien-border"
           style={{
             marginLeft: `calc(${paddingValue[effectiveHorizontalPadding]} + var(--ien-spacing-lg))`,
           }}
@@ -196,7 +196,7 @@ export function IenListRow({
       <div
         className={cn(
           "flex min-h-[var(--ien-state-minimum-touch-target)] w-full items-center gap-ien-sm",
-          isDisabled && "opacity-[.55]",
+          isDisabled && "opacity-[.45]",
         )}
         style={{
           padding: `${paddingValue[effectiveVerticalPadding]} ${paddingValue[effectiveHorizontalPadding]}`,

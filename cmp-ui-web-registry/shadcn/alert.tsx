@@ -23,7 +23,7 @@
  */
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 const alertVariants = cva(
   "group/alert relative grid w-full gap-ien-xxxs rounded-[var(--ien-control-radius-base)] border-ien-border px-[var(--ien-control-padding-inline)] py-ien-xs text-left text-ien-body2 has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-ien-xs *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4",

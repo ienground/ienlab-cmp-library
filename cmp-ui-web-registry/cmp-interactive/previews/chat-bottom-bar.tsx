@@ -5,6 +5,7 @@ import { ChatBottomBar } from "@/components/ui/chat-bottom-bar";
 
 export default function Preview() {
   const [value, setValue] = React.useState("");
+  const [visible, setVisible] = React.useState(true);
   const [messages, setMessages] = React.useState([
     "안녕하세요! 무엇을 도와드릴까요?",
   ]);
@@ -20,9 +21,31 @@ export default function Preview() {
           </li>
         ))}
       </ul>
+      <button
+        type="button"
+        aria-pressed={visible}
+        onClick={() => setVisible((current) => !current)}
+        className="justify-self-start text-ien-caption text-ien-brand"
+      >
+        입력창 {visible ? "숨기기" : "보이기"}
+      </button>
       <ChatBottomBar
         value={value}
         onValueChange={setValue}
+        inputState={{ enabled: true, readOnly: false, status: { type: "normal" } }}
+        sendState={{ enabled: value.trim().length > 0, loading: false }}
+        maxLines={4}
+        visible={visible}
+        leadingContent={
+          <button type="button" aria-label="첨부 파일 추가" className="size-9 shrink-0 rounded-full">
+            +
+          </button>
+        }
+        trailingContent={
+          <button type="button" aria-label="이모지 추가" className="size-9 shrink-0 rounded-full">
+            ☺
+          </button>
+        }
         onSend={(message) => setMessages((items) => [...items, message])}
       />
     </div>

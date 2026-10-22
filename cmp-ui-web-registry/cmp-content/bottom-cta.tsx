@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import { Button } from "@/components/ui/button";
 
 export type IenBottomCTABackground = "default" | "none";
@@ -42,6 +42,71 @@ export interface IenBottomCTAProps extends Omit<
   bottomAccessory?: React.ReactNode;
 }
 
+function useBottomCTA({
+  show = true,
+  showAfterDelay,
+  hideOnScroll = false,
+  scrollDelta = 0,
+  hideOnScrollDistanceThreshold = 1,
+  fixed = false,
+  takeSpace = fixed,
+  ref: forwardedRef,
+}: Pick<
+  IenBottomCTAProps,
+  | "show"
+  | "showAfterDelay"
+  | "hideOnScroll"
+  | "scrollDelta"
+  | "hideOnScrollDistanceThreshold"
+  | "fixed"
+  | "takeSpace"
+  | "ref"
+>) {
+  const hasDelay = showAfterDelay != null;
+  const delay = Math.max(0, showAfterDelay?.delayMillis ?? 1000);
+  const [delayElapsed, setDelayElapsed] = React.useState(!hasDelay);
+  const [height, setHeight] = React.useState(0);
+  const elementRef = React.useRef<HTMLDivElement>(null);
+  const setRef = React.useCallback(
+    (element: HTMLDivElement | null) => {
+      elementRef.current = element;
+      if (typeof forwardedRef === "function") return forwardedRef(element);
+      if (forwardedRef) forwardedRef.current = element;
+    },
+    [forwardedRef],
+  );
+  React.useEffect(() => {
+    setDelayElapsed(!hasDelay);
+    if (!hasDelay) return;
+    const timer = window.setTimeout(() => setDelayElapsed(true), delay);
+    return () => window.clearTimeout(timer);
+  }, [hasDelay, delay]);
+  React.useLayoutEffect(() => {
+    const element = elementRef.current;
+    if (!element || !fixed || !takeSpace) return;
+    const measure = () => setHeight(element.offsetHeight);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [fixed, takeSpace]);
+  const animation = showAfterDelay?.animation ?? "slide";
+  return {
+    ref: setRef,
+    height,
+    visible:
+      show &&
+      delayElapsed &&
+      !(hideOnScroll && scrollDelta > hideOnScrollDistanceThreshold),
+    hiddenTransform:
+      animation === "scale"
+        ? "scale(var(--ien-button-pressed-scale))"
+        : animation === "slide"
+          ? "translateY(100%)"
+          : undefined,
+  };
+}
+
 export function IenBottomCTA({
   text,
   onClick,
@@ -66,27 +131,20 @@ export function IenBottomCTA({
   bottomAccessory,
   className,
   style,
+  ref,
   ...props
 }: IenBottomCTAProps) {
-  const [delayElapsed, setDelayElapsed] = React.useState(
-    showAfterDelay == null,
-  );
-  React.useEffect(() => {
-    if (showAfterDelay == null) {
-      setDelayElapsed(true);
-      return;
-    }
-    setDelayElapsed(false);
-    const timer = window.setTimeout(
-      () => setDelayElapsed(true),
-      Math.max(0, showAfterDelay.delayMillis ?? 1000),
-    );
-    return () => window.clearTimeout(timer);
-  }, [showAfterDelay?.animation, showAfterDelay?.delayMillis]);
-  const visible =
-    show &&
-    delayElapsed &&
-    !(hideOnScroll && scrollDelta > hideOnScrollDistanceThreshold);
+  const motion = useBottomCTA({
+    show,
+    showAfterDelay,
+    hideOnScroll,
+    scrollDelta,
+    hideOnScrollDistanceThreshold,
+    fixed,
+    takeSpace,
+    ref,
+  });
+  const { visible, hiddenTransform } = motion;
   const positionClass = fixed
     ? fixedAboveKeyboard
       ? "fixed inset-x-0 bottom-[env(keyboard-inset-height,0px)] z-30"
@@ -94,18 +152,12 @@ export function IenBottomCTA({
     : "w-full";
   const isDisabled = disabled || state?.enabled === false;
   const isLoading = loading || state?.loading === true;
-  const animation = showAfterDelay?.animation ?? "slide";
-  const hiddenTransform =
-    animation === "scale"
-      ? "scale(var(--ien-button-pressed-scale))"
-      : animation === "slide"
-        ? "translateY(100%)"
-        : undefined;
   const content = (
     <div
+      ref={motion.ref}
       className={cn(
         positionClass,
-        "transition-[opacity,transform] duration-[var(--ien-motion-normal)] motion-reduce:transition-none",
+        "transition-[opacity,transform] duration-[var(--ien-motion-normal)] ease-[var(--ien-motion-standard-easing)] motion-reduce:transition-none",
         !visible && "pointer-events-none opacity-0",
         className,
       )}
@@ -127,20 +179,12 @@ export function IenBottomCTA({
         <Button
           variant={variant}
           tone={tone}
-          disabled={isDisabled || isLoading}
-          aria-busy={isLoading}
-          className="h-12 w-full rounded-ien-default text-ien-body1"
+          disabled={isDisabled}
+          loading={isLoading}
+          className="w-full rounded-ien-default text-ien-body1"
           onClick={onClick}
         >
-          {isLoading ? (
-            <span
-              aria-label="요청 중"
-              role="status"
-              className="size-4 animate-spin rounded-full border-2 border-current border-r-transparent"
-            />
-          ) : (
-            icon
-          )}
+          {icon}
           {text}
         </Button>
       </div>
@@ -153,7 +197,9 @@ export function IenBottomCTA({
   return (
     <>
       {content}
-      {takeSpace && fixed && <div aria-hidden className="h-16" />}
+      {takeSpace && fixed && (
+        <div aria-hidden style={{ height: motion.height }} />
+      )}
     </>
   );
 }
@@ -187,6 +233,8 @@ export interface IenDoubleBottomCTAProps extends Omit<
   hasPaddingBottom?: boolean;
   topAccessory?: React.ReactNode;
   bottomAccessory?: React.ReactNode;
+  leftButtonWeight?: number;
+  rightButtonWeight?: number;
   primaryButtonWeight?: number;
   secondaryButtonWeight?: number;
 }
@@ -217,35 +265,31 @@ export function IenDoubleBottomCTA({
   hasPaddingBottom = true,
   topAccessory,
   bottomAccessory,
-  primaryButtonWeight = 1,
-  secondaryButtonWeight = 1,
+  leftButtonWeight,
+  rightButtonWeight,
+  primaryButtonWeight = rightButtonWeight ?? 1,
+  secondaryButtonWeight = leftButtonWeight ?? 1,
   className,
+  style,
+  ref,
   ...props
 }: IenDoubleBottomCTAProps) {
-  const [delayElapsed, setDelayElapsed] = React.useState(
-    showAfterDelay == null,
-  );
-  React.useEffect(() => {
-    if (showAfterDelay == null) {
-      setDelayElapsed(true);
-      return;
-    }
-    setDelayElapsed(false);
-    const timer = window.setTimeout(
-      () => setDelayElapsed(true),
-      Math.max(0, showAfterDelay.delayMillis ?? 1000),
-    );
-    return () => window.clearTimeout(timer);
-  }, [showAfterDelay?.animation, showAfterDelay?.delayMillis]);
-  const visible =
-    show &&
-    delayElapsed &&
-    !(hideOnScroll && scrollDelta > hideOnScrollDistanceThreshold);
+  const motion = useBottomCTA({
+    show,
+    showAfterDelay,
+    hideOnScroll,
+    scrollDelta,
+    hideOnScrollDistanceThreshold,
+    fixed,
+    takeSpace,
+    ref,
+  });
+  const { visible, hiddenTransform } = motion;
   const buttonContent =
     leftButton != null || rightButton != null ? (
       <>
-        {leftButton}
-        {rightButton}
+        {leftButton != null && <div className="min-w-0 [&>*]:w-full" style={{ flex: leftButtonWeight ?? 1 }}>{leftButton}</div>}
+        {rightButton != null && <div className="min-w-0 [&>*]:w-full" style={{ flex: rightButtonWeight ?? 1 }}>{rightButton}</div>}
       </>
     ) : (
       <>
@@ -255,23 +299,14 @@ export function IenDoubleBottomCTA({
             tone="neutral"
             disabled={
               secondaryDisabled ||
-              secondaryState?.enabled === false ||
-              secondaryState?.loading
+              secondaryState?.enabled === false
             }
-            aria-busy={secondaryState?.loading}
+            loading={secondaryState?.loading}
             className="min-w-0 text-ien-body1"
             style={{ flex: secondaryButtonWeight }}
             onClick={onSecondaryClick}
           >
-            {secondaryState?.loading ? (
-              <span
-                aria-label="요청 중"
-                role="status"
-                className="size-4 animate-spin rounded-full border-2 border-current border-r-transparent"
-              />
-            ) : (
-              secondaryIcon
-            )}
+            {secondaryIcon}
             {secondaryText}
           </Button>
         )}
@@ -279,23 +314,14 @@ export function IenDoubleBottomCTA({
           <Button
             disabled={
               primaryDisabled ||
-              primaryState?.enabled === false ||
-              primaryState?.loading
+              primaryState?.enabled === false
             }
-            aria-busy={primaryState?.loading}
+            loading={primaryState?.loading}
             className="min-w-0 text-ien-body1"
             style={{ flex: primaryButtonWeight }}
             onClick={onPrimaryClick}
           >
-            {primaryState?.loading ? (
-              <span
-                aria-label="요청 중"
-                role="status"
-                className="size-4 animate-spin rounded-full border-2 border-current border-r-transparent"
-              />
-            ) : (
-              primaryIcon
-            )}
+            {primaryIcon}
             {primaryText}
           </Button>
         )}
@@ -303,14 +329,15 @@ export function IenDoubleBottomCTA({
     );
   const content = (
     <div
+      ref={motion.ref}
       className={cn(
         fixed && "fixed inset-x-0 z-30",
         fixed &&
           (fixedAboveKeyboard
             ? "bottom-[env(keyboard-inset-height,0px)]"
             : "bottom-0"),
-        "transition-[opacity,transform] duration-[var(--ien-motion-normal)] motion-reduce:transition-none",
-        !visible && "pointer-events-none translate-y-full opacity-0",
+        "transition-[opacity,transform] duration-[var(--ien-motion-normal)] ease-[var(--ien-motion-standard-easing)] motion-reduce:transition-none",
+        !visible && "pointer-events-none opacity-0",
         "w-full",
         background === "default" && "bg-ien-surface/95",
         hasPaddingBottom && "pt-ien-sm",
@@ -319,9 +346,10 @@ export function IenDoubleBottomCTA({
           : hasPaddingBottom && "pb-ien-sm",
         className,
       )}
+      style={{ transform: visible ? undefined : hiddenTransform, ...style }}
+      {...props}
       aria-hidden={!visible}
       inert={!visible}
-      {...props}
     >
       {topAccessory}
       <div className="flex w-full gap-ien-xs px-ien-md">{buttonContent}</div>
@@ -331,7 +359,9 @@ export function IenDoubleBottomCTA({
   return (
     <>
       {content}
-      {takeSpace && fixed && <div aria-hidden className="h-16" />}
+      {takeSpace && fixed && (
+        <div aria-hidden style={{ height: motion.height }} />
+      )}
     </>
   );
 }
@@ -353,19 +383,10 @@ export function IenBottomCTAButton({
   return (
     <Button
       className="flex-1 text-ien-body1"
-      disabled={state?.enabled === false || state?.loading}
-      aria-busy={state?.loading}
+      state={state}
       {...props}
     >
-      {state?.loading ? (
-        <span
-          aria-label="요청 중"
-          role="status"
-          className="size-4 animate-spin rounded-full border-2 border-current border-r-transparent"
-        />
-      ) : (
-        icon
-      )}
+      {icon}
       {text}
     </Button>
   );

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export type IenBottomGradient =
   "none" | "default" | { fromColor: string; toColor?: string };

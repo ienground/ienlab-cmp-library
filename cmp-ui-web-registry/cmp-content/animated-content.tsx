@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export interface IenAnimatedContentProps<T> extends Omit<
   React.ComponentPropsWithRef<"div">,
@@ -39,6 +39,7 @@ export function IenAnimatedContent<T>({
   const content =
     typeof children === "function" ? children(targetState) : children;
   const contentRef = React.useRef<HTMLDivElement>(null);
+  const animationRef = React.useRef<Animation | null>(null);
   const setContentRef = React.useCallback(
     (element: HTMLDivElement | null) => {
       contentRef.current = element;
@@ -47,13 +48,23 @@ export function IenAnimatedContent<T>({
     },
     [forwardedRef],
   );
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const element = contentRef.current;
+    const previous = animationRef.current;
+    const interrupted =
+      previous?.playState === "running" || previous?.playState === "paused";
+    const current = element ? getComputedStyle(element) : null;
+    const opacity = current?.opacity;
+    const transform = current?.transform;
+    previous?.cancel();
+    animationRef.current = null;
     if (
       !element ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     )
       return;
+    const base = getComputedStyle(element);
+    const baseTransform = base.transform === "none" ? "" : base.transform;
     const fromTransform =
       transition === "fade-up"
         ? "translateY(var(--ien-spacing-xs))"
@@ -61,20 +72,29 @@ export function IenAnimatedContent<T>({
           ? "translateY(calc(var(--ien-spacing-xs) * -1))"
           : transition === "fade-scale"
             ? "scale(var(--ien-button-pressed-scale))"
-            : "none";
+            : "";
     const easing =
       getComputedStyle(element)
         .getPropertyValue("--ien-motion-standard-easing")
         .trim() || "ease";
     const animation = element.animate(
       [
-        { opacity: 0, transform: fromTransform },
-        { opacity: 1, transform: "none" },
+        {
+          opacity: interrupted ? opacity : 0,
+          transform: interrupted
+            ? transform
+            : `${baseTransform} ${fromTransform}`.trim() || "none",
+        },
+        { opacity: base.opacity, transform: base.transform },
       ],
-      { duration: duration ?? motionDurationMs(element), easing },
+      { duration: Math.max(0, duration ?? motionDurationMs(element)), easing },
     );
-    return () => animation.cancel();
+    animationRef.current = animation;
+    animation.onfinish = () => {
+      if (animationRef.current === animation) animationRef.current = null;
+    };
   }, [targetState, transition, duration]);
+  React.useLayoutEffect(() => () => animationRef.current?.cancel(), []);
   return (
     <div
       ref={setContentRef}

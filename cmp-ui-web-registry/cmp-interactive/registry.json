@@ -19,21 +19,21 @@
         "preview": "previews/wheel-picker.tsx",
         "example": "import { IenDateWheelPicker, IenTimeWheelPicker, IenDurationWheelPicker } from \"@/components/ui/wheel-picker\"; <IenDateWheelPicker value={date} min={minDate} max={maxDate} onValueChange={setDate} />; <IenTimeWheelPicker value={time} use24HourFormat={false} onValueChange={setTime} />; <IenDurationWheelPicker value={seconds} maxHours={72} onValueChange={setSeconds} />",
         "exports": [
-          "WheelPicker",
-          "IenWheelPicker",
           "WheelPickerOption",
           "WheelPickerProps",
+          "DateWheelPickerProps",
+          "TimeWheelField",
+          "TimeWheelPickerProps",
+          "DurationWheelField",
+          "DurationWheelPickerProps",
+          "WheelPicker",
+          "IenWheelPicker",
           "DateWheelPicker",
           "IenDateWheelPicker",
-          "DateWheelPickerProps",
           "TimeWheelPicker",
           "IenTimeWheelPicker",
-          "TimeWheelPickerProps",
-          "TimeWheelField",
           "DurationWheelPicker",
-          "IenDurationWheelPicker",
-          "DurationWheelPickerProps",
-          "DurationWheelField"
+          "IenDurationWheelPicker"
         ],
         "cmpIds": [
           "wheel-picker"
@@ -68,69 +68,6 @@
       ]
     },
     {
-      "name": "bottom-sheet",
-      "type": "registry:ui",
-      "title": "BottomSheet",
-      "description": "하단에서 열리는 콘텐츠 시트와 상태 제어를 제공합니다.",
-      "files": [
-        {
-          "path": "bottom-sheet.tsx",
-          "type": "registry:ui",
-          "target": "@ui/bottom-sheet.tsx"
-        }
-      ],
-      "registryDependencies": [
-        "@ienlab/tokens",
-        "@ienlab/sheet",
-        "@ienlab/button",
-        "@ienlab/radio-group"
-      ],
-      "meta": {
-        "preview": "previews/bottom-sheet.tsx",
-        "example": "import { BottomSheet } from \"@/components/ui/bottom-sheet\"; const [open, setOpen] = useState(false); <BottomSheet open={open} onOpenChange={setOpen} title=\"옵션\">...</BottomSheet>",
-        "exports": [
-          "BottomSheet",
-          "IenBottomSheet",
-          "BottomSheetProps",
-          "BottomSheetSelect",
-          "IenBottomSheetSelect",
-          "BottomSheetSelectProps",
-          "BottomSheetOption"
-        ],
-        "cmpIds": [
-          "bottom-sheet"
-        ],
-        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/feedback/IenBottomSheet.kt",
-        "cmpPublicApi": [
-          "IenBottomSheet",
-          "IenBottomSheetSelect",
-          "IenBottomSheetState",
-          "IenSheetDetent",
-          "rememberIenBottomSheetState",
-          "IenBottomSheetOption"
-        ],
-        "constraints": [
-          "CMP의 Content·Medium·Full 스냅 detent 대신 웹 Sheet의 bottom 배치와 최대 높이를 사용합니다."
-        ],
-        "implementationStatus": "implemented",
-        "verification": {
-          "registry": "passed",
-          "documentation": "available",
-          "typecheck": "passed",
-          "ssr": "passed",
-          "reactCliInstall": "passed",
-          "reactProductionBuild": "passed",
-          "nextCliInstall": "passed",
-          "nextProductionBuild": "passed",
-          "browserRender": "passed",
-          "interaction": "not-individually-tested"
-        }
-      },
-      "dependencies": [
-        "cn"
-      ]
-    },
-    {
       "name": "split-button",
       "type": "registry:ui",
       "title": "Split Button",
@@ -151,9 +88,11 @@
         "preview": "previews/split-button.tsx",
         "example": "import { SplitButton } from \"@/components/ui/split-button\"; <SplitButton label=\"저장\" onClick={save} actions={[{ label: \"초안 저장\", onSelect: saveDraft }]} />",
         "exports": [
+          "SplitButtonAction",
+          "SplitButtonState",
+          "SplitButtonProps",
           "SplitButton",
-          "IenSplitButton",
-          "SplitButtonProps"
+          "IenSplitButton"
         ],
         "cmpIds": [
           "split-button"
@@ -195,15 +134,19 @@
         }
       ],
       "registryDependencies": [
-        "@ienlab/tokens"
+        "@ienlab/tokens",
+        "@ienlab/button"
       ],
       "meta": {
         "preview": "previews/chip.tsx",
         "example": "import { Chip } from \"@/components/ui/chip\"; <Chip kind=\"filter\" selected={selected} onSelectedChange={setSelected}>즐겨찾기</Chip>",
         "exports": [
+          "ChipKind",
+          "ChipState",
+          "ChipColors",
+          "ChipProps",
           "Chip",
-          "IenChip",
-          "ChipProps"
+          "IenChip"
         ],
         "cmpIds": [
           "chip"
@@ -258,9 +201,9 @@
         "preview": "previews/fab.tsx",
         "example": "import { Fab } from \"@/components/ui/fab\"; <Fab label=\"추가\" onClick={addItem}><Plus /></Fab>",
         "exports": [
+          "FabProps",
           "Fab",
           "IenFab",
-          "FabProps",
           "ExtendedFab",
           "IenExtendedFab"
         ],
@@ -305,15 +248,18 @@
       ],
       "registryDependencies": [
         "@ienlab/tokens",
-        "@ienlab/button"
+        "@ienlab/button",
+        "@ienlab/fab",
+        "@ienlab/popover"
       ],
       "meta": {
         "preview": "previews/fab-menu.tsx",
         "example": "import { FabMenu } from \"@/components/ui/fab-menu\"; <FabMenu actions={[{ label: \"편집\", onSelect: edit }]} />",
         "exports": [
+          "FabMenuAction",
+          "FabMenuProps",
           "FabMenu",
-          "IenFabMenu",
-          "FabMenuProps"
+          "IenFabMenu"
         ],
         "cmpIds": [
           "fab-menu"
@@ -346,58 +292,6 @@
       ]
     },
     {
-      "name": "radio-button",
-      "type": "registry:ui",
-      "title": "RadioButton",
-      "description": "단일 선택 상태와 설명을 지원하는 라디오 그룹 확장입니다.",
-      "files": [
-        {
-          "path": "radio-button.tsx",
-          "type": "registry:ui",
-          "target": "@ui/radio-button.tsx"
-        }
-      ],
-      "registryDependencies": [
-        "@ienlab/tokens",
-        "@ienlab/radio-group"
-      ],
-      "meta": {
-        "preview": "previews/radio-button.tsx",
-        "example": "import { RadioButton } from \"@/components/ui/radio-button\"; <RadioButton value={plan} onValueChange={setPlan} options={plans} />",
-        "exports": [
-          "RadioButton",
-          "IenRadioButton",
-          "RadioButtonProps"
-        ],
-        "cmpIds": [
-          "radio-button"
-        ],
-        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenSelection.kt",
-        "cmpPublicApi": [
-          "IenRadioButton",
-          "IenRadioGroup",
-          "IenRadioGroupItem"
-        ],
-        "constraints": [],
-        "implementationStatus": "implemented",
-        "verification": {
-          "registry": "passed",
-          "documentation": "available",
-          "typecheck": "passed",
-          "ssr": "passed",
-          "reactCliInstall": "passed",
-          "reactProductionBuild": "passed",
-          "nextCliInstall": "passed",
-          "nextProductionBuild": "passed",
-          "browserRender": "passed",
-          "interaction": "not-individually-tested"
-        }
-      },
-      "dependencies": [
-        "cn"
-      ]
-    },
-    {
       "name": "icon-button",
       "type": "registry:ui",
       "title": "IconButton",
@@ -411,15 +305,19 @@
       ],
       "registryDependencies": [
         "@ienlab/tokens",
-        "@ienlab/button"
+        "@ienlab/button",
+        "@ienlab/toggle"
       ],
       "meta": {
         "preview": "previews/icon-button.tsx",
         "example": "import { IconButton } from \"@/components/ui/icon-button\"; <IconButton label=\"즐겨찾기\" pressed={saved} onPressedChange={setSaved}><Heart /></IconButton>",
         "exports": [
+          "IconToggleButtonProps",
+          "IconButtonProps",
           "IconButton",
           "IenIconButton",
-          "IconButtonProps"
+          "IconToggleButton",
+          "IenIconToggleButton"
         ],
         "cmpIds": [
           "icon-button"
@@ -467,9 +365,12 @@
         "preview": "previews/pull-to-refresh.tsx",
         "example": "import { PullToRefresh } from \"@/components/ui/pull-to-refresh\"; <PullToRefresh onRefresh={reload}><ItemList /></PullToRefresh>",
         "exports": [
+          "PullToRefreshState",
+          "PullToRefreshIndicatorState",
+          "PullToRefreshContentPadding",
+          "PullToRefreshProps",
           "PullToRefresh",
-          "IenPullToRefresh",
-          "PullToRefreshProps"
+          "IenPullToRefresh"
         ],
         "cmpIds": [
           "pull-to-refresh"
@@ -516,16 +417,17 @@
       ],
       "registryDependencies": [
         "@ienlab/tokens",
-        "@ienlab/dropdown-menu",
-        "@ienlab/button"
+        "@ienlab/button",
+        "@ienlab/dropdown-menu"
       ],
       "meta": {
         "preview": "previews/menu.tsx",
         "example": "import { Menu } from \"@/components/ui/menu\"; <Menu items={[{ label: \"복사\", onSelect: copy }]} />",
         "exports": [
+          "MenuItem",
+          "MenuProps",
           "Menu",
-          "IenMenu",
-          "MenuProps"
+          "IenMenu"
         ],
         "cmpIds": [
           "menu"
@@ -573,9 +475,9 @@
         "preview": "previews/modal.tsx",
         "example": "import { Modal } from \"@/components/ui/modal\"; <Modal open={open} onOpenChange={setOpen} title=\"편집\">...</Modal>",
         "exports": [
+          "ModalProps",
           "Modal",
-          "IenModal",
-          "ModalProps"
+          "IenModal"
         ],
         "cmpIds": [
           "modal"
@@ -617,16 +519,17 @@
       ],
       "registryDependencies": [
         "@ienlab/tokens",
-        "@ienlab/input",
-        "@ienlab/button"
+        "@ienlab/button",
+        "@ienlab/text-field"
       ],
       "meta": {
         "preview": "previews/numeric-spinner.tsx",
         "example": "import { NumericSpinner } from \"@/components/ui/numeric-spinner\"; <NumericSpinner value={count} min={0} max={20} onValueChange={setCount} />",
         "exports": [
+          "NumericSpinnerSize",
+          "NumericSpinnerProps",
           "NumericSpinner",
-          "IenNumericSpinner",
-          "NumericSpinnerProps"
+          "IenNumericSpinner"
         ],
         "cmpIds": [
           "numeric-spinner"
@@ -674,9 +577,11 @@
         "preview": "previews/rating.tsx",
         "example": "import { Rating } from \"@/components/ui/rating\"; <Rating value={rating} onValueChange={setRating} max={5} />",
         "exports": [
+          "RatingSize",
+          "RatingVariant",
+          "RatingProps",
           "Rating",
-          "IenRating",
-          "RatingProps"
+          "IenRating"
         ],
         "cmpIds": [
           "rating"
@@ -719,16 +624,16 @@
       ],
       "registryDependencies": [
         "@ienlab/tokens",
-        "@ienlab/input",
+        "@ienlab/text-field",
         "@ienlab/button"
       ],
       "meta": {
         "preview": "previews/search-field.tsx",
         "example": "import { SearchField } from \"@/components/ui/search-field\"; <SearchField value={query} onValueChange={setQuery} onSearch={search} />",
         "exports": [
+          "SearchFieldProps",
           "SearchField",
-          "IenSearchField",
-          "SearchFieldProps"
+          "IenSearchField"
         ],
         "cmpIds": [
           "search-field"
@@ -772,16 +677,18 @@
         }
       ],
       "registryDependencies": [
-        "@ienlab/tokens",
-        "@ienlab/toggle-group"
+        "@ienlab/tokens"
       ],
       "meta": {
         "preview": "previews/segmented-control.tsx",
         "example": "import { SegmentedControl } from \"@/components/ui/segmented-control\"; <SegmentedControl value={range} onValueChange={setRange} options={ranges} />",
         "exports": [
+          "SegmentedControlSize",
+          "SegmentedControlAlignment",
+          "SegmentedControlOption",
+          "SegmentedControlProps",
           "SegmentedControl",
-          "IenSegmentedControl",
-          "SegmentedControlProps"
+          "IenSegmentedControl"
         ],
         "cmpIds": [
           "segmented-control"
@@ -823,15 +730,18 @@
         }
       ],
       "registryDependencies": [
-        "@ienlab/tokens"
+        "@ienlab/tokens",
+        "@ienlab/button"
       ],
       "meta": {
         "preview": "previews/swipe-box.tsx",
         "example": "import { SwipeBox } from \"@/components/ui/swipe-box\"; <SwipeBox endAction={{ label: \"삭제\", onClick: remove }}><Row /></SwipeBox>",
         "exports": [
+          "SwipeBoxState",
+          "SwipeBoxAction",
+          "SwipeBoxProps",
           "SwipeBox",
-          "IenSwipeBox",
-          "SwipeBoxProps"
+          "IenSwipeBox"
         ],
         "cmpIds": [
           "swipe-box"
@@ -882,9 +792,11 @@
         "preview": "previews/stepper.tsx",
         "example": "import { Stepper } from \"@/components/ui/stepper\"; <Stepper steps={steps} currentStep={step} onStepChange={setStep} allowNavigation />",
         "exports": [
+          "StepperRange",
+          "StepperStep",
+          "StepperProps",
           "Stepper",
-          "IenStepper",
-          "StepperProps"
+          "IenStepper"
         ],
         "cmpIds": [
           "stepper"
@@ -924,56 +836,6 @@
       ]
     },
     {
-      "name": "tab",
-      "type": "registry:ui",
-      "title": "Tab",
-      "description": "탭 선택과 패널 전환을 지원하는 shadcn Tabs 확장입니다.",
-      "files": [
-        {
-          "path": "tab.tsx",
-          "type": "registry:ui",
-          "target": "@ui/tab.tsx"
-        }
-      ],
-      "registryDependencies": [
-        "@ienlab/tokens",
-        "@ienlab/tabs"
-      ],
-      "meta": {
-        "preview": "previews/tab.tsx",
-        "example": "import { Tab } from \"@/components/ui/tab\"; <Tab value={tab} onValueChange={setTab} items={panels} />",
-        "exports": [
-          "Tab",
-          "IenTab",
-          "TabProps"
-        ],
-        "cmpIds": [
-          "tab"
-        ],
-        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenControls.kt",
-        "cmpPublicApi": [
-          "IenTab"
-        ],
-        "constraints": [],
-        "implementationStatus": "implemented",
-        "verification": {
-          "registry": "passed",
-          "documentation": "available",
-          "typecheck": "passed",
-          "ssr": "passed",
-          "reactCliInstall": "passed",
-          "reactProductionBuild": "passed",
-          "nextCliInstall": "passed",
-          "nextProductionBuild": "passed",
-          "browserRender": "passed",
-          "interaction": "not-individually-tested"
-        }
-      },
-      "dependencies": [
-        "cn"
-      ]
-    },
-    {
       "name": "text-button",
       "type": "registry:ui",
       "title": "TextButton",
@@ -993,9 +855,10 @@
         "preview": "previews/text-button.tsx",
         "example": "import { TextButton } from \"@/components/ui/text-button\"; <TextButton emphasis=\"arrow\" onClick={open}>더 보기</TextButton>",
         "exports": [
+          "TextButtonSize",
+          "TextButtonProps",
           "TextButton",
-          "IenTextButton",
-          "TextButtonProps"
+          "IenTextButton"
         ],
         "cmpIds": [
           "text-button"
@@ -1003,60 +866,6 @@
         "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenButton.kt",
         "cmpPublicApi": [
           "IenTextButton"
-        ],
-        "constraints": [],
-        "implementationStatus": "implemented",
-        "verification": {
-          "registry": "passed",
-          "documentation": "available",
-          "typecheck": "passed",
-          "ssr": "passed",
-          "reactCliInstall": "passed",
-          "reactProductionBuild": "passed",
-          "nextCliInstall": "passed",
-          "nextProductionBuild": "passed",
-          "browserRender": "passed",
-          "interaction": "not-individually-tested"
-        }
-      },
-      "dependencies": [
-        "cn",
-        "lucide-react"
-      ]
-    },
-    {
-      "name": "snackbar",
-      "type": "registry:ui",
-      "title": "Snackbar",
-      "description": "자동 닫힘, 작업 동작과 상태 색상을 지원하는 스낵바입니다.",
-      "files": [
-        {
-          "path": "snackbar.tsx",
-          "type": "registry:ui",
-          "target": "@ui/snackbar.tsx"
-        }
-      ],
-      "registryDependencies": [
-        "@ienlab/tokens",
-        "@ienlab/button"
-      ],
-      "meta": {
-        "preview": "previews/snackbar.tsx",
-        "example": "import { Snackbar } from \"@/components/ui/snackbar\"; <Snackbar open={open} onOpenChange={setOpen} message=\"저장했습니다\" action={{ label: \"실행 취소\", onClick: undo }} />",
-        "exports": [
-          "Snackbar",
-          "IenSnackbar",
-          "SnackbarProps"
-        ],
-        "cmpIds": [
-          "snackbar"
-        ],
-        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/feedback/IenSnackbar.kt",
-        "cmpPublicApi": [
-          "IenSnackbar",
-          "IenSnackbarHost",
-          "IenSnackbarActionButton",
-          "IenSnackbarIcon"
         ],
         "constraints": [],
         "implementationStatus": "implemented",
@@ -1098,9 +907,16 @@
         "preview": "previews/agreement.tsx",
         "example": "import { Agreement } from \"@/components/ui/agreement\"; <Agreement items={terms} value={accepted} onValueChange={setAccepted} />",
         "exports": [
+          "AgreementVariant",
+          "AgreementCheckboxVariant",
+          "AgreementCheckboxMotion",
+          "AgreementItem",
+          "AgreementProps",
+          "AgreementRowProps",
           "Agreement",
           "IenAgreement",
-          "AgreementProps"
+          "AgreementRow",
+          "IenAgreementRow"
         ],
         "cmpIds": [
           "agreement"
@@ -1141,7 +957,8 @@
         }
       },
       "dependencies": [
-        "cn"
+        "cn",
+        "lucide-react"
       ]
     },
     {
@@ -1158,16 +975,18 @@
       ],
       "registryDependencies": [
         "@ienlab/tokens",
-        "@ienlab/textarea",
-        "@ienlab/button"
+        "@ienlab/text-field",
+        "@ienlab/fab"
       ],
       "meta": {
         "preview": "previews/chat-bottom-bar.tsx",
         "example": "import { ChatBottomBar } from \"@/components/ui/chat-bottom-bar\"; <ChatBottomBar value={draft} onValueChange={setDraft} onSend={sendMessage} />",
         "exports": [
+          "ChatBottomBarInputState",
+          "ChatBottomBarSendState",
+          "ChatBottomBarProps",
           "ChatBottomBar",
-          "IenChatBottomBar",
-          "ChatBottomBarProps"
+          "IenChatBottomBar"
         ],
         "cmpIds": [
           "chat-bottom-bar"
@@ -1216,9 +1035,9 @@
         "preview": "previews/save-alert-dialog.tsx",
         "example": "import { SaveAlertDialog } from \"@/components/ui/save-alert-dialog\"; <SaveAlertDialog open={open} onOpenChange={setOpen} onSave={save} onDiscard={discard} />",
         "exports": [
+          "SaveAlertDialogProps",
           "SaveAlertDialog",
-          "IenSaveAlertDialog",
-          "SaveAlertDialogProps"
+          "IenSaveAlertDialog"
         ],
         "cmpIds": [
           "save-alert-dialog"
@@ -1263,9 +1082,9 @@
         "preview": "previews/delete-alert-dialog.tsx",
         "example": "import { DeleteAlertDialog } from \"@/components/ui/delete-alert-dialog\"; <DeleteAlertDialog open={open} onOpenChange={setOpen} onConfirm={remove} />",
         "exports": [
+          "DeleteAlertDialogProps",
           "DeleteAlertDialog",
-          "IenDeleteAlertDialog",
-          "DeleteAlertDialogProps"
+          "IenDeleteAlertDialog"
         ],
         "cmpIds": [
           "delete-alert-dialog"
@@ -1310,9 +1129,9 @@
         "preview": "previews/update-alert-dialog.tsx",
         "example": "import { UpdateAlertDialog } from \"@/components/ui/update-alert-dialog\"; <UpdateAlertDialog open={open} onOpenChange={setOpen} appName=\"IEN\" onUpdate={update} />",
         "exports": [
+          "UpdateAlertDialogProps",
           "UpdateAlertDialog",
-          "IenUpdateAlertDialog",
-          "UpdateAlertDialogProps"
+          "IenUpdateAlertDialog"
         ],
         "cmpIds": [
           "update-alert-dialog"
@@ -1357,9 +1176,9 @@
         "preview": "previews/network-alert-dialog.tsx",
         "example": "import { NetworkAlertDialog } from \"@/components/ui/network-alert-dialog\"; <NetworkAlertDialog open={open} onOpenChange={setOpen} onRetry={retry} />",
         "exports": [
+          "NetworkAlertDialogProps",
           "NetworkAlertDialog",
-          "IenNetworkAlertDialog",
-          "NetworkAlertDialogProps"
+          "IenNetworkAlertDialog"
         ],
         "cmpIds": [
           "network-alert-dialog"
@@ -1402,15 +1221,17 @@
       "registryDependencies": [
         "@ienlab/tokens",
         "@ienlab/dialog",
-        "@ienlab/progress"
+        "@ienlab/progress-indicator",
+        "@ienlab/loading-indicator"
       ],
       "meta": {
         "preview": "previews/progress-dialog.tsx",
         "example": "import { ProgressDialog } from \"@/components/ui/progress-dialog\"; <ProgressDialog open={saving} title=\"저장 중\" value={progress} />",
         "exports": [
+          "ProgressDialogVariant",
+          "ProgressDialogProps",
           "ProgressDialog",
-          "IenProgressDialog",
-          "ProgressDialogProps"
+          "IenProgressDialog"
         ],
         "cmpIds": [
           "progress-dialog"
@@ -1449,17 +1270,17 @@
       ],
       "registryDependencies": [
         "@ienlab/tokens",
-        "@ienlab/dialog",
         "@ienlab/button",
+        "@ienlab/dialog",
         "@ienlab/wheel-picker"
       ],
       "meta": {
         "preview": "previews/date-picker-dialog.tsx",
         "example": "import { DatePickerDialog } from \"@/components/ui/date-picker-dialog\"; <DatePickerDialog open={open} onOpenChange={setOpen} value={date} yearRange={[1900, 2100]} onValueChange={setDate} onConfirm={(utcMillis) => saveDate(utcMillis)} />",
         "exports": [
+          "DatePickerDialogProps",
           "DatePickerDialog",
-          "IenDatePickerDialog",
-          "DatePickerDialogProps"
+          "IenDatePickerDialog"
         ],
         "cmpIds": [
           "date-picker-dialog"
@@ -1501,17 +1322,17 @@
       ],
       "registryDependencies": [
         "@ienlab/tokens",
-        "@ienlab/dialog",
         "@ienlab/button",
+        "@ienlab/dialog",
         "@ienlab/wheel-picker"
       ],
       "meta": {
         "preview": "previews/time-picker-dialog.tsx",
         "example": "import { TimePickerDialog } from \"@/components/ui/time-picker-dialog\"; <TimePickerDialog open={open} onOpenChange={setOpen} initialHour={9} initialMinute={30} is24Hour={false} onConfirm={(hour, minute) => saveTime(hour, minute)} />",
         "exports": [
+          "TimePickerDialogProps",
           "TimePickerDialog",
-          "IenTimePickerDialog",
-          "TimePickerDialogProps"
+          "IenTimePickerDialog"
         ],
         "cmpIds": [
           "time-picker-dialog"
@@ -1554,16 +1375,17 @@
       "registryDependencies": [
         "@ienlab/tokens",
         "@ienlab/dialog",
-        "@ienlab/input",
+        "@ienlab/text-field",
         "@ienlab/button"
       ],
       "meta": {
         "preview": "previews/text-field-dialog.tsx",
         "example": "import { TextFieldDialog } from \"@/components/ui/text-field-dialog\"; <TextFieldDialog open={open} onOpenChange={setOpen} value={name} onConfirm={setName} />",
         "exports": [
+          "TextFieldDialogField",
+          "TextFieldDialogProps",
           "TextFieldDialog",
-          "IenTextFieldDialog",
-          "TextFieldDialogProps"
+          "IenTextFieldDialog"
         ],
         "cmpIds": [
           "text-field-dialog"
@@ -1608,9 +1430,13 @@
         "preview": "previews/keypad.tsx",
         "example": "import { Keypad } from \"@/components/ui/keypad\"; <Keypad value={pin} onValueChange={setPin} maxLength={6} masked />",
         "exports": [
+          "KeyboardAction",
+          "KeypadLayout",
+          "KeypadLanguage",
+          "KeypadState",
+          "KeypadProps",
           "Keypad",
-          "IenKeypad",
-          "KeypadProps"
+          "IenKeypad"
         ],
         "cmpIds": [
           "keypad"
@@ -1647,96 +1473,6 @@
       ]
     },
     {
-      "name": "text-field",
-      "type": "registry:ui",
-      "title": "TextField",
-      "description": "레이블, 입력, 안내 및 오류 상태를 함께 표시합니다.",
-      "files": [
-        {
-          "path": "text-field.tsx",
-          "type": "registry:ui",
-          "target": "@ui/text-field.tsx"
-        }
-      ],
-      "registryDependencies": [
-        "@ienlab/tokens",
-        "@ienlab/input",
-        "@ienlab/button"
-      ],
-      "meta": {
-        "preview": "previews/text-field.tsx",
-        "example": "import { TextField } from \"@/components/ui/text-field\"; <TextField label=\"이메일\" value={email} onValueChange={setEmail} />",
-        "exports": [
-          "TextField",
-          "IenTextField",
-          "TextFieldProps",
-          "TextFieldStatus",
-          "ClearableTextField",
-          "IenClearableTextField",
-          "ClearableTextFieldProps",
-          "PasswordTextField",
-          "IenPasswordTextField",
-          "PasswordTextFieldProps",
-          "TextFieldButton",
-          "IenTextFieldButton",
-          "TextFieldButtonProps",
-          "TextFieldIconButton",
-          "IenTextFieldIconButton",
-          "TextFieldIconButtonProps",
-          "TextFieldClearButton",
-          "IenTextFieldClearButton",
-          "TextFieldClearButtonProps"
-        ],
-        "cmpIds": [
-          "text-field"
-        ],
-        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenTextField.kt",
-        "cmpPublicApi": [
-          "IenTextField",
-          "IenClearableTextField",
-          "IenPasswordTextField",
-          "IenTextFieldButton",
-          "IenTextFieldState",
-          "IenFieldStatus",
-          "IenTextFieldVariant",
-          "IenTextFieldLabelOption",
-          "IenTextFieldFormat",
-          "IenTextFieldLengthLimit"
-        ],
-        "constraints": [],
-        "cmpAdditionalSources": [
-          "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/view/textfield/Button.kt"
-        ],
-        "cmpAdditionalPublicApi": [
-          "IenTextFieldState",
-          "IenFieldStatus",
-          "IenTextFieldVariant",
-          "IenTextFieldLabelOption",
-          "IenTextFieldFormat",
-          "IenTextFieldLengthLimit",
-          "IenTextFieldIconButton",
-          "IenTextFieldClearButton"
-        ],
-        "implementationStatus": "implemented",
-        "verification": {
-          "registry": "passed",
-          "documentation": "available",
-          "typecheck": "passed",
-          "ssr": "passed",
-          "reactCliInstall": "passed",
-          "reactProductionBuild": "passed",
-          "nextCliInstall": "passed",
-          "nextProductionBuild": "passed",
-          "browserRender": "passed",
-          "interaction": "not-individually-tested"
-        }
-      },
-      "dependencies": [
-        "cn",
-        "lucide-react"
-      ]
-    },
-    {
       "name": "split-text-field",
       "type": "registry:ui",
       "title": "SplitTextField",
@@ -1750,15 +1486,15 @@
       ],
       "registryDependencies": [
         "@ienlab/tokens",
-        "@ienlab/input"
+        "@ienlab/text-field"
       ],
       "meta": {
         "preview": "previews/split-text-field.tsx",
         "example": "import { SplitTextField } from \"@/components/ui/split-text-field\"; <SplitTextField value={code} onValueChange={setCode} length={6} type=\"numeric\" />",
         "exports": [
+          "SplitTextFieldProps",
           "SplitTextField",
-          "IenSplitTextField",
-          "SplitTextFieldProps"
+          "IenSplitTextField"
         ],
         "cmpIds": [
           "split-text-field"
@@ -1766,56 +1502,6 @@
         "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenTextField.kt",
         "cmpPublicApi": [
           "IenSplitTextField"
-        ],
-        "constraints": [],
-        "implementationStatus": "implemented",
-        "verification": {
-          "registry": "passed",
-          "documentation": "available",
-          "typecheck": "passed",
-          "ssr": "passed",
-          "reactCliInstall": "passed",
-          "reactProductionBuild": "passed",
-          "nextCliInstall": "passed",
-          "nextProductionBuild": "passed",
-          "browserRender": "passed",
-          "interaction": "not-individually-tested"
-        }
-      },
-      "dependencies": [
-        "cn"
-      ]
-    },
-    {
-      "name": "text-area",
-      "type": "registry:ui",
-      "title": "TextArea",
-      "description": "여러 줄 입력과 안내·오류 상태를 표시합니다.",
-      "files": [
-        {
-          "path": "text-area.tsx",
-          "type": "registry:ui",
-          "target": "@ui/text-area.tsx"
-        }
-      ],
-      "registryDependencies": [
-        "@ienlab/tokens",
-        "@ienlab/textarea"
-      ],
-      "meta": {
-        "preview": "previews/text-area.tsx",
-        "example": "import { TextArea } from \"@/components/ui/text-area\"; <TextArea label=\"메모\" value={memo} onChange={handleChange} />",
-        "exports": [
-          "TextArea",
-          "IenTextArea",
-          "TextAreaProps"
-        ],
-        "cmpIds": [
-          "text-area"
-        ],
-        "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenTextField.kt",
-        "cmpPublicApi": [
-          "IenTextArea"
         ],
         "constraints": [],
         "implementationStatus": "implemented",
@@ -1861,13 +1547,13 @@
         "preview": "previews/auth-form.tsx",
         "example": "import { AuthForm } from \"@/components/ui/auth-form\"; <AuthForm mode={mode} email={email} password={password} copy={copy} onEmailChange={setEmail} onPasswordChange={setPassword} onSubmit={submit} onModeChange={setMode} />",
         "exports": [
-          "AuthForm",
-          "IenAuthForm",
-          "AuthFormProps",
           "AuthFormMode",
           "AuthFormModeCopy",
           "AuthFormCopy",
-          "AuthFormPasswordRule"
+          "AuthFormPasswordRule",
+          "AuthFormProps",
+          "AuthForm",
+          "IenAuthForm"
         ],
         "cmpIds": [],
         "cmpSource": "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenAuthForm.kt",

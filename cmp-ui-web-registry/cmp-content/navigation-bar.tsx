@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export type IenNavigationBarType = "Type1" | "Type2";
 export type IenNavigationBarItemDirection = "Horizontal" | "Vertical";

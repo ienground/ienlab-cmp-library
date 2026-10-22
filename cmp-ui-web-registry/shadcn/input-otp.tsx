@@ -26,7 +26,7 @@
 
 import * as React from "react";
 import { MinusIcon } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import { OTPInput, OTPInputContext } from "input-otp";
 
 function InputOTP({

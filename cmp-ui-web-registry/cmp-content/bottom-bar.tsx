@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export interface IenBottomBarDefaultsType {
   contentHeight: number;
@@ -15,6 +15,7 @@ export interface IenBottomBarProps extends React.ComponentPropsWithRef<"footer">
   contentColor?: string;
   contentPadding?: string;
   elevation?: number | string;
+  shape?: React.CSSProperties["borderRadius"];
   visible?: boolean;
 }
 
@@ -26,6 +27,7 @@ export function IenBottomBar({
   contentPadding = "var(--ien-spacing-xs)",
   elevation = "var(--ien-elevation-floating)",
   visible = true,
+  shape,
   className,
   children,
   style,
@@ -58,6 +60,7 @@ export function IenBottomBar({
               backgroundColor: containerColor,
               color: contentColor,
               padding: contentPadding,
+              borderRadius: shape,
               boxShadow: `0 calc(${typeof elevation === "number" ? `${elevation}px` : elevation} / 3) ${typeof elevation === "number" ? `${elevation}px` : elevation} rgb(0 0 0 / 12%)`,
               "--ien-bottom-bar-height": `${IenBottomBarDefaults.contentHeight}px`,
               ...style,

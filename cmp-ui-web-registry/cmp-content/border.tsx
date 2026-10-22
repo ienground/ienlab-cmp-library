@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export type IenBorderVariant = "full" | "padding24" | { height: number };
 
@@ -20,19 +20,19 @@ export function IenBorder({
   const isHeight = typeof variant === "object";
   return (
     <div
-      role="separator"
       className={cn(
         "w-full",
         isHeight ? "bg-ien-surface-weak" : "bg-ien-border",
         variant === "padding24" &&
-          "mx-ien-xl w-[calc(100%-var(--ien-spacing-xxl))]",
+          "mx-ien-xl w-[calc(100%-var(--ien-spacing-xl)-var(--ien-spacing-xl))]",
         className,
       )}
       style={{
         height: isHeight ? variant.height : thickness,
-        backgroundColor: color,
+        backgroundColor: isHeight ? undefined : color,
         ...style,
       }}
+      role={isHeight ? undefined : "separator"}
       {...props}
     />
   );

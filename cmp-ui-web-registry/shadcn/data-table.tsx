@@ -25,7 +25,7 @@
 
 import * as React from "react";
 import { ArrowDownIcon, ArrowUpIcon, ChevronsUpDownIcon } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import {
   Table,
   TableBody,

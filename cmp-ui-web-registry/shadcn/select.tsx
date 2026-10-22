@@ -26,7 +26,7 @@
 
 import * as React from "react";
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import { Select as SelectPrimitive } from "radix-ui";
 
 function Select({
@@ -67,7 +67,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "flex w-fit items-center justify-between gap-[var(--ien-control-gap)] rounded-[var(--ien-control-radius-base)] border-ien-border border-ien-surface-variant bg-transparent py-ien-xs pr-ien-xs pl-[var(--ien-control-padding-inline)] text-ien-body2 whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ien-brand focus-visible:ring-[length:var(--ien-control-focus-ring-width)] focus-visible:ring-ien-brand/50 disabled:cursor-not-allowed disabled:opacity-[var(--ien-state-disabled-alpha)] aria-invalid:border-ien-danger aria-invalid:ring-[length:var(--ien-control-focus-ring-width)] aria-invalid:ring-ien-danger/20 data-placeholder:text-ien-text-secondary data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--ien-control-radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-[var(--ien-control-gap)] dark:bg-ien-surface-variant/30 dark:hover:bg-ien-surface-variant/50 dark:aria-invalid:border-ien-danger/50 dark:aria-invalid:ring-ien-danger/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "flex h-auto min-h-[var(--ien-state-minimum-touch-target)] w-fit items-center justify-between gap-[var(--ien-control-gap)] rounded-[var(--ien-control-radius-base)] border border-ien-border bg-transparent px-[var(--ien-control-padding-inline)] py-ien-xs text-ien-body2 whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ien-brand focus-visible:ring-[length:var(--ien-control-focus-ring-width)] focus-visible:ring-ien-brand/50 disabled:cursor-not-allowed disabled:opacity-[var(--ien-state-disabled-alpha)] aria-invalid:border-ien-danger aria-invalid:ring-[length:var(--ien-control-focus-ring-width)] aria-invalid:ring-ien-danger/20 data-placeholder:text-ien-text-secondary data-[size=sm]:min-h-9 data-[size=sm]:rounded-[min(var(--ien-control-radius-md),10px)] data-[size=sm]:py-ien-xxs *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-[var(--ien-control-gap)] dark:bg-ien-surface-variant/30 dark:hover:bg-ien-surface-variant/50 dark:aria-invalid:border-ien-danger/50 dark:aria-invalid:ring-ien-danger/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}
@@ -93,7 +93,7 @@ function SelectContent({
         data-slot="select-content"
         data-align-trigger={position === "item-aligned"}
         className={cn(
-          "cn-menu-target cn-menu-translucent relative z-50 max-h-(--radix-select-content-available-height) min-w-36 origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-[var(--ien-control-radius-base)] bg-ien-surface-raised text-ien-text-primary shadow-[0_var(--ien-elevation-raised)_calc(var(--ien-elevation-raised)*2)_rgb(0_0_0/0.12)] ring-1 ring-ien-text-primary/10 duration-[var(--ien-motion-instant)] data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
+          "cn-menu-target cn-menu-translucent relative z-50 max-h-(--radix-select-content-available-height) min-w-28 origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-[var(--ien-control-radius-base)] bg-ien-surface-raised text-ien-text-primary shadow-[0_var(--ien-elevation-raised)_calc(var(--ien-elevation-raised)*2)_rgb(0_0_0/0.12)] ring-1 ring-ien-text-primary/10 duration-[var(--ien-motion-instant)] data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 motion-reduce:animate-none",
           position === "popper" &&
             "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
           className,
@@ -106,8 +106,7 @@ function SelectContent({
         <SelectPrimitive.Viewport
           data-position={position}
           className={cn(
-            "data-[position=popper]:h-(--radix-select-trigger-height) data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)",
-            position === "popper" && "",
+            "py-ien-xs data-[position=popper]:h-(--radix-select-trigger-height) data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)",
           )}
         >
           {children}
@@ -143,12 +142,12 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-default items-center gap-[var(--ien-control-gap)] rounded-ien-sm py-ien-xxs pr-ien-xxl pl-[var(--ien-control-gap)] text-ien-body2 outline-hidden select-none focus:bg-ien-brand-weak focus:text-ien-on-brand-weak not-data-[variant=destructive]:focus:**:text-ien-on-brand-weak data-disabled:pointer-events-none data-disabled:opacity-[var(--ien-state-disabled-alpha)] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-[var(--ien-icon-sm)] *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-ien-xs",
+        "relative flex min-h-12 w-full cursor-default items-center gap-[var(--ien-control-gap)] rounded-ien-sm py-ien-xs pr-ien-xxl pl-ien-md text-ien-body2 outline-hidden select-none focus:bg-ien-brand-weak focus:text-ien-on-brand-weak not-data-[variant=destructive]:focus:**:text-ien-on-brand-weak data-[state=checked]:text-ien-brand data-disabled:pointer-events-none data-disabled:opacity-[var(--ien-state-disabled-alpha)] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-[var(--ien-icon-sm)] *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-ien-xs",
         className,
       )}
       {...props}
     >
-      <span className="pointer-events-none absolute right-2 flex size-[var(--ien-icon-sm)] items-center justify-center">
+      <span className="pointer-events-none absolute right-2 flex size-[var(--ien-icon-sm)] items-center justify-center text-ien-brand">
         <SelectPrimitive.ItemIndicator>
           <CheckIcon className="pointer-events-none" />
         </SelectPrimitive.ItemIndicator>

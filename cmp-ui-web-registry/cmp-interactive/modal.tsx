@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import {
   Dialog,
   DialogContent,
@@ -23,8 +23,15 @@ export type ModalProps = Omit<
     typeof DialogContent
   >["onInteractOutside"];
   open?: boolean;
+  visible?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  onDismissRequest?: () => void;
+  onClose?: () => void;
+  closeOnDimmerClick?: boolean;
+  closeOnBackEvent?: boolean;
+  onEntered?: () => void;
+  onExited?: () => void;
   title?: React.ReactNode;
   description?: React.ReactNode;
   children: React.ReactNode;
@@ -35,8 +42,15 @@ export type ModalProps = Omit<
 
 function Modal({
   open,
+  visible,
   defaultOpen,
   onOpenChange,
+  onDismissRequest,
+  onClose,
+  closeOnDimmerClick,
+  closeOnBackEvent,
+  onEntered,
+  onExited,
   title,
   description,
   children,
@@ -48,22 +62,34 @@ function Modal({
   onInteractOutside,
   ...contentProps
 }: ModalProps) {
+  const controlledOpen = visible ?? open;
+  const resolvedCloseOnDimmerClick = closeOnDimmerClick ?? dismissible;
+  const resolvedCloseOnBackEvent = closeOnBackEvent ?? dismissible;
   return (
-    <Dialog open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
+    <Dialog
+      open={controlledOpen}
+      defaultOpen={controlledOpen === undefined ? defaultOpen : undefined}
+      onOpenChange={onOpenChange}
+      onDismissRequest={onDismissRequest}
+      onClose={onClose}
+    >
       <DialogContent
         {...contentProps}
         ref={ref}
+        showCloseButton={dismissible && contentProps.showCloseButton !== false}
+        closeOnDimmerClick={resolvedCloseOnDimmerClick}
+        closeOnBackEvent={resolvedCloseOnBackEvent}
+        onEntered={onEntered}
+        onExited={onExited}
         className={cn(
           "max-h-[min(85dvh,48rem)] overflow-y-auto rounded-ien-xl border-ien-border bg-ien-surface text-ien-text-primary",
           className,
         )}
         onEscapeKeyDown={(event) => {
           onEscapeKeyDown?.(event);
-          if (!dismissible) event.preventDefault();
         }}
         onInteractOutside={(event) => {
           onInteractOutside?.(event);
-          if (!dismissible) event.preventDefault();
         }}
       >
         {(title || description) && (

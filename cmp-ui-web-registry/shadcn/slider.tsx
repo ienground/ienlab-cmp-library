@@ -24,7 +24,7 @@
  * SOFTWARE.
  */
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import { Slider as SliderPrimitive } from "radix-ui";
 
 type SliderProps = React.ComponentProps<typeof SliderPrimitive.Root> & {

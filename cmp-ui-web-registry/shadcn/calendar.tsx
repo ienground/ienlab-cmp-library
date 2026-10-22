@@ -30,7 +30,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import {
   DayPicker,
   getDefaultClassNames,
@@ -59,7 +59,7 @@ function Calendar({
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn(
-        "group/calendar bg-ien-background p-ien-xs [--cell-radius:var(--ien-control-radius-md)] [--cell-size:--spacing(7)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
+        "group/calendar bg-ien-surface-raised p-ien-xs [--cell-radius:var(--ien-control-radius-md)] [--cell-size:--spacing(10)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
         String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
         className,
@@ -83,13 +83,21 @@ function Calendar({
           defaultClassNames.nav,
         ),
         button_previous: cn(
-          buttonVariants({ variant: buttonVariant }),
-          "size-(--cell-size) p-ien-none select-none aria-disabled:opacity-[var(--ien-state-disabled-alpha)]",
+          buttonVariants({
+            variant: buttonVariant,
+            tone: "neutral",
+            size: "icon-xs",
+          }),
+          "size-(--cell-size) min-h-(--cell-size) min-w-(--cell-size) p-ien-none select-none aria-disabled:opacity-[var(--ien-state-disabled-alpha)]",
           defaultClassNames.button_previous,
         ),
         button_next: cn(
-          buttonVariants({ variant: buttonVariant }),
-          "size-(--cell-size) p-ien-none select-none aria-disabled:opacity-[var(--ien-state-disabled-alpha)]",
+          buttonVariants({
+            variant: buttonVariant,
+            tone: "neutral",
+            size: "icon-xs",
+          }),
+          "size-(--cell-size) min-h-(--cell-size) min-w-(--cell-size) p-ien-none select-none aria-disabled:opacity-[var(--ien-state-disabled-alpha)]",
           defaultClassNames.button_next,
         ),
         month_caption: cn(
@@ -118,7 +126,7 @@ function Calendar({
         month_grid: cn("w-full border-collapse", defaultClassNames.month_grid),
         weekdays: cn("flex", defaultClassNames.weekdays),
         weekday: cn(
-          "flex-1 rounded-(--cell-radius) text-[0.8rem] font-[var(--ien-font-weight-body1)] text-ien-text-secondary select-none",
+          "flex-1 rounded-(--cell-radius) text-ien-caption font-[var(--ien-font-weight-body1)] text-ien-text-secondary select-none",
           defaultClassNames.weekday,
         ),
         week: cn("mt-ien-xs flex w-full", defaultClassNames.week),
@@ -138,16 +146,19 @@ function Calendar({
           defaultClassNames.day,
         ),
         range_start: cn(
-          "relative isolate z-0 rounded-l-(--cell-radius) bg-ien-surface-variant after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-ien-surface-variant",
+          "relative isolate z-0 rounded-l-(--cell-radius) bg-ien-brand-weak after:absolute after:inset-y-0 after:right-0 after:w-1/2 after:bg-ien-brand-weak",
           defaultClassNames.range_start,
         ),
-        range_middle: cn("rounded-none", defaultClassNames.range_middle),
+        range_middle: cn(
+          "rounded-none bg-ien-brand-weak",
+          defaultClassNames.range_middle,
+        ),
         range_end: cn(
-          "relative isolate z-0 rounded-r-(--cell-radius) bg-ien-surface-variant after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-ien-surface-variant",
+          "relative isolate z-0 rounded-r-(--cell-radius) bg-ien-brand-weak after:absolute after:inset-y-0 after:left-0 after:w-1/2 after:bg-ien-brand-weak",
           defaultClassNames.range_end,
         ),
         today: cn(
-          "rounded-(--cell-radius) bg-ien-surface-variant text-ien-text-primary data-[selected=true]:rounded-none",
+          "rounded-(--cell-radius) text-ien-brand data-[selected=true]:rounded-none",
           defaultClassNames.today,
         ),
         outside: cn(
@@ -155,7 +166,7 @@ function Calendar({
           defaultClassNames.outside,
         ),
         disabled: cn(
-          "text-ien-text-secondary opacity-50",
+          "text-ien-text-disabled opacity-[var(--ien-state-disabled-alpha)]",
           defaultClassNames.disabled,
         ),
         hidden: cn("invisible", defaultClassNames.hidden),
@@ -232,8 +243,10 @@ function CalendarDayButton({
     <Button
       ref={ref}
       variant="ghost"
-      size="icon"
+      tone="neutral"
+      size="icon-xs"
       data-day={day.date.toLocaleDateString(locale?.code)}
+      data-today={modifiers.today}
       data-selected-single={
         modifiers.selected &&
         !modifiers.range_start &&
@@ -244,7 +257,7 @@ function CalendarDayButton({
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
       className={cn(
-        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-ien-xxs border-0 leading-none font-[var(--ien-font-weight-body1)] group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ien-brand group-data-[focused=true]/day:ring-[length:var(--ien-control-focus-ring-width)] group-data-[focused=true]/day:ring-ien-brand/50 data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius) data-[range-end=true]:bg-ien-brand data-[range-end=true]:text-ien-on-brand data-[range-middle=true]:rounded-ien-none data-[range-middle=true]:bg-ien-surface-variant data-[range-middle=true]:text-ien-text-primary data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius) data-[range-start=true]:bg-ien-brand data-[range-start=true]:text-ien-on-brand data-[selected-single=true]:bg-ien-brand data-[selected-single=true]:text-ien-on-brand dark:hover:text-ien-text-primary [&>span]:text-ien-caption [&>span]:opacity-70",
+        "relative isolate z-10 flex aspect-square size-(--cell-size) min-w-(--cell-size) flex-col gap-ien-xxs border-0 p-ien-none leading-none font-[var(--ien-font-weight-body1)] data-[today=true]:border data-[today=true]:border-ien-brand data-[today=true]:text-ien-brand group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-[length:var(--ien-control-focus-ring-width)] group-data-[focused=true]/day:ring-ien-brand/50 data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius) data-[range-end=true]:border-transparent data-[range-end=true]:bg-ien-brand data-[range-end=true]:text-ien-on-brand data-[range-middle=true]:rounded-ien-none data-[range-middle=true]:border-transparent data-[range-middle=true]:bg-ien-brand-weak data-[range-middle=true]:text-ien-text-primary data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius) data-[range-start=true]:border-transparent data-[range-start=true]:bg-ien-brand data-[range-start=true]:text-ien-on-brand data-[selected-single=true]:border-transparent data-[selected-single=true]:bg-ien-brand data-[selected-single=true]:text-ien-on-brand disabled:text-ien-text-disabled disabled:opacity-[var(--ien-state-disabled-alpha)] aria-disabled:text-ien-text-disabled dark:hover:text-ien-text-primary [&>span]:text-ien-caption [&>span]:opacity-70",
         defaultClassNames.day,
         className,
       )}

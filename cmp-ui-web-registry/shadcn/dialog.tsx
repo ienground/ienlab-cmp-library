@@ -26,15 +26,42 @@
 
 import * as React from "react";
 import { XIcon } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import { Dialog as DialogPrimitive } from "radix-ui";
 
 import { Button } from "@/components/ui/button";
 
+type DialogProps = React.ComponentProps<typeof DialogPrimitive.Root> & {
+  visible?: boolean;
+  onDismissRequest?: () => void;
+  onClose?: () => void;
+};
+
 function Dialog({
+  open,
+  visible,
+  defaultOpen,
+  onOpenChange,
+  onDismissRequest,
+  onClose,
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Root>) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />;
+}: DialogProps) {
+  const controlledOpen = visible ?? open;
+  return (
+    <DialogPrimitive.Root
+      data-slot="dialog"
+      open={controlledOpen}
+      defaultOpen={controlledOpen === undefined ? defaultOpen : undefined}
+      onOpenChange={(nextOpen) => {
+        onOpenChange?.(nextOpen);
+        if (!nextOpen) {
+          onDismissRequest?.();
+          onClose?.();
+        }
+      }}
+      {...props}
+    />
+  );
 }
 
 function DialogTrigger({
@@ -75,19 +102,72 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  closeOnDimmerClick = true,
+  closeOnBackEvent = true,
+  onEntered,
+  onExited,
+  onEscapeKeyDown,
+  onInteractOutside,
+  onAnimationEnd,
+  onOpenAutoFocus,
+  onCloseAutoFocus,
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content> & {
+}: Omit<React.ComponentProps<typeof DialogPrimitive.Content>, "onAnimationEnd"> & {
   showCloseButton?: boolean;
+  closeOnDimmerClick?: boolean;
+  closeOnBackEvent?: boolean;
+  onEntered?: () => void;
+  onExited?: () => void;
+  onAnimationEnd?: React.AnimationEventHandler<HTMLDivElement>;
 }) {
+  const exitedNotified = React.useRef(false);
+  const notifyEntered = () => {
+    onEntered?.();
+    exitedNotified.current = false;
+  };
+  const notifyExited = () => {
+    if (exitedNotified.current) return;
+    exitedNotified.current = true;
+    onExited?.();
+  };
+
   return (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-ien-md rounded-ien-default bg-ien-surface-raised p-ien-md text-ien-body2 text-ien-text-primary ring-1 ring-ien-text-primary/10 duration-[var(--ien-motion-instant)] outline-none sm:max-w-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
+          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-ien-md rounded-ien-default bg-ien-surface-raised p-ien-md text-ien-body2 text-ien-text-primary ring-1 ring-ien-text-primary/10 duration-[var(--ien-motion-instant)] outline-none motion-reduce:animate-none sm:max-w-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
           className,
         )}
+        onEscapeKeyDown={(event) => {
+          onEscapeKeyDown?.(event);
+          if (!closeOnBackEvent) event.preventDefault();
+        }}
+        onInteractOutside={(event) => {
+          onInteractOutside?.(event);
+          if (!closeOnDimmerClick) event.preventDefault();
+        }}
+        onAnimationEnd={(event) => {
+          onAnimationEnd?.(event);
+          if (event.target !== event.currentTarget) return;
+          if (event.currentTarget.dataset.state === "open") notifyEntered();
+          if (event.currentTarget.dataset.state === "closed") notifyExited();
+        }}
+        onOpenAutoFocus={(event) => {
+          onOpenAutoFocus?.(event);
+          if (
+            onEntered &&
+            typeof window !== "undefined" &&
+            window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ) {
+            window.requestAnimationFrame(notifyEntered);
+          }
+        }}
+        onCloseAutoFocus={(event) => {
+          onCloseAutoFocus?.(event);
+          notifyExited();
+        }}
         {...props}
       >
         {children}
@@ -139,7 +219,7 @@ function DialogFooter({
       {children}
       {showCloseButton && (
         <DialogPrimitive.Close asChild>
-          <Button variant="line" tone="neutral">
+          <Button variant="line" tone="neutral" size="sm">
             닫기
           </Button>
         </DialogPrimitive.Close>

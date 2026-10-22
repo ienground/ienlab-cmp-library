@@ -276,6 +276,10 @@ const typographyFields = Array.from(defaultTokenBlock("IenTypography").matchAll(
 if (typographyFields.length !== Object.keys(typography).length || typographyFields.some((name) => !typography[name])) {
   throw new Error("IenTypography 필드와 추출한 기본 스타일이 다릅니다.");
 }
+const webTypography = webTokens.typography;
+if (!webTypography || typographyFields.some((name) => !webTypography[name]) || Object.keys(webTypography).length !== typographyFields.length) {
+  throw new Error("웹 타이포그래피 단계가 IenTypography와 다릅니다.");
+}
 const motionBlock = defaultTokenBlock("IenMotion");
 const motion = Object.fromEntries(Array.from(motionBlock.matchAll(/val (\w+Millis): Int = (\d+)/g), (match) => [match[1], Number(match[2])]));
 const easing = motionBlock.match(/CubicBezierEasing\(([^)]+)\)/)?.[1];
@@ -311,7 +315,10 @@ for (const group of ["spacing", "radius", "stroke", "elevation", "icon"]) {
     }
   }
 }
-for (const [name, style] of Object.entries(typography)) {
+for (const [name, style] of Object.entries(webTypography)) {
+  if (![style.fontSize, style.lineHeight, style.fontWeight].every((value) => Number.isFinite(value) && value > 0)) {
+    throw new Error(`웹 타이포그래피 ${name} 값이 올바르지 않습니다.`);
+  }
   variables[`ien-font-size-${name}`] = rem(style.fontSize);
   variables[`ien-line-height-${name}`] = rem(style.lineHeight);
   variables[`ien-font-weight-${name}`] = String(style.fontWeight);
@@ -343,6 +350,24 @@ variables["ien-button-press-easing"] = `linear(${Array.from({ length: spring.sam
   const frequency = Math.sqrt(spring.stiffness);
   return (1 - (1 + frequency * time) * Math.exp(-frequency * time)).toFixed(6);
 }).join(", ")})`;
+const springDuration = Number.parseFloat(webTokens.motion["spring-duration"]);
+for (const [name, value] of Object.entries(webTokens.motion)) {
+  if (typeof value === "string") {
+    variables[`ien-motion-${name}`] = value;
+    continue;
+  }
+  if (value.dampingRatio <= 0 || value.dampingRatio >= 1 || value.stiffness <= 0 || value.sampleCount < 2 || !Number.isFinite(springDuration)) {
+    throw new Error(`웹 스프링 ${name} 설정이 올바르지 않습니다.`);
+  }
+  const frequency = Math.sqrt(value.stiffness);
+  const damped = frequency * Math.sqrt(1 - value.dampingRatio ** 2);
+  variables[`ien-motion-${name}`] = `linear(${Array.from({ length: value.sampleCount }, (_, index) => {
+    if (index === value.sampleCount - 1) return 1;
+    const time = index / (value.sampleCount - 1) * springDuration / 1000;
+    const response = 1 - Math.exp(-value.dampingRatio * frequency * time) * (Math.cos(damped * time) + value.dampingRatio * frequency / damped * Math.sin(damped * time));
+    return response.toFixed(6);
+  }).join(", ")})`;
+}
 const semanticAliases = {
   "ien-neutral": "var(--ien-text-primary)",
   "ien-on-neutral": "var(--ien-surface-raised)",
@@ -352,7 +377,11 @@ function colorVariables(mode) {
   return {
     ...Object.fromEntries(Object.entries(extractColorTokens(mode)).map(([name, value]) => [`ien-${kebabCase(name)}`, value])),
     ...semanticAliases,
+    ...Object.fromEntries(Object.entries(webTokens.docs.syntax).filter(([name]) => name.startsWith(`${mode.toLowerCase()}-`)).map(([name, value]) => [`ien-syntax-${name.slice(mode.length + 1)}`, value])),
   };
+}
+for (const name of Object.keys(webTokens.docs.syntax).filter((name) => name.startsWith("light-"))) {
+  tailwindTheme[`color-ien-syntax-${name.slice(6)}`] = `var(--ien-syntax-${name.slice(6)})`;
 }
 for (const name of colorRoles) tailwindTheme[`color-ien-${kebabCase(name)}`] = `var(--ien-${kebabCase(name)})`;
 for (const name of Object.keys(webTokens.font)) tailwindTheme[`font-ien-${name}`] = `var(--ien-font-${name})`;
@@ -366,8 +395,10 @@ button.registryDependencies = ["@ienlab/tokens"];
 const tokensItem = {
   name: "tokens",
   type: "registry:theme",
-  title: "IEN 디자인 토큰",
+  title: "Design Tokens",
   description: "CMP의 색상·spacing·radius·typography·stroke·elevation·icon·motion·state와 웹 컴포넌트 토큰입니다.",
+  dependencies: ["cn"],
+  files: [{ path: "registry/ien-utils.ts", type: "registry:lib", target: "@lib/ien-utils.ts" }],
   cssVars: tokenCssVars,
 };
 registry.items = [...registry.items.filter((item) => item.name !== "tokens"), tokensItem];
@@ -394,6 +425,7 @@ const modulePaths = Object.fromEntries(Object.entries(registryModuleAliases(allI
 await writeFile(path.join(projectDirectory, "tsconfig.registry.json"), JSON.stringify({ compilerOptions: { paths: {
   ...modulePaths,
   "@/*": ["./web/*"],
+  "cn/config": ["./node_modules/cn/dist/config.d.ts"],
   "react": ["./node_modules/@types/react"],
   "react/*": ["./node_modules/@types/react/*"],
   "react-dom": ["./node_modules/@types/react-dom"],

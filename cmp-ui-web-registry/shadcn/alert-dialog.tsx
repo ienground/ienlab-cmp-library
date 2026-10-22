@@ -25,15 +25,52 @@
  */
 
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import { AlertDialog as AlertDialogPrimitive } from "radix-ui";
 
 import { Button } from "@/components/ui/button";
 
+type AlertDialogProps = React.ComponentProps<typeof AlertDialogPrimitive.Root> & {
+  visible?: boolean;
+  onDismissRequest?: () => void;
+  onClose?: () => void;
+};
+
+const AlertDialogDismissContext = React.createContext<() => void>(() => {});
+
 function AlertDialog({
+  open,
+  visible,
+  defaultOpen,
+  onOpenChange,
+  onDismissRequest,
+  onClose,
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
-  return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
+}: AlertDialogProps) {
+  const controlledOpen = visible ?? open;
+  const [internalOpen, setInternalOpen] = React.useState(defaultOpen ?? false);
+  const isOpenControlled = controlledOpen !== undefined;
+  const openState = isOpenControlled ? controlledOpen : internalOpen;
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!isOpenControlled) setInternalOpen(nextOpen);
+    onOpenChange?.(nextOpen);
+    if (!nextOpen) {
+      onDismissRequest?.();
+      onClose?.();
+    }
+  };
+  const requestDismiss = () => handleOpenChange(false);
+
+  return (
+    <AlertDialogDismissContext.Provider value={requestDismiss}>
+      <AlertDialogPrimitive.Root
+        data-slot="alert-dialog"
+        open={openState}
+        onOpenChange={handleOpenChange}
+        {...props}
+      />
+    </AlertDialogDismissContext.Provider>
+  );
 }
 
 function AlertDialogTrigger({
@@ -71,20 +108,77 @@ function AlertDialogOverlay({
 function AlertDialogContent({
   className,
   size = "default",
+  closeOnDimmerClick = true,
+  closeOnBackEvent = true,
+  onEntered,
+  onExited,
+  onEscapeKeyDown,
+  onDimmerClick,
+  onAnimationEnd,
+  onOpenAutoFocus,
+  onCloseAutoFocus,
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Content> & {
+}: Omit<React.ComponentProps<typeof AlertDialogPrimitive.Content>, "onAnimationEnd"> & {
   size?: "default" | "sm";
+  closeOnDimmerClick?: boolean;
+  closeOnBackEvent?: boolean;
+  onEntered?: () => void;
+  onExited?: () => void;
+  onDimmerClick?: React.PointerEventHandler<HTMLDivElement>;
+  onAnimationEnd?: React.AnimationEventHandler<HTMLDivElement>;
 }) {
+  const requestDismiss = React.useContext(AlertDialogDismissContext);
+  const exitedNotified = React.useRef(false);
+  const notifyEntered = () => {
+    onEntered?.();
+    exitedNotified.current = false;
+  };
+  const notifyExited = () => {
+    if (exitedNotified.current) return;
+    exitedNotified.current = true;
+    onExited?.();
+  };
+
   return (
     <AlertDialogPortal>
-      <AlertDialogOverlay />
+      <AlertDialogOverlay
+        onPointerDown={(event) => {
+          if (event.target !== event.currentTarget) return;
+          onDimmerClick?.(event);
+          if (closeOnDimmerClick && !event.defaultPrevented) requestDismiss();
+        }}
+      />
       <AlertDialogPrimitive.Content
         data-slot="alert-dialog-content"
         data-size={size}
         className={cn(
-          "group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 gap-ien-md rounded-ien-default bg-ien-surface-raised p-ien-md text-ien-text-primary ring-1 ring-ien-text-primary/10 duration-[var(--ien-motion-instant)] outline-none data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
+          "group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 gap-ien-md rounded-ien-default bg-ien-surface-raised p-ien-md text-ien-text-primary ring-1 ring-ien-text-primary/10 duration-[var(--ien-motion-instant)] outline-none motion-reduce:animate-none data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
           className,
         )}
+        onEscapeKeyDown={(event) => {
+          onEscapeKeyDown?.(event);
+          if (!closeOnBackEvent) event.preventDefault();
+        }}
+        onAnimationEnd={(event) => {
+          onAnimationEnd?.(event);
+          if (event.target !== event.currentTarget) return;
+          if (event.currentTarget.dataset.state === "open") notifyEntered();
+          if (event.currentTarget.dataset.state === "closed") notifyExited();
+        }}
+        onOpenAutoFocus={(event) => {
+          onOpenAutoFocus?.(event);
+          if (
+            onEntered &&
+            typeof window !== "undefined" &&
+            window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ) {
+            window.requestAnimationFrame(notifyEntered);
+          }
+        }}
+        onCloseAutoFocus={(event) => {
+          onCloseAutoFocus?.(event);
+          notifyExited();
+        }}
         {...props}
       />
     </AlertDialogPortal>
@@ -109,13 +203,17 @@ function AlertDialogHeader({
 
 function AlertDialogFooter({
   className,
+  buttonLayout = "horizontal",
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & {
+  buttonLayout?: "horizontal" | "vertical";
+}) {
   return (
     <div
       data-slot="alert-dialog-footer"
+      data-button-layout={buttonLayout}
       className={cn(
-        "-mx-ien-md -mb-ien-md flex flex-col-reverse gap-ien-xs rounded-b-ien-default border-t bg-ien-surface-variant/50 p-ien-md group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2 sm:flex-row sm:justify-end",
+        "-mx-ien-md -mb-ien-md flex gap-ien-xs rounded-b-ien-default border-t bg-ien-surface-variant/50 p-ien-md group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2 data-[button-layout=horizontal]:flex-col data-[button-layout=horizontal]:sm:flex-row data-[button-layout=vertical]:flex-col data-[button-layout=horizontal]:sm:justify-end",
         className,
       )}
       {...props}
@@ -175,13 +273,14 @@ function AlertDialogAction({
   className,
   variant = "fill",
   size = "default",
+  tone = variant === "fill" ? "brand" : "neutral",
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Action> &
-  Pick<React.ComponentProps<typeof Button>, "variant" | "size">) {
+  Pick<React.ComponentProps<typeof Button>, "variant" | "size" | "tone">) {
   return (
     <Button
       variant={variant}
-      tone={variant === "fill" ? "brand" : "neutral"}
+      tone={tone}
       size={size}
       asChild
     >
@@ -198,13 +297,14 @@ function AlertDialogCancel({
   className,
   variant = "line",
   size = "default",
+  tone = variant === "fill" ? "brand" : "neutral",
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Cancel> &
-  Pick<React.ComponentProps<typeof Button>, "variant" | "size">) {
+  Pick<React.ComponentProps<typeof Button>, "variant" | "size" | "tone">) {
   return (
     <Button
       variant={variant}
-      tone={variant === "fill" ? "brand" : "neutral"}
+      tone={tone}
       size={size}
       asChild
     >

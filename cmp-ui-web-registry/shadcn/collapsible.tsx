@@ -25,6 +25,7 @@
  */
 
 import { Collapsible as CollapsiblePrimitive } from "radix-ui";
+import { cn } from "@/lib/ien-utils";
 
 function Collapsible({
   ...props
@@ -44,11 +45,16 @@ function CollapsibleTrigger({
 }
 
 function CollapsibleContent({
+  className,
   ...props
 }: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleContent>) {
   return (
     <CollapsiblePrimitive.CollapsibleContent
       data-slot="collapsible-content"
+      className={cn(
+        "overflow-hidden duration-[var(--ien-motion-normal)] ease-[var(--ien-motion-standard-easing)] data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up motion-reduce:animate-none",
+        className,
+      )}
       {...props}
     />
   );

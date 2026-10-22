@@ -17,8 +17,10 @@ export type TimePickerDialogProps = Omit<
   "children" | "ref" | "className"
 > & {
   ref?: React.Ref<HTMLDivElement>;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open?: boolean;
+  visible?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
   value?: string;
   defaultValue?: string;
   initialHour?: number;
@@ -27,13 +29,18 @@ export type TimePickerDialogProps = Omit<
   onValueChange?: (value: string) => void;
   onConfirm?: (hour: number, minute: number) => void;
   onDismiss?: () => void;
+  onDismissRequest?: () => void;
+  onClose?: () => void;
   title?: React.ReactNode;
   description?: React.ReactNode;
   disabled?: boolean;
+  enabledDismiss?: boolean;
 };
 
 function TimePickerDialog({
   open,
+  visible,
+  defaultOpen,
   onOpenChange,
   value,
   defaultValue,
@@ -43,12 +50,21 @@ function TimePickerDialog({
   onValueChange,
   onConfirm,
   onDismiss,
+  onDismissRequest,
+  onClose,
   title = "시간 선택",
   description,
   disabled = false,
+  enabledDismiss = true,
   ref,
   ...contentProps
 }: TimePickerDialogProps) {
+  const controlledOpen = visible ?? open;
+  const [internalOpen, setInternalOpen] = React.useState(defaultOpen ?? false);
+  const isOpenControlled = controlledOpen !== undefined;
+  const openState = isOpenControlled ? controlledOpen : internalOpen;
+  const handleDismiss = onDismissRequest ?? onDismiss ?? onClose;
+
   if (
     initialHour < 0 ||
     initialHour > 23 ||
@@ -65,9 +81,14 @@ function TimePickerDialog({
   const committedTime = value ?? internalValue;
   const [draft, setDraft] = React.useState(committedTime);
   React.useEffect(() => {
-    if (open) setDraft(committedTime);
-  }, [open, committedTime]);
+    if (openState) setDraft(committedTime);
+  }, [openState, committedTime]);
   const validTime = /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(draft);
+  const updateOpen = (nextOpen: boolean, notifyDismiss = false) => {
+    if (!isOpenControlled) setInternalOpen(nextOpen);
+    onOpenChange?.(nextOpen);
+    if (!nextOpen && notifyDismiss) handleDismiss?.();
+  };
   const confirm = () => {
     if (!validTime || disabled) return;
     const [hour, minute] = draft.split(":").map(Number);
@@ -75,24 +96,22 @@ function TimePickerDialog({
     if (value === undefined) setInternalValue(confirmedTime);
     onValueChange?.(confirmedTime);
     onConfirm?.(hour, minute);
-    onOpenChange(false);
+    updateOpen(false);
   };
-  const dismiss = () => {
-    onOpenChange(false);
-    onDismiss?.();
-  };
+  const dismiss = () => updateOpen(false, true);
   return (
     <Dialog
-      open={open}
-      onOpenChange={(nextOpen) => {
-        onOpenChange(nextOpen);
-        if (!nextOpen) onDismiss?.();
-      }}
+      open={openState}
+      onOpenChange={(nextOpen) => updateOpen(nextOpen, !nextOpen)}
     >
       <DialogContent
         {...contentProps}
         ref={ref}
-        className="max-w-sm rounded-ien-xl border-ien-border bg-ien-surface text-ien-text-primary"
+        closeOnDimmerClick={contentProps.closeOnDimmerClick ?? true}
+        closeOnBackEvent={contentProps.closeOnBackEvent ?? true}
+        onEntered={contentProps.onEntered}
+        onExited={contentProps.onExited}
+        className="max-w-[360px] rounded-ien-xl border-ien-border bg-ien-surface-raised text-ien-text-primary"
       >
         <DialogHeader>
           <DialogTitle className="text-ien-title3">{title}</DialogTitle>
@@ -105,14 +124,22 @@ function TimePickerDialog({
           showSeconds={false}
           enabled={!disabled}
         />
-        <DialogFooter>
-          <Button type="button" variant="weak" tone="neutral" onClick={dismiss}>
+        <DialogFooter className="flex-row">
+          <Button
+            type="button"
+            variant="weak"
+            tone="neutral"
+            onClick={dismiss}
+            disabled={!enabledDismiss}
+            className="flex-1"
+          >
             취소
           </Button>
           <Button
             type="button"
             onClick={confirm}
             disabled={disabled || !validTime}
+            className="flex-1"
           >
             확인
           </Button>

@@ -28,7 +28,7 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export type QuestionnaireOption = {
   value: string;

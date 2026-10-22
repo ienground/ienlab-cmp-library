@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 function TypographyH1({ className, ...props }: React.ComponentProps<"h1">) {
   return (

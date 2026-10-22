@@ -175,6 +175,7 @@ export function sourceApi(source, filename) {
     }
   }
   return {
+    imports: file.program.body.filter((statement) => ["ImportDeclaration", "ExportNamedDeclaration", "ExportAllDeclaration"].includes(statement.type) && statement.source).map((statement) => statement.source.value),
     names: [...names],
     entries: entries.filter((entry) => names.has(entry.name)),
     client: file.program.directives.some(
@@ -193,7 +194,7 @@ export function createWebCatalog(items, cmpCatalog, repository) {
     .map((item) => {
       const meta = item.meta ?? {};
       const cmpIds = meta.cmpIds ?? (item.name === "button" ? ["button"] : []);
-      const cmp = cmpCatalog.find((component) => cmpIds.includes(component.id));
+      const cmp = cmpCatalog.find((component) => component.id === cmpIds[0]);
       const mainFile = item.files.find((file) => /\.tsx?$/.test(file.path));
       if (!mainFile)
         throw new Error(`${item.name}: 공개 컴포넌트 소스가 없습니다.`);
@@ -214,8 +215,8 @@ export function createWebCatalog(items, cmpCatalog, repository) {
       return {
         id: item.name,
         name:
-          item.title ??
           cmp?.name ??
+          item.title ??
           item.name
             .split("-")
             .map((word) => word[0].toUpperCase() + word.slice(1))

@@ -29,6 +29,14 @@ test(
           );
           const Preview = item.preview ? module.default : module.Button;
           assert.ok(Preview, `${item.id}: 프리뷰 export 누락`);
+          if (item.id === "button") {
+            const disabled = renderToString(React.createElement(module.Button, {
+              size: "large", state: { enabled: false }, display: "full", children: "버튼",
+            }));
+            assert.match(disabled, /disabled=""/);
+            assert.match(disabled, /data-display="full"/);
+            assert.doesNotMatch(disabled, /state="\[object Object\]"/);
+          }
           if (item.id === "card") {
             const { Card } = await server.ssrLoadModule(
               `${repository}/${item.source}`,

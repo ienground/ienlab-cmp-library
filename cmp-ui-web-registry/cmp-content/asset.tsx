@@ -1,11 +1,23 @@
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export type IenSemanticTone =
   "neutral" | "brand" | "success" | "warning" | "danger" | "info";
 
 export type IenAssetFrameSize = "small" | "medium" | "large" | "extraLarge";
 export type IenAssetFrameShape = "rounded" | "circle";
+export type IenAssetFrameAlignment =
+  | "topStart"
+  | "topCenter"
+  | "topEnd"
+  | "centerStart"
+  | "center"
+  | "centerEnd"
+  | "bottomStart"
+  | "bottomCenter"
+  | "bottomEnd"
+  | "start"
+  | "end";
 
 export interface IenAssetFrameProps extends React.ComponentPropsWithRef<"div"> {
   size?: IenAssetFrameSize;
@@ -13,7 +25,7 @@ export interface IenAssetFrameProps extends React.ComponentPropsWithRef<"div"> {
   shape?: IenAssetFrameShape;
   bordered?: boolean;
   contentDescription?: string;
-  contentAlignment?: "start" | "center" | "end";
+  contentAlignment?: IenAssetFrameAlignment;
 }
 
 const sizeClass: Record<IenAssetFrameSize, string> = {
@@ -31,12 +43,26 @@ export function IenAssetFrame({
   contentDescription,
   contentAlignment = "center",
   className,
+  style,
   ...props
 }: IenAssetFrameProps) {
   const contentColor =
     tone === "neutral" ? "var(--ien-text-primary)" : `var(--ien-${tone})`;
   const containerColor =
     tone === "neutral" ? "var(--ien-surface-weak)" : `var(--ien-${tone}-weak)`;
+  const alignment: Record<IenAssetFrameAlignment, string> = {
+    topStart: "start start",
+    topCenter: "start center",
+    topEnd: "start end",
+    centerStart: "center start",
+    center: "center center",
+    centerEnd: "center end",
+    bottomStart: "end start",
+    bottomCenter: "end center",
+    bottomEnd: "end end",
+    start: "start start",
+    end: "end end",
+  };
   return (
     <div
       className={cn(
@@ -44,11 +70,14 @@ export function IenAssetFrame({
         sizeClass[size],
         shape === "circle" ? "rounded-full" : "rounded-ien-lg",
         bordered && "border border-ien-border",
-        contentAlignment === "start" && "place-items-start",
-        contentAlignment === "end" && "place-items-end",
         className,
       )}
-      style={{ color: contentColor, backgroundColor: containerColor }}
+      style={{
+        placeItems: alignment[contentAlignment],
+        color: contentColor,
+        backgroundColor: containerColor,
+        ...style,
+      }}
       role={contentDescription ? "img" : undefined}
       aria-label={contentDescription}
       {...props}

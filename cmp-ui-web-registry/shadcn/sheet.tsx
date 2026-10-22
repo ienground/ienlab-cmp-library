@@ -26,7 +26,7 @@
 
 import * as React from "react";
 import { XIcon } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import { Dialog as SheetPrimitive } from "radix-ui";
 
 import { Button } from "@/components/ui/button";
@@ -74,14 +74,23 @@ function SheetContent({
   children,
   side = "right",
   showCloseButton = true,
+  showOverlay = true,
+  overlayClassName,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
   side?: "top" | "right" | "bottom" | "left";
   showCloseButton?: boolean;
+  showOverlay?: boolean;
+  overlayClassName?: string;
 }) {
   return (
     <SheetPortal>
-      <SheetOverlay />
+      <SheetOverlay
+        className={cn(
+          !showOverlay && "bg-transparent supports-backdrop-filter:backdrop-blur-none",
+          overlayClassName,
+        )}
+      />
       <SheetPrimitive.Content
         data-slot="sheet-content"
         data-side={side}
@@ -100,7 +109,7 @@ function SheetContent({
               size="icon-sm"
             >
               <XIcon />
-              <span className="sr-only">Close</span>
+              <span className="sr-only">닫기</span>
             </Button>
           </SheetPrimitive.Close>
         )}

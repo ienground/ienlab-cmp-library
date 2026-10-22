@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { ChevronRight } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export type IenListFooterBorder = "full" | "indented" | "none";
 
@@ -23,12 +23,15 @@ export const IenListFooterDefaults = {
     indent = 0,
     className,
   }: {
-    indent?: number;
+    indent?: number | string;
     className?: string;
   }) => (
     <div
       aria-hidden
-      className={cn("h-px bg-ien-border/50", className)}
+      className={cn(
+        "h-[var(--ien-stroke-hairline)] bg-ien-border/40",
+        className,
+      )}
       style={{ marginLeft: indent }}
     />
   ),
@@ -55,13 +58,15 @@ export interface IenListFooterProps extends Omit<
   hairline?: React.ReactNode;
   shadow?: React.ReactNode;
   asChild?: boolean;
+  shape?: React.CSSProperties["borderRadius"];
 }
 
 export function IenListFooter({
   children,
   border = "full",
-  textColor,
-  iconColor,
+  textColor = "var(--ien-brand)",
+  iconColor = "var(--ien-brand)",
+  shape,
   icon,
   hairline,
   shadow,
@@ -70,14 +75,16 @@ export function IenListFooter({
   onPointerUp,
   onPointerCancel,
   disabled,
+  style,
   ...props
 }: IenListFooterProps) {
   const [pressed, setPressed] = React.useState(false);
   const interactive = props.onClick != null && !disabled;
-  const line =
-    hairline ??
+  const line = hairline ??
     (border === "none" ? null : (
-      <IenListFooterDefaults.Hairline indent={border === "indented" ? 16 : 0} />
+      <IenListFooterDefaults.Hairline
+        indent={border === "indented" ? "var(--ien-spacing-md)" : 0}
+      />
     ));
   return (
     <div className="w-full">
@@ -86,12 +93,12 @@ export function IenListFooter({
         type="button"
         disabled={disabled || !interactive}
         className={cn(
-          "relative flex min-h-12 w-full items-center justify-center gap-1 overflow-hidden rounded-ien-none px-ien-md py-ien-sm text-ien-body2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ien-brand disabled:cursor-default disabled:opacity-70",
+          "relative flex min-h-12 w-full items-center justify-center gap-ien-xxs overflow-hidden rounded-ien-none px-ien-md py-ien-sm text-ien-body2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ien-brand disabled:cursor-default disabled:opacity-70",
           interactive &&
             "hover:bg-ien-surface-weak active:bg-ien-surface-variant",
           className,
         )}
-        style={{ color: textColor }}
+        style={{ ...style, color: textColor, borderRadius: shape }}
         onPointerDown={(event) => {
           setPressed(true);
           onPointerDown?.(event);

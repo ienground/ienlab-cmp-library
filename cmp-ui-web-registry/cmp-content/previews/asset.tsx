@@ -5,7 +5,13 @@ export default function Preview() {
       {(
         ["neutral", "brand", "success", "warning", "danger", "info"] as const
       ).map((tone) => (
-        <IenAssetFrame key={tone} tone={tone} size="large" bordered>
+        <IenAssetFrame
+          key={tone}
+          tone={tone}
+          size="large"
+          bordered
+          contentAlignment={tone === "brand" ? "bottomEnd" : "center"}
+        >
           {tone.slice(0, 1).toUpperCase()}
         </IenAssetFrame>
       ))}

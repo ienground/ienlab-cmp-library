@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight, ChevronDown, ChevronRight, X } from "lucide-react";
+import { ArrowRight, ChevronRight, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export type IenTopBarTitleAlignment = "start" | "center";
 export type IenTopRightVerticalAlign = "center" | "end";
@@ -57,7 +57,7 @@ export function IenTopBar({
   isScrollTint = false,
   isCenterAligned,
   mode = "static",
-  contentPadding = "var(--ien-spacing-xxs) var(--ien-spacing-md)",
+  contentPadding = "calc(var(--ien-spacing-xxs) + var(--ien-spacing-xxxs)) var(--ien-spacing-md)",
   windowInsets = "safe",
   floatingSlots = true,
   className,
@@ -65,6 +65,8 @@ export function IenTopBar({
   ...props
 }: IenTopBarProps) {
   const centered = isCenterAligned ?? titleAlignment === "center";
+  const resolvedContentHeight =
+    typeof contentHeight === "number" ? `${contentHeight}px` : contentHeight;
   return (
     <header
       data-floating-slots={floatingSlots}
@@ -76,11 +78,14 @@ export function IenTopBar({
         className,
       )}
       style={{
-        minHeight: contentHeight,
+        minHeight:
+          windowInsets === "safe"
+            ? `calc(${resolvedContentHeight} + env(safe-area-inset-top))`
+            : contentHeight,
         padding: contentPadding,
         paddingTop:
           windowInsets === "safe"
-            ? "max(var(--ien-spacing-xxs), env(safe-area-inset-top))"
+            ? "calc(var(--ien-spacing-xxs) + var(--ien-spacing-xxxs) + env(safe-area-inset-top))"
             : undefined,
         backgroundColor: containerColor,
         ...style,
@@ -106,7 +111,13 @@ export function IenTopBar({
         )}
       </div>
       {actions != null && (
-        <div className="z-[1] ml-auto flex shrink-0 items-center gap-ien-xxs">
+        <div
+          className={cn(
+            "z-[1] ml-auto flex shrink-0 items-center gap-ien-xxs",
+            floatingSlots &&
+              "rounded-full bg-ien-surface/90 p-ien-xxs shadow-[0_var(--ien-elevation-floating)_calc(var(--ien-elevation-floating)*2)_rgb(0_0_0/0.12)] transition-transform active:scale-[.96] motion-reduce:transition-none motion-reduce:active:scale-100",
+          )}
+        >
           {actions}
         </div>
       )}
@@ -160,15 +171,15 @@ export function IenTop({
   subtitle,
   navigation,
   actions,
-  upperGap = "var(--ien-spacing-sm)",
-  lowerGap = "var(--ien-spacing-sm)",
+  upperGap = "var(--ien-spacing-xl)",
+  lowerGap = "var(--ien-spacing-xl)",
   upper,
   lower,
   subtitleTop,
   subtitleBottom,
   right,
   rightVerticalAlign = "center",
-  contentPadding = "0 var(--ien-spacing-md)",
+  contentPadding = "0 var(--ien-spacing-xl)",
   className,
   style,
   ...props
@@ -191,7 +202,7 @@ export function IenTop({
           upper != null || navigation != null ? "mt-ien-md" : "",
         )}
       >
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 [&>*+*]:mt-ien-xxs">
           {subtitleTop}
           <h1 className="text-ien-title1 font-bold">{title}</h1>
           {subtitleBottom ??
@@ -285,7 +296,7 @@ export function IenTopSubtitleParagraph({
     size === "large"
       ? "text-ien-body1"
       : size === "medium"
-        ? "text-ien-body2"
+        ? "text-ien-label1"
         : "text-ien-caption";
   return (
     <p
@@ -331,19 +342,19 @@ export function IenTopTitleSelector({
   style,
   ...props
 }: IenTopSelectorProps) {
-  const Icon = (selectorType ?? type ?? "arrow") === "clear" ? X : ChevronDown;
+  const Icon = (selectorType ?? type ?? "arrow") === "clear" ? X : ChevronRight;
   return (
     <button
       type="button"
       className={cn(
-        "inline-flex items-center gap-1 text-ien-title2 hover:text-ien-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ien-brand",
+        "inline-flex items-center gap-ien-xxs py-ien-xxs text-ien-title2 font-bold hover:text-ien-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ien-brand",
         className,
       )}
       style={{ color, fontWeight, ...style }}
       {...props}
     >
       {text}
-      <Icon aria-hidden className="size-4" />
+      <Icon aria-hidden className="size-[22px]" />
     </button>
   );
 }
@@ -358,31 +369,37 @@ export function IenTopSubtitleSelector({
   type,
   size = "large",
   color = "var(--ien-text-secondary)",
-  fontWeight = "medium",
+  fontWeight,
   className,
   style,
   ...props
 }: IenTopSubtitleSelectorProps) {
-  const Icon = (selectorType ?? type ?? "arrow") === "clear" ? X : ChevronDown;
+  const Icon = (selectorType ?? type ?? "arrow") === "clear" ? X : ChevronRight;
   const textSize =
     size === "large"
       ? "text-ien-body1"
       : size === "medium"
         ? "text-ien-body2"
         : "text-ien-caption";
+  const iconSize =
+    size === "large" ? "size-[18px]" : size === "medium" ? "size-4" : "size-[14px]";
   return (
     <button
       type="button"
       className={cn(
-        "inline-flex items-center gap-1 hover:text-ien-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ien-brand",
+        "inline-flex items-center gap-ien-xxs py-ien-xxs hover:text-ien-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ien-brand",
         textSize,
         className,
       )}
-      style={{ color, fontWeight, ...style }}
+      style={{
+        color,
+        fontWeight: fontWeight ?? (size === "large" ? 500 : 400),
+        ...style,
+      }}
       {...props}
     >
       {text}
-      <Icon aria-hidden className="size-3.5" />
+      <Icon aria-hidden className={iconSize} />
     </button>
   );
 }
@@ -398,16 +415,13 @@ export interface IenTopTextButtonProps extends Omit<
   state?: IenButtonState;
 }
 
-const textButtonSize: Record<
-  IenTextButtonSize,
-  "xs" | "sm" | "default" | "lg"
-> = {
-  xSmall: "xs",
-  small: "sm",
-  medium: "default",
-  large: "lg",
-  xLarge: "lg",
-  xxLarge: "lg",
+const textButtonSize: Record<IenTextButtonSize, string> = {
+  xSmall: "h-auto min-h-7 min-w-0 gap-[2px] px-ien-xxs py-ien-xxs text-ien-caption [&_svg]:size-2.5",
+  small: "h-auto min-h-8 min-w-0 gap-[2px] px-[5px] py-[5px] text-ien-label2 [&_svg]:size-3",
+  medium: "h-auto min-h-9 min-w-0 gap-[2px] px-[6px] py-[6px] text-ien-label1 [&_svg]:size-3.5",
+  large: "h-auto min-h-10 min-w-0 gap-[3px] px-[6.5px] py-[6.5px] text-ien-body2 [&_svg]:size-4",
+  xLarge: "h-auto min-h-11 min-w-0 gap-[3px] px-ien-xs py-ien-xs text-ien-body1 [&_svg]:size-[18px]",
+  xxLarge: "h-auto min-h-12 min-w-0 gap-[3px] px-ien-xs py-ien-xs text-ien-title3 [&_svg]:size-5",
 };
 
 export function IenTopTitleTextButton({
@@ -421,19 +435,20 @@ export function IenTopTitleTextButton({
 }: IenTopTextButtonProps) {
   return (
     <Button
-      variant={variant === "underline" ? "line" : "ghost"}
+      variant="ghost"
       tone={colorTone}
-      size={textButtonSize[size]}
+      size="xs"
       disabled={state?.enabled === false || state?.loading}
       aria-busy={state?.loading}
       className={cn(
-        "text-ien-title2",
+        textButtonSize[size],
         variant === "underline" && "underline underline-offset-4",
         className,
       )}
       {...props}
     >
       {text}
+      {variant === "arrow" && <ChevronRight aria-hidden />}
     </Button>
   );
 }
@@ -449,20 +464,20 @@ export function IenTopSubtitleTextButton({
 }: IenTopTextButtonProps) {
   return (
     <Button
-      variant={variant === "underline" ? "line" : "ghost"}
+      variant="ghost"
       tone={colorTone}
-      size={textButtonSize[size]}
+      size="xs"
       disabled={state?.enabled === false || state?.loading}
       aria-busy={state?.loading}
       className={cn(
-        "text-ien-body2",
+        textButtonSize[size],
         variant === "underline" && "underline underline-offset-4",
         className,
       )}
       {...props}
     >
       {text}
-      {variant === "arrow" && <ChevronRight aria-hidden className="size-3" />}
+      {variant === "arrow" && <ChevronRight aria-hidden />}
     </Button>
   );
 }
@@ -475,12 +490,13 @@ export function IenTopSubtitleBadges({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-wrap items-center gap-1", className)}>
+    <div className={cn("flex flex-wrap items-center gap-ien-xxs", className)}>
       {badges.map((badge, index) => (
         <Badge
           key={`${badge.text}-${index}`}
           variant={badge.variant ?? "weak"}
           tone={badge.tone ?? "brand"}
+          size="small"
         >
           {badge.text}
         </Badge>
@@ -516,7 +532,7 @@ export function IenTopLowerButton({
       tone={tone}
       disabled={state?.enabled === false || state?.loading}
       aria-busy={state?.loading}
-      className={cn("min-h-11", className)}
+      className={className}
       {...props}
     >
       {text}
@@ -538,7 +554,7 @@ export function IenTopLowerCTA({
 }: IenTopLowerCTAProps) {
   return (
     <div
-      className={cn("flex w-full items-center gap-ien-xs", className)}
+      className={cn("flex w-full items-center gap-ien-sm", className)}
       {...props}
     >
       {leftButton}
@@ -613,7 +629,7 @@ export function IenTopRightAssetContent({
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center gap-ien-xs self-center",
+        "flex min-h-[60px] min-w-[60px] shrink-0 items-center justify-center gap-ien-xs self-center",
         className,
       )}
       {...props}
@@ -630,7 +646,7 @@ export function IenTopUpperAssetContent({
 }: React.ComponentPropsWithRef<"div">) {
   return (
     <div
-      className={cn("mb-ien-md flex items-center gap-ien-xs", className)}
+      className={cn("mb-ien-md flex min-h-[72px] min-w-[72px] items-center gap-ien-xs", className)}
       {...props}
     >
       {children}

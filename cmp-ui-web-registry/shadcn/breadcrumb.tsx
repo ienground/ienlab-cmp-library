@@ -23,7 +23,7 @@
  */
 import * as React from "react";
 import { ChevronRightIcon, MoreHorizontalIcon } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import { Slot } from "radix-ui";
 
 function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {

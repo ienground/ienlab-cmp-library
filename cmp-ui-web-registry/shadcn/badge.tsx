@@ -23,7 +23,7 @@
  */
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 import { Slot } from "radix-ui";
 
 const badgeVariants = cva(

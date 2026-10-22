@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 export interface IenSurfaceProps extends React.ComponentPropsWithRef<"div"> {
   color?: string;
@@ -265,7 +265,7 @@ export function IenLoaderPrimitive({
       aria-label={label}
       role="status"
       className={cn(
-        "inline-block animate-spin rounded-full border-r-transparent",
+        "inline-block animate-spin rounded-full border-r-transparent motion-reduce:animate-none",
         className,
       )}
       style={{

@@ -32,7 +32,7 @@ import {
   XIcon,
 } from "lucide-react";
 import { Toast as ToastPrimitive } from "radix-ui";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 const toneClasses = {
   neutral: "border-ien-border bg-ien-surface-raised text-ien-text-primary",
@@ -75,7 +75,7 @@ function Toast({
       data-slot="toast"
       data-tone={tone}
       className={cn(
-        "group pointer-events-auto relative flex w-full items-start justify-between gap-ien-md overflow-hidden rounded-ien-default border p-ien-md shadow-xl outline-none transition-all data-[state=closed]:animate-out data-[state=open]:animate-in data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=cancel]:translate-x-0 data-[swipe=end]:animate-out",
+        "group pointer-events-auto relative flex w-full items-start justify-between gap-ien-md overflow-hidden rounded-ien-default border p-ien-md shadow-xl outline-none duration-[var(--ien-motion-normal)] ease-[var(--ien-motion-standard-easing)] transition-transform data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-2 data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=end]:animate-out motion-reduce:animate-none motion-reduce:transition-none",
         toneClasses[tone],
         className,
       )}
@@ -124,6 +124,7 @@ function ToastAction({
 }
 function ToastClose({
   className,
+  children,
   ...props
 }: React.ComponentProps<typeof ToastPrimitive.Close>) {
   return (
@@ -131,12 +132,12 @@ function ToastClose({
       data-slot="toast-close"
       aria-label="닫기"
       className={cn(
-        "absolute top-ien-xs right-ien-xs rounded-ien-sm p-ien-xxs opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current",
+        "shrink-0 rounded-ien-sm p-ien-xxs opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current",
         className,
       )}
       {...props}
     >
-      <XIcon aria-hidden="true" className="size-4" />
+      {children ?? <XIcon aria-hidden="true" className="size-4" />}
     </ToastPrimitive.Close>
   );
 }
@@ -207,39 +208,52 @@ function IenToastHost({
   state: IenToastState;
   className?: string;
 }) {
-  React.useEffect(() => {
-    const toast = state.currentToast;
-    if (!toast || toast.duration === "indefinite") return;
-    const timeout = window.setTimeout(
-      state.dismiss,
-      toast.duration === "long" ? 10000 : 4000,
-    );
-    return () => window.clearTimeout(timeout);
-  }, [state.currentToast, state.dismiss]);
   const toast = state.currentToast;
+  const [lastToast, setLastToast] = React.useState(toast);
+  if (toast && toast !== lastToast) setLastToast(toast);
+  const displayedToast = toast ?? lastToast;
   return (
-    <div
-      data-slot="ien-toast-host"
-      aria-live="polite"
-      aria-relevant="additions text"
-      className={cn(
-        "pointer-events-none fixed inset-x-0 bottom-ien-none z-[100] flex justify-center p-ien-lg",
-        className,
+    <ToastProvider>
+      {displayedToast && (
+        <Toast
+          key={displayedToast.id}
+          open={toast !== null}
+          onOpenChange={(open) => {
+            if (!open) state.dismiss();
+          }}
+          duration={
+            displayedToast.duration === "indefinite"
+              ? Infinity
+              : displayedToast.duration === "long"
+                ? 10000
+                : 4000
+          }
+          tone={displayedToast.tone}
+          className="items-center py-ien-sm"
+          asChild
+        >
+          <IenToast data={displayedToast} onDismiss={state.dismiss} />
+        </Toast>
       )}
-    >
-      {toast && <IenToast data={toast} onDismiss={state.dismiss} />}
-    </div>
+      <ToastViewport
+        data-slot="ien-toast-host"
+        className={cn(
+          "pointer-events-none inset-x-0 bottom-ien-none mx-auto w-full max-w-[35rem] items-center p-ien-lg",
+          className,
+        )}
+      />
+    </ToastProvider>
   );
 }
 function IenToast({
   data,
   onDismiss,
   className,
+  ...props
 }: {
   data: IenToastData;
   onDismiss?: () => void;
-  className?: string;
-}) {
+} & React.ComponentPropsWithRef<"div">) {
   const Icon =
     data.tone === "success"
       ? CheckIcon
@@ -257,6 +271,7 @@ function IenToast({
         toneClasses[data.tone],
         className,
       )}
+      {...props}
     >
       <Icon aria-hidden="true" className="size-4 shrink-0" />
       <span className="flex-1 text-ien-body2">{data.message}</span>

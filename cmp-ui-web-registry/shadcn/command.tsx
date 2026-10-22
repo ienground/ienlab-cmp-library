@@ -27,7 +27,7 @@
 import * as React from "react";
 import { CheckIcon, SearchIcon } from "lucide-react";
 import { Command as CommandPrimitive } from "cmdk";
-import { cn } from "cn";
+import { cn } from "@/lib/ien-utils";
 
 import {
   Dialog,
