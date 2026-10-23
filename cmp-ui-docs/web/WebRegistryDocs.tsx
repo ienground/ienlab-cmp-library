@@ -103,7 +103,7 @@ export function WebRegistryDocs({
             </PreviewBoundary>
           </div>
           <CodeExample label="사용 예시" code={item.example} />
-          <details>
+          <details className="web-docs-disclosure">
             <summary>프리뷰 전체 코드 · React / Next.js</summary>
             <Suspense
               fallback={<p role="status">예시 코드를 불러오는 중입니다.</p>}
@@ -127,21 +127,17 @@ export function WebRegistryDocs({
           />
           <CodeExample label="컴포넌트 설치" code={item.installCommand} />
           <p>
-            React · Next.js 프로젝트에 shadcn/ui를 초기화한 뒤 설치합니다. IEN
-            토큰과 아래 내부 의존성은 CLI가 함께 설치합니다.
+            React · Next.js 프로젝트에 shadcn/ui를 초기화한 뒤 설치합니다.
+            REUI 원본 컴포넌트와 아래 내부 의존성은 CLI가 함께 설치합니다.
           </p>
           <ul>
             {item.dependencies.map((name) => (
               <li key={name}>
-                <Link
-                  to={
-                    name === "@ienlab/tokens"
-                      ? "/web/button/registry"
-                      : `/web/${name.replace("@ienlab/", "")}/registry`
-                  }
-                >
-                  {name}
-                </Link>
+                {webCatalog.some((entry) => entry.id === name.replace("@ienlab/", "")) ? (
+                  <Link to={`/web/${name.replace("@ienlab/", "")}/registry`}>{name}</Link>
+                ) : (
+                  <code>{name}</code>
+                )}
               </li>
             ))}
           </ul>
@@ -151,7 +147,7 @@ export function WebRegistryDocs({
           <Suspense fallback={<p role="status">소스를 불러오는 중입니다.</p>}>
             {Source && <Source />}
           </Suspense>
-          <details>
+          <details className="web-docs-disclosure">
             <summary>레지스트리 JSON</summary>
             <CodeExample
               label="레지스트리 정의"
@@ -173,7 +169,7 @@ export function WebRegistryDocs({
         <h3>공개 API</h3>
         <p className="break-words text-sm">{item.api.join(", ")}</p>
         {item.apiEntries.map((entry) => (
-          <details key={entry.name}>
+          <details className="web-docs-disclosure" key={entry.name}>
             <summary>{entry.name}</summary>
             <pre className="api-signature" tabIndex={0}>
               <code>{entry.signature}</code>

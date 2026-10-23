@@ -13,24 +13,6 @@ import {
 import { catalog } from "../web/catalog.js";
 
 const repository = fileURLToPath(new URL("../../", import.meta.url));
-const officialComponents =
-  `accordion alert alert-dialog aspect-ratio attachment avatar badge breadcrumb bubble button button-group calendar card carousel chart checkbox code-block collapsible combobox command context-menu data-table date-picker dialog direction drawer dropdown-menu empty field hover-card input input-group input-otp item kbd label marker menubar message message-scroller native-select navigation-menu pagination popover progress questionnaire radio-group resizable scroll-area select separator sheet sidebar skeleton slider spinner switch table tabs textarea toast toggle toggle-group tooltip trace typography form sonner`.split(
-    " ",
-  );
-const consolidatedComponents = {
-  input: "text-field",
-  textarea: "text-area",
-  tabs: "tab",
-  "radio-group": "radio-button",
-  progress: "progress-bar",
-  separator: "border",
-  sheet: "bottom-sheet",
-  drawer: "bottom-sheet",
-  toast: "snackbar",
-  sonner: "snackbar",
-  spinner: "loader",
-};
-
 async function fixture(run) {
   const directory = await mkdtemp(path.join(tmpdir(), "ien-registry-test-"));
   try {
@@ -127,157 +109,60 @@ test("포함 파일이 저장소 밖으로 벗어나지 않게 한다", async ()
   });
 });
 
-test("shadcn 기능과 CMP 문서의 모든 컴포넌트가 대표 항목으로 제공된다", async () => {
-  const items = await collectRegistry(
-    path.join(repository, "registry.json"),
-    repository,
-  );
+test("REUI 기본 컴포넌트와 필수 의존성을 하나의 레지스트리로 제공한다", async () => {
+  const items = await collectRegistry(path.join(repository, "registry.json"), repository);
   validateRegistry(items);
-  const names = new Set(items.map((item) => item.name));
-  assert.deepEqual(
-    officialComponents.filter(
-      (name) => !names.has(consolidatedComponents[name] ?? name),
-    ),
-    [],
-  );
-  const covered = new Set(
-    items.flatMap(
-      (item) => item.meta?.cmpIds ?? (item.name === "button" ? ["button"] : []),
-    ),
-  );
-  assert.deepEqual(
-    catalog.filter((item) => !covered.has(item.id)).map((item) => item.id),
-    [],
-  );
-  for (const item of items.filter(
-    (item) => item.type === "registry:ui" && item.name !== "button",
-  )) {
-    assert.ok(item.meta?.example, `${item.name} 사용 예시가 없습니다.`);
-    assert.ok(item.meta?.preview, `${item.name} 실제 프리뷰가 없습니다.`);
-    assert.ok(
-      (
-        await readFile(
-          path.resolve(path.dirname(item.manifestPath), item.meta.preview),
-          "utf8",
-        )
-      ).includes("export default"),
-      `${item.name} 기본 프리뷰가 없습니다.`,
-    );
+  const expected = "alert autocomplete badge cascader code-block color-picker data-grid date-selector emoji-picker event-calendar file-type filters frame gantt icon-stack icon-tile kanban number-field phone-input rating scrollspy signature-pad sortable stepper time-picker timeline tree".split(" ");
+  const components = items.filter((item) => item.meta?.category === "REUI");
+  assert.deepEqual(components.map((item) => item.name).sort(), expected.sort());
+  assert.ok(items.some((item) => item.name === "button"));
+  assert.ok(items.some((item) => item.name === "use-mobile"));
+  assert.ok(items.every((item) => item.name !== "tokens"));
+  for (const item of components) {
+    assert.match(item.meta.upstream.revision, /^[a-f0-9]{40}$/);
+    assert.equal(item.meta.upstream.style, "radix-nova");
+    assert.ok(item.meta.exports.every((name) => typeof name === "string"));
   }
 });
 
-test("기능이 겹치는 설치 항목은 CMP 이름 아래로 통합한다", async () => {
-  const items = await collectRegistry(
-    path.join(repository, "registry.json"),
-    repository,
-  );
-  const names = new Set(items.map((item) => item.name));
-  for (const [duplicate, canonical] of Object.entries(consolidatedComponents)) {
-    assert.equal(
-      names.has(duplicate),
-      false,
-      `${duplicate}: 중복 등록이 남아 있습니다.`,
-    );
-    assert.equal(
-      names.has(canonical),
-      true,
-      `${canonical}: 대표 항목이 없습니다.`,
-    );
-  }
-  const snackbar = items.find((item) => item.name === "snackbar");
-  assert.deepEqual(snackbar.meta.cmpIds, ["snackbar", "toast"]);
-  assert.ok(snackbar.files.some((file) => file.target === "@ui/toast.tsx"));
-  assert.ok(items.every((item) => !item.dependencies?.includes("sonner")));
-});
-
-test("웹 컴포넌트 이름은 CMP 이름과 일치하고 한글 제목을 사용하지 않는다", async () => {
-  const items = await collectRegistry(
-    path.join(repository, "registry.json"),
-    repository,
-  );
+test("모든 공개 웹 컴포넌트에 REUI 프리뷰와 올바른 설치 경로를 연결한다", async () => {
+  const items = await collectRegistry(path.join(repository, "registry.json"), repository);
   const web = createWebCatalog(items, catalog, repository);
+  assert.equal(web.length, items.filter((item) => item.type === "registry:ui").length);
   for (const item of web) {
-    assert.doesNotMatch(item.name, /[가-힣]/u, item.id);
-    const cmp = catalog.find((component) => component.id === item.cmpId);
-    if (cmp) {
-      assert.equal(item.name, cmp.name, item.id);
-      assert.equal(
-        items.find((entry) => entry.name === item.id).title,
-        cmp.name,
-        item.id,
-      );
-    }
+    assert.ok(item.preview, `${item.id}: 프리뷰 누락`);
+    assert.ok(item.example, `${item.id}: 사용 예시 누락`);
+    assert.ok(item.api.length > 0, `${item.id}: 공개 API 누락`);
+    assert.equal(item.cmpId, "");
+    assert.equal(item.installCommand, `npx shadcn@latest add @ienlab/${item.id}`);
+    assert.match(await readFile(path.join(repository, item.preview), "utf8"), /export default/);
   }
-  const bottomBar = items.find((item) => item.name === "bottom-bar");
-  const renamed = createWebCatalog(
-    [{ ...bottomBar, title: "하단 바" }],
-    catalog,
-    repository,
-  );
-  assert.equal(renamed[0].name, "BottomBar");
+  assert.equal(web.find((item) => item.id === "alert").packageName, "@/components/reui/alert");
+  assert.equal(web.find((item) => item.id === "button").packageName, "@/components/ui/button");
 });
 
-test("문서 카탈로그가 실제 소스·CMP 비교·설치 명령을 제공한다", async () => {
-  const items = await collectRegistry(
-    path.join(repository, "registry.json"),
-    repository,
-  );
-  const web = createWebCatalog(items, catalog, repository);
-  const button = web.find((item) => item.id === "button");
-  assert.ok(button);
-  assert.equal(button.installCommand, "npx shadcn@latest add @ienlab/button");
-  assert.equal(button.cmpId, "button");
-  assert.match(button.source, /ien-button\.tsx$/);
-  assert.ok(web.every((item) => item.api.length > 0));
-});
-
-test("웹 타이포그래피는 CMP 단계 이름과 웹 글자 크기를 사용한다", async () => {
-  const tokens = JSON.parse(await readFile(path.join(repository, "cmp-ui-web-registry/tokens.json"), "utf8"));
-  assert.deepEqual(tokens.typography.body2, { fontSize: 14, lineHeight: 20, fontWeight: 400 });
-  assert.deepEqual(tokens.typography.title1, { fontSize: 30, lineHeight: 36, fontWeight: 600 });
-  assert.equal(tokens.button.radius, "var(--ien-radius-default)");
-  assert.equal(tokens.control["radius-base"], "var(--ien-radius-default)");
-});
-
-test("설치되는 모든 소스가 외부 패키지와 내부 컴포넌트 의존성을 선언한다", async () => {
-  const items = await collectRegistry(
-    path.join(repository, "registry.json"),
-    repository,
-  );
+test("설치되는 소스가 내부 파일과 외부 패키지 의존성을 빠짐없이 선언한다", async () => {
+  const items = await collectRegistry(path.join(repository, "registry.json"), repository);
   const { registryModuleAliases } = await import("./registry.mjs");
   const aliases = registryModuleAliases(items);
-  const owners = new Map(
-    items.flatMap((item) =>
-      item.files.map((file) => [file.absolutePath, item.name]),
-    ),
-  );
+  const owners = new Map(items.flatMap((item) => item.files.map((file) => [file.absolutePath, item.name])));
   const problems = [];
-  for (const item of items)
-    for (const file of item.files) {
-      for (const name of sourceApi(file.content, file.absolutePath).imports) {
-        if (name.startsWith(".")) continue;
-        if (name.startsWith("@/")) {
-          const owner = owners.get(aliases[name]);
-          if (!owner) problems.push(`${item.name}: ${name} 설치 대상 없음`);
-          else if (
-            owner !== item.name &&
-            !item.registryDependencies?.includes(`@ienlab/${owner}`)
-          )
-            problems.push(`${item.name}: @ienlab/${owner} 의존성 누락`);
-        } else {
-          const dependency = name.startsWith("@")
-            ? name.split("/").slice(0, 2).join("/")
-            : name.split("/")[0];
-          if (
-            !["react", "react-dom"].includes(dependency) &&
-            !item.dependencies?.some(
-              (entry) =>
-                entry === dependency || entry.startsWith(`${dependency}@`),
-            )
-          )
-            problems.push(`${item.name}: ${dependency} 패키지 누락`);
-        }
+  for (const item of items) for (const file of item.files) {
+    assert.doesNotMatch(file.content, /@\/app\/|@\/registry\/|@\/lib\/ien-utils|@ienlab\/tokens/, file.path);
+    assert.doesNotMatch(file.path, /^(?:cmp-content|cmp-interactive|shadcn|registry)\//);
+    for (const name of sourceApi(file.content, file.absolutePath).imports) {
+      if (name.startsWith(".")) continue;
+      if (name.startsWith("@/")) {
+        const owner = owners.get(aliases[name]);
+        if (!owner) problems.push(`${item.name}: ${name} 설치 대상 없음`);
+        else if (owner !== item.name && !item.registryDependencies?.includes(`@ienlab/${owner}`)) problems.push(`${item.name}: @ienlab/${owner} 의존성 누락`);
+      } else {
+        const dependency = name.startsWith("@") ? name.split("/").slice(0, 2).join("/") : name.split("/")[0];
+        if (!["react", "react-dom"].includes(dependency) && !item.dependencies?.some((entry) => entry === dependency || entry.startsWith(`${dependency}@`))) problems.push(`${item.name}: ${dependency} 패키지 누락`);
       }
     }
+  }
   assert.deepEqual(problems, []);
+  const calendar = items.find((item) => item.name === "calendar");
+  assert.ok(calendar.dependencies.some((entry) => entry.startsWith("react-day-picker@^9.")));
 });

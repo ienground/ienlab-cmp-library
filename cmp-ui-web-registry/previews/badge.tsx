@@ -1,0 +1,6 @@
+import { Badge } from "@/components/reui/badge"
+
+export function Pattern() {
+  return <Badge>Badge</Badge>
+}
+export default Pattern;

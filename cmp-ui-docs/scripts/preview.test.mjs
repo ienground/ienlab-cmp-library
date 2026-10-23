@@ -8,57 +8,20 @@ import { catalog } from "../web/catalog.js";
 import { fileURLToPath } from "node:url";
 
 const repository = fileURLToPath(new URL("../../", import.meta.url));
-test(
-  "모든 컴포넌트 프리뷰를 브라우저 전역 없이 서버 렌더링한다",
-  { timeout: 120000 },
-  async (context) => {
-    const server = await createServer({
-      server: { middlewareMode: true, hmr: false },
-      appType: "custom",
-    });
-    try {
-      const items = createWebCatalog(
-        await collectRegistry(`${repository}/registry.json`, repository),
-        catalog,
-        repository,
-      );
-      for (const item of items) {
-        await context.test(item.id, async () => {
-          const module = await server.ssrLoadModule(
-            `${repository}/${item.preview || item.source}`,
-          );
-          const Preview = item.preview ? module.default : module.Button;
-          assert.ok(Preview, `${item.id}: 프리뷰 export 누락`);
-          if (item.id === "button") {
-            const disabled = renderToString(React.createElement(module.Button, {
-              size: "large", state: { enabled: false }, display: "full", children: "버튼",
-            }));
-            assert.match(disabled, /disabled=""/);
-            assert.match(disabled, /data-display="full"/);
-            assert.doesNotMatch(disabled, /state="\[object Object\]"/);
-          }
-          if (item.id === "card") {
-            const { Card } = await server.ssrLoadModule(
-              `${repository}/${item.source}`,
-            );
-            assert.equal(
-              Card({}).props.onClick,
-              undefined,
-              "정적 서버 카드에 이벤트 핸들러를 생성하면 안 됩니다.",
-            );
-            assert.equal(Card({}).props.onKeyDown, undefined);
-          }
-          const html = renderToString(
-            React.createElement(
-              Preview,
-              item.preview ? undefined : { children: "버튼" },
-            ),
-          );
-          assert.ok(html.length > 0, `${item.id}: 빈 프리뷰`);
-        });
-      }
-    } finally {
-      await server.close();
+test("모든 REUI 공식 프리뷰를 브라우저 전역 없이 서버 렌더링한다", { timeout: 120000 }, async (context) => {
+  const server = await createServer({ server: { middlewareMode: true, hmr: false }, appType: "custom" });
+  try {
+    const items = createWebCatalog(await collectRegistry(`${repository}/registry.json`, repository), catalog, repository);
+    for (const item of items) {
+      await context.test(item.id, async () => {
+        assert.ok(item.preview, `${item.id}: 프리뷰 경로 누락`);
+        const module = await server.ssrLoadModule(`${repository}/${item.preview}`);
+        assert.ok(module.default, `${item.id}: 프리뷰 export 누락`);
+        const html = renderToString(React.createElement(module.default));
+        assert.ok(html.length > 0, `${item.id}: 빈 프리뷰`);
+      });
     }
-  },
-);
+  } finally {
+    await server.close();
+  }
+});

@@ -7,28 +7,74 @@
 
 @custom-variant dark (&:is(.dark *));
 
-.web-button-controls {
-  display: grid;
-  gap: var(--ien-spacing-md);
-}
-
-.web-button-controls legend {
-  margin-bottom: var(--ien-spacing-xs);
-  font-size: var(--ien-font-size-label1);
-  font-weight: var(--docs-font-weight-medium);
-}
-
-.web-button-stage {
-  min-height: var(--docs-layout-web-preview-height);
-  align-items: center;
-  justify-content: center;
-  gap: var(--ien-spacing-md);
-}
-
 .web-code-example {
   display: grid;
   gap: var(--ien-spacing-xs);
   min-width: 0;
+}
+
+.web-docs-disclosure {
+  min-width: 0;
+  overflow: hidden;
+  border: var(--ien-stroke-thin) solid var(--border-subtle);
+  border-radius: var(--ien-control-radius-md);
+  background: var(--surface);
+}
+
+.web-docs-disclosure > summary {
+  display: flex;
+  min-height: var(--ien-state-minimum-touch-target);
+  align-items: center;
+  gap: var(--ien-spacing-sm);
+  padding: var(--ien-spacing-xs) var(--ien-spacing-sm);
+  color: var(--text-primary);
+  font-size: var(--ien-font-size-label1);
+  font-weight: var(--docs-font-weight-medium);
+  cursor: pointer;
+  list-style: none;
+}
+
+.web-docs-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.web-docs-disclosure > summary::before {
+  width: 0.45rem;
+  height: 0.45rem;
+  flex: none;
+  border-right: var(--ien-stroke-medium) solid currentColor;
+  border-bottom: var(--ien-stroke-medium) solid currentColor;
+  content: "";
+  transform: rotate(-45deg);
+  transition: transform var(--ien-motion-fast)
+    var(--ien-motion-standard-easing);
+}
+
+.web-docs-disclosure[open] > summary {
+  border-bottom: var(--ien-stroke-thin) solid var(--border-subtle);
+}
+
+.web-docs-disclosure[open] > summary::before {
+  transform: rotate(45deg);
+}
+
+.web-docs-disclosure > :not(summary) {
+  margin-inline: var(--ien-spacing-sm);
+}
+
+.web-docs-disclosure > :last-child {
+  margin-bottom: var(--ien-spacing-sm);
+}
+
+.web-docs-disclosure > summary:focus-visible {
+  outline: var(--ien-control-focus-ring-width) solid var(--ien-brand);
+  outline-offset: calc(-1 * var(--ien-control-focus-ring-width));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .web-docs-disclosure > summary::before {
+    transition: none;
+  }
 }
 
 @font-face {

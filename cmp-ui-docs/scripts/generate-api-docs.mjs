@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { catalog } from "../web/catalog.js";
@@ -386,23 +386,6 @@ for (const name of Object.keys(webTokens.docs.syntax).filter((name) => name.star
 for (const name of colorRoles) tailwindTheme[`color-ien-${kebabCase(name)}`] = `var(--ien-${kebabCase(name)})`;
 for (const name of Object.keys(webTokens.font)) tailwindTheme[`font-ien-${name}`] = `var(--ien-font-${name})`;
 const tokenCssVars = { theme: tailwindTheme, light: { ...variables, ...colorVariables("Light") }, dark: colorVariables("Dark") };
-const registryPath = path.join(repositoryDirectory, "cmp-ui-web-registry/registry.json");
-const registry = JSON.parse(await readFile(registryPath, "utf8"));
-const button = registry.items.find((item) => item.name === "button");
-if (!button) throw new Error("Button 레지스트리를 찾을 수 없습니다.");
-delete button.cssVars;
-button.registryDependencies = ["@ienlab/tokens"];
-const tokensItem = {
-  name: "tokens",
-  type: "registry:theme",
-  title: "Design Tokens",
-  description: "CMP의 색상·spacing·radius·typography·stroke·elevation·icon·motion·state와 웹 컴포넌트 토큰입니다.",
-  dependencies: ["cn"],
-  files: [{ path: "registry/ien-utils.ts", type: "registry:lib", target: "@lib/ien-utils.ts" }],
-  cssVars: tokenCssVars,
-};
-registry.items = [...registry.items.filter((item) => item.name !== "tokens"), tokensItem];
-await writeFile(registryPath, JSON.stringify(registry, null, 2) + "\n");
 await writeFile(path.join(projectDirectory, "web/generated-design-tokens.json"), JSON.stringify(designTokens, null, 2) + "\n");
 function declarations(tokens) {
   return Object.entries(tokens).map(([name, value]) => `  --${name}: ${value};`).join("\n");
@@ -417,13 +400,57 @@ await writeFile(
   `/* CMP IenTheme와 웹 tokens.json에서 자동 생성합니다. */\n:root {\n${declarations({ ...tokenCssVars.light, ...docsVariables, ...docsColorVariables("light") })}\n}\n\n.dark {\n${declarations({ ...tokenCssVars.dark, ...docsColorVariables("dark") })}\n}\n\n@theme inline {\n${declarations(tailwindTheme)}\n}\n`,
 );
 
-const { collectRegistry, validateRegistry, createWebCatalog, registryModuleAliases } = await import("./registry.mjs");
+const { collectRegistry, validateRegistry, createWebCatalog, registryModuleAliases, sourceApi } = await import("./registry.mjs");
 const allItems = await collectRegistry(path.join(repositoryDirectory, "registry.json"), repositoryDirectory);
 validateRegistry(allItems);
+const registryVariables = { theme: {}, light: {}, dark: {} };
+for (const item of allItems) {
+  for (const mode of Object.keys(registryVariables)) Object.assign(registryVariables[mode], item.cssVars?.[mode]);
+}
+const tokenCssFile = path.join(projectDirectory, "web/generated-design-tokens.css");
+await writeFile(tokenCssFile, (await readFile(tokenCssFile, "utf8")) + `\n:root {\n${declarations(registryVariables.light)}\n}\n.dark {\n${declarations(registryVariables.dark)}\n}\n@theme inline {\n${declarations(registryVariables.theme)}\n}\n`);
 await writeFile(path.join(projectDirectory, "web/generated-web-catalog.json"), JSON.stringify(createWebCatalog(allItems, catalog, repositoryDirectory), null, 2) + "\n");
 const modulePaths = Object.fromEntries(Object.entries(registryModuleAliases(allItems)).map(([name, source]) => [name, [path.relative(projectDirectory, source)]]));
+const packageImports = new Set();
+for (const item of allItems) {
+  const sources = item.files.map((file) => file.content);
+  if (item.meta?.preview) sources.push(await readFile(path.resolve(path.dirname(item.manifestPath), item.meta.preview), "utf8"));
+  for (const source of sources) {
+    for (const name of sourceApi(source, item.name).imports) if (!name.startsWith(".") && !name.startsWith("@/")) packageImports.add(name);
+    for (const match of source.matchAll(/import\(["']([^"']+)["']\)/g)) if (!match[1].startsWith(".")) packageImports.add(match[1]);
+  }
+}
+const packagePaths = {};
+function typeExport(value) {
+  if (typeof value === "string") return value;
+  if (!value || typeof value !== "object") return undefined;
+  return typeExport(value.types) ?? typeExport(value.import) ?? typeExport(value.default) ?? typeExport(value.require);
+}
+for (const name of packageImports) {
+  const packageName = name.startsWith("@") ? name.split("/").slice(0, 2).join("/") : name.split("/")[0];
+  const packageDirectory = path.join(projectDirectory, "node_modules", packageName);
+  const metadata = JSON.parse(await readFile(path.join(packageDirectory, "package.json"), "utf8"));
+  const subpath = name === packageName ? "." : `.${name.slice(packageName.length)}`;
+  let entry = subpath === "." ? metadata.types ?? metadata.typings ?? typeExport(metadata.exports?.["."] ?? metadata.exports) ?? metadata.main : typeExport(metadata.exports?.[subpath]);
+  if (!entry) for (const [pattern, value] of Object.entries(metadata.exports ?? {})) {
+    if (!pattern.includes("*")) continue;
+    const [prefix, suffix] = pattern.split("*");
+    if (subpath.startsWith(prefix) && subpath.endsWith(suffix)) {
+      entry = typeExport(value)?.replaceAll("*", subpath.slice(prefix.length, suffix.length ? -suffix.length : undefined));
+      break;
+    }
+  }
+  if (!entry) throw new Error(`레지스트리 패키지의 타입 경로가 없습니다: ${name}`);
+  const declaration = entry.replace(/\.mjs$/, ".d.mts").replace(/\.cjs$/, ".d.cts").replace(/(?<!\.d)\.js$/, ".d.ts");
+  if (declaration !== entry) {
+    try { await access(path.resolve(packageDirectory, declaration)); entry = declaration; }
+    catch (error) { if (error.code !== "ENOENT") throw error; }
+  }
+  packagePaths[name] = [`./${path.relative(projectDirectory, path.resolve(packageDirectory, entry))}`];
+}
 await writeFile(path.join(projectDirectory, "tsconfig.registry.json"), JSON.stringify({ compilerOptions: { paths: {
   ...modulePaths,
+  ...packagePaths,
   "@/*": ["./web/*"],
   "cn/config": ["./node_modules/cn/dist/config.d.ts"],
   "react": ["./node_modules/@types/react"],

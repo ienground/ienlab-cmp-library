@@ -70,11 +70,6 @@ const WebRegistryDocs = lazy(() =>
     default: component,
   })),
 );
-const WebComponentDocs = lazy(() =>
-  import("./WebComponentDocs").then(({ WebComponentDocs: component }) => ({
-    default: component,
-  })),
-);
 
 const repositoryUrl =
   "https://github.com/ienground/ienlab-cmp-library/blob/main/";
@@ -628,15 +623,11 @@ function ComponentPage({
                 {isWebPage ? (
                   <TabsContent value={activeTab}>
                     <Suspense fallback={<p role="status">웹 컴포넌트를 불러오는 중입니다.</p>}>
-                      {activeComponent.id === "button" ? (
-                        <WebComponentDocs tab={activeTab === "registry" ? "registry" : "preview"} />
-                      ) : (
-                        <WebRegistryDocs
-                          key={activeComponent.id}
-                          componentId={activeComponent.id}
-                          tab={activeTab === "registry" ? "registry" : "preview"}
-                        />
-                      )}
+                      <WebRegistryDocs
+                        key={activeComponent.id}
+                        componentId={activeComponent.id}
+                        tab={activeTab === "registry" ? "registry" : "preview"}
+                      />
                     </Suspense>
                   </TabsContent>
                 ) : (

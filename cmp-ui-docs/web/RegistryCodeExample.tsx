@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { Button } from "./components/ui/button";
-import { HighlightedCode } from "../../cmp-ui-web-registry/shadcn/code-block";
+import { CodeBlock } from "../../cmp-ui-web-registry/reui/code-block/code-block";
 import { copyTextToClipboard } from "./clipboard";
 
 export function CodeExample({ label, code }: { label: string; code: string }) {
@@ -29,9 +29,7 @@ export function CodeExample({ label, code }: { label: string; code: string }) {
           복사
         </Button>
       </div>
-      <pre className="api-signature" tabIndex={0} aria-label={label}>
-        <code><HighlightedCode code={code} language={label.endsWith(".json") ? "json" : "tsx"} /></code>
-      </pre>
+      <CodeBlock className="api-signature" code={code} language={label.endsWith(".json") ? "json" : "tsx"} variant="ghost" label={label} />
       <p role="status" className="text-xs text-muted-foreground">
         {copyStatus}
       </p>

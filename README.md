@@ -414,31 +414,32 @@ Android와 iOS에서 `DecimalFormat("0.##").format(12.3456)`은 `"12.35"`를 반
 
 ## React · Next.js 레지스트리
 
-기존 CMP 디자인 토큰을 공유하는 React 컴포넌트를 shadcn CLI로 개별 설치할 수 있습니다. 공식 shadcn/ui 컴포넌트와 Form·Sonner, CMP 전용 컴포넌트를 포함한 129개 항목을 제공합니다.
-
-shadcn/ui를 초기화한 프로젝트에서 레지스트리를 등록한 뒤 필요한 항목만 설치합니다.
+[REUI](https://reui.io)의 `radix-nova` 기본 컴포넌트 27개와 필요한 shadcn/ui 컴포넌트·훅을 가져와 제공합니다. 전체 58개 설치 항목 중 UI 컴포넌트 52개에 공식 예제를 연결했습니다.
 
 ```bash
 npx shadcn@latest registry add @ienlab="https://cmp.ien.zone/r/{name}.json"
-npx shadcn@latest add @ienlab/button
-npx shadcn@latest add @ienlab/numeric-spinner @ienlab/date-picker-dialog
+npx shadcn@latest add @ienlab/button @ienlab/alert @ienlab/data-grid
 ```
 
 ```tsx
-import { Button } from "@/components/ui/button";
+import { Alert, AlertTitle } from "@/components/reui/alert";
 
 export default function Example() {
-  return <Button variant="fill" tone="brand">저장</Button>;
+  return <Alert><AlertTitle>알림</AlertTitle></Alert>;
 }
 ```
 
-- IEN 색상·spacing·radius·typography·motion 토큰과 필요한 내부 컴포넌트·패키지는 CLI가 함께 설치합니다.
-- Tailwind CSS 4를 사용하며, `.dark` 조상 클래스에서 다크 토큰이 적용됩니다. 기존 shadcn의 전역 색상 변수는 덮어쓰지 않습니다.
-- 상태·이벤트·Context가 필요한 모듈만 클라이언트 경계를 선언합니다. Next.js에서 이벤트 핸들러를 작성하는 호출부에는 `"use client"`를 지정합니다.
-- 컴포넌트별 프리뷰, 설치, 공개 API, 전체 사용 코드와 CMP 비교 링크는 docs의 `/web/{name}/preview`, `/web/{name}/registry`에서 확인합니다.
-- 햅틱·네이티브 키보드 같은 플랫폼 차이는 각 항목의 플랫폼 차이 안내에 표시합니다. AuthForm은 입력·검증·콜백 UI이며 인증 서비스를 연결하지 않습니다.
+REUI 원본 디자인과 API를 사용합니다. 필요한 소스·패키지·의미색 변수는 CLI가 함께 설치합니다. React 19와 Tailwind CSS 4, shadcn/ui 초기화가 필요합니다.
 
-전체 항목 목록은 기존 Button·토큰 [정의](cmp-ui-web-registry/registry.json), [shadcn/ui 정의](cmp-ui-web-registry/shadcn/registry.json), [CMP 콘텐츠 정의](cmp-ui-web-registry/cmp-content/registry.json), [CMP 입력·상호작용 정의](cmp-ui-web-registry/cmp-interactive/registry.json)에 있습니다. 루트 `registry.json`이 이 목록을 포함하며, 기존 docs 배포 과정에서 `/r/{name}.json`을 생성합니다.
+TypeScript의 `compilerOptions.types`를 지정한 프로젝트는 `node`를 포함하세요. REUI의 개발 환경 검사에 필요한 `@types/node`는 해당 항목과 함께 설치됩니다.
+
+컴포넌트 목록과 설치 정의는 [레지스트리](cmp-ui-web-registry/registry.json)에 있습니다. `/web/{name}/preview`와 `/web/{name}/registry`에서 공식 예제, 공개 API, 설치 코드를 확인합니다.
+
+REUI 소스는 `067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a` 커밋에 고정했습니다. 다음 명령으로 동일한 소스를 다시 가져올 수 있습니다.
+
+```bash
+npm --prefix cmp-ui-docs run import:reui
+```
 
 ### 문서와 레지스트리 빌드
 
@@ -450,7 +451,7 @@ npm --prefix cmp-ui-docs run build:compose
 npm --prefix cmp-ui-docs run build:site
 ```
 
-`generate:api`는 CMP 원본 토큰과 레지스트리 소스에서 docs 목록·API·사용 코드·타입 경로를 생성합니다. 생성물은 Git에 포함하지 않습니다. `test:preview`는 129개 컴포넌트의 서버 렌더링을 검사하며, 실제 브라우저 상호작용 검증은 별도로 수행해야 합니다.
+`generate:api`는 CMP 원본 토큰과 레지스트리 소스에서 docs 목록·API·사용 코드·타입 경로를 생성합니다. 생성물은 Git에 포함하지 않습니다. `test:preview`는 52개 공식 예제의 서버 렌더링을 검사하며, 실제 브라우저 상호작용 검증은 별도로 수행해야 합니다.
 
 ---
 
