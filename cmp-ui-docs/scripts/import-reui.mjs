@@ -277,7 +277,7 @@ for (const [file, content] of sourceFiles) {
   await writeFile(target, content);
 }
 const sorted = [...items.values()].sort((a, b) => a.name.localeCompare(b.name));
-await writeFile(path.join(output, "registry.json"), JSON.stringify({ $schema: "https://ui.shadcn.com/schema/registry.json", name: "ienlab-reui", homepage: "https://cmp.ien.zone", items: sorted }, null, 2) + "\n");
+await writeFile(path.join(output, "registry.json"), JSON.stringify({ $schema: "https://ui.shadcn.com/schema/registry.json", name: "ienlab", homepage: "https://cmp.ien.zone", items: sorted }, null, 2) + "\n");
 await writeFile(path.join(output, "LICENSE.md"), (await download("LICENSE.md")).replace("Copyright (c) 2025 Keenthemes Inc", "Copyright (c) 2025 Keenthemes Inc\nCopyright (c) 2023 shadcn"));
 packageJson.dependencies = Object.fromEntries(Object.entries({ ...Object.fromEntries([...packages].filter(([name]) => !packageJson.devDependencies[name])), ...packageJson.dependencies }).sort(([a], [b]) => a.localeCompare(b)));
 await writeFile(packageFile, JSON.stringify(packageJson, null, 2) + "\n");
