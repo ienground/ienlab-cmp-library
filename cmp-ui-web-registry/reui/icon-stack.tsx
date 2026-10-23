@@ -1,17 +1,29 @@
+import type { IenToneProps } from "@/lib/ien-theme"
 // Title: Icon Stack
 // Description: Layered icon illustration container
 
 import { cn } from "cn"
 
-type IconStackProps = React.ComponentProps<"div">
+type IconStackProps = React.ComponentProps<"div"> & IenToneProps
 
-function IconStack({ className, children, style, ...props }: IconStackProps) {
+function IconStack({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+  children,
+  style,
+  ...props
+}: IconStackProps & IenToneProps) {
   return (
     <div
       data-slot="icon-stack"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       className={cn(
-        "text-foreground **:data-[slot=icon-stack-layer]:fill-background relative h-20 w-18",
-        className
+        "**:data-[slot=icon-stack-layer]:fill-background relative h-20 w-18",
+        ienTone ? "text-(--ien-control-color)" : "text-foreground",
+        className,
       )}
       style={
         {
@@ -46,6 +58,10 @@ function IconStack({ className, children, style, ...props }: IconStackProps) {
       {children ? (
         <div
           data-slot="icon-stack-content"
+          data-ien-typography="body2"
+          data-ien=""
+          data-ien-tone={ienTone}
+          data-ien-gradient={ienUseGradient}
           className="text-muted-foreground pointer-events-none absolute top-[var(--icon-stack-content-y)] left-[var(--icon-stack-content-x)] flex -translate-x-1/2 -translate-y-1/2 scale-x-90 -skew-y-26 items-center justify-center"
         >
           {children}

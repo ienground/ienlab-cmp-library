@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 // Title: Color Picker
 // Description: Shadcn color picker with a saturation area, hue, alpha and channel sliders, a hue wheel, HEX, RGB, HSL, HSB and OKLCH fields, swatches and an eye dropper.
@@ -1146,9 +1148,11 @@ export type ColorPickerProps = {
   placeholder?: string
   className?: string
   children?: ReactNode
-}
+} & IenToneProps
 
 export function ColorPicker({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   defaultValue = null,
   onValueChange,
@@ -1174,7 +1178,8 @@ export function ColorPicker({
   placeholder,
   className,
   children,
-}: ColorPickerProps) {
+}: ColorPickerProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const generatedId = useId()
   const id = idProp ?? generatedId
   const [uncontrolled, setUncontrolled] = useState(defaultValue)
@@ -1338,51 +1343,56 @@ export function ColorPicker({
   }, [hasField])
 
   return (
-    <ColorPickerContext.Provider value={context}>
-      <Popover open={open} onOpenChange={(next) => setOpen(next)}>
-        {children === undefined ? (
-          <>
-            <ColorPickerTrigger
+    <IenThemeContext.Provider value={ienTheme}>
+      <ColorPickerContext.Provider value={context}>
+        <Popover open={open} onOpenChange={(next) => setOpen(next)}>
+          {children === undefined ? (
+            <>
+              <ColorPickerTrigger
               className={className}
               placeholder={placeholder}
             />
-            <ColorPickerContent />
-          </>
-        ) : (
-          children
-        )}
-      </Popover>
-      <span role="status" className="sr-only">
-        {copied ? i18n.labels.copied : ""}
-      </span>
-      {hasField && (
-        <input
-          ref={(node) => {
+              <ColorPickerContent />
+            </>
+          ) : (
+            children
+          )}
+        </Popover>
+        <span role="status" className="sr-only">
+          {copied ? i18n.labels.copied : ""}
+        </span>
+        {hasField && (
+          <input
+            ref={(node) => {
             fieldRef.current = node
             assignRef(inputRef, node)
           }}
-          type="text"
-          name={name}
-          form={form}
-          required={required && !readOnly}
-          disabled={disabled}
-          value={color ? formatColor(color, format) : ""}
-          onChange={() => {}}
-          tabIndex={-1}
-          aria-hidden="true"
-          data-slot="color-picker-field"
-          /* A failed `required` check focuses this field; hand that to the control. */
-          onFocus={(event) => {
+            type="text"
+            name={name}
+            form={form}
+            required={required && !readOnly}
+            disabled={disabled}
+            value={color ? formatColor(color, format) : ""}
+            onChange={() => {}}
+            tabIndex={-1}
+            aria-hidden="true"
+            data-slot="color-picker-field"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
+            /* A failed `required` check focuses this field; hand that to the control. */
+            onFocus={(event) => {
             const target =
               (focusTarget.current?.isConnected ? focusTarget.current : null) ??
               event.currentTarget.ownerDocument.getElementById(`${id}-area`)
             if (target) target.focus()
             else event.currentTarget.blur()
           }}
-          className="pointer-events-none absolute size-px max-w-px opacity-0"
-        />
-      )}
-    </ColorPickerContext.Provider>
+            className="pointer-events-none absolute size-px max-w-px opacity-0"
+          />
+        )}
+      </ColorPickerContext.Provider>
+    </IenThemeContext.Provider>
   )
 }
 
@@ -1408,21 +1418,25 @@ function swatchBackground(color: ColorPickerColor | null) {
   return color.alpha < 1 ? `linear-gradient(${css}, ${css}), ${CHECKER}` : css
 }
 
-export type ColorPickerSwatchProps = Omit<ComponentProps<"span">, "color"> & {
+export type ColorPickerSwatchProps = (Omit<ComponentProps<"span">, "color"> & {
   /** The color to show. Defaults to the picker's value, so it also works outside one. */
   color?: string | null
   /** `square` follows each style's radius; `circle` is round in all of them. */
   shape?: "square" | "circle"
-}
+}) &
+  IenToneProps
 
 /** A color chip: the value in a trigger, or any color in a table or a legend. */
 export function ColorPickerSwatch({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   color: colorProp,
   shape = "square",
   className,
   style,
   ...props
-}: ColorPickerSwatchProps) {
+}: ColorPickerSwatchProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useContext(ColorPickerContext)
   const color =
     colorProp !== undefined ? parseColor(colorProp) : (context?.color ?? null)
@@ -1432,6 +1446,9 @@ export function ColorPickerSwatch({
       role={labelled ? "img" : undefined}
       aria-hidden={labelled ? undefined : true}
       data-slot="color-picker-swatch"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-empty={color ? undefined : ""}
       className={cn(
         SWATCH_CLASS,
@@ -1459,20 +1476,27 @@ const CHEVRON_ICON = (
   />
 )
 
-export type ColorPickerValueProps = Omit<ComponentProps<"span">, "children"> & {
+export type ColorPickerValueProps = (Omit<ComponentProps<"span">, "children"> & {
   placeholder?: ReactNode
-}
+}) &
+  IenToneProps
 
 /** The value as text, or the placeholder. For custom trigger content. */
 export function ColorPickerValue({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   placeholder,
   className,
   ...props
-}: ColorPickerValueProps) {
+}: ColorPickerValueProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useColorPickerContext("ColorPickerValue")
   return (
     <span
       data-slot="color-picker-value"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-placeholder={context.color ? undefined : ""}
       className={cn("truncate", className)}
       {...props}
@@ -1487,19 +1511,23 @@ export function ColorPickerValue({
 const TRIGGER_CLASS =
   "font-normal normal-case tracking-normal tabular-nums data-placeholder:text-muted-foreground"
 
-export type ColorPickerTriggerProps = ComponentProps<typeof Button> & {
+export type ColorPickerTriggerProps = (ComponentProps<typeof Button> & {
   placeholder?: ReactNode
-}
+}) &
+  IenToneProps
 
 /** A shadcn Button that opens the picker. Children replace the swatch, value and chevron. */
 export function ColorPickerTrigger({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   variant = "outline",
   placeholder,
   children,
   ref,
   ...props
-}: ColorPickerTriggerProps) {
+}: ColorPickerTriggerProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useColorPickerContext("ColorPickerTrigger")
   const labelledBy = props["aria-labelledby"] ?? context.labelledBy
   const buttonProps = {
@@ -1550,16 +1578,19 @@ export function ColorPickerTrigger({
     )
 
   return (
-    <PopoverTrigger asChild>
+    <IenThemeContext.Provider value={ienTheme}>
+<PopoverTrigger asChild>
       <Button {...buttonProps}>{content}</Button>
     </PopoverTrigger>
+</IenThemeContext.Provider>
   )
 }
 
 export type ColorPickerInputProps = Omit<
   ComponentProps<typeof InputGroupInput>,
   "value" | "defaultValue"
->
+> &
+  IenToneProps
 
 /**
  * A typable field with a swatch button that opens the picker. It reads any
@@ -1567,6 +1598,8 @@ export type ColorPickerInputProps = Omit<
  * Escape restores the value and Alt+ArrowDown opens the popover.
  */
 export function ColorPickerInput({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   placeholder,
   onBlur,
@@ -1574,7 +1607,8 @@ export function ColorPickerInput({
   onChange,
   ref,
   ...props
-}: ColorPickerInputProps) {
+}: ColorPickerInputProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useColorPickerContext("ColorPickerInput")
   /* `null` while the field shows the value rather than an edit in progress. */
   const [text, setText] = useState<string | null>(null)
@@ -1602,6 +1636,9 @@ export function ColorPickerInput({
   return (
     <InputGroup
       data-slot="color-picker-input"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-disabled={context.disabled ? "" : undefined}
       className={className}
     >
@@ -1667,22 +1704,30 @@ export function ColorPickerInput({
 const TABBABLE =
   'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
 
-export type ColorPickerContentProps = ComponentProps<typeof PopoverContent>
+export type ColorPickerContentProps = ComponentProps<typeof PopoverContent> &
+  IenToneProps
 
 /**
  * The popover: the default panel unless given children. Tab cycles inside
  * it, as in a date picker dialog, in both twins.
  */
 export function ColorPickerContent({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   align = "start",
   onKeyDown,
   children,
   ...props
-}: ColorPickerContentProps) {
+}: ColorPickerContentProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useColorPickerContext("ColorPickerContent")
   return (
-    <PopoverContent
+    <IenThemeContext.Provider value={ienTheme}>
+<PopoverContent
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       align={align}
       aria-labelledby={context.labelledBy}
       aria-label={
@@ -1725,6 +1770,7 @@ export function ColorPickerContent({
         {children === undefined ? <ColorPickerPanel /> : children}
       </SurfaceContext.Provider>
     </PopoverContent>
+</IenThemeContext.Provider>
   )
 }
 
@@ -1733,17 +1779,20 @@ export function ColorPickerContent({
 const PANEL_CLASS =
   "flex w-full min-w-0 flex-col gap-2.5"
 
-export type ColorPickerPanelProps = ComponentProps<"div">
+export type ColorPickerPanelProps = ComponentProps<"div"> & IenToneProps
 
 /**
  * The area, the sliders, the fields and any `swatches`, rendered in place:
  * put it straight inside a `ColorPicker` for an always-open picker.
  */
 export function ColorPickerPanel({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   ...props
-}: ColorPickerPanelProps) {
+}: ColorPickerPanelProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useColorPickerContext("ColorPickerPanel")
   const inline = useContext(SurfaceContext) === "inline"
   return (
@@ -1756,6 +1805,9 @@ export function ColorPickerPanel({
           : undefined
       }
       data-slot="color-picker-panel"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-disabled={context.disabled ? "" : undefined}
       className={cn(PANEL_CLASS, className)}
       {...props}
@@ -1851,7 +1903,7 @@ const EDGE_CLASS =
   "after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:inset-ring after:inset-ring-foreground/10"
 
 const CONTROL_CLASS =
-  "group/color-picker-control relative outline-none [--color-picker-thumb-size:calc(var(--spacing)*4)] select-none aria-disabled:pointer-events-none aria-disabled:opacity-50 data-dragging:cursor-grabbing"
+  "group/color-picker-control relative outline-none [--color-picker-thumb-size:calc(var(--spacing)*4)] select-none aria-disabled:pointer-events-none aria-disabled:opacity-(--ien-state-disabled-alpha) data-dragging:cursor-grabbing"
 
 /* Where the pointer sits, 0 to 1 each way, over a travel `inset` pixels
    shorter than the element: a slider thumb stays inside its track. */
@@ -1939,7 +1991,7 @@ const snap = (value: number, step: number) =>
 const AREA_CLASS =
   "forced-color-adjust-none h-40 w-full touch-none bg-[linear-gradient(to_top,#000,transparent),linear-gradient(to_right,#fff,transparent)] rounded-md"
 
-export type ColorPickerAreaProps = ComponentProps<"div">
+export type ColorPickerAreaProps = ComponentProps<"div"> & IenToneProps
 
 /**
  * The saturation and brightness square, at the current hue. A single slider
@@ -1947,11 +1999,14 @@ export type ColorPickerAreaProps = ComponentProps<"div">
  * Arrows move it, Shift by ten, Page keys move brightness.
  */
 export function ColorPickerArea({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   style,
   onKeyDown,
   ...props
-}: ColorPickerAreaProps) {
+}: ColorPickerAreaProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useColorPickerContext("ColorPickerArea")
   const { labels } = context.i18n
   const [hue, saturation, brightness] = toSpace(context.display, "hsv")
@@ -1982,6 +2037,9 @@ export function ColorPickerArea({
       aria-readonly={context.readOnly || undefined}
       dir="ltr"
       data-slot="color-picker-area"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-dragging={dragging ? "" : undefined}
       className={cn(CONTROL_CLASS, EDGE_CLASS, AREA_CLASS, className)}
       style={{ backgroundColor: `hsl(${hue} 100% 50%)`, ...style }}
@@ -2007,6 +2065,9 @@ export function ColorPickerArea({
     >
       <div
         data-slot="color-picker-area-thumb"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         className={THUMB_CLASS}
         style={{ left: `${saturation}%`, top: `${100 - brightness}%` }}
       />
@@ -2023,15 +2084,18 @@ export function ColorPickerArea({
 const SLIDER_CLASS =
   "forced-color-adjust-none data-[orientation=horizontal]:h-3 data-[orientation=horizontal]:min-h-3 data-[orientation=horizontal]:w-full data-[orientation=horizontal]:min-w-0 data-[orientation=horizontal]:touch-pan-y data-[orientation=vertical]:h-40 data-[orientation=vertical]:shrink-0 data-[orientation=vertical]:w-3 data-[orientation=vertical]:touch-pan-x rounded-full"
 
-export type ColorPickerSliderProps = Omit<ComponentProps<"div">, "children"> & {
+export type ColorPickerSliderProps = (Omit<ComponentProps<"div">, "children"> & {
   channel: ColorPickerChannel
   /** The space the channel belongs to. Defaults to HSB for hue, saturation and brightness, HSL for lightness, OKLCH for chroma and RGB for red, green and blue. */
   colorSpace?: ColorPickerColorSpace
   orientation?: "horizontal" | "vertical"
-}
+}) &
+  IenToneProps
 
 /** One channel as a gradient track. Vertical tracks run bottom to top. */
 export function ColorPickerSlider({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   channel,
   colorSpace,
   orientation = "horizontal",
@@ -2039,7 +2103,8 @@ export function ColorPickerSlider({
   style,
   onKeyDown,
   ...props
-}: ColorPickerSliderProps) {
+}: ColorPickerSliderProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useColorPickerContext("ColorPickerSlider")
   const space = resolveSpace(channel, colorSpace)
   const { max, step } = channelRange(space, channel)
@@ -2091,6 +2156,9 @@ export function ColorPickerSlider({
       aria-readonly={context.readOnly || undefined}
       dir="ltr"
       data-slot="color-picker-slider"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-channel={channel}
       data-orientation={orientation}
       data-dragging={dragging ? "" : undefined}
@@ -2115,6 +2183,9 @@ export function ColorPickerSlider({
     >
       <div
         data-slot="color-picker-slider-thumb"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         className={THUMB_CLASS}
         style={
           vertical
@@ -2132,7 +2203,7 @@ export function ColorPickerSlider({
 const WHEEL_RING_CLASS =
   "forced-color-adjust-none pointer-events-none absolute inset-0 rounded-full bg-[conic-gradient(#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)] mask-[radial-gradient(farthest-side,transparent_calc(100%-var(--color-picker-wheel-thickness)),#000_calc(100%-var(--color-picker-wheel-thickness)+1px))]"
 
-export type ColorPickerWheelProps = ComponentProps<"div">
+export type ColorPickerWheelProps = ComponentProps<"div"> & IenToneProps
 
 /**
  * A hue ring. Children fill the square inscribed in its hole: an area there
@@ -2140,11 +2211,14 @@ export type ColorPickerWheelProps = ComponentProps<"div">
  * sets the ring's width.
  */
 export function ColorPickerWheel({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   onKeyDown,
   ...props
-}: ColorPickerWheelProps) {
+}: ColorPickerWheelProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useColorPickerContext("ColorPickerWheel")
   const [hue] = toSpace(context.display, "hsv")
   const set = (next: number) => {
@@ -2187,6 +2261,9 @@ export function ColorPickerWheel({
   return (
     <div
       data-slot="color-picker-wheel"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "relative size-48 shrink-0 [--color-picker-wheel-thickness:calc(var(--spacing)*5)]",
         className
@@ -2209,6 +2286,9 @@ export function ColorPickerWheel({
         aria-disabled={context.disabled || undefined}
         aria-readonly={context.readOnly || undefined}
         data-slot="color-picker-wheel-track"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-dragging={dragging ? "" : undefined}
         className={cn(
           CONTROL_CLASS,
@@ -2237,6 +2317,9 @@ export function ColorPickerWheel({
         <div className={WHEEL_RING_CLASS} />
         <div
           data-slot="color-picker-wheel-thumb"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className={THUMB_CLASS}
           style={{
             left: `calc(50% + ${radius} * ${Math.sin(angle)})`,
@@ -2499,20 +2582,23 @@ function readChannelText(
   return withChannel(color, space, channel, clamp(scaled, 0, max))
 }
 
-export type ColorPickerChannelInputProps = Omit<
+export type ColorPickerChannelInputProps = (Omit<
   ComponentProps<typeof InputGroupInput>,
   "value" | "defaultValue"
 > & {
   /** A channel, or `"hex"` for the six hex digits. */
   channel: FieldChannel
   colorSpace?: ColorPickerColorSpace
-}
+}) &
+  IenToneProps
 
 /**
  * One channel as a borderless field for an `InputGroup`. Text is read on blur
  * and Enter; ArrowUp and ArrowDown step it, Shift by ten.
  */
 export function ColorPickerChannelInput({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   channel,
   colorSpace,
   className,
@@ -2521,7 +2607,8 @@ export function ColorPickerChannelInput({
   onChange,
   ref,
   ...props
-}: ColorPickerChannelInputProps) {
+}: ColorPickerChannelInputProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useColorPickerContext("ColorPickerChannelInput")
   const space = channel === "hex" ? "rgb" : resolveSpace(channel, colorSpace)
   const [text, setText] = useState<string | null>(null)
@@ -2554,7 +2641,11 @@ export function ColorPickerChannelInput({
   }
 
   return (
-    <InputGroupInput
+    <IenThemeContext.Provider value={ienTheme}>
+<InputGroupInput
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       value={shown}
       inputMode={channel === "hex" ? "text" : "decimal"}
       maxLength={channel === "hex" ? 9 : 8}
@@ -2627,6 +2718,7 @@ export function ColorPickerChannelInput({
         assignRef(ref, node)
       }}
     />
+</IenThemeContext.Provider>
   )
 }
 
@@ -2648,7 +2740,7 @@ const DIVIDER = <Separator orientation="vertical" aria-hidden="true" />
 const FORMAT_ADDON_CLASS =
   "pr-[0.2rem]"
 
-export type ColorPickerFieldsProps = Omit<
+export type ColorPickerFieldsProps = (Omit<
   ComponentProps<typeof InputGroup>,
   "children"
 > & {
@@ -2659,20 +2751,24 @@ export type ColorPickerFieldsProps = Omit<
   onFormatChange?: (format: ColorPickerFormat) => void
   /** The formats in the menu. One format hides the menu. */
   formats?: ColorPickerFormat[]
-}
+}) &
+  IenToneProps
 
 /**
  * A format menu and the value's channels as joined fields: one hex field, or
  * three channels, plus opacity when the picker takes alpha.
  */
 export function ColorPickerFields({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   format: formatProp,
   defaultFormat,
   onFormatChange,
   formats = COLOR_PICKER_FORMATS,
   className,
   ...props
-}: ColorPickerFieldsProps) {
+}: ColorPickerFieldsProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useColorPickerContext("ColorPickerFields")
   const [formatState, setFormatState] = useState(
     defaultFormat ?? context.format
@@ -2701,6 +2797,9 @@ export function ColorPickerFields({
     <InputGroup
       dir="ltr"
       data-slot="color-picker-fields"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-disabled={context.disabled ? "" : undefined}
       className={className}
       {...props}
@@ -2806,20 +2905,23 @@ function neighbor(
   return options[options.indexOf(current) + (forward ? 1 : -1)]
 }
 
-export type ColorPickerSwatchesProps = Omit<
+export type ColorPickerSwatchesProps = (Omit<
   ComponentProps<"div">,
   "children"
 > & {
   colors?: ColorPickerSwatchInput[]
   shape?: "square" | "circle"
   children?: ReactNode
-}
+}) &
+  IenToneProps
 
 /**
  * Preset colors as a listbox: one tab stop, arrow keys move through them in
  * order, Enter or Space picks. `--color-picker-swatch-size` sets the chip size.
  */
 export function ColorPickerSwatches({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   colors,
   shape = "square",
   className,
@@ -2827,7 +2929,8 @@ export function ColorPickerSwatches({
   onKeyDown,
   onFocus,
   ...props
-}: ColorPickerSwatchesProps) {
+}: ColorPickerSwatchesProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useColorPickerContext("ColorPickerSwatches")
   const [activeId, setActiveId] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
@@ -2852,10 +2955,13 @@ export function ColorPickerSwatches({
         aria-disabled={context.disabled || undefined}
         aria-readonly={context.readOnly || undefined}
         data-slot="color-picker-swatches"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-empty={activeId ? undefined : ""}
         className={cn(
-          "group/color-picker-swatches data-empty:focus-visible:outline-ring grid grid-cols-[repeat(auto-fill,var(--color-picker-swatch-size))] justify-between gap-x-1 gap-y-1.5 outline-none [--color-picker-swatch-size:calc(var(--spacing)*6)] aria-disabled:opacity-50 data-empty:focus-visible:outline-2 data-empty:focus-visible:outline-offset-2",
-          className
+          "group/color-picker-swatches data-empty:focus-visible:outline-ring grid grid-cols-[repeat(auto-fill,var(--color-picker-swatch-size))] justify-between gap-x-1 gap-y-1.5 outline-none [--color-picker-swatch-size:calc(var(--spacing)*6)] aria-disabled:opacity-(--ien-state-disabled-alpha) data-empty:focus-visible:outline-2 data-empty:focus-visible:outline-offset-2",
+          className,
         )}
         onFocus={(event) => {
           onFocus?.(event)
@@ -2923,7 +3029,7 @@ const SWATCH_ITEM_SQUARE =
 const SWATCH_ITEM_CLASS =
   "forced-color-adjust-none relative flex size-(--color-picker-swatch-size) shrink-0 cursor-default items-center justify-center outline-offset-2 transition-[scale] duration-150 after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:inset-ring after:inset-ring-foreground/10 not-aria-disabled:hover:scale-110 aria-disabled:opacity-40 motion-reduce:transition-none group-focus-visible/color-picker-swatches:data-active:outline-2 group-focus-visible/color-picker-swatches:data-active:outline-ring [&_svg]:size-3.5"
 
-export type ColorPickerSwatchItemProps = Omit<
+export type ColorPickerSwatchItemProps = (Omit<
   ComponentProps<"div">,
   "children"
 > & {
@@ -2932,10 +3038,13 @@ export type ColorPickerSwatchItemProps = Omit<
   /** Read out instead of the generated color name. */
   label?: string
   disabled?: boolean
-}
+}) &
+  IenToneProps
 
 /** One preset. Selected while the picker's value is this color. */
 export function ColorPickerSwatchItem({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   label,
   disabled = false,
@@ -2943,7 +3052,8 @@ export function ColorPickerSwatchItem({
   style,
   onClick,
   ...props
-}: ColorPickerSwatchItemProps) {
+}: ColorPickerSwatchItemProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useColorPickerContext("ColorPickerSwatchItem")
   const swatches = useContext(SwatchesContext)
   const id = useId()
@@ -2969,6 +3079,10 @@ export function ColorPickerSwatchItem({
         label ?? (color ? context.i18n.functions.getColorName(color) : value)
       }
       data-slot="color-picker-swatch-item"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-active={swatches.activeId === id ? "" : undefined}
       data-selected={selected ? "" : undefined}
       className={cn(

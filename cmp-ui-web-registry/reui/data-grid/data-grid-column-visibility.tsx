@@ -2,6 +2,8 @@
 
 // Opted out of React Compiler with the rest of the grid (see data-grid.tsx).
 "use no memo"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import type { ReactElement } from "react"
 import {
@@ -21,18 +23,25 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 function DataGridColumnVisibility<TData extends object>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   table,
   trigger,
 }: {
   table: Table<DataGridFeatures, TData>
   trigger: ReactElement<Record<string, unknown>>
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { i18n } = useDataGrid()
 
   return (
-    <DropdownMenu>
+    <IenThemeContext.Provider value={ienTheme}>
+<DropdownMenu>
       <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-[150px]">
+      <DropdownMenuContent
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} align="end" className="min-w-[150px]">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="font-medium">
             {i18n.labels.toggleColumns}
@@ -62,6 +71,7 @@ function DataGridColumnVisibility<TData extends object>({
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
+</IenThemeContext.Provider>
   )
 }
 

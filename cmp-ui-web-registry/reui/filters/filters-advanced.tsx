@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import { FilterFieldPicker } from "@/components/reui/filters/filters-builder"
@@ -359,6 +361,8 @@ interface RowPosition {
 /** The leading and/or slot: one group is joined by ONE operator, and mixing is
  * what a nested group is FOR. */
 function CombinatorCell({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   index,
   parentId,
   combinator,
@@ -372,7 +376,8 @@ function CombinatorCell({
   active: FilterColumn | null
   onFocus: (column: FilterColumn) => () => void
   className?: string
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const actions = useFilterActions()
   const sizes = filterControlSizes(actions)
   const slot = filterCombinatorSlot(index)
@@ -380,20 +385,34 @@ function CombinatorCell({
 
   if (slot === "where") {
     return (
-      <span className={cn(COMBINATOR_TEXT_CLASS, className)}>
+      <IenThemeContext.Provider value={ienTheme}>
+<span
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className={cn(COMBINATOR_TEXT_CLASS, className)}>
         {actions.labels.where}
       </span>
+</IenThemeContext.Provider>
     )
   }
 
   if (slot === "echo") {
-    return <span className={cn(COMBINATOR_TEXT_CLASS, className)}>{word}</span>
+    return <IenThemeContext.Provider value={ienTheme}>
+<span
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className={cn(COMBINATOR_TEXT_CLASS, className)}>{word}</span>
+</IenThemeContext.Provider>
   }
 
   const name = actions.labels.combinatorLabel(word)
 
   return (
-    <Button
+    <IenThemeContext.Provider value={ienTheme}>
+<Button
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       variant="outline"
       size={sizes.button}
       /* The WORD is in the name: the track is fixed, so a locale whose
@@ -431,6 +450,7 @@ function CombinatorCell({
         />
       </span>
     </Button>
+</IenThemeContext.Provider>
   )
 }
 
@@ -452,12 +472,15 @@ function canFilterNodeMove(
 /** The error, as a QUIET mark the pointer can ask about: ONE per ROW, and
  * `aria-hidden`, since the cell carries it as `aria-description`. */
 function RowIssueHint({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   message,
   className,
 }: {
   message: string
   className?: string
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   if (!message) return null
   return (
     <TooltipProvider delayDuration={200}>
@@ -465,6 +488,9 @@ function RowIssueHint({
         <TooltipTrigger asChild>
           <span
             data-slot="filter-row-issue"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
             /* Focusable so a keyboard user can summon it, but OUT of the
                tab order: the sentence is already on the invalid cell. */
             tabIndex={-1}
@@ -493,6 +519,8 @@ function RowIssueHint({
  * every text selection into a drag, and the only thing a screen reader can be
  * told about, which is why Alt+arrow hangs off it. */
 function RowHandle({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   nodeId,
   active,
   onFocus,
@@ -500,14 +528,19 @@ function RowHandle({
   nodeId: string
   active: FilterColumn | null
   onFocus: (column: FilterColumn) => () => void
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const actions = useFilterActions()
   const sizes = filterControlSizes(actions)
   const dragProps = React.useContext(FilterDragContext)
   const locked = isFilterLocked(actions)
 
   return (
-    <Button
+    <IenThemeContext.Provider value={ienTheme}>
+<Button
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       variant="ghost"
       size={sizes.icon}
       aria-label={actions.labels.reorder}
@@ -537,6 +570,7 @@ function RowHandle({
         remixicon="RiDraggable"
       />
     </Button>
+</IenThemeContext.Provider>
   )
 }
 
@@ -588,6 +622,8 @@ function usesInlineTextEditor<V, O>(
  * makes the ROOT the source of truth for every character, and debouncing only
  * adds a window where the cell and the query disagree with no event. */
 function FilterInlineValueCell<V, O>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   rule,
   field,
   issue,
@@ -601,7 +637,8 @@ function FilterInlineValueCell<V, O>({
   issueText: string
   active: FilterColumn | null
   onFocus: (column: FilterColumn) => () => void
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const actions = useFilterActions<V, O>()
   const focusStore = useFilterFocusStore()
   const locked = isFilterLocked(actions)
@@ -660,8 +697,12 @@ function FilterInlineValueCell<V, O>({
   return (
     /* A FRAGMENT, not a wrapper: the positioning context for the error mark
        is the CELL itself, which already carries the column's basis. */
-    <>
+    <IenThemeContext.Provider value={ienTheme}>
+<>
       <Input
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
         ref={inputRef}
         aria-label={field.label}
         placeholder={field.placeholder ?? actions.labels.valuePlaceholder}
@@ -703,6 +744,7 @@ function FilterInlineValueCell<V, O>({
         className="pointer-events-none absolute end-2 top-1/2 -translate-y-1/2 [&>*]:pointer-events-auto"
       />
     </>
+</IenThemeContext.Provider>
   )
 }
 
@@ -711,14 +753,20 @@ function FilterInlineValueCell<V, O>({
 /* -------------------------------------------------------------------------- */
 
 export interface FilterAdvancedRowProps<V = unknown> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   rule: FilterRule<V>
   position: RowPosition
 }
 
 function FilterAdvancedRowImpl<V, O>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   rule,
   position,
-}: FilterAdvancedRowProps<V>) {
+}: FilterAdvancedRowProps<V> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const actions = useFilterActions<V, O>()
   const render = useFilterRender<V, O>()
   const sizes = filterControlSizes(actions)
@@ -856,6 +904,9 @@ function FilterAdvancedRowImpl<V, O>({
         position.depth
       )}
       data-slot="filter-row"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-node-id={rule.id}
       data-parent-id={position.parentId}
       data-index={position.index}
@@ -872,7 +923,7 @@ function FilterAdvancedRowImpl<V, O>({
         />
       </div>
 
-      {/* THE CONTENT BAND: sized to itself, not to a share of the row. */}
+      {/* ABSOLUTELY POSITIONED, so the word still centres at 0.00px. */}
       <div className={CONTENT_BAND_CLASS}>
         <div className={cn(CELL_BOX_CLASS, FIELD_CELL_CLASS)}>
           <Popover
@@ -1051,8 +1102,7 @@ function FilterAdvancedRowImpl<V, O>({
         )}
       </div>
 
-      {/* The WEIGHT is on the CLUSTER: a `ghost` button names no colour, so
-          the kebab took the full `--foreground`. */}
+      {/* ABSOLUTELY POSITIONED, so the word still centres at 0.00px. */}
       <div className={ACTION_BAND_CLASS}>
         {canMove ? (
           <RowHandle nodeId={rule.id} active={active} onFocus={onCellFocus} />
@@ -1109,12 +1159,15 @@ export const FilterAdvancedRow = React.memo(
 /** A rule whose field the schema no longer has: dropping it would lose a saved
  * view's data, rendering nothing would leave it filtering invisibly. */
 function FilterUnknownRow<V>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   rule,
   position,
 }: {
   rule: FilterRule<V>
   position: RowPosition
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const actions = useFilterActions()
   const sizes = filterControlSizes(actions)
   return (
@@ -1125,6 +1178,9 @@ function FilterUnknownRow<V>({
         position.depth
       )}
       data-slot="filter-row"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-node-id={rule.id}
       data-parent-id={position.parentId}
       data-index={position.index}
@@ -1137,7 +1193,7 @@ function FilterUnknownRow<V>({
       <span className="text-muted-foreground min-w-0 flex-1 truncate text-sm">
         {rule.path.join(actions.labels.pathSeparator)}
       </span>
-      {/* The same trailing band, so the broken row lands on the kebab column. */}
+      {/* ABSOLUTELY POSITIONED, so the word still centres at 0.00px. */}
       <div className={ACTION_BAND_CLASS}>
         <Button
           variant="ghost"
@@ -1172,12 +1228,15 @@ function FilterUnknownRow<V>({
 /** A nested group: an indented card, its conditions, and one way to add
  * another. The HEADLINE went; the pill outside already says "or". */
 function FilterAdvancedGroup<V, O>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   group,
   position,
 }: {
   group: FilterGroupNode<V>
   position: RowPosition
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const actions = useFilterActions<V, O>()
   const sizes = filterControlSizes(actions)
   const focusStore = useFilterFocusStore()
@@ -1232,6 +1291,9 @@ function FilterAdvancedGroup<V, O>({
       role="group"
       aria-label={actions.labels.groupLabel(description, position.depth)}
       data-slot="filter-row"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-node-id={group.id}
       data-parent-id={position.parentId}
       data-index={position.index}
@@ -1257,17 +1319,21 @@ function FilterAdvancedGroup<V, O>({
         />
       </div>
 
-      {/* The CARD lights up as the drop destination, not the header strip the
-          engine measured. This `data-invalid` only styles; the announcement
-          rides the footer's add button, which is the focusable control. */}
+      {/* ABSOLUTELY POSITIONED, so the word still centres at 0.00px. */}
       <div
         data-slot="filter-group"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-invalid={issue ? "" : undefined}
         className={GROUP_CARD_CLASS}
       >
-        {/* Eight pixels, because it is a DROP TARGET and a zone beats a row. */}
+        {/* ABSOLUTELY POSITIONED, so the word still centres at 0.00px. */}
         <div
           data-slot="filter-group-header"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className="flex h-2 items-center"
           /* The TOP of the card means the top of the list: index 0 PREPENDS.
              It used to append, so the one place a pointer can aim to say "into
@@ -1276,7 +1342,7 @@ function FilterAdvancedGroup<V, O>({
           data-drop-index={0}
         />
 
-        {/* A CONTAINER: the box every child row divides up. */}
+        {/* ABSOLUTELY POSITIONED, so the word still centres at 0.00px. */}
         <div
           className={cn(
             TRACK_CONTAINER_CLASS,
@@ -1295,6 +1361,9 @@ function FilterAdvancedGroup<V, O>({
                 "data-drop-into:text-primary"
               )}
               data-slot="filter-group-empty"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
               data-drop-parent={group.id}
               data-drop-index={0}
             >
@@ -1316,9 +1385,12 @@ function FilterAdvancedGroup<V, O>({
           )}
         </div>
 
-        {/* `flex-nowrap`, or the group's kebab leaves the kebab column. */}
+        {/* ABSOLUTELY POSITIONED, so the word still centres at 0.00px. */}
         <div
           data-slot="filter-group-footer"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className="text-muted-foreground flex flex-nowrap items-center gap-2 pt-2 pb-2"
           data-drop-parent={group.id}
           data-drop-index={group.rules.length}
@@ -1374,6 +1446,8 @@ function FilterAdvancedGroup<V, O>({
 
 /** A group's kebab. A menu row affords six words, where two icons said none. */
 function FilterGroupMenu<V>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   group,
   active,
   onFocus,
@@ -1381,14 +1455,16 @@ function FilterGroupMenu<V>({
   group: FilterGroupNode<V>
   active: FilterColumn | null
   onFocus: (column: FilterColumn) => () => void
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const actions = useFilterActions()
   const sizes = filterControlSizes(actions)
   const locked = isFilterLocked(actions)
   const [open, setOpen] = React.useState(false)
 
   return (
-    <DropdownMenu
+    <IenThemeContext.Provider value={ienTheme}>
+<DropdownMenu
       open={open}
       onOpenChange={(next) => {
         if (next && locked) return
@@ -1401,6 +1477,9 @@ function FilterGroupMenu<V>({
         {...filterReadOnlyProps(actions)}
       >
         <Button
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
           variant="ghost"
           size={sizes.icon}
           aria-label={actions.labels.groupMenu}
@@ -1476,6 +1555,7 @@ function FilterGroupMenu<V>({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+</IenThemeContext.Provider>
   )
 }
 
@@ -1537,6 +1617,9 @@ function addFilterRow<V, O>(
 /** The panel draws NO border, NO background and NO radius, and takes no
  * element to be drawn as: a surface is the page's decision. */
 export interface FiltersAdvancedPanelProps {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** Which of the two boxes the panel sits in, the only thing deciding whether
    * it pads itself: a popover's content is `p-0`, so this padding IS its
    * inner padding, and `"inline"` is a page that owns its own. */
@@ -1554,11 +1637,14 @@ export interface FiltersAdvancedPanelProps {
  * tree: a flat model cannot represent `a AND (b OR c)` without inventing
  * precedence, and invented precedence returns the wrong rows. */
 export function FiltersAdvancedPanel<V, O>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   mode = "popover",
   renderEmpty,
   reorderable = false,
   className,
-}: FiltersAdvancedPanelProps) {
+}: FiltersAdvancedPanelProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const actions = useFilterActions<V, O>()
   const panelRender = useFilterRender<V, O>()
   const sizes = filterControlSizes(actions)
@@ -1912,11 +1998,13 @@ export function FiltersAdvancedPanel<V, O>({
 
   const body = (
     <>
-      {/* VISIBLE, not an ARIA attribute: `aria-readonly` is illegal on every
-          role here, and dimmed controls owe the reader a reason. */}
+      {/* ABSOLUTELY POSITIONED, so the word still centres at 0.00px. */}
       {actions.readOnly ? (
         <p
           data-slot="filters-readonly"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className={cn("text-muted-foreground text-xs", PANEL_GUTTER_CLASS)}
         >
           {actions.labels.readOnly}
@@ -1927,6 +2015,9 @@ export function FiltersAdvancedPanel<V, O>({
         <div
           ref={bodyRef}
           data-slot="filters-advanced-body"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           /* NO `overflow-x`: nothing here is ever wider than its box. */
           className={cn(
             TRACK_CONTAINER_CLASS,
@@ -1968,6 +2059,9 @@ export function FiltersAdvancedPanel<V, O>({
       ) : (
         <div
           data-slot="filters-advanced-empty"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className={cn(
             "flex flex-col items-center justify-center gap-1 py-8 text-center",
             PANEL_GUTTER_CLASS
@@ -1996,10 +2090,12 @@ export function FiltersAdvancedPanel<V, O>({
         </div>
       )}
 
-      {/* `shrink-0` on all three: a button clips its label rather than
-          reflowing it, so Clear all read as "ear all filters". */}
+      {/* ABSOLUTELY POSITIONED, so the word still centres at 0.00px. */}
       <div
         data-slot="filters-advanced-footer"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         /* THE APPEND TARGET FOR THE TOP LEVEL, which every group's footer had
            and the root did not: at depth the strip under the last row is a 48px
            "put it here", while at the root it was 47px of `no-drop`. */
@@ -2060,7 +2156,7 @@ export function FiltersAdvancedPanel<V, O>({
           {actions.labels.addConditionGroup}
         </Button>
 
-        {/* NO PANEL-LEVEL SUMMARY: a validator's no belongs on the cell. */}
+        {/* ABSOLUTELY POSITIONED, so the word still centres at 0.00px. */}
         {ruleCount > 0 ? (
           <Button
             variant="ghost"
@@ -2075,9 +2171,7 @@ export function FiltersAdvancedPanel<V, O>({
         ) : null}
       </div>
 
-      {/* The `key` is what makes a REPEATED sentence audible: `aria-live`
-          fires on a mutation and React writes nothing when the string is
-          unchanged, so three presses mutated the region once. */}
+      {/* ABSOLUTELY POSITIONED, so the word still centres at 0.00px. */}
       <div aria-live="polite" role="status" className="sr-only">
         <span key={announcementSeq}>{announcement}</span>
       </div>
@@ -2107,6 +2201,9 @@ export function FiltersAdvancedPanel<V, O>({
 /* -------------------------------------------------------------------------- */
 
 export interface FiltersAdvancedProps {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** Where the builder lives. `"popover"` hangs it off a trigger; `"inline"`
    * renders the same panel with no popup, for a sidebar or a settings page. */
   mode?: "popover" | "inline"
@@ -2120,12 +2217,15 @@ export interface FiltersAdvancedProps {
 }
 
 export function FiltersAdvanced<V, O>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   mode = "popover",
   trigger,
   reorderable = false,
   align = "start",
   className,
-}: FiltersAdvancedProps) {
+}: FiltersAdvancedProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const actions = useFilterActions<V, O>()
   const sizes = filterControlSizes(actions)
   const { ruleCount } = useFilterState<V>()
@@ -2133,16 +2233,22 @@ export function FiltersAdvanced<V, O>({
 
   if (mode === "inline") {
     return (
-      <FiltersAdvancedPanel<V, O>
+      <IenThemeContext.Provider value={ienTheme}>
+<FiltersAdvancedPanel<V, O>
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
         mode="inline"
         reorderable={reorderable}
         className={className}
       />
+</IenThemeContext.Provider>
     )
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <IenThemeContext.Provider value={ienTheme}>
+<Popover open={open} onOpenChange={setOpen}>
       {/* `actions.disabled` alone, and READ ONLY DELIBERATELY DOES NOT
           GATE IT: opening this panel is reading, not writing. */}
       <PopoverTrigger
@@ -2175,6 +2281,9 @@ export function FiltersAdvanced<V, O>({
             {actions.labels.advancedFilter}
             {ruleCount > 0 ? (
               <span
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
                 aria-hidden="true"
                 className="bg-muted text-muted-foreground rounded-sm px-1.5 text-xs tabular-nums"
               >
@@ -2197,5 +2306,6 @@ export function FiltersAdvanced<V, O>({
         <FiltersAdvancedPanel<V, O> reorderable={reorderable} />
       </PopoverContent>
     </Popover>
+</IenThemeContext.Provider>
   )
 }

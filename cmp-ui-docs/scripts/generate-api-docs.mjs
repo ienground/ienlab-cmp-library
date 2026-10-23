@@ -386,6 +386,45 @@ for (const name of Object.keys(webTokens.docs.syntax).filter((name) => name.star
 for (const name of colorRoles) tailwindTheme[`color-ien-${kebabCase(name)}`] = `var(--ien-${kebabCase(name)})`;
 for (const name of Object.keys(webTokens.font)) tailwindTheme[`font-ien-${name}`] = `var(--ien-font-${name})`;
 const tokenCssVars = { theme: tailwindTheme, light: { ...variables, ...colorVariables("Light") }, dark: colorVariables("Dark") };
+// 소비 프로젝트에도 문서 프리뷰와 동일한 CMP 토큰을 설치합니다.
+const registryManifestPath = path.join(repositoryDirectory, "cmp-ui-web-registry/registry.json");
+const registryManifest = JSON.parse(await readFile(registryManifestPath, "utf8"));
+const ienThemeItem = registryManifest.items.find((item) => item.name === "ien-theme");
+if (!ienThemeItem) throw new Error("IEN 공통 테마 항목이 없습니다.");
+const themeAliases = {
+  background: "surface", foreground: "text-primary", card: "surface-raised", "card-foreground": "text-primary",
+  popover: "surface-raised", "popover-foreground": "text-primary", primary: "brand", "primary-foreground": "on-brand",
+  secondary: "surface-weak", "secondary-foreground": "text-primary", muted: "surface-weak", "muted-foreground": "text-secondary",
+  accent: "brand-weak", "accent-foreground": "brand", destructive: "danger", "destructive-foreground": "on-danger",
+  success: "success", "success-foreground": "on-success", warning: "warning", "warning-foreground": "on-warning",
+  info: "info", "info-foreground": "on-info", invert: "text-primary", "invert-foreground": "surface",
+  border: "border", input: "border", ring: "brand",
+};
+const aliases = Object.fromEntries(Object.entries(themeAliases).map(([name, role]) => [name, `var(--ien-${role})`]));
+ienThemeItem.cssVars = {
+  theme: {
+    ...tailwindTheme,
+    ...Object.fromEntries(Object.keys(themeAliases).map((name) => [`color-${name}`, `var(--${name})`])),
+    ...Object.fromEntries(["sm", "md", "lg", "xl", "2xl", "3xl", "4xl"].map((name) => [`radius-${name}`, `var(--ien-control-radius-${name})`])),
+    "font-sans": "var(--ien-font-sans)",
+  },
+  light: { ...tokenCssVars.light, ...aliases },
+  dark: { ...tokenCssVars.dark, ...aliases },
+};
+ienThemeItem.css = webTokens.components;
+// REUI 원본의 보조 팔레트가 CMP의 의미적 색상을 덮어쓰지 않게 합니다.
+for (const item of registryManifest.items) {
+  if (item.name === "ien-theme") continue;
+  if (item.meta?.preview) {
+    item.meta.example = await readFile(path.join(repositoryDirectory, "cmp-ui-web-registry", item.meta.preview), "utf8");
+  }
+  for (const mode of ["light", "dark"]) {
+    for (const name of Object.keys(item.cssVars?.[mode] ?? {})) {
+      if (name in aliases) item.cssVars[mode][name] = aliases[name];
+    }
+  }
+}
+await writeFile(registryManifestPath, JSON.stringify(registryManifest, null, 2) + "\n");
 await writeFile(path.join(projectDirectory, "web/generated-design-tokens.json"), JSON.stringify(designTokens, null, 2) + "\n");
 function declarations(tokens) {
   return Object.entries(tokens).map(([name, value]) => `  --${name}: ${value};`).join("\n");

@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import type { ComponentProps } from "react"
 import { createContext, useContext, useMemo, useState } from "react"
@@ -34,7 +36,7 @@ const PhoneInputContext = createContext<{
   scrollAreaClassName: undefined,
 })
 
-type PhoneInputProps = Omit<
+type PhoneInputProps = (Omit<
   ComponentProps<"input">,
   "onChange" | "value" | "ref"
 > &
@@ -46,9 +48,12 @@ type PhoneInputProps = Omit<
     variant?: PhoneInputSize
     popupClassName?: string
     scrollAreaClassName?: string
-  }
+  }) &
+  IenToneProps
 
 function PhoneInput({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   variant,
   popupClassName,
@@ -56,13 +61,15 @@ function PhoneInput({
   onChange,
   value,
   ...props
-}: PhoneInputProps) {
+}: PhoneInputProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const phoneInputSize = variant || "default"
   return (
-    <PhoneInputContext.Provider
+    <IenThemeContext.Provider value={ienTheme}>
+      <PhoneInputContext.Provider
       value={{ variant: phoneInputSize, popupClassName, scrollAreaClassName }}
     >
-      <BasePhoneInput.default
+        <BasePhoneInput.default
         className={cn(
           "flex",
           props["aria-invalid"] &&
@@ -77,15 +84,26 @@ function PhoneInput({
         onChange={(value) => onChange?.(value || ("" as BasePhoneInput.Value))}
         {...props}
       />
-    </PhoneInputContext.Provider>
+      </PhoneInputContext.Provider>
+    </IenThemeContext.Provider>
   )
 }
 
-function InputComponent({ className, ...props }: ComponentProps<typeof Input>) {
+function InputComponent({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+  ...props
+}: ComponentProps<typeof Input> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { variant } = useContext(PhoneInputContext)
 
   return (
-    <Input
+    <IenThemeContext.Provider value={ienTheme}>
+<Input
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "rounded-s-none focus:z-1",
         variant === "sm" && "h-7",
@@ -94,6 +112,7 @@ function InputComponent({ className, ...props }: ComponentProps<typeof Input>) {
       )}
       {...props}
     />
+</IenThemeContext.Provider>
   )
 }
 
@@ -104,14 +123,17 @@ type CountrySelectProps = {
   value: BasePhoneInput.Country
   options: CountryEntry[]
   onChange: (country: BasePhoneInput.Country) => void
-}
+} & IenToneProps
 
 function CountrySelect({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   disabled,
   value: selectedCountry,
   options: countryList,
   onChange,
-}: CountrySelectProps) {
+}: CountrySelectProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { variant, popupClassName } = useContext(PhoneInputContext)
   const [searchValue, setSearchValue] = useState("")
 
@@ -126,7 +148,8 @@ function CountrySelect({
   }, [countryList, searchValue])
 
   return (
-    <Combobox
+    <IenThemeContext.Provider value={ienTheme}>
+<Combobox
       items={filteredCountries}
       value={selectedCountry || ""}
       onValueChange={(country: BasePhoneInput.Country | null) => {
@@ -138,6 +161,9 @@ function CountrySelect({
       <ComboboxTrigger
         render={
           <Button
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
             variant="outline"
             size={variant}
             className={cn(
@@ -207,14 +233,25 @@ function CountrySelect({
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
+</IenThemeContext.Provider>
   )
 }
 
-function FlagComponent({ country, countryName }: BasePhoneInput.FlagProps) {
+function FlagComponent({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  country,
+  countryName,
+}: BasePhoneInput.FlagProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const Flag = flags[country]
 
   return (
-    <span className="flex h-4 w-4 items-center justify-center [&_svg:not([class*='size-'])]:size-full! [&_svg:not([class*='size-'])]:rounded-[5px]">
+    <IenThemeContext.Provider value={ienTheme}>
+<span
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className="flex h-4 w-4 items-center justify-center [&_svg:not([class*='size-'])]:size-full! [&_svg:not([class*='size-'])]:rounded-[5px]">
       {Flag ? (
         <Flag title={countryName} />
       ) : (
@@ -228,6 +265,7 @@ function FlagComponent({ country, countryName }: BasePhoneInput.FlagProps) {
         />
       )}
     </span>
+</IenThemeContext.Provider>
   )
 }
 

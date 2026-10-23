@@ -2,6 +2,8 @@
 
 // Opted out of React Compiler with the rest of the grid (see data-grid.tsx).
 "use no memo"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   Fragment,
@@ -71,13 +73,16 @@ import { Button } from "@/components/ui/button"
 import { IconPlaceholder } from "@/lib/reui-icons"
 
 function DataGridTableDndHeader<TData extends object>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   header,
   coveredHeaders = [],
 }: {
   header: Header<DataGridFeatures, TData, unknown>
   /** Headers this cell spans through meta.headerColSpan. */
   coveredHeaders?: Header<DataGridFeatures, TData, unknown>[]
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { i18n, props } = useDataGrid()
   const { column } = header
 
@@ -134,13 +139,17 @@ function DataGridTableDndHeader<TData extends object>({
   }
 
   return (
-    <DataGridTableHeadRowCell
+    <IenThemeContext.Provider value={ienTheme}>
+<DataGridTableHeadRowCell
       header={header}
       coveredHeaders={coveredHeaders}
       dndStyle={style}
       dndRef={setNodeRef}
     >
-      <div className="flex items-center justify-start gap-0.5">
+      <div
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className="flex items-center justify-start gap-0.5">
         {canOrder && (
           <Button
             size="icon-sm"
@@ -168,6 +177,7 @@ function DataGridTableDndHeader<TData extends object>({
           )}
       </div>
     </DataGridTableHeadRowCell>
+</IenThemeContext.Provider>
   )
 }
 
@@ -393,6 +403,8 @@ class DataGridKeyboardSensor extends KeyboardSensor {
 }
 
 function DataGridTableDnd<TData extends object>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   handleDragEnd,
   footerContent,
   accessibility,
@@ -404,7 +416,8 @@ function DataGridTableDnd<TData extends object>({
    * live-region announcements, which default to dnd-kit's English strings.
    */
   accessibility?: DndContextProps["accessibility"]
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { table, props } = useDataGrid()
   const mergedHeaderGroups = getDataGridTableMergedHeaderGroups(table)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -467,7 +480,8 @@ function DataGridTableDnd<TData extends object>({
   }, [])
 
   return (
-    <DndContext
+    <IenThemeContext.Provider value={ienTheme}>
+<DndContext
       accessibility={accessibility}
       collisionDetection={closestCenter}
       id={useId()}
@@ -481,6 +495,9 @@ function DataGridTableDnd<TData extends object>({
       sensors={sensors}
     >
       <DataGridTableViewport
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
         viewportRef={containerRef}
         className={
           isDraggingColumn
@@ -556,6 +573,7 @@ function DataGridTableDnd<TData extends object>({
         </DataGridTableBase>
       </DataGridTableViewport>
     </DndContext>
+</IenThemeContext.Provider>
   )
 }
 

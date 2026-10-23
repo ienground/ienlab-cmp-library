@@ -2,6 +2,8 @@
 
 // Opted out of React Compiler with the rest of the grid (see data-grid.tsx).
 "use no memo"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { CSSProperties, ReactNode } from "react"
@@ -295,6 +297,9 @@ type DataGridTableVirtualizerOptions<TData extends object> = Omit<
 }
 
 interface DataGridTableVirtualProps<TData extends object> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   height?: number | string
   estimateSize?: number
   overscan?: number
@@ -325,6 +330,9 @@ interface DataGridTableVirtualProps<TData extends object> {
 }
 
 interface VirtualBodyProps<TData extends object> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   table: DataGridTableInstance<TData>
   topRows: Row<DataGridFeatures, TData>[]
   centerRows: Row<DataGridFeatures, TData>[]
@@ -342,10 +350,13 @@ interface VirtualBodyProps<TData extends object> {
 }
 
 function DataGridTableVirtualPinnedPlaceholderCell<TData extends object>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   column,
 }: {
   column: Column<DataGridFeatures, TData, unknown>
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { props } = useDataGrid()
   const isPinned = column.getIsPinned()
   const isLastStartPinned =
@@ -353,7 +364,11 @@ function DataGridTableVirtualPinnedPlaceholderCell<TData extends object>({
   const isFirstEndPinned = isPinned === "end" && column.getIsFirstColumn("end")
 
   return (
-    <td
+    <IenThemeContext.Provider value={ienTheme}>
+<td
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       aria-hidden="true"
       style={{
         ...(props.tableLayout?.columnsPinnable &&
@@ -375,10 +390,13 @@ function DataGridTableVirtualPinnedPlaceholderCell<TData extends object>({
           "data-pinned:isolate data-pinned:bg-[color:var(--data-grid-surface,var(--data-grid-card-surface,var(--background)))] [&[data-pinned=end][data-last-col=end]]:shadow-[inset_calc(1px*var(--data-grid-dir,1))_0_0_0_var(--border)] [&[data-pinned=start][data-last-col=start]]:shadow-[inset_calc(-1px*var(--data-grid-dir,1))_0_0_0_var(--border)]"
       )}
     />
+</IenThemeContext.Provider>
   )
 }
 
 function DataGridTableVirtualUtilityRow<TData extends object>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   table,
   children,
   centerCellClassName,
@@ -392,7 +410,8 @@ function DataGridTableVirtualUtilityRow<TData extends object>({
   centerCellStyle?: CSSProperties
   rowClassName?: string
   ariaHidden?: boolean
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { props } = useDataGrid()
   const leftVisibleColumns = table.getStartVisibleLeafColumns()
   const centerVisibleColumns = table.getCenterVisibleLeafColumns()
@@ -400,7 +419,11 @@ function DataGridTableVirtualUtilityRow<TData extends object>({
   const hasRightPinnedColumns = hasDataGridTableRightPinnedColumns(table)
 
   return (
-    <tr aria-hidden={ariaHidden || undefined} className={rowClassName}>
+    <IenThemeContext.Provider value={ienTheme}>
+<tr
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} aria-hidden={ariaHidden || undefined} className={rowClassName}>
       {leftVisibleColumns.map((column) => (
         <DataGridTableVirtualPinnedPlaceholderCell
           column={column}
@@ -427,6 +450,7 @@ function DataGridTableVirtualUtilityRow<TData extends object>({
         <DataGridTableFillBodyCell />
       ) : null}
     </tr>
+</IenThemeContext.Provider>
   )
 }
 
@@ -492,6 +516,8 @@ const MemoizedRenderedRow = memo(
 ) as typeof DataGridTableRenderedRow
 
 function DataGridTableVirtualBody<TData extends object>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   table,
   topRows,
   centerRows,
@@ -506,7 +532,8 @@ function DataGridTableVirtualBody<TData extends object>({
   allRowsLoadedMessage,
   measureRowRef,
   centerColumnWindow,
-}: VirtualBodyProps<TData>) {
+}: VirtualBodyProps<TData> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { isLoading } = useDataGrid()
   const totalRows = topRows.length + centerRows.length + bottomRows.length
 
@@ -515,16 +542,23 @@ function DataGridTableVirtualBody<TData extends object>({
     // nothing.
     if (isLoading) {
       return (
-        <DataGridTableVirtualStatusRow table={table}>
-          <div className="flex items-center justify-center gap-2">
+        <IenThemeContext.Provider value={ienTheme}>
+<DataGridTableVirtualStatusRow table={table}>
+          <div
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className="flex items-center justify-center gap-2">
             <Spinner className="size-4 opacity-60" />
             {loadingMoreMessage}
           </div>
         </DataGridTableVirtualStatusRow>
+</IenThemeContext.Provider>
       )
     }
 
-    return <DataGridTableEmpty />
+    return <IenThemeContext.Provider value={ienTheme}>
+<DataGridTableEmpty />
+</IenThemeContext.Provider>
   }
 
   const hasCenterRows = centerRows.length > 0
@@ -645,7 +679,9 @@ function DataGridTableVirtualBody<TData extends object>({
     )
   })
 
-  return <>{renderedRows}</>
+  return <IenThemeContext.Provider value={ienTheme}>
+<>{renderedRows}</>
+</IenThemeContext.Provider>
 }
 
 /**
@@ -664,6 +700,8 @@ const MemoizedVirtualBody = memo(
 ) as typeof DataGridTableVirtualBody
 
 function DataGridTableVirtual<TData extends object>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   height,
   estimateSize = 48,
   overscan = 10,
@@ -680,7 +718,8 @@ function DataGridTableVirtual<TData extends object>({
   hasMore,
   fetchMoreOffset = 0,
   virtualizerOptions,
-}: DataGridTableVirtualProps<TData>) {
+}: DataGridTableVirtualProps<TData> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { i18n, table, props } = useDataGrid<TData>()
   const columnSizing = useDataGridAtom(table.atoms.columnSizing)
   const mergedHeaderGroups = getDataGridTableMergedHeaderGroups(table)
@@ -1155,7 +1194,11 @@ function DataGridTableVirtual<TData extends object>({
   )
 
   return (
-    <DataGridTableViewport
+    <IenThemeContext.Provider value={ienTheme}>
+<DataGridTableViewport
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       viewportRef={handleViewportRef}
       className={!usesExternalScrollArea ? "block" : undefined}
       style={
@@ -1208,6 +1251,7 @@ function DataGridTableVirtual<TData extends object>({
         )}
       </DataGridTableBase>
     </DataGridTableViewport>
+</IenThemeContext.Provider>
   )
 }
 

@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 // Title: Code Block
 // Description: Shadcn code block with Shiki highlighting, streaming, diffs, folding and per-line interaction for AI chat UIs.
@@ -634,7 +636,7 @@ const CodeBlockLineRow = memo(function CodeBlockLineRow({
           {actions({ line: line.number, text: line.text, state })}
         </span>
       ) : null}
-      <span data-slot="code-block-line-content">
+      <span data-slot="code-block-line-content" data-ien-typography="body2">
         {/* An empty line needs an explicit break. Copying a selection relies on
             the browser emitting a newline between block-level rows, and a row
             with no text at all contributes neither text nor separator, so a
@@ -682,7 +684,7 @@ const CodeBlockLineRow = memo(function CodeBlockLineRow({
 /*                                     Root                                    */
 /* -------------------------------------------------------------------------- */
 
-export type CodeBlockProps = {
+export type CodeBlockProps = ({
   code?: string
   language?: string
   lines?: CodeBlockLine[]
@@ -727,7 +729,8 @@ export type CodeBlockProps = {
   defaultFolded?: number[]
   onFoldedChange?: (folded: number[]) => void
   children?: ReactNode
-} & Omit<ComponentProps<"div">, "children" | "onSelect">
+} & Omit<ComponentProps<"div">, "children" | "onSelect">) &
+  IenToneProps
 
 /**
  * The root. `<CodeBlock code={code} language="tsx" />` is a complete block;
@@ -736,6 +739,8 @@ export type CodeBlockProps = {
  * itself, so child order never matters and a wrapper cannot break scrolling.
  */
 function CodeBlock({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   code,
   language,
   lines: linesProp,
@@ -772,7 +777,8 @@ function CodeBlock({
   className,
   children,
   ...props
-}: CodeBlockProps) {
+}: CodeBlockProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const contentId = useId()
   const source = code ?? ""
   const resolvedLanguage = resolveCodeBlockLanguage(language)
@@ -1213,18 +1219,22 @@ function CodeBlock({
   }
 
   return (
-    <CodeBlockConfigContext.Provider value={configValue}>
-      <CodeBlockDocumentContext.Provider value={documentValue}>
-        <CodeBlockActionsContext.Provider value={actionsRegistry}>
-          <div
-            data-slot="code-block"
-            data-variant={variant}
-            data-streaming={streaming || undefined}
-            data-has-diff={hasDiff || undefined}
-            data-foldable={foldable || undefined}
-            data-gutter-channel={gutterChannel || undefined}
-            data-has-header={hasHeader || undefined}
-            className={cn(
+    <IenThemeContext.Provider value={ienTheme}>
+      <CodeBlockConfigContext.Provider value={configValue}>
+        <CodeBlockDocumentContext.Provider value={documentValue}>
+          <CodeBlockActionsContext.Provider value={actionsRegistry}>
+            <div
+              data-slot="code-block"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
+              data-variant={variant}
+              data-streaming={streaming || undefined}
+              data-has-diff={hasDiff || undefined}
+              data-foldable={foldable || undefined}
+              data-gutter-channel={gutterChannel || undefined}
+              data-has-header={hasHeader || undefined}
+              className={cn(
               ROOT_BASE_CLASS,
               ROOT_RADIUS_CLASS,
               ROOT_TOKEN_CLASS,
@@ -1232,16 +1242,17 @@ function CodeBlock({
               variant === "ghost" && ROOT_GHOST_CLASS,
               className
             )}
-            {...props}
-          >
-            <CodeBlockSurfacePropsContext.Provider value={surfaceProps}>
-              {children}
-              {!hasContent && <CodeBlockSurface {...surfaceProps} />}
-            </CodeBlockSurfacePropsContext.Provider>
-          </div>
-        </CodeBlockActionsContext.Provider>
-      </CodeBlockDocumentContext.Provider>
-    </CodeBlockConfigContext.Provider>
+              {...props}
+            >
+              <CodeBlockSurfacePropsContext.Provider value={surfaceProps}>
+                {children}
+                {!hasContent && <CodeBlockSurface {...surfaceProps} />}
+              </CodeBlockSurfacePropsContext.Provider>
+            </div>
+          </CodeBlockActionsContext.Provider>
+        </CodeBlockDocumentContext.Provider>
+      </CodeBlockConfigContext.Provider>
+    </IenThemeContext.Provider>
   )
 }
 
@@ -1251,7 +1262,12 @@ function CodeBlock({
  * height cap no longer applies). Omitted, the root renders the same surface
  * itself, exactly as before.
  */
-function CodeBlockContent({ className }: { className?: string }) {
+function CodeBlockContent({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+}: { className?: string } & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const surface = useContext(CodeBlockSurfacePropsContext)
   if (!surface) {
     throw new Error("CodeBlockContent must be used within a CodeBlock")
@@ -1273,7 +1289,12 @@ function CodeBlockContent({ className }: { className?: string }) {
     }
   }, [surface.builtInSurfaceRendered])
 
-  return <CodeBlockSurface {...surface} scroll={false} className={className} />
+  return <IenThemeContext.Provider value={ienTheme}>
+<CodeBlockSurface
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} {...surface} scroll={false} className={className} />
+</IenThemeContext.Provider>
 }
 
 /**
@@ -1323,9 +1344,11 @@ type CodeBlockSurfaceProps = {
   /** false = no scroll container of its own; an ancestor scrolls instead. */
   scroll?: boolean
   className?: string
-}
+} & IenToneProps
 
 function CodeBlockSurface({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   lines,
   wrap,
   startLine,
@@ -1350,7 +1373,8 @@ function CodeBlockSurface({
   completeAnnouncement,
   scroll = true,
   className,
-}: CodeBlockSurfaceProps) {
+}: CodeBlockSurfaceProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const viewportRef = useRef<HTMLDivElement | null>(null)
   const preRef = useRef<HTMLPreElement | null>(null)
   const [activeLine, setActiveLine] = useState<number | null>(null)
@@ -1550,6 +1574,10 @@ function CodeBlockSurface({
   return (
     <div
       data-slot="code-block-content"
+      data-ien-typography="body2"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "relative min-w-0 rounded-[inherit]",
         /* Clipping is the scroll-mode contract only: composed, a clipped pre
@@ -1558,21 +1586,23 @@ function CodeBlockSurface({
         scroll && "flex-1 overflow-hidden"
       )}
     >
-      {/* A polite status, deliberately NOT an aria-live region on the code
-          itself: a live region over streaming code narrates every token. */}
+      {/* An empty line needs an explicit break. Copying a selection relies on
+            the browser emitting a newline between block-level rows, and a row
+            with no text at all contributes neither text nor separator, so a
+            blank line silently vanishes from the pasted source. */}
       <span role="status" aria-live="polite" className="sr-only">
         {announcement}
       </span>
-      {/* A plain overflow container, deliberately not a ScrollArea primitive.
-          The scroll must stay INSIDE the block (the sticky gutter, the
-          stick-to-bottom stream and `maxLines` all anchor to it), but nothing
-          here needs custom scrollbar machinery, and dropping it leaves the
-          block with no UI-library dependency at all - which is why both twins
-          are the same file. Compose Card, Frame, or your own ScrollArea
-          around the block for outer framing. */}
+      {/* An empty line needs an explicit break. Copying a selection relies on
+            the browser emitting a newline between block-level rows, and a row
+            with no text at all contributes neither text nor separator, so a
+            blank line silently vanishes from the pasted source. */}
       <div
         ref={viewportRef}
         data-slot="code-block-viewport"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         id={contentId}
         role="region"
         aria-label={label}
@@ -1682,11 +1712,21 @@ function CodeBlockSurface({
  * Frame without a doubled bar. Presence flips `data-has-header` on the root,
  * detected from the element type rather than a `:has()` selector.
  */
-function CodeBlockHeader({ className, ...props }: ComponentProps<"div">) {
+function CodeBlockHeader({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+  ...props
+}: ComponentProps<"div"> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <CodeBlockHeaderContext.Provider value={true}>
       <div
         data-slot="code-block-header"
+        data-ien-typography="label1"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         className={cn(
           "border-border flex min-h-9 shrink-0 items-center gap-2 border-b px-3 py-0 text-sm",
           className
@@ -1697,10 +1737,20 @@ function CodeBlockHeader({ className, ...props }: ComponentProps<"div">) {
   )
 }
 
-function CodeBlockTitle({ className, ...props }: ComponentProps<"div">) {
+function CodeBlockTitle({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+  ...props
+}: ComponentProps<"div"> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <div
       data-slot="code-block-title"
+      data-ien-typography="label2"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "text-muted-foreground min-w-0 truncate font-mono text-xs",
         className
@@ -1716,10 +1766,13 @@ function CodeBlockTitle({ className, ...props }: ComponentProps<"div">) {
  * instead of silently rendering plain.
  */
 function CodeBlockLanguage({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   ...props
-}: ComponentProps<"span">) {
+}: ComponentProps<"span"> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { language, resolvedLanguage } = useInternalConfig("CodeBlockLanguage")
   const label = children ?? resolvedLanguage ?? language
 
@@ -1728,6 +1781,9 @@ function CodeBlockLanguage({
   return (
     <span
       data-slot="code-block-language"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-unsupported={!resolvedLanguage || undefined}
       className={cn(
         "border-border bg-muted/60 text-muted-foreground inline-flex shrink-0 items-center rounded-md border px-1.5 py-0.5 font-mono text-[0.6875rem] leading-none uppercase",
@@ -1773,7 +1829,7 @@ function CopyIcon({ copied }: { copied: boolean }) {
   )
 }
 
-export type CodeBlockCopyButtonProps = {
+export type CodeBlockCopyButtonProps = ({
   value?: string
   timeout?: number
   onCopy?: (value: string) => void
@@ -1783,7 +1839,8 @@ export type CodeBlockCopyButtonProps = {
   /** `pinned` floats over the surface; `inline` sits in a header. */
   position?: "auto" | "pinned" | "inline"
   alwaysVisible?: boolean
-} & Omit<ComponentProps<typeof Button>, "value" | "onCopy">
+} & Omit<ComponentProps<typeof Button>, "value" | "onCopy">) &
+  IenToneProps
 
 /**
  * Copy button. Inline inside a header, pinned over the surface anywhere else.
@@ -1792,6 +1849,8 @@ export type CodeBlockCopyButtonProps = {
  * Notation comments are stripped from the payload, matching what is rendered.
  */
 function CodeBlockCopyButton({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   timeout = 2000,
   onCopy,
@@ -1804,7 +1863,8 @@ function CodeBlockCopyButton({
   size,
   children,
   ...props
-}: CodeBlockCopyButtonProps) {
+}: CodeBlockCopyButtonProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useContext(CodeBlockConfigContext)
   const inHeader = useContext(CodeBlockHeaderContext)
   const [copied, setCopied] = useState(false)
@@ -1864,6 +1924,9 @@ function CodeBlockCopyButton({
     <Button
       type="button"
       data-slot="code-block-copy"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-copied={copied || undefined}
       data-copy-failed={copyFailed || undefined}
       data-position={resolvedPosition}
@@ -1897,19 +1960,25 @@ function CodeBlockCopyButton({
 /* -------------------------------------------------------------------------- */
 
 function CodeBlockWrapToggle({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   variant = "ghost",
   size = "sm",
   onClick,
   ...props
-}: ComponentProps<typeof Button>) {
+}: ComponentProps<typeof Button> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { wrap, setWrap } = useInternalConfig("CodeBlockWrapToggle")
 
   return (
     <Button
       type="button"
       data-slot="code-block-wrap-toggle"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-state={wrap ? "on" : "off"}
       aria-pressed={wrap}
       variant={variant}
@@ -1933,13 +2002,16 @@ function CodeBlockWrapToggle({
  * always compose it without guarding on line count themselves.
  */
 function CodeBlockExpandButton({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   variant = "ghost",
   size = "sm",
   onClick,
   ...props
-}: ComponentProps<typeof Button>) {
+}: ComponentProps<typeof Button> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { expanded, setExpanded, collapsible, contentId } = useInternalConfig(
     "CodeBlockExpandButton"
   )
@@ -1949,6 +2021,9 @@ function CodeBlockExpandButton({
   return (
     <div
       data-slot="code-block-expand"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-state={expanded ? "expanded" : "collapsed"}
       className={cn(
         /* Both states float over the surface. Expanded used to rejoin the flex
@@ -2032,7 +2107,7 @@ const LANGUAGE_EXTENSIONS: Record<string, string> = {
   yaml: "yaml",
 }
 
-export type CodeBlockDownloadButtonProps = {
+export type CodeBlockDownloadButtonProps = ({
   /** Text to save. Defaults to the block's code with notation stripped. */
   value?: string
   /** Defaults to `code.<ext>` from the block's language. */
@@ -2043,7 +2118,8 @@ export type CodeBlockDownloadButtonProps = {
   alwaysVisible?: boolean
   /** Accessible name, for localisation. */
   label?: string
-} & Omit<ComponentProps<typeof Button>, "value">
+} & Omit<ComponentProps<typeof Button>, "value">) &
+  IenToneProps
 
 /**
  * Saves the block's code as a file - the sibling the copy button was missing
@@ -2051,6 +2127,8 @@ export type CodeBlockDownloadButtonProps = {
  * step. Same placement contract as the copy button.
  */
 function CodeBlockDownloadButton({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   filename,
   onDownload,
@@ -2062,7 +2140,8 @@ function CodeBlockDownloadButton({
   size,
   children,
   ...props
-}: CodeBlockDownloadButtonProps) {
+}: CodeBlockDownloadButtonProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useContext(CodeBlockConfigContext)
   const document_ = useContext(CodeBlockDocumentContext)
   const inHeader = useContext(CodeBlockHeaderContext)
@@ -2097,6 +2176,9 @@ function CodeBlockDownloadButton({
     <Button
       type="button"
       data-slot="code-block-download"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-position={resolvedPosition}
       aria-label={label ?? "Download code"}
       variant={variant}
@@ -2105,6 +2187,9 @@ function CodeBlockDownloadButton({
       className={cn(
         "shrink-0 [&_svg]:size-3.5",
         resolvedPosition === "pinned" &&
+          /* Physical `right`, not logical `end`: the code surface is forced
+             dir="ltr", so in an RTL app the logical inset landed the button
+             over the first characters instead of the trailing edge. */
           "absolute top-(--code-block-copy-top) right-(--code-block-copy-inset) z-20",
         resolvedPosition === "pinned" &&
           !alwaysVisible &&

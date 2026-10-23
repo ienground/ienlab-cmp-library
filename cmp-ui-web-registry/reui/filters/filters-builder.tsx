@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import {
@@ -205,6 +207,9 @@ function FieldStep<V, O>() {
 }
 
 export interface FiltersBuilderProps {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** Replaces the default Add filter button. */
   trigger?: React.ReactNode
   className?: string
@@ -216,9 +221,12 @@ export interface FiltersBuilderProps {
  * draft and `openCreate` is gated, so read-only and disabled shut every route.
  */
 export function FiltersBuilder<V, O>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   trigger,
   className,
-}: FiltersBuilderProps) {
+}: FiltersBuilderProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const actions = useFilterActions<V, O>()
   const sizes = filterControlSizes(actions)
   const { draft, ruleCount } = useFilterState<V>()
@@ -262,7 +270,8 @@ export function FiltersBuilder<V, O>({
   }
 
   return (
-    <Popover
+    <IenThemeContext.Provider value={ienTheme}>
+<Popover
       open={open}
       onOpenChange={(next) => {
         if (!next) actions.closeDraft()
@@ -279,6 +288,9 @@ export function FiltersBuilder<V, O>({
           (trigger as React.ReactElement)
         ) : (
           <Button
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
             variant="outline"
             size={compact ? sizes.icon : sizes.button}
             aria-label={compact ? actions.labels.addFilter : undefined}
@@ -324,6 +336,7 @@ export function FiltersBuilder<V, O>({
         <FieldStep<V, O> />
       </PopoverContent>
     </Popover>
+</IenThemeContext.Provider>
   )
 }
 

@@ -1,3 +1,4 @@
+import type { IenToneProps } from "@/lib/ien-theme"
 // Title: Icon Tile
 // Description: Square container that gives icons a consistent surface
 
@@ -35,8 +36,11 @@ const iconTileVariants = cva(
   {
     variants: {
       variant: {
+        fill: "ien-fill",
+        weak: "ien-weak",
+        clear: "ien-clear",
         /** Plain bordered surface. The quiet default for list rows and toolbars. */
-        outline: "border border-border bg-background dark:bg-input/32",
+        outline: "ien-outline border",
         /** Raised muted fill with a background-colored ring. Reads as a physical chip. */
         elevated:
           "border-2 border-background bg-muted text-accent-foreground shadow-[0_1px_3px_0_rgb(0_0_0/0.14)] dark:border",
@@ -52,7 +56,7 @@ const iconTileVariants = cva(
           "after:border after:border-current/20 after:bg-current/5",
         ],
         /** Filled tone with a contrasting glyph. Retint with `bg-*` + a text color. */
-        solid: "bg-primary text-primary-foreground",
+        solid: "ien-fill",
         /** Double container - a muted ring around an inset card, matching Frame. */
         frame: [
           "isolate border border-border bg-muted/50 p-(--icon-tile-inset)",
@@ -94,27 +98,36 @@ const iconTileVariants = cva(
       size: "default",
       radius: "default",
     },
-  }
+  },
 )
 
 interface IconTileProps
-  extends React.ComponentProps<"span">, VariantProps<typeof iconTileVariants> {
+  extends React.ComponentProps<"span">,
+    VariantProps<typeof iconTileVariants> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   asChild?: boolean
 }
 
 function IconTile({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   variant = "outline",
   size = "default",
   radius = "default",
   asChild = false,
   ...props
-}: IconTileProps) {
+}: IconTileProps & IenToneProps) {
   const Comp = asChild ? Slot.Root : "span"
 
   return (
     <Comp
       data-slot="icon-tile"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       data-variant={variant}
       data-size={size}
       className={cn(iconTileVariants({ variant, size, radius, className }))}

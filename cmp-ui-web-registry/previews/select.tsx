@@ -22,7 +22,7 @@ const items = [
 export function Pattern() {
   return (
     <Field className="max-w-xs">
-      <Select>
+      <Select tone="warning" useGradient={false}>
         <SelectTrigger>
           <SelectValue placeholder="Select a fruit" />
         </SelectTrigger>

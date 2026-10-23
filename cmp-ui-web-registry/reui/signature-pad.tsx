@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 // Title: Signature Pad
 // Description: Shadcn signature pad with pressure and velocity ink, touch and stylus input, undo and redo, form fields and PNG, JPEG or SVG export.
@@ -435,7 +437,7 @@ type History = {
   present: SignaturePadStroke[]
 }
 
-export type SignaturePadProps = Omit<
+export type SignaturePadProps = (Omit<
   ComponentProps<"div">,
   "defaultValue" | "onChange"
 > & {
@@ -466,9 +468,12 @@ export type SignaturePadProps = Omit<
   required?: boolean
   /** What the form field carries. `png` and `jpeg` rasterize on every stroke; `svg` is a string build. */
   format?: SignaturePadFormat
-}
+}) &
+  IenToneProps
 
 function SignaturePad({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   defaultValue,
   onValueChange,
@@ -490,7 +495,8 @@ function SignaturePad({
   className,
   children,
   ...props
-}: SignaturePadProps) {
+}: SignaturePadProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const [uncontrolled, setUncontrolled] = useState<SignaturePadStroke[]>(
     () => defaultValue ?? []
   )
@@ -629,21 +635,26 @@ function SignaturePad({
   }
 
   return (
-    <SignaturePadContext.Provider value={api}>
-      <SignaturePadConfigContext.Provider value={config}>
-        <div
-          data-slot="signature-pad"
-          data-empty={strokes.length === 0 || undefined}
-          data-drawing={isDrawing || undefined}
-          data-disabled={disabled || undefined}
-          data-readonly={readOnly || undefined}
-          className={cn("flex w-full flex-col gap-2", className)}
-          {...props}
-        >
-          {children}
-        </div>
-      </SignaturePadConfigContext.Provider>
-    </SignaturePadContext.Provider>
+    <IenThemeContext.Provider value={ienTheme}>
+      <SignaturePadContext.Provider value={api}>
+        <SignaturePadConfigContext.Provider value={config}>
+          <div
+            data-slot="signature-pad"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
+            data-empty={strokes.length === 0 || undefined}
+            data-drawing={isDrawing || undefined}
+            data-disabled={disabled || undefined}
+            data-readonly={readOnly || undefined}
+            className={cn("flex w-full flex-col gap-2", className)}
+            {...props}
+          >
+            {children}
+          </div>
+        </SignaturePadConfigContext.Provider>
+      </SignaturePadContext.Provider>
+    </IenThemeContext.Provider>
   )
 }
 
@@ -652,7 +663,7 @@ function SignaturePad({
 /* -------------------------------------------------------------------------- */
 
 const AREA_BASE_CLASS =
-  "relative h-40 w-full overflow-hidden border text-foreground outline-none touch-none select-none [-webkit-touch-callout:none] cursor-crosshair data-disabled:cursor-not-allowed data-disabled:opacity-50 data-readonly:cursor-default"
+  "relative h-40 w-full overflow-hidden border text-foreground outline-none touch-none select-none [-webkit-touch-callout:none] cursor-crosshair data-disabled:cursor-not-allowed data-disabled:opacity-(--ien-state-disabled-alpha) data-readonly:cursor-default"
 
 /* Radius, focus and invalid rings, copied token for token from the textarea
    ladder so the pad reads as the same kind of control in every style. Every
@@ -702,10 +713,11 @@ const StrokePath = memo(function StrokePath({
   )
 })
 
-export type SignaturePadAreaProps = ComponentProps<"div"> & {
+export type SignaturePadAreaProps = (ComponentProps<"div"> & {
   /** `muted` is a filled surface; `ghost` drops the chrome for a card or document that has its own. */
   variant?: keyof typeof AREA_VARIANT_CLASS
-}
+}) &
+  IenToneProps
 
 /**
  * The drawing surface. Children are overlays (a guide, a placeholder, pinned
@@ -713,6 +725,8 @@ export type SignaturePadAreaProps = ComponentProps<"div"> & {
  * stroke only starts on the area itself, never on something inside it.
  */
 function SignaturePadArea({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   ref,
   variant = "default",
   className,
@@ -726,7 +740,8 @@ function SignaturePadArea({
   onContextMenu,
   "aria-describedby": describedBy,
   ...props
-}: SignaturePadAreaProps) {
+}: SignaturePadAreaProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const api = useSignaturePad()
   const config = useSignaturePadConfig("SignaturePadArea")
   const liveRef = useRef<LiveStroke | null>(null)
@@ -975,6 +990,9 @@ function SignaturePadArea({
       aria-describedby={describedBy ? `${describedBy} ${statusId}` : statusId}
       tabIndex={config.interactive ? 0 : -1}
       data-slot="signature-pad-area"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-variant={variant}
       data-empty={api.isEmpty || undefined}
       data-drawing={api.isDrawing || undefined}
@@ -1016,6 +1034,9 @@ function SignaturePadArea({
       </span>
       <svg
         data-slot="signature-pad-canvas"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 size-full overflow-visible"
       >
@@ -1050,13 +1071,19 @@ function SignaturePadArea({
 
 /** A dashed signing line with a cross at its start. Replace the cross with `children`. */
 function SignaturePadGuide({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   ...props
-}: ComponentProps<"div">) {
+}: ComponentProps<"div"> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <div
       data-slot="signature-pad-guide"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       aria-hidden="true"
       className={cn(
         "text-muted-foreground border-muted-foreground/40 pointer-events-none absolute inset-x-6 bottom-8 flex items-end gap-2 border-b border-dashed pb-1.5 text-xs",
@@ -1082,16 +1109,22 @@ function SignaturePadGuide({
 
 /** Shown only while the pad is empty and nobody is drawing. */
 function SignaturePadPlaceholder({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   ...props
-}: ComponentProps<"div">) {
+}: ComponentProps<"div"> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { isEmpty, isDrawing } = useSignaturePad()
   if (!isEmpty || isDrawing) return null
 
   return (
     <div
       data-slot="signature-pad-placeholder"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       aria-hidden="true"
       className={cn(
         "text-muted-foreground pointer-events-none absolute inset-0 flex items-center justify-center p-4 text-center text-sm",
@@ -1117,15 +1150,21 @@ const CONTROLS_POSITION_CLASS = {
  * guide line and under the last letters.
  */
 function SignaturePadControls({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   position = "top-end",
   className,
   ...props
 }: ComponentProps<"div"> & {
   position?: keyof typeof CONTROLS_POSITION_CLASS
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <div
       data-slot="signature-pad-controls"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-position={position}
       className={cn(
         "absolute z-10 flex items-center gap-1",
@@ -1327,6 +1366,8 @@ function SignaturePadSave({
  * scales with CSS while the ink keeps following `currentColor`.
  */
 function SignaturePadPreview({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   strokes,
   padding = 4,
   color,
@@ -1336,13 +1377,17 @@ function SignaturePadPreview({
   strokes: SignaturePadStroke[]
   padding?: number
   color?: string
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   if (strokes.length === 0) return null
   const { x, y, width, height } = resolveFrame(strokes, { padding })
 
   return (
     <svg
       data-slot="signature-pad-preview"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       role="img"
       aria-label="Signature"
       viewBox={`${x} ${y} ${width} ${height}`}

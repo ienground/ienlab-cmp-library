@@ -1,3 +1,4 @@
+import { resolveIenTone, type IenToneProps } from "@/lib/ien-theme"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
 
@@ -5,50 +6,39 @@ import { cn } from "cn"
 
 const badgeVariants = cva(
   [
-    "relative inline-flex shrink-0 items-center justify-center w-fit border border-transparent font-medium whitespace-nowrap outline-none transition-shadow",
-    "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50",
+    "relative inline-flex shrink-0 items-center justify-center w-fit border font-medium whitespace-nowrap outline-none transition-shadow",
+    "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-(--ien-state-disabled-alpha)",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-3",
   ],
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground",
-        outline: "border-border bg-transparent dark:bg-input/32",
-        secondary: "bg-secondary text-secondary-foreground",
-        info: "bg-info text-white",
-        success: "bg-success text-white",
-        warning: "bg-warning text-white",
-        destructive: "bg-destructive text-white",
-        focus: "bg-focus text-focus-foreground",
-        invert: "bg-invert text-invert-foreground",
-        "primary-light":
-          "border-primary/10 bg-primary/10 text-primary dark:border-primary/25 dark:bg-primary/15 dark:text-primary",
-        "warning-light":
-          "border-warning/15 bg-warning/10 text-warning-foreground dark:border-warning/25 dark:bg-warning/15 dark:text-warning",
-        "success-light":
-          "border-success/15 bg-success/10 text-success-foreground dark:border-success/25 dark:bg-success/15 dark:text-success",
-        "info-light":
-          "border-info/15 bg-info/10 text-info-foreground dark:border-info/25 dark:bg-info/15 dark:text-info",
-        "destructive-light":
-          "border-destructive/15 bg-destructive/10 text-destructive-foreground dark:border-destructive/25 dark:bg-destructive/15 dark:text-destructive",
-        "invert-light":
-          "border-invert/15 bg-invert/10 text-foreground dark:border-invert/45 dark:bg-invert/35 dark:text-invert-foreground",
-        "focus-light":
-          "border-focus/15 bg-focus/10 text-focus-foreground dark:border-focus/25 dark:bg-focus/15 dark:text-focus",
-        "primary-outline":
-          "bg-background border-border text-primary dark:bg-input/30",
-        "warning-outline":
-          "bg-background border-border text-warning-foreground dark:bg-input/30",
-        "success-outline":
-          "bg-background border-border text-success-foreground dark:bg-input/30",
-        "info-outline":
-          "bg-background border-border text-info-foreground dark:bg-input/30",
-        "destructive-outline":
-          "bg-background border-border text-destructive-foreground dark:bg-input/30",
-        "invert-outline":
-          "bg-background border-border text-invert-foreground dark:bg-input/30",
-        "focus-outline":
-          "bg-background border-border text-focus-foreground dark:bg-input/30",
+        fill: "ien-fill",
+        weak: "ien-weak",
+        clear: "ien-clear",
+        default: "ien-fill",
+        outline: "ien-outline",
+        secondary: "ien-fill",
+        info: "ien-fill",
+        success: "ien-fill",
+        warning: "ien-fill",
+        destructive: "ien-fill",
+        focus: "ien-fill",
+        invert: "ien-fill",
+        "primary-light": "ien-weak",
+        "warning-light": "ien-weak",
+        "success-light": "ien-weak",
+        "info-light": "ien-weak",
+        "destructive-light": "ien-weak",
+        "invert-light": "ien-weak",
+        "focus-light": "ien-weak",
+        "primary-outline": "ien-outline",
+        "warning-outline": "ien-outline",
+        "success-outline": "ien-outline",
+        "info-outline": "ien-outline",
+        "destructive-outline": "ien-outline",
+        "invert-outline": "ien-outline",
+        "focus-outline": "ien-outline",
       },
       size: {
         xs: "px-1 py-0.25 text-[0.6rem] leading-none h-4 min-w-4 gap-1",
@@ -69,27 +59,38 @@ const badgeVariants = cva(
       size: "default",
       radius: "default",
     },
-  }
+  },
 )
 
 interface BadgeProps
-  extends React.ComponentProps<"span">, VariantProps<typeof badgeVariants> {
+  extends React.ComponentProps<"span">,
+    VariantProps<typeof badgeVariants> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   asChild?: boolean
 }
 
 function Badge({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   variant,
   size,
   radius,
   asChild = false,
   ...props
-}: BadgeProps) {
+}: BadgeProps & IenToneProps) {
   const Comp = asChild ? Slot.Root : "span"
 
   return (
     <Comp
       data-slot="badge"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={resolveIenTone(ienTone, variant)}
+      data-ien-gradient={ienUseGradient}
+      data-variant={variant ?? "default"}
       className={cn(badgeVariants({ variant, size, radius, className }))}
       {...props}
     />

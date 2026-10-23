@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import { useState } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -46,6 +48,8 @@ const valueVariants = cva("text-muted-foreground w-5", {
 })
 
 function Rating({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   rating,
   maxRating = 5,
   size,
@@ -81,7 +85,8 @@ function Rating({
      * Callback function called when rating changes
      */
     onRatingChange?: (rating: number) => void
-  }) {
+  } & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const [hoveredRating, setHoveredRating] = useState<number | null>(null)
   const displayRating =
     editable && hoveredRating !== null ? hoveredRating : rating
@@ -149,11 +154,11 @@ function Rating({
               data-slot="rating-star-filled"
               className={cn(
                 starVariants({ size }),
-                "fill-yellow-400 text-yellow-400"
+                "fill-primary text-primary",
               )}
             />
           </div>
-        </div>
+        </div>,
       )
     }
 
@@ -161,21 +166,29 @@ function Rating({
   }
 
   return (
-    <div
-      data-slot="rating"
-      className={cn(ratingVariants({ size }), className)}
-      {...props}
-    >
-      <div className="flex items-center">{renderStars()}</div>
-      {showValue && (
-        <span
-          data-slot="rating-value"
-          className={cn(valueVariants({ size }), starClassName)}
-        >
-          {displayRating.toFixed(1)}
-        </span>
-      )}
-    </div>
+    <IenThemeContext.Provider value={ienTheme}>
+      <div
+        data-slot="rating"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
+        className={cn(ratingVariants({ size }), className)}
+        {...props}
+      >
+        <div className="flex items-center">{renderStars()}</div>
+        {showValue && (
+          <span
+            data-slot="rating-value"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
+            className={cn(valueVariants({ size }), starClassName)}
+          >
+            {displayRating.toFixed(1)}
+          </span>
+        )}
+      </div>
+    </IenThemeContext.Provider>
   )
 }
 

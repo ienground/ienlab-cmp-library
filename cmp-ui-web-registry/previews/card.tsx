@@ -10,11 +10,11 @@ import {
 
 export function Pattern() {
   return (
-    <Card className="w-full max-w-xs">
+    <Card tone="brand" toneVariant="weak" className="w-full max-w-xs">
       <CardHeader>
-        <CardTitle>Default Card</CardTitle>
+        <CardTitle>브랜드 카드</CardTitle>
         <CardDescription>
-          This card uses the default size variant.
+          CMP의 약한 tone과 그라데이션을 적용합니다.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -31,4 +31,4 @@ export function Pattern() {
     </Card>
   )
 }
-export default Pattern;
+export default Pattern

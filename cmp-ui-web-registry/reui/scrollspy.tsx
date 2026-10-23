@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import type { ReactNode, RefObject } from "react"
 import { useCallback, useEffect, useRef } from "react"
@@ -15,9 +17,11 @@ type ScrollspyProps = {
   dataAttribute?: string
   history?: boolean
   throttleTime?: number
-}
+} & IenToneProps
 
 export function Scrollspy({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   children,
   targetRef,
   onUpdate,
@@ -26,7 +30,8 @@ export function Scrollspy({
   smooth = true,
   dataAttribute = "scrollspy",
   history = true,
-}: ScrollspyProps) {
+}: ScrollspyProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const selfRef = useRef<HTMLDivElement | null>(null)
   const anchorElementsRef = useRef<Element[] | null>(null)
   const prevIdTracker = useRef<string | null>(null)
@@ -234,8 +239,17 @@ export function Scrollspy({
   ])
 
   return (
-    <div data-slot="scrollspy" className={className} ref={selfRef}>
-      {children}
-    </div>
+    <IenThemeContext.Provider value={ienTheme}>
+      <div
+        data-slot="scrollspy"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
+        className={className}
+        ref={selfRef}
+      >
+        {children}
+      </div>
+    </IenThemeContext.Provider>
   )
 }

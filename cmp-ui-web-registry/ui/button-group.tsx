@@ -1,3 +1,4 @@
+import type { IenToneProps } from "@/lib/ien-theme"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
 import { Slot } from "radix-ui"
@@ -22,14 +23,22 @@ const buttonGroupVariants = cva(
 )
 
 function ButtonGroup({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   orientation,
   ...props
-}: React.ComponentProps<"div"> & VariantProps<typeof buttonGroupVariants>) {
+}: React.ComponentProps<"div"> &
+  VariantProps<typeof buttonGroupVariants> &
+  IenToneProps) {
   return (
     <div
       role="group"
       data-slot="button-group"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       data-orientation={orientation}
       className={cn(buttonGroupVariants({ orientation }), className)}
       {...props}
@@ -38,12 +47,14 @@ function ButtonGroup({
 }
 
 function ButtonGroupText({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   ...props
 }: React.ComponentProps<"div"> & {
   asChild?: boolean
-}) {
+} & IenToneProps) {
   const Comp = asChild ? Slot.Root : "div"
 
   return (
@@ -58,13 +69,19 @@ function ButtonGroupText({
 }
 
 function ButtonGroupSeparator({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   orientation = "vertical",
   ...props
-}: React.ComponentProps<typeof Separator>) {
+}: React.ComponentProps<typeof Separator> & IenToneProps) {
   return (
     <Separator
       data-slot="button-group-separator"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       orientation={orientation}
       className={cn(
         "bg-input relative self-stretch data-[orientation=horizontal]:mx-px data-[orientation=horizontal]:w-auto data-[orientation=vertical]:my-px data-[orientation=vertical]:h-auto",

@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import type { ChangeEvent, ComponentProps } from "react"
 import {
@@ -555,6 +557,9 @@ export function useDateSelector({
 }
 
 interface DateSelectorFilterToggleProps {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   value: DateSelectorFilterType
   onChange: (value: DateSelectorFilterType) => void
   showBetween?: boolean
@@ -564,18 +569,25 @@ interface DateSelectorFilterToggleProps {
 }
 
 function DateSelectorFilterToggle({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   onChange,
   showBetween = true,
   showIs = true,
   presetMode,
   className,
-}: DateSelectorFilterToggleProps) {
+}: DateSelectorFilterToggleProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { i18n } = useDateSelectorContext()
   const isDisabled = presetMode !== undefined
 
   return (
-    <Tabs
+    <IenThemeContext.Provider value={ienTheme}>
+<Tabs
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       value={value}
       onValueChange={(newValue) => {
         if (!isDisabled && newValue) {
@@ -625,10 +637,14 @@ function DateSelectorFilterToggle({
         )}
       </TabsList>
     </Tabs>
+</IenThemeContext.Provider>
   )
 }
 
 interface DateSelectorDateSelectorPeriodTabsProps {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   value: DateSelectorPeriodType
   onChange: (value: DateSelectorPeriodType) => void
   periodTypes?: DateSelectorPeriodType[]
@@ -639,6 +655,8 @@ interface DateSelectorDateSelectorPeriodTabsProps {
 }
 
 function DateSelectorPeriodTabs({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   onChange,
   periodTypes,
@@ -646,7 +664,8 @@ function DateSelectorPeriodTabs({
   calendarMonth,
   onMonthChange,
   showNavigationButtons = false,
-}: DateSelectorDateSelectorPeriodTabsProps) {
+}: DateSelectorDateSelectorPeriodTabsProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { i18n } = useDateSelectorContext()
   const getCalendarMonthPosition = () => getMonthPosition(calendarMonth)
   const monthPosition = useSyncExternalStore(
@@ -668,7 +687,11 @@ function DateSelectorPeriodTabs({
     : tabs
 
   return (
-    <div
+    <IenThemeContext.Provider value={ienTheme}>
+<div
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "flex flex-wrap items-center justify-between gap-3",
         className
@@ -758,10 +781,14 @@ function DateSelectorPeriodTabs({
           </div>
         )}
     </div>
+</IenThemeContext.Provider>
   )
 }
 
 interface DateSelectorDayPickerProps {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   currentMonth: Date
   selectedDate?: Date
   selectedEndDate?: Date
@@ -775,6 +802,8 @@ interface DateSelectorDayPickerProps {
 }
 
 function DateSelectorDayPicker({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   currentMonth,
   selectedDate,
   selectedEndDate,
@@ -785,7 +814,8 @@ function DateSelectorDayPicker({
   showTwoMonths = true,
   weekStartsOn,
   className,
-}: DateSelectorDayPickerProps) {
+}: DateSelectorDayPickerProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { i18n } = useDateSelectorContext()
   const isMobile = useIsMobile()
 
@@ -853,7 +883,11 @@ function DateSelectorDayPicker({
   }
 
   return (
-    <div className={cn("flex w-full items-center justify-between", className)}>
+    <IenThemeContext.Provider value={ienTheme}>
+<div
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className={cn("flex w-full items-center justify-between", className)}>
       {isRange ? (
         <Calendar
           month={currentMonth}
@@ -896,10 +930,14 @@ function DateSelectorDayPicker({
         />
       )}
     </div>
+</IenThemeContext.Provider>
   )
 }
 
 interface DateSelectorDateSelectorPeriodGridProps {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   years: number[]
   items: string[]
   selectedYear?: number
@@ -913,6 +951,8 @@ interface DateSelectorDateSelectorPeriodGridProps {
 }
 
 function DateSelectorPeriodGrid({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   years,
   items,
   selectedYear,
@@ -923,9 +963,14 @@ function DateSelectorPeriodGrid({
   onSelect,
   columns,
   className,
-}: DateSelectorDateSelectorPeriodGridProps) {
+}: DateSelectorDateSelectorPeriodGridProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
-    <div className={cn("w-full space-y-6", className)}>
+    <IenThemeContext.Provider value={ienTheme}>
+<div
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className={cn("w-full space-y-6", className)}>
       {years.map((year) => (
         <div key={year}>
           <div className="text-muted-foreground mb-3 text-sm font-medium">
@@ -972,10 +1017,14 @@ function DateSelectorPeriodGrid({
         </div>
       ))}
     </div>
+</IenThemeContext.Provider>
   )
 }
 
 interface DateSelectorYearListProps {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   years: number[]
   selectedYear?: number
   rangeStart?: { year: number; value: number }
@@ -986,6 +1035,8 @@ interface DateSelectorYearListProps {
 }
 
 function DateSelectorYearList({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   years,
   selectedYear,
   rangeStart,
@@ -993,9 +1044,14 @@ function DateSelectorYearList({
   isYearInRange,
   onSelect,
   className,
-}: DateSelectorYearListProps) {
+}: DateSelectorYearListProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
-    <div className={cn("grid grid-cols-2 gap-2", className)}>
+    <IenThemeContext.Provider value={ienTheme}>
+<div
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className={cn("grid grid-cols-2 gap-2", className)}>
       {years.map((year) => {
         const isSelected = selectedYear === year && !rangeStart && !rangeEnd
         const isRangeStart = rangeStart?.year === year
@@ -1023,10 +1079,14 @@ function DateSelectorYearList({
         )
       })}
     </div>
+</IenThemeContext.Provider>
   )
 }
 
 export interface DateSelectorProps {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   value?: DateSelectorValue
   onChange?: (value: DateSelectorValue) => void
   allowRange?: boolean
@@ -1050,6 +1110,8 @@ export interface DateSelectorProps {
 }
 
 export function DateSelector({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   onChange,
   allowRange = true,
@@ -1070,7 +1132,8 @@ export function DateSelector({
   dayDateFormat = "MM/dd/yyyy",
   dayDateFormats,
   weekStartsOn,
-}: DateSelectorProps) {
+}: DateSelectorProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const mergedI18n = useMemo(
     () => ({ ...DEFAULT_DATE_SELECTOR_I18N, ...i18nOverride }),
     [i18nOverride]
@@ -1231,26 +1294,34 @@ export function DateSelector({
   }, [inputValue, displayValue, parseInputValue])
 
   return (
-    <DateSelectorContext.Provider
+    <IenThemeContext.Provider value={ienTheme}>
+      <DateSelectorContext.Provider
       value={{ i18n: mergedI18n, variant: "outline", size: "default" }}
     >
-      <div className={cn("w-full space-y-4 sm:w-[470px]", className)}>
-        <div className="flex flex-wrap items-center gap-3">
-          {label && (
-            <h3 className="text-sm font-medium" data-slot="data-selector-label">
-              {label}
-            </h3>
-          )}
-          <DateSelectorFilterToggle
+        <div className={cn("w-full space-y-4 sm:w-[470px]", className)}>
+          <div className="flex flex-wrap items-center gap-3">
+            {label && (
+              <h3
+                className="text-sm font-medium"
+                data-slot="data-selector-label"
+                data-ien-typography="label1"
+                data-ien=""
+                data-ien-tone={ienTheme.tone}
+                data-ien-gradient={ienTheme.useGradient}
+              >
+                {label}
+              </h3>
+            )}
+            <DateSelectorFilterToggle
             value={filterType}
             onChange={setFilterType}
             showBetween={allowRange}
             presetMode={presetMode}
           />
-        </div>
-        {showInput && (
-          <div className="relative">
-            <Input
+          </div>
+          {showInput && (
+            <div className="relative">
+              <Input
               type="text"
               value={inputHint ? inputValue : displayValue}
               readOnly={!inputHint}
@@ -1261,8 +1332,8 @@ export function DateSelector({
               onBlur={handleInputBlur}
               onChange={handleInputChange}
             />
-            {(inputHint ? inputValue : displayValue) && (
-              <button
+              {(inputHint ? inputValue : displayValue) && (
+                <button
                 type="button"
                 onClick={clearSelection}
                 className={cn(
@@ -1274,7 +1345,7 @@ export function DateSelector({
                   "ring-offset-background focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:outline-none"
                 )}
               >
-                <IconPlaceholder
+                  <IconPlaceholder
                   lucide="XIcon"
                   tabler="IconX"
                   hugeicons="Cancel01Icon"
@@ -1282,11 +1353,11 @@ export function DateSelector({
                   remixicon="RiCloseLine"
                   className="size-4"
                 />
-              </button>
-            )}
-          </div>
-        )}
-        <DateSelectorPeriodTabs
+                </button>
+              )}
+            </div>
+          )}
+          <DateSelectorPeriodTabs
           value={periodType}
           onChange={setPeriodType}
           periodTypes={periodTypes}
@@ -1295,9 +1366,9 @@ export function DateSelector({
           showNavigationButtons={periodType === "day"}
         />
 
-        {periodType === "day" ? (
-          <div className="w-full pb-1">
-            <DateSelectorDayPicker
+          {periodType === "day" ? (
+            <div className="w-full pb-1">
+              <DateSelectorDayPicker
               currentMonth={calendarMonth}
               selectedDate={selectedDate}
               selectedEndDate={selectedEndDate}
@@ -1308,11 +1379,11 @@ export function DateSelector({
               showTwoMonths={showTwoMonths}
               weekStartsOn={weekStartsOn}
             />
-          </div>
-        ) : (
-          <div className="-mr-3 w-full">
-            <ScrollArea key={periodType} className="h-[200px] w-full pe-3">
-              {periodType === "month" && (
+            </div>
+          ) : (
+            <div className="-mr-3 w-full">
+              <ScrollArea key={periodType} className="h-[200px] w-full pe-3">
+                {periodType === "month" && (
                 <DateSelectorPeriodGrid
                   years={years}
                   items={mergedI18n.monthsShort}
@@ -1326,7 +1397,7 @@ export function DateSelector({
                 />
               )}
 
-              {periodType === "quarter" && (
+                {periodType === "quarter" && (
                 <DateSelectorPeriodGrid
                   years={years}
                   items={mergedI18n.quarters}
@@ -1340,7 +1411,7 @@ export function DateSelector({
                 />
               )}
 
-              {periodType === "half-year" && (
+                {periodType === "half-year" && (
                 <DateSelectorPeriodGrid
                   years={years}
                   items={mergedI18n.halfYears}
@@ -1354,7 +1425,7 @@ export function DateSelector({
                 />
               )}
 
-              {periodType === "year" && (
+                {periodType === "year" && (
                 <DateSelectorYearList
                   years={years}
                   selectedYear={selectedYear}
@@ -1364,10 +1435,11 @@ export function DateSelector({
                   onSelect={handleYearSelect}
                 />
               )}
-            </ScrollArea>
-          </div>
-        )}
-      </div>
-    </DateSelectorContext.Provider>
+              </ScrollArea>
+            </div>
+          )}
+        </div>
+      </DateSelectorContext.Provider>
+    </IenThemeContext.Provider>
   )
 }

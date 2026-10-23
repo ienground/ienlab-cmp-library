@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import { useCascaderActions } from "@/components/reui/cascader/cascader-context"
@@ -54,18 +56,21 @@ const FOOTER_SWALLOWED_KEYS = new Set([
   "PageDown",
 ])
 
-export type CascaderFooterProps = React.ComponentProps<"div">
+export type CascaderFooterProps = React.ComponentProps<"div"> & IenToneProps
 
 /**
  * Actions pinned below the list, a SIBLING of `CascaderList`. Children win
  * over the root's `actions` prop; with neither it renders nothing.
  */
 function CascaderFooter({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   onKeyDown,
   ...props
-}: CascaderFooterProps) {
+}: CascaderFooterProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { actions, labels } = useCascaderActions()
   const hasChildren = React.Children.count(children) > 0
 
@@ -107,6 +112,10 @@ function CascaderFooter({
   return (
     <div
       data-slot="cascader-footer"
+      data-ien-typography="caption"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       /* Named, not a bare div: without it a screen reader reaches the actions
          with nothing to say they are not more options. */
       role="group"
@@ -226,10 +235,14 @@ function CascaderActionList({ items }: { items: CascaderActionItem[] }) {
 /*                                   Action                                   */
 /* -------------------------------------------------------------------------- */
 
-export interface CascaderActionProps extends Omit<
+export interface CascaderActionProps
+  extends Omit<
   React.ComponentProps<"button">,
   "onSelect"
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   icon?: React.ReactNode
   /** Fires on press, after `onClick`, and not at all when disabled. */
   onSelect?: () => void
@@ -255,6 +268,8 @@ const FLYOUT_SURFACE_CLASS =
  * instead of `:disabled`.
  */
 function CascaderAction({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   icon,
   children,
@@ -263,7 +278,8 @@ function CascaderAction({
   onKeyDown,
   disabled,
   ...props
-}: CascaderActionProps) {
+}: CascaderActionProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   // Set by `CascaderSubmenuContent`: a plain button in the footer's Tab ring,
   // a roving-focus `menuitem` inside a flyout, never both.
   const inMenu = React.useContext(CascaderMenuContext)
@@ -298,6 +314,9 @@ function CascaderAction({
     <button
       type="button"
       data-slot="cascader-action"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       /* Conditional spread: `false` would publish `aria-disabled="false"`. */
       {...(disabled ? { "aria-disabled": true, "data-disabled": "" } : null)}
       onClick={handleClick}
@@ -310,6 +329,9 @@ function CascaderAction({
       {icon ? (
         <span
           data-slot="cascader-action-icon"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className="text-muted-foreground flex shrink-0 items-center justify-center"
         >
           {icon}
@@ -430,10 +452,14 @@ function CascaderSubmenu({
   )
 }
 
-export interface CascaderSubmenuTriggerProps extends Omit<
+export interface CascaderSubmenuTriggerProps
+  extends Omit<
   React.ComponentProps<"button">,
   "onSelect"
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   icon?: React.ReactNode
 }
 
@@ -454,6 +480,8 @@ type CascaderSubmenuTriggerClickEvent = Parameters<
  * ignores `defaultPrevented`).
  */
 function CascaderSubmenuTrigger({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   icon,
   children,
@@ -461,7 +489,8 @@ function CascaderSubmenuTrigger({
   onClick,
   disabled,
   ...props
-}: CascaderSubmenuTriggerProps) {
+}: CascaderSubmenuTriggerProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { labels } = useCascaderActions()
   const { rowRef, setOpen, triggerId, keyboardRef } = useCascaderSubmenu()
   const direction = useDirection()
@@ -516,6 +545,10 @@ function CascaderSubmenuTrigger({
       ref={rowRef}
       id={triggerId}
       data-slot="cascader-submenu-trigger"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       aria-haspopup="menu"
       /* NOT `disabled={disabled}`: Base UI writes the native attribute. */
       {...(disabled ? { "aria-disabled": true, "data-disabled": "" } : null)}
@@ -534,6 +567,9 @@ function CascaderSubmenuTrigger({
       {icon ? (
         <span
           data-slot="cascader-action-icon"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className="text-muted-foreground flex shrink-0 items-center justify-center"
         >
           {icon}
@@ -558,12 +594,14 @@ function CascaderSubmenuTrigger({
 }
 
 export interface CascaderSubmenuContentProps
-  extends
-    PopoverPrimitive.Popup.Props,
+  extends PopoverPrimitive.Popup.Props,
     Pick<
       PopoverPrimitive.Positioner.Props,
       "side" | "align" | "sideOffset" | "alignOffset"
-    > {}
+    > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+}
 
 /** Carries Base UI's handler-veto hook, so a plain React event will not do. */
 type CascaderSubmenuKeyEvent = Parameters<
@@ -575,6 +613,8 @@ type CascaderSubmenuKeyEvent = Parameters<
  * the parent portal node, the mechanism the file header describes.
  */
 function CascaderSubmenuContent({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   onKeyDown,
@@ -583,7 +623,8 @@ function CascaderSubmenuContent({
   sideOffset = 8,
   alignOffset = 0,
   ...props
-}: CascaderSubmenuContentProps) {
+}: CascaderSubmenuContentProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { rowRef, close, triggerId, keyboardRef } = useCascaderSubmenu()
   const direction = useDirection()
   const popupRef = React.useRef<HTMLDivElement | null>(null)
@@ -697,6 +738,10 @@ function CascaderSubmenuContent({
           ref={popupRef}
           initialFocus={initialFocus}
           data-slot="cascader-submenu-content"
+          data-ien-typography="body2"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           /* Roving focus, named by the row that opens it. `tabIndex={-1}` lets
              a pointer open park focus here without adding a Tab stop. */
           role="menu"

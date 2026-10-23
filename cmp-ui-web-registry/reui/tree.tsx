@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import type { ButtonHTMLAttributes, CSSProperties, HTMLAttributes } from "react"
 import { createContext, Fragment, useContext } from "react"
@@ -30,6 +32,9 @@ function useTreeContext<T = any>() {
 }
 
 interface TreeProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   indent?: number
   tree?: any
   toggleIconType?: ToggleIconType
@@ -37,13 +42,16 @@ interface TreeProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function Tree({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   indent = 20,
   tree,
   className,
   toggleIconType = "chevron",
   asChild = false,
   ...props
-}: TreeProps) {
+}: TreeProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const containerProps =
     tree && typeof tree.getContainerProps === "function"
       ? tree.getContainerProps()
@@ -62,14 +70,19 @@ function Tree({
   const Comp = asChild ? Slot.Root : "div"
 
   return (
-    <TreeContext.Provider value={{ indent, tree, toggleIconType }}>
-      <Comp
-        data-slot="tree"
-        style={mergedStyle}
-        className={cn("flex flex-col", className)}
-        {...otherProps}
-      />
-    </TreeContext.Provider>
+    <IenThemeContext.Provider value={ienTheme}>
+      <TreeContext.Provider value={{ indent, tree, toggleIconType }}>
+        <Comp
+          data-slot="tree"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
+          style={mergedStyle}
+          className={cn("flex flex-col", className)}
+          {...otherProps}
+        />
+      </TreeContext.Provider>
+    </IenThemeContext.Provider>
   )
 }
 
@@ -146,17 +159,23 @@ function TreeItem<T = any>({
 }
 
 interface TreeItemLabelProps<T = any> extends HTMLAttributes<HTMLSpanElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   item?: ItemInstance<T>
   asChild?: boolean
 }
 
 function TreeItemLabel<T = any>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   item: propItem,
   children,
   className,
   asChild = false,
   ...props
-}: TreeItemLabelProps<T>) {
+}: TreeItemLabelProps<T> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { currentItem, toggleIconType } = useTreeContext<T>()
   const item = propItem || currentItem
 
@@ -170,6 +189,10 @@ function TreeItemLabel<T = any>({
   return (
     <Comp
       data-slot="tree-item-label"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "in-focus-visible:ring-ring/50 bg-background hover:bg-accent in-data-[selected=true]:bg-accent in-data-[selected=true]:text-accent-foreground in-data-[drag-target=true]:bg-accent flex items-center gap-1 transition-colors not-in-data-[folder=true]:ps-7 in-focus-visible:ring-[3px] in-data-[search-match=true]:bg-blue-50! [&_svg]:pointer-events-none [&_svg]:shrink-0",
         "rounded-md",
@@ -223,7 +246,13 @@ function TreeItemLabel<T = any>({
   )
 }
 
-function TreeDragLine({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+function TreeDragLine({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { tree } = useTreeContext()
 
   if (!tree || typeof tree.getDragLineStyle !== "function") {
@@ -235,7 +264,11 @@ function TreeDragLine({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
 
   const dragLine = tree.getDragLineStyle()
   return (
-    <div
+    <IenThemeContext.Provider value={ienTheme}>
+<div
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       style={dragLine}
       className={cn(
         "bg-primary before:bg-background before:border-primary absolute z-30 -mt-px h-0.5 w-[unset] before:absolute before:-top-[3px] before:left-0 before:size-2 before:border-2",
@@ -244,6 +277,7 @@ function TreeDragLine({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
       )}
       {...props}
     />
+</IenThemeContext.Provider>
   )
 }
 

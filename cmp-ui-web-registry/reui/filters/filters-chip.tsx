@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import {
@@ -170,7 +172,12 @@ function FilterPathSeparator() {
  *  TOOLTIP IS NOT THE ACCESSIBLE ROUTE: it is hover and focus, so the segment
  *  is `aria-hidden` and the whole path stays in the control's NAME. The host's
  *  own `title` is dropped while collapsed (`pathCollapsed`) or both fire. */
-function FilterPathEllipsis({ full }: { full: string }) {
+function FilterPathEllipsis({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  full,
+}: { full: string } & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <TooltipProvider>
       <Tooltip>
@@ -178,6 +185,9 @@ function FilterPathEllipsis({ full }: { full: string }) {
           <span
             aria-hidden="true"
             data-slot="filter-path-ellipsis"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
             /* A path SEGMENT with no air of its own: the chevron's margin
                is all that parts a name from the next, and this used to STACK
                an `mx` on it. Plain inline, no `vertical-align`: `middle` sat
@@ -447,6 +457,9 @@ function FilterStepHandoff({ onRelease }: { onRelease: () => void }) {
  *  BOTH routes end here. The operator popover used to draw the editor itself,
  *  so a handed-off panel sat a segment's width left of a second press. */
 export interface FilterValuePopoverProps<V = unknown, O = unknown> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   rule: FilterRule<V>
   field: FilterField<V, O>
   operator: FilterOperator | undefined
@@ -457,12 +470,15 @@ export interface FilterValuePopoverProps<V = unknown, O = unknown> {
 }
 
 export function FilterValuePopover<V, O>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   rule,
   field,
   operator,
   trigger,
   className,
-}: FilterValuePopoverProps<V, O>) {
+}: FilterValuePopoverProps<V, O> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const actions = useFilterActions<V, O>()
   const focusStore = useFilterFocusStore()
   const autoOpen = useFilterChipAutoOpen(rule.id) === "value"
@@ -495,7 +511,8 @@ export function FilterValuePopover<V, O>({
   return (
     // REFUSES to open while locked rather than leaving it to the trigger: an
     // `aria-disabled` control that still opens an editor is one that lied.
-    <Popover
+    <IenThemeContext.Provider value={ienTheme}>
+<Popover
       open={open}
       onOpenChange={(next) => {
         if (next && locked) return
@@ -514,7 +531,10 @@ export function FilterValuePopover<V, O>({
       >
         {trigger}
       </PopoverTrigger>
-      <PopoverContent align="start" className={cn("w-auto p-0", className)}>
+      <PopoverContent
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} align="start" className={cn("w-auto p-0", className)}>
         <FilterValueEditor<V, O>
           rule={rule}
           field={field}
@@ -527,6 +547,7 @@ export function FilterValuePopover<V, O>({
         />
       </PopoverContent>
     </Popover>
+</IenThemeContext.Provider>
   )
 }
 
@@ -540,6 +561,9 @@ export function FilterValuePopover<V, O>({
  *  value popover once its own panel has left the DOM; advancing in place
  *  anchored the editor to the CONDITION segment and doubled up in the row. */
 export interface FilterOperatorPopoverProps<V = unknown, O = unknown> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   rule: FilterRule<V>
   field: FilterField<V, O>
   trigger: React.ReactElement
@@ -547,11 +571,14 @@ export interface FilterOperatorPopoverProps<V = unknown, O = unknown> {
 }
 
 export function FilterOperatorPopover<V, O>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   rule,
   field,
   trigger,
   className,
-}: FilterOperatorPopoverProps<V, O>) {
+}: FilterOperatorPopoverProps<V, O> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const actions = useFilterActions<V, O>()
   const focusStore = useFilterFocusStore()
   const autoOpen = useFilterChipAutoOpen(rule.id) === "operator"
@@ -612,7 +639,8 @@ export function FilterOperatorPopover<V, O>({
   )
 
   return (
-    <Popover
+    <IenThemeContext.Provider value={ienTheme}>
+<Popover
       open={open}
       onOpenChange={(next) => {
         if (next && locked) return
@@ -633,6 +661,9 @@ export function FilterOperatorPopover<V, O>({
         {trigger}
       </PopoverTrigger>
       <PopoverContent
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
         align="start"
         /* RADIX ONLY, the last hop of the handoff. Radix restores focus to
            this trigger a macrotask AFTER the panel unmounts, which is after
@@ -708,6 +739,7 @@ export function FilterOperatorPopover<V, O>({
         />
       </PopoverContent>
     </Popover>
+</IenThemeContext.Provider>
   )
 }
 
@@ -797,6 +829,8 @@ export function FilterMoveToMenuItems({ nodeId }: { nodeId: string }) {
  *  row's kebab act on the same rule. `allowGrouping` is the CHROME's answer;
  *  "Convert to advanced filter" is the CONSUMER's, and hides itself there. */
 export function FilterRuleMenuItems({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   ruleId,
   /** Offer "Wrap in condition group". Off for the chip row, which cannot draw
    *  a group; on in the builder, the only way to nest without dragging. */
@@ -804,7 +838,8 @@ export function FilterRuleMenuItems({
 }: {
   ruleId: string
   allowGrouping?: boolean
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const actions = useFilterActions()
   // Gated here as well as at the trigger, because this is EXPORTED: a consumer
   // composing their own menu gets rows that say they are unavailable.
@@ -813,7 +848,8 @@ export function FilterRuleMenuItems({
     /* Every row leads with an icon. `IconPlaceholder` because the source ships
        under five icon sets; no size class, because each style already sizes an
        unsized svg in a menu row; `aria-hidden`, the label IS the name. */
-    <>
+    <IenThemeContext.Provider value={ienTheme}>
+<>
       <DropdownMenuItem
         disabled={locked}
         onClick={() => actions.duplicateNode(ruleId)}
@@ -826,7 +862,10 @@ export function FilterRuleMenuItems({
           remixicon="RiFileCopyLine"
           aria-hidden="true"
         />
-        <span className={FILTER_MENU_LABEL_CLASS}>
+        <span
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className={FILTER_MENU_LABEL_CLASS}>
           {actions.labels.duplicate}
         </span>
       </DropdownMenuItem>
@@ -902,10 +941,14 @@ export function FilterRuleMenuItems({
         <span className={FILTER_MENU_LABEL_CLASS}>{actions.labels.remove}</span>
       </DropdownMenuItem>
     </>
+</IenThemeContext.Provider>
   )
 }
 
 export interface FilterChipProps<V = unknown> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   rule: FilterRule<V>
   index: number
 }
@@ -913,7 +956,13 @@ export interface FilterChipProps<V = unknown> {
 /** One filter, as a chip. Memoization means something here: the actions
  *  context is stable, the focus store is subscribed to a boolean and the query
  *  shares structure, so editing one filter of forty re-renders one chip. */
-function FilterChipImpl<V, O>({ rule, index }: FilterChipProps<V>) {
+function FilterChipImpl<V, O>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  rule,
+  index,
+}: FilterChipProps<V> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const actions = useFilterActions<V, O>()
   const render = useFilterRender<V, O>()
   const focusStore = useFilterFocusStore()
@@ -1018,6 +1067,9 @@ function FilterChipImpl<V, O>({ rule, index }: FilterChipProps<V>) {
   return (
     <ButtonGroup
       data-slot="filter-chip"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       role="group"
       aria-label={actions.labels.filterLabel(
         `${pathText} ${operatorLabel}${hasValue ? ` ${valueName}` : ""}`.trim() +
@@ -1033,13 +1085,16 @@ function FilterChipImpl<V, O>({ rule, index }: FilterChipProps<V>) {
         ""
       )}
       onFocusCapture={() => {
-        if (!focused)
-          focusStore.set({ id: rule.id, segment: null, autoOpen: false })
-      }}
+          if (!focused)
+            focusStore.set({ id: rule.id, segment: null, autoOpen: false })
+        }}
       data-index={index}
     >
-      {/* DISPLAY ONLY: a div, not a button, not a tab stop, no popover. The
-          attribute is fixed for the life of the chip. */}
+      {/* The trigger IS the segment, never a wrapper, and `asChild` keeps it
+          from becoming one. `ButtonGroup` fuses DIRECT children only
+          (`[&>*:not(:last-child)]:rounded-r-none`,
+          `[&>*:not(:first-child)]:border-l-0`), so a nested one keeps its own
+          border and the chip reads as separate badges. */}
       <ButtonGroupText
         /* Dropped while the path is collapsed: the ellipsis inside carries the
            same sentence as a tooltip, and the two would stack. */
@@ -1074,8 +1129,11 @@ function FilterChipImpl<V, O>({ rule, index }: FilterChipProps<V>) {
         }
       />
 
-      {/* No condition, no value: `getFilterArity(undefined)` defaults to "one",
-          so testing the operator alone renders a stray value segment. */}
+      {/* The trigger IS the segment, never a wrapper, and `asChild` keeps it
+          from becoming one. `ButtonGroup` fuses DIRECT children only
+          (`[&>*:not(:last-child)]:rounded-r-none`,
+          `[&>*:not(:first-child)]:border-l-0`), so a nested one keeps its own
+          border and the chip reads as separate badges. */}
       {hasValue ? (
         <FilterValuePopover
           rule={rule}

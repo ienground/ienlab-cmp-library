@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import { Autocomplete as AutocompletePrimitive } from "@base-ui/react/autocomplete"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -8,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { IconPlaceholder } from "@/lib/reui-icons"
 
 const inputVariants = cva(
-  "outline-none flex w-full text-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 [[readonly]]:bg-muted/80 [[readonly]]:cursor-not-allowed border border-input focus-visible:border-ring aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-lg bg-transparent dark:bg-input/30 text-sm transition-colors focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-3",
+  "outline-none flex w-full text-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-(--ien-state-disabled-alpha) [[readonly]]:bg-muted/80 [[readonly]]:cursor-not-allowed border border-input focus-visible:border-ring aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-lg bg-transparent dark:bg-input/30 text-sm transition-colors focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-3",
   {
     variants: {
       size: {
@@ -21,10 +23,35 @@ const inputVariants = cva(
     defaultVariants: {
       size: "default",
     },
-  }
+  },
 )
 
-const Autocomplete = AutocompletePrimitive.Root
+function Autocomplete<Items extends readonly { items: readonly unknown[] }[]>(
+  props: Omit<
+    AutocompletePrimitive.Root.Props<Items[number]["items"][number]>,
+    "items"
+  > & { items: Items } & IenToneProps,
+): React.JSX.Element
+function Autocomplete<ItemValue>(
+  props: Omit<AutocompletePrimitive.Root.Props<ItemValue>, "items"> & {
+    items?: readonly ItemValue[]
+  } & IenToneProps,
+): React.JSX.Element
+function Autocomplete<ItemValue>({
+  tone,
+  useGradient,
+  ...props
+}: AutocompletePrimitive.Root.Props<ItemValue> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone, useGradient })
+  return (
+    <IenThemeContext.Provider value={ienTheme}>
+      <AutocompletePrimitive.Root
+        {...props}
+        items={props.items as readonly ItemValue[] | undefined}
+      />
+    </IenThemeContext.Provider>
+  )
+}
 
 function AutocompleteValue({ ...props }: AutocompletePrimitive.Value.Props) {
   return (
@@ -33,6 +60,8 @@ function AutocompleteValue({ ...props }: AutocompletePrimitive.Value.Props) {
 }
 
 function AutocompleteInput({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   size = "default",
   showClear = false,
@@ -42,11 +71,15 @@ function AutocompleteInput({
   VariantProps<typeof inputVariants> & {
     showClear?: boolean
     showTrigger?: boolean
-  }) {
+  } & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <div className="relative w-full">
       <AutocompletePrimitive.Input
         data-slot="autocomplete-input"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-size={size}
         className={cn(inputVariants({ size }), className)}
         {...props}
@@ -58,12 +91,19 @@ function AutocompleteInput({
 }
 
 function AutocompleteStatus({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: AutocompletePrimitive.Status.Props) {
+}: AutocompletePrimitive.Status.Props & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <AutocompletePrimitive.Status
       data-slot="autocomplete-status"
+      data-ien-typography="caption"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "text-muted-foreground px-2 py-1.5 text-sm empty:m-0 empty:p-0",
         className
@@ -91,12 +131,18 @@ function AutocompleteBackdrop({
 }
 
 function AutocompletePositioner({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: AutocompletePrimitive.Positioner.Props) {
+}: AutocompletePrimitive.Positioner.Props & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <AutocompletePrimitive.Positioner
       data-slot="autocomplete-positioner"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn("z-50 outline-none", className)}
       {...props}
     />
@@ -104,6 +150,8 @@ function AutocompletePositioner({
 }
 
 function AutocompleteList({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   scrollAreaClassName,
   ...props
@@ -111,7 +159,8 @@ function AutocompleteList({
   scrollAreaClassName?: string
   scrollFade?: boolean
   scrollbarGutter?: boolean
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   // Out of the layout while the list renders nothing. Base UI's scroll area
   // skips measuring 0px tall content, so a list that overflowed and then
   // filtered to empty kept its old thumb, hanging below the popup. Keyed on
@@ -125,6 +174,9 @@ function AutocompleteList({
     >
       <AutocompletePrimitive.List
         data-slot="autocomplete-list"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         className={cn(
           "not-empty:px-1 not-empty:py-1 not-empty:scroll-py-1 in-data-has-overflow-y:me-3",
           className
@@ -147,12 +199,18 @@ function AutocompleteCollection({
 }
 
 function AutocompleteRow({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: React.ComponentProps<typeof AutocompletePrimitive.Row>) {
+}: React.ComponentProps<typeof AutocompletePrimitive.Row> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <AutocompletePrimitive.Row
       data-slot="autocomplete-row"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn("flex items-center gap-2", className)}
       {...props}
     />
@@ -160,12 +218,19 @@ function AutocompleteRow({
 }
 
 function AutocompleteItem({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: React.ComponentProps<typeof AutocompletePrimitive.Item>) {
+}: React.ComponentProps<typeof AutocompletePrimitive.Item> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <AutocompletePrimitive.Item
       data-slot="autocomplete-item"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "text-foreground data-highlighted:text-foreground data-highlighted:before:bg-accent gap-1.5",
         "rounded-md",
@@ -173,17 +238,21 @@ function AutocompleteItem({
         /* Icon sizing mirrors the shadcn Select item. Rhea tracks nova, as its
            shadcn Input metrics match nova's; the row radius above follows the
            shadcn Select and Dropdown Menu items, xl in rhea. */
-        "px-1.5 py-1 text-sm [&_svg:not([class*='size-'])]:size-4 relative flex cursor-default items-center outline-hidden transition-colors select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:relative data-highlighted:z-0 data-highlighted:before:absolute data-highlighted:before:inset-x-0 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([role=img]):not([class*=text-])]:opacity-60",
-        className
+        "px-1.5 py-1 text-sm [&_svg:not([class*='size-'])]:size-4 relative flex cursor-default items-center outline-hidden transition-colors select-none data-disabled:pointer-events-none data-disabled:opacity-(--ien-state-disabled-alpha) data-highlighted:relative data-highlighted:z-0 data-highlighted:before:absolute data-highlighted:before:inset-x-0 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([role=img]):not([class*=text-])]:opacity-60",
+        className,
       )}
       {...props}
     />
   )
 }
 
-export interface AutocompleteContentProps extends React.ComponentProps<
+export interface AutocompleteContentProps
+  extends React.ComponentProps<
   typeof AutocompletePrimitive.Popup
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   align?: AutocompletePrimitive.Positioner.Props["align"]
   sideOffset?: AutocompletePrimitive.Positioner.Props["sideOffset"]
   alignOffset?: AutocompletePrimitive.Positioner.Props["alignOffset"]
@@ -193,6 +262,8 @@ export interface AutocompleteContentProps extends React.ComponentProps<
 }
 
 function AutocompleteContent({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   showBackdrop = false,
@@ -202,7 +273,8 @@ function AutocompleteContent({
   side = "bottom",
   anchor,
   ...props
-}: AutocompleteContentProps) {
+}: AutocompleteContentProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <AutocompletePortal>
       {showBackdrop && <AutocompleteBackdrop />}
@@ -216,6 +288,9 @@ function AutocompleteContent({
         <div className="relative flex max-h-full">
           <AutocompletePrimitive.Popup
             data-slot="autocomplete-popup"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
             className={cn(
               "bg-popover text-popover-foreground rounded-lg shadow-md ring-foreground/10 flex max-h-[min(var(--available-height),24rem)] w-(--anchor-width) max-w-(--available-width) origin-(--transform-origin) scroll-pt-2 scroll-pb-2 flex-col overscroll-contain py-0.5 ring-1 transition-[scale,opacity] has-data-starting-style:scale-98 has-data-starting-style:opacity-0 has-data-[side=none]:scale-100 has-data-[side=none]:transition-none",
               className
@@ -239,12 +314,20 @@ function AutocompleteGroup({
 }
 
 function AutocompleteGroupLabel({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: React.ComponentProps<typeof AutocompletePrimitive.GroupLabel>) {
+}: React.ComponentProps<typeof AutocompletePrimitive.GroupLabel> &
+  IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <AutocompletePrimitive.GroupLabel
       data-slot="autocomplete-group-label"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "text-muted-foreground px-1.5 py-1 text-xs font-medium",
         className
@@ -255,12 +338,18 @@ function AutocompleteGroupLabel({
 }
 
 function AutocompleteEmpty({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: React.ComponentProps<typeof AutocompletePrimitive.Empty>) {
+}: React.ComponentProps<typeof AutocompletePrimitive.Empty> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <AutocompletePrimitive.Empty
       data-slot="autocomplete-empty"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "text-muted-foreground px-2 py-1.5 text-sm text-center empty:m-0 empty:p-0",
         className
@@ -271,12 +360,18 @@ function AutocompleteEmpty({
 }
 
 function AutocompleteClear({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: React.ComponentProps<typeof AutocompletePrimitive.Clear>) {
+}: React.ComponentProps<typeof AutocompletePrimitive.Clear> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <AutocompletePrimitive.Clear
       data-slot="autocomplete-clear"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "ring-offset-background focus:ring-ring absolute top-1/2 -translate-y-1/2 cursor-pointer opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none data-disabled:pointer-events-none",
         className
@@ -296,12 +391,19 @@ function AutocompleteClear({
 }
 
 function AutocompleteTrigger({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: React.ComponentProps<typeof AutocompletePrimitive.Trigger>) {
+}: React.ComponentProps<typeof AutocompletePrimitive.Trigger> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <AutocompletePrimitive.Trigger
       data-slot="autocomplete-trigger"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "focus:ring-ring ring-offset-background absolute top-1/2 -translate-y-1/2 cursor-pointer focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none has-[+[data-slot=autocomplete-clear]]:hidden data-disabled:pointer-events-none",
         className
@@ -329,12 +431,19 @@ function AutocompleteArrow({
 }
 
 function AutocompleteSeparator({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: React.ComponentProps<typeof AutocompletePrimitive.Separator>) {
+}: React.ComponentProps<typeof AutocompletePrimitive.Separator> &
+  IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <AutocompletePrimitive.Separator
       data-slot="autocomplete-separator"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "bg-border my-1.5 h-px",
         className

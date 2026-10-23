@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import {
@@ -68,13 +70,12 @@ const ROW_THEME_CLASS =
  * it would have to lose to. Not receiving the token beats overriding it with
  * `!`, which a consumer then has to fight in turn.
  */
-const ROW_GAP_CLASS =
-  "gap-2"
+const ROW_GAP_CLASS = "gap-2"
 
 const ROW_TEXT_CLASS =
   "text-sm"
 
-const ROW_SHELL_CLASS = `${ROW_THEME_CLASS} relative flex w-full cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 ${ROW_INSET_CLASS}`
+const ROW_SHELL_CLASS = `${ROW_THEME_CLASS} relative flex w-full cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-(--ien-state-disabled-alpha) [&_svg]:pointer-events-none [&_svg]:shrink-0 ${ROW_INSET_CLASS}`
 
 const ROW_CLASS = `${ROW_SHELL_CLASS} ${ROW_GAP_CLASS} ${ROW_TEXT_CLASS}`
 
@@ -87,7 +88,7 @@ const CASCADER_ACTION_INSET_CLASS = `${ROW_INSET_CLASS} ${ROW_FLUSH_CLASS}`
  *  leave a command painted as if it were still hovered. Disabled keys off
  *  `aria-disabled`, not `:disabled`, to keep it FOCUSABLE: a footer whose only
  *  row is disabled has no tab stop. */
-export const CASCADER_ACTION_CLASS = `${ROW_SHELL_CLASS} ${ROW_TEXT_CLASS} ${ROW_FLUSH_CLASS} hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground cursor-pointer gap-2 transition-colors aria-disabled:pointer-events-none aria-disabled:opacity-50`
+export const CASCADER_ACTION_CLASS = `${ROW_SHELL_CLASS} ${ROW_TEXT_CLASS} ${ROW_FLUSH_CLASS} hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground cursor-pointer gap-2 transition-colors aria-disabled:pointer-events-none aria-disabled:opacity-(--ien-state-disabled-alpha)`
 
 // The box around the affordances that are not the row. 20px around a 16px icon,
 // the outer 2px cancelled at the call site; 24px would set the row height.
@@ -524,9 +525,11 @@ const CascaderItem = React.memo(function CascaderItem({
   const checkbox = (
     <span
       data-slot="cascader-item-checkbox"
+      data-ien-typography="label1"
       className="border-input in-data-[selected]:bg-primary in-data-[selected]:border-primary in-data-[selected]:text-primary-foreground in-data-[indeterminate]:bg-primary in-data-[indeterminate]:border-primary in-data-[indeterminate]:text-primary-foreground flex size-4 shrink-0 items-center justify-center rounded-[4px] border transition-colors"
     >
-      {/* Colour declared ON THE ICON with `!`; see `CHECKBOX_MARK_CLASS`. */}
+      {/* TEXT, not a button: a focusable element inside a `role="option"`
+            row is a `nested-interactive` violation. */}
       {indeterminate ? (
         <IconPlaceholder
           lucide="MinusIcon"
@@ -535,6 +538,7 @@ const CascaderItem = React.memo(function CascaderItem({
           phosphor="MinusIcon"
           remixicon="RiSubtractLine"
           data-slot="cascader-item-dash"
+          data-ien-typography="label1"
           className={cn(CHECKBOX_MARK_CLASS, "size-3")}
         />
       ) : (
@@ -545,6 +549,7 @@ const CascaderItem = React.memo(function CascaderItem({
           phosphor="CheckIcon"
           remixicon="RiCheckLine"
           data-slot="cascader-item-tick"
+          data-ien-typography="label1"
           className={cn(
             CHECKBOX_MARK_CLASS,
             "size-3 opacity-0 in-data-[selected]:opacity-100"
@@ -566,6 +571,7 @@ const CascaderItem = React.memo(function CascaderItem({
           phosphor="CheckIcon"
           remixicon="RiCheckLine"
           data-slot="cascader-item-check"
+          data-ien-typography="label1"
           className={cn("pointer-events-none", INDICATOR_MARK_CLASS)}
         />
       )}
@@ -574,10 +580,12 @@ const CascaderItem = React.memo(function CascaderItem({
 
   const body = custom ?? children ?? (
     <>
-      {/* Tree mode expands in place, so the branch marker leads the row. */}
+      {/* TEXT, not a button: a focusable element inside a `role="option"`
+            row is a `nested-interactive` violation. */}
       {mode === "tree" && branch ? (
         <span
           data-slot="cascader-item-expander"
+          data-ien-typography="label1"
           /* Pure affordance: the row itself carries `aria-expanded`. */
           aria-hidden="true"
           data-state={
@@ -631,19 +639,21 @@ const CascaderItem = React.memo(function CascaderItem({
         // started 28px off its sibling branches' and read as one level up.
         <span
           data-slot="cascader-item-expander-spacer"
+          data-ien-typography="label1"
           aria-hidden="true"
           className={cn("-ms-0.5", AFFORDANCE_BOX_CLASS)}
         />
       ) : null}
 
-      {/* Tree + multi-select: the box leads the row, and an unselectable row
-          still reserves its width. */}
+      {/* TEXT, not a button: a focusable element inside a `role="option"`
+            row is a `nested-interactive` violation. */}
       {leadingCheckbox ? (
         selectable ? (
           checkbox
         ) : (
           <span
             data-slot="cascader-item-checkbox-spacer"
+            data-ien-typography="label1"
             aria-hidden="true"
             className="size-4 shrink-0"
           />
@@ -653,14 +663,15 @@ const CascaderItem = React.memo(function CascaderItem({
       {node.icon ? (
         <span
           data-slot="cascader-item-icon"
+          data-ien-typography="label1"
           className="text-muted-foreground flex shrink-0 items-center justify-center"
         >
           {node.icon}
         </span>
       ) : null}
 
-      {/* The row box is sized for pieces side by side; this one stacks, so it
-          restates the gap: 8px reads as a paragraph break, not a subtitle. */}
+      {/* TEXT, not a button: a focusable element inside a `role="option"`
+            row is a `nested-interactive` violation. */}
       <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
         {customLabel ?? (
           <>
@@ -668,6 +679,7 @@ const CascaderItem = React.memo(function CascaderItem({
             {node.description ? (
               <span
                 data-slot="cascader-item-description"
+                data-ien-typography="body2"
                 className="text-muted-foreground w-full truncate text-start text-xs"
               >
                 {node.description}
@@ -678,23 +690,31 @@ const CascaderItem = React.memo(function CascaderItem({
         {showPath ? <CascaderItemPath node={node} /> : null}
       </span>
 
-      {/* The count is a bare number, and nothing else says a branch opens. */}
+      {/* TEXT, not a button: a focusable element inside a `role="option"`
+            row is a `nested-interactive` violation. */}
       {srDetails ? (
-        <span data-slot="cascader-item-details" className="sr-only">
+        <span
+          data-slot="cascader-item-details"
+          data-ien-typography="label1"
+          className="sr-only"
+        >
           {srDetails}
         </span>
       ) : null}
 
-      {/* Tree mode expands in place, so it has no drill-in chevron. */}
+      {/* TEXT, not a button: a focusable element inside a `role="option"`
+            row is a `nested-interactive` violation. */}
       {branch && mode !== "tree" ? (
         <span
           data-slot="cascader-item-trailing"
+          data-ien-typography="label1"
           aria-hidden="true"
           className="text-muted-foreground ms-auto flex shrink-0 items-center gap-1 text-xs tabular-nums"
         >
           {showCount ? (
             <span
               data-slot="cascader-item-count"
+              data-ien-typography="label1"
               /* The marker a consumer (and a test) reads to tell the two
                  numbers apart without matching on a colour class. */
               {...(showsSelectedCount ? { "data-selected-count": "" } : null)}
@@ -703,13 +723,14 @@ const CascaderItem = React.memo(function CascaderItem({
               {trailingCount}
             </span>
           ) : null}
-          {/* ONLY the chevron is the drill target: sharing a hit area with
-              the count made a number pressable. */}
+          {/* TEXT, not a button: a focusable element inside a `role="option"`
+            row is a `nested-interactive` violation. */}
           <span
             data-slot="cascader-item-chevron"
+            data-ien-typography="label1"
             data-state={
-              childrenError ? "error" : childrenLoading ? "loading" : "idle"
-            }
+            childrenError ? "error" : childrenLoading ? "loading" : "idle"
+          }
             onClick={selectable ? handleChevronClick : undefined}
             onMouseUp={selectable ? handleChevronMouseUp : undefined}
             onMouseDown={as === "button" ? handleButtonMouseDown : undefined}
@@ -750,6 +771,7 @@ const CascaderItem = React.memo(function CascaderItem({
       {branch && mode === "tree" && showCount ? (
         <span
           data-slot="cascader-item-count"
+          data-ien-typography="label1"
           {...(showsSelectedCount ? { "data-selected-count": "" } : null)}
           /* The count is spoken by the sr-only details span instead. */
           aria-hidden="true"
@@ -762,14 +784,15 @@ const CascaderItem = React.memo(function CascaderItem({
         </span>
       ) : null}
 
-      {/* No trailing indicator when a tree's box led the row, or when
-          `indicator={false}` opted out. See `showsIndicator`. */}
+      {/* TEXT, not a button: a focusable element inside a `role="option"`
+            row is a `nested-interactive` violation. */}
       {selectable && !leadingCheckbox && showsIndicator ? (
         as === "button" ? (
           // No ItemIndicator outside Base UI: `data-selected` drives it.
           (multiple || selected) && (
             <span
               data-slot="cascader-item-indicator"
+              data-ien-typography="label1"
               className={INDICATOR_CLASS}
             >
               {indicator}
@@ -783,6 +806,7 @@ const CascaderItem = React.memo(function CascaderItem({
             render={
               <span
                 data-slot="cascader-item-indicator"
+                data-ien-typography="label1"
                 className={INDICATOR_CLASS}
               />
             }
@@ -899,7 +923,12 @@ const CascaderItem = React.memo(function CascaderItem({
 })
 
 /** Ancestor chain under a deep or global hit: "Name" alone is ambiguous. */
-function CascaderItemPath({ node }: { node: CascaderNode }) {
+function CascaderItemPath({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  node,
+}: { node: CascaderNode } & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { index, labels } = useCascaderActions()
   const ancestors = getCascaderPath(index, node.value).slice(0, -1)
   if (!ancestors.length) return null
@@ -907,6 +936,10 @@ function CascaderItemPath({ node }: { node: CascaderNode }) {
   return (
     <span
       data-slot="cascader-item-path"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className="text-muted-foreground flex w-full items-center gap-0.5 truncate text-start text-xs"
     >
       {ancestors.map((ancestor, i) => (
@@ -1039,10 +1072,14 @@ const CASCADER_LABEL_CLASS = `text-muted-foreground text-xs py-1.5 ${CASCADER_AC
 const CASCADER_SEPARATOR_CLASS =
   "h-px bg-border my-1 mx-[calc(var(--cascader-list-pad,4px)*-1)]! shrink-0"
 
-export interface CascaderGroupProps extends Omit<
+export interface CascaderGroupProps
+  extends Omit<
   ComboboxPrimitive.Group.Props,
   "className"
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** Base UI also accepts a state callback here; the group has no state. */
   className?: string
 }
@@ -1052,11 +1089,20 @@ export interface CascaderGroupProps extends Omit<
  *  heading alone inside a listbox is dropped from the accessibility tree.
  *  Grouping is composition, not data: `CascaderItems` renders one flat run per
  *  level, so its indices line up with `listRef`. */
-function CascaderGroup({ className, ...props }: CascaderGroupProps) {
+function CascaderGroup({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+  ...props
+}: CascaderGroupProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <CascaderGroupContext.Provider value={true}>
       <ComboboxPrimitive.Group
         data-slot="cascader-group"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         className={cn("flex flex-col", className)}
         {...props}
       />
@@ -1064,20 +1110,34 @@ function CascaderGroup({ className, ...props }: CascaderGroupProps) {
   )
 }
 
-export interface CascaderLabelProps extends Omit<
+export interface CascaderLabelProps
+  extends Omit<
   ComboboxPrimitive.GroupLabel.Props,
   "className" | "style"
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** No state callback; outside a group this is not a Base UI part at all. */
   className?: string
   style?: React.CSSProperties
 }
 
 /** Inside a group: the real thing, with the id association Base UI wires up. */
-function CascaderGroupLabel({ className, ...props }: CascaderLabelProps) {
+function CascaderGroupLabel({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+  ...props
+}: CascaderLabelProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <ComboboxPrimitive.GroupLabel
       data-slot="cascader-label"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(CASCADER_LABEL_CLASS, className)}
       {...props}
     />
@@ -1110,10 +1170,14 @@ function CascaderLabel(props: CascaderLabelProps) {
   )
 }
 
-export interface CascaderSeparatorProps extends Omit<
+export interface CascaderSeparatorProps
+  extends Omit<
   ComboboxPrimitive.Separator.Props,
   "className"
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** Base UI also accepts a state callback here; only the orientation varies. */
   className?: string
 }
@@ -1121,10 +1185,19 @@ export interface CascaderSeparatorProps extends Omit<
 /** Decorative on purpose: Base UI's separator is `role="separator"`, which a
  *  `listbox` may not own, and a run that needs separating for a screen reader
  *  needs a `CascaderGroup`, not a line. A consumer can pass the role back. */
-function CascaderSeparator({ className, ...props }: CascaderSeparatorProps) {
+function CascaderSeparator({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+  ...props
+}: CascaderSeparatorProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <ComboboxPrimitive.Separator
       data-slot="cascader-separator"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       role="presentation"
       aria-hidden="true"
       className={cn(CASCADER_SEPARATOR_CLASS, className)}

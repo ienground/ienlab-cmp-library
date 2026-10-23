@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import type { ReactNode } from "react"
 import { createContext, useContext, useId } from "react"
@@ -16,7 +18,7 @@ const NumberFieldContext = createContext<{
 } | null>(null)
 
 const numberFieldGroupVariants = cva(
-  "relative flex w-full justify-between border border-input data-disabled:pointer-events-none data-disabled:opacity-50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive focus-within:has-aria-invalid:border-destructive focus-within:has-aria-invalid:ring-destructive/20 dark:focus-within:has-aria-invalid:ring-destructive/40 rounded-lg bg-transparent dark:bg-input/30 transition-colors focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-3",
+  "relative flex w-full justify-between border border-input data-disabled:pointer-events-none data-disabled:opacity-(--ien-state-disabled-alpha) aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive focus-within:has-aria-invalid:border-destructive focus-within:has-aria-invalid:ring-destructive/20 dark:focus-within:has-aria-invalid:ring-destructive/40 rounded-lg bg-transparent dark:bg-input/30 transition-colors focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-3",
   {
     variants: {
       size: {
@@ -28,7 +30,7 @@ const numberFieldGroupVariants = cva(
     defaultVariants: {
       size: "default",
     },
-  }
+  },
 )
 
 const numberFieldButtonVariants = cva(
@@ -68,35 +70,48 @@ const numberFieldInputVariants = cva(
 )
 
 function NumberField({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   id,
   className,
   size = "default",
   ...props
 }: NumberFieldPrimitive.Root.Props &
-  VariantProps<typeof numberFieldGroupVariants>) {
+  VariantProps<typeof numberFieldGroupVariants> &
+  IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const generatedId = useId()
   const fieldId = id ?? generatedId
   const sizeValue = size ?? "default"
 
   return (
-    <NumberFieldContext.Provider value={{ fieldId, size: sizeValue }}>
-      <NumberFieldPrimitive.Root
-        className={cn("flex w-full flex-col items-start gap-2", className)}
-        data-size={sizeValue}
-        data-slot="number-field"
-        id={fieldId}
-        {...props}
-      />
-    </NumberFieldContext.Provider>
+    <IenThemeContext.Provider value={ienTheme}>
+      <NumberFieldContext.Provider value={{ fieldId, size: sizeValue }}>
+        <NumberFieldPrimitive.Root
+          className={cn("flex w-full flex-col items-start gap-2", className)}
+          data-size={sizeValue}
+          data-slot="number-field"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
+          id={fieldId}
+          {...props}
+        />
+      </NumberFieldContext.Provider>
+    </IenThemeContext.Provider>
   )
 }
 
 function NumberFieldGroup({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   size: sizeProp,
   ...props
 }: NumberFieldPrimitive.Group.Props &
-  Partial<VariantProps<typeof numberFieldGroupVariants>>) {
+  Partial<VariantProps<typeof numberFieldGroupVariants>> &
+  IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useContext(NumberFieldContext)
   if (!context) {
     throw new Error(
@@ -109,12 +124,17 @@ function NumberFieldGroup({
     <NumberFieldPrimitive.Group
       className={cn(numberFieldGroupVariants({ size }), className)}
       data-slot="number-field-group"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       {...props}
     />
   )
 }
 
 function NumberFieldDecrement({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   size: sizeProp,
   children,
@@ -122,7 +142,8 @@ function NumberFieldDecrement({
 }: NumberFieldPrimitive.Decrement.Props &
   Partial<VariantProps<typeof numberFieldButtonVariants>> & {
     children?: React.ReactNode
-  }) {
+  } & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useContext(NumberFieldContext)
   if (!context) {
     throw new Error(
@@ -139,6 +160,9 @@ function NumberFieldDecrement({
         className
       )}
       data-slot="number-field-decrement"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       {...props}
     >
       {children ?? (
@@ -155,6 +179,8 @@ function NumberFieldDecrement({
 }
 
 function NumberFieldIncrement({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   size: sizeProp,
   children,
@@ -162,7 +188,8 @@ function NumberFieldIncrement({
 }: NumberFieldPrimitive.Increment.Props &
   Partial<VariantProps<typeof numberFieldButtonVariants>> & {
     children?: ReactNode
-  }) {
+  } & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useContext(NumberFieldContext)
   if (!context) {
     throw new Error(
@@ -179,6 +206,9 @@ function NumberFieldIncrement({
         className
       )}
       data-slot="number-field-increment"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       {...props}
     >
       {children ?? (
@@ -195,11 +225,15 @@ function NumberFieldIncrement({
 }
 
 function NumberFieldInput({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   size: sizeProp,
   ...props
 }: NumberFieldPrimitive.Input.Props &
-  Partial<VariantProps<typeof numberFieldInputVariants>>) {
+  Partial<VariantProps<typeof numberFieldInputVariants>> &
+  IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useContext(NumberFieldContext)
   if (!context) {
     throw new Error(
@@ -212,18 +246,24 @@ function NumberFieldInput({
     <NumberFieldPrimitive.Input
       className={cn(numberFieldInputVariants({ size }), className)}
       data-slot="number-field-input"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       {...props}
     />
   )
 }
 
 function NumberFieldScrubArea({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   label,
   ...props
 }: NumberFieldPrimitive.ScrubArea.Props & {
   label: string
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useContext(NumberFieldContext)
   if (!context) {
     throw new Error(
@@ -235,6 +275,9 @@ function NumberFieldScrubArea({
     <NumberFieldPrimitive.ScrubArea
       className={cn("flex cursor-ew-resize", className)}
       data-slot="number-field-scrub-area"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       {...props}
     >
       <Label className="cursor-ew-resize" htmlFor={context.fieldId}>

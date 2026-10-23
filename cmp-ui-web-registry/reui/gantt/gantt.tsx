@@ -2,6 +2,8 @@
 // Description: Headless-first gantt - horizontal resource timeline with day-to-year scales, external CRUD contract, and a subscribable store.
 
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   createContext,
@@ -1606,10 +1608,12 @@ const VIEW_CONFIG_KEYS: Array<keyof GanttViewConfig> = [
 ]
 
 interface GanttProps<TData = unknown>
-  extends
-    UseGanttStateOptions<TData>,
+  extends UseGanttStateOptions<TData>,
     Partial<GanttViewConfig<TData>>,
     Omit<HTMLAttributes<HTMLDivElement>, "children" | "defaultValue"> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** Adopt a hoisted useGanttState instance; option props are then ignored. */
   calendar?: GanttInstance<TData>
   /** Imperative escape hatch usable from outside the tree. */
@@ -1705,13 +1709,16 @@ function splitOptions<TData>(props: Record<string, unknown>): {
  * <Gantt><GanttNav/><GanttToolbar/><GanttView/></Gantt>
  */
 function Gantt<TData = unknown>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   calendar,
   apiRef,
   className,
   asChild = false,
   children,
   ...props
-}: GanttProps<TData>) {
+}: GanttProps<TData> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { options, viewConfig, rest } = splitOptions<TData>(
     props as Record<string, unknown>
   )
@@ -1747,32 +1754,40 @@ function Gantt<TData = unknown>({
   const Comp = asChild ? Slot.Root : "div"
 
   return (
-    <GanttContext.Provider value={instance}>
-      <GanttViewConfigContext.Provider value={stableViewConfig}>
-        <Comp
-          data-slot="gantt"
-          // own the foreground (previews and consumer shells may not set body
-          // color) and the type scale: every gantt label inherits the root's
-          // text size, so one class here (or on the consumer's className)
-          // rescales the whole component - e.g. className="text-sm" for a
-          // roomier grid
-          className={cn(
+    <IenThemeContext.Provider value={ienTheme}>
+      <GanttContext.Provider value={instance}>
+        <GanttViewConfigContext.Provider value={stableViewConfig}>
+          <Comp
+            data-slot="gantt"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
+            // own the foreground (previews and consumer shells may not set body
+            // color) and the type scale: every gantt label inherits the root's
+            // text size, so one class here (or on the consumer's className)
+            // rescales the whole component - e.g. className="text-sm" for a
+            // roomier grid
+            className={cn(
             "text-foreground flex min-h-0 min-w-0 flex-col text-xs",
             className
           )}
-          {...rest}
-        >
-          {/* Slottable keeps the announcer sibling legal when asChild slots
+            {...rest}
+          >
+            {/* Slottable keeps the announcer sibling legal when asChild slots
               the consumer element (Slot.Root allows one non-Slottable child). */}
-          <Slot.Slottable>{children}</Slot.Slottable>
-          <div
-            data-slot="gantt-announcer"
-            aria-live="polite"
-            className="sr-only"
-          />
-        </Comp>
-      </GanttViewConfigContext.Provider>
-    </GanttContext.Provider>
+            <Slot.Slottable>{children}</Slot.Slottable>
+            <div
+              data-slot="gantt-announcer"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
+              aria-live="polite"
+              className="sr-only"
+            />
+          </Comp>
+        </GanttViewConfigContext.Provider>
+      </GanttContext.Provider>
+    </IenThemeContext.Provider>
   )
 }
 

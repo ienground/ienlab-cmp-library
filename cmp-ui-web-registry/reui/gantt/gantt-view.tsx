@@ -2,6 +2,8 @@
 // Description: The gantt body - split resizable tree/timeline panes with synced scrolling, multi-column tree, grouped two-row header, day through year scales, zoom, drag-to-pan, lanes, drag and resize.
 
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   memo,
@@ -363,6 +365,9 @@ interface DependencyEdge {
 }
 
 interface GanttViewProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** Day-scale unit interval in minutes; defaults to the interval view config. */
   interval?: number
   asChild?: boolean
@@ -387,11 +392,14 @@ function setScrollStart(viewport: HTMLElement, value: number) {
 }
 
 function GanttView({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   interval: intervalProp,
   ...props
-}: GanttViewProps) {
+}: GanttViewProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const instance = useGantt()
   const settings = useGanttSettings()
   const viewConfig = useGanttViewConfig()
@@ -2211,6 +2219,10 @@ function GanttView({
           65px height, matching the timeline. */}
       <div
         data-slot="gantt-tree-header"
+        data-ien-typography="label1"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         className="bg-background sticky top-0 z-30 box-content h-16 shrink-0 border-b border-b-transparent"
       >
         <div className="flex h-8 border-b">
@@ -2230,6 +2242,7 @@ function GanttView({
               <div
                 key={column.id}
                 data-slot="gantt-column-header"
+                data-ien-typography="label1"
                 data-column={column.id}
                 className={cn(
                   "text-muted-foreground flex h-full shrink-0 items-center px-2 font-medium",
@@ -2247,6 +2260,9 @@ function GanttView({
           {viewConfig.columnsMenu && (
             <div
               data-slot="gantt-columns-menu"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
               // gradient lead-in: scrolled column headers dissolve into this
               // sticky control instead of hard-clipping against its background
               className="bg-background before:from-background sticky end-0 z-10 flex h-full shrink-0 items-center ps-1.5 pe-2.5 before:pointer-events-none before:absolute before:inset-y-0 before:-start-5 before:w-5 before:bg-linear-to-l before:to-transparent rtl:before:bg-linear-to-r"
@@ -2276,6 +2292,9 @@ function GanttView({
           <button
             type="button"
             data-slot="gantt-create-task"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
             // mirror the tree row's left structure so the + lands in the same
             // column as the row toggle chevrons, and the label lines up with
             // the task titles above
@@ -2323,14 +2342,26 @@ function GanttView({
         customScrollbars && "pb-2.5"
       )}
     >
-      {/* Two-row grouped header; also the drag-to-pan surface */}
+      {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
       <div
         data-slot="gantt-timeline-header"
+        data-ien-typography="label1"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         className="bg-background sticky top-0 z-30 shrink-0 border-b"
         style={{ minWidth: trackWidth }}
         onPointerDown={beginHeaderPan}
       >
-        {/* group sectors; boundaries painted like the body lines */}
+        {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
         <div className="relative h-8 border-b">
           <div className="flex h-full">
             {groups.map((group) => (
@@ -2342,14 +2373,14 @@ function GanttView({
                 className="text-muted-foreground flex min-w-0 items-center ps-3 pe-2"
                 style={{ flex: `${group.span} 0 0px` }}
               >
-                {/* Pure-CSS sticky: the label rides the leading edge for as
-                  long as its own band is on screen, then the next band pushes
-                  it out - so the day you are looking at always names itself.
-                  The browser composites this; a scroll listener would run JS
-                  on every frame to do worse. start-3 matches the cell's ps-3
-                  so the gutter is identical parked or pinned. */}
+                {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
                 <span
                   data-slot="gantt-axis-group-label"
+                  data-ien-typography="label1"
                   className="sticky start-3 max-w-full truncate"
                 >
                   {group.label}
@@ -2357,8 +2388,11 @@ function GanttView({
               </div>
             ))}
           </div>
-          {/* same span formula as the unit lines below: equal fractions get
-              equal layout rounding, so the two rows' lines never drift apart */}
+          {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
           {groupBoundaries.map((fraction) => (
             <span
               key={fraction}
@@ -2368,7 +2402,11 @@ function GanttView({
             />
           ))}
         </div>
-        {/* units, engine axis = this row */}
+        {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
         <div
           data-gantt-axis=""
           data-gantt-range-start={rangeStartMs}
@@ -2440,19 +2478,26 @@ function GanttView({
           )}
         </div>
       </div>
-      {/* Rows over a shared backdrop (off days, today, boundaries, now);
-          grows so the columns run to the bottom of the pane. Pressing anywhere
-          here that is not a bar or a hint tile begins a scroll pan - the whole
-          panel is a draggable canvas, not just the rows. */}
+      {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
       <div
         className="relative flex min-h-0 grow flex-col"
         onPointerDown={beginHeaderPan}
       >
-        {/* off-day / today / now backdrop only; vertical gridlines are
-            per-row and reveal on selection, not painted here */}
+        {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
         <div
           aria-hidden
           data-slot="gantt-timeline-backdrop"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className="pointer-events-none absolute inset-0"
         >
           {unitFractions.map(({ unit, start, width }) => (
@@ -2479,9 +2524,11 @@ function GanttView({
               )}
             </span>
           ))}
-          {/* one layer for the whole body, not per row: the unit boundaries
-            have to line up with the header's spans exactly, so both use the
-            same fraction formula */}
+          {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
           {gridLines.vertical !== null &&
             unitFractions
               .slice(1)
@@ -2503,10 +2550,11 @@ function GanttView({
             <GanttNowLine rangeStartMs={rangeStartMs} rangeEndMs={rangeEndMs} />
           )}
         </div>
-        {/* Dependency arrows: after the backdrop, before the rows, so they
-            run above the off-day wash but under every bar. Its own component
-            because it follows drags per snap step, and that subscription must
-            re-render a few paths, never this whole view. */}
+        {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
         {dependencyEdges.edges.length > 0 && (
           <GanttDependencyLayer
             edges={dependencyEdges.edges}
@@ -2542,6 +2590,9 @@ function GanttView({
         {rows.length === 0 && viewConfig.renderNoResources && (
           <div
             data-slot="gantt-no-resources"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
             className="text-muted-foreground flex grow items-center justify-center p-6 text-sm"
           >
             {viewConfig.renderNoResources()}
@@ -2551,6 +2602,9 @@ function GanttView({
           <div
             aria-hidden
             data-slot="gantt-create-task-spacer"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
             className="h-10 border-b"
             style={{ minWidth: trackWidth }}
           />
@@ -2575,6 +2629,9 @@ function GanttView({
   return (
     <Comp
       data-slot="gantt-view"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-scale={scale}
       aria-busy={loading || undefined}
       className={cn(
@@ -2589,6 +2646,9 @@ function GanttView({
         <div
           ref={treePaneRef}
           data-slot="gantt-tree-pane"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className="relative h-full shrink-0"
           style={{ width: liveTreeWidthRef.current ?? clampedTreeWidth }}
         >
@@ -2605,6 +2665,9 @@ function GanttView({
           ) : (
             <div
               data-slot="scroll-area-viewport"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
               data-gantt-native-scroll=""
               // vertical axis is DISPLAY-ONLY: the position is always
               // mirrored from the timeline, so no vertical scrollbar can
@@ -2616,29 +2679,41 @@ function GanttView({
               {treeContent}
             </div>
           )}
-          {/* Reserved horizontal-scrollbar rail: the tree usually has no
-              horizontal overflow, so its real scrollbar never mounts and its
-              bottom edge would sit higher than the timeline's pinned strip.
-              This static rail fills that gutter (same 1rem height + top border)
-              so the bottom strip reads as one continuous band across both
-              panes; a real tree scrollbar (with columns) draws over it. */}
+          {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
           {customScrollbars && (
             <div
               aria-hidden
               data-slot="gantt-tree-scrollbar-rail"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
               className="bg-background border-t-border pointer-events-none absolute inset-x-0 bottom-0 h-4 border-t"
             />
           )}
-          {/* Reorder insertion indicator, pinned to the visible pane */}
+          {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
           {reorder && (
             <div
               data-slot="gantt-reorder-indicator"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
               data-invalid={!reorder.valid || undefined}
               className="pointer-events-none absolute inset-x-0 flex items-center"
               style={{ top: reorder.top - 4, zIndex: 110 }}
             >
-              {/* caret head pointing along the insertion line; the whole
-                  indicator sits above the row carry overlay (z 100) */}
+              {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
               <span
                 className={cn(
                   "ms-0.5 size-0 shrink-0 border-y-4 border-s-8 border-y-transparent",
@@ -2672,6 +2747,9 @@ function GanttView({
             )}
             tabIndex={0}
             data-slot="gantt-splitter"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
             className={cn(
               "group/gantt-splitter bg-border hover:bg-primary/60 data-resizing:bg-primary relative z-30 w-px shrink-0 cursor-col-resize touch-none outline-none",
               "focus-visible:ring-ring/50 focus-visible:ring-2",
@@ -2694,10 +2772,17 @@ function GanttView({
               }
             }}
           >
-            {/* grip pill: makes the hairline read as draggable on approach */}
+            {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
             <span
               aria-hidden
               data-slot="gantt-splitter-grip"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
               className="bg-primary/60 group-data-resizing/gantt-splitter:bg-primary absolute top-1/2 left-1/2 h-6 w-0.75 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-0 transition-opacity duration-150 group-hover/gantt-splitter:opacity-100 group-focus-visible/gantt-splitter:opacity-100 group-data-resizing/gantt-splitter:opacity-100"
             />
           </div>
@@ -2708,19 +2793,28 @@ function GanttView({
         <div
           ref={timelinePaneRef}
           data-slot="gantt-timeline-pane"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className="relative h-full min-w-0 flex-1"
         >
           {viewConfig.zoomControl && (
             <div
               data-slot="gantt-zoom"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
               /* --gantt-zoom-shift comes from the offscreen-chips measure
                  pass: the control glides inward while a chip occupies its
                  band, because the chips' position IS their meaning and this
                  corner spot is merely a habit */
               className="bg-background absolute end-[calc(0.75rem+var(--gantt-zoom-shift,0px))] bottom-5 z-40 flex flex-col rounded-md border shadow-sm transition-[inset-inline-end] duration-200"
             >
-              {/* aria-disabled instead of disabled: the not-allowed cursor
-                  must still show at the zoom limits */}
+              {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
               <TooltipProvider delayDuration={600} skipDelayDuration={300}>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -2729,7 +2823,7 @@ function GanttView({
                       size="icon-xs"
                       aria-label={settings.i18n.labels.zoomIn}
                       aria-disabled={!canZoomIn || undefined}
-                      className="text-muted-foreground hover:text-foreground size-5! rounded-b-none aria-disabled:cursor-not-allowed aria-disabled:opacity-50 aria-disabled:hover:bg-transparent"
+                      className="text-muted-foreground hover:text-foreground size-5! rounded-b-none aria-disabled:cursor-not-allowed aria-disabled:opacity-(--ien-state-disabled-alpha) aria-disabled:hover:bg-transparent"
                       onClick={() => {
                         if (!canZoomIn) return
                         // controlled zoom anchors via fineCenterRef when
@@ -2763,7 +2857,7 @@ function GanttView({
                       size="icon-xs"
                       aria-label={settings.i18n.labels.zoomOut}
                       aria-disabled={!canZoomOut || undefined}
-                      className="text-muted-foreground hover:text-foreground size-5! rounded-t-none border-t aria-disabled:cursor-not-allowed aria-disabled:opacity-50 aria-disabled:hover:bg-transparent"
+                      className="text-muted-foreground hover:text-foreground size-5! rounded-t-none border-t aria-disabled:cursor-not-allowed aria-disabled:opacity-(--ien-state-disabled-alpha) aria-disabled:hover:bg-transparent"
                       onClick={() => {
                         if (!canZoomOut) return
                         if (viewConfig.zoom === undefined) anchorZoomCenter()
@@ -2812,21 +2906,27 @@ function GanttView({
           ) : (
             <div
               data-slot="scroll-area-viewport"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
               data-gantt-native-scroll=""
               className="h-full overflow-auto overscroll-contain"
             >
               {timelineContent}
             </div>
           )}
-          {/* Reserved scrollbar rail - the twin of the tree rail. Keeps the
-              bottom gutter present even when the real horizontal scrollbar is
-              hidden (e.g. hover-reveal scrollbars at rest), so the strip reads
-              as one continuous reserved band across both panes; the real
-              scrollbar (z-40) draws over it when active. */}
+          {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
           {customScrollbars && (
             <div
               aria-hidden
               data-slot="gantt-timeline-scrollbar-rail"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
               className="bg-background border-t-border pointer-events-none absolute inset-x-0 bottom-0 h-4 border-t"
             />
           )}
@@ -2842,6 +2942,9 @@ function GanttView({
         {loading && (
           <div
             data-slot="gantt-loading"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
             className="bg-background/60 absolute inset-0 z-50 flex items-center justify-center"
           >
             <span className="text-muted-foreground animate-pulse text-sm">
@@ -2863,12 +2966,15 @@ function GanttView({
  * the sticky header (z-30) - vertical scrolling slides it beneath, never over.
  */
 function GanttNowLine({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   rangeStartMs,
   rangeEndMs,
 }: {
   rangeStartMs: number
   rangeEndMs: number
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const now = useNow()
   const ms = now.getTime()
   if (ms < rangeStartMs || ms >= rangeEndMs) return null
@@ -2876,6 +2982,9 @@ function GanttNowLine({
   return (
     <div
       data-slot="gantt-now-indicator"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       // comet tail: solid at the cap, dissolving toward the bottom -
       // present without ruling a hard line through every row
       className="from-destructive/80 via-destructive/45 to-destructive/15 absolute inset-y-0 z-10 w-px bg-linear-to-b"
@@ -2889,12 +2998,15 @@ function GanttNowLine({
  * boundary: it stays put while the line scrolls beneath the header.
  */
 function GanttNowDot({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   rangeStartMs,
   rangeEndMs,
 }: {
   rangeStartMs: number
   rangeEndMs: number
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const now = useNow()
   const ms = now.getTime()
   if (ms < rangeStartMs || ms >= rangeEndMs) return null
@@ -2903,6 +3015,9 @@ function GanttNowDot({
     <span
       aria-hidden
       data-slot="gantt-now-dot"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className="bg-destructive absolute -bottom-0.75 z-10 size-1.5 -translate-x-1/2 rounded-full"
       style={{ insetInlineStart: `${fraction * 100}%` }}
     />
@@ -3150,10 +3265,14 @@ const GanttTreeRow = memo(function GanttTreeRow({
       }
     >
       <div className="flex h-full w-full min-w-0">
-        {/* In-flow name cell: the whole tree row scrolls horizontally as one;
-          row-level hover/selected tints show through the transparent cell */}
+        {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
         <div
           data-slot="gantt-tree-cell"
+          data-ien-typography="body2"
           className={cn(
             // ps-3 keeps the row toggles off the left edge (kept in sync with
             // namePaddingStart above so headers stay aligned with row titles)
@@ -3163,8 +3282,11 @@ const GanttTreeRow = memo(function GanttTreeRow({
           )}
           style={{ width: nameWidth }}
         >
-          {/* exactly the band the first schedule occupies: same height, both
-            top-anchored, so the label and that schedule share a centerline */}
+          {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
           <div
             className="flex w-full min-w-0 items-center"
             style={{ height: `${bandRem}rem` }}
@@ -3257,6 +3379,7 @@ const GanttTreeRow = memo(function GanttTreeRow({
           <div
             key={column.id}
             data-slot="gantt-tree-column-cell"
+            data-ien-typography="body2"
             data-column={column.id}
             className={cn(
               "flex shrink-0 px-2",
@@ -3694,21 +3817,25 @@ const GanttTimelineRow = memo(function GanttTimelineRow({
         setHintStop(null)
       }}
     >
-      {/* row CONTENT (bars, labels, ghosts). Pointer-transparent so
-          empty-track presses still hit the row itself. */}
-      {/* content-visibility lets the browser skip rendering this layer for
-          rows scrolled out of view (large trees stay cheap on low-end
-          devices). Safe here: the layer is absolute inset-0 (geometry comes
-          from the row, never from content), its paint containment keeps it
-          a stacking context, and nothing inside escapes the row box - the
-          schedule hint deliberately lives OUTSIDE this layer. Browsers
-          without support simply ignore it. */}
+      {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
+      {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{ contentVisibility: "auto" }}
       >
-        {/* The node's own planned window: a band behind ALL of its lanes,
-            first in the layer so even the per-event ghosts paint over it. */}
+        {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
         {bars?.rowBaseline &&
           (() => {
             const plan = bars.rowBaseline
@@ -3766,9 +3893,11 @@ const GanttTimelineRow = memo(function GanttTimelineRow({
               </div>
             )
           })()}
-        {/* Baseline ghosts BEFORE the bars, with no z-index: DOM order keeps
-            them painting under every bar (z 10+), and the layer's pointer
-            transparency means they can never catch a press or a drop. */}
+        {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
         {bars?.baselines.map((plan) => {
           const from = fractionOf(rangeStartMs + plan.startMin * 60000)
           const to = fractionOf(rangeStartMs + plan.endMin * 60000)
@@ -3915,6 +4044,7 @@ const GanttTimelineRow = memo(function GanttTimelineRow({
               {placement !== "inside" && (
                 <span
                   data-slot="gantt-bar-label"
+                  data-ien-typography="label1"
                   data-placement={placement}
                   className={cn(
                     "text-foreground pointer-events-none absolute top-1/2 z-10 max-w-60 -translate-y-1/2 truncate font-medium",
@@ -4083,12 +4213,15 @@ const GanttTimelineRow = memo(function GanttTimelineRow({
           </div>
         )}
       </div>
-      {/* OUTSIDE the content layer for the same reason as the hint bubble: the
-          layer's paint containment would CLIP a chip that overhangs the row.
-          Centred on the range being painted, so the times track the drag. */}
+      {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
       {draft && draftLabel && (
         <div
           data-slot="gantt-slot-draft-label"
+          data-ien-typography="label1"
           className="pointer-events-none absolute z-40"
           style={{
             // anchored to the range's END and riding after it, exactly like the
@@ -4115,18 +4248,20 @@ const GanttTimelineRow = memo(function GanttTimelineRow({
           </span>
         </div>
       )}
-      {/* OUTSIDE the content layer: its paint containment creates a stacking
-          context that would trap the bubble's z-index under neighboring rows.
-          As a direct row child its z-30 stacks above every row in the pane. */}
-      {/* `hintLane < laneCount` is the second half of "empty slots only": the
-          pointer being on bare track can still mean the row's own padding above
-          a column that is booked on every track. There is no free track to
-          draw on there, so the clamp would park the ring on top of a bar -
-          exactly what must never happen. Booking such an instant is a drag from
-          a free point, not a click. */}
+      {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
+      {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
       {hintVisible && hintStop && (
         <div
           data-slot="gantt-schedule-hint"
+          data-ien-typography="caption"
           // rtl flips the translate sign: insetInlineStart anchors the box's
           // inline-start edge, which is the RIGHT edge under rtl, so centring
           // on the anchor shifts the opposite way there
@@ -4149,22 +4284,20 @@ const GanttTimelineRow = memo(function GanttTimelineRow({
             })
           ) : (
             <>
-              {/* the band IS the placement affordance: it covers the interval
-              under the pointer, so what you see is the slot you get. Clicking
-              books it; pressing and dragging paints a longer range. The bubble
-              mirrors the tooltip theme, arrow included. */}
-              {/* The dot IS the cursor: an open ring, so whatever it is standing
-              on stays readable through it. The outer background ring is what
-              keeps it visible on a dark bar - an outline, not a fill.
-              The GLYPH is the native cursor rather than an icon: `cell` is the
-              range-select cursor every spreadsheet uses, which is exactly the
-              drag-a-range gesture, and `copy` carries a plus for the
-              click-to-add case. Clicking books the interval it is standing in;
-              pressing and dragging paints a range whose ends snap to the
-              nearest boundary. */}
+              {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
+              {/* Same 65px height as the two-row timeline header so the panes align.
+          The head keeps its own bottom rule (under the Resources label), but
+          the header/body boundary line is transparent so the first tree node
+          has no rule directly above it - the 1px is kept only to preserve the
+          65px height, matching the timeline. */}
               <button
                 type="button"
                 data-slot="gantt-schedule-hint-tile"
+                data-ien-typography="caption"
                 aria-label={hintLabel}
                 // pointer-events-NONE: the ring rides under the cursor, so any
                 // press it accepts is a press stolen from whatever it is
@@ -4192,6 +4325,7 @@ const GanttTimelineRow = memo(function GanttTimelineRow({
               />
               <span
                 data-slot="gantt-schedule-hint-bubble"
+                data-ien-typography="caption"
                 className={cn(
                   "bg-foreground text-background absolute start-1/2 inline-flex w-max -translate-x-1/2 items-center rounded-md px-2 py-1 text-xs font-medium whitespace-nowrap",
                   rowIndex === 0 ? "top-full mt-2" : "bottom-full mb-2"
@@ -4245,6 +4379,8 @@ function sameChips(a: OffscreenChip[], b: OffscreenChip[]): boolean {
  * DOM (row data attributes), so scrolling never re-renders the grid.
  */
 function GanttOffscreenChips({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   paneRef,
   occurrences,
   locale,
@@ -4254,7 +4390,8 @@ function GanttOffscreenChips({
   occurrences: GanttOccurrence[]
   locale?: Locale
   refreshKey: string
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const settings = useGanttSettings()
   const [chips, setChips] = useState<OffscreenChip[]>([])
 
@@ -4373,6 +4510,9 @@ function GanttOffscreenChips({
   return (
     <div
       data-slot="gantt-offscreen-chips"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className="pointer-events-none absolute inset-0 z-30 overflow-hidden"
     >
       <TooltipProvider delayDuration={600} skipDelayDuration={300}>

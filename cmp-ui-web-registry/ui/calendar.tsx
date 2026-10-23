@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import { cn } from "cn"
@@ -13,6 +15,8 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import { IconPlaceholder } from "@/lib/reui-icons"
 
 function Calendar({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   classNames,
   showOutsideDays = true,
@@ -24,117 +28,119 @@ function Calendar({
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"]
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const defaultClassNames = getDefaultClassNames()
 
   return (
-    <DayPicker
-      showOutsideDays={showOutsideDays}
-      className={cn(
+    <IenThemeContext.Provider value={ienTheme}>
+      <DayPicker
+        showOutsideDays={showOutsideDays}
+        className={cn(
         "p-2 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(7)] group/calendar bg-background in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
         String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
         className
       )}
-      captionLayout={captionLayout}
-      locale={locale}
-      formatters={{
+        captionLayout={captionLayout}
+        locale={locale}
+        formatters={{
         formatMonthDropdown: (date) =>
           date.toLocaleString(locale?.code, { month: "short" }),
         ...formatters,
       }}
-      classNames={{
-        root: cn("w-fit", defaultClassNames.root),
-        months: cn(
+        classNames={{
+          root: cn("w-fit", defaultClassNames.root),
+          months: cn(
           "relative flex flex-col gap-4 md:flex-row",
           defaultClassNames.months
         ),
-        month: cn("flex w-full flex-col gap-4", defaultClassNames.month),
-        nav: cn(
+          month: cn("flex w-full flex-col gap-4", defaultClassNames.month),
+          nav: cn(
           "absolute inset-x-0 top-0 flex w-full items-center justify-between gap-1",
           defaultClassNames.nav
         ),
-        button_previous: cn(
-          buttonVariants({ variant: buttonVariant }),
-          "size-(--cell-size) p-0 select-none aria-disabled:opacity-50",
-          defaultClassNames.button_previous
-        ),
-        button_next: cn(
-          buttonVariants({ variant: buttonVariant }),
-          "size-(--cell-size) p-0 select-none aria-disabled:opacity-50",
-          defaultClassNames.button_next
-        ),
-        month_caption: cn(
+          button_previous: cn(
+            buttonVariants({ variant: buttonVariant }),
+            "size-(--cell-size) p-0 select-none aria-disabled:opacity-(--ien-state-disabled-alpha)",
+            defaultClassNames.button_previous,
+          ),
+          button_next: cn(
+            buttonVariants({ variant: buttonVariant }),
+            "size-(--cell-size) p-0 select-none aria-disabled:opacity-(--ien-state-disabled-alpha)",
+            defaultClassNames.button_next,
+          ),
+          month_caption: cn(
           "flex h-(--cell-size) w-full items-center justify-center px-(--cell-size)",
           defaultClassNames.month_caption
         ),
-        dropdowns: cn(
+          dropdowns: cn(
           "flex h-(--cell-size) w-full items-center justify-center gap-1.5 text-sm font-medium",
           defaultClassNames.dropdowns
         ),
-        dropdown_root: cn(
+          dropdown_root: cn(
           "has-focus:border-ring border-input has-focus:ring-ring/50 border has-focus:ring-3 relative rounded-(--cell-radius)",
           defaultClassNames.dropdown_root
         ),
-        dropdown: cn(
+          dropdown: cn(
           "absolute inset-0 bg-popover opacity-0",
           defaultClassNames.dropdown
         ),
-        caption_label: cn(
+          caption_label: cn(
           "font-medium select-none",
           captionLayout === "label"
             ? " text-sm"
             : "h-6 pr-1 pl-1.5 flex items-center gap-1 rounded-(--cell-radius) text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground",
           defaultClassNames.caption_label
         ),
-        month_grid: cn("w-full border-collapse", defaultClassNames.month_grid),
-        weekdays: cn("flex", defaultClassNames.weekdays),
-        weekday: cn(
+          month_grid: cn("w-full border-collapse", defaultClassNames.month_grid),
+          weekdays: cn("flex", defaultClassNames.weekdays),
+          weekday: cn(
           "flex-1 rounded-(--cell-radius) text-[0.8rem] font-normal text-muted-foreground select-none",
           defaultClassNames.weekday
         ),
-        week: cn("mt-2 flex w-full", defaultClassNames.week),
-        week_number_header: cn(
+          week: cn("mt-2 flex w-full", defaultClassNames.week),
+          week_number_header: cn(
           "w-(--cell-size) select-none",
           defaultClassNames.week_number_header
         ),
-        week_number: cn(
+          week_number: cn(
           "text-[0.8rem] text-muted-foreground select-none",
           defaultClassNames.week_number
         ),
-        day: cn(
+          day: cn(
           "group/day relative aspect-square h-full w-full rounded-(--cell-radius) p-0 text-center select-none [&:last-child[data-selected=true]_button]:rounded-r-(--cell-radius)",
           props.showWeekNumber
             ? "[&:nth-child(2)[data-selected=true]_button]:rounded-l-(--cell-radius)"
             : "[&:first-child[data-selected=true]_button]:rounded-l-(--cell-radius)",
           defaultClassNames.day
         ),
-        range_start: cn(
+          range_start: cn(
           "relative isolate z-0 rounded-l-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-muted",
           defaultClassNames.range_start
         ),
-        range_middle: cn("rounded-none", defaultClassNames.range_middle),
-        range_end: cn(
+          range_middle: cn("rounded-none", defaultClassNames.range_middle),
+          range_end: cn(
           "relative isolate z-0 rounded-r-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-muted",
           defaultClassNames.range_end
         ),
-        today: cn(
+          today: cn(
           "rounded-(--cell-radius) bg-muted text-foreground data-[selected=true]:rounded-none",
           defaultClassNames.today
         ),
-        outside: cn(
+          outside: cn(
           "text-muted-foreground aria-selected:text-muted-foreground",
           defaultClassNames.outside
         ),
-        disabled: cn(
+          disabled: cn(
           "text-muted-foreground opacity-50",
           defaultClassNames.disabled
         ),
-        hidden: cn("invisible", defaultClassNames.hidden),
-        ...classNames,
-      }}
-      components={{
-        Root: ({ className, rootRef, ...props }) => {
+          hidden: cn("invisible", defaultClassNames.hidden),
+          ...classNames,
+        }}
+        components={{
+          Root: ({ className, rootRef, ...props }) => {
           return (
             <div
               data-slot="calendar"
@@ -144,7 +150,7 @@ function Calendar({
             />
           )
         },
-        Chevron: ({ className, orientation, ...props }) => {
+          Chevron: ({ className, orientation, ...props }) => {
           if (orientation === "left") {
             return (
               <IconPlaceholder
@@ -185,32 +191,38 @@ function Calendar({
             />
           )
         },
-        DayButton: ({ ...props }) => (
+          DayButton: ({ ...props }) => (
           <CalendarDayButton locale={locale} {...props} />
         ),
-        WeekNumber: ({ children, ...props }) => {
-          return (
-            <td {...props}>
-              <div className="flex size-(--cell-size) items-center justify-center text-center">
-                {children}
-              </div>
-            </td>
-          )
-        },
-        ...components,
-      }}
-      {...props}
-    />
+          WeekNumber: ({ children, ...props }) => {
+            return (
+              <td {...props}>
+                <div className="flex size-(--cell-size) items-center justify-center text-center">
+                  {children}
+                </div>
+              </td>
+            )
+          },
+          ...components,
+        }}
+        {...props}
+      />
+    </IenThemeContext.Provider>
   )
 }
 
 function CalendarDayButton({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   day,
   modifiers,
   locale,
   ...props
-}: React.ComponentProps<typeof DayButton> & { locale?: Partial<Locale> }) {
+}: React.ComponentProps<typeof DayButton> & {
+  locale?: Partial<Locale>
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const defaultClassNames = getDefaultClassNames()
 
   const ref = React.useRef<HTMLButtonElement>(null)
@@ -219,7 +231,11 @@ function CalendarDayButton({
   }, [modifiers.focused])
 
   return (
-    <Button
+    <IenThemeContext.Provider value={ienTheme}>
+<Button
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       ref={ref}
       variant="ghost"
       size="icon"
@@ -240,6 +256,7 @@ function CalendarDayButton({
       )}
       {...props}
     />
+</IenThemeContext.Provider>
   )
 }
 

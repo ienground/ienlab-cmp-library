@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import type {
@@ -129,10 +131,14 @@ export interface SortableCommitMeta<T> {
   previousValue: T[]
 }
 
-export interface SortableRootProps<T> extends Omit<
+export interface SortableRootProps<T>
+  extends Omit<
   HTMLAttributes<HTMLDivElement>,
   "onDragStart" | "onDragEnd"
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   value: T[]
   onValueChange: (value: T[]) => void
   getItemValue: (item: T) => string
@@ -153,6 +159,8 @@ export interface SortableRootProps<T> extends Omit<
 }
 
 function Sortable<T>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   onValueChange,
   getItemValue,
@@ -168,7 +176,8 @@ function Sortable<T>({
   modifiers,
   children,
   ...props
-}: SortableRootProps<T>) {
+}: SortableRootProps<T> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
   const mounted = useSyncExternalStore(
     subscribeToNothing,
@@ -274,8 +283,9 @@ function Sortable<T>({
   const Comp = asChild ? Slot.Root : "div"
 
   return (
-    <SortableInternalContext.Provider value={contextValue}>
-      <DndContext
+    <IenThemeContext.Provider value={ienTheme}>
+      <SortableInternalContext.Provider value={contextValue}>
+        <DndContext
         sensors={sensors}
         modifiers={modifiers}
         accessibility={accessibility}
@@ -284,51 +294,62 @@ function Sortable<T>({
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
-        <SortableContext
+          <SortableContext
           items={itemIds}
           strategy={STRATEGY_MAP[strategy] ?? verticalListSortingStrategy}
         >
-          <Comp
-            data-slot="sortable"
-            data-dragging={activeId !== null}
-            className={cn(activeId !== null && "cursor-grabbing!", className)}
-            {...props}
-          >
-            {children}
-          </Comp>
-        </SortableContext>
-        {mounted &&
-          createPortal(
-            <DragOverlay
+            <Comp
+              data-slot="sortable"
+              data-ien-typography="label1"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
+              data-dragging={activeId !== null}
+              className={cn(activeId !== null && "cursor-grabbing!", className)}
+              {...props}
+            >
+              {children}
+            </Comp>
+          </SortableContext>
+          {mounted &&
+            createPortal(
+              <DragOverlay
               dropAnimation={dropAnimationConfig}
               modifiers={modifiers}
               className={cn("z-50", activeId && "cursor-grabbing")}
             >
-              <IsOverlayContext.Provider value={true}>
-                {overlayContent}
-              </IsOverlayContext.Provider>
-            </DragOverlay>,
-            document.body
-          )}
-      </DndContext>
-    </SortableInternalContext.Provider>
+                <IsOverlayContext.Provider value={true}>
+                  {overlayContent}
+                </IsOverlayContext.Provider>
+              </DragOverlay>,
+              document.body,
+            )}
+        </DndContext>
+      </SortableInternalContext.Provider>
+    </IenThemeContext.Provider>
   )
 }
 
 export interface SortableItemProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   value: string
   disabled?: boolean
   asChild?: boolean
 }
 
 function SortableItem({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   className,
   asChild = false,
   disabled,
   children,
   ...props
-}: SortableItemProps) {
+}: SortableItemProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const isOverlay = useContext(IsOverlayContext)
 
   const {
@@ -353,6 +374,10 @@ function SortableItem({
       >
         <Comp
           data-slot="sortable-item"
+          data-ien-typography="label1"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           data-value={value}
           data-dragging={true}
           className={cn(className)}
@@ -377,6 +402,10 @@ function SortableItem({
     >
       <Comp
         data-slot="sortable-item"
+        data-ien-typography="label1"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-value={value}
         data-dragging={isSortableDragging}
         data-disabled={disabled}
@@ -396,18 +425,25 @@ function SortableItem({
   )
 }
 
-export interface SortableItemHandleProps extends HTMLAttributes<HTMLDivElement> {
+export interface SortableItemHandleProps
+  extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   cursor?: boolean
   asChild?: boolean
 }
 
 function SortableItemHandle({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   cursor = true,
   children,
   ...props
-}: SortableItemHandleProps) {
+}: SortableItemHandleProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { listeners, isDragging, disabled } = useContext(SortableItemContext)
 
   const Comp = asChild ? Slot.Root : "div"
@@ -415,6 +451,10 @@ function SortableItemHandle({
   return (
     <Comp
       data-slot="sortable-item-handle"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-dragging={isDragging}
       data-disabled={disabled}
       {...listeners}

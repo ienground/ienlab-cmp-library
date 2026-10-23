@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import {
@@ -25,10 +27,14 @@ import { cn } from "cn"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { IconPlaceholder } from "@/lib/reui-icons"
 
-export interface CascaderColumnsProps extends Omit<
+export interface CascaderColumnsProps
+  extends Omit<
   React.ComponentProps<"div">,
   "children"
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** Width of each column. */
   columnWidth?: number | string
   /** Height CAP per column. Falls back to the root `maxHeight`, then 24rem. */
@@ -44,12 +50,15 @@ export interface CascaderColumnsProps extends Omit<
  * 2D one. `CascaderInput` moves between columns with ArrowLeft/ArrowRight.
  */
 function CascaderColumns({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   columnWidth = 220,
   maxHeight: maxHeightProp,
   children,
   ...props
-}: CascaderColumnsProps) {
+}: CascaderColumnsProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { maxHeight, mode, labels } = useCascaderActions()
   const { columns } = useCascaderState()
 
@@ -72,6 +81,9 @@ function CascaderColumns({
   return (
     <div
       data-slot="cascader-columns"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       role="group"
       aria-label={labels.columnsLabel}
       style={
@@ -115,6 +127,9 @@ function CascaderColumns({
 const PANEL_CLASS = `flex w-(--cascader-column-width) shrink-0 flex-col overscroll-contain not-first:w-[calc(var(--cascader-column-width)_+_1px)] not-first:border-border/60 not-first:border-s ${CASCADER_LIST_HEIGHT_CLASS}`
 
 export interface CascaderColumnPanelProps {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   column: CascaderColumn
   /** Replaces the panel's rows; the empty state still wins on an empty column. */
   children?: React.ReactNode
@@ -123,10 +138,13 @@ export interface CascaderColumnPanelProps {
 }
 
 function CascaderColumnPanel({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   column,
   children,
   virtualized,
-}: CascaderColumnPanelProps) {
+}: CascaderColumnPanelProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const {
     labels,
     baseId,
@@ -151,6 +169,9 @@ function CascaderColumnPanel({
         <button
           type="button"
           data-slot="cascader-retry"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           onClick={(event) => {
             // Same hand-off as the panel's Retry: a trail column, or an
             // inline one, can hold focus, and the loading state unmounts this.
@@ -184,6 +205,9 @@ function CascaderColumnPanel({
     column.items.length === 0 ? (
       <p
         data-slot="cascader-column-empty"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-state={
           loadState?.error ? "error" : loadState?.loading ? "loading" : "empty"
         }
@@ -266,6 +290,9 @@ function CascaderColumnPanel({
   return (
     <div
       data-slot="cascader-column-bounds"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       /* Repeated from `shared`: this box, not the semantic element, owns the
          width, the divider and the height, so style hooks must reach it, and
          `:first-child` on the semantic element no longer means "first column"

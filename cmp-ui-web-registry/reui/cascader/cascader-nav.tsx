@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import {
@@ -76,6 +78,9 @@ function cascaderSlotChild(
 /* -------------------------------------------------------------------------- */
 
 export interface CascaderNavProps extends React.ComponentProps<"div"> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   asChild?: boolean
 }
 
@@ -84,16 +89,22 @@ export interface CascaderNavProps extends React.ComponentProps<"div"> {
  * breadcrumb belongs with the list below: it describes the rows, not the field.
  */
 function CascaderNav({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   ...props
-}: CascaderNavProps) {
+}: CascaderNavProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const Comp = asChild ? Slot.Root : "div"
 
   return (
     <Comp
       data-slot="cascader-nav"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         /* `py-1`, not `py-1.5`: the row inside sets its own per-style height,
            so even padding read too tall. 6px beside the field, 4px above and
@@ -112,21 +123,28 @@ function CascaderNav({
 /*                                    Back                                    */
 /* -------------------------------------------------------------------------- */
 
-export interface CascaderBackProps extends Omit<
+export interface CascaderBackProps
+  extends Omit<
   React.ComponentProps<"button">,
   "children"
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   asChild?: boolean
   children?: React.ReactNode
 }
 
 /** Pops one level. Renders nothing at the root, so no dead header space. */
 function CascaderBack({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   ...props
-}: CascaderBackProps) {
+}: CascaderBackProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { popLevel, labels, mode } = useCascaderActions()
   const { path } = useCascaderState()
 
@@ -141,6 +159,9 @@ function CascaderBack({
   return (
     <Comp
       data-slot="cascader-back"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       type="button"
       aria-label={labels.back}
       onClick={() => popLevel()}
@@ -246,6 +267,7 @@ function CascaderBreadcrumb({
         <button
           type="button"
           data-slot="cascader-breadcrumb-item"
+          data-ien-typography="label1"
           onClick={() => goTo(segment.node)}
           className="hover:text-foreground focus-visible:ring-ring/50 max-w-32 truncate rounded-sm outline-hidden transition-colors focus-visible:ring-2"
         >
@@ -254,6 +276,7 @@ function CascaderBreadcrumb({
       ) : (
         <span
           data-slot="cascader-breadcrumb-item"
+          data-ien-typography="label1"
           /* The level on screen: a span because it goes nowhere, plus
              `aria-current="page"` so it is not read as one of a flat list. */
           {...(segment.node.value === currentValue
@@ -300,6 +323,9 @@ function CascaderBreadcrumb({
 /* -------------------------------------------------------------------------- */
 
 export interface CascaderInputProps extends ComboboxPrimitive.Input.Props {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** Renders the back control inline, before the field. Defaults to true. */
   showBack?: boolean
 }
@@ -314,13 +340,16 @@ type CascaderInputKeyEvent = Parameters<
  * the refill from the committed selection that would fight every level swap.
  */
 function CascaderInput({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   showBack = true,
   placeholder,
   onKeyDown,
   "aria-describedby": ariaDescribedBy,
   ...props
-}: CascaderInputProps) {
+}: CascaderInputProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const {
     labels,
     popLevel,
@@ -549,6 +578,9 @@ function CascaderInput({
   return (
     <div
       data-slot="cascader-input-row"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "flex shrink-0 items-center gap-1",
         /* Each style sizes a combobox search field only as a DIRECT child of
@@ -560,6 +592,9 @@ function CascaderInput({
       {showBack ? <CascaderBack /> : null}
       <ComboboxPrimitive.Input
         data-slot="cascader-input"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         placeholder={resolvedPlaceholder}
         onKeyDown={handleKeyDown}
         /* Nothing on screen says the level keys exist. */
@@ -574,9 +609,9 @@ function CascaderInput({
         /* No trigger to carry the invalid state in the `inline` case. */
         {...(invalid ? { "aria-invalid": true, "data-invalid": "" } : null)}
         className={cn(
-          "placeholder:text-muted-foreground h-full w-full min-w-0 flex-1 bg-transparent px-1.5 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
+          "placeholder:text-muted-foreground h-full w-full min-w-0 flex-1 bg-transparent px-1.5 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-(--ien-state-disabled-alpha)",
           backVisible && "ps-0",
-          className
+          className,
         )}
         {...props}
       />

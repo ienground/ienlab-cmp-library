@@ -2,6 +2,8 @@
 // Description: Composable navigation - Today, view selector, prev/next, go-to-date, period title, and a free toolbar slot.
 
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   useState,
@@ -61,7 +63,7 @@ function useNavButtonProps(): {
   }
 }
 
-type NavButtonProps = Omit<
+type NavButtonProps = (Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   "children"
 > & {
@@ -76,7 +78,8 @@ type NavButtonProps = Omit<
    */
   tooltip?: ReactNode | null
   asChild?: boolean
-}
+}) &
+  IenToneProps
 
 /** Hover/focus-visible tooltip wrapper; renders the bare button when disabled. */
 function NavTooltip({
@@ -96,12 +99,15 @@ function NavTooltip({
 }
 
 function GanttNavToday({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   tooltip,
   ...props
-}: NavButtonProps) {
+}: NavButtonProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { today, isToday } = useGanttNavigation()
   const settings = useGanttSettings()
   const nav = useNavButtonProps()
@@ -120,6 +126,9 @@ function GanttNavToday({
         variant={nav.variant}
         size={nav.size}
         data-slot="gantt-nav-today"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-active={isToday || undefined}
         className={cn(className)}
         onClick={today}
@@ -133,12 +142,15 @@ function GanttNavToday({
 }
 
 function GanttNavPrev({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   tooltip,
   ...props
-}: NavButtonProps) {
+}: NavButtonProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { prev } = useGanttNavigation()
   const settings = useGanttSettings()
   const nav = useNavButtonProps()
@@ -150,6 +162,9 @@ function GanttNavPrev({
         variant={nav.variant}
         size={nav.iconSize}
         data-slot="gantt-nav-prev"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         aria-label={settings.i18n.labels.previous}
         className={cn(className)}
         onClick={prev}
@@ -173,12 +188,15 @@ function GanttNavPrev({
 }
 
 function GanttNavNext({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   tooltip,
   ...props
-}: NavButtonProps) {
+}: NavButtonProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { next } = useGanttNavigation()
   const settings = useGanttSettings()
   const nav = useNavButtonProps()
@@ -190,6 +208,9 @@ function GanttNavNext({
         variant={nav.variant}
         size={nav.iconSize}
         data-slot="gantt-nav-next"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         aria-label={settings.i18n.labels.next}
         className={cn(className)}
         onClick={next}
@@ -213,22 +234,32 @@ function GanttNavNext({
 }
 
 interface GanttTitleProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   format?: (ctx: { title: string }) => ReactNode
   asChild?: boolean
 }
 
 function GanttTitle({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   format: formatTitle,
   ...props
-}: GanttTitleProps) {
+}: GanttTitleProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { title } = useGanttNavigation()
   const Comp = asChild ? Slot.Root : "div"
   return (
     <Comp
       data-slot="gantt-title"
+      data-ien-typography="title1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       aria-live="polite"
       className={cn("min-w-0 truncate text-sm font-semibold", className)}
       {...props}
@@ -238,10 +269,14 @@ function GanttTitle({
   )
 }
 
-interface GanttScaleSwitcherProps extends Omit<
+interface GanttScaleSwitcherProps
+  extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   "children"
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   children?: ReactNode
   /** Hover/focus-visible hint; defaults to the "Select view" label. Pass
    *  null to disable (overlay-opener policy). */
@@ -256,13 +291,16 @@ interface GanttScaleSwitcherProps extends Omit<
  * dropdown button (same shape as the event-calendar view switcher).
  */
 function GanttScaleSwitcher({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild,
   children,
   tooltip,
   scales = GANTT_SCALES,
   ...props
-}: GanttScaleSwitcherProps) {
+}: GanttScaleSwitcherProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { scale, setScale } = useGanttScale()
   const settings = useGanttSettings()
   const nav = useNavButtonProps()
@@ -301,6 +339,9 @@ function GanttScaleSwitcher({
               variant={nav.variant}
               size={nav.size}
               data-slot="gantt-scale-switcher"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
               aria-label={labels.selectView}
               className={cn("gap-1", className)}
               {...props}
@@ -350,6 +391,9 @@ function GanttScaleSwitcher({
 }
 
 interface GanttDatePickerProps {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   className?: string
 }
 
@@ -357,7 +401,12 @@ interface GanttDatePickerProps {
  * Compact go-to-date picker (shadcn Calendar in a popover). No tooltip by
  * design: it opens an overlay (see the NavButtonProps tooltip policy).
  */
-function GanttDatePicker({ className }: GanttDatePickerProps) {
+function GanttDatePicker({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+}: GanttDatePickerProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { date, goTo } = useGanttNavigation()
   const settings = useGanttSettings()
   const nav = useNavButtonProps()
@@ -371,6 +420,10 @@ function GanttDatePicker({ className }: GanttDatePickerProps) {
           variant={nav.variant}
           size={nav.iconSize}
           data-slot="gantt-date-picker"
+          data-ien-typography="caption"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           aria-label={settings.i18n.labels.goToDate}
           className={cn(className)}
         >
@@ -405,21 +458,30 @@ function GanttDatePicker({ className }: GanttDatePickerProps) {
 }
 
 interface GanttToolbarProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   asChild?: boolean
 }
 
 /** Free slot for consumer toolbar buttons; pure layout shell. */
 function GanttToolbar({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   ...props
-}: GanttToolbarProps) {
+}: GanttToolbarProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const viewConfig = useGanttViewConfig()
   const Comp = asChild ? Slot.Root : "div"
   return (
     <Comp
       data-slot="gantt-toolbar"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "flex items-center gap-2",
         viewConfig.classNames?.toolbar,
@@ -433,6 +495,9 @@ function GanttToolbar({
 }
 
 interface GanttNavProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   asChild?: boolean
 }
 
@@ -442,16 +507,22 @@ interface GanttNavProps extends HTMLAttributes<HTMLDivElement> {
  * compositions. Pass children to use it as a pure layout shell instead.
  */
 function GanttNav({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   ...props
-}: GanttNavProps) {
+}: GanttNavProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const viewConfig = useGanttViewConfig()
   const Comp = asChild ? Slot.Root : "div"
   return (
     <Comp
       data-slot="gantt-nav"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         // px so the toolbar controls do not hug the container edge; border-b
         // separates the toolbar from the column header below it

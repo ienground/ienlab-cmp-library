@@ -2,6 +2,8 @@
 // Description: Chronological agenda grouped by day - a day header row plus a clean time / dot / title table.
 
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import { useMemo, type HTMLAttributes } from "react"
 import {
@@ -33,14 +35,20 @@ import { IconPlaceholder } from "@/lib/reui-icons"
 // The agenda window length is the agendaDayCount SETTING (the store derives
 // visibleRange from it); a per-view prop here would silently disagree.
 interface EventCalendarAgendaViewProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   asChild?: boolean
 }
 
 function EventCalendarAgendaView({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   ...props
-}: EventCalendarAgendaViewProps) {
+}: EventCalendarAgendaViewProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const instance = useEventCalendar()
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
@@ -90,6 +98,9 @@ function EventCalendarAgendaView({
       {groups.length === 0 ? (
         <div
           data-slot="event-calendar-no-events"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className={cn(
             "flex min-h-72 flex-col items-center justify-center gap-4 py-16",
             viewConfig.classNames?.noEvents
@@ -140,6 +151,7 @@ function EventCalendarAgendaView({
                 {/* Group header: weekday (leading) + full date (trailing) */}
                 <div
                   data-slot="event-calendar-agenda-day-header"
+                  data-ien-typography="label1"
                   // The day bar is the agenda's only structure, so give it a
                   // heading level: the H key and the rotor can jump between
                   // days, which is the whole point of a long agenda.
@@ -190,6 +202,9 @@ function EventCalendarAgendaView({
     <EventCalendarViewContext.Provider value={{ view: "agenda" }}>
       <Comp
         data-slot="event-calendar-agenda-view"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-view="agenda"
         // Unlike the grid views the agenda has no row/column semantics to carry
         // a name, so label the region with the day range it covers - through
@@ -208,6 +223,9 @@ function EventCalendarAgendaView({
         {native ? (
           <div
             data-slot="scroll-area-viewport"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
             data-ec-native-scroll=""
             className="h-full overflow-y-auto"
           >
@@ -227,13 +245,20 @@ function EventCalendarAgendaView({
  * event (drag/resize stay off in the agenda).
  */
 function EventCalendarAgendaItem({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   segment,
 }: {
   segment: EventCalendarSegment
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const viewConfig = useEventCalendarViewConfig()
   return (
-    <EventCalendarEvent
+    <IenThemeContext.Provider value={ienTheme}>
+<EventCalendarEvent
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       segment={segment}
       className={cn(
         // read-only list: hover only, no selected/focused styling on click
@@ -241,6 +266,7 @@ function EventCalendarAgendaItem({
         viewConfig.classNames?.agendaItem
       )}
     />
+</IenThemeContext.Provider>
   )
 }
 

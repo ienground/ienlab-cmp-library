@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import { FiltersAdvanced } from "@/components/reui/filters/filters-advanced"
@@ -150,6 +152,9 @@ function useControllableQuery<V, O>(
 /* -------------------------------------------------------------------------- */
 
 export interface FiltersProps<V = unknown, O = unknown> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** The field schema. Nested via each field's own `fields`. */
   fields: FilterField<V, O>[]
 
@@ -255,6 +260,8 @@ export interface FiltersProps<V = unknown, O = unknown> {
 }
 
 export function Filters<V = unknown, O = unknown>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   fields,
   query: controlledQuery,
   defaultQuery,
@@ -282,7 +289,8 @@ export function Filters<V = unknown, O = unknown>({
   renderEmpty,
   className,
   children,
-}: FiltersProps<V, O>) {
+}: FiltersProps<V, O> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { query, queryRef, setQuery } = useControllableQuery<V, O>(
     controlledQuery,
     defaultQuery,
@@ -945,14 +953,15 @@ export function Filters<V = unknown, O = unknown>({
   )
 
   return (
-    <FilterActionsContext.Provider
+    <IenThemeContext.Provider value={ienTheme}>
+      <FilterActionsContext.Provider
       value={actions as unknown as FilterActionsContextValue}
     >
-      <FilterStateContext.Provider value={state as never}>
-        <FilterRenderContext.Provider value={renderContext as never}>
-          <FilterRowStateProvider value={rowStateStore}>
-            <FilterFocusContext.Provider value={focusStore}>
-              {children ??
+        <FilterStateContext.Provider value={state as never}>
+          <FilterRenderContext.Provider value={renderContext as never}>
+            <FilterRowStateProvider value={rowStateStore}>
+              <FilterFocusContext.Provider value={focusStore}>
+                {children ??
                 (variant === "advanced" ? (
                   <FiltersAdvanced<V, O>
                     mode={advancedMode}
@@ -968,11 +977,12 @@ export function Filters<V = unknown, O = unknown>({
                     className={className}
                   />
                 ))}
-            </FilterFocusContext.Provider>
-          </FilterRowStateProvider>
-        </FilterRenderContext.Provider>
-      </FilterStateContext.Provider>
-    </FilterActionsContext.Provider>
+              </FilterFocusContext.Provider>
+            </FilterRowStateProvider>
+          </FilterRenderContext.Provider>
+        </FilterStateContext.Provider>
+      </FilterActionsContext.Provider>
+    </IenThemeContext.Provider>
   )
 }
 
@@ -981,6 +991,9 @@ export function Filters<V = unknown, O = unknown>({
 /* -------------------------------------------------------------------------- */
 
 export interface FiltersRowProps {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   trigger?: React.ReactNode
   showClear?: boolean
   className?: string
@@ -991,7 +1004,14 @@ export interface FiltersRowProps {
  * every segment of every chip its own tab stop. There is NO combinator here,
  * because a chip row can draw a word between two pills but not a parenthesis.
  */
-export function FiltersRow({ trigger, showClear, className }: FiltersRowProps) {
+export function FiltersRow({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  trigger,
+  showClear,
+  className,
+}: FiltersRowProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const actions = useFilterActions()
   const sizes = filterControlSizes(actions)
   const { query, ruleCount, announcement, announcementSeq } = useFilterState()
@@ -1088,6 +1108,9 @@ export function FiltersRow({ trigger, showClear, className }: FiltersRowProps) {
     <div
       ref={rootRef}
       data-slot="filters"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-empty={rules.length === 0 || undefined}
       /* A presence hook, so a consumer can tint the whole read-only bar. */
       data-readonly={actions.readOnly || undefined}

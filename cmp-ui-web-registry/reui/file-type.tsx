@@ -1,3 +1,4 @@
+import type { IenToneProps } from "@/lib/ien-theme"
 // Title: File Type
 // Description: Shadcn file type icon in brand and family colors, outline, solid, light and mono variants, sizes down to 18px for data grid rows, and resolution from a file name or MIME type.
 import type { ComponentProps, CSSProperties, ReactNode } from "react"
@@ -852,7 +853,7 @@ const LABEL_CLASS: Record<FileTypeVariant, string> = {
 /*                                  Component                                 */
 /* -------------------------------------------------------------------------- */
 
-type FileTypeProps = Omit<ComponentProps<"span">, "children"> & {
+type FileTypeProps = (Omit<ComponentProps<"span">, "children"> & {
   /**
    * An extension (`"pdf"`, `".docx"`), a family (`"image"`, `"folder"`) or
    * `"empty"`. Unknown extensions render as a neutral file with their label.
@@ -881,9 +882,12 @@ type FileTypeProps = Omit<ComponentProps<"span">, "children"> & {
    * the badge: recolor it with `*:text-*`.
    */
   labelClassName?: string
-}
+}) &
+  IenToneProps
 
 function FileType({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   type,
   variant = "outline",
   size = "default",
@@ -893,7 +897,7 @@ function FileType({
   labelClassName,
   className,
   ...props
-}: FileTypeProps) {
+}: FileTypeProps & IenToneProps) {
   const resolved = resolveFileType(type)
   // `null` hides the label like "", where `??` would fall back to it.
   const text = label !== undefined ? label : resolved.label
@@ -918,19 +922,27 @@ function FileType({
       role="img"
       aria-label={name}
       data-slot="file-type"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       data-type={resolved.type}
       data-category={resolved.category}
       data-variant={variant}
       data-size={size}
       className={cn(
         fileTypeVariants({ size }),
-        variant === "mono" ? MONO : resolved.color,
-        className
+        ienTone
+          ? "text-(--ien-control-color) [--file-type-foreground:var(--ien-control-on)]"
+          : variant === "mono" ? MONO : resolved.color,
+        className,
       )}
       {...props}
     >
       <svg
         data-slot="file-type-icon"
+        data-ien=""
+        data-ien-tone={ienTone}
+        data-ien-gradient={ienUseGradient}
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -981,6 +993,9 @@ function FileType({
         {glyphNode ? (
           <g
             data-slot="file-type-glyph"
+            data-ien=""
+            data-ien-tone={ienTone}
+            data-ien-gradient={ienUseGradient}
             stroke="currentColor"
             className={cn(
               "origin-[12px_15px] scale-75 @max-[21px]:scale-100",
@@ -994,6 +1009,9 @@ function FileType({
       {hasIcon ? (
         <span
           data-slot="file-type-custom-icon"
+          data-ien=""
+          data-ien-tone={ienTone}
+          data-ien-gradient={ienUseGradient}
           aria-hidden="true"
           className={cn(
             "absolute top-[62.5%] left-1/2 flex size-[37.5cqw] -translate-1/2 items-center justify-center @max-[21px]:size-[50cqw] [&>svg]:size-full",
@@ -1006,6 +1024,10 @@ function FileType({
       {showLabel ? (
         <span
           data-slot="file-type-label"
+          data-ien-typography="label1"
+          data-ien=""
+          data-ien-tone={ienTone}
+          data-ien-gradient={ienUseGradient}
           style={
             {
               "--file-type-chars": typeof text === "string" ? text.length : 4,

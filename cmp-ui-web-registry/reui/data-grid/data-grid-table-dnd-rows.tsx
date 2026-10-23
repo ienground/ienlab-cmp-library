@@ -2,6 +2,8 @@
 
 // Opted out of React Compiler with the rest of the grid (see data-grid.tsx).
 "use no memo"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   createContext,
@@ -111,6 +113,8 @@ type DataGridTableDndRowDecoration<TData extends object> = (context: {
 }) => ReactNode
 
 function DataGridTableDndRowHandle({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   disabled,
   disabledLabel,
@@ -125,7 +129,8 @@ function DataGridTableDndRowHandle({
   disabled?: boolean
   /** Announced and shown on hover in place of the drag affordance. */
   disabledLabel?: string
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { i18n } = useDataGrid()
   const context = useContext(SortableRowContext)
   const resolvedDisabledLabel =
@@ -133,7 +138,11 @@ function DataGridTableDndRowHandle({
 
   if (!context || disabled) {
     return (
-      <Button
+      <IenThemeContext.Provider value={ienTheme}>
+<Button
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
         variant="ghost"
         size="icon-sm"
         className={cn(
@@ -159,11 +168,16 @@ function DataGridTableDndRowHandle({
           aria-hidden="true"
         />
       </Button>
+</IenThemeContext.Provider>
     )
   }
 
   return (
-    <Button
+    <IenThemeContext.Provider value={ienTheme}>
+<Button
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       variant="ghost"
       size="icon-sm"
       className={cn(
@@ -183,6 +197,7 @@ function DataGridTableDndRowHandle({
         aria-hidden="true"
       />
     </Button>
+</IenThemeContext.Provider>
   )
 }
 
@@ -295,6 +310,7 @@ function DataGridTableDndRow<TData extends object>({
         <div
           aria-hidden="true"
           data-slot="data-grid-table-row-decoration"
+          data-ien-typography="label1"
           className="pointer-events-none absolute inset-0"
         >
           {decoration}
@@ -308,6 +324,7 @@ function DataGridTableDndRow<TData extends object>({
         <div
           aria-hidden="true"
           data-slot="data-grid-table-row-drop-indicator"
+          data-ien-typography="label1"
           data-edge={dropEdge}
           className="pointer-events-none absolute inset-0 z-20"
         >
@@ -432,6 +449,8 @@ const MemoizedDataGridTableDndRowsBody = memo(
 ) as typeof DataGridTableDndRowsBody
 
 function DataGridTableDndRows<TData extends object>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   handleDragEnd,
   dataIds,
   footerContent,
@@ -485,7 +504,8 @@ function DataGridTableDndRows<TData extends object>({
    * live-region announcements, which default to dnd-kit's English strings.
    */
   accessibility?: DndContextProps["accessibility"]
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { table, props } = useDataGrid<TData>()
   const mergedHeaderGroups = getDataGridTableMergedHeaderGroups(table)
   const tableContainerRef = useRef<HTMLDivElement>(null)
@@ -645,7 +665,8 @@ function DataGridTableDndRows<TData extends object>({
   }, [modifiers])
 
   return (
-    <DndContext
+    <IenThemeContext.Provider value={ienTheme}>
+<DndContext
       id={useId()}
       accessibility={accessibility}
       collisionDetection={collisionDetection}
@@ -670,6 +691,9 @@ function DataGridTableDndRows<TData extends object>({
       sensors={sensors}
     >
       <DataGridTableViewport
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
         viewportRef={tableContainerRef}
         className={
           isDraggingRow
@@ -830,6 +854,7 @@ function DataGridTableDndRows<TData extends object>({
           )
         : null}
     </DndContext>
+</IenThemeContext.Provider>
   )
 }
 

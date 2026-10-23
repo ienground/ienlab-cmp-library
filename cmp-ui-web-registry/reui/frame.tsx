@@ -1,3 +1,4 @@
+import type { IenToneProps } from "@/lib/ien-theme"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "cn"
@@ -31,6 +32,10 @@ const frameVariants = cva(
   {
     variants: {
       variant: {
+        fill: "ien-fill",
+        weak: "ien-weak",
+        outline: "ien-outline border",
+        clear: "ien-clear",
         default: "border border-[var(--frame-border-color)] bg-clip-padding",
         inverse:
           "[--frame-panel-bg:color-mix(in_oklch,var(--color-muted)_40%,transparent)] border border-[var(--frame-border-color)] bg-background bg-clip-padding",
@@ -73,17 +78,21 @@ const frameVariants = cva(
       stacked: false,
       dense: false,
     },
-  }
+  },
 )
 
 function Frame({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   variant,
   spacing,
   stacked,
   dense,
   ...props
-}: React.ComponentProps<"div"> & VariantProps<typeof frameVariants>) {
+}: React.ComponentProps<"div"> &
+  VariantProps<typeof frameVariants> &
+  IenToneProps) {
   return (
     <div
       className={cn(
@@ -91,6 +100,9 @@ function Frame({
         className
       )}
       data-slot="frame"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       data-spacing={spacing}
       {...props}
     />
@@ -98,10 +110,12 @@ function Frame({
 }
 
 function FramePanel({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   fit,
   ...props
-}: React.ComponentProps<"div"> & { fit?: boolean }) {
+}: React.ComponentProps<"div"> & { fit?: boolean } & IenToneProps) {
   return (
     <div
       className={cn(
@@ -115,12 +129,20 @@ function FramePanel({
         className
       )}
       data-slot="frame-panel"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       {...props}
     />
   )
 }
 
-function FrameHeader({ className, ...props }: React.ComponentProps<"header">) {
+function FrameHeader({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+  ...props
+}: React.ComponentProps<"header"> & IenToneProps) {
   return (
     <header
       className={cn(
@@ -128,35 +150,59 @@ function FrameHeader({ className, ...props }: React.ComponentProps<"header">) {
         className
       )}
       data-slot="frame-panel-header"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       {...props}
     />
   )
 }
 
-function FrameTitle({ className, ...props }: React.ComponentProps<"div">) {
+function FrameTitle({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+  ...props
+}: React.ComponentProps<"div"> & IenToneProps) {
   return (
     <div
       className={cn("text-sm font-semibold", className)}
       data-slot="frame-panel-title"
+      data-ien-typography="title3"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       {...props}
     />
   )
 }
 
 function FrameDescription({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & IenToneProps) {
   return (
     <div
       className={cn("text-muted-foreground text-sm", className)}
       data-slot="frame-panel-description"
+      data-ien-typography="body2"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       {...props}
     />
   )
 }
 
-function FrameFooter({ className, ...props }: React.ComponentProps<"footer">) {
+function FrameFooter({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+  ...props
+}: React.ComponentProps<"footer"> & IenToneProps) {
   return (
     <footer
       className={cn(
@@ -164,6 +210,10 @@ function FrameFooter({ className, ...props }: React.ComponentProps<"footer">) {
         className
       )}
       data-slot="frame-panel-footer"
+      data-ien-typography="caption"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       {...props}
     />
   )

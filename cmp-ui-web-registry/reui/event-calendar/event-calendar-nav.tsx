@@ -2,6 +2,8 @@
 // Description: Composable navigation - Today, prev/next, period title, view switcher dropdown, and a free toolbar slot.
 
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   useState,
@@ -87,7 +89,7 @@ function useNavTooltipConfig(): {
   }
 }
 
-type NavButtonProps = Omit<
+type NavButtonProps = (Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   "children"
 > & {
@@ -105,37 +107,49 @@ type NavButtonProps = Omit<
    */
   tooltip?: ReactNode | null
   asChild?: boolean
-}
+}) &
+  IenToneProps
 
 /** Hover/focus-visible tooltip wrapper; renders the bare button when disabled
  *  (per-button content=null or viewConfig.navTooltips=false). */
 function NavTooltip({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   content,
   children,
 }: {
   content: ReactNode | null
   children: React.ReactElement
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const tooltips = useNavTooltipConfig()
   if (tooltips.disabled || content === null || content === undefined)
     return children
   return (
-    <Tooltip>
+    <IenThemeContext.Provider value={ienTheme}>
+<Tooltip>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
-      <TooltipContent side={tooltips.side} className={tooltips.className}>
+      <TooltipContent
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} side={tooltips.side} className={tooltips.className}>
         {content}
       </TooltipContent>
     </Tooltip>
+</IenThemeContext.Provider>
   )
 }
 
 function EventCalendarNavToday({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   tooltip,
   ...props
-}: NavButtonProps) {
+}: NavButtonProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { today, isToday } = useEventCalendarNavigation()
   const settings = useEventCalendarSettings()
   const nav = useNavButtonProps()
@@ -155,6 +169,9 @@ function EventCalendarNavToday({
         variant={nav.variant}
         size={nav.size}
         data-slot="event-calendar-nav-today"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-active={isToday || undefined}
         className={cn(nav.className, className)}
         onClick={today}
@@ -168,12 +185,15 @@ function EventCalendarNavToday({
 }
 
 function EventCalendarNavPrev({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   tooltip,
   ...props
-}: NavButtonProps) {
+}: NavButtonProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { prev } = useEventCalendarNavigation()
   const settings = useEventCalendarSettings()
   const nav = useNavButtonProps()
@@ -185,6 +205,9 @@ function EventCalendarNavPrev({
         variant={nav.variant}
         size={nav.iconSize}
         data-slot="event-calendar-nav-prev"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         aria-label={settings.i18n.labels.previous}
         className={cn(nav.className, className)}
         onClick={prev}
@@ -208,12 +231,15 @@ function EventCalendarNavPrev({
 }
 
 function EventCalendarNavNext({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   tooltip,
   ...props
-}: NavButtonProps) {
+}: NavButtonProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { next } = useEventCalendarNavigation()
   const settings = useEventCalendarSettings()
   const nav = useNavButtonProps()
@@ -225,6 +251,9 @@ function EventCalendarNavNext({
         variant={nav.variant}
         size={nav.iconSize}
         data-slot="event-calendar-nav-next"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         aria-label={settings.i18n.labels.next}
         className={cn(nav.className, className)}
         onClick={next}
@@ -248,23 +277,33 @@ function EventCalendarNavNext({
 }
 
 interface EventCalendarTitleProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   format?: (ctx: { title: string }) => ReactNode
   asChild?: boolean
 }
 
 function EventCalendarTitle({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   format: formatTitle,
   children,
   ...props
-}: EventCalendarTitleProps) {
+}: EventCalendarTitleProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { title } = useEventCalendarNavigation()
   const viewConfig = useEventCalendarViewConfig()
   const Comp = asChild ? Slot.Root : "div"
   return (
     <Comp
       data-slot="event-calendar-title"
+      data-ien-typography="title1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       aria-live="polite"
       className={cn(
         "min-w-0 truncate text-sm font-semibold",
@@ -278,10 +317,14 @@ function EventCalendarTitle({
   )
 }
 
-interface EventCalendarViewSwitcherProps extends Omit<
+interface EventCalendarViewSwitcherProps
+  extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   "children"
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   children?: ReactNode
   /** Hover/focus-visible hint; defaults to the "Select view" label. Pass
    *  null to disable (overlay-opener policy). */
@@ -290,12 +333,15 @@ interface EventCalendarViewSwitcherProps extends Omit<
 }
 
 function EventCalendarViewSwitcher({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   tooltip,
   ...props
-}: EventCalendarViewSwitcherProps) {
+}: EventCalendarViewSwitcherProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { view, dayCount, availableViews, setView } = useEventCalendarView()
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
@@ -333,14 +379,18 @@ function EventCalendarViewSwitcher({
           delayDuration/skipDelayDuration. */}
       <Tooltip open={tipOpen && !open} onOpenChange={setTipOpen}>
         <DropdownMenuTrigger asChild {...props}>
-          {/* opens are hover-only; the trigger-focus open that follows a
-              menu close is ignored (prevented before Radix opens), closes
-              always land */}
+          {/* Tooltip on an overlay-opener: hover-only (focus opens ignored) and
+          force-closed while the menu is up, so it never lingers or flashes
+          when focus returns on close. Inherits the nav TooltipProvider's
+          delayDuration/skipDelayDuration. */}
           <TooltipTrigger asChild onFocus={(event) => event.preventDefault()}>
             <Button
               variant={nav.variant}
               size={nav.size}
               data-slot="event-calendar-view-switcher"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
               aria-label={labels.selectView}
               className={cn("gap-1", nav.className, className)}
               asChild={asChild}
@@ -423,11 +473,20 @@ function EventCalendarViewSwitcher({
 }
 
 /** Outline key badge; theme-token only, so it adapts to every style. */
-function EventCalendarViewShortcut({ children }: { children: ReactNode }) {
+function EventCalendarViewShortcut({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  children,
+}: { children: ReactNode } & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const viewConfig = useEventCalendarViewConfig()
   return (
     <kbd
       data-slot="event-calendar-view-shortcut"
+      data-ien-typography="caption"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "text-muted-foreground ms-auto inline-flex size-5 shrink-0 items-center justify-center rounded-sm border font-sans text-xs",
         viewConfig.classNames?.viewShortcut
@@ -438,10 +497,14 @@ function EventCalendarViewShortcut({ children }: { children: ReactNode }) {
   )
 }
 
-interface EventCalendarDatePickerProps extends Omit<
+interface EventCalendarDatePickerProps
+  extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   "children"
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   children?: ReactNode
   /** "auto" (default) resolves per view: range for week/N-days/agenda. */
   mode?: "auto" | "single" | "range"
@@ -463,13 +526,16 @@ const RANGE_VIEWS: CalendarView[] = ["week", "days", "agenda"]
  * overlay (see the NavButtonProps tooltip policy); pass `tooltip` to opt in.
  */
 function EventCalendarDatePicker({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   tooltip = null,
   mode,
   ...props
-}: EventCalendarDatePickerProps) {
+}: EventCalendarDatePickerProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { date, goTo, activeRange } = useEventCalendarNavigation()
   const { view } = useEventCalendarView()
   const settings = useEventCalendarSettings()
@@ -500,6 +566,10 @@ function EventCalendarDatePicker({
             variant={nav.variant}
             size={nav.iconSize}
             data-slot="event-calendar-date-picker"
+            data-ien-typography="caption"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
             data-mode={resolved}
             aria-label={settings.i18n.labels.goToDate}
             className={cn(nav.className, className)}
@@ -551,21 +621,30 @@ function EventCalendarDatePicker({
 }
 
 interface EventCalendarToolbarProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   asChild?: boolean
 }
 
 /** Free slot for consumer toolbar buttons; pure layout shell. */
 function EventCalendarToolbar({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   ...props
-}: EventCalendarToolbarProps) {
+}: EventCalendarToolbarProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const viewConfig = useEventCalendarViewConfig()
   const Comp = asChild ? Slot.Root : "div"
   return (
     <Comp
       data-slot="event-calendar-toolbar"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "flex items-center gap-2",
         viewConfig.classNames?.toolbar,
@@ -579,6 +658,9 @@ function EventCalendarToolbar({
 }
 
 interface EventCalendarNavProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /**
    * Render the view switcher in the composed layout. Turn off when the
    * calendar ships with a fixed view (e.g. a month-only embed) and users
@@ -594,18 +676,24 @@ interface EventCalendarNavProps extends HTMLAttributes<HTMLDivElement> {
  * Pass children to use it as a pure layout shell instead.
  */
 function EventCalendarNav({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   showViewSwitcher = true,
   ...props
-}: EventCalendarNavProps) {
+}: EventCalendarNavProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const viewConfig = useEventCalendarViewConfig()
   const tooltips = useNavTooltipConfig()
   const Comp = asChild ? Slot.Root : "div"
   return (
     <Comp
       data-slot="event-calendar-nav"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "flex min-w-0 flex-wrap items-center gap-1 px-2 py-2",
         viewConfig.stickyNav && "bg-background sticky top-0 z-30",

@@ -11,7 +11,7 @@ import {
 export function Pattern() {
   return (
     <div className="flex items-center justify-center">
-      <Popover>
+      <Popover tone="success">
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-fit">
             Open Popover

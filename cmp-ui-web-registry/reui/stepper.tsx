@@ -1,6 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import type { HTMLAttributes, ReactElement } from "react"
 import {
@@ -67,6 +69,9 @@ function useStepItem() {
 }
 
 interface StepperProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   defaultValue?: number
   value?: number
   onValueChange?: (value: number) => void
@@ -75,6 +80,8 @@ interface StepperProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function Stepper({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   defaultValue = 1,
   value,
   onValueChange,
@@ -83,7 +90,8 @@ function Stepper({
   children,
   indicators = {},
   ...props
-}: StepperProps) {
+}: StepperProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const [activeStep, setActiveStep] = useState(defaultValue)
   const [triggerNodes, setTriggerNodes] = useState<HTMLButtonElement[]>([])
 
@@ -153,22 +161,30 @@ function Stepper({
   )
 
   return (
-    <StepperContext.Provider value={contextValue}>
-      <div
-        role="tablist"
-        aria-orientation={orientation}
-        data-slot="stepper"
-        className={cn("w-full", className)}
-        data-orientation={orientation}
-        {...props}
-      >
-        {children}
-      </div>
-    </StepperContext.Provider>
+    <IenThemeContext.Provider value={ienTheme}>
+      <StepperContext.Provider value={contextValue}>
+        <div
+          role="tablist"
+          aria-orientation={orientation}
+          data-slot="stepper"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
+          className={cn("w-full", className)}
+          data-orientation={orientation}
+          {...props}
+        >
+          {children}
+        </div>
+      </StepperContext.Provider>
+    </IenThemeContext.Provider>
   )
 }
 
 interface StepperItemProps extends React.HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   step: number
   completed?: boolean
   disabled?: boolean
@@ -176,6 +192,8 @@ interface StepperItemProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 function StepperItem({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   step,
   completed = false,
   disabled = false,
@@ -183,7 +201,8 @@ function StepperItem({
   className,
   children,
   ...props
-}: StepperItemProps) {
+}: StepperItemProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { activeStep } = useStepper()
 
   const state: StepState =
@@ -201,6 +220,10 @@ function StepperItem({
     >
       <div
         data-slot="stepper-item"
+        data-ien-typography="label1"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         className={cn(
           "group/step flex items-center justify-center not-last:flex-1 group-data-[orientation=horizontal]/stepper-nav:flex-row group-data-[orientation=vertical]/stepper-nav:flex-col",
           className
@@ -215,17 +238,24 @@ function StepperItem({
   )
 }
 
-interface StepperTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface StepperTriggerProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   asChild?: boolean
 }
 
 function StepperTrigger({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   asChild = false,
   className,
   children,
   tabIndex,
   ...props
-}: StepperTriggerProps) {
+}: StepperTriggerProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { state, isLoading } = useStepItem()
   const stepperCtx = useStepper()
   const {
@@ -299,6 +329,10 @@ function StepperTrigger({
       aria-controls={panelId}
       tabIndex={typeof tabIndex === "number" ? tabIndex : isSelected ? 0 : -1}
       data-slot="stepper-trigger"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-state={state}
       data-loading={isLoading}
       className={cn(
@@ -317,15 +351,21 @@ function StepperTrigger({
 }
 
 function StepperIndicator({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   children,
   className,
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { state, isLoading } = useStepItem()
   const { indicators } = useStepper()
 
   return (
     <div
       data-slot="stepper-indicator"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-state={state}
       className={cn(
         "border-background bg-accent text-accent-foreground data-[state=completed]:bg-primary data-[state=completed]:text-primary-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground relative flex size-6 shrink-0 items-center justify-center overflow-hidden",
@@ -349,12 +389,20 @@ function StepperIndicator({
   )
 }
 
-function StepperSeparator({ className }: React.ComponentProps<"div">) {
+function StepperSeparator({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+}: React.ComponentProps<"div"> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { state } = useStepItem()
 
   return (
     <div
       data-slot="stepper-separator"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-state={state}
       className={cn(
         "bg-muted rounded-sm m-0.5 group-data-[orientation=horizontal]/stepper-nav:h-0.5 group-data-[orientation=horizontal]/stepper-nav:flex-1 group-data-[orientation=vertical]/stepper-nav:h-12 group-data-[orientation=vertical]/stepper-nav:w-0.5",
@@ -364,12 +412,22 @@ function StepperSeparator({ className }: React.ComponentProps<"div">) {
   )
 }
 
-function StepperTitle({ children, className }: React.ComponentProps<"h3">) {
+function StepperTitle({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  children,
+  className,
+}: React.ComponentProps<"h3"> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { state } = useStepItem()
 
   return (
     <h3
       data-slot="stepper-title"
+      data-ien-typography="title3"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-state={state}
       className={cn("text-sm leading-none font-medium", className)}
     >
@@ -379,14 +437,21 @@ function StepperTitle({ children, className }: React.ComponentProps<"h3">) {
 }
 
 function StepperDescription({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   children,
   className,
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { state } = useStepItem()
 
   return (
     <div
       data-slot="stepper-description"
+      data-ien-typography="body2"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-state={state}
       className={cn("text-muted-foreground text-sm", className)}
     >
@@ -395,12 +460,21 @@ function StepperDescription({
   )
 }
 
-function StepperNav({ children, className }: React.ComponentProps<"nav">) {
+function StepperNav({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  children,
+  className,
+}: React.ComponentProps<"nav"> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { activeStep, orientation } = useStepper()
 
   return (
     <nav
       data-slot="stepper-nav"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-state={activeStep}
       data-orientation={orientation}
       className={cn(
@@ -413,12 +487,21 @@ function StepperNav({ children, className }: React.ComponentProps<"nav">) {
   )
 }
 
-function StepperPanel({ children, className }: React.ComponentProps<"div">) {
+function StepperPanel({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  children,
+  className,
+}: React.ComponentProps<"div"> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { activeStep } = useStepper()
 
   return (
     <div
       data-slot="stepper-panel"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-state={activeStep}
       className={cn("w-full", className)}
     >
@@ -428,16 +511,22 @@ function StepperPanel({ children, className }: React.ComponentProps<"div">) {
 }
 
 interface StepperContentProps extends React.ComponentProps<"div"> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   value: number
   forceMount?: boolean
 }
 
 function StepperContent({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   forceMount,
   children,
   className,
-}: StepperContentProps) {
+}: StepperContentProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { activeStep } = useStepper()
   const isActive = value === activeStep
 
@@ -448,6 +537,10 @@ function StepperContent({
   return (
     <div
       data-slot="stepper-content"
+      data-ien-typography="body2"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-state={activeStep}
       className={cn("w-full", className, !isActive && forceMount && "hidden")}
       hidden={!isActive && forceMount}

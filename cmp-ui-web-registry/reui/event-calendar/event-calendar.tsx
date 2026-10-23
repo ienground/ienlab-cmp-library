@@ -2,6 +2,8 @@
 // Description: Headless-first event calendar with month, week, day, N-day and agenda views, external CRUD contract, and a subscribable store.
 
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   createContext,
@@ -1726,10 +1728,12 @@ function useEventCalendarViewContext(): { view: CalendarView } {
 }
 
 interface EventCalendarProps<TData = unknown>
-  extends
-    UseEventCalendarStateOptions<TData>,
+  extends UseEventCalendarStateOptions<TData>,
     Partial<EventCalendarViewConfig<TData>>,
     Omit<HTMLAttributes<HTMLDivElement>, "children" | "defaultValue"> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** Adopt a hoisted useEventCalendarState instance; option props are then ignored. */
   calendar?: EventCalendarInstance<TData>
   /** Imperative escape hatch usable from outside the tree. */
@@ -1817,13 +1821,16 @@ function splitOptions<TData>(props: Record<string, unknown>): {
  * <EventCalendar><EventCalendarNav/><EventCalendarToolbar/><EventCalendarContent/></EventCalendar>
  */
 function EventCalendar<TData = unknown>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   calendar,
   apiRef,
   className,
   asChild = false,
   children,
   ...props
-}: EventCalendarProps<TData>) {
+}: EventCalendarProps<TData> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { options, viewConfig, rest } = splitOptions<TData>(
     props as Record<string, unknown>
   )
@@ -1852,32 +1859,40 @@ function EventCalendar<TData = unknown>({
   const Comp = asChild ? Slot.Root : "div"
 
   return (
-    <EventCalendarContext.Provider value={instance}>
-      <EventCalendarViewConfigContext.Provider value={viewConfig}>
-        <Comp
-          data-slot="event-calendar"
-          ref={registerRoot}
-          // text-xs is the calendar-wide default type size; because it sits
-          // before `className`, a consumer can override the whole scale with
-          // e.g. <EventCalendar className="text-sm"> and every inheriting
-          // element follows. Inner elements omit their own text-size so they
-          // cascade from here (the few portaled surfaces - "+N more" popover,
-          // drag carry clone - pin the size explicitly since DOM inheritance
-          // does not cross a portal).
-          className={cn("flex min-h-0 min-w-0 flex-col text-xs", className)}
-          {...rest}
-        >
-          {/* Slottable keeps the announcer sibling legal when asChild slots
+    <IenThemeContext.Provider value={ienTheme}>
+      <EventCalendarContext.Provider value={instance}>
+        <EventCalendarViewConfigContext.Provider value={viewConfig}>
+          <Comp
+            data-slot="event-calendar"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
+            ref={registerRoot}
+            // text-xs is the calendar-wide default type size; because it sits
+            // before `className`, a consumer can override the whole scale with
+            // e.g. <EventCalendar className="text-sm"> and every inheriting
+            // element follows. Inner elements omit their own text-size so they
+            // cascade from here (the few portaled surfaces - "+N more" popover,
+            // drag carry clone - pin the size explicitly since DOM inheritance
+            // does not cross a portal).
+            className={cn("flex min-h-0 min-w-0 flex-col text-xs", className)}
+            {...rest}
+          >
+            {/* Slottable keeps the announcer sibling legal when asChild slots
               the consumer element (Slot.Root allows one non-Slottable child). */}
-          <Slot.Slottable>{children}</Slot.Slottable>
-          <div
-            data-slot="event-calendar-announcer"
-            aria-live="polite"
-            className="sr-only"
-          />
-        </Comp>
-      </EventCalendarViewConfigContext.Provider>
-    </EventCalendarContext.Provider>
+            <Slot.Slottable>{children}</Slot.Slottable>
+            <div
+              data-slot="event-calendar-announcer"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
+              aria-live="polite"
+              className="sr-only"
+            />
+          </Comp>
+        </EventCalendarViewConfigContext.Provider>
+      </EventCalendarContext.Provider>
+    </IenThemeContext.Provider>
   )
 }
 

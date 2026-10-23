@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 // Title: Emoji Picker
 // Description: Shadcn emoji picker with search, shortcodes, skin tones, frequently used and custom emoji, a category bar, a virtualized grid and 28 data languages.
@@ -1290,7 +1292,7 @@ type EmojiPickerMultipleProps = {
   max?: number
 }
 
-export type EmojiPickerProps = (
+export type EmojiPickerProps = ((
   | EmojiPickerSingleProps
   | EmojiPickerMultipleProps
 ) & {
@@ -1357,7 +1359,8 @@ export type EmojiPickerProps = (
   /** Without children the picker renders a trigger and a popover; this reaches the trigger. */
   className?: string
   children?: ReactNode
-}
+}) &
+  IenToneProps
 
 const EMPTY_RECENT: EmojiPickerRecentEntry[] = []
 
@@ -1382,7 +1385,8 @@ function normalizeCustom(emoji: EmojiPickerCustomEmoji): EmojiPickerEmoji {
   }
 }
 
-export function EmojiPicker(props: EmojiPickerProps) {
+export function EmojiPicker(props: EmojiPickerProps & IenToneProps) {
+  const ienTheme = useIenTheme(props)
   const {
     onEmojiSelect,
     open: openProp,
@@ -1950,18 +1954,19 @@ export function EmojiPicker(props: EmojiPickerProps) {
   }, [hasField])
 
   return (
-    <EmojiPickerContext.Provider value={context}>
-      <Popover open={open} onOpenChange={(next) => setOpen(next)}>
-        {children === undefined ? (
-          <>
-            <EmojiPickerTrigger className={className} />
-            <EmojiPickerContent />
-          </>
-        ) : (
-          children
-        )}
-      </Popover>
-      {hasField && (
+    <IenThemeContext.Provider value={ienTheme}>
+      <EmojiPickerContext.Provider value={context}>
+        <Popover open={open} onOpenChange={(next) => setOpen(next)}>
+          {children === undefined ? (
+            <>
+              <EmojiPickerTrigger className={className} />
+              <EmojiPickerContent />
+            </>
+          ) : (
+            children
+          )}
+        </Popover>
+        {hasField && (
         <input
           ref={(node) => {
             fieldRef.current = node
@@ -1986,7 +1991,8 @@ export function EmojiPicker(props: EmojiPickerProps) {
           className="pointer-events-none absolute size-px max-w-px opacity-0"
         />
       )}
-    </EmojiPickerContext.Provider>
+      </EmojiPickerContext.Provider>
+    </IenThemeContext.Provider>
   )
 }
 
@@ -2040,6 +2046,8 @@ const EMOJI_FONT_CLASS =
   "font-[family-name:var(--emoji-picker-font,Apple_Color_Emoji,Twemoji_Mozilla,Segoe_UI_Emoji,Segoe_UI_Symbol,Noto_Color_Emoji,sans-serif)] leading-none"
 
 function EmojiGlyph({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   emoji,
   value,
   className,
@@ -2047,13 +2055,20 @@ function EmojiGlyph({
   emoji: EmojiPickerEmoji | undefined | null
   value: string
   className?: string
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useContext(EmojiPickerContext)
   if (emoji && context?.renderEmoji)
-    return <>{context.renderEmoji(emoji, value)}</>
+    return <IenThemeContext.Provider value={ienTheme}>
+<>{context.renderEmoji(emoji, value)}</>
+</IenThemeContext.Provider>
   if (emoji?.src) {
     return (
-      <img
+      <IenThemeContext.Provider value={ienTheme}>
+<img
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
         src={emoji.src}
         alt=""
         width={64}
@@ -2063,30 +2078,43 @@ function EmojiGlyph({
         draggable={false}
         className={cn("size-[1em] object-contain", className)}
       />
+</IenThemeContext.Provider>
     )
   }
-  return <span className={cn(EMOJI_FONT_CLASS, className)}>{value}</span>
+  return <IenThemeContext.Provider value={ienTheme}>
+<span
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className={cn(EMOJI_FONT_CLASS, className)}>{value}</span>
+</IenThemeContext.Provider>
 }
 
-export type EmojiPickerValueProps = Omit<ComponentProps<"span">, "children"> & {
+export type EmojiPickerValueProps = (Omit<ComponentProps<"span">, "children"> & {
   /** Defaults to the picker's value. */
   value?: string | null
   placeholder?: ReactNode
-}
+}) &
+  IenToneProps
 
 /** An emoji value drawn like the grid draws it, custom images included. For triggers and readouts. */
 export function EmojiPickerValue({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value: valueProp,
   placeholder,
   className,
   ...props
-}: EmojiPickerValueProps) {
+}: EmojiPickerValueProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useEmojiPickerContext("EmojiPickerValue")
   const value =
     valueProp === undefined ? (context.values[0] ?? null) : valueProp
   return (
     <span
       data-slot="emoji-picker-value"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-placeholder={value ? undefined : ""}
       className={cn("inline-flex items-center justify-center", className)}
       {...props}
@@ -2201,16 +2229,19 @@ function openFocusTarget(context: EmojiPickerContextValue): HTMLElement | true {
   )
 }
 
-export type EmojiPickerContentProps = ComponentProps<typeof PopoverContent> & {
+export type EmojiPickerContentProps = (ComponentProps<typeof PopoverContent> & {
   /** Where focus goes on close, such as a composer's textarea. Defaults to the trigger. */
   returnFocus?: RefObject<HTMLElement | null>
-}
+}) &
+  IenToneProps
 
 /**
  * The popover. It wraps its children in an `EmojiPickerPanel`, so it takes the
  * same parts; with none it renders the default layout. Tab cycles inside it.
  */
 export function EmojiPickerContent({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   align = "start",
   returnFocus,
@@ -2218,7 +2249,8 @@ export function EmojiPickerContent({
   onClick,
   children,
   ...props
-}: EmojiPickerContentProps) {
+}: EmojiPickerContentProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useEmojiPickerContext("EmojiPickerContent")
   /* Radix takes the open and close focus targets through its auto-focus
      events, prevented when the picker moves focus itself. */
@@ -2236,7 +2268,11 @@ export function EmojiPickerContent({
     },
   }
   return (
-    <PopoverContent
+    <IenThemeContext.Provider value={ienTheme}>
+<PopoverContent
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       align={align}
       aria-labelledby={context.labelledBy}
       aria-label={
@@ -2284,10 +2320,11 @@ export function EmojiPickerContent({
         <EmojiPickerPanel>{children}</EmojiPickerPanel>
       </SurfaceContext.Provider>
     </PopoverContent>
+</IenThemeContext.Provider>
   )
 }
 
-export type EmojiPickerPanelProps = ComponentProps<"div">
+export type EmojiPickerPanelProps = ComponentProps<"div"> & IenToneProps
 
 /**
  * The picker surface. Inline, put it straight inside an `EmojiPicker` with no
@@ -2296,11 +2333,14 @@ export type EmojiPickerPanelProps = ComponentProps<"div">
  * in that order.
  */
 export function EmojiPickerPanel({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   style,
   children,
   ...props
-}: EmojiPickerPanelProps) {
+}: EmojiPickerPanelProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useEmojiPickerContext("EmojiPickerPanel")
   const inline = useContext(SurfaceContext) === "inline"
   const { requestData } = context
@@ -2320,6 +2360,9 @@ export function EmojiPickerPanel({
           : undefined
       }
       data-slot="emoji-picker-panel"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-columns={context.columns === "auto" ? "auto" : undefined}
       data-disabled={context.disabled ? "" : undefined}
       style={
@@ -2337,13 +2380,13 @@ export function EmojiPickerPanel({
       className={cn(
         /* Sized from the columns: the list hides its scrollbar, so nothing
            else takes width. */
-        "flex min-h-0 w-[calc(var(--emoji-picker-columns)*var(--emoji-picker-cell)+var(--emoji-picker-gutter)*2)] max-w-full min-w-0 flex-col data-disabled:pointer-events-none data-disabled:opacity-50 data-[columns=auto]:w-full",
+        "flex min-h-0 w-[calc(var(--emoji-picker-columns)*var(--emoji-picker-cell)+var(--emoji-picker-gutter)*2)] max-w-full min-w-0 flex-col data-disabled:pointer-events-none data-disabled:opacity-(--ien-state-disabled-alpha) data-[columns=auto]:w-full",
         /* The sticky headers paint the surface they sit on: an inline panel
            belongs in a Card, a popup is the popover. */
         inline
           ? "[--emoji-picker-surface:var(--color-card)]"
           : "[--emoji-picker-surface:var(--color-popover)]",
-        className
+        className,
       )}
       {...props}
     >
@@ -2366,16 +2409,23 @@ export function EmojiPickerPanel({
   )
 }
 
-export type EmojiPickerHeaderProps = ComponentProps<"div">
+export type EmojiPickerHeaderProps = ComponentProps<"div"> & IenToneProps
 
 /** The row above the grid, for the search and anything beside it. */
 export function EmojiPickerHeader({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: EmojiPickerHeaderProps) {
+}: EmojiPickerHeaderProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <div
       data-slot="emoji-picker-header"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "flex items-center gap-2 px-(--emoji-picker-padding) pt-(--emoji-picker-padding) pb-2",
         className
@@ -2392,7 +2442,8 @@ export function EmojiPickerHeader({
 export type EmojiPickerSearchProps = Omit<
   ComponentProps<typeof InputGroupInput>,
   "value" | "defaultValue"
->
+> &
+  IenToneProps
 
 /**
  * The search field, a default shadcn InputGroup. Focus stays here while the
@@ -2400,6 +2451,8 @@ export type EmojiPickerSearchProps = Omit<
  * the highlighted emoji.
  */
 export function EmojiPickerSearch({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   placeholder,
   onChange,
@@ -2408,7 +2461,8 @@ export function EmojiPickerSearch({
   onBlur,
   ref,
   ...props
-}: EmojiPickerSearchProps) {
+}: EmojiPickerSearchProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useEmojiPickerContext("EmojiPickerSearch")
   const { setHasSearch, searchRef } = context
   const { labels } = context.i18n
@@ -2424,6 +2478,9 @@ export function EmojiPickerSearch({
   return (
     <InputGroup
       data-slot="emoji-picker-search"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn("flex-1", className)}
     >
       <InputGroupAddon>{SEARCH_ICON}</InputGroupAddon>
@@ -2515,7 +2572,8 @@ function ToneGlyph({ tone }: { tone: EmojiPickerSkinTone }) {
   )
 }
 
-export type EmojiPickerSkinToneProps = ComponentProps<typeof Button>
+export type EmojiPickerSkinToneProps = ComponentProps<typeof Button> &
+  IenToneProps
 
 /**
  * A shadcn Button with a hand in the current tone that opens the six tones in
@@ -2525,11 +2583,14 @@ export type EmojiPickerSkinToneProps = ComponentProps<typeof Button>
  * height in every style.
  */
 export function EmojiPickerSkinTone({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   variant = "ghost",
   size = "icon-sm",
   ref,
   ...props
-}: EmojiPickerSkinToneProps) {
+}: EmojiPickerSkinToneProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useEmojiPickerContext("EmojiPickerSkinTone")
   const { labels } = context.i18n
   const tone = context.skinTone
@@ -2549,13 +2610,17 @@ export function EmojiPickerSkinTone({
   }
 
   return (
-    <DropdownMenu>
+    <IenThemeContext.Provider value={ienTheme}>
+<DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button {...buttonProps}>
           <ToneGlyph tone={tone} />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-40">
+      <DropdownMenuContent
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} align="end" className="min-w-40">
         <DropdownMenuGroup>
           <DropdownMenuLabel>{labels.skinTone}</DropdownMenuLabel>
           <DropdownMenuRadioGroup
@@ -2574,6 +2639,7 @@ export function EmojiPickerSkinTone({
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
+</IenThemeContext.Provider>
   )
 }
 
@@ -2585,7 +2651,7 @@ export function EmojiPickerSkinTone({
    trigger's own padding would overflow a row of 11. */
 const TAB_CLASS = "max-w-9 min-w-0 px-0"
 
-export type EmojiPickerCategoriesProps = ComponentProps<"div">
+export type EmojiPickerCategoriesProps = ComponentProps<"div"> & IenToneProps
 
 /**
  * Category tabs, the shadcn Tabs in its line variant, that jump the grid and
@@ -2593,9 +2659,12 @@ export type EmojiPickerCategoriesProps = ComponentProps<"div">
  * jump during a search clears it.
  */
 export function EmojiPickerCategories({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: EmojiPickerCategoriesProps) {
+}: EmojiPickerCategoriesProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useEmojiPickerContext("EmojiPickerCategories")
   const searching = !!context.query.trim()
   const placeholder = context.status !== "ready"
@@ -2605,6 +2674,9 @@ export function EmojiPickerCategories({
   return (
     <div
       data-slot="emoji-picker-categories"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         /* A divider on the grid's side: below the tabs over the grid, above
            them under it. */
@@ -2687,7 +2759,7 @@ function scrollGrid(
   mark.current = list.scrollTop
 }
 
-export type EmojiPickerListProps = ComponentProps<"div">
+export type EmojiPickerListProps = ComponentProps<"div"> & IenToneProps
 
 /**
  * The virtual grid: only the rows in view render, so a page of reaction
@@ -2695,6 +2767,8 @@ export type EmojiPickerListProps = ComponentProps<"div">
  * while their rows scroll. Holds the loading, error and empty states.
  */
 export function EmojiPickerList({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   onKeyDown,
   onFocus,
@@ -2702,7 +2776,8 @@ export function EmojiPickerList({
   onPointerDown,
   onScroll,
   ...props
-}: EmojiPickerListProps) {
+}: EmojiPickerListProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useEmojiPickerContext("EmojiPickerList")
   const {
     layout,
@@ -2865,6 +2940,9 @@ export function EmojiPickerList({
         /* A tab stop of its own, search or not, once there is an emoji. */
         tabIndex={context.disabled || !ready || empty ? -1 : 0}
         data-slot="emoji-picker-list"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-keyboard={keyboard ? "" : undefined}
         className={cn(LIST_CLASS, className)}
         onScroll={(event) => {
@@ -2941,6 +3019,7 @@ export function EmojiPickerList({
                   <div
                     id={headerId}
                     data-slot="emoji-picker-section-header"
+                    data-ien-typography="label1"
                     className={SECTION_HEADER_CLASS}
                   >
                     {section.section.label}
@@ -3083,7 +3162,13 @@ export function EmojiPickerList({
           </Empty>
         )}
         {empty && (
-          <Empty data-slot="emoji-picker-empty" className="h-full">
+          <Empty
+            data-slot="emoji-picker-empty"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
+            className="h-full"
+          >
             <EmptyHeader>
               <EmptyMedia variant="icon">{SEARCH_ICON}</EmptyMedia>
               <EmptyTitle>{labels.empty}</EmptyTitle>
@@ -3103,16 +3188,23 @@ export function EmojiPickerList({
 /*                                   Preview                                  */
 /* -------------------------------------------------------------------------- */
 
-export type EmojiPickerFooterProps = ComponentProps<"div">
+export type EmojiPickerFooterProps = ComponentProps<"div"> & IenToneProps
 
 /** The row under the grid: the preview and the skin tone by default. */
 export function EmojiPickerFooter({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: EmojiPickerFooterProps) {
+}: EmojiPickerFooterProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <div
       data-slot="emoji-picker-footer"
+      data-ien-typography="caption"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "flex h-10 shrink-0 items-center gap-2 border-t px-(--emoji-picker-padding)",
         className
@@ -3122,7 +3214,7 @@ export function EmojiPickerFooter({
   )
 }
 
-export type EmojiPickerPreviewProps = ComponentProps<"div">
+export type EmojiPickerPreviewProps = ComponentProps<"div"> & IenToneProps
 
 /**
  * The highlighted emoji, large, with its name and first shortcode; the value
@@ -3130,9 +3222,12 @@ export type EmojiPickerPreviewProps = ComponentProps<"div">
  * It fills the space it is given, usually an `EmojiPickerFooter`.
  */
 export function EmojiPickerPreview({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: EmojiPickerPreviewProps) {
+}: EmojiPickerPreviewProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useEmojiPickerContext("EmojiPickerPreview")
   const { labels, functions } = context.i18n
   const fallback =
@@ -3151,6 +3246,9 @@ export function EmojiPickerPreview({
     <div
       aria-hidden="true"
       data-slot="emoji-picker-preview"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "flex min-w-0 flex-1 items-center gap-2 select-none",
         className

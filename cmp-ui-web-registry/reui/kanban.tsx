@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react"
@@ -162,10 +164,14 @@ export interface KanbanCommitMeta<T> {
   previousValue: Record<string, T[]>
 }
 
-export interface KanbanRootProps<T> extends Omit<
+export interface KanbanRootProps<T>
+  extends Omit<
   HTMLAttributes<HTMLDivElement>,
   "onDragStart" | "onDragEnd"
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   value: Record<string, T[]>
   onValueChange: (value: Record<string, T[]>) => void
   getItemValue: (item: T) => string
@@ -185,6 +191,8 @@ export interface KanbanRootProps<T> extends Omit<
 }
 
 function Kanban<T>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   onValueChange,
   getItemValue,
@@ -200,7 +208,8 @@ function Kanban<T>({
   accessibility,
   modifiers,
   ...props
-}: KanbanRootProps<T>) {
+}: KanbanRootProps<T> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const columns = value
   const setColumns = onValueChange
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
@@ -632,8 +641,9 @@ function Kanban<T>({
   const Comp = asChild ? Slot.Root : "div"
 
   return (
-    <KanbanContext.Provider value={contextValue}>
-      <DndContext
+    <IenThemeContext.Provider value={ienTheme}>
+      <KanbanContext.Provider value={contextValue}>
+        <DndContext
         sensors={sensors}
         modifiers={modifiers}
         accessibility={accessibility}
@@ -644,29 +654,39 @@ function Kanban<T>({
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
-        <Comp
-          data-slot="kanban"
-          data-dragging={activeId !== null}
-          className={cn(activeId !== null && "cursor-grabbing!", className)}
-          {...props}
-        >
-          {children}
-        </Comp>
-      </DndContext>
-    </KanbanContext.Provider>
+          <Comp
+            data-slot="kanban"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
+            data-dragging={activeId !== null}
+            className={cn(activeId !== null && "cursor-grabbing!", className)}
+            {...props}
+          >
+            {children}
+          </Comp>
+        </DndContext>
+      </KanbanContext.Provider>
+    </IenThemeContext.Provider>
   )
 }
 
 export interface KanbanBoardProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   asChild?: boolean
 }
 
 function KanbanBoard({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   ...props
-}: KanbanBoardProps) {
+}: KanbanBoardProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { columnIds } = useContext(KanbanContext)
   const Comp = asChild ? Slot.Root : "div"
 
@@ -674,6 +694,9 @@ function KanbanBoard({
     <SortableContext items={columnIds} strategy={rectSortingStrategy}>
       <Comp
         data-slot="kanban-board"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         className={cn("grid auto-rows-fr gap-4 sm:grid-cols-3", className)}
         {...props}
       >
@@ -684,19 +707,25 @@ function KanbanBoard({
 }
 
 export interface KanbanColumnProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   value: string
   disabled?: boolean
   asChild?: boolean
 }
 
 function KanbanColumn({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   className,
   asChild = false,
   disabled,
   children,
   ...props
-}: KanbanColumnProps) {
+}: KanbanColumnProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const isOverlay = useContext(IsOverlayContext)
 
   const {
@@ -734,6 +763,9 @@ function KanbanColumn({
       >
         <Comp
           data-slot="kanban-column"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           data-value={value}
           data-dragging={true}
           className={cn("group/kanban-column flex flex-col", className)}
@@ -751,6 +783,9 @@ function KanbanColumn({
     >
       <Comp
         data-slot="kanban-column"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-value={value}
         data-dragging={isSortableDragging}
         data-disabled={disabled}
@@ -770,18 +805,25 @@ function KanbanColumn({
   )
 }
 
-export interface KanbanColumnHandleProps extends HTMLAttributes<HTMLDivElement> {
+export interface KanbanColumnHandleProps
+  extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   cursor?: boolean
   asChild?: boolean
 }
 
 function KanbanColumnHandle({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   cursor = true,
   children,
   ...props
-}: KanbanColumnHandleProps) {
+}: KanbanColumnHandleProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { attributes, listeners, isDragging, disabled } =
     useContext(ColumnContext)
 
@@ -790,6 +832,9 @@ function KanbanColumnHandle({
   return (
     <Comp
       data-slot="kanban-column-handle"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-dragging={isDragging}
       data-disabled={disabled}
       {...attributes}
@@ -809,19 +854,25 @@ function KanbanColumnHandle({
 }
 
 export interface KanbanItemProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   value: string
   disabled?: boolean
   asChild?: boolean
 }
 
 function KanbanItem({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   className,
   asChild = false,
   disabled,
   children,
   ...props
-}: KanbanItemProps) {
+}: KanbanItemProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const isOverlay = useContext(IsOverlayContext)
 
   const {
@@ -854,6 +905,10 @@ function KanbanItem({
       >
         <Comp
           data-slot="kanban-item"
+          data-ien-typography="label1"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           data-value={value}
           data-dragging={true}
           className={cn(className)}
@@ -871,6 +926,10 @@ function KanbanItem({
     >
       <Comp
         data-slot="kanban-item"
+        data-ien-typography="label1"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-value={value}
         data-dragging={isSortableDragging}
         data-disabled={disabled}
@@ -891,17 +950,23 @@ function KanbanItem({
 }
 
 export interface KanbanItemHandleProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   cursor?: boolean
   asChild?: boolean
 }
 
 function KanbanItemHandle({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   cursor = true,
   children,
   ...props
-}: KanbanItemHandleProps) {
+}: KanbanItemHandleProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { listeners, isDragging, disabled } = useContext(ItemContext)
 
   const Comp = asChild ? Slot.Root : "div"
@@ -909,6 +974,10 @@ function KanbanItemHandle({
   return (
     <Comp
       data-slot="kanban-item-handle"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-dragging={isDragging}
       data-disabled={disabled}
       {...listeners}
@@ -923,18 +992,25 @@ function KanbanItemHandle({
   )
 }
 
-export interface KanbanColumnContentProps extends HTMLAttributes<HTMLDivElement> {
+export interface KanbanColumnContentProps
+  extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   value: string
   asChild?: boolean
 }
 
 function KanbanColumnContent({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   className,
   asChild = false,
   children,
   ...props
-}: KanbanColumnContentProps) {
+}: KanbanColumnContentProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { columns, getItemId } = useContext(KanbanContext)
 
   const itemIds = useMemo(() => {
@@ -954,6 +1030,10 @@ function KanbanColumnContent({
     <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
       <Comp
         data-slot="kanban-column-content"
+        data-ien-typography="body2"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         className={cn("flex flex-col gap-2", className)}
         {...props}
       >

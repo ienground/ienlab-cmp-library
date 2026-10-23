@@ -2,6 +2,8 @@
 // Description: Shared week/day/N-days engine - hour gutter, minute-positioned events, all-day row, drag ghosts, now indicator, and configurable scrolling.
 
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   useEffect,
@@ -75,6 +77,9 @@ function useNow(intervalMs = 30_000): Date {
 const EMPTY_ALL_DAY_SEGMENTS: EventCalendarSegment[] = []
 
 interface EventCalendarTimeGridProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   view: Extract<CalendarView, "week" | "day" | "days">
   dayStartHour?: number
   dayEndHour?: number
@@ -85,6 +90,8 @@ interface EventCalendarTimeGridProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function EventCalendarTimeGrid({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   view,
   className,
   asChild = false,
@@ -94,7 +101,8 @@ function EventCalendarTimeGrid({
   interval: intervalProp,
   style,
   ...props
-}: EventCalendarTimeGridProps) {
+}: EventCalendarTimeGridProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const instance = useEventCalendar()
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
@@ -275,6 +283,9 @@ function EventCalendarTimeGrid({
     <EventCalendarViewContext.Provider value={{ view }}>
       <Comp
         data-slot="event-calendar-time-grid"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-view={view}
         className={cn(
           "flex flex-col border-t",
@@ -312,6 +323,9 @@ function EventCalendarTimeGrid({
         {showAllDay && (
           <div
             data-slot="event-calendar-all-day-section"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
             className={cn(
               "flex border-b pe-(--ec-scrollbar-w,0px)",
               viewConfig.classNames?.allDaySection
@@ -344,12 +358,15 @@ function EventCalendarTimeGrid({
             )}
           </div>
         )}
-        {/* Time track: internal scroll (contained) or document flow (page) */}
+        {/* Day-header row (sticky below the nav in page scroll mode) */}
         {contained ? (
           <div ref={scrollRef} className="min-h-0 flex-1">
             {viewConfig.scrollbars === "native" ? (
               <div
                 data-slot="scroll-area-viewport"
+                data-ien=""
+                data-ien-tone={ienTheme.tone}
+                data-ien-gradient={ienTheme.useGradient}
                 data-ec-native-scroll=""
                 className="h-full overflow-y-auto"
               >
@@ -368,18 +385,25 @@ function EventCalendarTimeGrid({
 }
 
 function EventCalendarDayHeader({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   day,
   view,
 }: {
   day: Date
   view: CalendarView
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
   const { isToday } = useEventCalendarDay(day)
   return (
     <div
       data-slot="event-calendar-day-header"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-today={isToday || undefined}
       className={cn(
         "data-today:text-primary min-w-0 truncate border-e px-2 py-1.5 font-medium last:border-e-0",
@@ -513,12 +537,15 @@ function useEventCalendarAllDayBars(days: Date[]): {
  * standardized day-granular drag ghost for moves/resizes in this lane.
  */
 function EventCalendarAllDayBars({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   days,
   gridTemplateColumns,
 }: {
   days: Date[]
   gridTemplateColumns: string
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
   const { bars, laneCount } = useEventCalendarAllDayBars(days)
@@ -607,6 +634,9 @@ function EventCalendarAllDayBars({
       {(bars.length > 0 || dragGhost) && (
         <div
           data-slot="event-calendar-all-day-bar-overlay"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className="pointer-events-none absolute inset-x-0 top-0 grid pt-1.5"
           style={{
             gridTemplateColumns,
@@ -642,6 +672,9 @@ function EventCalendarAllDayBars({
             >
               <div
                 data-slot="event-calendar-drag-ghost"
+                data-ien=""
+                data-ien-tone={ienTheme.tone}
+                data-ien-gradient={ienTheme.useGradient}
                 data-kind={dragGhost.kind}
                 data-drop-invalid={!dragGhost.valid || undefined}
                 className={cn(
@@ -694,7 +727,12 @@ function EventCalendarAllDayBars({
   )
 }
 
-function EventCalendarAllDayCell({ day }: { day: Date }) {
+function EventCalendarAllDayCell({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  day,
+}: { day: Date } & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
   const { view } = useEventCalendarViewContext()
@@ -774,6 +812,10 @@ function EventCalendarAllDayCell({ day }: { day: Date }) {
   return (
     <div
       data-slot="event-calendar-all-day-cell"
+      data-ien-typography="body2"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-ec-day={dayStart.getTime()}
       data-drop-target={isDropTarget ?? undefined}
       data-off={isOff || undefined}
@@ -806,10 +848,7 @@ function EventCalendarAllDayCell({ day }: { day: Date }) {
         }
       }}
     >
-      {/* Only on the first cell of the selection, same rule as the month grid,
-          so a three-day all-day drag labels itself once rather than three
-          times. pointer-events-none keeps the cell's own pointerdown guard
-          (`e.target === e.currentTarget`) intact. */}
+      {/* Day-header row (sticky below the nav in page scroll mode) */}
       {inDraft?.isStart && allDayDraftRange && (
         <span
           aria-hidden
@@ -832,6 +871,8 @@ function EventCalendarAllDayCell({ day }: { day: Date }) {
 }
 
 function EventCalendarTimeGutter({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   days,
   slots,
   startHour,
@@ -841,7 +882,8 @@ function EventCalendarTimeGutter({
   slots: number[]
   startHour: number
   interval: number
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
   const referenceDay = days[0] ?? new Date()
@@ -852,6 +894,9 @@ function EventCalendarTimeGutter({
   return (
     <div
       data-slot="event-calendar-time-gutter"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "relative w-(--ec-gutter-width,4.5rem) shrink-0 border-e",
         viewConfig.classNames?.timeGutter
@@ -920,6 +965,8 @@ function minuteBlockStyle(
 }
 
 function EventCalendarDayColumn({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   day,
   startHour,
   endHour,
@@ -929,7 +976,8 @@ function EventCalendarDayColumn({
   startHour: number
   endHour: number
   interval: number
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
   const { effective } = useEventCalendarViewSettings()
@@ -1088,6 +1136,9 @@ function EventCalendarDayColumn({
   return (
     <div
       data-slot="event-calendar-day-column"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-today={isToday || undefined}
       data-off={isOff || undefined}
       data-ec-day={dayStart.getTime()}
@@ -1177,13 +1228,13 @@ function EventCalendarDayColumn({
           </div>
         )
       })}
-      {/* Drag ghost, standardized (EVENT_CALENDAR_GHOST). Move: a faint
-          dashed placeholder at the snapped slot - the cursor-attached carry
-          clone owns the visual. Resize: the chip clone with a dashed boundary
-          at the proposed extent. Invalid: destructive marking. */}
+      {/* Day-header row (sticky below the nav in page scroll mode) */}
       {dragGhost && (
         <div
           data-slot="event-calendar-drag-ghost"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           data-kind={dragGhost.kind}
           data-drop-invalid={!dragGhost.valid || undefined}
           className={cn(
@@ -1245,6 +1296,9 @@ function EventCalendarDayColumn({
       {draftWindow && (
         <div
           data-slot="event-calendar-slot-draft"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className={cn(
             EVENT_CALENDAR_SLOT_DRAFT.box,
             "pointer-events-none absolute inset-x-0.5 z-40 overflow-hidden",
@@ -1256,13 +1310,7 @@ function EventCalendarDayColumn({
             boundsStartMin
           )}
         >
-          {/* Live range readout while dragging, the way Outlook and Google
-              Calendar do it: the entire point of the gesture is to pick a
-              time, so show the time being picked instead of an empty box.
-              Reuses `formatEventTime`, the same formatter the chips use, so
-              locale, time zone and 12/24-hour all match the rest of the
-              calendar for free. `truncate` plus the wrapper's overflow-hidden
-              keeps a 15-minute draft from spilling past its own border. */}
+          {/* Day-header row (sticky below the nav in page scroll mode) */}
           {draftRange && (
             <span className={cn("block", EVENT_CALENDAR_SLOT_DRAFT.label)}>
               {settings.i18n.functions.formatEventTime(
@@ -1280,6 +1328,8 @@ function EventCalendarDayColumn({
 }
 
 function EventCalendarNowIndicator({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   days,
   startHour,
   endHour,
@@ -1287,7 +1337,8 @@ function EventCalendarNowIndicator({
   days: Date[]
   startHour: number
   endHour: number
-}): ReactNode {
+} & IenToneProps): ReactNode {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
   const now = useNow(viewConfig.nowIndicatorInterval)
@@ -1320,12 +1371,15 @@ function EventCalendarNowIndicator({
   return (
     <div
       data-slot="event-calendar-now-indicator"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className="pointer-events-none absolute inset-x-0 z-40"
       style={{ top: `calc(var(--ec-hour-height) * ${top})` }}
     >
-      {/* hairline across the content columns only (clear of the time gutter) */}
+      {/* Day-header row (sticky below the nav in page scroll mode) */}
       <div className="bg-destructive/40 absolute start-(--ec-gutter-width,4.5rem) end-0 h-px" />
-      {/* stronger segment + dot over today's column */}
+      {/* Day-header row (sticky below the nav in page scroll mode) */}
       <div
         className="absolute h-px"
         style={{

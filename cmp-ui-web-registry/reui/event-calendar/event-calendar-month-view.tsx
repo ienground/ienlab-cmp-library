@@ -2,6 +2,8 @@
 // Description: ARIA-grid month view with week rows, day cells, event chips, and overflow counts.
 
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   useCallback,
@@ -104,16 +106,22 @@ function restoreChipFocus(
 }
 
 interface EventCalendarMonthViewProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   maxEventsPerCell?: number | "auto"
   asChild?: boolean
 }
 
 function EventCalendarMonthView({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   maxEventsPerCell,
   ...props
-}: EventCalendarMonthViewProps) {
+}: EventCalendarMonthViewProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const instance = useEventCalendar()
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
@@ -209,6 +217,9 @@ function EventCalendarMonthView({
     <EventCalendarViewContext.Provider value={{ view: "month" }}>
       <Comp
         data-slot="event-calendar-month-view"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-view="month"
         role="grid"
         aria-label={title}
@@ -223,6 +234,10 @@ function EventCalendarMonthView({
         <div
           role="row"
           data-slot="event-calendar-month-header"
+          data-ien-typography="label1"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           // @container scopes the narrow-label breakpoint to the header row
           className={cn(
             "@container grid border-b",
@@ -278,6 +293,10 @@ function EventCalendarMonthView({
         </div>
         <div
           data-slot="event-calendar-month-body"
+          data-ien-typography="body2"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className={cn(
             "grid",
             contained && "min-h-0 flex-1",
@@ -321,6 +340,8 @@ function EventCalendarMonthView({
  * of a chip repeated per cell.
  */
 function EventCalendarMonthWeek({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   week,
   gridTemplateColumns,
   showWeekNumber,
@@ -336,7 +357,8 @@ function EventCalendarMonthWeek({
   /** Set on the first week only: forwarded to its first cell's content area so
    *  the view can measure the per-cell event height for "auto". */
   contentRef?: Ref<HTMLDivElement>
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
   const { bars, rowStart } = useEventCalendarWeek(week[0])
@@ -476,6 +498,9 @@ function EventCalendarMonthWeek({
     <div
       role="row"
       data-slot="event-calendar-month-row"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "relative grid min-h-0 border-b last:border-b-0",
         viewConfig.classNames?.monthRow
@@ -486,6 +511,9 @@ function EventCalendarMonthWeek({
         <div
           role="rowheader"
           data-slot="event-calendar-week-number"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className={cn(
             "text-muted-foreground border-e px-2 pt-1 tabular-nums",
             viewConfig.classNames?.weekNumber
@@ -530,6 +558,9 @@ function EventCalendarMonthWeek({
       {(visibleBars.length > 0 || (dragGhost && ghostPos && ghostIsBar)) && (
         <div
           data-slot="event-calendar-month-bar-overlay"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className={cn(
             "pointer-events-none absolute inset-x-0 top-0 z-10 grid pt-1.5",
             viewConfig.classNames?.monthBarOverlay
@@ -573,6 +604,9 @@ function EventCalendarMonthWeek({
             >
               <div
                 data-slot="event-calendar-drag-ghost"
+                data-ien=""
+                data-ien-tone={ienTheme.tone}
+                data-ien-gradient={ienTheme.useGradient}
                 data-kind={dragGhost.kind}
                 data-drop-invalid={!dragGhost.valid || undefined}
                 className={cn(
@@ -628,6 +662,8 @@ function EventCalendarMonthWeek({
 }
 
 function EventCalendarMonthCell({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   day,
   cap,
   reservedLanes,
@@ -653,7 +689,8 @@ function EventCalendarMonthCell({
   autoFit: boolean
   /** Set on the first cell only: measured to derive the "auto" cap. */
   contentRef?: Ref<HTMLDivElement>
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const instance = useEventCalendar()
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
@@ -857,6 +894,9 @@ function EventCalendarMonthCell({
       key="ec-drop-placeholder"
       aria-hidden
       data-slot="event-calendar-drop-placeholder"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-drop-invalid={!inlineDrop.valid || undefined}
       className={cn(
         "shrink-0 rounded-sm border border-dashed",
@@ -943,7 +983,10 @@ function EventCalendarMonthCell({
           />
         )}
       </div>
-      {/* Day number + add affordance, bottom-right (Notion-style) */}
+      {/* Continuous bar overlay: one element per bar, placed by grid-column so
+          a cross-day span is a single unbroken block. pointer-events pass
+          through the gaps to the cells below. NOT aria-hidden - these are the
+          real interactive bars. */}
       <div
         className={cn(
           "flex items-center justify-end gap-1 px-2 pb-1.5",
@@ -954,6 +997,9 @@ function EventCalendarMonthCell({
           <button
             type="button"
             data-slot="event-calendar-day-add"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
             aria-label={settings.i18n.labels.addEvent}
             // a different icon/markup is a renderMonthCell job
             className={cn(
@@ -981,6 +1027,9 @@ function EventCalendarMonthCell({
         )}
         <span
           data-slot="event-calendar-month-day-number"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className={cn(
             "flex size-5 items-center justify-center rounded-full",
             isOutside && "text-muted-foreground",
@@ -1018,6 +1067,10 @@ function EventCalendarMonthCell({
       ref={rootRef}
       role="gridcell"
       data-slot="event-calendar-month-cell"
+      data-ien-typography="body2"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-today={isToday || undefined}
       data-outside={isOutside || undefined}
       data-weekend={
@@ -1066,6 +1119,9 @@ function EventCalendarMonthCell({
         <span
           aria-hidden
           data-slot="event-calendar-slot-draft"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className={cn(
             "pointer-events-none absolute inset-0 z-10",
             EVENT_CALENDAR_SLOT_DRAFT.segment,
@@ -1074,11 +1130,10 @@ function EventCalendarMonthCell({
             viewConfig.classNames?.slotDraft
           )}
         >
-          {/* Date-range readout, the month-view counterpart of the time-grid
-              one. Rendered only on the FIRST cell of the selection, otherwise
-              a three-day drag would repeat the same label three times. Pinned
-              to the bottom because the day number owns the top of the cell,
-              and given its own surface so it stays legible over event chips. */}
+          {/* Continuous bar overlay: one element per bar, placed by grid-column so
+          a cross-day span is a single unbroken block. pointer-events pass
+          through the gaps to the cells below. NOT aria-hidden - these are the
+          real interactive bars. */}
           {inDraft.isStart && draftRange && (
             <span
               className={cn(
@@ -1103,6 +1158,9 @@ function EventCalendarMonthCell({
 }
 
 interface EventCalendarMoreIndicatorProps {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   day: Date
   count: number
   /** The OVERFLOW (hidden) segments for this day - bars first, then timed. The
@@ -1119,11 +1177,14 @@ interface EventCalendarMoreIndicatorProps {
  * onMoreClick returning false suppresses the built-in popover.
  */
 function EventCalendarMoreIndicator({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   day,
   count,
   segments,
   dropInto,
-}: EventCalendarMoreIndicatorProps) {
+}: EventCalendarMoreIndicatorProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
   const [open, setOpen] = useState(false)
@@ -1142,6 +1203,9 @@ function EventCalendarMoreIndicator({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         data-slot="event-calendar-more"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-drop-into={dropInto ? "" : undefined}
         data-drop-invalid={dropInto && !dropInto.valid ? "" : undefined}
         className={cn(
@@ -1184,6 +1248,9 @@ function EventCalendarMoreIndicator({
       </PopoverTrigger>
       <PopoverContent
         data-slot="event-calendar-more-popover"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         align={viewConfig.morePopoverAlign}
         // The popover is a dialog, so it needs a name. The built-in body already
         // renders the day header this list belongs to, so point at that; a
@@ -1228,6 +1295,8 @@ function EventCalendarMoreIndicator({
 
 /** Built-in "+N more" popover body: day header + the day's chips. */
 function EventCalendarMoreDefaultContent({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   day,
   segments,
   headerId,
@@ -1236,12 +1305,17 @@ function EventCalendarMoreDefaultContent({
   segments: EventCalendarSegment[]
   /** Names the popover dialog: the header IS the list's accessible name. */
   headerId?: string
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
   return (
-    <>
+    <IenThemeContext.Provider value={ienTheme}>
+<>
       <div
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
         id={headerId}
         className={cn(
           "text-muted-foreground px-1 py-1 text-xs font-medium",
@@ -1288,6 +1362,7 @@ function EventCalendarMoreDefaultContent({
         </ScrollArea>
       )}
     </>
+</IenThemeContext.Provider>
   )
 }
 

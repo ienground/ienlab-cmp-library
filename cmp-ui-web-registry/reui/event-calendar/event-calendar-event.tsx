@@ -2,6 +2,8 @@
 // Description: The reusable event chip/bar/block - selection, clicks, drag + resize wiring, and the consumer render slot.
 
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   createContext,
@@ -136,10 +138,14 @@ function useEventCalendarEventChip<
   return ctx as EventCalendarChipContextValue<TData>
 }
 
-interface EventCalendarEventProps<TData = unknown> extends Omit<
+interface EventCalendarEventProps<TData = unknown>
+  extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   "children"
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   segment: EventCalendarSegment<TData>
   /** Replaces the default chip CONTENT; the wrapper stays calendar-owned. */
   children?: ReactNode
@@ -157,6 +163,8 @@ interface EventCalendarEventProps<TData = unknown> extends Omit<
  * children, else renderEvent, else the built-in default.
  */
 function EventCalendarEvent<TData = unknown>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   segment,
   className,
   asChild = false,
@@ -167,7 +175,8 @@ function EventCalendarEvent<TData = unknown>({
   onClick,
   onDoubleClick,
   ...props
-}: EventCalendarEventProps<TData>) {
+}: EventCalendarEventProps<TData> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const instance = useEventCalendar<TData>()
   const viewConfig = useEventCalendarViewConfig<TData>()
   const { view } = useEventCalendarViewContext()
@@ -218,6 +227,9 @@ function EventCalendarEvent<TData = unknown>({
         <span
           aria-hidden
           data-slot="event-calendar-event-dot"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           // -me-0.5 tightens only the dot-to-title gap; the chip keeps gap-1.5
           className="-me-0.5 size-1.5 shrink-0 rounded-full bg-(--ec-event-color)"
         />
@@ -241,8 +253,9 @@ function EventCalendarEvent<TData = unknown>({
       >
         {event.title}
       </span>
-      {/* month cells are narrow: a compact never-shrinking start time keeps
-          the title readable; grids show the full range */}
+      {/* leading dot for single-row chips (month cells, all-day bars); a
+          time-grid block takes its color from the tinted surface instead, and
+          in its stacked layout a dot would sit alone on the first line */}
       {!occurrence.allDay &&
         segment.isStart &&
         (view === "month" ? (
@@ -317,6 +330,9 @@ function EventCalendarEvent<TData = unknown>({
       <span
         aria-hidden
         data-slot="event-calendar-agenda-dot"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         className="size-2 shrink-0 rounded-full bg-(--ec-event-color)"
       />
       <span className="truncate text-sm">{event.title}</span>
@@ -394,6 +410,9 @@ function EventCalendarEvent<TData = unknown>({
     <span
       aria-hidden
       data-slot="event-calendar-resize-grip"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "bg-foreground/40 rounded-full",
         timedBlock ? "h-0.5 w-2.5" : "h-2.5 w-0.5",
@@ -406,6 +425,9 @@ function EventCalendarEvent<TData = unknown>({
       {timedBlock && segment.isStart && (
         <span
           data-slot="event-calendar-resize-handle"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           data-edge="start"
           className={cn(
             "absolute inset-x-1 top-0 flex h-1.5 cursor-ns-resize items-center justify-center opacity-0 transition-opacity duration-150 group-hover/ec-event:opacity-100",
@@ -419,6 +441,9 @@ function EventCalendarEvent<TData = unknown>({
       {timedBlock && segment.isEnd && (
         <span
           data-slot="event-calendar-resize-handle"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           data-edge="end"
           className={cn(
             "absolute inset-x-1 bottom-0 flex h-1.5 cursor-ns-resize items-center justify-center opacity-0 transition-opacity duration-150 group-hover/ec-event:opacity-100",
@@ -432,6 +457,9 @@ function EventCalendarEvent<TData = unknown>({
       {(horizontalBar || (isBar && inTimeGrid)) && segment.isStart && (
         <span
           data-slot="event-calendar-resize-handle"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           data-edge="start"
           className={cn(
             "absolute inset-y-0 start-0 flex w-2 cursor-ew-resize items-center justify-center opacity-0 transition-opacity duration-150 group-hover/ec-event:opacity-100",
@@ -445,6 +473,9 @@ function EventCalendarEvent<TData = unknown>({
       {(horizontalBar || (isBar && inTimeGrid)) && segment.isEnd && (
         <span
           data-slot="event-calendar-resize-handle"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           data-edge="end"
           className={cn(
             "absolute inset-y-0 end-0 flex w-2 cursor-ew-resize items-center justify-center opacity-0 transition-opacity duration-150 group-hover/ec-event:opacity-100",
@@ -464,6 +495,9 @@ function EventCalendarEvent<TData = unknown>({
     <Comp
       type="button"
       data-slot="event-calendar-event"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-view={view}
       data-all-day={occurrence.allDay || undefined}
       data-recurring={occurrence.isRecurring || undefined}

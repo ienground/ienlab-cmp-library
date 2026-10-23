@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 // Title: Time Picker
 // Description: Shadcn time picker with scrollable hour, minute, second and AM/PM columns, a typable input, steps, bounds and localized labels.
@@ -600,9 +602,11 @@ export type TimePickerProps = {
   placeholder?: string
   className?: string
   children?: ReactNode
-}
+} & IenToneProps
 
 export function TimePicker({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   defaultValue = null,
   onValueChange,
@@ -635,7 +639,8 @@ export function TimePicker({
   placeholder,
   className,
   children,
-}: TimePickerProps) {
+}: TimePickerProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const generatedId = useId()
   const id = idProp ?? generatedId
   const [uncontrolled, setUncontrolled] = useState(defaultValue)
@@ -769,48 +774,53 @@ export function TimePicker({
   }, [hasField])
 
   return (
-    <TimePickerContext.Provider value={context}>
-      <Popover open={open} onOpenChange={(next) => setOpen(next)}>
-        {children === undefined ? (
-          <>
-            <TimePickerTrigger
+    <IenThemeContext.Provider value={ienTheme}>
+      <TimePickerContext.Provider value={context}>
+        <Popover open={open} onOpenChange={(next) => setOpen(next)}>
+          {children === undefined ? (
+            <>
+              <TimePickerTrigger
               className={className}
               placeholder={placeholder}
             />
-            <TimePickerContent />
-          </>
-        ) : (
-          children
-        )}
-      </Popover>
-      {hasField && (
-        <input
-          ref={(node) => {
+              <TimePickerContent />
+            </>
+          ) : (
+            children
+          )}
+        </Popover>
+        {hasField && (
+          <input
+            ref={(node) => {
             fieldRef.current = node
             assignRef(inputRef, node)
           }}
-          type="text"
-          name={name}
-          form={form}
-          required={required}
-          disabled={disabled}
-          value={time ? formatTimeValue(time, granularity) : ""}
-          onChange={() => {}}
-          tabIndex={-1}
-          aria-hidden="true"
-          data-slot="time-picker-field"
-          /* A failed `required` check focuses this field; hand that to the control. */
-          onFocus={(event) => {
+            type="text"
+            name={name}
+            form={form}
+            required={required}
+            disabled={disabled}
+            value={time ? formatTimeValue(time, granularity) : ""}
+            onChange={() => {}}
+            tabIndex={-1}
+            aria-hidden="true"
+            data-slot="time-picker-field"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
+            /* A failed `required` check focuses this field; hand that to the control. */
+            onFocus={(event) => {
             const target =
               focusTarget.current ??
               columns.current?.querySelector<HTMLElement>(LIST_SELECTOR)
             if (target) target.focus()
             else event.currentTarget.blur()
           }}
-          className="pointer-events-none absolute size-px max-w-px opacity-0"
-        />
-      )}
-    </TimePickerContext.Provider>
+            className="pointer-events-none absolute size-px max-w-px opacity-0"
+          />
+        )}
+      </TimePickerContext.Provider>
+    </IenThemeContext.Provider>
   )
 }
 
@@ -834,21 +844,28 @@ const CLOCK_ICON = (
   />
 )
 
-export type TimePickerValueProps = Omit<ComponentProps<"span">, "children"> & {
+export type TimePickerValueProps = (Omit<ComponentProps<"span">, "children"> & {
   placeholder?: ReactNode
-}
+}) &
+  IenToneProps
 
 /** The committed value as text, or the placeholder. For custom trigger content. */
 export function TimePickerValue({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   placeholder,
   className,
   ...props
-}: TimePickerValueProps) {
+}: TimePickerValueProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useTimePickerContext("TimePickerValue")
   return (
     <span
       id={`${context.id}-value`}
       data-slot="time-picker-value"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-placeholder={context.time ? undefined : ""}
       className={cn("truncate", className)}
       {...props}
@@ -865,19 +882,23 @@ export function TimePickerValue({
 const TRIGGER_CLASS =
   "justify-between font-normal normal-case tracking-normal tabular-nums data-placeholder:text-muted-foreground"
 
-export type TimePickerTriggerProps = ComponentProps<typeof Button> & {
+export type TimePickerTriggerProps = (ComponentProps<typeof Button> & {
   placeholder?: ReactNode
-}
+}) &
+  IenToneProps
 
 /** A shadcn Button that opens the picker. Children replace the value and icon. */
 export function TimePickerTrigger({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   variant = "outline",
   placeholder,
   children,
   ref,
   ...props
-}: TimePickerTriggerProps) {
+}: TimePickerTriggerProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useTimePickerContext("TimePickerTrigger")
   const labelledBy = props["aria-labelledby"] ?? context.labelledBy
   const buttonProps = {
@@ -917,16 +938,19 @@ export function TimePickerTrigger({
     )
 
   return (
-    <PopoverTrigger asChild>
+    <IenThemeContext.Provider value={ienTheme}>
+<PopoverTrigger asChild>
       <Button {...buttonProps}>{content}</Button>
     </PopoverTrigger>
+</IenThemeContext.Provider>
   )
 }
 
 export type TimePickerInputProps = Omit<
   ComponentProps<typeof InputGroupInput>,
   "value" | "defaultValue"
->
+> &
+  IenToneProps
 
 /**
  * A typable field with a clock button that opens the picker. Text is read on
@@ -934,6 +958,8 @@ export type TimePickerInputProps = Omit<
  * Alt+ArrowDown opens the popover.
  */
 export function TimePickerInput({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   placeholder,
   onBlur,
@@ -941,7 +967,8 @@ export function TimePickerInput({
   onChange,
   ref,
   ...props
-}: TimePickerInputProps) {
+}: TimePickerInputProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useTimePickerContext("TimePickerInput")
   const { grid, time } = context
   /* `null` while the field shows the value rather than an edit in progress. */
@@ -1009,6 +1036,9 @@ export function TimePickerInput({
   return (
     <InputGroup
       data-slot="time-picker-input"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-disabled={context.disabled ? "" : undefined}
       className={className}
     >
@@ -1089,22 +1119,30 @@ export function TimePickerInput({
 const TABBABLE =
   'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
 
-export type TimePickerContentProps = ComponentProps<typeof PopoverContent>
+export type TimePickerContentProps = ComponentProps<typeof PopoverContent> &
+  IenToneProps
 
 /**
  * The popover: columns and footer by default. Tab cycles inside it, as in a
  * date picker dialog, in both twins.
  */
 export function TimePickerContent({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   align = "start",
   onKeyDown,
   children,
   ...props
-}: TimePickerContentProps) {
+}: TimePickerContentProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useTimePickerContext("TimePickerContent")
   return (
-    <PopoverContent
+    <IenThemeContext.Provider value={ienTheme}>
+<PopoverContent
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       align={align}
       aria-labelledby={context.labelledBy}
       aria-label={
@@ -1144,20 +1182,24 @@ export function TimePickerContent({
         )}
       </SurfaceContext.Provider>
     </PopoverContent>
+</IenThemeContext.Provider>
   )
 }
 
-export type TimePickerPanelProps = ComponentProps<"div">
+export type TimePickerPanelProps = ComponentProps<"div"> & IenToneProps
 
 /**
  * The columns and the footer, rendered in place: put it straight inside a
  * `TimePicker`, with no trigger or content, for an always-open picker.
  */
 export function TimePickerPanel({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   ...props
-}: TimePickerPanelProps) {
+}: TimePickerPanelProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useTimePickerContext("TimePickerPanel")
   const inline = useContext(SurfaceContext) === "inline"
   return (
@@ -1170,6 +1212,9 @@ export function TimePickerPanel({
           : undefined
       }
       data-slot="time-picker-panel"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-disabled={context.disabled ? "" : undefined}
       className={cn("flex w-fit flex-col", className)}
       {...props}
@@ -1186,18 +1231,21 @@ export function TimePickerPanel({
   )
 }
 
-export type TimePickerColumnsProps = ComponentProps<"div">
+export type TimePickerColumnsProps = ComponentProps<"div"> & IenToneProps
 
 /**
  * The row of columns: one per unit the picker needs by default. Always left
  * to right, because a time reads hour first in right-to-left text too.
  */
 export function TimePickerColumns({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   ref,
   ...props
-}: TimePickerColumnsProps) {
+}: TimePickerColumnsProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useTimePickerContext("TimePickerColumns")
   const { display, granularity } = context
   const period = context.hourCycle === 12 && <TimePickerColumn type="period" />
@@ -1205,6 +1253,9 @@ export function TimePickerColumns({
     <div
       dir="ltr"
       data-slot="time-picker-columns"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn("flex divide-x", className)}
       {...props}
       ref={(node) => {
@@ -1257,7 +1308,7 @@ const LIST_CLASS =
    leaves room for it. The filled pill for the value is this primitive's own:
    a select marks its choice with a check. */
 const OPTION_CLASS =
-  "flex h-(--time-picker-option-height) shrink-0 cursor-default items-center justify-center tabular-nums transition-[color,background-color,box-shadow] duration-100 select-none not-aria-selected:hover:bg-accent not-aria-selected:hover:text-accent-foreground aria-selected:bg-primary aria-selected:font-medium aria-selected:text-primary-foreground aria-disabled:pointer-events-none aria-disabled:opacity-50 forced-colors:aria-selected:bg-[Highlight] forced-colors:aria-selected:text-[HighlightText] forced-colors:group-focus-visible/time-picker-list:data-highlighted:outline-solid forced-colors:group-focus-visible/time-picker-list:data-highlighted:outline-2 group-focus-visible/time-picker-list:data-highlighted:ring-3 ring-ring/50 rounded-md text-sm"
+  "flex h-(--time-picker-option-height) shrink-0 cursor-default items-center justify-center tabular-nums transition-[color,background-color,box-shadow] duration-100 select-none not-aria-selected:hover:bg-accent not-aria-selected:hover:text-accent-foreground aria-selected:bg-primary aria-selected:font-medium aria-selected:text-primary-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--ien-state-disabled-alpha) forced-colors:aria-selected:bg-[Highlight] forced-colors:aria-selected:text-[HighlightText] forced-colors:group-focus-visible/time-picker-list:data-highlighted:outline-solid forced-colors:group-focus-visible/time-picker-list:data-highlighted:outline-2 group-focus-visible/time-picker-list:data-highlighted:ring-3 ring-ring/50 rounded-md text-sm"
 
 /* Marks which ends of a list have rows scrolled out of view, for the fade.
    Written to the DOM directly: it changes every scroll frame and nothing
@@ -1278,22 +1329,26 @@ type TimePickerOption = {
   disabled: boolean
 }
 
-export type TimePickerColumnProps = Omit<ComponentProps<"div">, "children"> & {
+export type TimePickerColumnProps = (Omit<ComponentProps<"div">, "children"> & {
   type: TimePickerColumnType
   /** Header text. Defaults to the label for the type. */
   label?: ReactNode
-}
+}) &
+  IenToneProps
 
 /**
  * One unit as a listbox. Selection follows the keyboard, like a native wheel.
  * Renders nothing for a unit the granularity or the hour cycle leaves out.
  */
 export function TimePickerColumn({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   type,
   label,
   className,
   ...props
-}: TimePickerColumnProps) {
+}: TimePickerColumnProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useTimePickerContext("TimePickerColumn")
   const { display, grid, hourCycle, i18n, firstEnabled } = context
   const baseId = useId()
@@ -1530,6 +1585,9 @@ export function TimePickerColumn({
   return (
     <div
       data-slot="time-picker-column"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-type={type}
       className={cn(COLUMN_CLASS, className)}
       {...props}
@@ -1537,6 +1595,10 @@ export function TimePickerColumn({
       <div
         id={headerId}
         data-slot="time-picker-column-label"
+        data-ien-typography="label1"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         className={LABEL_CLASS}
       >
         {label ?? i18n.labels[type]}
@@ -1551,6 +1613,9 @@ export function TimePickerColumn({
         aria-readonly={context.readOnly || undefined}
         tabIndex={interactive ? 0 : -1}
         data-slot="time-picker-column-list"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-empty={highlighted ? undefined : ""}
         data-fade={context.fade ? "" : undefined}
         onKeyDown={interactive ? onKeyDown : undefined}
@@ -1566,6 +1631,7 @@ export function TimePickerColumn({
             aria-disabled={option.disabled || undefined}
             data-highlighted={index === highlightIndex ? "" : undefined}
             data-slot="time-picker-option"
+            data-ien-typography="label1"
             onClick={editable ? () => pick(option) : undefined}
             className={OPTION_CLASS}
           >
@@ -1660,19 +1726,26 @@ function findLast<T>(items: T[], test: (item: T) => boolean) {
 const FOOTER_CLASS =
   "flex items-center justify-between gap-2 border-t p-1.5"
 
-export type TimePickerFooterProps = ComponentProps<"div">
+export type TimePickerFooterProps = ComponentProps<"div"> & IenToneProps
 
 /** The action row. Without children: Now and Clear, plus OK in a popover or under `requireConfirm`. */
 export function TimePickerFooter({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   ...props
-}: TimePickerFooterProps) {
+}: TimePickerFooterProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useTimePickerContext("TimePickerFooter")
   const popup = useContext(SurfaceContext) === "popup"
   return (
     <div
       data-slot="time-picker-footer"
+      data-ien-typography="caption"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(FOOTER_CLASS, className)}
       {...props}
     >
@@ -1689,7 +1762,7 @@ export function TimePickerFooter({
   )
 }
 
-export type TimePickerActionProps = ComponentProps<typeof Button>
+export type TimePickerActionProps = ComponentProps<typeof Button> & IenToneProps
 
 /** Sets the current time, floored to the steps and moved inside the bounds. */
 export function TimePickerNow({
@@ -1720,13 +1793,16 @@ export function TimePickerNow({
 
 /** Empties the value, then hands focus to the first column. */
 export function TimePickerClear({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   variant = "ghost",
   size = "sm",
   className,
   onClick,
   children,
   ...props
-}: TimePickerActionProps) {
+}: TimePickerActionProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useTimePickerContext("TimePickerClear")
   return (
     <Button
@@ -1735,6 +1811,9 @@ export function TimePickerClear({
       size={size}
       disabled={context.disabled || context.readOnly}
       data-slot="time-picker-clear"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn("text-muted-foreground", className)}
       onClick={(event) => {
         onClick?.(event)

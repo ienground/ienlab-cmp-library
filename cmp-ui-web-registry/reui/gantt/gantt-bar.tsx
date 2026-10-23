@@ -2,6 +2,8 @@
 // Description: The interactive gantt bar - selection, clicks, drag + resize wiring, and the consumer render slot.
 
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   createContext,
@@ -84,10 +86,14 @@ function useGanttBarContext<TData = unknown>(): GanttBarContextValue<TData> {
   return ctx as GanttBarContextValue<TData>
 }
 
-interface GanttBarProps<TData = unknown> extends Omit<
+interface GanttBarProps<TData = unknown>
+  extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   "children"
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   segment: GanttSegment<TData>
   /** Replaces the default bar CONTENT; the wrapper stays gantt-owned. */
   children?: ReactNode
@@ -110,6 +116,8 @@ interface GanttBarProps<TData = unknown> extends Omit<
  * children, the root renderEvent override, or the built-in default.
  */
 function GanttBar<TData = unknown>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   segment,
   className,
   asChild = false,
@@ -117,7 +125,8 @@ function GanttBar<TData = unknown>({
   labelOutside,
   rowTitle: rowTitleProp,
   ...props
-}: GanttBarProps<TData>) {
+}: GanttBarProps<TData> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const instance = useGantt<TData>()
   const viewConfig = useGanttViewConfig<TData>()
   const gestures = useGanttGestures<TData>()
@@ -257,6 +266,9 @@ function GanttBar<TData = unknown>({
       {segment.isStart && (
         <span
           data-slot="gantt-resize-handle"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           data-edge="start"
           // grip hugs the start edge (justify-start + tight inset) so the
           // indicator reads as "resize this end", not a centered pill.
@@ -273,6 +285,9 @@ function GanttBar<TData = unknown>({
       {segment.isEnd && (
         <span
           data-slot="gantt-resize-handle"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           data-edge="end"
           // grip hugs the end edge (justify-end + tight inset) so the
           // indicator reads as "resize this end", not a centered pill.
@@ -295,6 +310,9 @@ function GanttBar<TData = unknown>({
     <Comp
       type="button"
       data-slot="gantt-bar"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-milestone={milestone || undefined}
       data-all-day={occurrence.allDay || undefined}
       data-recurring={occurrence.isRecurring || undefined}
@@ -368,6 +386,9 @@ function GanttBar<TData = unknown>({
         <span
           aria-hidden
           data-slot="gantt-bar-milestone"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className={cn(
             "size-2.5 shrink-0 rotate-45 rounded-[2px] border border-(--gantt-event-color) bg-(--gantt-event-color)/80",
             isSelected && "ring-ring/50 ring-2"
@@ -382,6 +403,9 @@ function GanttBar<TData = unknown>({
         <span
           aria-hidden
           data-slot="gantt-bar-progress"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className="pointer-events-none absolute inset-y-0 start-0 border-e border-(--gantt-event-color)/65 bg-(--gantt-event-color)/40 data-full:border-e-0"
           data-full={progress === 100 || undefined}
           style={{ width: `${progress}%` }}
@@ -451,7 +475,13 @@ function GanttBar<TData = unknown>({
       {menu ? (
         <ContextMenu>
           {barTree}
-          <ContextMenuContent data-slot="gantt-bar-menu" className="min-w-44">
+          <ContextMenuContent
+            data-slot="gantt-bar-menu"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
+            className="min-w-44"
+          >
             {menu}
           </ContextMenuContent>
         </ContextMenu>

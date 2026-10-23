@@ -1,10 +1,19 @@
+import type { IenToneProps } from "@/lib/ien-theme"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
 
-function Empty({ className, ...props }: React.ComponentProps<"div">) {
+function Empty({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+  ...props
+}: React.ComponentProps<"div"> & IenToneProps) {
   return (
     <div
       data-slot="empty"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       className={cn(
         "gap-4 rounded-xl border-dashed p-6 flex w-full min-w-0 flex-1 flex-col items-center justify-center text-center text-balance",
         className
@@ -14,10 +23,19 @@ function Empty({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-function EmptyHeader({ className, ...props }: React.ComponentProps<"div">) {
+function EmptyHeader({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+  ...props
+}: React.ComponentProps<"div"> & IenToneProps) {
   return (
     <div
       data-slot="empty-header"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       className={cn(
         "gap-2 flex max-w-sm flex-col items-center",
         className
@@ -43,13 +61,20 @@ const emptyMediaVariants = cva(
 )
 
 function EmptyMedia({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   variant = "default",
   ...props
-}: React.ComponentProps<"div"> & VariantProps<typeof emptyMediaVariants>) {
+}: React.ComponentProps<"div"> &
+  VariantProps<typeof emptyMediaVariants> &
+  IenToneProps) {
   return (
     <div
       data-slot="empty-icon"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       data-variant={variant}
       className={cn(emptyMediaVariants({ variant, className }))}
       {...props}
@@ -57,20 +82,38 @@ function EmptyMedia({
   )
 }
 
-function EmptyTitle({ className, ...props }: React.ComponentProps<"div">) {
+function EmptyTitle({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+  ...props
+}: React.ComponentProps<"div"> & IenToneProps) {
   return (
     <div
       data-slot="empty-title"
+      data-ien-typography="title2"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       className={cn("text-sm font-medium tracking-tight font-sans", className)}
       {...props}
     />
   )
 }
 
-function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
+function EmptyDescription({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+  ...props
+}: React.ComponentProps<"p"> & IenToneProps) {
   return (
     <div
       data-slot="empty-description"
+      data-ien-typography="body2"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       className={cn(
         "text-sm/relaxed text-muted-foreground [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
         className
@@ -80,10 +123,19 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
   )
 }
 
-function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
+function EmptyContent({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  className,
+  ...props
+}: React.ComponentProps<"div"> & IenToneProps) {
   return (
     <div
       data-slot="empty-content"
+      data-ien-typography="body2"
+      data-ien=""
+      data-ien-tone={ienTone}
+      data-ien-gradient={ienUseGradient}
       className={cn(
         "gap-2.5 text-sm flex w-full max-w-sm min-w-0 flex-col items-center text-balance",
         className

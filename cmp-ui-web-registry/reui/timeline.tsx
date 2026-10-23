@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import type { HTMLAttributes, TimeHTMLAttributes } from "react"
 import { createContext, useCallback, useContext, useState } from "react"
@@ -27,6 +29,9 @@ const useTimeline = () => {
 
 // Components
 interface TimelineProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   defaultValue?: number
   value?: number
   onValueChange?: (value: number) => void
@@ -34,6 +39,8 @@ interface TimelineProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function Timeline({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   defaultValue = 1,
   value,
   onValueChange,
@@ -41,7 +48,8 @@ function Timeline({
   className,
   children,
   ...props
-}: TimelineProps) {
+}: TimelineProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const [activeStep, setInternalStep] = useState(defaultValue)
 
   const setActiveStep = useCallback(
@@ -57,33 +65,45 @@ function Timeline({
   const currentStep = value ?? activeStep
 
   return (
-    <TimelineContext.Provider
+    <IenThemeContext.Provider value={ienTheme}>
+      <TimelineContext.Provider
       value={{ activeStep: currentStep, setActiveStep }}
     >
-      <div
-        className={cn(
+        <div
+          className={cn(
           "group/timeline flex data-[orientation=horizontal]:w-full data-[orientation=horizontal]:flex-row data-[orientation=vertical]:flex-col",
           className
         )}
-        data-orientation={orientation}
-        data-slot="timeline"
-        {...props}
-      >
-        {children}
-      </div>
-    </TimelineContext.Provider>
+          data-orientation={orientation}
+          data-slot="timeline"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
+          {...props}
+        >
+          {children}
+        </div>
+      </TimelineContext.Provider>
+    </IenThemeContext.Provider>
   )
 }
 
 // TimelineContent
 function TimelineContent({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}: HTMLAttributes<HTMLDivElement> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <div
       className={cn("text-muted-foreground text-sm", className)}
       data-slot="timeline-content"
+      data-ien-typography="body2"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       {...props}
     />
   )
@@ -93,14 +113,20 @@ function TimelineContent({
 // TimeHTMLAttributes (not the generic HTMLAttributes) so the <time>-specific `dateTime`
 // attribute is accepted — matches the base wrapper's useRender.ComponentProps<"time">.
 interface TimelineDateProps extends TimeHTMLAttributes<HTMLTimeElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   asChild?: boolean
 }
 
 function TimelineDate({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   asChild = false,
   className,
   ...props
-}: TimelineDateProps) {
+}: TimelineDateProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const Comp = asChild ? Slot.Root : "time"
 
   return (
@@ -110,6 +136,10 @@ function TimelineDate({
         className
       )}
       data-slot="timeline-date"
+      data-ien-typography="caption"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       {...props}
     />
   )
@@ -117,25 +147,42 @@ function TimelineDate({
 
 // TimelineHeader
 function TimelineHeader({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}: HTMLAttributes<HTMLDivElement> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
-    <div className={cn(className)} data-slot="timeline-header" {...props} />
+    <div
+      className={cn(className)}
+      data-slot="timeline-header"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
+      {...props}
+    />
   )
 }
 
 // TimelineIndicator
 interface TimelineIndicatorProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   asChild?: boolean
 }
 
 function TimelineIndicator({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   asChild = false,
   className,
   children,
   ...props
-}: TimelineIndicatorProps) {
+}: TimelineIndicatorProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const Comp = asChild ? Slot.Root : "div"
 
   return (
@@ -146,6 +193,9 @@ function TimelineIndicator({
         className
       )}
       data-slot="timeline-indicator"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       {...props}
     >
       {children}
@@ -155,10 +205,20 @@ function TimelineIndicator({
 
 // TimelineItem
 interface TimelineItemProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   step: number
 }
 
-function TimelineItem({ step, className, ...props }: TimelineItemProps) {
+function TimelineItem({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  step,
+  className,
+  ...props
+}: TimelineItemProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { activeStep } = useTimeline()
 
   return (
@@ -169,6 +229,10 @@ function TimelineItem({ step, className, ...props }: TimelineItemProps) {
       )}
       data-completed={step <= activeStep || undefined}
       data-slot="timeline-item"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       {...props}
     />
   )
@@ -176,9 +240,12 @@ function TimelineItem({ step, className, ...props }: TimelineItemProps) {
 
 // TimelineSeparator
 function TimelineSeparator({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}: HTMLAttributes<HTMLDivElement> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <div
       aria-hidden="true"
@@ -187,6 +254,9 @@ function TimelineSeparator({
         className
       )}
       data-slot="timeline-separator"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       {...props}
     />
   )
@@ -194,13 +264,20 @@ function TimelineSeparator({
 
 // TimelineTitle
 function TimelineTitle({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   ...props
-}: HTMLAttributes<HTMLHeadingElement>) {
+}: HTMLAttributes<HTMLHeadingElement> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <h3
       className={cn("text-sm font-medium", className)}
       data-slot="timeline-title"
+      data-ien-typography="title3"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       {...props}
     />
   )

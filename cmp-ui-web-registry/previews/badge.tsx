@@ -1,6 +1,29 @@
 import { Badge } from "@/components/reui/badge"
+import type { IenTone, IenVariant } from "@/lib/ien-theme"
+
+const tones: IenTone[] = [
+  "neutral",
+  "brand",
+  "success",
+  "warning",
+  "danger",
+  "info",
+]
+const variants: IenVariant[] = ["fill", "weak", "outline", "clear"]
 
 export function Pattern() {
-  return <Badge>Badge</Badge>
+  return (
+    <div className="flex flex-col gap-3">
+      {variants.map((variant) => (
+        <div key={variant} className="flex flex-wrap gap-2">
+          {tones.map((tone) => (
+            <Badge key={tone} tone={tone} variant={variant}>
+              {tone}
+            </Badge>
+          ))}
+        </div>
+      ))}
+    </div>
+  )
 }
-export default Pattern;
+export default Pattern

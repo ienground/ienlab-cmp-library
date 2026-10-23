@@ -2,6 +2,8 @@
 
 // Opted out of React Compiler with the rest of the grid (see data-grid.tsx).
 "use no memo"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   useCallback,
@@ -66,13 +68,14 @@ type ObservedElements = {
   tableViewport: HTMLElement | null
 }
 
-type DataGridScrollAreaProps = Omit<
+type DataGridScrollAreaProps = (Omit<
   ScrollAreaPrimitive.Root.Props,
   "children"
 > & {
   children: ReactNode
   orientation?: DataGridScrollAreaOrientation
-}
+}) &
+  IenToneProps
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value))
@@ -122,11 +125,14 @@ function applyMetrics(element: HTMLElement, metrics: ScrollbarMetrics) {
 }
 
 function DataGridScrollArea({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   children,
   className,
   orientation = "both",
   ...props
-}: DataGridScrollAreaProps) {
+}: DataGridScrollAreaProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { props: dataGridProps, table } = useDataGrid()
   const containerRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement | null>(null)
@@ -467,6 +473,9 @@ function DataGridScrollArea({
       <div ref={containerRef} className="relative">
         <ScrollAreaPrimitive.Root
           data-slot="data-grid-scroll-area"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           // Styling hook: present while the sticky-header scroll mode detects
           // vertical overflow, so consumers can style scrollable vs short
           // grids with a plain ancestor attribute selector.
@@ -479,9 +488,15 @@ function DataGridScrollArea({
           <ScrollAreaPrimitive.Viewport
             ref={viewportRef}
             data-slot="scroll-area-viewport"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
             className="size-full"
           >
-            <ScrollAreaPrimitive.Content data-slot="scroll-area-content">
+            <ScrollAreaPrimitive.Content
+              data-slot="scroll-area-content"
+              data-ien-typography="body2"
+            >
               {children}
             </ScrollAreaPrimitive.Content>
           </ScrollAreaPrimitive.Viewport>
@@ -489,6 +504,9 @@ function DataGridScrollArea({
           {showHorizontal && (
             <ScrollAreaPrimitive.Scrollbar
               data-slot="data-grid-scrollbar"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
               data-orientation="horizontal"
               orientation="horizontal"
               className={SCROLLBAR_CLASSNAME}
@@ -503,6 +521,9 @@ function DataGridScrollArea({
             >
               <ScrollAreaPrimitive.Thumb
                 data-slot="data-grid-thumb"
+                data-ien=""
+                data-ien-tone={ienTheme.tone}
+                data-ien-gradient={ienTheme.useGradient}
                 className={SCROLLBAR_THUMB_CLASSNAME}
               />
             </ScrollAreaPrimitive.Scrollbar>
@@ -511,12 +532,18 @@ function DataGridScrollArea({
           {showVertical && !usesCustomVerticalScrollbar && (
             <ScrollAreaPrimitive.Scrollbar
               data-slot="data-grid-scrollbar"
+              data-ien=""
+              data-ien-tone={ienTheme.tone}
+              data-ien-gradient={ienTheme.useGradient}
               data-orientation="vertical"
               orientation="vertical"
               className={SCROLLBAR_CLASSNAME}
             >
               <ScrollAreaPrimitive.Thumb
                 data-slot="data-grid-thumb"
+                data-ien=""
+                data-ien-tone={ienTheme.tone}
+                data-ien-gradient={ienTheme.useGradient}
                 className={SCROLLBAR_THUMB_CLASSNAME}
               />
             </ScrollAreaPrimitive.Scrollbar>

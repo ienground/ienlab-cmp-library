@@ -2,6 +2,8 @@
 
 // Opted out of React Compiler with the rest of the grid (see data-grid.tsx).
 "use no memo"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import { memo, useLayoutEffect, useMemo, useRef } from "react"
 import type { HTMLAttributes, ReactNode } from "react"
@@ -31,10 +33,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { IconPlaceholder } from "@/lib/reui-icons"
 
-interface DataGridColumnHeaderProps<
-  TData extends object,
-  TValue,
-> extends HTMLAttributes<HTMLDivElement> {
+interface DataGridColumnHeaderProps<TData extends object, TValue>
+  extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   column: Column<DataGridFeatures, TData, TValue>
   /** When omitted, uses `column.columnDef.meta.headerTitle`, then a string `columnDef.header`, then `column.id`. */
   title?: string
@@ -51,13 +54,16 @@ interface DataGridColumnHeaderProps<
 const pendingUnpinFocus = new WeakSet<object>()
 
 function DataGridColumnHeaderInner<TData extends object, TValue>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   column,
   title,
   icon,
   className,
   filter,
   visibility = false,
-}: DataGridColumnHeaderProps<TData, TValue>) {
+}: DataGridColumnHeaderProps<TData, TValue> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { i18n, isLoading, table, props } = useDataGrid()
   const resolvedTitle = title ?? getColumnHeaderLabel(column)
 
@@ -491,7 +497,11 @@ function DataGridColumnHeaderInner<TData extends object, TValue>({
 
   if (hasControls) {
     return (
-      <div className="-ms-2 flex h-full items-center justify-between gap-1.5">
+      <IenThemeContext.Provider value={ienTheme}>
+<div
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className="-ms-2 flex h-full items-center justify-between gap-1.5">
         <DropdownMenu>
           <DropdownMenuTrigger ref={menuTriggerRef} asChild>
             <Button
@@ -547,12 +557,17 @@ function DataGridColumnHeaderInner<TData extends object, TValue>({
           </span>
         )}
       </div>
+</IenThemeContext.Provider>
     )
   }
 
   if (canSort || (props.tableLayout?.columnsResizable && canResize)) {
     return (
-      <div className="-ms-2 flex h-full items-center">
+      <IenThemeContext.Provider value={ienTheme}>
+<div
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className="-ms-2 flex h-full items-center">
         <Button
           variant="ghost"
           className={headerButtonClassName}
@@ -564,14 +579,20 @@ function DataGridColumnHeaderInner<TData extends object, TValue>({
           {sortIcon}
         </Button>
       </div>
+</IenThemeContext.Provider>
     )
   }
 
   return (
-    <div className={headerLabelClassName}>
+    <IenThemeContext.Provider value={ienTheme}>
+<div
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className={headerLabelClassName}>
       {icon && icon}
       {resolvedTitle}
     </div>
+</IenThemeContext.Provider>
   )
 }
 

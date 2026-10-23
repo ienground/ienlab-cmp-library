@@ -2,6 +2,8 @@
 
 // Opted out of React Compiler with the rest of the grid (see data-grid.tsx).
 "use no memo"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   Fragment,
@@ -868,6 +870,7 @@ function DataGridTableFillCol() {
   return (
     <col
       data-slot="data-grid-table-fill-col"
+      data-ien-typography="label1"
       style={{
         width: hasDataGridFillColumn(table)
           ? 0
@@ -891,6 +894,7 @@ function DataGridTableFillHeadCell({
     <th
       aria-hidden="true"
       data-slot="data-grid-table-fill-head-cell"
+      data-ien-typography="body2"
       rowSpan={rowSpan && rowSpan > 1 ? rowSpan : undefined}
       style={{
         width: hasDataGridFillColumn(table)
@@ -911,6 +915,7 @@ function DataGridTableFillBodyCell() {
     <td
       aria-hidden="true"
       data-slot="data-grid-table-fill-body-cell"
+      data-ien-typography="body2"
       style={{
         width: hasDataGridFillColumn(table)
           ? 0
@@ -930,6 +935,7 @@ function DataGridTableFillFootCell() {
     <td
       aria-hidden="true"
       data-slot="data-grid-table-fill-foot-cell"
+      data-ien-typography="body2"
       style={{
         width: hasDataGridFillColumn(table)
           ? 0
@@ -954,6 +960,7 @@ function DataGridTableAddRow() {
   return (
     <tr
       data-slot="data-grid-table-add-row"
+      data-ien-typography="label1"
       className={cn(
         "hover:bg-muted/40 [thead+tbody_&:first-child]:border-t",
         props.tableClassNames?.rowCreate
@@ -1019,7 +1026,12 @@ function DataGridTableAddRow() {
   )
 }
 
-function DataGridTableBase({ children }: { children: ReactNode }) {
+function DataGridTableBase({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  children,
+}: { children: ReactNode } & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { props, table, recordCount } = useDataGrid()
   const columnSizing = useDataGridAtom(table.atoms.columnSizing)
   const leftVisibleColumns = table.getStartVisibleLeafColumns()
@@ -1084,6 +1096,10 @@ function DataGridTableBase({ children }: { children: ReactNode }) {
   return (
     <table
       data-slot="data-grid-table"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       role={cellSelectionOn ? "grid" : undefined}
       aria-multiselectable={
         cellSelectionOn && props.tableLayout?.cellSelectionMode !== "single"
@@ -1160,6 +1176,8 @@ function DataGridTableBase({ children }: { children: ReactNode }) {
 }
 
 function DataGridTableViewport({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   children,
   className,
   viewportRef,
@@ -1169,7 +1187,8 @@ function DataGridTableViewport({
   className?: string
   viewportRef?: Ref<HTMLDivElement>
   style?: CSSProperties
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { props, table, autoSize } = useDataGrid()
   // The width below and the fill re-sync follow every sizing write.
   useDataGridAtom(table.atoms.columnSizing)
@@ -1260,6 +1279,10 @@ function DataGridTableViewport({
   return (
     <div
       data-slot="data-grid-table-viewport"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       ref={handleViewportRef}
       className={cn("relative min-w-full align-top", className)}
       style={{
@@ -1277,11 +1300,20 @@ function DataGridTableViewport({
   )
 }
 
-function DataGridTableHead({ children }: { children: ReactNode }) {
+function DataGridTableHead({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  children,
+}: { children: ReactNode } & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { props } = useDataGrid()
 
   return (
-    <thead
+    <IenThemeContext.Provider value={ienTheme}>
+<thead
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         props.tableClassNames?.header,
         props.tableLayout?.headerSticky && props.tableClassNames?.headerSticky
@@ -1289,21 +1321,29 @@ function DataGridTableHead({ children }: { children: ReactNode }) {
     >
       {children}
     </thead>
+</IenThemeContext.Provider>
   )
 }
 
 function DataGridTableHeadRow({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   children,
   rowId,
 }: {
   children: ReactNode
   rowId: string
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { props, table } = useDataGrid()
   const isMultiLevel = table.getHeaderGroups().length > 1
 
   return (
-    <tr
+    <IenThemeContext.Provider value={ienTheme}>
+<tr
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       aria-rowindex={props.tableLayout?.cellSelection ? 1 : undefined}
       className={cn(
         props.tableLayout?.headerBorder && "[&>th]:border-b",
@@ -1317,10 +1357,13 @@ function DataGridTableHeadRow({
     >
       {children}
     </tr>
+</IenThemeContext.Provider>
   )
 }
 
 function DataGridTableHeadRowCell<TData extends object>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   children,
   header,
   coveredHeaders = [],
@@ -1333,7 +1376,8 @@ function DataGridTableHeadRowCell<TData extends object>({
   coveredHeaders?: Header<DataGridFeatures, TData, unknown>[]
   dndRef?: React.Ref<HTMLTableCellElement>
   dndStyle?: CSSProperties
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { props, table } = useDataGrid<TData>()
   // Pinned offsets and the span width below are read from sizing state.
   useDataGridAtom(table.atoms.columnSizing)
@@ -1516,6 +1560,10 @@ function DataGridTableHeadRowCell<TData extends object>({
         // band is not positioned, so the resize handle still spans the th.
         <div
           data-slot="data-grid-table-head-cell-band"
+          data-ien-typography="body2"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className={cn(
             "table w-full table-fixed",
             props.tableLayout?.dense
@@ -1536,6 +1584,10 @@ function DataGridTableHeadRowCell<TData extends object>({
         <span
           aria-hidden="true"
           data-slot="data-grid-table-head-group-rule"
+          data-ien-typography="label1"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className={cn(
             "bg-border pointer-events-none absolute h-px",
             // On the cell's last pixel row: over the transparent header
@@ -1549,6 +1601,10 @@ function DataGridTableHeadRowCell<TData extends object>({
         <span
           aria-hidden="true"
           data-slot="data-grid-table-head-divider"
+          data-ien-typography="label1"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className={cn(
             "bg-border pointer-events-none absolute inset-y-0 w-px",
             groupLineEdge === "end" ? "end-0" : "start-0"
@@ -1669,6 +1725,7 @@ function DataGridTableHeadRowCellResize<TData extends object>({
     // of escalating it.
     <span
       data-slot="data-grid-table-resize-handle"
+      data-ien-typography="label1"
       {...{
         onDoubleClick: () => column.resetSize(),
         onMouseDown: handleMouseDown,
@@ -1738,10 +1795,13 @@ function DataGridTableHeadRowCellResize<TData extends object>({
 }
 
 function DataGridTableResizeIndicator({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   viewportNodeRef,
 }: {
   viewportNodeRef: RefObject<HTMLDivElement | null>
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { props, table } = useDataGrid()
   const indicatorRef = useRef<HTMLDivElement | null>(null)
   const indicatorHeadRef = useRef<HTMLDivElement | null>(null)
@@ -1861,6 +1921,10 @@ function DataGridTableResizeIndicator({
       ref={indicatorRef}
       aria-hidden="true"
       data-slot="data-grid-table-resize-indicator"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className="pointer-events-none absolute inset-y-0 z-50"
     >
       <div className="bg-primary/85 absolute inset-y-0 left-0 w-px -translate-x-1/2" />
@@ -1879,16 +1943,26 @@ function DataGridTableRowSpacer() {
       aria-hidden="true"
       className="h-2"
       data-slot="data-grid-table-body-spacer"
+      data-ien-typography="body2"
     ></tbody>
   )
 }
 
-function DataGridTableBody({ children }: { children: ReactNode }) {
+function DataGridTableBody({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  children,
+}: { children: ReactNode } & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { props } = useDataGrid()
 
   return (
     <tbody
       data-slot="data-grid-table-body"
+      data-ien-typography="body2"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         props.tableLayout?.rowRounded &&
           "[&_td:first-child]:rounded-l-lg",
@@ -1902,11 +1976,20 @@ function DataGridTableBody({ children }: { children: ReactNode }) {
   )
 }
 
-function DataGridTableFoot({ children }: { children: ReactNode }) {
+function DataGridTableFoot({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  children,
+}: { children: ReactNode } & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { props } = useDataGrid()
   return (
     <tfoot
       data-slot="data-grid-table-foot"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         // The rule between the body and the footer. It used to be drawn by the
         // last body row through an ancestor :has(), which made every style
@@ -1920,13 +2003,22 @@ function DataGridTableFoot({ children }: { children: ReactNode }) {
   )
 }
 
-function DataGridTableFootRow({ children }: { children: ReactNode }) {
+function DataGridTableFootRow({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  children,
+}: { children: ReactNode } & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { props, table } = useDataGrid()
   const footRowBottomBorderClasses = "[&:not(:last-child)>td]:border-b"
 
   return (
     <tr
       data-slot="data-grid-table-foot-row"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         props.tableLayout?.footerBackground &&
           "bg-muted/40 dark:bg-[color:var(--data-grid-surface,var(--data-grid-card-surface,var(--background)))]",
@@ -1950,6 +2042,8 @@ function DataGridTableFootRow({ children }: { children: ReactNode }) {
 }
 
 function DataGridTableFootRowCell({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   children,
   colSpan,
   className,
@@ -1957,13 +2051,18 @@ function DataGridTableFootRowCell({
   children?: ReactNode
   colSpan?: number
   className?: string
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { props } = useDataGrid()
   const spacing = footerCellSpacingVariants({
     size: props.tableLayout?.dense ? "dense" : "default",
   })
   return (
-    <td
+    <IenThemeContext.Provider value={ienTheme}>
+<td
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       colSpan={colSpan}
       className={cn(
         "text-secondary-foreground/80 align-middle font-medium",
@@ -1976,14 +2075,24 @@ function DataGridTableFootRowCell({
     >
       {children}
     </td>
+</IenThemeContext.Provider>
   )
 }
 
-function DataGridTableBodyRowSkeleton({ children }: { children: ReactNode }) {
+function DataGridTableBodyRowSkeleton({
+  tone: ienTone,
+  useGradient: ienUseGradient,
+  children,
+}: { children: ReactNode } & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { table, props } = useDataGrid()
 
   return (
-    <tr
+    <IenThemeContext.Provider value={ienTheme}>
+<tr
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "hover:bg-muted/40 data-[state=selected]:bg-muted/50",
         props.onRowClick && "cursor-pointer",
@@ -1998,16 +2107,20 @@ function DataGridTableBodyRowSkeleton({ children }: { children: ReactNode }) {
     >
       {children}
     </tr>
+</IenThemeContext.Provider>
   )
 }
 
 function DataGridTableBodyRowSkeletonCell<TData extends object>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   children,
   column,
 }: {
   children: ReactNode
   column: Column<DataGridFeatures, TData, unknown>
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { props, table } = useDataGrid()
   const isPinned = column.getIsPinned()
   const isLastStartPinned =
@@ -2019,7 +2132,11 @@ function DataGridTableBodyRowSkeletonCell<TData extends object>({
   })
 
   return (
-    <td
+    <IenThemeContext.Provider value={ienTheme}>
+<td
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       style={{
         ...(props.tableLayout?.columnsPinnable &&
           column.getCanPin() &&
@@ -2057,10 +2174,13 @@ function DataGridTableBodyRowSkeletonCell<TData extends object>({
     >
       {children}
     </td>
+</IenThemeContext.Provider>
   )
 }
 
 function DataGridTableBodyRow<TData extends object>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   children,
   row,
   pinnedBoundary,
@@ -2078,7 +2198,8 @@ function DataGridTableBodyRow<TData extends object>({
   dndStyle?: CSSProperties
   dndDragging?: boolean
   dataIndex?: number
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useDataGrid()
   const { props, table } = context
   const isRowPinned = row.getIsPinned()
@@ -2087,7 +2208,11 @@ function DataGridTableBodyRow<TData extends object>({
   const bodyRowBottomBorderClasses = "[&:not(:last-child)>td]:border-b"
 
   return (
-    <tr
+    <IenThemeContext.Provider value={ienTheme}>
+<tr
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       ref={(node) => {
         assignRef(rowRef, node)
         assignRef(dndRef, node)
@@ -2174,14 +2299,18 @@ function DataGridTableBodyRow<TData extends object>({
     >
       {children}
     </tr>
+</IenThemeContext.Provider>
   )
 }
 
 function DataGridTableBodyRowExpandded<TData extends object>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   row,
 }: {
   row: Row<DataGridFeatures, TData>
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { props, table } = useDataGrid()
   const expandedContent = table
     .getAllColumns()
@@ -2196,7 +2325,11 @@ function DataGridTableBodyRowExpandded<TData extends object>({
   const bodyRowBottomBorderClasses = "[&:not(:last-child)>td]:border-b"
 
   return (
-    <tr
+    <IenThemeContext.Provider value={ienTheme}>
+<tr
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(props.tableLayout?.rowBorder && bodyRowBottomBorderClasses)}
     >
       <td
@@ -2208,6 +2341,7 @@ function DataGridTableBodyRowExpandded<TData extends object>({
         {expandedContent(row.original)}
       </td>
     </tr>
+</IenThemeContext.Provider>
   )
 }
 
@@ -2262,7 +2396,7 @@ function DataGridTableBodyRowCell<TData extends object>({
     cellSelectionOn && props.tableLayout?.cellSelectionMode !== "single"
 
   const renderTd = (
-    selection: ReturnType<typeof getDataGridCellSelectionCellAttrs> | null
+    selection: ReturnType<typeof getDataGridCellSelectionCellAttrs> | null,
   ) => (
     <td
       ref={dndRef}
@@ -2402,6 +2536,7 @@ function DataGridTableBodyRowCell<TData extends object>({
         selection["data-cell-edge-right"] && (
           <span
             data-slot="data-grid-cell-fill-handle"
+            data-ien-typography="body2"
             /* "dot" stays fully inside the cell corner; "ring" rides the
                corner point the way Sheets draws it. Either way the handle
                clamps where straddling would break: at the grid's own
@@ -2585,6 +2720,7 @@ function DataGridTableEmpty() {
         <div
           ref={handleMessageRef}
           data-slot="data-grid-table-empty"
+          data-ien-typography="label1"
           className="sticky start-0"
         >
           {props.emptyMessage || i18n.labels.empty}
@@ -2608,15 +2744,22 @@ function DataGridTableLoader() {
 }
 
 function DataGridTableRowPin<TData extends object>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   row,
 }: {
   row: Row<DataGridFeatures, TData>
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { i18n } = useDataGrid()
   const isPinned = row.getIsPinned()
 
   return (
-    <button
+    <IenThemeContext.Provider value={ienTheme}>
+<button
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       type="button"
       aria-label={isPinned ? i18n.labels.unpinRow : i18n.labels.pinRow}
       onClick={(event) => {
@@ -2662,6 +2805,7 @@ function DataGridTableRowPin<TData extends object>({
         </svg>
       )}
     </button>
+</IenThemeContext.Provider>
   )
 }
 
@@ -2738,6 +2882,8 @@ function DataGridTableRowSelectAll() {
 }
 
 function DataGridTableRowExpand<TData extends object>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   row,
   indent = 20,
   className,
@@ -2749,7 +2895,8 @@ function DataGridTableRowExpand<TData extends object>({
   className?: string
   /** Custom toggle icon; replaces the default chevron. */
   children?: ReactNode
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { i18n, props } = useDataGrid()
   const isExpanded = row.getIsExpanded()
   const controlSize = props.tableLayout?.dense ? "size-6" : "size-7"
@@ -2757,6 +2904,10 @@ function DataGridTableRowExpand<TData extends object>({
   return (
     <span
       data-slot="data-grid-table-row-expand"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       style={getDataGridTreeIndentStyle(row, indent)}
       className={cn(
         "inline-flex shrink-0 items-center ps-(--data-grid-tree-padding) align-middle",
@@ -2808,10 +2959,13 @@ function DataGridTableRowExpand<TData extends object>({
 }
 
 function DataGridTableBodyRows<TData extends object>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   table,
 }: {
   table: DataGridTableInstance<TData>
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { i18n, isLoading, props } = useDataGrid()
   const pagination = table.state.pagination
 
@@ -2822,7 +2976,8 @@ function DataGridTableBodyRows<TData extends object>({
     const hasRightPinnedColumns = hasDataGridTableRightPinnedColumns(table)
 
     return (
-      <>
+      <IenThemeContext.Provider value={ienTheme}>
+<>
         {Array.from({ length: pagination.pageSize }).map((_, rowIndex) => (
           <DataGridTableBodyRowSkeleton key={rowIndex}>
             {[...leftVisibleColumns, ...centerVisibleColumns].map((column) => (
@@ -2844,13 +2999,18 @@ function DataGridTableBodyRows<TData extends object>({
           </DataGridTableBodyRowSkeleton>
         ))}
       </>
+</IenThemeContext.Provider>
     )
   }
 
   if (isLoading && props.loadingMode === "spinner") {
     return (
-      <tr>
+      <IenThemeContext.Provider value={ienTheme}>
+<tr>
         <td
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
           // Leaves only: v9's visible flat columns include group columns.
           colSpan={
             getDataGridTableOrderedVisibleColumns(table).length +
@@ -2883,6 +3043,7 @@ function DataGridTableBodyRows<TData extends object>({
           </div>
         </td>
       </tr>
+</IenThemeContext.Provider>
     )
   }
 
@@ -2891,10 +3052,13 @@ function DataGridTableBodyRows<TData extends object>({
     props.tableLayout?.rowsPinnable
   )
 
-  if (!resolvedRows.length) return <DataGridTableEmpty />
+  if (!resolvedRows.length) return <IenThemeContext.Provider value={ienTheme}>
+<DataGridTableEmpty />
+</IenThemeContext.Provider>
 
   return (
-    <>
+    <IenThemeContext.Provider value={ienTheme}>
+<>
       {resolvedRows.map(({ row, pinnedBoundary }) => (
         <DataGridTableRenderedRow
           key={row.id}
@@ -2903,6 +3067,7 @@ function DataGridTableBodyRows<TData extends object>({
         />
       ))}
     </>
+</IenThemeContext.Provider>
   )
 }
 

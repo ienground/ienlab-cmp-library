@@ -2313,7 +2313,12 @@ function DataGridCellSelection<TData extends object>({
 
   return (
     <>
-      <span ref={anchorRef} hidden data-slot="data-grid-cell-selection" />
+      <span
+        ref={anchorRef}
+        hidden
+        data-slot="data-grid-cell-selection"
+        data-ien-typography="body2"
+      />
       {enabled && viewportEl && editorSession ? (
         <DataGridCellEditorOverlay
           key={`${editorSession.rowId}:${editorSession.columnId}`}
@@ -2494,6 +2499,7 @@ function DataGridCellEditorOverlay({
     session.control === "textarea" ? (
       <textarea
         data-slot="data-grid-cell-editor"
+        data-ien-typography="body2"
         ref={placeCaretAtEnd}
         autoFocus
         aria-label={session.label}
@@ -2507,6 +2513,7 @@ function DataGridCellEditorOverlay({
     ) : (
       <input
         data-slot="data-grid-cell-editor"
+        data-ien-typography="body2"
         ref={placeCaretAtEnd}
         autoFocus
         aria-label={session.label}
@@ -2517,7 +2524,7 @@ function DataGridCellEditorOverlay({
         onBlur={(event) => finish(event.currentTarget, true, null, false)}
       />
     ),
-    viewport
+    viewport,
   )
 }
 

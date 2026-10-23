@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import {
@@ -498,9 +500,11 @@ export interface CascaderMultipleProps<
 }
 
 /** `multiple` discriminates: `value`, `onValueChange` and `max` narrow with it. */
-export type CascaderProps<T = unknown> =
+export type CascaderProps<T = unknown> = (
   | CascaderSingleProps<T>
   | CascaderMultipleProps<T>
+) &
+  IenToneProps
 
 /** Normalizes to an array. `""` is "no selection", not a node: it is the
  * uncontrolled default, and resolving it would render a blank chip. */
@@ -717,6 +721,8 @@ type CascaderPendingNavigation =
 
 /** No default on `T`: inferred from `items`, so `node.data` arrives typed. */
 function Cascader<T>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   items,
   getParent,
   getChildren,
@@ -771,7 +777,8 @@ function Cascader<T>({
   inputRef,
   inline,
   children,
-}: CascaderProps<T>) {
+}: CascaderProps<T> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const baseIndex = React.useMemo(
     () => buildCascaderIndex(items, getParent),
     // `getParent` is stable by design: an inline accessor must not rebuild a
@@ -2236,17 +2243,18 @@ function Cascader<T>({
   return (
     // Providers store values with the item generic erased; the hooks re-apply
     // the caller's own `T` on the way back out.
-    <CascaderActionsContext.Provider
+    <IenThemeContext.Provider value={ienTheme}>
+      <CascaderActionsContext.Provider
       value={actionsValue as unknown as CascaderActionsContextValue}
     >
-      <CascaderStateContext.Provider
+        <CascaderStateContext.Provider
         value={stateValue as unknown as CascaderStateContextValue}
       >
-        <CascaderHighlightContext.Provider value={highlightStore}>
-          <CascaderRenderContext.Provider
+          <CascaderHighlightContext.Provider value={highlightStore}>
+            <CascaderRenderContext.Provider
             value={renderContext as unknown as CascaderRenderContextValue}
           >
-            <ComboboxPrimitive.Root
+              <ComboboxPrimitive.Root
               items={renderedItems}
               /* The empty frame that resets the highlight. See the comment above. */
               filteredItems={swapping ? EMPTY : comboboxItems}
@@ -2297,12 +2305,13 @@ function Cascader<T>({
                 prefetchNode(item)
               }}
             >
-              {children}
-            </ComboboxPrimitive.Root>
-          </CascaderRenderContext.Provider>
-        </CascaderHighlightContext.Provider>
-      </CascaderStateContext.Provider>
-    </CascaderActionsContext.Provider>
+                {children}
+              </ComboboxPrimitive.Root>
+            </CascaderRenderContext.Provider>
+          </CascaderHighlightContext.Provider>
+        </CascaderStateContext.Provider>
+      </CascaderActionsContext.Provider>
+    </IenThemeContext.Provider>
   )
 }
 
@@ -2314,20 +2323,25 @@ function Cascader<T>({
  * shadcn combobox wrapper also does: a form library needs a ref here, and
  * `onBlur`, the "touched" signal, lands here too. */
 export interface CascaderTriggerProps
-  extends
-    ComboboxPrimitive.Trigger.Props,
+  extends ComboboxPrimitive.Trigger.Props,
     Pick<React.ComponentPropsWithRef<"button">, "ref"> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** Hides the trailing chevron, for a trigger that supplies its own. */
   showIcon?: boolean
 }
 
 function CascaderTrigger({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   showIcon = true,
   ref,
   ...props
-}: CascaderTriggerProps) {
+}: CascaderTriggerProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { invalid } = useCascaderActions()
 
   // `ref` is the one prop `mergeProps` does not merge, so chain it by hand.
@@ -2367,6 +2381,10 @@ function CascaderTrigger({
     <ComboboxPrimitive.Trigger
       ref={setTrigger}
       data-slot="cascader-trigger"
+      data-ien-typography="label1"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       /* Conditional spread: an explicit `undefined` would DELETE whatever a
          `Field` wrapper had already put here. */
       {...(invalid ? { "aria-invalid": true, "data-invalid": "" } : null)}
@@ -2434,9 +2452,11 @@ export function useCascaderAnchor() {
 }
 
 export interface CascaderChipsProps
-  extends
-    Omit<ComboboxPrimitive.Chips.Props, "children">,
+  extends Omit<ComboboxPrimitive.Chips.Props, "children">,
     Pick<React.ComponentPropsWithRef<"div">, "ref"> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** Shown in place of the chips when nothing is selected. */
   placeholder?: React.ReactNode
   /**
@@ -2468,12 +2488,15 @@ export interface CascaderChipsProps
  * ```
  */
 function CascaderChips({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   placeholder,
   strategy = "all",
   ...props
-}: CascaderChipsProps) {
+}: CascaderChipsProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const {
     labels,
     multiple,
@@ -2525,6 +2548,9 @@ function CascaderChips({
   return (
     <ComboboxPrimitive.Chips
       data-slot="cascader-chips"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       /* An unnamed `role="toolbar"` announces as just "toolbar". */
       aria-label={labels.chipsLabel}
       /* Conditional spread: the error treatment is keyed on
@@ -2537,6 +2563,9 @@ function CascaderChips({
         (nodes.length === 0 ? (
           <span
             data-slot="cascader-chips-placeholder"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
             className="text-muted-foreground truncate"
           >
             {placeholder}
@@ -2559,10 +2588,14 @@ function CascaderChips({
   )
 }
 
-export interface CascaderChipProps extends Omit<
+export interface CascaderChipProps
+  extends Omit<
   ComboboxPrimitive.Chip.Props,
   "children"
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   node: CascaderNode
   /** Prefix the label with its ancestor trail. */
   showPath?: boolean
@@ -2591,6 +2624,8 @@ type CascaderChipRemoveClickEvent = Parameters<
  * shortened selection to the root, so it lands in the same `setSelection` as
  * every other deselection and `cascade` applies to it. */
 function CascaderChip({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   node,
   showPath = false,
@@ -2599,7 +2634,8 @@ function CascaderChip({
   onRemove,
   children,
   ...props
-}: CascaderChipProps) {
+}: CascaderChipProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { labels, index } = useCascaderActions()
 
   const chain = showPath ? getCascaderPath(index, node.value) : []
@@ -2617,6 +2653,9 @@ function CascaderChip({
   return (
     <ComboboxPrimitive.Chip
       data-slot="cascader-chip"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       /* Keyboard half of `onRemove`: Base UI's chip removes ITSELF by position
          on Backspace/Delete, the arithmetic a condensed chip must not use. The
          veto runs first, so the closure removal replaces it. */
@@ -2631,8 +2670,8 @@ function CascaderChip({
         : null)}
       className={cn(
         CHIP_CLASS,
-        "has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-50",
-        className
+        "has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-(--ien-state-disabled-alpha)",
+        className,
       )}
       {...props}
     >
@@ -2640,6 +2679,9 @@ function CascaderChip({
       {showRemove ? (
         <ComboboxPrimitive.ChipRemove
           data-slot="cascader-chip-remove"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           /* Named after what the chip DISPLAYS, not the bare node label, or
              two disambiguated chips both announce "Remove Created at". */
           aria-label={labels.removeChip(label)}
@@ -2673,8 +2715,7 @@ function CascaderChip({
 /* -------------------------------------------------------------------------- */
 
 export interface CascaderContentProps
-  extends
-    ComboboxPrimitive.Popup.Props,
+  extends ComboboxPrimitive.Popup.Props,
     /** Positioner surface forwarded as-is, so an unusual anchor does not force
      * a rebuild of the content stack. No `trackAnchor`: Base UI 1.5.0 has
      * none. */
@@ -2691,12 +2732,17 @@ export interface CascaderContentProps
       | "positionMethod"
     >,
     /** Where the portal mounts, for a shadow root or a scoped stacking context. */
-    Pick<ComboboxPrimitive.Portal.Props, "container"> {}
+    Pick<ComboboxPrimitive.Portal.Props, "container"> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+}
 
 /** Portal + Positioner + floating panel. Unlike shadcn's `ComboboxContent` it
  * does NOT clamp the popup to the anchor width (a cascader panel is routinely
  * wider), but it keeps `group/combobox-content`, which `CascaderEmpty` needs. */
 function CascaderContent({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   side = "bottom",
   sideOffset = 6,
@@ -2710,7 +2756,8 @@ function CascaderContent({
   container,
   ref,
   ...props
-}: CascaderContentProps) {
+}: CascaderContentProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { labels } = useCascaderActions()
   const popupRef = React.useRef<HTMLDivElement | null>(null)
 
@@ -2767,6 +2814,10 @@ function CascaderContent({
         <ComboboxPrimitive.Popup
           ref={setPopup}
           data-slot="cascader-content"
+          data-ien-typography="body2"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           /* Marks a menu surface for the docs design-system picker. An
              attribute, not a class, so the panel's look stays self-contained. */
           data-menu-target=""
@@ -2790,6 +2841,9 @@ function CascaderContent({
 /* -------------------------------------------------------------------------- */
 
 export interface CascaderPanelProps extends React.ComponentProps<"div"> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   asChild?: boolean
 }
 
@@ -2805,12 +2859,15 @@ export interface CascaderPanelProps extends React.ComponentProps<"div"> {
  * and the panel is the only ancestor of both ends of that move in BOTH shapes.
  */
 function CascaderPanel({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   children,
   onKeyDown,
   ...props
-}: CascaderPanelProps) {
+}: CascaderPanelProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { mode } = useCascaderActions()
   const Comp = asChild ? Slot.Root : "div"
 
@@ -2840,6 +2897,9 @@ function CascaderPanel({
   return (
     <Comp
       data-slot="cascader-panel"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-mode={mode}
       onKeyDown={handleKeyDown}
       className={cn("flex max-h-full min-h-0 w-full flex-col", className)}
@@ -2854,10 +2914,14 @@ function CascaderPanel({
 /*                                    List                                    */
 /* -------------------------------------------------------------------------- */
 
-export interface CascaderListProps extends Omit<
+export interface CascaderListProps
+  extends Omit<
   ComboboxPrimitive.List.Props,
   "style"
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** Applied to the OUTER shell, which owns the height, so an inline
    * `--cascader-max-height` lands where the bound can read it. Narrowed from
    * Base UI's `style`: the shell is a plain `<div>` with no list state. */
@@ -2876,11 +2940,14 @@ export interface CascaderListProps extends Omit<
  * live in `cascader-lib.tsx`.
  */
 function CascaderList({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   style,
   maxHeight: maxHeightProp,
   ...props
-}: CascaderListProps) {
+}: CascaderListProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { maxHeight, mode, labels, baseId, virtualized, searchScope } =
     useCascaderActions()
   const { currentParent, deepResults } = useCascaderState()
@@ -2894,6 +2961,9 @@ function CascaderList({
   return (
     <div
       data-slot="cascader-list-shell"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       style={
         resolved != null
           ? ({
@@ -2910,6 +2980,9 @@ function CascaderList({
     >
       <div
         data-slot="cascader-list-bounds"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         className={cn(
           "flex w-full min-w-0 flex-col overscroll-contain",
           CASCADER_LIST_HEIGHT_CLASS
@@ -2918,6 +2991,9 @@ function CascaderList({
         <ScrollArea className={CASCADER_SCROLL_CLASS}>
           <ComboboxPrimitive.List
             data-slot="cascader-list"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
             /* Base UI names the list nothing, so every mode shipped an unnamed
                listbox. The level's parent is the name; the root borrows one. */
             aria-label={listName}
@@ -2949,6 +3025,9 @@ function CascaderList({
 /* -------------------------------------------------------------------------- */
 
 export interface CascaderEmptyProps extends ComboboxPrimitive.Empty.Props {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** @deprecated Ignored: the loading surface no longer draws skeletons. They
    * promised a shape the level might not have and cost a second layout; the
    * progress lives on the branch row instead. Kept so call sites compile. */
@@ -2960,13 +3039,16 @@ export interface CascaderEmptyProps extends ComboboxPrimitive.Empty.Props {
  * fetching level as of an empty one, so swapping siblings would announce "No
  * results found." over every async level. Swap the CHILDREN. */
 function CascaderEmpty({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   // Accepted and ignored; destructured so it is never spread onto the DOM.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   skeletonRows,
   ...props
-}: CascaderEmptyProps) {
+}: CascaderEmptyProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { labels, retryLevel, retrySearch } = useCascaderActions()
   const { query, path, searchState } = useCascaderState()
   // The level whose emptiness is on screen; tree always shows the root.
@@ -2980,12 +3062,18 @@ function CascaderEmpty({
     body = (
       <span
         data-slot="cascader-error"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         className="flex flex-col items-center gap-1.5"
       >
         <span>{labels.error}</span>
         <button
           type="button"
           data-slot="cascader-retry"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           /* A real button because this lives OUTSIDE the listbox; a focusable
              element inside a `role="option"` is `nested-interactive`. */
           onClick={(event) => {
@@ -3005,6 +3093,9 @@ function CascaderEmpty({
     body = (
       <span
         data-slot="cascader-loading"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         className="flex w-full items-center justify-center"
       >
         {labels.loading}
@@ -3015,6 +3106,9 @@ function CascaderEmpty({
   return (
     <ComboboxPrimitive.Empty
       data-slot="cascader-empty"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-state={state?.error ? "error" : state?.loading ? "loading" : "empty"}
       className={cn(EMPTY_CLASS, className)}
       /* The ONE place an explicit `undefined` is right: it DELETES Base UI's
@@ -3032,6 +3126,9 @@ function CascaderEmpty({
 }
 
 export interface CascaderStatusProps extends ComboboxPrimitive.Status.Props {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   asChild?: boolean
 }
 
@@ -3042,11 +3139,14 @@ export interface CascaderStatusProps extends ComboboxPrimitive.Status.Props {
  * after mount before reading a polite region at all.
  */
 function CascaderStatus({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   children,
   asChild = false,
   ...props
-}: CascaderStatusProps) {
+}: CascaderStatusProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { announcement } = useCascaderState()
 
   // `asChild` only engages when there IS an element to slot into: with a bare
@@ -3056,6 +3156,10 @@ function CascaderStatus({
   return (
     <ComboboxPrimitive.Status
       data-slot="cascader-status"
+      data-ien-typography="caption"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn("sr-only", className)}
       {...(asSlot ? { render: <Slot.Root /> } : null)}
       {...props}

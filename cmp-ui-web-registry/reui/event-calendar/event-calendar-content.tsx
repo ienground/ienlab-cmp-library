@@ -2,6 +2,8 @@
 // Description: Active-view switchboard rendering month, week, day, N-days, or agenda; swappable per view via the components prop.
 
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { useIenTheme } from "@/lib/ien-theme-context"
 
 import { type ComponentType, type HTMLAttributes, type ReactNode } from "react"
 import {
@@ -31,6 +33,9 @@ const DEFAULT_VIEW_COMPONENTS: Record<CalendarView, ComponentType> = {
 }
 
 interface EventCalendarContentProps extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   /** Swap individual view implementations. */
   components?: Partial<Record<CalendarView, ComponentType>>
   /** Replaces the switchboard entirely; read useEventCalendarView() inside. */
@@ -39,12 +44,15 @@ interface EventCalendarContentProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function EventCalendarContent({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   components,
   children,
   ...props
-}: EventCalendarContentProps) {
+}: EventCalendarContentProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const viewConfig = useEventCalendarViewConfig()
   const view = useEventCalendarSelector((state) => state.view)
   const loading = useEventCalendarSelector((state) => state.loading)
@@ -63,6 +71,10 @@ function EventCalendarContent({
   return (
     <Comp
       data-slot="event-calendar-content"
+      data-ien-typography="body2"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-view={view}
       data-loading={loading || undefined}
       className={cn(

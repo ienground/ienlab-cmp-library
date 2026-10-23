@@ -11,8 +11,40 @@ import {
   sourceApi,
 } from "./registry.mjs";
 import { catalog } from "../web/catalog.js";
+import { resolveIenTone } from "../../cmp-ui-web-registry/lib/ien-theme.ts";
 
 const repository = fileURLToPath(new URL("../../", import.meta.url));
+
+test("기존 variant를 CMP tone으로 해석하고 명시한 tone을 우선한다", () => {
+  assert.equal(resolveIenTone(undefined, "destructive"), "danger");
+  assert.equal(resolveIenTone(undefined, "success-light"), "success");
+  assert.equal(resolveIenTone(undefined, "warning-outline"), "warning");
+  assert.equal(resolveIenTone(undefined, "secondary"), "neutral");
+  assert.equal(resolveIenTone("info", "destructive"), "info");
+  assert.equal(resolveIenTone(undefined, "default"), undefined);
+});
+
+test("모든 UI 설치에 CMP 테마와 라이트·다크 색상, 그라데이션을 포함한다", async () => {
+  const items = await collectRegistry(path.join(repository, "registry.json"), repository);
+  const theme = items.find((item) => item.name === "ien-theme");
+  assert.ok(theme);
+  for (const item of items.filter((item) => item.type === "registry:ui")) {
+    assert.ok(item.registryDependencies.includes("@ienlab/ien-theme"), item.name);
+  }
+  for (const tone of ["neutral", "brand", "success", "warning", "danger", "info"]) {
+    assert.ok(theme.cssVars.light[`ien-${tone}`], tone);
+    assert.ok(theme.cssVars.dark[`ien-${tone}`], tone);
+    assert.ok(theme.css["@layer components"][`:where([data-ien-tone="${tone}"])`], tone);
+  }
+  assert.match(theme.css["@layer components"][".ien-fill"]["background-image"], /18%.*36%/);
+  assert.equal(theme.css["@layer components"][':where([data-ien-gradient="false"])']["--ien-gradient"], "none");
+  for (const [name, rule] of Object.entries(theme.css["@layer components"])) {
+    if (name.includes("data-ien-typography")) {
+      assert.equal(rule["font-size"], undefined, name);
+      assert.equal(rule["line-height"], undefined, name);
+    }
+  }
+});
 async function fixture(run) {
   const directory = await mkdtemp(path.join(tmpdir(), "ien-registry-test-"));
   try {

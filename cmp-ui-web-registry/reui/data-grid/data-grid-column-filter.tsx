@@ -2,6 +2,8 @@
 
 // Opted out of React Compiler with the rest of the grid (see data-grid.tsx).
 "use no memo"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import { useMemo, useState } from "react"
 import { Badge } from "@/components/reui/badge"
@@ -21,6 +23,9 @@ import { Separator } from "@/components/ui/separator"
 import { IconPlaceholder } from "@/lib/reui-icons"
 
 interface DataGridColumnFilterProps<TData extends object, TValue> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   column?: Column<DataGridFeatures, TData, TValue>
   title?: string
   options: {
@@ -31,10 +36,13 @@ interface DataGridColumnFilterProps<TData extends object, TValue> {
 }
 
 function DataGridColumnFilter<TData extends object, TValue>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   column,
   title,
   options,
-}: DataGridColumnFilterProps<TData, TValue>) {
+}: DataGridColumnFilterProps<TData, TValue> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { i18n } = useDataGrid()
   const facets = column?.getFacetedUniqueValues()
   const filterValue = column?.getFilterValue()
@@ -51,10 +59,14 @@ function DataGridColumnFilter<TData extends object, TValue>({
   }, [options, searchQuery])
 
   return (
-    <Popover>
+    <IenThemeContext.Provider value={ienTheme}>
+<Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm">
           <IconPlaceholder
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
             lucide="CirclePlusIcon"
             tabler="IconCirclePlus"
             hugeicons="AddCircleIcon"
@@ -195,6 +207,7 @@ function DataGridColumnFilter<TData extends object, TValue>({
         </div>
       </PopoverContent>
     </Popover>
+</IenThemeContext.Provider>
   )
 }
 

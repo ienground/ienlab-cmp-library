@@ -10,6 +10,14 @@ const style = "radix-nova";
 const upstream = `https://raw.githubusercontent.com/keenthemes/reui/${revision}/`;
 const repository = fileURLToPath(new URL("../../", import.meta.url));
 const output = path.join(repository, "cmp-ui-web-registry");
+try {
+  const current = JSON.parse(await readFile(path.join(output, "registry.json"), "utf8"));
+  if (current.items.some((item) => item.meta?.ienDesign)) {
+    throw new Error("CMP 디자인이 적용된 소스입니다. REUI 갱신은 별도 경로에서 가져온 뒤 변경 사항을 병합하세요.");
+  }
+} catch (error) {
+  if (error.code !== "ENOENT") throw error;
+}
 const cache = path.join(tmpdir(), `ienlab-reui-${revision}`);
 await mkdir(cache, { recursive: true });
 

@@ -6,6 +6,8 @@
 // cached against the unchanged object and never run again. The grid memoizes
 // by hand instead, and the component that renders it still compiles.
 "use no memo"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   createContext,
@@ -822,6 +824,9 @@ export interface DataGridProps<
   TFeatures extends TableFeatures,
   TData extends object,
 > {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   className?: string
   table?: Table<TFeatures, TData>
   recordCount: number
@@ -1217,11 +1222,17 @@ function DataGridProvider<TData extends object>({
   )
 }
 
-function DataGrid<TFeatures extends TableFeatures, TData extends object>({
+function DataGrid<
+  TFeatures extends TableFeatures,
+  TData extends object,
+>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   children,
   table,
   ...props
-}: DataGridProps<TFeatures, TData>) {
+}: DataGridProps<TFeatures, TData> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const defaultProps: Partial<DataGridProps<TFeatures, TData>> = {
     loadingMode: "skeleton",
     tableLayout: {
@@ -1288,13 +1299,17 @@ function DataGrid<TFeatures extends TableFeatures, TData extends object>({
   const internalProps = mergedProps as unknown as DataGridLayoutProps<TData>
 
   return (
-    <DataGridProvider table={internalTable} {...internalProps}>
-      {children}
-    </DataGridProvider>
+    <IenThemeContext.Provider value={ienTheme}>
+      <DataGridProvider table={internalTable} {...internalProps}>
+        {children}
+      </DataGridProvider>
+    </IenThemeContext.Provider>
   )
 }
 
 function DataGridContainer({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   children,
   className,
 }: {
@@ -1302,10 +1317,14 @@ function DataGridContainer({
   className?: string
   /** Accepted for backwards compatibility; currently has no effect. */
   border?: boolean
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <div
       data-slot="data-grid"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       // relative: anchors floating chrome composed inside the container,
       // like the fill-drag preview outline.
       className={cn("relative w-full overflow-hidden", className)}

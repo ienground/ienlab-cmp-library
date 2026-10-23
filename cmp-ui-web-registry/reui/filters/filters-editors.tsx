@@ -1,4 +1,6 @@
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import {
@@ -307,15 +309,21 @@ export function useFilterValueResolution<V, O>(
  * and arrow keys, which is hostile to a colour picker or a slider.
  */
 function EditorPanel({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   children,
   className,
 }: {
   children: React.ReactNode
   className?: string
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     <div
       data-slot="filter-editor"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn(
         "flex w-full flex-col gap-2 p-2",
         /* The list height cap as a VARIABLE, not the `maxHeight` prop, which
@@ -331,6 +339,8 @@ function EditorPanel({
 }
 
 function EditorFooter({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   onCancel,
   onCommit,
   labels,
@@ -338,7 +348,8 @@ function EditorFooter({
 }: Pick<FilterEditorProps, "labels" | "host"> & {
   onCancel: () => void
   onCommit: () => void
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   // The ONE ladder, not a hardcoded rung: `size="sm"` here measured 4px short
   // of the bar's own controls at `size="default"` in all eight styles.
   const actions = React.useContext(FilterActionsContext)
@@ -347,7 +358,11 @@ function EditorFooter({
   // The create host advances on commit and has Back; amend must offer discard.
   if (host === "create") return null
   return (
-    <div className="flex items-center justify-end gap-1.5 pt-1">
+    <IenThemeContext.Provider value={ienTheme}>
+<div
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className="flex items-center justify-end gap-1.5 pt-1">
       <Button variant="ghost" size={sizes.button} onClick={onCancel}>
         {labels.discard}
       </Button>
@@ -355,6 +370,7 @@ function EditorFooter({
         {labels.apply}
       </Button>
     </div>
+</IenThemeContext.Provider>
   )
 }
 
@@ -443,6 +459,8 @@ function useCommitKeys(commit: () => void, cancel: () => void) {
 /* -------------------------------------------------------------------------- */
 
 export function FilterTextEditor<V, O>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   onValueChange,
   commit,
@@ -451,7 +469,8 @@ export function FilterTextEditor<V, O>({
   labels,
   host,
   field,
-}: FilterEditorProps<V, O>) {
+}: FilterEditorProps<V, O> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const onKeyDown = useCommitKeys(() => commit(), cancel)
   return (
     // A width, not shrink-to-fit: the popover is `w-auto`, so an unsized box
@@ -460,7 +479,11 @@ export function FilterTextEditor<V, O>({
     // for an email, and `w-80` was the widest control in a bar of compact
     // chips. Capped at the viewport because `w-80` is 320px and a 360px phone
     // has 40px to spare. A `w-*` on the field wins.
-    <EditorPanel
+    <IenThemeContext.Provider value={ienTheme}>
+<EditorPanel
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       className={cn("w-72 max-w-[calc(100vw-2rem)] min-w-0", field.className)}
     >
       <ButtonGroup className={EDITOR_FIELD_GROUP}>
@@ -485,10 +508,13 @@ export function FilterTextEditor<V, O>({
         )}
       </ButtonGroup>
     </EditorPanel>
+</IenThemeContext.Provider>
   )
 }
 
 export function FilterNumberEditor<V, O>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   onValueChange,
   commit,
@@ -497,12 +523,17 @@ export function FilterNumberEditor<V, O>({
   labels,
   host,
   field,
-}: FilterEditorProps<V, O>) {
+}: FilterEditorProps<V, O> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const onKeyDown = useCommitKeys(() => commit(), cancel)
   return (
     // Deliberately not the text editor's `w-72`: number values are short by
     // construction, and a wide box around "42" is the opposite defect.
-    <EditorPanel className={cn("w-56 min-w-0", field.className)}>
+    <IenThemeContext.Provider value={ienTheme}>
+<EditorPanel
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className={cn("w-56 min-w-0", field.className)}>
       <ButtonGroup className={EDITOR_FIELD_GROUP}>
         <Input
           {...autoFocusProps}
@@ -525,10 +556,13 @@ export function FilterNumberEditor<V, O>({
         )}
       </ButtonGroup>
     </EditorPanel>
+</IenThemeContext.Provider>
   )
 }
 
 export function FilterRangeEditor<V, O>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   onValueChange,
   commit,
@@ -537,7 +571,8 @@ export function FilterRangeEditor<V, O>({
   labels,
   host,
   field,
-}: FilterEditorProps<V, O>) {
+}: FilterEditorProps<V, O> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const tuple = (Array.isArray(value) ? value : []) as unknown[]
   const onKeyDown = useCommitKeys(() => commit(), cancel)
 
@@ -548,8 +583,12 @@ export function FilterRangeEditor<V, O>({
   }
 
   return (
-    <EditorPanel>
-      <div className="flex items-center gap-1.5">
+    <IenThemeContext.Provider value={ienTheme}>
+<EditorPanel>
+      <div
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className="flex items-center gap-1.5">
         <Input
           {...autoFocusProps}
           type="number"
@@ -576,6 +615,7 @@ export function FilterRangeEditor<V, O>({
         onCommit={() => commit()}
       />
     </EditorPanel>
+</IenThemeContext.Provider>
   )
 }
 
@@ -755,6 +795,9 @@ function isSameOrder(a: string[], b: string[]) {
 }
 
 export interface FilterMenuProps {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   items: FilterListItem[]
   /** Committed values. Drives the check mark and the pinned group. */
   selected: string[]
@@ -801,6 +844,8 @@ export interface FilterMenuProps {
  * and the paging affordance stay out here.
  */
 export function FilterMenu({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   items,
   selected,
   multiple = false,
@@ -817,7 +862,8 @@ export function FilterMenu({
   query,
   onQueryChange,
   state,
-}: FilterMenuProps) {
+}: FilterMenuProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   /**
    * The pin set as a KEY, not an array: `selected` is a fresh array on most
    * renders, so a memo depending on it re-partitions every render.
@@ -934,7 +980,7 @@ export function FilterMenu({
   const renderItem = React.useCallback(
     (
       node: CascaderNode<FilterMenuMeta>,
-      itemState: CascaderItemState<FilterMenuMeta>
+      itemState: CascaderItemState<FilterMenuMeta>,
     ) => (
       <>
         {node.data?.divider ? (
@@ -967,20 +1013,23 @@ export function FilterMenu({
         </span>
 
         {/*
-          What the aria-hidden rule says, for the people it does not reach.
-          Inside the option element so it joins the row's accessible NAME, not
-          an `aria-describedby`: a description is announced late or not at all,
-          and this has to arrive before the press. The cascader's `srDetails`
-          cannot either: `renderItem` replaces the row body. Empty copy renders
-          nothing, so `labels.exclusiveHint` of "" silences it.
+          A lone input still belongs in the group: the per-style sheets re-round
+          the LAST child, so a group with nothing fused draws the bare field.
         */}
         {node.data?.exclusive && labels.exclusiveHint ? (
-          <span data-slot="filter-menu-exclusive-hint" className="sr-only">
+          <span
+            data-slot="filter-menu-exclusive-hint"
+            data-ien-typography="caption"
+            className="sr-only"
+          >
             {`, ${labels.exclusiveHint}`}
           </span>
         ) : null}
 
-        {/* A check mark in both modes, never the cascader's default box. */}
+        {/*
+          A lone input still belongs in the group: the per-style sheets re-round
+          the LAST child, so a group with nothing fused draws the bare field.
+        */}
         {itemState.selected ? (
           <span
             data-slot="filter-menu-check"
@@ -1002,7 +1051,7 @@ export function FilterMenu({
         ) : null}
       </>
     ),
-    [labels.exclusiveHint]
+    [labels.exclusiveHint],
   )
 
   const cascaderLabels = React.useMemo(
@@ -1079,7 +1128,8 @@ export function FilterMenu({
       }
 
   return (
-    <Cascader {...cascaderProps}>
+    <IenThemeContext.Provider value={ienTheme}>
+<Cascader {...cascaderProps}>
       <CascaderPanel>
         {/*
           `searchable: false` hides the FIELD, never removes it: the input owns
@@ -1087,6 +1137,9 @@ export function FilterMenu({
           keyboard. The class goes on the nav so the strip's border goes too.
         */}
         <CascaderNav
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
           className={cn(
             /* The nav's divider is `border-border/60` and the group separator
                is a full-opacity `bg-border`; two strengths read as a mistake. */
@@ -1136,6 +1189,7 @@ export function FilterMenu({
         ) : null}
       </CascaderPanel>
     </Cascader>
+</IenThemeContext.Provider>
   )
 }
 
@@ -1283,16 +1337,23 @@ const BOOLEAN_ITEMS: FilterListItem[] = [
 ]
 
 export function FilterBooleanEditor<V, O>({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   value,
   onValueChange,
   commit,
   labels,
   autoFocusProps,
   field,
-}: FilterEditorProps<V, O>) {
+}: FilterEditorProps<V, O> & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
     // Two words, and `field.className` lands last so a consumer's `w-*` wins.
-    <EditorPanel className={cn("w-40 min-w-0 gap-0 p-0", field.className)}>
+    <IenThemeContext.Provider value={ienTheme}>
+<EditorPanel
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient} className={cn("w-40 min-w-0 gap-0 p-0", field.className)}>
       <FilterMenu
         items={BOOLEAN_ITEMS}
         selected={value === true ? ["true"] : value === false ? ["false"] : []}
@@ -1312,6 +1373,7 @@ export function FilterBooleanEditor<V, O>({
         autoFocusProps={autoFocusProps}
       />
     </EditorPanel>
+</IenThemeContext.Provider>
   )
 }
 

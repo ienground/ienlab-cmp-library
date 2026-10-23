@@ -2,6 +2,8 @@
 // Description: Resource-columns day grid for booking scenarios - one time axis, one column per resource, full drag, resize, and drag-create.
 
 "use client"
+import type { IenToneProps } from "@/lib/ien-theme"
+import { useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   useEffect,
@@ -58,7 +60,11 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 const EMPTY_ALL_DAY_SEGMENTS: EventCalendarSegment[] = []
 
-interface EventCalendarResourceViewProps extends HTMLAttributes<HTMLDivElement> {
+interface EventCalendarResourceViewProps
+  extends HTMLAttributes<HTMLDivElement> {
+  tone?: IenToneProps["tone"]
+  useGradient?: boolean
+
   dayStartHour?: number
   dayEndHour?: number
   showAllDay?: boolean
@@ -69,6 +75,8 @@ interface EventCalendarResourceViewProps extends HTMLAttributes<HTMLDivElement> 
 
 /** Leaf resources become booking columns for the anchor day. */
 function EventCalendarResourceView({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   className,
   asChild = false,
   dayStartHour,
@@ -77,7 +85,8 @@ function EventCalendarResourceView({
   interval: intervalProp,
   style,
   ...props
-}: EventCalendarResourceViewProps) {
+}: EventCalendarResourceViewProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const instance = useEventCalendar()
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
@@ -236,6 +245,9 @@ function EventCalendarResourceView({
     <EventCalendarViewContext.Provider value={{ view: "resource" }}>
       <Comp
         data-slot="event-calendar-resource-view"
+        data-ien=""
+        data-ien-tone={ienTheme.tone}
+        data-ien-gradient={ienTheme.useGradient}
         data-view="resource"
         className={cn(
           "flex flex-col border-t",
@@ -264,6 +276,7 @@ function EventCalendarResourceView({
               <div
                 key={resource.id}
                 data-slot="event-calendar-resource-header"
+                data-ien-typography="label1"
                 className={cn(
                   "min-w-0 truncate border-e px-2 py-1.5 text-center font-medium last:border-e-0",
                   viewConfig.classNames?.resourceHeader
@@ -275,10 +288,14 @@ function EventCalendarResourceView({
             ))}
           </div>
         </div>
-        {/* All-day row per resource */}
+        {/* shared gutter component, so renderTimeGutterSlot and
+          classNames.timeGutter customizations apply here too */}
         {showAllDay && (
           <div
             data-slot="event-calendar-all-day-section"
+            data-ien=""
+            data-ien-tone={ienTheme.tone}
+            data-ien-gradient={ienTheme.useGradient}
             className={cn(
               "flex border-b pe-(--ec-scrollbar-w,0px)",
               viewConfig.classNames?.allDaySection
@@ -324,6 +341,9 @@ function EventCalendarResourceView({
             {viewConfig.scrollbars === "native" ? (
               <div
                 data-slot="scroll-area-viewport"
+                data-ien=""
+                data-ien-tone={ienTheme.tone}
+                data-ien-gradient={ienTheme.useGradient}
                 data-ec-native-scroll=""
                 className="h-full overflow-y-auto"
               >
@@ -342,12 +362,15 @@ function EventCalendarResourceView({
 }
 
 function EventCalendarResourceAllDayCell({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   resource,
   day,
 }: {
   resource: EventCalendarResource
   day: Date
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
   const { effective } = useEventCalendarViewSettings()
@@ -392,6 +415,10 @@ function EventCalendarResourceAllDayCell({
   return (
     <div
       data-slot="event-calendar-all-day-cell"
+      data-ien-typography="body2"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       // data-ec-day makes this a DnD day target: without it collectSurface()
       // finds no cells and dragging an all-day chip silently converts it to
       // a timed event via the column branch
@@ -449,6 +476,9 @@ function EventCalendarResourceAllDayCell({
         <span
           aria-hidden
           data-slot="event-calendar-drop-indicator"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           data-drop-target={isDropTarget}
           className={cn(
             "pointer-events-none absolute inset-0.5 z-10 rounded-sm border border-dashed",
@@ -464,6 +494,8 @@ function EventCalendarResourceAllDayCell({
 }
 
 function EventCalendarResourceColumn({
+  tone: ienTone,
+  useGradient: ienUseGradient,
   resource,
   day,
   startHour,
@@ -475,7 +507,8 @@ function EventCalendarResourceColumn({
   startHour: number
   endHour: number
   interval: number
-}) {
+} & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const settings = useEventCalendarSettings()
   const viewConfig = useEventCalendarViewConfig()
   const { effective } = useEventCalendarViewSettings()
@@ -626,6 +659,9 @@ function EventCalendarResourceColumn({
   return (
     <div
       data-slot="event-calendar-day-column"
+      data-ien=""
+      data-ien-tone={ienTheme.tone}
+      data-ien-gradient={ienTheme.useGradient}
       data-today={isToday || undefined}
       data-off={isOff || undefined}
       data-ec-day={dayStart.getTime()}
@@ -723,12 +759,14 @@ function EventCalendarResourceColumn({
           </div>
         )
       })}
-      {/* Standardized ghost (EVENT_CALENDAR_GHOST): faint drop placeholder
-          for moves (the cursor-attached carry clone owns the visual), dashed
-          clone for resizes, destructive marking when invalid. */}
+      {/* shared gutter component, so renderTimeGutterSlot and
+          classNames.timeGutter customizations apply here too */}
       {dragGhost && (
         <div
           data-slot="event-calendar-drag-ghost"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           data-kind={dragGhost.kind}
           data-drop-invalid={!dragGhost.valid || undefined}
           className={cn(
@@ -789,6 +827,9 @@ function EventCalendarResourceColumn({
       {draftWindow && (
         <div
           data-slot="event-calendar-slot-draft"
+          data-ien=""
+          data-ien-tone={ienTheme.tone}
+          data-ien-gradient={ienTheme.useGradient}
           className={cn(
             EVENT_CALENDAR_SLOT_DRAFT.box,
             "pointer-events-none absolute inset-x-0.5 z-40 overflow-hidden",
