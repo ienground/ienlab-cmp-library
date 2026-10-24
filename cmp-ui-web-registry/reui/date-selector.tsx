@@ -995,6 +995,11 @@ function DateSelectorPeriodGrid({
                 <Button
                   key={item}
                   size="sm"
+                  tone={
+                    isSelected || isRangeStart || isRangeEnd
+                      ? ienTheme.tone
+                      : "neutral"
+                  }
                   variant={
                     isSelected || isRangeStart || isRangeEnd
                       ? "fill"
@@ -1062,6 +1067,11 @@ function DateSelectorYearList({
           <Button
             key={year}
             size="sm"
+            tone={
+              isSelected || isRangeStart || isRangeEnd
+                ? ienTheme.tone
+                : "neutral"
+            }
             variant={
               isSelected || isRangeStart || isRangeEnd ? "fill" : "line"
             }

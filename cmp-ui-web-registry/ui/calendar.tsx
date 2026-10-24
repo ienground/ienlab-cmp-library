@@ -234,7 +234,7 @@ function CalendarDayButton({
     <IenThemeContext.Provider value={ienTheme}>
 <Button
       data-ien=""
-      data-ien-tone={ienTheme.tone}
+      data-ien-tone={modifiers.selected ? ienTheme.tone : "neutral"}
       data-ien-gradient={ienTheme.useGradient}
       ref={ref}
       variant="ghost"

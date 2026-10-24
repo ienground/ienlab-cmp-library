@@ -636,7 +636,7 @@ const CodeBlockLineRow = memo(function CodeBlockLineRow({
           {actions({ line: line.number, text: line.text, state })}
         </span>
       ) : null}
-      <span data-slot="code-block-line-content" data-ien-typography="body2">
+      <span data-slot="code-block-line-content" data-ien-typography="body2" className="[font-family:var(--ien-font-mono)]">
         {/* An empty line needs an explicit break. Copying a selection relies on
             the browser emitting a newline between block-level rows, and a row
             with no text at all contributes neither text nor separator, so a
@@ -1647,7 +1647,7 @@ function CodeBlockSurface({
           onPointerLeave={clearActive}
           onFocus={trackActive}
           className={cn(
-            "w-max min-w-full py-(--code-block-padding) font-mono text-(length:--code-block-font-size)",
+            "w-max min-w-full py-(--code-block-padding) [font-family:var(--ien-font-mono)] text-(length:--code-block-font-size)",
             TOKEN_COLOR_CLASS,
             TOKEN_MOTION_CLASS,
             /* `min-w-0` must beat the `min-w-full` above, or the pre keeps
@@ -1752,7 +1752,7 @@ function CodeBlockTitle({
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       className={cn(
-        "text-muted-foreground min-w-0 truncate font-mono text-xs",
+        "text-muted-foreground min-w-0 truncate [font-family:var(--ien-font-mono)] text-xs",
         className
       )}
       {...props}
@@ -1786,7 +1786,7 @@ function CodeBlockLanguage({
       data-ien-gradient={ienTheme.useGradient}
       data-unsupported={!resolvedLanguage || undefined}
       className={cn(
-        "border-border bg-muted/60 text-muted-foreground inline-flex shrink-0 items-center rounded-md border px-1.5 py-0.5 font-mono text-[0.6875rem] leading-none uppercase",
+        "border-border bg-muted/60 text-muted-foreground inline-flex shrink-0 items-center rounded-md border px-1.5 py-0.5 [font-family:var(--ien-font-mono)] text-[0.6875rem] leading-none uppercase",
         className
       )}
       {...props}

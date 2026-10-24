@@ -14,57 +14,65 @@ import { IconPlaceholder } from "@/lib/reui-icons"
 
 const NumberFieldContext = createContext<{
   fieldId: string
-  size: "sm" | "default" | "lg"
+  size: NonNullable<VariantProps<typeof numberFieldGroupVariants>["size"]>
 } | null>(null)
 
 const numberFieldGroupVariants = cva(
-  "relative flex w-full justify-between border border-input data-disabled:pointer-events-none data-disabled:opacity-(--ien-state-disabled-alpha) aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive focus-within:has-aria-invalid:border-destructive focus-within:has-aria-invalid:ring-destructive/20 dark:focus-within:has-aria-invalid:ring-destructive/40 rounded-lg bg-transparent dark:bg-input/30 transition-colors focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-3",
+  "relative flex w-fit items-center rounded-lg bg-muted px-(--ien-spacing-xxs) text-foreground data-disabled:pointer-events-none data-disabled:opacity-(--ien-state-disabled-alpha)",
   {
     variants: {
       size: {
-        sm: "h-7 text-sm",
-        default: "h-8 text-sm",
-        lg: "h-9 text-sm",
+        tiny: "h-8 min-w-23 text-xs",
+        small: "h-9 min-w-26 text-sm",
+        medium: "h-11 min-w-30 text-base",
+        large: "h-13 min-w-35 text-lg",
+        sm: "h-9 min-w-26 text-sm",
+        default: "h-11 min-w-30 text-base",
+        lg: "h-13 min-w-35 text-lg",
       },
     },
     defaultVariants: {
-      size: "default",
+      size: "medium",
     },
   },
 )
 
 const numberFieldButtonVariants = cva(
-  "relative flex shrink-0 cursor-pointer items-center justify-center transition-colors pointer-coarse:after:absolute pointer-coarse:after:size-full pointer-coarse:after:min-h-11 pointer-coarse:after:min-w-11 hover:bg-accent",
+  "relative flex h-full shrink-0 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-background/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 data-disabled:pointer-events-none data-disabled:text-(--ien-text-disabled) pointer-coarse:after:absolute pointer-coarse:after:size-full pointer-coarse:after:min-h-11 pointer-coarse:after:min-w-11",
   {
     variants: {
-      // Ladders restored from the pre-rename source. Rhea was added after they
-      // were written, so its rungs are new: rhea tracks nova here because the
-      // shadcn Input is h-8 px-2.5 in both sheets, where luma is h-9 px-3.
       size: {
-        sm: ["px-1.5", "[&_svg:not([class*='size-'])]:size-3.5"],
-        default:
-          ["px-2", "[&_svg:not([class*='size-'])]:size-4"],
-        lg: ["px-2.5", "[&_svg:not([class*='size-'])]:size-4"],
+        tiny: "w-7.5 [&_svg]:size-3.5",
+        small: "w-8.5 [&_svg]:size-4",
+        medium: "w-10 [&_svg]:size-4",
+        large: "w-12 [&_svg]:size-5",
+        sm: "w-8.5 [&_svg]:size-4",
+        default: "w-10 [&_svg]:size-4",
+        lg: "w-12 [&_svg]:size-5",
       },
     },
     defaultVariants: {
-      size: "default",
+      size: "medium",
     },
   }
 )
 
 const numberFieldInputVariants = cva(
-  "w-full min-w-0 flex-1 bg-transparent text-center tabular-nums outline-none",
+  "relative z-10 min-w-0 rounded-lg border border-transparent bg-background px-2 text-center font-medium text-foreground tabular-nums shadow-md outline-none transition-colors cursor-text select-text placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 disabled:cursor-not-allowed",
   {
     variants: {
       size: {
-        sm: "px-2 py-0.5",
-        default: "px-2.5 py-1",
-        lg: "px-2.5 py-1.5",
+        tiny: "h-7 w-10 text-xs",
+        small: "h-8 w-11.5 text-sm",
+        medium: "h-9.5 w-14 text-base",
+        large: "h-11.5 w-17 text-lg",
+        sm: "h-8 w-11.5 text-sm",
+        default: "h-9.5 w-14 text-base",
+        lg: "h-11.5 w-17 text-lg",
       },
     },
     defaultVariants: {
-      size: "default",
+      size: "medium",
     },
   }
 )
@@ -74,7 +82,7 @@ function NumberField({
   useGradient: ienUseGradient,
   id,
   className,
-  size = "default",
+  size = "medium",
   ...props
 }: NumberFieldPrimitive.Root.Props &
   VariantProps<typeof numberFieldGroupVariants> &
@@ -82,7 +90,7 @@ function NumberField({
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const generatedId = useId()
   const fieldId = id ?? generatedId
-  const sizeValue = size ?? "default"
+  const sizeValue = size ?? "medium"
 
   return (
     <IenThemeContext.Provider value={ienTheme}>
@@ -156,7 +164,7 @@ function NumberFieldDecrement({
     <NumberFieldPrimitive.Decrement
       className={cn(
         numberFieldButtonVariants({ size }),
-        "rounded-s-lg border-e-0",
+        "rounded-s-lg",
         className
       )}
       data-slot="number-field-decrement"
@@ -202,7 +210,7 @@ function NumberFieldIncrement({
     <NumberFieldPrimitive.Increment
       className={cn(
         numberFieldButtonVariants({ size }),
-        "rounded-e-lg border-s-0",
+        "rounded-e-lg",
         className
       )}
       data-slot="number-field-increment"
@@ -260,7 +268,7 @@ function NumberFieldScrubArea({
   className,
   label,
   ...props
-}: NumberFieldPrimitive.ScrubArea.Props & {
+}: React.ComponentProps<typeof Label> & {
   label: string
 } & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
@@ -272,37 +280,16 @@ function NumberFieldScrubArea({
   }
 
   return (
-    <NumberFieldPrimitive.ScrubArea
-      className={cn("flex cursor-ew-resize", className)}
+    <Label
+      className={cn("cursor-default", className)}
       data-slot="number-field-scrub-area"
-      data-ien=""
-      data-ien-tone={ienTheme.tone}
-      data-ien-gradient={ienTheme.useGradient}
+      tone={ienTheme.tone ?? "neutral"}
+      useGradient={ienTheme.useGradient}
+      htmlFor={context.fieldId}
       {...props}
     >
-      <Label className="cursor-ew-resize" htmlFor={context.fieldId}>
-        {label}
-      </Label>
-      <NumberFieldPrimitive.ScrubAreaCursor className="drop-shadow-[0_1px_1px_#0008] filter">
-        <CursorGrowIcon />
-      </NumberFieldPrimitive.ScrubAreaCursor>
-    </NumberFieldPrimitive.ScrubArea>
-  )
-}
-
-function CursorGrowIcon(props: React.ComponentProps<"svg">) {
-  return (
-    <svg
-      fill="black"
-      height="14"
-      stroke="white"
-      viewBox="0 0 24 14"
-      width="26"
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
-      <path d="M19.5 5.5L6.49737 5.51844V2L1 6.9999L6.5 12L6.49737 8.5L19.5 8.5V12L25 6.9999L19.5 2V5.5Z" />
-    </svg>
+      {label}
+    </Label>
   )
 }
 

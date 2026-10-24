@@ -2661,7 +2661,7 @@
           "NumberFieldInput"
         ],
         "preview": "previews/number-field.tsx",
-        "example": "import {\n  NumberField,\n  NumberFieldDecrement,\n  NumberFieldGroup,\n  NumberFieldIncrement,\n  NumberFieldInput,\n  NumberFieldScrubArea,\n} from \"@/components/reui/number-field\"\n\nexport function Pattern() {\n  return (\n    <div className=\"w-full max-w-48\">\n      <NumberField defaultValue={5} min={0} max={100}>\n        <NumberFieldScrubArea label=\"Amount\" />\n        <NumberFieldGroup>\n          <NumberFieldDecrement />\n          <NumberFieldInput />\n          <NumberFieldIncrement />\n        </NumberFieldGroup>\n      </NumberField>\n    </div>\n  )\n}\nexport default Pattern;\n",
+        "example": "import {\n  NumberField,\n  NumberFieldDecrement,\n  NumberFieldGroup,\n  NumberFieldIncrement,\n  NumberFieldInput,\n  NumberFieldScrubArea,\n} from \"@/components/reui/number-field\"\n\nexport function Pattern() {\n  return (\n    <div className=\"flex w-full flex-wrap items-end gap-6\">\n      {([\"tiny\", \"small\", \"medium\", \"large\"] as const).map((size) => (\n        <NumberField\n          key={size}\n          size={size}\n          className=\"w-auto\"\n          defaultValue={5}\n          min={0}\n          max={100}\n        >\n          <NumberFieldScrubArea label={size} />\n          <NumberFieldGroup>\n            <NumberFieldDecrement />\n            <NumberFieldInput />\n            <NumberFieldIncrement />\n          </NumberFieldGroup>\n        </NumberField>\n      ))}\n    </div>\n  )\n}\nexport default Pattern;\n",
         "ienDesign": true
       }
     },
