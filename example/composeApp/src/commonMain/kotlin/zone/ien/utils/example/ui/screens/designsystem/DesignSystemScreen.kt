@@ -349,6 +349,7 @@ private data class DesignSystemComponent(
 )
 
 private val DesignSystemComponents = listOf(
+    DesignSystemComponent("prefs-picker", "Prefs Picker", "입력", "설정 항목에서 날짜·시각·기간을 선택하고 확인·취소 동작을 체험합니다."),
     DesignSystemComponent("wheel-picker", "WheelPicker", "입력", "날짜·정확한 시각·시간/분/초 기간을 휠로 선택합니다."),
     DesignSystemComponent("animated-layout", "AnimatedLayout", "레이아웃", "목록 항목이 추가되거나 제거될 때 크기와 표시 상태를 전환합니다."),
     DesignSystemComponent("animated-content", "AnimatedContent", "레이아웃", "상태가 바뀔 때 콘텐츠 전환 애니메이션을 확인합니다."),
@@ -506,6 +507,14 @@ private val ComponentPlaygroundControls = mapOf(
         toggleControl("enabled", "당김 허용", true),
         numberControl("threshold", "갱신 기준 거리", 56, 36, 96),
         numberControl("topPadding", "콘텐츠 상단 여백", 0, 0, 160),
+    ),
+    "prefs-picker" to listOf(
+        disabledControl(),
+        toggleControl("is24Hour", "24시간제", true),
+        toggleControl("showHours", "기간 시 표시", true),
+        toggleControl("showMinutes", "기간 분 표시", true),
+        toggleControl("showSeconds", "기간 초 표시", true),
+        numberControl("maxHours", "기간 최대 시간", 48, 0, 9999),
     ),
     "wheel-picker" to listOf(
         choiceControl("type", "종류", listOf("Date", "Time", "Duration")),
@@ -1616,6 +1625,7 @@ internal fun DesignSystemComponentPreview(
     controlValues: Map<String, String>,
 ) {
     when (componentId) {
+        "prefs-picker" -> PrefsPickerSection(controlValues)
         "wheel-picker" -> WheelPickerSection(controlValues)
         "animated-layout" -> AnimatedLayoutSection(controlValues)
         "animated-content" -> AnimatedContentSection(controlValues)
@@ -7067,5 +7077,13 @@ fun ActionBarSection(controls: Map<String, String> = emptyMap()) {
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun PrefsPickerSection(controls: Map<String, String> = emptyMap()) {
+    ComponentSection(title = "Prefs Picker") {
+        PrefsPickerContent(controls)
     }
 }

@@ -159,6 +159,13 @@ function extractApis(source, name, fallbackDescription) {
 const apiDocs = {};
 
 for (const component of catalog) {
+  if (component.module === "cmp-pref") {
+    apiDocs[component.id] = (await Promise.all(component.api.map(async (name) => {
+      const source = await readFile(path.join(repositoryDirectory, "cmp-pref/src/commonMain/kotlin/zone/ien/utils/pref/item", `${name}.kt`), "utf8");
+      return extractApis(source, name, component.description);
+    }))).flat();
+    continue;
+  }
   if (component.module !== "cmp-ui") {
     apiDocs[component.id] = component.api.map((name) => ({
       name,
