@@ -16,6 +16,22 @@ import { createPlaygroundCatalog, instrumentPlayground } from "./playground.mjs"
 
 const repository = fileURLToPath(new URL("../../", import.meta.url));
 
+test("단독 Button이 연속 코너를 초기화하고 ghost variant는 테두리를 표시하지 않는다", async () => {
+  const source = await readFile(path.join(repository, "cmp-ui-web-registry/ui/button.tsx"), "utf8");
+  assert.doesNotMatch(source, /^"use client"/);
+  assert.match(source, /<IenContinuousCorners \/>/);
+  assert.match(source, /bg-clip-border/);
+  assert.doesNotMatch(source, /bg-clip-padding/);
+  const context = await readFile(path.join(repository, "cmp-ui-web-registry/lib/ien-theme-context.tsx"), "utf8");
+  assert.match(context, /export function IenContinuousCorners\(\) \{\s*useEffect\(\(\) => observeIenContinuousCorners\(\), \[\]\)/);
+  const tokens = JSON.parse(await readFile(path.join(repository, "cmp-ui-web-registry/tokens.json"), "utf8"));
+  assert.equal(tokens.components["@layer components"][".ien-clear"]["border-color"], "transparent");
+  const items = await collectRegistry(path.join(repository, "registry.json"), repository);
+  const theme = items.find((item) => item.name === "ien-theme");
+  assert.ok(theme.dependencies.includes("@lisse/core@0.7.3"));
+  assert.ok(theme.files.some((file) => file.path.endsWith("ien-continuous-corners.ts")));
+});
+
 test("모든 웹 컴포넌트의 Playground와 실제 variant·상속 속성을 추출한다", async () => {
   const items = await collectRegistry(path.join(repository, "registry.json"), repository);
   const previews = Object.fromEntries(await Promise.all(items.filter((item) => item.meta?.preview).map(async (item) => [item.name, await readFile(path.resolve(path.dirname(item.manifestPath), item.meta.preview), "utf8")])));
@@ -24,7 +40,7 @@ test("모든 웹 컴포넌트의 Playground와 실제 variant·상속 속성을 
   const button = definitions.button.targets[0];
   assert.equal(button.name, "Button");
   assert.deepEqual(button.props.find((prop) => prop.name === "tone").options, ["neutral", "brand", "success", "warning", "danger", "info"]);
-  for (const variant of ["fill", "weak", "outline", "clear"]) assert.ok(button.props.find((prop) => prop.name === "variant").options.includes(variant));
+  assert.deepEqual(button.props.find((prop) => prop.name === "variant").options, ["fill", "weak", "line", "ghost"]);
   assert.equal(button.props.find((prop) => prop.name === "disabled").kind, "boolean");
   assert.equal(button.props.find((prop) => prop.name === "useGradient").defaultValue, true);
   assert.equal(definitions["number-field"].targets[0].props.find((prop) => prop.name === "min").kind, "number");

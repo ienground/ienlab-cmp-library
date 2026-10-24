@@ -430,7 +430,7 @@ function SettingsMenu({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="line" size="sm">
           <IconPlaceholder
             lucide="SettingsIcon"
             tabler="IconSettings"
@@ -622,7 +622,7 @@ function SettingsMenu({
         </Tabs>
         <div className="border-t p-2">
           <Button
-            variant="outline"
+            variant="line"
             size="sm"
             className="w-full"
             onClick={onReset}

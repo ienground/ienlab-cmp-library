@@ -413,7 +413,7 @@ function CombinatorCell({
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
-      variant="outline"
+      variant="line"
       size={sizes.button}
       /* The WORD is in the name: the track is fixed, so a locale whose
          word overflows draws "a...". */
@@ -939,7 +939,7 @@ function FilterAdvancedRowImpl<V, O>({
               {...filterReadOnlyProps(actions)}
             >
               <Button
-                variant="outline"
+                variant="line"
                 size={sizes.button}
                 /* The path is truncated on screen, so the name carries all
                    of it: "Primary loca... > State" identifies nothing. */
@@ -1011,7 +1011,7 @@ function FilterAdvancedRowImpl<V, O>({
               field={field}
               trigger={
                 <Button
-                  variant="outline"
+                  variant="line"
                   size={sizes.button}
                   /* No `aria-label`: the label IS the name. */
                   title={operatorLabel}
@@ -1071,7 +1071,7 @@ function FilterAdvancedRowImpl<V, O>({
                   operator={operator}
                   trigger={
                     <Button
-                      variant="outline"
+                      variant="line"
                       size={sizes.button}
                       /* The VALUE is the name, never the attribute.
                          Locked, it grows to the whole list. */
@@ -1396,7 +1396,7 @@ function FilterAdvancedGroup<V, O>({
           data-drop-index={group.rules.length}
         >
           <Button
-            variant="outline"
+            variant="line"
             size={sizes.button}
             aria-label={actions.labels.addToGroup}
             className={cn(
@@ -2121,7 +2121,7 @@ export function FiltersAdvancedPanel<V, O>({
           ref={addRowRef}
           /* OUTLINE, and the only pair in the panel with a box: they are
              what the footer is FOR. */
-          variant="outline"
+          variant="line"
           size={sizes.button}
           className="shrink-0 font-normal"
           disabled={actions.disabled}
@@ -2139,7 +2139,7 @@ export function FiltersAdvancedPanel<V, O>({
         </Button>
 
         <Button
-          variant="outline"
+          variant="line"
           size={sizes.button}
           className="shrink-0 font-normal"
           disabled={actions.disabled}
@@ -2261,7 +2261,7 @@ export function FiltersAdvanced<V, O>({
           (trigger as React.ReactElement)
         ) : (
           <Button
-            variant="outline"
+            variant="line"
             size={sizes.button}
             /* THE COUNT IN THE NAME, not only in the box: a consumer who
                replaces `trigger` never had the badge, which is hidden. */

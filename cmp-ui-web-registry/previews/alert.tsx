@@ -15,7 +15,7 @@ export function Pattern() {
           채움 표현에서도 제목과 설명을 구분합니다.
         </AlertDescription>
       </Alert>
-      <Alert tone="danger" variant="outline" useGradient={false}>
+      <Alert tone="danger" variant="line" useGradient={false}>
         <AlertTitle>확인이 필요합니다</AlertTitle>
         <AlertDescription>테두리 표현으로 상태를 전달합니다.</AlertDescription>
       </Alert>

@@ -401,7 +401,7 @@ function EditorCommitButtons({
     <>
       <Button
         type="button"
-        variant="outline"
+        variant="line"
         size="icon"
         aria-label={labels.apply}
         onClick={onCommit}
@@ -417,7 +417,7 @@ function EditorCommitButtons({
       </Button>
       <Button
         type="button"
-        variant="outline"
+        variant="line"
         size="icon"
         aria-label={labels.discard}
         onClick={onCancel}

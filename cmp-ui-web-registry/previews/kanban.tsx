@@ -54,12 +54,13 @@ function TaskCard({ task, asHandle, isOverlay, ...props }: TaskCardProps) {
         <div className="flex items-center justify-between gap-2">
           <span className="line-clamp-1 text-sm font-medium">{task.title}</span>
           <Badge
-            variant={
+            variant="weak"
+            tone={
               task.priority === "high"
-                ? "destructive-light"
+                ? "danger"
                 : task.priority === "medium"
-                  ? "primary-light"
-                  : "warning-light"
+                  ? "brand"
+                  : "warning"
             }
             className="pointer-events-none h-5 shrink-0 rounded-sm px-1.5 text-xs capitalize"
           >
@@ -114,7 +115,7 @@ function TaskColumn({ value, tasks, isOverlay, ...props }: TaskColumnProps) {
             <span className="text-sm font-semibold">
               {COLUMN_TITLES[value]}
             </span>
-            <Badge variant="outline">{tasks.length}</Badge>
+            <Badge variant="line">{tasks.length}</Badge>
           </div>
           <KanbanColumnHandle asChild>
             <Button size="icon-xs" variant="ghost">

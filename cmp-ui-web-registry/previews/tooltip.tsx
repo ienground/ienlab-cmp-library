@@ -12,7 +12,7 @@ export function Pattern() {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" className="w-fit">
+            <Button variant="line" className="w-fit">
               Show Tooltip
             </Button>
           </TooltipTrigger>

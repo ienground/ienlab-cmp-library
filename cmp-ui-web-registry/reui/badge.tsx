@@ -15,30 +15,8 @@ const badgeVariants = cva(
       variant: {
         fill: "ien-fill",
         weak: "ien-weak",
-        clear: "ien-clear",
-        default: "ien-fill",
-        outline: "ien-outline",
-        secondary: "ien-fill",
-        info: "ien-fill",
-        success: "ien-fill",
-        warning: "ien-fill",
-        destructive: "ien-fill",
-        focus: "ien-fill",
-        invert: "ien-fill",
-        "primary-light": "ien-weak",
-        "warning-light": "ien-weak",
-        "success-light": "ien-weak",
-        "info-light": "ien-weak",
-        "destructive-light": "ien-weak",
-        "invert-light": "ien-weak",
-        "focus-light": "ien-weak",
-        "primary-outline": "ien-outline",
-        "warning-outline": "ien-outline",
-        "success-outline": "ien-outline",
-        "info-outline": "ien-outline",
-        "destructive-outline": "ien-outline",
-        "invert-outline": "ien-outline",
-        "focus-outline": "ien-outline",
+        line: "ien-outline",
+        ghost: "ien-clear",
       },
       size: {
         xs: "px-1 py-0.25 text-[0.6rem] leading-none h-4 min-w-4 gap-1",
@@ -55,7 +33,7 @@ const badgeVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "fill",
       size: "default",
       radius: "default",
     },
@@ -90,7 +68,7 @@ function Badge({
       data-ien=""
       data-ien-tone={resolveIenTone(ienTone, variant)}
       data-ien-gradient={ienUseGradient}
-      data-variant={variant ?? "default"}
+      data-variant={variant ?? "fill"}
       className={cn(badgeVariants({ variant, size, radius, className }))}
       {...props}
     />

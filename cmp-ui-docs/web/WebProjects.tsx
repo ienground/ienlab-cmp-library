@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { generatePath } from "@lisse/core/path";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { CodeExample } from "./RegistryCodeExample";
@@ -41,7 +42,46 @@ export function WebProjects({
   const [previewRevision, setPreviewRevision] = useState(0);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const fileInput = useRef<HTMLInputElement>(null);
+  const radiusSamples = useRef(new Map<string, SVGSVGElement>());
   const json = JSON.stringify(projectRegistryItem(project), null, 2);
+  useEffect(() => {
+    let frame = 0;
+    function drawCorners() {
+      for (const svg of radiusSamples.current.values()) {
+        const style = getComputedStyle(svg);
+        const size = svg.getBoundingClientRect().width;
+        if (!size) continue;
+        const radius = style.borderTopLeftRadius;
+        const normalizedRadius = radius.endsWith("%")
+          ? (Number.parseFloat(radius) * 48) / 100
+          : (Number.parseFloat(radius) * 48) / size;
+        const smoothing = Number.parseFloat(
+          style.getPropertyValue("--ien-control-corner-smoothing"),
+        );
+        svg.querySelector("path")?.setAttribute(
+          "d",
+          generatePath(47, 47, {
+            radius: Math.max(0, normalizedRadius - 0.5),
+            smoothing: Number.isFinite(smoothing)
+              ? Math.min(1, Math.max(0, smoothing))
+              : 1,
+            preserveSmoothing: true,
+          }),
+        );
+      }
+    }
+    function schedule() {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(drawCorners);
+    }
+    const observer = new ResizeObserver(schedule);
+    for (const svg of radiusSamples.current.values()) observer.observe(svg);
+    schedule();
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [project.cssVars]);
   function create() {
     if (!projectNamePattern.test(newName)) {
       setMessage(
@@ -264,6 +304,7 @@ export function WebProjects({
           </div>
           <section aria-label="프로젝트 반경">
             <h3>반경</h3>
+            <p>기존 radius 값에 연속 곡률(continuous)을 적용합니다.</p>
             <div className="playground-controls">
               {Object.keys(projectDefaults.light)
                 .filter((name) => name.startsWith("ien-radius-"))
@@ -341,11 +382,12 @@ export function WebProjects({
                 <select
                   className="playground-select"
                   value={mode}
-                onChange={(event) => {
-                  const next = event.target.value === "dark" ? "dark" : "light";
-                  setMode(next);
-                  onThemeChange(next);
-                }}
+                  onChange={(event) => {
+                    const next =
+                      event.target.value === "dark" ? "dark" : "light";
+                    setMode(next);
+                    onThemeChange(next);
+                  }}
                 >
                   <option value="light">라이트</option>
                   <option value="dark">다크</option>
@@ -540,10 +582,19 @@ export function WebProjects({
               .filter((name) => name.startsWith("ien-radius-"))
               .map((name) => (
                 <div key={name}>
-                  <div
+                  <svg
+                    ref={(element) => {
+                      if (element) radiusSamples.current.set(name, element);
+                      else radiusSamples.current.delete(name);
+                    }}
                     className="project-radius-sample"
+                    viewBox="0 0 48 48"
+                    aria-label={`${name.replace("ien-radius-", "")} continuous 코너`}
+                    role="img"
                     style={{ borderRadius: `var(--${name})` }}
-                  />
+                  >
+                    <path transform="translate(0.5 0.5)" />
+                  </svg>
                   <code>{name.replace("ien-radius-", "")}</code>
                 </div>
               ))}

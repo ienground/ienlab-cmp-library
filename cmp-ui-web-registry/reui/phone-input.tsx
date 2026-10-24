@@ -164,7 +164,7 @@ function CountrySelect({
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
-            variant="outline"
+            variant="line"
             size={variant}
             className={cn(
               "rounded-s-lg flex gap-1 rounded-e-none border-e-0 px-2.5 py-0 leading-none hover:bg-transparent focus:z-10 data-pressed:bg-transparent",

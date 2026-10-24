@@ -109,13 +109,13 @@ const getTypeIcon = (type: SortableItem["type"]) => {
 const getTypeColor = (type: SortableItem["type"]) => {
   switch (type) {
     case "image":
-      return "primary-light"
+      return "brand"
     case "document":
-      return "success-light"
+      return "success"
     case "audio":
-      return "destructive-light"
+      return "danger"
     case "video":
-      return "info-light"
+      return "info"
   }
 }
 
@@ -173,7 +173,7 @@ export function Pattern() {
               </div>
 
               <div className="flex items-center gap-2">
-                <Badge variant={getTypeColor(item.type)}>{item.type}</Badge>
+                <Badge variant="weak" tone={getTypeColor(item.type)}>{item.type}</Badge>
                 <span className="text-muted-foreground text-xs">
                   {item.size}
                 </span>

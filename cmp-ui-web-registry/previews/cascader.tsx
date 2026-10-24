@@ -169,7 +169,7 @@ export function Pattern() {
           aria-label="Attribute"
           render={
             <Button
-              variant="outline"
+              variant="line"
               className="w-72 justify-between gap-2 font-normal"
             />
           }

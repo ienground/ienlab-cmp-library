@@ -62,7 +62,7 @@ function DataGridColumnFilter<TData extends object, TValue>({
     <IenThemeContext.Provider value={ienTheme}>
 <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="line" size="sm">
           <IconPlaceholder
       data-ien=""
       data-ien-tone={ienTheme.tone}
@@ -78,12 +78,12 @@ function DataGridColumnFilter<TData extends object, TValue>({
           {selectedValues?.size > 0 && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
-              <Badge variant="secondary" className="px-1 font-normal lg:hidden">
+              <Badge tone="neutral" variant="fill" className="px-1 font-normal lg:hidden">
                 {selectedValues.size}
               </Badge>
               <div className="hidden gap-x-1 lg:flex">
                 {selectedValues.size > 2 ? (
-                  <Badge variant="secondary" className="px-1 font-normal">
+                  <Badge tone="neutral" variant="fill" className="px-1 font-normal">
                     {i18n.labels.filterSelectedCount(selectedValues.size)}
                   </Badge>
                 ) : (
@@ -91,7 +91,8 @@ function DataGridColumnFilter<TData extends object, TValue>({
                     .filter((option) => selectedValues.has(option.value))
                     .map((option) => (
                       <Badge
-                        variant="secondary"
+                        tone="neutral"
+                        variant="fill"
                         key={option.value}
                         className="px-1 font-normal"
                       >

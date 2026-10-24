@@ -43,7 +43,7 @@ export function Pattern() {
           {nav.map((item) => (
             <Button
               key={item.id}
-              variant="outline"
+              variant="line"
               data-scrollspy-anchor={item.id}
               className={
                 "data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"

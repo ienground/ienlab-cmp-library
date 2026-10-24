@@ -1023,7 +1023,7 @@ function FilterChipImpl<V, O>({
           {rule.path.join(actions.labels.pathSeparator)}
         </ButtonGroupText>
         <Button
-          variant="outline"
+          variant="line"
           size={sizes.icon}
           className="bg-background dark:bg-input/30"
           aria-label={actions.labels.remove}
@@ -1176,7 +1176,7 @@ function FilterChipImpl<V, O>({
           {...filterReadOnlyProps(actions)}
         >
           <Button
-            variant="outline"
+            variant="line"
             size={sizes.icon}
             /* The same surface the three text segments force. Styles whose
                outline button is transparent in dark (sera, luma, rhea) left

@@ -6,7 +6,7 @@ export type IenTone =
   | "danger"
   | "info"
 
-export type IenVariant = "fill" | "weak" | "outline" | "clear"
+export type IenVariant = "fill" | "weak" | "line" | "ghost"
 
 export interface IenToneProps {
   /** CMP의 의미적 색상입니다. 생략하면 상위 컴포넌트의 tone을 따릅니다. */

@@ -9,7 +9,7 @@ const tones: IenTone[] = [
   "danger",
   "info",
 ]
-const variants: IenVariant[] = ["fill", "weak", "outline", "clear"]
+const variants: IenVariant[] = ["fill", "weak", "line", "ghost"]
 
 export function Pattern() {
   return (

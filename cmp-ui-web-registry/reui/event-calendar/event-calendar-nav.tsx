@@ -2,7 +2,7 @@
 // Description: Composable navigation - Today, prev/next, period title, view switcher dropdown, and a free toolbar slot.
 
 "use client"
-import type { IenToneProps } from "@/lib/ien-theme"
+import type { IenToneProps, IenVariant } from "@/lib/ien-theme"
 import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import {
@@ -50,7 +50,7 @@ import { IconPlaceholder } from "@/lib/reui-icons"
 /** Configured nav button variant/size (viewConfig.navButtonVariant/Size)
  *  plus the shared classNames.navButton hook, merged on every nav button. */
 function useNavButtonProps(): {
-  variant: "ghost" | "outline" | "secondary" | "default"
+  variant: IenVariant
   size: "sm" | "default"
   iconSize: "icon-sm" | "icon"
   className: string | undefined

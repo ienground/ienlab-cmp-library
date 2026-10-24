@@ -2140,7 +2140,7 @@ export type EmojiPickerTriggerProps = ComponentProps<typeof Button>
  */
 export function EmojiPickerTrigger({
   className,
-  variant = "outline",
+  variant = "line",
   size = "icon",
   children,
   ref,
@@ -3152,7 +3152,7 @@ export function EmojiPickerList({
             <EmptyContent>
               <Button
                 type="button"
-                variant="outline"
+                variant="line"
                 size="sm"
                 onClick={context.retry}
               >

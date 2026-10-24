@@ -1147,7 +1147,7 @@ export function FiltersRow({
         // `ms-auto` and not `ml-auto`, so Clear stays on the trailing edge
         // under RTL, where the whole bar mirrors.
         <Button
-          variant="outline"
+          variant="line"
           /* The same rung as the Add filter trigger beside it. */
           size={sizes.button}
           className="ms-auto"

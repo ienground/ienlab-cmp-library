@@ -892,7 +892,7 @@ export function TimePickerTrigger({
   tone: ienTone,
   useGradient: ienUseGradient,
   className,
-  variant = "outline",
+  variant = "line",
   placeholder,
   children,
   ref,
@@ -1843,7 +1843,7 @@ export function TimePickerConfirm({
   return (
     <Button
       type="button"
-      variant={variant ?? (context.requireConfirm ? "default" : "secondary")}
+      variant={variant ?? (context.requireConfirm ? "fill" : "weak")}
       size={size}
       disabled={context.disabled}
       data-slot="time-picker-confirm"

@@ -19,18 +19,12 @@ const alertVariants = cva(
       variant: {
         fill: "ien-fill",
         weak: "ien-weak",
-        outline: "ien-outline",
-        clear: "ien-clear",
-        default: "ien-weak",
-        destructive: "ien-weak",
-        info: "ien-weak",
-        success: "ien-weak",
-        warning: "ien-weak",
-        invert: "ien-fill",
+        line: "ien-outline",
+        ghost: "ien-clear",
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "weak",
     },
   },
 )
@@ -50,7 +44,7 @@ function Alert({
       data-ien=""
       data-ien-tone={resolveIenTone(ienTone, variant) ?? "neutral"}
       data-ien-gradient={ienUseGradient}
-      data-variant={variant ?? "default"}
+      data-variant={variant ?? "weak"}
       role="alert"
       className={cn(alertVariants({ variant }), className)}
       {...props}
@@ -94,7 +88,7 @@ function AlertDescription({
       data-ien-tone={ienTone}
       data-ien-gradient={ienUseGradient}
       className={cn(
-        "text-muted-foreground group-data-[variant=fill]/ien-alert:text-inherit group-data-[variant=invert]/ien-alert:text-inherit col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed",
+        "text-muted-foreground group-data-[variant=fill]/ien-alert:text-inherit col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed",
         className,
       )}
       {...props}

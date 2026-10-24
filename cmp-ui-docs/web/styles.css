@@ -1855,8 +1855,12 @@ body {
 .project-radius-sample {
   width: 3rem;
   height: 3rem;
-  background: var(--ien-brand-weak);
-  border: var(--ien-stroke-thin) solid var(--ien-brand);
+  overflow: visible;
+}
+.project-radius-sample path {
+  fill: var(--ien-brand-weak);
+  stroke: var(--ien-brand);
+  stroke-width: 1;
 }
 .project-spacing-sample {
   display: flex;

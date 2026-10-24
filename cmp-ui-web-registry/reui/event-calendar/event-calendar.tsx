@@ -2,7 +2,7 @@
 // Description: Headless-first event calendar with month, week, day, N-day and agenda views, external CRUD contract, and a subscribable store.
 
 "use client"
-import type { IenToneProps } from "@/lib/ien-theme"
+import type { IenToneProps, IenVariant } from "@/lib/ien-theme"
 import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import {
@@ -1488,7 +1488,7 @@ interface EventCalendarViewConfig<TData = unknown> {
    */
   scrollbars: "custom" | "native"
   /** Nav button variant; all nav buttons follow it. Default "ghost". */
-  navButtonVariant: "ghost" | "outline" | "secondary" | "default"
+  navButtonVariant: IenVariant
   /** Nav button size; icon buttons use the icon twin. Default "sm". */
   navButtonSize: "sm" | "default"
   /**

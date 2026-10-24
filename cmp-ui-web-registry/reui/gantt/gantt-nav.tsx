@@ -2,7 +2,7 @@
 // Description: Composable navigation - Today, view selector, prev/next, go-to-date, period title, and a free toolbar slot.
 
 "use client"
-import type { IenToneProps } from "@/lib/ien-theme"
+import type { IenToneProps, IenVariant } from "@/lib/ien-theme"
 import { useIenTheme } from "@/lib/ien-theme-context"
 
 import {
@@ -51,7 +51,7 @@ const GANTT_SCALES: GanttScale[] = ["day", "week", "month", "quarter", "year"]
 
 /** Configured nav button variant/size (viewConfig.navButtonVariant/Size). */
 function useNavButtonProps(): {
-  variant: "ghost" | "outline" | "secondary" | "default"
+  variant: IenVariant
   size: "sm" | "default"
   iconSize: "icon-sm" | "icon"
 } {

@@ -997,8 +997,8 @@ function DateSelectorPeriodGrid({
                   size="sm"
                   variant={
                     isSelected || isRangeStart || isRangeEnd
-                      ? "default"
-                      : "outline"
+                      ? "fill"
+                      : "line"
                   }
                   className={cn(
                     inRange &&
@@ -1063,7 +1063,7 @@ function DateSelectorYearList({
             key={year}
             size="sm"
             variant={
-              isSelected || isRangeStart || isRangeEnd ? "default" : "outline"
+              isSelected || isRangeStart || isRangeEnd ? "fill" : "line"
             }
             className={cn(
               inRange &&

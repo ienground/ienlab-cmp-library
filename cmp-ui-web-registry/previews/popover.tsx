@@ -13,7 +13,7 @@ export function Pattern() {
     <div className="flex items-center justify-center">
       <Popover tone="success">
         <PopoverTrigger asChild>
-          <Button variant="outline" className="w-fit">
+          <Button variant="line" className="w-fit">
             Open Popover
           </Button>
         </PopoverTrigger>

@@ -1191,7 +1191,7 @@ function SignaturePadClear({
   children,
   onClick,
   disabled,
-  variant = "outline",
+  variant = "line",
   size = "icon-sm",
   ...props
 }: SignaturePadControlProps) {
@@ -1231,7 +1231,7 @@ function SignaturePadUndo({
   children,
   onClick,
   disabled,
-  variant = "outline",
+  variant = "line",
   size = "icon-sm",
   ...props
 }: SignaturePadControlProps) {
@@ -1272,7 +1272,7 @@ function SignaturePadRedo({
   children,
   onClick,
   disabled,
-  variant = "outline",
+  variant = "line",
   size = "icon-sm",
   ...props
 }: SignaturePadControlProps) {
@@ -1317,7 +1317,7 @@ function SignaturePadSave({
   children,
   onClick,
   disabled,
-  variant = "outline",
+  variant = "line",
   size = "icon-sm",
   ...props
 }: SignaturePadControlProps & {

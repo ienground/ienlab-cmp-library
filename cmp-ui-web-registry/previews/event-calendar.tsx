@@ -533,7 +533,7 @@ export function Pattern() {
               <EventCalendarToolbar>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm">
+                    <Button variant="line" size="sm">
                       <IconPlaceholder
                         lucide="Settings2Icon"
                         tabler="IconAdjustmentsHorizontal"
@@ -772,7 +772,7 @@ export function Pattern() {
                       </TabsContent>
                     </Tabs>
                     <Button
-                      variant="outline"
+                      variant="line"
                       size="sm"
                       className="mt-4 w-full"
                       onClick={() => setSettings(DEFAULT_SETTINGS)}

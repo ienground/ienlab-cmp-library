@@ -14,7 +14,7 @@ export function Pattern() {
     <div className="flex items-center justify-center">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="w-fit">
+          <Button variant="line" className="w-fit">
             Open
           </Button>
         </DropdownMenuTrigger>

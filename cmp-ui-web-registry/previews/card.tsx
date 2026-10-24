@@ -24,7 +24,7 @@ export function Pattern() {
         </p>
       </CardContent>
       <CardFooter>
-        <Button variant="outline" className="w-full">
+        <Button variant="line" className="w-full">
           Action
         </Button>
       </CardFooter>

@@ -1521,7 +1521,7 @@ export function ColorPickerTrigger({
   tone: ienTone,
   useGradient: ienUseGradient,
   className,
-  variant = "outline",
+  variant = "line",
   placeholder,
   children,
   ref,

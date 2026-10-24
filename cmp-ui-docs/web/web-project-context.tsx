@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { useLocation } from "react-router";
+import { observeIenContinuousCorners } from "../../cmp-ui-web-registry/lib/ien-continuous-corners";
 import catalog from "./generated-project-presets.json";
 import {
   defaultProjectState,
@@ -65,6 +66,7 @@ function loadProjects() {
   }
 }
 export function WebProjectProvider({ children }: { children: ReactNode }) {
+  useEffect(() => observeIenContinuousCorners(), []);
   const [initial] = useState(loadProjects);
   const [state, setState] = useState<StoredProjects>(initial.state);
   const [storageError, setStorageError] = useState(initial.error);

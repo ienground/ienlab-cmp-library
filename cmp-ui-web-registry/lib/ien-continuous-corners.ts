@@ -1,0 +1,377 @@
+import {
+  createSvgEffects,
+  generatePath,
+  parseBorder,
+  type SvgEffectsHandle,
+  type SmoothCornerOptions,
+} from "@lisse/core";
+
+const selector =
+  '[data-ien], [data-slot], [class*="rounded"], .topbar, .search-box, .web-docs-disclosure, .project-preview-panel, .project-preview-components, .project-typography fieldset';
+let active: { users: number; stop: () => void } | undefined;
+
+/** 현재 문서의 연속 곡률을 적용하고 마지막 사용자가 해제하면 관찰을 종료합니다. */
+export function observeIenContinuousCorners(): () => void {
+  if (
+    typeof window === "undefined" ||
+    !window.CSS?.supports?.(
+      "clip-path",
+      'path(evenodd, "M0 0H1V1H0Z")',
+    )
+  )
+    return () => {};
+  if (!active) active = { users: 0, stop: start() };
+  const current = active;
+  current.users++;
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    current.users--;
+    if (!current.users) {
+      current.stop();
+      if (active === current) active = undefined;
+    }
+  };
+}
+
+function start() {
+  const elements = new Map<
+    HTMLElement,
+    {
+      original: Map<string, { value: string; priority: string }>;
+      applied: Map<string, string>;
+      signature: string;
+      writtenStyle: string | null;
+      renderer?: { handle: SvgEffectsHandle; svg: SVGSVGElement };
+    }
+  >();
+  const transitions = new Map<HTMLElement, Set<string>>();
+  let frame = 0;
+  function restore(
+    element: HTMLElement,
+    entry: {
+      original: Map<string, { value: string; priority: string }>;
+      applied: Map<string, string>;
+      renderer?: { handle: SvgEffectsHandle; svg: SVGSVGElement };
+    },
+  ) {
+    for (const [property, applied] of entry.applied) {
+      if (element.style.getPropertyValue(property) !== applied) continue;
+      const original = entry.original.get(property);
+      if (original?.value)
+        element.style.setProperty(property, original.value, original.priority);
+      else element.style.removeProperty(property);
+    }
+    entry.applied.clear();
+    entry.renderer?.handle.destroy();
+    entry.renderer = undefined;
+  }
+  function schedule() {
+    if (!frame) frame = requestAnimationFrame(draw);
+  }
+  const sizes = new ResizeObserver(schedule);
+  function collect(root: ParentNode) {
+    const candidates = [...root.querySelectorAll<HTMLElement>(selector)];
+    if (root instanceof HTMLElement && root.matches(selector))
+      candidates.push(root);
+    for (const element of candidates) {
+      if (!(element instanceof HTMLElement) || elements.has(element)) continue;
+      const style = getComputedStyle(element);
+      if (
+        style.clipPath !== "none" ||
+        style.borderImageSource !== "none" ||
+        (style.getPropertyValue("border-shape") || "none") !== "none"
+      )
+        continue;
+      const original = new Map(
+        [
+          "clip-path",
+          "corner-shape",
+          "border-image-source",
+          "border-image-slice",
+          "border-image-width",
+          "border-image-outset",
+          "border-image-repeat",
+        ].map((property) => [
+          property,
+          {
+            value: element.style.getPropertyValue(property),
+            priority: element.style.getPropertyPriority(property),
+          },
+        ]),
+      );
+      elements.set(element, {
+        original,
+        applied: new Map(),
+        signature: "",
+        writtenStyle: element.getAttribute("style"),
+      });
+      sizes.observe(element);
+    }
+  }
+  function draw() {
+    frame = 0;
+    const updates: (() => void)[] = [];
+    for (const [element, entry] of elements) {
+      if (!element.isConnected) {
+        restore(element, entry);
+        sizes.unobserve(element);
+        transitions.delete(element);
+        elements.delete(element);
+        continue;
+      }
+      const style = getComputedStyle(element);
+      if (
+        [...entry.applied].some(
+          ([property, value]) => element.style.getPropertyValue(property) !== value,
+        )
+      ) {
+        restore(element, entry);
+        sizes.unobserve(element);
+        elements.delete(element);
+        continue;
+      }
+      if (
+        !entry.applied.size &&
+        (style.clipPath !== "none" || style.borderImageSource !== "none")
+      )
+        continue;
+      const borders = [
+        style.borderTopWidth,
+        style.borderRightWidth,
+        style.borderBottomWidth,
+        style.borderLeftWidth,
+      ].map((value) => Number.parseFloat(value) || 0);
+      const [top, right, bottom, left] = borders;
+      const width =
+        Number.parseFloat(style.width) +
+        (style.boxSizing === "border-box"
+          ? 0
+          : left +
+            right +
+            (Number.parseFloat(style.paddingLeft) || 0) +
+            (Number.parseFloat(style.paddingRight) || 0));
+      const height =
+        Number.parseFloat(style.height) +
+        (style.boxSizing === "border-box"
+          ? 0
+          : top +
+            bottom +
+            (Number.parseFloat(style.paddingTop) || 0) +
+            (Number.parseFloat(style.paddingBottom) || 0));
+      const radii = [
+        style.borderTopLeftRadius,
+        style.borderTopRightRadius,
+        style.borderBottomRightRadius,
+        style.borderBottomLeftRadius,
+      ].map((value) => {
+        const [horizontal, vertical = horizontal] = value.split(" ");
+        return Math.max(
+          0,
+          Math.min(
+            horizontal.endsWith("%")
+              ? (Number.parseFloat(horizontal) * width) / 100
+              : Number.parseFloat(horizontal),
+            vertical.endsWith("%")
+              ? (Number.parseFloat(vertical) * height) / 100
+              : Number.parseFloat(vertical),
+          ),
+        );
+      });
+      const smoothingValue = Number.parseFloat(
+        style.getPropertyValue("--ien-control-corner-smoothing"),
+      );
+      const smoothing = Number.isFinite(smoothingValue)
+        ? Math.min(1, Math.max(0, smoothingValue))
+        : 1;
+      const unsupportedBorder = [
+        style.borderTopStyle,
+        style.borderRightStyle,
+        style.borderBottomStyle,
+        style.borderLeftStyle,
+      ].some((value) => !["none", "hidden", "solid"].includes(value));
+      const enabled =
+        width > left + right &&
+        height > top + bottom &&
+        radii.every(Number.isFinite) &&
+        radii.some((value) => value > 0) &&
+        !unsupportedBorder &&
+        style.getPropertyValue("--ien-control-corner-shape").trim() ===
+          "squircle";
+      const colors = [
+        style.borderTopColor,
+        style.borderRightColor,
+        style.borderBottomColor,
+        style.borderLeftColor,
+      ];
+      const signature = JSON.stringify([
+        enabled,
+        width,
+        height,
+        radii,
+        borders,
+        colors,
+        smoothing,
+      ]);
+      if (signature === entry.signature) continue;
+      entry.signature = signature;
+      if (!enabled) {
+        updates.push(() => {
+          restore(element, entry);
+          entry.writtenStyle = element.getAttribute("style");
+        });
+        continue;
+      }
+      const [topLeft, topRight, bottomRight, bottomLeft] = radii;
+      const options: SmoothCornerOptions = {
+        topLeft: { radius: topLeft, smoothing, preserveSmoothing: true },
+        topRight: { radius: topRight, smoothing, preserveSmoothing: true },
+        bottomRight: { radius: bottomRight, smoothing, preserveSmoothing: true },
+        bottomLeft: { radius: bottomLeft, smoothing, preserveSmoothing: true },
+      };
+      const outer = generatePath(width, height, options);
+      const uniform =
+        borders.every((value) => value === top) &&
+        colors.every((value) => value === colors[0]);
+      let borderImage: string | undefined;
+      if (uniform) {
+        if (!entry.renderer) {
+          const host = document.createElement("div");
+          const handle = createSvgEffects(host);
+          const svg = host.querySelector("svg");
+          if (!svg) throw new Error("연속 코너 SVG 렌더러를 초기화하지 못했습니다.");
+          entry.renderer = { handle, svg };
+        }
+        entry.renderer.handle.update(
+          options,
+          { innerBorder: parseBorder(element, style) },
+          width,
+          height,
+        );
+        const svg = new XMLSerializer().serializeToString(entry.renderer.svg);
+        borderImage = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+      }
+      // 요소 바깥은 남겨 포커스 링과 넘치는 콘텐츠를 보존하고 코너만 잘라냅니다.
+      const extent = Math.max(width, height) + 4096;
+      const clip = `M ${-extent} ${-extent} H ${width + extent} V ${height + extent} H ${-extent} Z M 0 0 H ${width} V ${height} H 0 Z ${outer}`;
+      const properties = new Map([
+        ["clip-path", `path(evenodd, "${clip}")`],
+        ["corner-shape", "round"],
+      ]);
+      if (borderImage) {
+        properties.set("border-image-source", borderImage);
+        properties.set("border-image-slice", "0 fill");
+        properties.set("border-image-width", "0");
+        properties.set("border-image-outset", "0");
+        properties.set("border-image-repeat", "stretch");
+      }
+      updates.push(() => {
+        for (const property of [...entry.applied.keys()]) {
+          if (properties.has(property)) continue;
+          const original = entry.original.get(property);
+          if (original?.value)
+            element.style.setProperty(property, original.value, original.priority);
+          else element.style.removeProperty(property);
+          entry.applied.delete(property);
+        }
+        for (const [property, value] of properties) {
+          element.style.setProperty(property, value);
+          entry.applied.set(property, element.style.getPropertyValue(property));
+        }
+        entry.writtenStyle = element.getAttribute("style");
+      });
+    }
+    for (const update of updates) update();
+    if (transitions.size) schedule();
+  }
+  const changes = new MutationObserver((records) => {
+    let dirty = false;
+    for (const record of records) {
+      if (
+        record.type === "attributes" &&
+        record.attributeName === "style" &&
+        record.target instanceof HTMLElement &&
+        elements.get(record.target)?.writtenStyle ===
+          record.target.getAttribute("style")
+      )
+        continue;
+      dirty = true;
+      if (
+        record.type === "attributes" &&
+        record.attributeName === "class" &&
+        record.target instanceof Element
+      )
+        collect(record.target);
+      for (const node of record.addedNodes)
+        if (node instanceof Element) collect(node);
+    }
+    if (dirty) schedule();
+  });
+  collect(document);
+  changes.observe(document.documentElement, {
+    subtree: true,
+    childList: true,
+    characterData: true,
+    attributes: true,
+    attributeFilter: [
+      "class",
+      "style",
+      "data-state",
+      "data-size",
+      "data-variant",
+      "data-orientation",
+      "open",
+      "disabled",
+    ],
+  });
+  schedule();
+  function transitionStart(event: TransitionEvent) {
+    if (
+      !(event.target instanceof HTMLElement) ||
+      !elements.has(event.target) ||
+      !/^(?:width|height|min-|max-|padding|border-.*(?:radius|width|color)|font-size|line-height|letter-spacing|gap)/.test(
+        event.propertyName,
+      )
+    )
+      return;
+    const properties = transitions.get(event.target) ?? new Set<string>();
+    properties.add(event.propertyName);
+    transitions.set(event.target, properties);
+    schedule();
+  }
+  function transitionEnd(event: TransitionEvent) {
+    if (event.target instanceof HTMLElement) {
+      const properties = transitions.get(event.target);
+      properties?.delete(event.propertyName);
+      if (!properties?.size) transitions.delete(event.target);
+    }
+    schedule();
+  }
+  window.addEventListener("resize", schedule, { passive: true });
+  document.addEventListener("transitionrun", transitionStart, true);
+  document.addEventListener("transitionend", transitionEnd, true);
+  document.addEventListener("transitioncancel", transitionEnd, true);
+  document.addEventListener("animationend", schedule, true);
+  document.addEventListener("focusin", schedule, true);
+  document.addEventListener("focusout", schedule, true);
+  document.addEventListener("pointerover", schedule, true);
+  document.addEventListener("pointerout", schedule, true);
+  return () => {
+    changes.disconnect();
+    sizes.disconnect();
+    cancelAnimationFrame(frame);
+    window.removeEventListener("resize", schedule);
+    document.removeEventListener("transitionrun", transitionStart, true);
+    document.removeEventListener("transitionend", transitionEnd, true);
+    document.removeEventListener("transitioncancel", transitionEnd, true);
+    document.removeEventListener("animationend", schedule, true);
+    document.removeEventListener("focusin", schedule, true);
+    document.removeEventListener("focusout", schedule, true);
+    document.removeEventListener("pointerover", schedule, true);
+    document.removeEventListener("pointerout", schedule, true);
+    for (const [element, entry] of elements) restore(element, entry);
+    elements.clear();
+    transitions.clear();
+  };
+}

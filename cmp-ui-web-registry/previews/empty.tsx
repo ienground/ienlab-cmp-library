@@ -24,9 +24,9 @@ export function Pattern() {
             <Button asChild>
               <a href="#">Create project</a>
             </Button>
-            <Button variant="outline">Import project</Button>
+            <Button variant="line">Import project</Button>
           </div>
-          <Button variant="link" asChild className="text-muted-foreground">
+          <Button variant="ghost" asChild className="text-muted-foreground underline-offset-4 hover:underline">
             <a href="#">
               Learn more{" "}
               <IconPlaceholder

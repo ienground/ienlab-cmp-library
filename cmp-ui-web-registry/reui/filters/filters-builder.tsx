@@ -291,7 +291,7 @@ export function FiltersBuilder<V, O>({
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
-            variant="outline"
+            variant="line"
             size={compact ? sizes.icon : sizes.button}
             aria-label={compact ? actions.labels.addFilter : undefined}
             /* THE RESET BOUNCE: the button's base class carries
