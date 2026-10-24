@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import org.koin.compose.koinInject
@@ -32,6 +33,9 @@ import zone.ien.utils.icon.material.rounded.Delete
 import zone.ien.utils.pref.PrefsGroup
 import zone.ien.utils.pref.PrefsScreen
 import zone.ien.utils.pref.PrefsScreenType
+import zone.ien.utils.pref.item.DatePickerPref
+import zone.ien.utils.pref.item.DurationPickerPref
+import zone.ien.utils.pref.item.TimePickerPref
 import zone.ien.utils.pref.item.DropdownPref
 import zone.ien.utils.pref.item.SwitchPref
 import zone.ien.utils.pref.item.TextFieldPref
@@ -85,6 +89,31 @@ fun SettingsScreen(
                 backdrop = backdrop,
                 modifier = Modifier.padding(pv)
             ) {
+                PrefsGroup(title = { Text("날짜와 시간") }) {
+                    DatePickerPref(
+                        title = "날짜",
+                        summary = { "선택한 날짜: $it ms" },
+                        key = longPreferencesKey("selected_date"),
+                        defaultValue = 1792800000000L,
+                        enabled = Pair(booleanPreferencesKey("test"), true),
+                    )
+                    TimePickerPref(
+                        title = "시각",
+                        summary = { "${it / 60}시 ${it % 60}분" },
+                        key = intPreferencesKey("selected_time"),
+                        defaultValue = 9 * 60,
+                        is24Hour = true,
+                        enabled = Pair(booleanPreferencesKey("test"), true),
+                    )
+                    DurationPickerPref(
+                        title = "기간",
+                        summary = { "${it / 3600}시간 ${it / 60 % 60}분 ${it % 60}초" },
+                        key = longPreferencesKey("selected_duration"),
+                        defaultValue = 300L,
+                        maxHours = 48,
+                        enabled = Pair(booleanPreferencesKey("test"), true),
+                    )
+                }
                 PrefsGroup(
                     title = { Text(text = "Pref Group") }
                 ) {
