@@ -293,6 +293,10 @@ const state = Object.fromEntries(Array.from(stateBlock.matchAll(/val (\w+): (?:F
 if (Object.keys(state).length !== Array.from(stateBlock.matchAll(/val \w+:/g)).length) {
   throw new Error("IenStateTokens 기본값을 읽지 못했습니다.");
 }
+webTokens.docs.meta = {
+  light: extractColorTokens("Light").background,
+  dark: extractColorTokens("Dark").background,
+};
 const designTokens = {
   spacing: dimensionTokens("IenSpacing"),
   radius: dimensionTokens("IenRadius"),
@@ -392,13 +396,16 @@ const registryManifest = JSON.parse(await readFile(registryManifestPath, "utf8")
 const ienThemeItem = registryManifest.items.find((item) => item.name === "ien-theme");
 if (!ienThemeItem) throw new Error("IEN 공통 테마 항목이 없습니다.");
 const themeAliases = {
-  background: "surface", foreground: "text-primary", card: "surface-raised", "card-foreground": "text-primary",
+  background: "background", foreground: "text-primary", card: "surface-raised", "card-foreground": "text-primary",
   popover: "surface-raised", "popover-foreground": "text-primary", primary: "brand", "primary-foreground": "on-brand",
   secondary: "surface-weak", "secondary-foreground": "text-primary", muted: "surface-weak", "muted-foreground": "text-secondary",
-  accent: "brand-weak", "accent-foreground": "brand", destructive: "danger", "destructive-foreground": "on-danger",
+  accent: "brand-weak", "accent-foreground": "on-brand-weak", destructive: "danger", "destructive-foreground": "on-danger",
   success: "success", "success-foreground": "on-success", warning: "warning", "warning-foreground": "on-warning",
   info: "info", "info-foreground": "on-info", invert: "text-primary", "invert-foreground": "surface",
   border: "border", input: "border", ring: "brand",
+  sidebar: "surface", "sidebar-foreground": "text-primary", "sidebar-primary": "brand",
+  "sidebar-primary-foreground": "on-brand", "sidebar-accent": "brand-weak",
+  "sidebar-accent-foreground": "on-brand-weak", "sidebar-border": "border", "sidebar-ring": "brand",
 };
 const aliases = Object.fromEntries(Object.entries(themeAliases).map(([name, role]) => [name, `var(--ien-${role})`]));
 ienThemeItem.cssVars = {

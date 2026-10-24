@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+import type { CSSProperties } from "react";
+import { Link } from "react-router";
 import { Button } from "./components/ui/button";
 import { Card } from "./components/ui/card";
 import { Input } from "./components/ui/input";
@@ -19,8 +21,15 @@ import {
 } from "./color-scheme";
 import type { ColorMode, ColorSchemes, IconStyle } from "./color-scheme";
 import { copyTextToClipboard } from "./clipboard";
+import { projectDefaults, useWebProject } from "./web-project-context";
+import { CodeBlock } from "../../cmp-ui-web-registry/reui/code-block/code-block";
 
 export const colorSchemeSections = [
+  { id: "cmp", label: "CMP 컬러 스킴" },
+  { id: "web", label: "웹 컬러 스킴" },
+];
+
+const cmpColorSchemeSections = [
   { id: "color-seeds", label: "기준 색상" },
   { id: "color-roles", label: "색상 역할" },
   { id: "color-contrast", label: "상태 색상과 대비" },
@@ -147,11 +156,13 @@ function ColorInput({
 }
 
 export function ColorSchemeBuilder({
+  view = "cmp",
   themeMode,
   iconStyle,
   onIconStyleChange,
   onApply,
 }: {
+  view?: string;
   themeMode: ColorMode;
   iconStyle: IconStyle;
   onIconStyleChange: (style: IconStyle) => void;
@@ -199,7 +210,9 @@ export function ColorSchemeBuilder({
     setMessage(`${appIdentifier}Theme.kt를 다운로드했습니다.`);
   }
   return (
-    <div className="color-builder">
+    <div>
+      <div hidden={view !== "cmp"}>
+      <div className="color-builder">
       <div className="panel-heading">
         <div>
           <p className="panel-kicker">THEME BUILDER</p>
@@ -252,7 +265,7 @@ export function ColorSchemeBuilder({
           </TabsList>
         </Tabs>
       </Card>
-      <Card id={colorSchemeSections[0].id} className="color-builder-card">
+      <Card id={cmpColorSchemeSections[0].id} className="color-builder-card">
         <h3>기준 색상</h3>
         <div className="color-seeds">
           {semanticGroups.map((group) => (
@@ -290,7 +303,7 @@ export function ColorSchemeBuilder({
         </Button>
       </Card>
       <Tabs
-        id={colorSchemeSections[1].id}
+        id={cmpColorSchemeSections[1].id}
         value={mode}
         onValueChange={(value) => {
           if (value === "light" || value === "dark") setMode(value);
@@ -341,7 +354,7 @@ export function ColorSchemeBuilder({
           </TabsContent>
         ))}
       </Tabs>
-      <Card id={colorSchemeSections[2].id} className="color-builder-card">
+      <Card id={cmpColorSchemeSections[2].id} className="color-builder-card">
         <h3>상태 색상과 대비</h3>
         <div
           className="color-swatches"
@@ -397,7 +410,7 @@ export function ColorSchemeBuilder({
           Compose 미리보기에 적용
         </Button>
       </Card>
-      <Card id={colorSchemeSections[3].id} className="color-builder-card">
+      <Card id={cmpColorSchemeSections[3].id} className="color-builder-card">
         <div className="color-code-heading">
           <h3>Kotlin 테마 코드</h3>
           <div className="color-actions">
@@ -418,10 +431,110 @@ export function ColorSchemeBuilder({
         <p role="status" aria-live="polite">
           {message}
         </p>
-        <pre className="api-signature color-code" tabIndex={0}>
-          <code>{highlightKotlin(code)}</code>
-        </pre>
+        <CodeBlock
+          className="color-code"
+          code={code}
+          language="kotlin"
+          label={`${appIdentifier}Theme.kt`}
+          variant="ghost"
+          defaultWrap
+        />
       </Card>
+      </div>
+      </div>
+      <div hidden={view !== "web"}>
+        <WebColorScheme themeMode={themeMode} />
+      </div>
     </div>
+  );
+}
+
+function WebColorScheme({ themeMode }: { themeMode: ColorMode }) {
+  const { project, projects, select } = useWebProject();
+  const [mode, setMode] = useState<ColorMode>(themeMode);
+  const values = {
+    ...projectDefaults.theme,
+    ...projectDefaults.light,
+    ...project.cssVars.theme,
+    ...project.cssVars.light,
+    ...(mode === "dark" ? projectDefaults.dark : {}),
+    ...(mode === "dark" ? project.cssVars.dark : {}),
+  };
+  const style = Object.fromEntries(
+    Object.entries(values).map(([name, value]) => [`--${name}`, value]),
+  ) as CSSProperties;
+  const groups = [
+    {
+      title: "CMP 색상 토큰",
+      names: colorRoles.map(
+        (role) => `ien-${role.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}`,
+      ),
+    },
+    {
+      title: "웹 색상 변수",
+      names: Object.keys(projectDefaults.light).filter(
+        (name) => !name.startsWith("ien-"),
+      ),
+    },
+  ];
+  return (
+    <Card id="web-color-scheme" className="color-builder-card">
+      <div className="color-code-heading">
+        <h3>웹 컬러 스킴</h3>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/projects">프로젝트 색상 편집</Link>
+        </Button>
+      </div>
+      <p className="color-hint">
+        선택한 웹 프로젝트에 실제 적용되는 CMP 토큰과 웹 색상 변수의 연결을 확인합니다.
+      </p>
+      <label className="playground-target">
+        웹 프로젝트
+        <select
+          className="playground-select"
+          aria-label="웹 컬러 스킴 프로젝트"
+          value={project.name}
+          onChange={(event) => select(event.target.value)}
+        >
+          {projects.map((entry) => (
+            <option key={entry.name} value={entry.name}>
+              {entry.title} · {entry.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      <Tabs
+        value={mode}
+        onValueChange={(value) => {
+          if (value === "light" || value === "dark") setMode(value);
+        }}
+      >
+        <TabsList aria-label="웹 컬러 스킴 모드">
+          <TabsTrigger value="light">라이트</TabsTrigger>
+          <TabsTrigger value="dark">다크</TabsTrigger>
+        </TabsList>
+      </Tabs>
+      <div className={mode} style={style}>
+        {groups.map((group) => (
+          <section key={group.title} className="space-y-4 mb-6">
+            <h4>{group.title}</h4>
+            <div className="color-roles">
+              {group.names.map((name) => (
+                <div key={name} className="min-w-0">
+                  <div
+                    className="color-swatch h-12 border border-input"
+                    style={{ background: `var(--${name})` }}
+                    role="img"
+                    aria-label={`${name} 색상`}
+                  />
+                  <code className="block break-all text-sm">--{name}</code>
+                  <code className="color-hint break-all">{values[name]}</code>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </Card>
   );
 }

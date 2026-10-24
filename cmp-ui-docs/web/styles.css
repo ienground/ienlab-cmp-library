@@ -128,8 +128,8 @@
   text-rendering: optimizeLegibility;
   --text-primary: var(--foreground);
   --text-secondary: var(--muted-foreground);
-  --text-tertiary: var(--muted-foreground);
-  --text-muted: var(--muted-foreground);
+  --text-tertiary: var(--ien-text-tertiary);
+  --text-muted: var(--ien-text-tertiary);
   --surface: var(--card);
   --canvas: var(--background);
   --surface-subtle: var(--muted);
@@ -143,9 +143,9 @@
   --accent-surface: var(--accent);
   --accent-text: var(--accent-foreground);
   --shadow: none;
-  --brand: var(--foreground);
-  --brand-soft: var(--sidebar-accent);
-  --brand-strong: var(--sidebar-accent-foreground);
+  --brand: var(--ien-brand);
+  --brand-soft: var(--ien-brand-weak);
+  --brand-strong: var(--ien-on-brand-weak);
   --sidebar-width: var(--docs-layout-sidebar-width);
   --api-width: var(--docs-layout-api-width);
 }

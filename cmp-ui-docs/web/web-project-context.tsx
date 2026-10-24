@@ -6,7 +6,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useLocation } from "react-router";
 import { observeIenContinuousCorners } from "../../cmp-ui-web-registry/lib/ien-continuous-corners";
 import catalog from "./generated-project-presets.json";
 import {
@@ -70,8 +69,6 @@ export function WebProjectProvider({ children }: { children: ReactNode }) {
   const [initial] = useState(loadProjects);
   const [state, setState] = useState<StoredProjects>(initial.state);
   const [storageError, setStorageError] = useState(initial.error);
-  const pathname = useLocation().pathname;
-  const enabled = pathname.startsWith("/web/") || pathname === "/projects";
   const projects = useMemo(
     () => [...publishedProjects, ...state.local],
     [state.local],
@@ -82,13 +79,12 @@ export function WebProjectProvider({ children }: { children: ReactNode }) {
   const project = useMemo(() => resolveProject(base, edits), [base, edits]);
   const css = useMemo(() => projectCss(project, projectDefaults), [project]);
   useEffect(() => {
-    if (!enabled) return;
     const style = document.createElement("style");
     style.dataset.ienProject = project.name;
     style.textContent = css;
     document.head.appendChild(style);
     return () => style.remove();
-  }, [enabled, project.name, css]);
+  }, [project.name, css]);
 
   function save(next: StoredProjects) {
     setState(next);

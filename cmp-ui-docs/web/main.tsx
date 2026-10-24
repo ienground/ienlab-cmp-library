@@ -330,30 +330,12 @@ function ComponentPage({
   useEffect(() => {
     if (!isColorSchemePage) return;
     setActiveColorSection(colorSchemeSections[0].id);
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) setActiveColorSection(entry.target.id);
-        }
-      },
-      { rootMargin: "-20% 0px -60% 0px", threshold: 0 },
-    );
-    for (const section of colorSchemeSections) {
-      const element = document.getElementById(section.id);
-      if (element) observer.observe(element);
-    }
-    return () => observer.disconnect();
   }, [isColorSchemePage]);
 
   function selectColorSection(id: string) {
     setActiveColorSection(id);
     setMobileNavigationOpen(false);
-    document.getElementById(id)?.scrollIntoView({
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-        ? "instant"
-        : "smooth",
-      block: "start",
-    });
+    window.scrollTo({ top: 0, behavior: "instant" });
   }
 
   const filteredCatalog = useMemo(() => {
@@ -601,7 +583,7 @@ function ComponentPage({
                   {isProjectsPage
                     ? "프로젝트별 디자인 토큰과 레지스트리 프리셋을 관리합니다."
                     : isColorSchemePage
-                    ? "IENLAB 테마의 색상을 만들고 Kotlin 코드로 내보냅니다."
+                    ? "CMP 색상 생성과 웹 프로젝트의 컬러 스킴을 확인합니다."
                     : activeComponent.description}
                 </p>
               </div>
@@ -742,6 +724,7 @@ function ComponentPage({
               aria-label="컬러 스킴 생성기"
             >
               <ColorSchemeBuilder
+                view={activeColorSection}
                 themeMode={resolvedTheme}
                 iconStyle={iconStyle}
                 onIconStyleChange={setIconStyle}
@@ -889,7 +872,7 @@ function SidebarContents({
     <div className="sidebar-content">
       <div className="sidebar-heading">
         <p className="toc-title">
-          (00) {isColorSchemePage ? "컬러 스킴" : isWebPage ? "웹 컴포넌트" : "컴포넌트"}
+          {isColorSchemePage ? "컬러 스킴" : isWebPage ? "(00) 웹 컴포넌트" : "(00) 컴포넌트"}
         </p>
         {!isColorSchemePage && (
           <Badge variant="secondary">{filteredCatalog.length}</Badge>
@@ -903,11 +886,11 @@ function SidebarContents({
               className="toc-link"
               variant="ghost"
               aria-current={
-                activeColorSection === section.id ? "location" : undefined
+                activeColorSection === section.id ? "page" : undefined
               }
               onClick={() => onColorSectionSelect(section.id)}
             >
-              <span>({String(index + 1).padStart(2, "0")})</span>
+              <span>({String(index).padStart(2, "0")})</span>
               {section.label}
             </Button>
           ))}
