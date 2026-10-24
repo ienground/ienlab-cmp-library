@@ -3,6 +3,7 @@
   "name": "ienlab",
   "homepage": "https://cmp.ien.zone",
   "include": [
-    "cmp-ui-web-registry/registry.json"
+    "cmp-ui-web-registry/registry.json",
+    "cmp-ui-web-registry/projects/registry.json"
   ]
 }

@@ -28,3 +28,5 @@ cmp-ui/MIGRATION.md
 cmp-ui-docs/web/generated-web-catalog.json
 cmp-ui-docs/tsconfig.registry.json
 cmp-ui-docs/web/generated-web-sources.json
+cmp-ui-docs/web/generated-project-presets.json
+cmp-ui-web-registry/projects/registry.json

@@ -12,8 +12,41 @@ import {
 } from "./registry.mjs";
 import { catalog } from "../web/catalog.js";
 import { resolveIenTone } from "../../cmp-ui-web-registry/lib/ien-theme.ts";
+import { createPlaygroundCatalog, instrumentPlayground } from "./playground.mjs";
 
 const repository = fileURLToPath(new URL("../../", import.meta.url));
+
+test("모든 웹 컴포넌트의 Playground와 실제 variant·상속 속성을 추출한다", async () => {
+  const items = await collectRegistry(path.join(repository, "registry.json"), repository);
+  const previews = Object.fromEntries(await Promise.all(items.filter((item) => item.meta?.preview).map(async (item) => [item.name, await readFile(path.resolve(path.dirname(item.manifestPath), item.meta.preview), "utf8")])));
+  const definitions = createPlaygroundCatalog(items, previews);
+  assert.equal(Object.keys(definitions).length, 52);
+  const button = definitions.button.targets[0];
+  assert.equal(button.name, "Button");
+  assert.deepEqual(button.props.find((prop) => prop.name === "tone").options, ["neutral", "brand", "success", "warning", "danger", "info"]);
+  for (const variant of ["fill", "weak", "outline", "clear"]) assert.ok(button.props.find((prop) => prop.name === "variant").options.includes(variant));
+  assert.equal(button.props.find((prop) => prop.name === "disabled").kind, "boolean");
+  assert.equal(button.props.find((prop) => prop.name === "useGradient").defaultValue, true);
+  assert.equal(definitions["number-field"].targets[0].props.find((prop) => prop.name === "min").kind, "number");
+  assert.equal(definitions.cascader.targets[0].props.find((prop) => prop.name === "multiple").kind, "boolean");
+  assert.equal(definitions["data-grid"].targets[0].props.find((prop) => prop.name === "table").kind, "reference");
+  for (const definition of Object.values(definitions)) {
+    assert.ok(definition.targets.length);
+    assert.ok(definition.edits.every((edit) => definition.targets.some((target) => target.key === edit.key)), "코드 조정 대상이 누락되었습니다.");
+    for (const target of definition.targets) for (const prop of target.props) {
+      if (prop.kind === "select") assert.ok(prop.options.length, `${target.name}.${prop.name}`);
+    }
+  }
+});
+
+test("문서 프리뷰의 실제 JSX 컴포넌트만 Playground에 연결한다", () => {
+  const source = 'import { Button as Action, buttonVariants, type ButtonProps } from "@/components/ui/button"; export default function Example(){return <Action>실행</Action>}';
+  const result = instrumentPlayground(source, "/web/playground.tsx");
+  assert.match(result, /Button as __playground_Action/);
+  assert.match(result, /const Action = __playgroundComponent/);
+  assert.doesNotMatch(result, /__playground_buttonVariants|__playground_ButtonProps/);
+  assert.deepEqual(sourceApi(result, "playground.tsx").names, []);
+});
 
 test("기존 variant를 CMP tone으로 해석하고 명시한 tone을 우선한다", () => {
   assert.equal(resolveIenTone(undefined, "destructive"), "danger");

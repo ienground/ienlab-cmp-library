@@ -1745,7 +1745,7 @@ body {
   font-display: swap;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .topbar {
     height: var(--docs-layout-header-height-small);
     grid-template-columns: 1fr auto;
@@ -1779,4 +1779,239 @@ body {
 .header-brand-name {
   font-family: var(--ien-font-mono);
   font-weight: var(--docs-font-weight-light);
+}
+
+.web-playground {
+  display: grid;
+  gap: var(--ien-spacing-xl);
+}
+.project-presets {
+  margin-bottom: var(--ien-spacing-lg);
+}
+.app-shell.projects-page {
+  grid-template-columns: minmax(0, 1fr);
+}
+.project-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--ien-spacing-xl);
+}
+.project-preview-panel {
+  position: sticky;
+  top: var(--docs-layout-page-top);
+  display: grid;
+  gap: var(--ien-spacing-lg);
+  min-width: 0;
+  max-height: calc(100dvh - var(--docs-layout-page-top) - var(--ien-spacing-md));
+  overflow: auto;
+  padding: var(--ien-spacing-lg);
+  border: var(--ien-stroke-thin) solid var(--ien-border);
+  border-radius: var(--ien-radius-lg);
+  background: var(--ien-surface);
+  color: var(--ien-text-primary);
+}
+.project-preview-panel > .playground-heading h2,
+.project-preview-panel > .playground-heading p,
+.project-preview-tokens > h3 {
+  margin: 0;
+}
+.project-preview-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ien-spacing-sm);
+}
+.project-preview-toolbar label,
+.project-preview-tokens,
+.project-type-sample {
+  display: grid;
+  min-width: 0;
+  gap: var(--ien-spacing-xs);
+}
+.project-preview-components {
+  overflow: auto;
+  padding: var(--ien-spacing-md);
+  min-height: 12rem;
+  border: var(--ien-stroke-thin) solid var(--ien-border);
+  border-radius: var(--ien-radius-default);
+}
+.project-type-sample {
+  overflow-wrap: anywhere;
+  padding-block: var(--ien-spacing-xs);
+  border-bottom: var(--ien-stroke-thin) solid var(--ien-border);
+}
+.project-type-sample > code,
+.project-radius-samples code,
+.project-spacing-sample > code {
+  font-size: var(--ien-font-size-caption);
+  color: var(--ien-text-secondary);
+}
+.project-radius-samples,
+.project-tone-samples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ien-spacing-sm);
+}
+.project-radius-sample {
+  width: 3rem;
+  height: 3rem;
+  background: var(--ien-brand-weak);
+  border: var(--ien-stroke-thin) solid var(--ien-brand);
+}
+.project-spacing-sample {
+  display: flex;
+  align-items: center;
+  gap: var(--ien-spacing-sm);
+}
+.project-spacing-sample code {
+  flex: 0 0 3rem;
+}
+.project-spacing-sample span {
+  display: block;
+  height: var(--ien-spacing-xs);
+  background: var(--ien-brand);
+}
+.project-tone-samples > div {
+  padding: var(--ien-spacing-sm);
+  border-radius: var(--ien-radius-sm);
+}
+@media (max-width: 1100px) {
+  .project-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .project-preview-panel {
+    position: static;
+    order: -1;
+    max-height: 65dvh;
+  }
+}
+.project-editor,
+.project-editor section,
+.project-token,
+.project-typography,
+.project-typography fieldset {
+  display: grid;
+  min-width: 0;
+  gap: var(--ien-spacing-sm);
+}
+.project-editor {
+  padding-block: var(--ien-spacing-md);
+}
+.project-editor h3,
+.project-editor p {
+  margin: 0;
+}
+.project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ien-spacing-xs);
+}
+.project-actions > input {
+  flex: 1 1 12rem;
+}
+.project-token code {
+  overflow-wrap: anywhere;
+  font-size: var(--ien-font-size-caption);
+  color: var(--ien-text-secondary);
+}
+.project-typography fieldset {
+  padding: var(--ien-spacing-sm);
+  border: var(--ien-stroke-thin) solid var(--ien-border);
+  border-radius: var(--ien-radius-sm);
+}
+.playground-panel {
+  display: grid;
+  gap: var(--ien-spacing-md);
+  min-width: 0;
+  padding: var(--ien-spacing-md);
+  border: var(--ien-stroke-thin) solid var(--ien-border);
+  border-radius: var(--ien-radius-lg);
+}
+.playground-heading,
+.playground-control-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ien-spacing-xs);
+}
+.playground-heading h3,
+.playground-heading p {
+  margin: 0;
+}
+.playground-heading p,
+.playground-control-heading > span,
+.playground-control-heading label span {
+  color: var(--ien-text-secondary);
+  font-size: var(--ien-font-size-caption);
+}
+.playground-heading label,
+.playground-target {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ien-spacing-xs);
+}
+.playground-select {
+  min-width: 0;
+  min-height: var(--ien-spacing-xxl);
+  padding: var(--ien-spacing-xxs) var(--ien-spacing-xs);
+  border: var(--ien-stroke-thin) solid var(--ien-border);
+  border-radius: var(--ien-radius-sm);
+  background: var(--ien-surface);
+  color: var(--ien-text-primary);
+  font: inherit;
+  font-size: var(--ien-font-size-body2);
+}
+.playground-select:focus-visible {
+  outline: var(--ien-control-focus-ring-width) solid var(--ien-brand);
+  outline-offset: var(--ien-spacing-xxxs);
+}
+.playground-preview {
+  display: flex;
+  justify-content: center;
+  overflow: auto;
+  min-height: 12rem;
+  padding: var(--ien-spacing-xl);
+}
+.playground-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: var(--ien-spacing-md);
+}
+.playground-control {
+  display: grid;
+  align-content: start;
+  gap: var(--ien-spacing-xs);
+  min-width: 0;
+}
+.playground-control-heading {
+  min-height: var(--ien-spacing-xxl);
+}
+.playground-control-heading label {
+  display: flex;
+  align-items: center;
+  gap: var(--ien-spacing-xs);
+  font-weight: var(--ien-font-weight-label1);
+}
+.playground-prop-type,
+.playground-events {
+  overflow-wrap: anywhere;
+  color: var(--ien-text-secondary);
+  font-size: var(--ien-font-size-caption);
+}
+.playground-prop-type {
+  max-height: 4rem;
+  overflow: auto;
+}
+.playground-json p {
+  color: var(--ien-danger);
+  font-size: var(--ien-font-size-caption);
+}
+.playground-events {
+  margin: 0;
+  max-height: 14rem;
+  overflow: auto;
+  padding-inline-start: var(--ien-spacing-lg);
 }

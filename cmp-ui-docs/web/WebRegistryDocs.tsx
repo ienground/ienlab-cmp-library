@@ -8,6 +8,8 @@ import {
 import { Link } from "react-router";
 import { CodeExample } from "./RegistryCodeExample";
 import { webCatalog } from "./web-registry";
+import { WebPlayground } from "./web-playground";
+import { useWebProject } from "./web-project-context";
 
 const previewModules = import.meta.glob<{ default: ComponentType }>(
   "../../cmp-ui-web-registry/**/previews/*.tsx",
@@ -46,12 +48,15 @@ function sourceComponent(path: string) {
   return sourceCache.get(path)!;
 }
 class PreviewBoundary extends Component<
-  { children: ReactNode },
+  { children: ReactNode; resetKey?: unknown },
   { error: string }
 > {
   state = { error: "" };
   static getDerivedStateFromError(error: Error) {
     return { error: error.message };
+  }
+  componentDidUpdate(previous: { resetKey?: unknown }) {
+    if (this.state.error && previous.resetKey !== this.props.resetKey) this.setState({ error: "" });
   }
   render() {
     return this.state.error ? (
@@ -61,13 +66,25 @@ class PreviewBoundary extends Component<
     );
   }
 }
+export function WebComponentPreview({ componentId, resetKey }: { componentId: string; resetKey?: unknown }) {
+  const item = webCatalog.find((entry) => entry.id === componentId);
+  const Preview = item && previews[item.preview];
+  return (
+    <PreviewBoundary key={componentId} resetKey={resetKey}>
+      <Suspense fallback={<p role="status">프리뷰를 불러오는 중입니다.</p>}>
+        {Preview ? <Preview /> : <p role="alert">연결된 프리뷰가 없습니다.</p>}
+      </Suspense>
+    </PreviewBoundary>
+  );
+}
 export function WebRegistryDocs({
   componentId,
   tab,
 }: {
   componentId: string;
-  tab: "preview" | "registry";
+  tab: "preview" | "playground" | "registry";
 }) {
+  const { project, published, dirty } = useWebProject();
   const item = webCatalog.find((entry) => entry.id === componentId);
   if (!item) return <p role="alert">컴포넌트를 찾을 수 없습니다.</p>;
   const Preview = previews[item.preview];
@@ -81,26 +98,20 @@ export function WebRegistryDocs({
       <div className="panel-heading">
         <div>
           <p className="panel-kicker">
-            {tab === "preview" ? "LIVE WEB COMPONENT" : "SHADCN REGISTRY"}
+            {tab === "preview" ? "LIVE WEB COMPONENT" : tab === "playground" ? "COMPONENT PLAYGROUND" : "SHADCN REGISTRY"}
           </p>
           <h2>{item.name}</h2>
           <p>{item.description}</p>
         </div>
       </div>
-      {tab === "preview" ? (
+      {tab === "playground" && Preview ? (
+        <WebPlayground definition={item.playground} source={item.playground.example} Preview={Preview} renderPreview={(preview, resetKey) => (
+          <PreviewBoundary resetKey={resetKey}><Suspense fallback={<p role="status">프리뷰를 불러오는 중입니다.</p>}>{preview}</Suspense></PreviewBoundary>
+        )} />
+      ) : tab === "preview" ? (
         <>
           <div className="web-component-preview min-h-48 overflow-auto rounded-ien-lg border border-ien-border p-ien-xl">
-            <PreviewBoundary key={item.id}>
-              <Suspense
-                fallback={<p role="status">프리뷰를 불러오는 중입니다.</p>}
-              >
-                {Preview ? (
-                  <Preview />
-                ) : (
-                  <p role="alert">연결된 프리뷰가 없습니다.</p>
-                )}
-              </Suspense>
-            </PreviewBoundary>
+            <WebComponentPreview componentId={item.id} />
           </div>
           <CodeExample label="사용 예시" code={item.example} />
           <details className="web-docs-disclosure">
@@ -126,6 +137,7 @@ export function WebRegistryDocs({
             }
           />
           <CodeExample label="컴포넌트 설치" code={item.installCommand} />
+          {published && !dirty && <CodeExample label={`${project.title} 프로젝트 적용`} code={`npx shadcn@latest add @ienlab/${project.name}`} />}
           <p>
             React · Next.js 프로젝트에 shadcn/ui를 초기화한 뒤 설치합니다.
             REUI 원본 컴포넌트와 아래 내부 의존성은 CLI가 함께 설치합니다.

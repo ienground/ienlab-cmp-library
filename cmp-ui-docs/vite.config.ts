@@ -4,6 +4,7 @@ import { defineConfig, type UserConfig } from "vite";
 import { fileURLToPath } from "node:url";
 import { readFileSync } from "node:fs";
 import { collectRegistry, registryModuleAliases } from "./scripts/registry.mjs";
+import { instrumentPlayground } from "./scripts/playground.mjs";
 
 const runtimeDependencies = Object.keys(
   JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8"))
@@ -27,7 +28,14 @@ export default defineConfig(async ({ command }) => {
   return {
     root: "web",
     base: "/",
-    plugins: [react(), tailwindcss()],
+    plugins: [{
+      name: "web-component-playground",
+      enforce: "pre",
+      transform(source, id) {
+        if (!id.replaceAll("\\", "/").includes("/cmp-ui-web-registry/previews/") || !id.endsWith(".tsx")) return;
+        return { code: instrumentPlayground(source, fileURLToPath(new URL("./web/web-playground.tsx", import.meta.url)), id.split("/").at(-1)?.replace(/\.tsx$/, "")), map: null };
+      },
+    }, react(), tailwindcss()],
     define: {
       "import.meta.env.VITE_LIBRARY_VERSION": JSON.stringify(libraryVersion),
     },

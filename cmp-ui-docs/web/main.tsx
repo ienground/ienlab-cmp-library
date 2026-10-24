@@ -58,6 +58,7 @@ import {
 import { composeColorQuery } from "./color-scheme";
 import type { ColorSchemes, IconStyle } from "./color-scheme";
 import "./styles.css";
+import { WebProjectProvider } from "./web-project-context";
 
 const SkeletonComposer = lazy(() =>
   import("./SkeletonComposer").then(({ SkeletonComposer: component }) => ({
@@ -67,6 +68,11 @@ const SkeletonComposer = lazy(() =>
 
 const WebRegistryDocs = lazy(() =>
   import("./WebRegistryDocs").then(({ WebRegistryDocs: component }) => ({
+    default: component,
+  })),
+);
+const WebProjects = lazy(() =>
+  import("./WebProjects").then(({ WebProjects: component }) => ({
     default: component,
   })),
 );
@@ -88,7 +94,7 @@ interface ApiDocumentationEntry {
   parameters: ApiParameterDocumentation[];
 }
 
-type PreviewTab = "preview" | "composer" | "api" | "registry";
+type PreviewTab = "preview" | "playground" | "composer" | "api" | "registry";
 type ThemeMode = "light" | "dark" | "system";
 type ResolvedTheme = Exclude<ThemeMode, "system">;
 
@@ -181,37 +187,39 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<InitialRedirect />} path="/" />
-        <Route
-          element={
-            <ComponentPage
-              onThemeModeChange={changeThemeMode}
-              resolvedTheme={resolvedTheme}
-              themeMode={themeMode}
-            />
-          }
-          path="/:section/:componentId?/:page?"
-        />
-        <Route
-          element={
-            <Navigate
-              replace
-              to={`/components/${defaultComponentId}/preview`}
-            />
-          }
-          path="/components"
-        />
-        <Route
-          element={
-            <Navigate
-              replace
-              to={`/components/${defaultComponentId}/preview`}
-            />
-          }
-          path="*"
-        />
-      </Routes>
+      <WebProjectProvider>
+        <Routes>
+          <Route element={<InitialRedirect />} path="/" />
+          <Route
+            element={
+              <ComponentPage
+                onThemeModeChange={changeThemeMode}
+                resolvedTheme={resolvedTheme}
+                themeMode={themeMode}
+              />
+            }
+            path="/:section/:componentId?/:page?"
+          />
+          <Route
+            element={
+              <Navigate
+                replace
+                to={`/components/${defaultComponentId}/preview`}
+              />
+            }
+            path="/components"
+          />
+          <Route
+            element={
+              <Navigate
+                replace
+                to={`/components/${defaultComponentId}/preview`}
+              />
+            }
+            path="*"
+          />
+        </Routes>
+      </WebProjectProvider>
     </BrowserRouter>
   );
 }
@@ -244,7 +252,10 @@ function ComponentPage({
 }) {
   const { section, componentId: requestedComponentId, page } = useParams();
   const navigate = useNavigate();
-  const isColorSchemePage = useLocation().pathname === "/color-scheme";
+  const pathname = useLocation().pathname;
+  const isColorSchemePage = pathname === "/color-scheme";
+  const isProjectsPage = pathname === "/projects";
+  const isSettingsPage = isColorSchemePage || isProjectsPage;
   const isWebPage = section === "web";
   const [headerScrolled, setHeaderScrolled] = useState(false);
   const [activeColorSection, setActiveColorSection] = useState(
@@ -264,9 +275,9 @@ function ComponentPage({
       (isWebPage ? webCatalog : catalog).find(
         (item) =>
           item.id ===
-          (isColorSchemePage ? lastComponentId : requestedComponentId),
+          (isSettingsPage ? lastComponentId : requestedComponentId),
       ),
-    [requestedComponentId, isColorSchemePage, lastComponentId, isWebPage],
+    [requestedComponentId, isSettingsPage, lastComponentId, isWebPage],
   );
   useEffect(() => {
     const updateHeader = () => setHeaderScrolled(window.scrollY > 24);
@@ -314,7 +325,7 @@ function ComponentPage({
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
-  }, [requestedComponentId, isColorSchemePage]);
+  }, [requestedComponentId, isSettingsPage, pathname]);
 
   useEffect(() => {
     if (!isColorSchemePage) return;
@@ -414,9 +425,9 @@ function ComponentPage({
 
   if (
     !activeComponent ||
-    (!isColorSchemePage &&
+    (!isSettingsPage &&
       (isWebPage
-        ? page !== "preview" && page !== "registry"
+        ? page !== "preview" && page !== "playground" && page !== "registry"
         : section !== "components" ||
           (page !== "preview" &&
             page !== "api" &&
@@ -428,7 +439,7 @@ function ComponentPage({
   }
 
   const activeTab: PreviewTab =
-    page === "registry" ? "registry" : page === "api" ? "api" : page === "composer" ? "composer" : "preview";
+    page === "playground" ? "playground" : page === "registry" ? "registry" : page === "api" ? "api" : page === "composer" ? "composer" : "preview";
   const composeUrl =
     import.meta.env.BASE_URL +
     "compose/index.html?component=" +
@@ -466,7 +477,7 @@ function ComponentPage({
           <Button
             asChild
             variant="ghost"
-            aria-current={!isColorSchemePage && !isWebPage ? "page" : undefined}
+            aria-current={!isSettingsPage && !isWebPage ? "page" : undefined}
           >
             <Link
               to={`/components/${isWebPage ? webCatalog.find((item) => item.id === activeComponent.id)?.cmpId || lastComponentId : activeComponent.id}/preview`}
@@ -489,6 +500,15 @@ function ComponentPage({
               컬러 스킴
             </Link>
           </Button>
+          <Button
+            asChild
+            variant="ghost"
+            aria-current={isProjectsPage ? "page" : undefined}
+          >
+            <Link to="/projects" onClick={selectComponent}>
+              프로젝트 설정
+            </Link>
+          </Button>
         </nav>
         <Link
           className="header-brand"
@@ -504,7 +524,7 @@ function ComponentPage({
           </span>
         </Link>
         <div className="topbar-actions">
-          <Button
+          {!isProjectsPage && <Button
             aria-expanded={mobileNavigationOpen}
             aria-label="탐색 메뉴 열기"
             className="mobile-menu-button rounded-xl border"
@@ -513,7 +533,7 @@ function ComponentPage({
             variant="ghost"
           >
             <Menu aria-hidden="true" />
-          </Button>
+          </Button>}
 
           <Button
             aria-label={`${nextThemeModeLabel}로 전환`}
@@ -549,10 +569,10 @@ function ComponentPage({
       </header>
       <div
         className={
-          isColorSchemePage ? "app-shell color-scheme-page" : "app-shell"
+          isProjectsPage ? "app-shell projects-page" : isColorSchemePage ? "app-shell color-scheme-page" : "app-shell"
         }
       >
-        <Sidebar
+        {!isProjectsPage && <Sidebar
           isWebPage={isWebPage}
           isColorSchemePage={isColorSchemePage}
           activeColorSection={activeColorSection}
@@ -565,32 +585,39 @@ function ComponentPage({
           onQueryChange={setQuery}
           onSelect={selectComponent}
           query={query}
-        />
+        />}
 
         <div className="main-column">
           <main className="main-content">
             <div className="page-heading">
               <div className="page-heading-copy">
                 <p className="eyebrow">
-                  {isColorSchemePage ? "THEME BUILDER" : isWebPage ? "WEB COMPONENT REGISTRY" : "COMPONENT LIBRARY"}
+                  {isProjectsPage ? "PROJECT SETTINGS" : isColorSchemePage ? "THEME BUILDER" : isWebPage ? "WEB COMPONENT REGISTRY" : "COMPONENT LIBRARY"}
                 </p>
                 <h1>
-                  {isColorSchemePage ? "ColorScheme" : activeComponent.name}
+                  {isProjectsPage ? "프로젝트 설정" : isColorSchemePage ? "ColorScheme" : activeComponent.name}
                 </h1>
                 <p className="component-description">
-                  {isColorSchemePage
+                  {isProjectsPage
+                    ? "프로젝트별 디자인 토큰과 레지스트리 프리셋을 관리합니다."
+                    : isColorSchemePage
                     ? "IENLAB 테마의 색상을 만들고 Kotlin 코드로 내보냅니다."
                     : activeComponent.description}
                 </p>
               </div>
-              {!isColorSchemePage && (
+              {!isSettingsPage && (
                 <Badge className="component-count" variant="secondary">
                   {`${isWebPage ? webCatalog.length : catalog.length} components`}
                 </Badge>
               )}
             </div>
 
-            {!isColorSchemePage && (
+            {isProjectsPage && (
+              <Suspense fallback={<p role="status">프로젝트 설정을 불러오는 중입니다.</p>}>
+                <WebProjects theme={resolvedTheme} onThemeChange={onThemeModeChange} />
+              </Suspense>
+            )}
+            {!isSettingsPage && (
               <Tabs
                 aria-label="콘텐츠 보기 방식"
                 className="view-tabs-root"
@@ -598,7 +625,7 @@ function ComponentPage({
                   if (
                     value === "preview" ||
                     (isWebPage
-                      ? value === "registry"
+                      ? value === "registry" || value === "playground"
                       : value === "api" || (value === "composer" && activeComponent.id === "skeleton"))
                   ) {
                     navigate(`/${isWebPage ? "web" : "components"}/${activeComponent.id}/${value}`);
@@ -610,6 +637,7 @@ function ComponentPage({
                   <TabsTrigger className="view-tab" value="preview">
                     {isWebPage ? "웹 프리뷰" : "Preview"}
                   </TabsTrigger>
+                  {isWebPage && <TabsTrigger className="view-tab" value="playground">Playground</TabsTrigger>}
                   {!isWebPage && activeComponent.id === "skeleton" && (
                     <TabsTrigger className="view-tab" value="composer">
                       조합기
@@ -626,7 +654,7 @@ function ComponentPage({
                       <WebRegistryDocs
                         key={activeComponent.id}
                         componentId={activeComponent.id}
-                        tab={activeTab === "registry" ? "registry" : "preview"}
+                        tab={activeTab === "registry" ? "registry" : activeTab === "playground" ? "playground" : "preview"}
                       />
                     </Suspense>
                   </TabsContent>

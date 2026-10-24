@@ -1,4 +1,4 @@
-import { access, mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { catalog } from "../web/catalog.js";
@@ -440,15 +440,37 @@ await writeFile(
 );
 
 const { collectRegistry, validateRegistry, createWebCatalog, registryModuleAliases, sourceApi } = await import("./registry.mjs");
+const { registryItemSchema } = await import("@shadcn/registry/schema");
+const { parseProject, projectRegistryItem } = await import("../web/project-presets.ts");
+const projectsDirectory = path.join(repositoryDirectory, "cmp-ui-web-registry/projects");
+const projectItems = await Promise.all(
+  (await readdir(projectsDirectory))
+    .filter((file) => file.endsWith(".json") && file !== "registry.json")
+    .sort()
+    .map(async (file) => {
+      const source = JSON.parse(await readFile(path.join(projectsDirectory, file), "utf8"));
+      const item = registryItemSchema.parse(projectRegistryItem(parseProject(source)));
+      if (file !== `${item.name}.json`) throw new Error(`${file}: 파일명은 ${item.name}.json이어야 합니다.`);
+      return item;
+    }),
+);
+if (!projectItems.length) throw new Error("프로젝트 프리셋이 없습니다.");
+projectItems.sort((a, b) => (a.meta?.order ?? Infinity) - (b.meta?.order ?? Infinity) || a.name.localeCompare(b.name));
+await writeFile(path.join(projectsDirectory, "registry.json"), JSON.stringify({ "$schema": "https://ui.shadcn.com/schema/registry.json", items: projectItems }, null, 2) + "\n");
 const allItems = await collectRegistry(path.join(repositoryDirectory, "registry.json"), repositoryDirectory);
 validateRegistry(allItems);
+await writeFile(path.join(projectDirectory, "web/generated-project-presets.json"), JSON.stringify({ projects: projectItems, defaults: ienThemeItem.cssVars, names: allItems.map((item) => item.name) }, null, 2) + "\n");
+const { createPlaygroundCatalog } = await import("./playground.mjs");
+const playgroundPreviews = Object.fromEntries(await Promise.all(allItems.filter((item) => item.meta?.preview).map(async (item) => [item.name, await readFile(path.resolve(path.dirname(item.manifestPath), item.meta.preview), "utf8")])));
+const playgrounds = createPlaygroundCatalog(allItems, playgroundPreviews);
 const registryVariables = { theme: {}, light: {}, dark: {} };
 for (const item of allItems) {
+  if (item.type === "registry:base") continue;
   for (const mode of Object.keys(registryVariables)) Object.assign(registryVariables[mode], item.cssVars?.[mode]);
 }
 const tokenCssFile = path.join(projectDirectory, "web/generated-design-tokens.css");
 await writeFile(tokenCssFile, (await readFile(tokenCssFile, "utf8")) + `\n:root {\n${declarations(registryVariables.light)}\n}\n.dark {\n${declarations(registryVariables.dark)}\n}\n@theme inline {\n${declarations(registryVariables.theme)}\n}\n`);
-await writeFile(path.join(projectDirectory, "web/generated-web-catalog.json"), JSON.stringify(createWebCatalog(allItems, catalog, repositoryDirectory), null, 2) + "\n");
+await writeFile(path.join(projectDirectory, "web/generated-web-catalog.json"), JSON.stringify(createWebCatalog(allItems, catalog, repositoryDirectory).map((item) => ({ ...item, playground: playgrounds[item.id] })), null, 2) + "\n");
 const modulePaths = Object.fromEntries(Object.entries(registryModuleAliases(allItems)).map(([name, source]) => [name, [path.relative(projectDirectory, source)]]));
 const packageImports = new Set();
 for (const item of allItems) {
