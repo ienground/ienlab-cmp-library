@@ -1,85 +1,28 @@
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export function Pattern() {
   return (
-    <div className="flex w-full max-w-xs flex-col gap-6">
-      <Tabs tone="info" defaultValue="account">
-        <TabsList>
-          <TabsTrigger value="account">Account</TabsTrigger>
-          <TabsTrigger value="password">Password</TabsTrigger>
+    <div className="flex w-full max-w-lg flex-col gap-6">
+      <Tabs defaultValue="summary" size="large" fluid={false} ariaLabel="주문 정보 탭">
+        <TabsList aria-label="주문 정보 탭">
+          <TabsTrigger value="summary">요약</TabsTrigger>
+          <TabsTrigger value="detail" badge={-1}>상세</TabsTrigger>
+          <TabsTrigger value="history" badge={120}>내역</TabsTrigger>
         </TabsList>
-        <TabsContent value="account">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Account</CardTitle>
-              <CardDescription className="text-sm">
-                Update your account information.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm">
-                  Name
-                </Label>
-                <Input id="name" defaultValue="Sarah Johnson" className="h-9" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="username" className="text-sm">
-                  Username
-                </Label>
-                <Input id="username" defaultValue="@sarahj" className="h-9" />
-              </div>
-            </CardContent>
-            <CardFooter className="pt-3">
-              <Button size="sm">Save changes</Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-        <TabsContent value="password">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Password</CardTitle>
-              <CardDescription className="text-sm">
-                Change your password here.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="current" className="text-sm">
-                  Current password
-                </Label>
-                <Input id="current" type="password" className="h-9" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="new" className="text-sm">
-                  New password
-                </Label>
-                <Input id="new" type="password" className="h-9" />
-              </div>
-            </CardContent>
-            <CardFooter className="pt-3">
-              <Button size="sm">Update password</Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
+        <TabsContent value="summary">주문 요약을 확인합니다.</TabsContent>
+        <TabsContent value="detail">상세 정보를 확인합니다.</TabsContent>
+        <TabsContent value="history">이전 내역을 확인합니다.</TabsContent>
       </Tabs>
+      <Tabs size="small" fluid ariaLabel="가로 스크롤 탭"
+        items={[
+          { text: "전체", key: "all" },
+          { text: "진행 중인 주문", key: "progress", badge: 8 },
+          { text: "배송을 기다리는 주문", key: "waiting", redBean: true },
+          { text: "완료된 주문", key: "complete" },
+          { text: "취소된 주문", key: "cancelled" },
+          { text: "사용할 수 없음", key: "disabled", enabled: false },
+        ]} />
     </div>
   )
 }
-export default Pattern;
+export default Pattern

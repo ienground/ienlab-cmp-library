@@ -570,21 +570,13 @@ body {
 }
 
 .view-tabs {
-  gap: var(--ien-spacing-xxs);
   width: fit-content;
-  height: 36px;
+  max-width: 100%;
   margin-bottom: var(--ien-spacing-md);
-  padding: var(--ien-spacing-xxs);
-  background: var(--muted);
-  border-radius: var(--radius);
 }
 
 .view-tab {
-  color: var(--text-tertiary);
-  padding: 0 var(--ien-spacing-md);
-  font-size: var(--ien-font-size-label2);
-  font-weight: var(--docs-font-weight-medium);
-  border-radius: var(--radius-md);
+  padding-inline: var(--ien-spacing-md);
 }
 
 .content-panel {

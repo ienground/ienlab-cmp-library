@@ -6,6 +6,43 @@ import {
   type SmoothCornerOptions,
 } from "@lisse/core";
 
+/** CMP capsule 2.1.4의 G2Continuity 기본 캡슐 곡선을 SVG로 옮깁니다. */
+function capsulePath(width: number, height: number): string {
+  const vertical = width < height;
+  const w = Math.max(width, height);
+  const h = Math.min(width, height);
+  const r = h / 2;
+  const point = (x: number, y: number) => vertical ? `${y} ${x}` : `${x} ${y}`;
+  const arc = (x: number, y: number) => `A ${r} ${r} 0 0 ${vertical ? 0 : 1} ${point(x, y)}`;
+  if (w === h) return `M ${point(r, 0)} ${arc(r, h)} ${arc(r, 0)} Z`;
+  const extension = 0.5286651 * 0.75;
+  const ratio = Math.min(1, Math.max(0, (w / h - 1) / extension));
+  const offset = extension * ratio;
+  const curvature = 1 + (1.0732051 - 1) * ratio;
+  const sin = Math.SQRT1_2;
+  const cos = Math.SQRT1_2;
+  const dy = 1 - cos;
+  const c2 = dy * cos - (sin + offset) * sin;
+  const lambda0 = -c2 / sin - 1.5 * curvature * dy * dy / (sin * sin * sin);
+  const lambda3 = dy / sin;
+  const p1 = (-offset + Math.max(0, lambda0)) * r;
+  const p2x = (sin - Math.max(0, lambda3 * cos)) * r;
+  const p2y = (dy - Math.max(0, lambda3 * sin)) * r;
+  const p3x = sin * r;
+  const p3y = dy * r;
+  const e = offset * r;
+  return [
+    `M ${point(r + e, 0)} L ${point(w - r - e, 0)}`,
+    `C ${point(w - r + p1, 0)} ${point(w - r + p2x, p2y)} ${point(w - r + p3x, p3y)}`,
+    arc(w - r + p3x, h - p3y),
+    `C ${point(w - r + p2x, h - p2y)} ${point(w - r + p1, h)} ${point(w - r - e, h)}`,
+    `L ${point(r + e, h)}`,
+    `C ${point(r - p1, h)} ${point(r - p2x, h - p2y)} ${point(r - p3x, h - p3y)}`,
+    arc(r - p3x, p3y),
+    `C ${point(r - p2x, p2y)} ${point(r - p1, 0)} ${point(r + e, 0)} Z`,
+  ].join(" ");
+}
+
 const selector =
   '[data-ien], [data-slot], [class*="rounded"], .topbar, .search-box, .web-docs-disclosure, .project-preview-panel, .project-preview-components, .project-typography fieldset';
 let active: { users: number; stop: () => void } | undefined;
@@ -89,6 +126,7 @@ function start() {
         [
           "clip-path",
           "corner-shape",
+          "border-radius",
           "border-image-source",
           "border-image-slice",
           "border-image-width",
@@ -161,12 +199,14 @@ function start() {
             bottom +
             (Number.parseFloat(style.paddingTop) || 0) +
             (Number.parseFloat(style.paddingBottom) || 0));
+      const isCapsule = element.dataset.ienShape === "capsule";
       const radii = [
         style.borderTopLeftRadius,
         style.borderTopRightRadius,
         style.borderBottomRightRadius,
         style.borderBottomLeftRadius,
       ].map((value) => {
+        if (isCapsule) return Math.min(width, height) / 2;
         const [horizontal, vertical = horizontal] = value.split(" ");
         return Math.max(
           0,
@@ -198,8 +238,7 @@ function start() {
         radii.every(Number.isFinite) &&
         radii.some((value) => value > 0) &&
         !unsupportedBorder &&
-        style.getPropertyValue("--ien-control-corner-shape").trim() ===
-          "squircle";
+        (isCapsule || style.getPropertyValue("--ien-control-corner-shape").trim() === "squircle");
       const colors = [
         style.borderTopColor,
         style.borderRightColor,
@@ -214,10 +253,11 @@ function start() {
         borders,
         colors,
         smoothing,
+        isCapsule,
       ]);
       if (signature === entry.signature) continue;
       entry.signature = signature;
-      if (!enabled || (supportsNativeCorners && smoothing === 1)) {
+      if (!enabled || (supportsNativeCorners && smoothing === 1 && !isCapsule)) {
         updates.push(() => {
           restore(element, entry);
           entry.writtenStyle = element.getAttribute("style");
@@ -231,12 +271,15 @@ function start() {
         bottomRight: { radius: bottomRight, smoothing, preserveSmoothing: true },
         bottomLeft: { radius: bottomLeft, smoothing, preserveSmoothing: true },
       };
-      const outer = generatePath(width, height, options);
+      const outer = isCapsule ? capsulePath(width, height) : generatePath(width, height, options);
       const uniform =
         borders.every((value) => value === top) &&
         colors.every((value) => value === colors[0]);
       let borderImage: string | undefined;
-      if (uniform) {
+      if (uniform && isCapsule) {
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><defs><clipPath id="capsule"><path d="${outer}"/></clipPath></defs><path d="${outer}" fill="none" stroke="${colors[0]}" stroke-width="${top * 2}" clip-path="url(#capsule)"/></svg>`;
+        borderImage = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+      } else if (uniform) {
         if (!entry.renderer) {
           const host = document.createElement("div");
           const handle = createSvgEffects(host);
@@ -255,11 +298,14 @@ function start() {
       }
       // 요소 바깥은 남겨 포커스 링과 넘치는 콘텐츠를 보존하고 코너만 잘라냅니다.
       const extent = Math.max(width, height) + 4096;
-      const clip = `M ${-extent} ${-extent} H ${width + extent} V ${height + extent} H ${-extent} Z M 0 0 H ${width} V ${height} H 0 Z ${outer}`;
+      const clip = isCapsule
+        ? outer
+        : `M ${-extent} ${-extent} H ${width + extent} V ${height + extent} H ${-extent} Z M 0 0 H ${width} V ${height} H 0 Z ${outer}`;
       const properties = new Map([
         ["clip-path", `path(evenodd, "${clip}")`],
         ["corner-shape", "round"],
       ]);
+      if (isCapsule) properties.set("border-radius", "0px");
       if (borderImage) {
         properties.set("border-image-source", borderImage);
         properties.set("border-image-slice", "0 fill");
@@ -319,6 +365,7 @@ function start() {
       "class",
       "style",
       "data-state",
+      "data-ien-shape",
       "data-size",
       "data-variant",
       "data-orientation",

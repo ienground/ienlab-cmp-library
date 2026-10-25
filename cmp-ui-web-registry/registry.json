@@ -3254,7 +3254,8 @@
         "radix-ui@^1.6.7"
       ],
       "registryDependencies": [
-        "@ienlab/ien-theme"
+        "@ienlab/ien-theme",
+        "@ienlab/badge"
       ],
       "files": [
         {
@@ -3279,7 +3280,7 @@
           "tabsListVariants"
         ],
         "preview": "previews/tabs.tsx",
-        "example": "import { Button } from \"@/components/ui/button\"\nimport {\n  Card,\n  CardContent,\n  CardDescription,\n  CardFooter,\n  CardHeader,\n  CardTitle,\n} from \"@/components/ui/card\"\nimport { Input } from \"@/components/ui/input\"\nimport { Label } from \"@/components/ui/label\"\nimport {\n  Tabs,\n  TabsContent,\n  TabsList,\n  TabsTrigger,\n} from \"@/components/ui/tabs\"\n\nexport function Pattern() {\n  return (\n    <div className=\"flex w-full max-w-xs flex-col gap-6\">\n      <Tabs tone=\"info\" defaultValue=\"account\">\n        <TabsList>\n          <TabsTrigger value=\"account\">Account</TabsTrigger>\n          <TabsTrigger value=\"password\">Password</TabsTrigger>\n        </TabsList>\n        <TabsContent value=\"account\">\n          <Card>\n            <CardHeader className=\"pb-3\">\n              <CardTitle className=\"text-base\">Account</CardTitle>\n              <CardDescription className=\"text-sm\">\n                Update your account information.\n              </CardDescription>\n            </CardHeader>\n            <CardContent className=\"space-y-4\">\n              <div className=\"space-y-2\">\n                <Label htmlFor=\"name\" className=\"text-sm\">\n                  Name\n                </Label>\n                <Input id=\"name\" defaultValue=\"Sarah Johnson\" className=\"h-9\" />\n              </div>\n              <div className=\"space-y-2\">\n                <Label htmlFor=\"username\" className=\"text-sm\">\n                  Username\n                </Label>\n                <Input id=\"username\" defaultValue=\"@sarahj\" className=\"h-9\" />\n              </div>\n            </CardContent>\n            <CardFooter className=\"pt-3\">\n              <Button size=\"sm\">Save changes</Button>\n            </CardFooter>\n          </Card>\n        </TabsContent>\n        <TabsContent value=\"password\">\n          <Card>\n            <CardHeader className=\"pb-3\">\n              <CardTitle className=\"text-base\">Password</CardTitle>\n              <CardDescription className=\"text-sm\">\n                Change your password here.\n              </CardDescription>\n            </CardHeader>\n            <CardContent className=\"space-y-4\">\n              <div className=\"space-y-2\">\n                <Label htmlFor=\"current\" className=\"text-sm\">\n                  Current password\n                </Label>\n                <Input id=\"current\" type=\"password\" className=\"h-9\" />\n              </div>\n              <div className=\"space-y-2\">\n                <Label htmlFor=\"new\" className=\"text-sm\">\n                  New password\n                </Label>\n                <Input id=\"new\" type=\"password\" className=\"h-9\" />\n              </div>\n            </CardContent>\n            <CardFooter className=\"pt-3\">\n              <Button size=\"sm\">Update password</Button>\n            </CardFooter>\n          </Card>\n        </TabsContent>\n      </Tabs>\n    </div>\n  )\n}\nexport default Pattern;\n",
+        "example": "import { Tabs, TabsContent, TabsList, TabsTrigger } from \"@/components/ui/tabs\"\n\nexport function Pattern() {\n  return (\n    <div className=\"flex w-full max-w-lg flex-col gap-6\">\n      <Tabs defaultValue=\"summary\" size=\"large\" fluid={false} ariaLabel=\"주문 정보 탭\">\n        <TabsList aria-label=\"주문 정보 탭\">\n          <TabsTrigger value=\"summary\">요약</TabsTrigger>\n          <TabsTrigger value=\"detail\" badge={-1}>상세</TabsTrigger>\n          <TabsTrigger value=\"history\" badge={120}>내역</TabsTrigger>\n        </TabsList>\n        <TabsContent value=\"summary\">주문 요약을 확인합니다.</TabsContent>\n        <TabsContent value=\"detail\">상세 정보를 확인합니다.</TabsContent>\n        <TabsContent value=\"history\">이전 내역을 확인합니다.</TabsContent>\n      </Tabs>\n      <Tabs size=\"small\" fluid ariaLabel=\"가로 스크롤 탭\"\n        items={[\n          { text: \"전체\", key: \"all\" },\n          { text: \"진행 중인 주문\", key: \"progress\", badge: 8 },\n          { text: \"배송을 기다리는 주문\", key: \"waiting\", redBean: true },\n          { text: \"완료된 주문\", key: \"complete\" },\n          { text: \"취소된 주문\", key: \"cancelled\" },\n          { text: \"사용할 수 없음\", key: \"disabled\", enabled: false },\n        ]} />\n    </div>\n  )\n}\nexport default Pattern\n",
         "ienDesign": true
       }
     },
@@ -4299,9 +4300,9 @@
             "color": "var(--ien-control-on)"
           },
           ":where([data-slot=\"tabs-trigger\"][data-state=\"active\"])": {
-            "background-color": "var(--ien-control-weak)",
-            "color": "var(--ien-control-color)",
-            "background-image": "var(--ien-gradient, linear-gradient(135deg, color-mix(in srgb, var(--ien-control-weak), var(--ien-control-color) 6%), var(--ien-control-weak), color-mix(in srgb, var(--ien-control-weak), var(--ien-control-color) 10%)))"
+            "background-color": "transparent",
+            "color": "var(--ien-text-primary)",
+            "background-image": "none"
           },
           ":where([data-slot=\"separator\"][data-ien-tone], [data-slot=\"scroll-area-thumb\"])": {
             "background-color": "var(--ien-tone-color, var(--ien-border))"
@@ -4322,7 +4323,9 @@
             "--ien-control-on": "var(--ien-tone-on, var(--ien-on-brand))",
             "--ien-control-weak": "var(--ien-tone-weak, var(--ien-brand-weak))",
             "transition-duration": "var(--ien-motion-fast)",
-            "transition-timing-function": "var(--ien-motion-standard-easing)"
+            "transition-timing-function": "var(--ien-motion-standard-easing)",
+            "background-origin": "border-box",
+            "background-repeat": "no-repeat"
           },
           ":where(.ien-clear):not(:disabled, [data-disabled], [aria-disabled=\"true\"]):hover": {
             "background-color": "var(--ien-control-weak)"

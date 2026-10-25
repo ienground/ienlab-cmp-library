@@ -596,6 +596,9 @@ function ComponentPage({
               <Tabs
                 aria-label="콘텐츠 보기 방식"
                 className="view-tabs-root"
+                size="small"
+                fluid
+                itemGap={0}
                 onValueChange={(value) => {
                   if (
                     value === "preview" ||

@@ -1,4 +1,7 @@
+"use client"
+
 import { resolveIenTone, type IenToneProps } from "@/lib/ien-theme"
+import { useIenTheme } from "@/lib/ien-theme-context"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
 
@@ -11,7 +14,7 @@ const largeBadgeSize = "px-[calc(var(--ien-spacing-sm)-var(--ien-spacing-xxxs))]
 const badgeVariants = cva(
   [
     "relative inline-flex shrink-0 items-center justify-center w-fit border font-medium whitespace-nowrap outline-none transition-shadow",
-    "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-(--ien-state-disabled-alpha)",
+    "focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-(--ien-state-disabled-alpha)",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-3",
   ],
   {
@@ -65,15 +68,17 @@ function Badge({
   asChild = false,
   ...props
 }: BadgeProps & IenToneProps) {
+  const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const Comp = asChild ? Slot.Root : "span"
 
   return (
     <Comp
       data-slot="badge"
+      data-ien-shape="capsule"
       data-ien-typography={size === "small" || size === "sm" || size === "xs" ? "caption" : size === "large" || size === "lg" || size === "xl" ? "label1" : "label2"}
       data-ien=""
-      data-ien-tone={resolveIenTone(ienTone, variant)}
-      data-ien-gradient={ienUseGradient}
+      data-ien-tone={resolveIenTone(ienTheme.tone, variant)}
+      data-ien-gradient={ienTheme.useGradient}
       data-variant={variant ?? "fill"}
       className={cn(badgeVariants({ variant, size, radius, className }))}
       {...props}
