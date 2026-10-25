@@ -31,6 +31,9 @@ const singleExamples = {
   tabs:
     'import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"\n\nexport function Pattern() {\n  return (\n    <Tabs defaultValue="summary" size="large" fluid={false} ariaLabel="주문 정보 탭">\n      <TabsList>\n        <TabsTrigger value="summary">요약</TabsTrigger>\n        <TabsTrigger value="detail" badge={-1}>상세</TabsTrigger>\n        <TabsTrigger value="history" badge={120}>내역</TabsTrigger>\n      </TabsList>\n      <TabsContent value="summary">주문 요약을 확인합니다.</TabsContent>\n      <TabsContent value="detail">상세 정보를 확인합니다.</TabsContent>\n      <TabsContent value="history">이전 내역을 확인합니다.</TabsContent>\n    </Tabs>\n  )\n}\nexport default Pattern\n',
 
+  card:
+    'import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"\n\nexport function Pattern() {\n  return <Card variant="filled" tone="brand" toneVariant="weak" contentPadding={{ top: "md", bottom: "md", start: "md", end: "md" }} shape={{ radius: "lg" }}><CardHeader><CardTitle>프로젝트 카드</CardTitle><CardDescription>CMP Card의 표현과 색상을 조절합니다.</CardDescription></CardHeader><CardContent>카드의 여백과 모서리, 색상, tonal elevation을 변경해 보세요.</CardContent></Card>\n}\nexport default Pattern\n',
+
   checkbox:
     'import { Checkbox } from "@/components/ui/checkbox"\n\nexport function Pattern() {\n  return <Checkbox variant="circle" label="이용 약관에 동의합니다" enabled />\n}\nexport default Pattern\n',
 
@@ -602,6 +605,15 @@ export function createPlaygroundCatalog(items, previews) {
             props.get(name).defaultValue = defaultValue;
         }
       for (const prop of props.values()) {
+        if (binding.name === "Card") {
+          if (prop.name === "contentPadding") {
+            const padding = reference(file, "CardPadding");
+            const edges = padding?.node.typeAnnotation.types.find((part) => part.type === "TSTypeLiteral");
+            prop.kind = "object";
+            prop.fields = properties(edges, padding.file);
+          }
+          if (["onClick", "onKeyDown", "onKeyUp"].includes(prop.name)) prop.kind = "callback";
+        }
         if (binding.name === "Skeleton" && ["tone", "useGradient"].includes(prop.name)) {
           props.delete(prop.name);
           continue;

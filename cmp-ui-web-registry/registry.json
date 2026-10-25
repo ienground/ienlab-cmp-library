@@ -398,7 +398,7 @@
           "CardContent"
         ],
         "preview": "previews/card.tsx",
-        "example": "import { Button } from \"@/components/ui/button\"\nimport {\n  Card,\n  CardContent,\n  CardDescription,\n  CardFooter,\n  CardHeader,\n  CardTitle,\n} from \"@/components/ui/card\"\n\nexport function Pattern() {\n  return (\n    <Card tone=\"brand\" toneVariant=\"weak\" className=\"w-full max-w-xs\">\n      <CardHeader>\n        <CardTitle>브랜드 카드</CardTitle>\n        <CardDescription>\n          CMP의 약한 tone과 그라데이션을 적용합니다.\n        </CardDescription>\n      </CardHeader>\n      <CardContent>\n        <p>\n          The card component supports a size prop that defaults to\n          &quot;default&quot; for standard spacing and sizing.\n        </p>\n      </CardContent>\n      <CardFooter>\n        <Button variant=\"line\" className=\"w-full\">\n          Action\n        </Button>\n      </CardFooter>\n    </Card>\n  )\n}\nexport default Pattern\n",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { Card, CardContent, CardDescription, CardHeader, CardTitle } from \"@/components/ui/card\"\n\nconst variants = [\n  { variant: \"filled\", toneVariant: \"solid\", title: \"Filled · Solid\" },\n  { variant: \"filled\", toneVariant: \"weak\", title: \"Filled · Weak\" },\n  { variant: \"outlined\", toneVariant: \"solid\", title: \"Outlined · Solid\" },\n  { variant: \"outlined\", toneVariant: \"weak\", title: \"Outlined · Weak\" },\n] as const\n\nexport function Pattern() {\n  const [clicks, setClicks] = useState(0)\n  return (\n    <div className=\"grid w-full gap-4 sm:grid-cols-2\">\n      {variants.map(({ variant, toneVariant, title }) => (\n        <Card key={title} variant={variant} tone=\"brand\" toneVariant={toneVariant}>\n          <CardHeader>\n            <CardTitle>{title}</CardTitle>\n            <CardDescription>브랜드 톤의 {toneVariant === \"solid\" ? \"기본\" : \"약한\"} 표현</CardDescription>\n          </CardHeader>\n          <CardContent>16px continuous 코너와 기본 콘텐츠 여백을 적용합니다.</CardContent>\n        </Card>\n      ))}\n      <Card onClick={() => setClicks((value) => value + 1)} aria-label=\"카드 선택\">\n        <CardHeader>\n          <CardTitle>클릭 가능한 기본 카드</CardTitle>\n          <CardDescription>Neutral · Filled · Solid</CardDescription>\n        </CardHeader>\n        <CardContent><span role=\"status\">선택 횟수: {clicks}</span> · Enter와 Space로도 선택할 수 있습니다.</CardContent>\n      </Card>\n      <Card variant=\"outlined\" tonalElevation=\"raised\" contentPadding={{ top: \"lg\", bottom: \"lg\", start: \"xl\", end: \"xl\" }} shape={{ radius: \"xl\" }} colors={{ border: \"success\" }}>\n        <CardHeader>\n          <CardTitle>사용자 지정 카드</CardTitle>\n          <CardDescription>Outlined · Neutral · Tonal elevation raised</CardDescription>\n        </CardHeader>\n        <CardContent>여백·모서리·테두리 색상을 개별 지정할 수 있습니다.</CardContent>\n      </Card>\n    </div>\n  )\n}\nexport default Pattern\n",
         "ienDesign": true
       }
     },
@@ -3904,9 +3904,13 @@
           "ien-stroke-medium": "0.09375rem",
           "ien-stroke-thick": "0.125rem",
           "ien-elevation-none": "0rem",
+          "ien-elevation-none-tint": "0%",
           "ien-elevation-raised": "0.25rem",
+          "ien-elevation-raised-tint": "9.24247060595345%",
           "ien-elevation-floating": "0.75rem",
+          "ien-elevation-floating-tint": "13.542272108576915%",
           "ien-elevation-overlay": "1.5rem",
+          "ien-elevation-overlay-tint": "16.4849412119069%",
           "ien-icon-xs": "0.75rem",
           "ien-icon-sm": "1rem",
           "ien-icon-md": "1.25rem",
@@ -4329,40 +4333,6 @@
             "transform": "scale(var(--ien-button-pressed-scale))",
             "transition-duration": "var(--ien-button-press-duration)",
             "transition-timing-function": "var(--ien-button-press-easing)"
-          },
-          ":where([data-slot=\"card\"])": {
-            "--ien-card-container": "var(--ien-surface-raised)",
-            "--ien-card-content": "var(--ien-text-primary)",
-            "--ien-card-border": "var(--ien-tone-color, var(--ien-border))"
-          },
-          ":where([data-slot=\"card\"][data-ien-tone]:not([data-ien-tone=\"neutral\"]))": {
-            "--ien-card-container": "var(--ien-control-color)",
-            "--ien-card-content": "var(--ien-control-on)"
-          },
-          ".ien-card-filled": {
-            "background-color": "var(--ien-card-container)",
-            "color": "var(--ien-card-content)",
-            "background-image": "var(--ien-gradient, linear-gradient(135deg, color-mix(in srgb, var(--ien-card-container), var(--ien-card-content) 2%), var(--ien-card-container), color-mix(in srgb, var(--ien-card-container), var(--ien-card-content) 4%)))"
-          },
-          ".ien-card-filled:where([data-ien-tone]:not([data-ien-tone=\"neutral\"]))": {
-            "background-image": "var(--ien-gradient, linear-gradient(135deg, color-mix(in srgb, var(--ien-card-container), var(--ien-card-content) 18%), var(--ien-card-container), color-mix(in srgb, var(--ien-card-container), var(--ien-card-content) 36%)))"
-          },
-          ":where([data-slot=\"card\"][data-tone-variant=\"weak\"])": {
-            "--ien-card-container": "var(--ien-tone-weak, var(--ien-surface-weak))",
-            "--ien-card-content": "var(--ien-tone-color, var(--ien-text-primary))"
-          },
-          ".ien-card-filled:where([data-tone-variant=\"weak\"])": {
-            "background-image": "var(--ien-gradient, linear-gradient(135deg, color-mix(in srgb, var(--ien-card-container), var(--ien-card-content) 6%), var(--ien-card-container), color-mix(in srgb, var(--ien-card-container), var(--ien-card-content) 10%)))"
-          },
-          ".ien-card-outlined": {
-            "background-color": "var(--ien-surface)",
-            "color": "var(--ien-text-primary)",
-            "background-image": "none",
-            "--tw-ring-color": "var(--ien-card-border)"
-          },
-          ":where([data-slot=\"card\"]:is([data-ien-tone]:not([data-ien-tone=\"neutral\"]), [data-tone-variant=\"weak\"])) :where([data-slot=\"card-description\"], [data-slot=\"card-footer\"])": {
-            "color": "inherit",
-            "background-color": "transparent"
           },
           ":where([data-slot=\"tabs-trigger\"][data-state=\"active\"])": {
             "background-color": "transparent",

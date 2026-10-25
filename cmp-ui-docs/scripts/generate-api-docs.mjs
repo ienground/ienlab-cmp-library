@@ -314,6 +314,9 @@ for (const group of ["spacing", "radius", "stroke", "elevation", "icon"]) {
   for (const [name, value] of Object.entries(designTokens[group])) {
     const variable = `ien-${group}-${kebabCase(name)}`;
     variables[variable] = rem(value);
+    if (group === "elevation") {
+      variables[`${variable}-tint`] = `${value > 0 ? Math.min(100, 4.5 * Math.log(value + 1) + 2) : 0}%`;
+    }
     if (group === "spacing" || group === "radius") {
       tailwindTheme[`${group}-ien-${name}`] = `var(--${variable})`;
     }
