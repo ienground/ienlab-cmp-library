@@ -3471,7 +3471,7 @@
           "TooltipTrigger"
         ],
         "preview": "previews/tooltip.tsx",
-        "example": "import { Button } from \"@/components/ui/button\"\nimport {\n  Tooltip,\n  TooltipContent,\n  TooltipProvider,\n  TooltipTrigger,\n} from \"@/components/ui/tooltip\"\n\nexport function Pattern() {\n  return (\n    <div className=\"flex items-center justify-center\">\n      <TooltipProvider>\n        <Tooltip>\n          <TooltipTrigger asChild>\n            <Button variant=\"line\" className=\"w-fit\">\n              Show Tooltip\n            </Button>\n          </TooltipTrigger>\n          <TooltipContent>\n            <p className=\"text-sm\">Add to library</p>\n          </TooltipContent>\n        </Tooltip>\n      </TooltipProvider>\n    </div>\n  )\n}\nexport default Pattern;\n",
+        "example": "import { Badge } from \"@/components/reui/badge\"\nimport {\n  Tooltip,\n  TooltipContent,\n  TooltipProvider,\n  TooltipTrigger,\n} from \"@/components/ui/tooltip\"\n\nexport function Pattern() {\n  return (\n    <div className=\"flex items-center justify-center\">\n      <TooltipProvider>\n        <Tooltip defaultOpen>\n          <TooltipTrigger asChild>\n            <Badge asChild variant=\"line\">\n              <button type=\"button\">도움말</button>\n            </Badge>\n          </TooltipTrigger>\n          <TooltipContent side=\"top\">\n            툴팁은 짧은 보조 설명에 사용합니다.\n          </TooltipContent>\n        </Tooltip>\n      </TooltipProvider>\n    </div>\n  )\n}\nexport default Pattern;\n",
         "ienDesign": true
       }
     },
