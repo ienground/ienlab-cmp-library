@@ -2463,13 +2463,19 @@
         "cn@^0.4.0"
       ],
       "registryDependencies": [
-        "@ienlab/ien-theme"
+        "@ienlab/ien-theme",
+        "@ienlab/field"
       ],
       "files": [
         {
           "path": "ui/input.tsx",
           "type": "registry:ui",
           "target": "@ui/input.tsx"
+        },
+        {
+          "path": "lib/ien-text-field.tsx",
+          "type": "registry:lib",
+          "target": "@lib/ien-text-field.tsx"
         }
       ],
       "meta": {
@@ -2484,7 +2490,7 @@
           "Input"
         ],
         "preview": "previews/input.tsx",
-        "example": "import { Field } from \"@/components/ui/field\"\nimport { Input } from \"@/components/ui/input\"\n\nexport function Pattern() {\n  return (\n    <Field className=\"max-w-xs\">\n      <Input id=\"basic-input\" type=\"text\" placeholder=\"Basic Input\" />\n    </Field>\n  )\n}\nexport default Pattern;\n",
+        "example": "import { Input } from \"@/components/ui/input\"\n\nexport function Pattern() {\n  return (\n    <div className=\"mx-auto flex w-full max-w-sm flex-col gap-6\">\n      <Input label=\"이름\" labelOption=\"sustain\" placeholder=\"최대 20자까지 입력하세요\" lengthLimit={{ mode: \"block\", maxLength: 20 }} supportingText=\"라벨을 항상 표시하고 초과 입력을 차단합니다.\" />\n      <Input label=\"길이 초과 오류 표시\" labelOption=\"appear\" placeholder=\"포커스하면 라벨이 나타납니다\" lengthLimit={{ mode: \"error\", maxLength: 10 }} supportingText=\"10자를 초과해도 입력할 수 있으며 오류로 표시합니다.\" />\n    </div>\n  )\n}\nexport default Pattern;\n",
         "ienDesign": true
       }
     },
@@ -2778,7 +2784,7 @@
           "RadioGroupItem"
         ],
         "preview": "previews/radio-group.tsx",
-        "example": "import { Field, FieldLabel } from \"@/components/ui/field\"\nimport {\n  RadioGroup,\n  RadioGroupItem,\n} from \"@/components/ui/radio-group\"\n\nexport function Pattern() {\n  return (\n    <RadioGroup defaultValue=\"comfortable\" className=\"w-fit\">\n      <Field orientation=\"horizontal\">\n        <RadioGroupItem value=\"default\" id=\"r1\" />\n        <FieldLabel htmlFor=\"r1\">Default</FieldLabel>\n      </Field>\n      <Field orientation=\"horizontal\">\n        <RadioGroupItem value=\"comfortable\" id=\"r2\" />\n        <FieldLabel htmlFor=\"r2\">Comfortable</FieldLabel>\n      </Field>\n      <Field orientation=\"horizontal\">\n        <RadioGroupItem value=\"compact\" id=\"r3\" />\n        <FieldLabel htmlFor=\"r3\">Compact</FieldLabel>\n      </Field>\n    </RadioGroup>\n  )\n}\nexport default Pattern;\n",
+        "example": "import {\n  RadioGroup,\n  RadioGroupItem,\n} from \"@/components/ui/radio-group\"\n\nexport function Pattern() {\n  return (\n    <RadioGroup defaultValue=\"comfortable\" className=\"w-fit\">\n      <RadioGroupItem value=\"default\" label=\"Default\" />\n      <RadioGroupItem value=\"comfortable\" label=\"Comfortable\" />\n      <RadioGroupItem value=\"compact\" label=\"Compact\" />\n      <RadioGroupItem value=\"disabled\" label=\"Disabled\" enabled={false} />\n    </RadioGroup>\n  )\n}\nexport default Pattern;\n",
         "ienDesign": true
       }
     },
@@ -3338,13 +3344,19 @@
         "cn@^0.4.0"
       ],
       "registryDependencies": [
-        "@ienlab/ien-theme"
+        "@ienlab/ien-theme",
+        "@ienlab/field"
       ],
       "files": [
         {
           "path": "ui/textarea.tsx",
           "type": "registry:ui",
           "target": "@ui/textarea.tsx"
+        },
+        {
+          "path": "lib/ien-text-field.tsx",
+          "type": "registry:lib",
+          "target": "@lib/ien-text-field.tsx"
         }
       ],
       "meta": {
@@ -3359,7 +3371,7 @@
           "Textarea"
         ],
         "preview": "previews/textarea.tsx",
-        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { Textarea } from \"@/components/ui/textarea\"\n\nexport function Pattern() {\n  const [value, setValue] = useState(\"\")\n\n  return (\n    <div className=\"mx-auto flex w-full max-w-sm flex-col gap-6\">\n      <Textarea\n        label=\"내용\"\n        required\n        placeholder=\"최대 200자까지 입력하세요\"\n        value={value}\n        onValueChange={setValue}\n        lengthLimit={{ mode: \"block\", maxLength: 200 }}\n        supportingText=\"최대 길이를 넘는 입력을 차단합니다.\"\n        minLines={4}\n        maxLines={8}\n      />\n      <Textarea\n        label=\"길이 초과 오류 표시\"\n        placeholder=\"20자를 초과해 입력해 보세요\"\n        lengthLimit={{ mode: \"error\", maxLength: 20 }}\n        supportingText=\"20자를 초과하면 오류 상태로 표시됩니다.\"\n      />\n    </div>\n  )\n}\nexport default Pattern\n",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { Textarea } from \"@/components/ui/textarea\"\n\nexport function Pattern() {\n  const [value, setValue] = useState(\"\")\n\n  return (\n    <div className=\"mx-auto flex w-full max-w-sm flex-col gap-6\">\n      <Textarea\n        label=\"내용\"\n        labelOption=\"sustain\"\n        required\n        placeholder=\"최대 200자까지 입력하세요\"\n        value={value}\n        onValueChange={setValue}\n        lengthLimit={{ mode: \"block\", maxLength: 200 }}\n        supportingText=\"최대 길이를 넘는 입력을 차단합니다.\"\n        minLines={4}\n        maxLines={8}\n      />\n      <Textarea\n        label=\"길이 초과 오류 표시\"\n        placeholder=\"20자를 초과해 입력해 보세요\"\n        lengthLimit={{ mode: \"error\", maxLength: 20 }}\n        supportingText=\"20자를 초과하면 오류 상태로 표시됩니다.\"\n      />\n    </div>\n  )\n}\nexport default Pattern\n",
         "ienDesign": true
       }
     },
@@ -4347,7 +4359,7 @@
             "color": "inherit",
             "background-color": "transparent"
           },
-          ":where([data-slot=\"checkbox\"], [data-slot=\"radio-group-item\"]):is([data-state=\"checked\"], [data-state=\"indeterminate\"])": {
+          ":where([data-slot=\"checkbox\"]):is([data-state=\"checked\"], [data-state=\"indeterminate\"])": {
             "background-image": "var(--ien-gradient, linear-gradient(135deg, color-mix(in srgb, var(--ien-control-color), var(--ien-control-on) 18%), var(--ien-control-color), color-mix(in srgb, var(--ien-control-color), var(--ien-control-on) 36%)))",
             "background-color": "var(--ien-control-color)",
             "border-color": "var(--ien-control-color)",

@@ -10,6 +10,7 @@ export function Pattern() {
     <div className="mx-auto flex w-full max-w-sm flex-col gap-6">
       <Textarea
         label="내용"
+        labelOption="sustain"
         required
         placeholder="최대 200자까지 입력하세요"
         value={value}

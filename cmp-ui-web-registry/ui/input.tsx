@@ -1,6 +1,13 @@
+"use client"
+
 import type { IenToneProps } from "@/lib/ien-theme"
 import * as React from "react"
 import { cn } from "cn"
+import { TextFieldFrame, useTextField, type TextFieldOptions } from "@/lib/ien-text-field"
+
+export type InputProps = React.ComponentProps<"input"> & IenToneProps & TextFieldOptions & {
+  variant?: "boxed" | "underline" | "plain"
+}
 
 function Input({
   variant = "boxed",
@@ -8,12 +15,58 @@ function Input({
   useGradient: ienUseGradient,
   className,
   type,
+  label,
+  labelOption = "appear",
+  help,
+  supportingText,
+  hasError,
+  lengthLimit,
+  state,
+  onValueChange,
+  value,
+  defaultValue,
+  maxLength,
+  onChange,
+  onFocus,
+  onBlur,
+  required,
+  disabled,
+  readOnly,
+  id,
+  ref,
+  "aria-describedby": describedBy,
+  "aria-invalid": ariaInvalid,
   ...props
-}: React.ComponentProps<"input"> &
-  IenToneProps & { variant?: "boxed" | "underline" | "plain" }) {
-  return (
+}: InputProps) {
+  const field = useTextField({ value, defaultValue, lengthLimit, state, hasError, help, supportingText, id, "aria-describedby": describedBy, "aria-invalid": ariaInvalid })
+  const input = (
     <input
       type={type}
+      ref={(node) => {
+        field.inputRef.current = node
+        if (typeof ref === "function") return ref(node)
+        if (ref) ref.current = node
+      }}
+      id={field.inputId}
+      value={value}
+      defaultValue={defaultValue}
+      required={required}
+      disabled={disabled || state?.enabled === false}
+      readOnly={readOnly || state?.readOnly}
+      maxLength={lengthLimit && lengthLimit.mode !== "none" ? undefined : maxLength}
+      aria-invalid={field.invalid ? true : ariaInvalid}
+      aria-describedby={field.descriptionIds}
+      onFocus={(event) => { field.setFocused(true); onFocus?.(event) }}
+      onBlur={(event) => { field.setFocused(false); onBlur?.(event) }}
+      onChange={(event) => {
+        const nextValue = event.currentTarget.value
+        if (!field.accept(nextValue)) {
+          event.currentTarget.value = field.currentValue
+          return
+        }
+        onChange?.(event)
+        onValueChange?.(nextValue)
+      }}
       data-slot="input"
       data-variant={variant}
       data-ien=""
@@ -26,10 +79,16 @@ function Input({
           : variant === "plain"
             ? "border-transparent bg-transparent shadow-none focus-visible:border-transparent dark:bg-transparent"
             : "",
+        !field.invalid && state?.status?.type === "success" && "border-(--ien-success) focus-visible:border-(--ien-success)",
         className,
       )}
       {...props}
     />
+  )
+  return (
+    <TextFieldFrame field={field} label={label} labelOption={labelOption} required={required} disabled={disabled} state={state} slot="input">
+      {input}
+    </TextFieldFrame>
   )
 }
 

@@ -31,8 +31,11 @@ const singleExamples = {
   tabs:
     'import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"\n\nexport function Pattern() {\n  return (\n    <Tabs defaultValue="summary" size="large" fluid={false} ariaLabel="주문 정보 탭">\n      <TabsList>\n        <TabsTrigger value="summary">요약</TabsTrigger>\n        <TabsTrigger value="detail" badge={-1}>상세</TabsTrigger>\n        <TabsTrigger value="history" badge={120}>내역</TabsTrigger>\n      </TabsList>\n      <TabsContent value="summary">주문 요약을 확인합니다.</TabsContent>\n      <TabsContent value="detail">상세 정보를 확인합니다.</TabsContent>\n      <TabsContent value="history">이전 내역을 확인합니다.</TabsContent>\n    </Tabs>\n  )\n}\nexport default Pattern\n',
 
+  input:
+    'import { Input } from "@/components/ui/input"\n\nexport function Pattern() {\n  return <Input label="이름" labelOption="appear" placeholder="이름을 입력하세요" lengthLimit={{ mode: "block", maxLength: 20 }} />\n}\nexport default Pattern\n',
+
   textarea:
-    'import { Textarea } from "@/components/ui/textarea"\n\nexport function Pattern() {\n  return <Textarea label="내용" placeholder="내용을 입력하세요" lengthLimit={{ mode: "block", maxLength: 200 }} minLines={4} maxLines={8} />\n}\nexport default Pattern\n',
+    'import { Textarea } from "@/components/ui/textarea"\n\nexport function Pattern() {\n  return <Textarea label="내용" labelOption="appear" placeholder="내용을 입력하세요" lengthLimit={{ mode: "block", maxLength: 200 }} minLines={4} maxLines={8} />\n}\nexport default Pattern\n',
 
   button:
     'import { Button } from "@/components/ui/button"\n\nexport function Pattern() {\n  return <Button>버튼</Button>\n}\nexport default Pattern\n',

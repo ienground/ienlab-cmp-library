@@ -21,7 +21,7 @@ function ScrollArea({
         data-ien=""
         data-ien-tone={ienTheme.tone}
         data-ien-gradient={ienTheme.useGradient}
-        className={cn(" relative", className)}
+        className={cn("relative overflow-hidden", className)}
         {...props}
       >
         <ScrollAreaPrimitive.Viewport

@@ -3,30 +3,15 @@
 import type { IenToneProps } from "@/lib/ien-theme"
 import * as React from "react"
 import { cn } from "cn"
-import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field"
+import { TextFieldFrame, useTextField, type TextFieldOptions, type TextFieldLengthLimit, type TextFieldState } from "@/lib/ien-text-field"
 
-export type TextareaLengthLimit =
-  | { mode: "none" }
-  | { mode: "block" | "error"; maxLength: number }
+export type TextareaLengthLimit = TextFieldLengthLimit
+export type TextareaState = TextFieldState
 
-export interface TextareaState {
-  enabled?: boolean
-  readOnly?: boolean
-  status?:
-    | { type: "normal" }
-    | { type: "error"; message: string }
-    | { type: "success"; message?: string }
-}
-
-export type TextareaProps = React.ComponentProps<"textarea"> & IenToneProps & {
+export type TextareaProps = React.ComponentProps<"textarea"> & IenToneProps & TextFieldOptions & {
   variant?: "boxed" | "underline" | "plain"
-  label?: string
-  supportingText?: string
-  lengthLimit?: TextareaLengthLimit
   minLines?: number
   maxLines?: number
-  state?: TextareaState
-  onValueChange?: (value: string) => void
 }
 
 function Textarea({
@@ -35,6 +20,9 @@ function Textarea({
   useGradient: ienUseGradient,
   className,
   label,
+  labelOption = "appear",
+  help,
+  hasError,
   supportingText,
   lengthLimit,
   minLines,
@@ -45,6 +33,8 @@ function Textarea({
   defaultValue,
   maxLength,
   onChange,
+  onFocus,
+  onBlur,
   required,
   disabled,
   readOnly,
@@ -56,42 +46,10 @@ function Textarea({
   "aria-invalid": ariaInvalid,
   ...props
 }: TextareaProps) {
-  const generatedId = React.useId()
-  const inputId = id ?? generatedId
-  const inputRef = React.useRef<HTMLTextAreaElement | null>(null)
-  const [uncontrolledValue, setUncontrolledValue] = React.useState(
-    () => String(defaultValue ?? "")
-  )
-  const currentValue = value === undefined ? uncontrolledValue : String(value)
-  const limit = lengthLimit && lengthLimit.mode !== "none"
-    ? Math.max(0, Math.trunc(lengthLimit.maxLength))
-    : undefined
-  const exceeded = limit !== undefined && currentValue.length > limit
-  const invalid = state?.status?.type === "error" ||
-    (lengthLimit?.mode === "error" && exceeded) ||
-    (ariaInvalid !== undefined && ariaInvalid !== false && ariaInvalid !== "false")
-  const message = state?.status?.type === "error" || state?.status?.type === "success"
-    ? state.status.message ?? supportingText
-    : supportingText
+  const field = useTextField({ value, defaultValue, lengthLimit, state, hasError, help, supportingText, id, "aria-describedby": describedBy, "aria-invalid": ariaInvalid })
+  const { inputId, inputRef, currentValue, invalid, descriptionIds } = field
   const minimumLines = Math.max(1, Math.trunc(minLines ?? rows ?? 4))
   const maximumLines = Math.max(minimumLines, Math.trunc(maxLines))
-  const descriptionId = message ? `${inputId}-description` : undefined
-  const counterId = limit !== undefined ? `${inputId}-counter` : undefined
-  const descriptionIds = [describedBy, descriptionId, counterId].filter(Boolean).join(" ") || undefined
-
-  React.useEffect(() => {
-    const input = inputRef.current
-    const form = input?.form
-    if (!input || !form || value !== undefined) return
-    const handleReset = (event: Event) => {
-      queueMicrotask(() => {
-        if (!event.defaultPrevented) setUncontrolledValue(input.value)
-      })
-    }
-    form.addEventListener("reset", handleReset)
-    return () => form.removeEventListener("reset", handleReset)
-  }, [value])
-
   const textarea = (
     <textarea
       ref={(node) => {
@@ -106,20 +64,20 @@ function Textarea({
       disabled={disabled || state?.enabled === false}
       readOnly={readOnly || state?.readOnly}
       rows={rows ?? minimumLines}
-      maxLength={lengthLimit?.mode === "error" ? undefined : lengthLimit?.mode === "block" ? limit : maxLength}
+      maxLength={lengthLimit && lengthLimit.mode !== "none" ? undefined : maxLength}
       aria-invalid={invalid ? true : ariaInvalid}
       aria-describedby={descriptionIds}
       onChange={(event) => {
         const nextValue = event.currentTarget.value
-        if (lengthLimit?.mode === "block" && limit !== undefined &&
-          nextValue.length > limit && nextValue.length >= currentValue.length) {
+        if (!field.accept(nextValue)) {
           event.currentTarget.value = currentValue
           return
         }
-        setUncontrolledValue(nextValue)
         onChange?.(event)
         onValueChange?.(nextValue)
       }}
+      onFocus={(event) => { field.setFocused(true); onFocus?.(event) }}
+      onBlur={(event) => { field.setFocused(false); onBlur?.(event) }}
       style={{
         minHeight: `calc(${minimumLines}lh + 1rem + 2px)`,
         maxHeight: `calc(${maximumLines}lh + 1rem + 2px)`,
@@ -144,30 +102,10 @@ function Textarea({
     />
   )
 
-  if (!label && !message && limit === undefined) return textarea
-
   return (
-    <Field data-invalid={invalid || undefined} data-disabled={disabled || state?.enabled === false || undefined} className="gap-1.5">
-      {label && (
-        <FieldLabel htmlFor={inputId}>
-          {label}
-          {required && <span aria-hidden="true" className="text-destructive">*</span>}
-        </FieldLabel>
-      )}
+    <TextFieldFrame field={field} label={label} labelOption={labelOption} required={required} disabled={disabled} state={state} slot="textarea">
       {textarea}
-      {(message || limit !== undefined) && (
-        <div className="flex items-start justify-between gap-2">
-          {message && (invalid
-            ? <FieldError id={descriptionId}>{message}</FieldError>
-            : <FieldDescription id={descriptionId} className={state?.status?.type === "success" ? "text-(--ien-success)" : undefined}>{message}</FieldDescription>)}
-          {limit !== undefined && (
-            <span id={counterId} data-slot="textarea-counter" className={cn("ms-auto shrink-0 text-xs tabular-nums text-muted-foreground", exceeded && "text-destructive")}>
-              {currentValue.length}/{limit}
-            </span>
-          )}
-        </div>
-      )}
-    </Field>
+    </TextFieldFrame>
   )
 }
 
