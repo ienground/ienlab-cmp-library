@@ -14,6 +14,11 @@ const variants: IenVariant[] = ["fill", "weak", "line", "ghost"]
 export function Pattern() {
   return (
     <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge size="small">Small</Badge>
+        <Badge size="medium">Medium</Badge>
+        <Badge size="large">Large</Badge>
+      </div>
       {variants.map((variant) => (
         <div key={variant} className="flex flex-wrap gap-2">
           {tones.map((tone) => (

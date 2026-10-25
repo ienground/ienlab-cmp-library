@@ -7,20 +7,31 @@ import {
 } from "@/components/reui/date-selector"
 import { format } from "date-fns"
 
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 
 export function Pattern() {
+  const [locale, setLocale] = useState<"ko" | "en">("ko")
   const [value, setValue] = useState<DateSelectorValue | undefined>()
 
   return (
     <div className="flex w-full flex-col items-center gap-5">
+      <Tabs value={locale} onValueChange={(value) => {
+        if (value === "ko" || value === "en") setLocale(value)
+      }} aria-label="언어 / Language">
+        <TabsList>
+          <TabsTrigger value="ko">한국어</TabsTrigger>
+          <TabsTrigger value="en">English</TabsTrigger>
+        </TabsList>
+      </Tabs>
       <Card className="p-0">
         <CardContent className="p-3">
           <DateSelector
+            locale={locale}
             value={value}
             onChange={setValue}
-            label="Due date"
-            inputHint="Try: 2025, Q4, 05/10/2025"
+            label={locale === "ko" ? "마감일" : "Due date"}
+            inputHint={locale === "ko" ? "예: 2025, Q4, 2025-10-05" : "Try: 2025, Q4, 05/10/2025"}
           />
         </CardContent>
       </Card>
@@ -40,7 +51,7 @@ export function Pattern() {
         </pre>
       ) : (
         <div className="text-muted-foreground text-sm">
-          No value selected. Select a date to see the debug information.
+          {locale === "ko" ? "날짜를 선택하면 선택한 값이 표시됩니다." : "Select a date to see the selected value."}
         </div>
       )}
     </div>

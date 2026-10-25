@@ -207,7 +207,7 @@
           "BadgeProps"
         ],
         "preview": "previews/badge.tsx",
-        "example": "import { Badge } from \"@/components/reui/badge\"\nimport type { IenTone, IenVariant } from \"@/lib/ien-theme\"\n\nconst tones: IenTone[] = [\n  \"neutral\",\n  \"brand\",\n  \"success\",\n  \"warning\",\n  \"danger\",\n  \"info\",\n]\nconst variants: IenVariant[] = [\"fill\", \"weak\", \"line\", \"ghost\"]\n\nexport function Pattern() {\n  return (\n    <div className=\"flex flex-col gap-3\">\n      {variants.map((variant) => (\n        <div key={variant} className=\"flex flex-wrap gap-2\">\n          {tones.map((tone) => (\n            <Badge key={tone} tone={tone} variant={variant}>\n              {tone}\n            </Badge>\n          ))}\n        </div>\n      ))}\n    </div>\n  )\n}\nexport default Pattern\n",
+        "example": "import { Badge } from \"@/components/reui/badge\"\nimport type { IenTone, IenVariant } from \"@/lib/ien-theme\"\n\nconst tones: IenTone[] = [\n  \"neutral\",\n  \"brand\",\n  \"success\",\n  \"warning\",\n  \"danger\",\n  \"info\",\n]\nconst variants: IenVariant[] = [\"fill\", \"weak\", \"line\", \"ghost\"]\n\nexport function Pattern() {\n  return (\n    <div className=\"flex flex-col gap-3\">\n      <div className=\"flex flex-wrap items-center gap-2\">\n        <Badge size=\"small\">Small</Badge>\n        <Badge size=\"medium\">Medium</Badge>\n        <Badge size=\"large\">Large</Badge>\n      </div>\n      {variants.map((variant) => (\n        <div key={variant} className=\"flex flex-wrap gap-2\">\n          {tones.map((tone) => (\n            <Badge key={tone} tone={tone} variant={variant}>\n              {tone}\n            </Badge>\n          ))}\n        </div>\n      ))}\n    </div>\n  )\n}\nexport default Pattern\n",
         "ienDesign": true
       },
       "cssVars": {
@@ -1272,7 +1272,7 @@
           "DateSelector"
         ],
         "preview": "previews/date-selector.tsx",
-        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport {\n  DateSelector,\n  type DateSelectorValue,\n} from \"@/components/reui/date-selector\"\nimport { format } from \"date-fns\"\n\nimport { Card, CardContent } from \"@/components/ui/card\"\n\nexport function Pattern() {\n  const [value, setValue] = useState<DateSelectorValue | undefined>()\n\n  return (\n    <div className=\"flex w-full flex-col items-center gap-5\">\n      <Card className=\"p-0\">\n        <CardContent className=\"p-3\">\n          <DateSelector\n            value={value}\n            onChange={setValue}\n            label=\"Due date\"\n            inputHint=\"Try: 2025, Q4, 05/10/2025\"\n          />\n        </CardContent>\n      </Card>\n\n      {value ? (\n        <pre className=\"bg-muted w-full overflow-auto rounded-md p-3 font-mono text-xs md:w-[500px]\">\n          {JSON.stringify(\n            value,\n            (key, val) => {\n              if (val instanceof Date) {\n                return format(val, \"MM/dd/yyyy\")\n              }\n              return val\n            },\n            2\n          )}\n        </pre>\n      ) : (\n        <div className=\"text-muted-foreground text-sm\">\n          No value selected. Select a date to see the debug information.\n        </div>\n      )}\n    </div>\n  )\n}\nexport default Pattern;\n",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport {\n  DateSelector,\n  type DateSelectorValue,\n} from \"@/components/reui/date-selector\"\nimport { format } from \"date-fns\"\n\nimport { Tabs, TabsList, TabsTrigger } from \"@/components/ui/tabs\"\nimport { Card, CardContent } from \"@/components/ui/card\"\n\nexport function Pattern() {\n  const [locale, setLocale] = useState<\"ko\" | \"en\">(\"ko\")\n  const [value, setValue] = useState<DateSelectorValue | undefined>()\n\n  return (\n    <div className=\"flex w-full flex-col items-center gap-5\">\n      <Tabs value={locale} onValueChange={(value) => {\n        if (value === \"ko\" || value === \"en\") setLocale(value)\n      }} aria-label=\"언어 / Language\">\n        <TabsList>\n          <TabsTrigger value=\"ko\">한국어</TabsTrigger>\n          <TabsTrigger value=\"en\">English</TabsTrigger>\n        </TabsList>\n      </Tabs>\n      <Card className=\"p-0\">\n        <CardContent className=\"p-3\">\n          <DateSelector\n            locale={locale}\n            value={value}\n            onChange={setValue}\n            label={locale === \"ko\" ? \"마감일\" : \"Due date\"}\n            inputHint={locale === \"ko\" ? \"예: 2025, Q4, 2025-10-05\" : \"Try: 2025, Q4, 05/10/2025\"}\n          />\n        </CardContent>\n      </Card>\n\n      {value ? (\n        <pre className=\"bg-muted w-full overflow-auto rounded-md p-3 font-mono text-xs md:w-[500px]\">\n          {JSON.stringify(\n            value,\n            (key, val) => {\n              if (val instanceof Date) {\n                return format(val, \"MM/dd/yyyy\")\n              }\n              return val\n            },\n            2\n          )}\n        </pre>\n      ) : (\n        <div className=\"text-muted-foreground text-sm\">\n          {locale === \"ko\" ? \"날짜를 선택하면 선택한 값이 표시됩니다.\" : \"Select a date to see the selected value.\"}\n        </div>\n      )}\n    </div>\n  )\n}\nexport default Pattern;\n",
         "ienDesign": true
       }
     },
@@ -3313,7 +3313,7 @@
           "Textarea"
         ],
         "preview": "previews/textarea.tsx",
-        "example": "import { Textarea } from \"@/components/ui/textarea\"\n\nexport function Pattern() {\n  return (\n    <div className=\"mx-auto w-full max-w-xs\">\n      <Textarea placeholder=\"Type your message here…\" className=\"w-full\" />\n    </div>\n  )\n}\nexport default Pattern;\n",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { Textarea } from \"@/components/ui/textarea\"\n\nexport function Pattern() {\n  const [value, setValue] = useState(\"\")\n\n  return (\n    <div className=\"mx-auto flex w-full max-w-sm flex-col gap-6\">\n      <Textarea\n        label=\"내용\"\n        required\n        placeholder=\"최대 200자까지 입력하세요\"\n        value={value}\n        onValueChange={setValue}\n        lengthLimit={{ mode: \"block\", maxLength: 200 }}\n        supportingText=\"최대 길이를 넘는 입력을 차단합니다.\"\n        minLines={4}\n        maxLines={8}\n      />\n      <Textarea\n        label=\"길이 초과 오류 표시\"\n        placeholder=\"20자를 초과해 입력해 보세요\"\n        lengthLimit={{ mode: \"error\", maxLength: 20 }}\n        supportingText=\"20자를 초과하면 오류 상태로 표시됩니다.\"\n      />\n    </div>\n  )\n}\nexport default Pattern\n",
         "ienDesign": true
       }
     },
@@ -4103,6 +4103,11 @@
         }
       },
       "css": {
+        "@layer base": {
+          ":where(.dark, .dark *), :where(.dark, .dark *)::before, :where(.dark, .dark *)::after": {
+            "border-color": "var(--border, var(--ien-border))"
+          }
+        },
         "@layer components": {
           ":where(*), :where(*)::before, :where(*)::after": {
             "corner-shape": "var(--ien-control-corner-shape)"

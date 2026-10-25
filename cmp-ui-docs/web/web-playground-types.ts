@@ -7,6 +7,7 @@ export interface PlaygroundProp {
     | "number"
     | "text"
     | "json"
+    | "object"
     | "date"
     | "callback"
     | "slot"
@@ -14,6 +15,8 @@ export interface PlaygroundProp {
   optional: boolean;
   options?: (string | number | boolean | null)[];
   defaultValue?: unknown;
+  fields?: PlaygroundProp[];
+  condition?: { field: string; options: (string | number | boolean | null)[] };
 }
 export interface PlaygroundTarget {
   key: string;

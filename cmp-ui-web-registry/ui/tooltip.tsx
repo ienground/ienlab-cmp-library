@@ -78,7 +78,7 @@ function TooltipContent({
         data-ien-gradient={ienTheme.useGradient}
         sideOffset={sideOffset}
         className={cn(
-          "z-50 inline-flex items-center gap-1.5 rounded-lg px-(--ien-spacing-md) py-2.5 text-[length:var(--ien-font-size-label2)] leading-(--ien-line-height-label2) font-bold whitespace-normal break-words max-w-(--radix-tooltip-content-available-width) origin-(--radix-tooltip-content-transform-origin) shadow-[0_8px_16px_#001d3a26]",
+          "z-50 inline-flex items-center gap-1.5 rounded-[12px] px-(--ien-spacing-md) py-2.5 text-[length:var(--ien-font-size-label2)] leading-(--ien-line-height-label2) font-bold whitespace-normal break-words max-w-(--radix-tooltip-content-available-width) origin-(--radix-tooltip-content-transform-origin) shadow-[0_8px_16px_#001d3a26]",
           "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-[0.98] data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-[0.98] data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-[0.98] data-[side=bottom]:slide-in-from-top-1 data-[side=left]:slide-in-from-right-1 data-[side=right]:slide-in-from-left-1 data-[side=top]:slide-in-from-bottom-1 motion-reduce:animate-none",
           isNeutral
             ? "bg-(--ien-surface-raised) text-(--ien-text-primary)"

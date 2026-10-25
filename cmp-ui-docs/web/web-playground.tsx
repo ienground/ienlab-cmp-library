@@ -252,16 +252,65 @@ export function WebPlayground({
       return next;
     });
   }
-  function control(prop: PlaygroundProp) {
-    const id = `playground-${target.name}-${prop.name}`;
-    const value = current[prop.name];
-    const key = `${target.key}.${prop.name}`;
+  function control(
+    prop: PlaygroundProp,
+    value: unknown,
+    change: (value: unknown) => void = (value) => update(prop.name, value),
+    clear: () => void = () => reset(prop.name),
+    path = prop.name,
+  ): ReactNode {
+    const id = `playground-${target.name}-${path}`;
+    const key = `${target.key}.${path}`;
+    if (prop.kind === "object") {
+      const initial = value ?? prop.defaultValue;
+      const object = initial && typeof initial === "object" && !Array.isArray(initial)
+        ? initial as Record<string, unknown>
+        : {};
+      const fields = prop.fields ?? [];
+      const visible = fields.filter((field) => !field.condition || field.condition.options.includes(
+        object[field.condition.field] as string | number | boolean | null ??
+        fields.find((entry) => entry.name === field.condition?.field)?.options?.[0] ?? null
+      ));
+      return (
+        <fieldset id={id} className="flex min-w-0 flex-col gap-3 rounded-lg border border-border p-3" aria-label={path}>
+          {visible.map((field) => {
+            const fieldPath = `${path}.${field.name}`;
+            const fieldId = `playground-${target.name}-${fieldPath}`;
+            const updateField = (nextValue: unknown) => {
+              const next = { ...object, [field.name]: nextValue };
+              for (const entry of fields) {
+                if (entry.condition && !entry.condition.options.includes(next[entry.condition.field] as string | number | boolean | null)) {
+                  delete next[entry.name];
+                } else if (!entry.optional && next[entry.name] === undefined) {
+                  next[entry.name] = entry.defaultValue ?? (entry.kind === "select" ? entry.options?.[0] : entry.kind === "number" ? 0 : entry.kind === "boolean" ? false : "");
+                }
+              }
+              change(next);
+            };
+            const nested = field.kind === "boolean" && field.optional
+              ? { ...field, kind: "select" as const, options: [true, false] }
+              : field;
+            return (
+              <div key={field.name} className="flex min-w-0 flex-col gap-1.5">
+                <label htmlFor={fieldId}>{field.name}</label>
+                {control(nested, object[field.name] ?? (field.optional ? undefined : field.defaultValue ??
+                  (field.kind === "select" ? field.options?.[0] : field.kind === "number" ? 0 : "")), updateField, () => {
+                  const next = { ...object };
+                  delete next[field.name];
+                  change(next);
+                }, fieldPath)}
+              </div>
+            );
+          })}
+        </fieldset>
+      );
+    }
     if (prop.kind === "boolean")
       return (
         <Switch
           id={id}
           checked={Boolean(value ?? prop.defaultValue ?? false)}
-          onCheckedChange={(checked) => update(prop.name, checked)}
+          onCheckedChange={(checked) => change(checked)}
         />
       );
     if (prop.kind === "select")
@@ -276,11 +325,11 @@ export function WebPlayground({
           }
           onChange={(event) =>
             event.target.value === "default"
-              ? reset(prop.name)
-              : update(prop.name, prop.options?.[Number(event.target.value)])
+              ? clear()
+              : change(prop.options?.[Number(event.target.value)])
           }
         >
-          <option value="default">
+          <option value="default" disabled={path.includes(".") && !prop.optional}>
             예시 기본값
             {prop.defaultValue !== undefined
               ? ` (${String(prop.defaultValue)})`
@@ -312,7 +361,7 @@ export function WebPlayground({
               setJsonDrafts((previous) => ({ ...previous, [key]: draft }));
               try {
                 const parsed: unknown = JSON.parse(draft);
-                update(prop.name, parsed);
+                change(parsed);
                 setJsonErrors((previous) => ({ ...previous, [key]: "" }));
               } catch {
                 setJsonErrors((previous) => ({
@@ -360,10 +409,9 @@ export function WebPlayground({
         onChange={(event) => {
           const text = event.target.value;
           if ((prop.kind === "number" || prop.kind === "date") && !text)
-            reset(prop.name);
+            clear();
           else
-            update(
-              prop.name,
+            change(
               prop.kind === "number"
                 ? Number(text)
                 : prop.kind === "date"
@@ -469,7 +517,7 @@ export function WebPlayground({
                 )}
               </div>
               <code className="playground-prop-type">{prop.type}</code>
-              {control(prop)}
+              {control(prop, current[prop.name])}
             </div>
           ))}
         </div>

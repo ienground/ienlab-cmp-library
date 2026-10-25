@@ -1116,7 +1116,7 @@ function DataGridTableBase({
           : undefined
       }
       className={cn(
-        "text-foreground caption-bottom text-left align-middle text-sm font-normal rtl:text-right",
+        "text-foreground caption-bottom text-left align-middle text-sm font-normal rtl:text-right [&_td]:border-border [&_tr]:border-border [&_th]:border-e-border",
         /* Opaque surfaces (pinned cells, the footer band, their premixed
            tints) read --data-grid-surface and fall back to --background;
            inside a Card that is the wrong token, so they follow --card. The
@@ -1346,7 +1346,7 @@ function DataGridTableHeadRow({
       data-ien-gradient={ienTheme.useGradient}
       aria-rowindex={props.tableLayout?.cellSelection ? 1 : undefined}
       className={cn(
-        props.tableLayout?.headerBorder && "[&>th]:border-b",
+        props.tableLayout?.headerBorder && "[&>th]:border-b [&>th]:border-b-foreground",
         // Under row-merged cells a row's last child is not the last column;
         // multi-level cells drop their own end border instead.
         props.tableLayout?.cellBorder && !isMultiLevel && "*:last:border-e-0",

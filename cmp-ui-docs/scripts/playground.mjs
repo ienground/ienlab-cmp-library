@@ -22,6 +22,9 @@ function declarationFile(source, from) {
 const parseSource = (source) =>
   parse(source, { sourceType: "module", plugins: ["typescript", "jsx"] });
 const singleExamples = {
+  textarea:
+    'import { Textarea } from "@/components/ui/textarea"\n\nexport function Pattern() {\n  return <Textarea label="내용" placeholder="내용을 입력하세요" lengthLimit={{ mode: "block", maxLength: 200 }} minLines={4} maxLines={8} />\n}\nexport default Pattern\n',
+
   button:
     'import { Button } from "@/components/ui/button"\n\nexport function Pattern() {\n  return <Button>버튼</Button>\n}\nexport default Pattern\n',
   badge:
@@ -50,6 +53,16 @@ function literal(node) {
   if (["StringLiteral", "NumericLiteral", "BooleanLiteral"].includes(node.type))
     return node.value;
   if (node.type === "NullLiteral") return null;
+  if (node.type === "ObjectExpression") {
+    const entries = [];
+    for (const property of node.properties) {
+      if (property.type !== "ObjectProperty" || property.computed) return undefined;
+      const value = literal(property.value);
+      if (value === undefined) return undefined;
+      entries.push([property.key.name ?? property.key.value, value]);
+    }
+    return Object.fromEntries(entries);
+  }
   if (
     node.type === "UnaryExpression" &&
     node.operator === "-" &&
@@ -59,6 +72,8 @@ function literal(node) {
   return undefined;
 }
 const common = () => [
+  { name: "id", type: "string", kind: "text", optional: true },
+  { name: "aria-describedby", type: "string", kind: "text", optional: true },
   { name: "className", type: "string", kind: "text", optional: true },
   { name: "aria-label", type: "string", kind: "text", optional: true },
   { name: "aria-invalid", type: "boolean", kind: "boolean", optional: true },
@@ -257,7 +272,7 @@ export function createPlaygroundCatalog(items, previews) {
     return undefined;
   }
   function describe(node, file, seen = new Set()) {
-    if (!node) return { kind: "json", type: "unknown" };
+    if (!node || seen.size > 5) return { kind: "json", type: "unknown" };
     const type = module(file)?.source.slice(node.start, node.end) ?? "unknown";
     if (node.type === "TSParenthesizedType")
       return describe(node.typeAnnotation, file, seen);
@@ -267,6 +282,11 @@ export function createPlaygroundCatalog(items, previews) {
     if (node.type === "TSFunctionType") return { kind: "callback", type };
     if (node.type === "TSLiteralType")
       return { kind: "select", options: [literal(node.literal)], type };
+    if (["TSInterfaceDeclaration", "TSTypeLiteral"].includes(node.type)) {
+      const fields = properties(node, file, seen);
+      if (fields.length && fields.every((field) => ["text", "number", "boolean", "select", "object"].includes(field.kind)))
+        return { kind: "object", type, fields };
+    }
     if (node.type === "TSUnionType") {
       const members = node.types
         .filter(
@@ -297,6 +317,31 @@ export function createPlaygroundCatalog(items, previews) {
           ],
           type,
         };
+      if (members.length && members.every((part) => part.kind === "object")) {
+        const discriminator = members[0].fields.find((field) =>
+          field.kind === "select" && members.every((member) =>
+            member.fields.some((entry) => entry.name === field.name && entry.kind === "select")));
+        const fields = new Map();
+        for (const member of members) {
+          for (const field of member.fields) {
+            const previous = fields.get(field.name);
+            fields.set(field.name, previous?.kind === "select" && field.kind === "select"
+              ? { ...field, optional: previous.optional && field.optional, options: [...new Set([...previous.options, ...field.options])], type: [...new Set([...previous.options, ...field.options])].map(JSON.stringify).join(" | ") }
+              : { ...field, optional: previous ? previous.optional && field.optional : field.optional });
+          }
+        }
+        if (discriminator) {
+          for (const field of fields.values()) {
+            const present = members.filter((member) => member.fields.some((entry) => entry.name === field.name));
+            if (present.length !== members.length)
+              field.condition = {
+                field: discriminator.name,
+                options: present.flatMap((member) => member.fields.find((entry) => entry.name === discriminator.name).options),
+              };
+          }
+        }
+        return { kind: "object", type, fields: [...fields.values()] };
+      }
       if (
         members.length &&
         members.every((part) => part.kind === members[0]?.kind)
@@ -308,10 +353,10 @@ export function createPlaygroundCatalog(items, previews) {
       const key = `${file}#${name}`;
       if (!seen.has(key)) {
         const found = reference(file, name);
-        if (found?.node.type === "TSTypeAliasDeclaration")
+        if (found && ["TSTypeAliasDeclaration", "TSInterfaceDeclaration"].includes(found.node.type))
           return {
             ...describe(
-              found.node.typeAnnotation,
+              found.node.type === "TSInterfaceDeclaration" ? found.node : found.node.typeAnnotation,
               found.file,
               new Set([...seen, key]),
             ),
@@ -346,7 +391,7 @@ export function createPlaygroundCatalog(items, previews) {
                 kind: "callback",
                 type: module(file).source.slice(part.start, part.end),
               }
-            : describe(part.typeAnnotation?.typeAnnotation, file)),
+            : describe(part.typeAnnotation?.typeAnnotation, file, seen)),
         }));
       return [
         ...(node.extends ?? []).flatMap((base) =>

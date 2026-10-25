@@ -36,6 +36,7 @@ export function observeIenContinuousCorners(): () => void {
 }
 
 function start() {
+  const supportsNativeCorners = window.CSS.supports("corner-shape", "squircle");
   const elements = new Map<
     HTMLElement,
     {
@@ -216,7 +217,7 @@ function start() {
       ]);
       if (signature === entry.signature) continue;
       entry.signature = signature;
-      if (!enabled) {
+      if (!enabled || (supportsNativeCorners && smoothing === 1)) {
         updates.push(() => {
           restore(element, entry);
           entry.writtenStyle = element.getAttribute("style");

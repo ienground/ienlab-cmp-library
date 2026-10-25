@@ -20,6 +20,8 @@ import {
   parse,
   subMonths,
 } from "date-fns"
+import { enUS, ko } from "react-day-picker/locale"
+import type { Locale } from "date-fns"
 import type { DateRange, DayButton } from "react-day-picker"
 
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -32,6 +34,9 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { IconPlaceholder } from "@/lib/reui-icons"
 
 export interface DateSelectorI18nConfig {
+  dateLocale?: Locale
+  previousMonth?: string
+  nextMonth?: string
   // Labels
   selectDate: string
   apply: string
@@ -69,6 +74,9 @@ export interface DateSelectorI18nConfig {
 }
 
 export const DEFAULT_DATE_SELECTOR_I18N: DateSelectorI18nConfig = {
+  dateLocale: enUS,
+  previousMonth: "Previous month",
+  nextMonth: "Next month",
   selectDate: "Select date",
   apply: "Apply",
   cancel: "Cancel",
@@ -131,6 +139,27 @@ export const DEFAULT_DATE_SELECTOR_I18N: DateSelectorI18nConfig = {
   rangePlaceholder: "Select date range...",
 }
 
+export const DATE_SELECTOR_I18N_KO: DateSelectorI18nConfig = {
+  dateLocale: ko,
+  previousMonth: "이전 달",
+  nextMonth: "다음 달",
+  selectDate: "날짜 선택",
+  apply: "적용",
+  cancel: "취소",
+  clear: "초기화",
+  today: "오늘",
+  filterTypes: { is: "당일", before: "이전", after: "이후", between: "기간" },
+  periodTypes: { day: "일", month: "월", quarter: "분기", halfYear: "반기", year: "년" },
+  months: Array.from({ length: 12 }, (_, index) => `${index + 1}월`),
+  monthsShort: Array.from({ length: 12 }, (_, index) => `${index + 1}월`),
+  quarters: ["1분기", "2분기", "3분기", "4분기"],
+  halfYears: ["상반기", "하반기"],
+  weekdays: ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"],
+  weekdaysShort: ["일", "월", "화", "수", "목", "금", "토"],
+  placeholder: "날짜를 선택하세요",
+  rangePlaceholder: "기간을 선택하세요",
+}
+
 export type DateSelectorPeriodType =
   | "day"
   | "month"
@@ -169,7 +198,7 @@ export const useDateSelectorContext = () => useContext(DateSelectorContext)
 export function formatDateValue(
   value: DateSelectorValue,
   i18n: DateSelectorI18nConfig = DEFAULT_DATE_SELECTOR_I18N,
-  dayDateFormat: string = "MM/dd/yyyy"
+  dayDateFormat: string = i18n.dateLocale?.code === "ko" ? "yyyy-MM-dd" : "MM/dd/yyyy"
 ): string {
   const {
     period,
@@ -183,42 +212,45 @@ export function formatDateValue(
     rangeEnd,
   } = value
 
+  const periodLabel = (year: number, label: string) =>
+    i18n.dateLocale?.code === "ko" ? `${year}년 ${label}` : `${label} ${year}`
+
   if (period === "day") {
     if (startDate && endDate) {
-      return `${format(startDate, dayDateFormat)} - ${format(endDate, dayDateFormat)}`
+      return `${format(startDate, dayDateFormat, { locale: i18n.dateLocale })} - ${format(endDate, dayDateFormat, { locale: i18n.dateLocale })}`
     }
     if (startDate) {
-      return format(startDate, dayDateFormat)
+      return format(startDate, dayDateFormat, { locale: i18n.dateLocale })
     }
     return ""
   }
 
   if (period === "month") {
     if (rangeStart && rangeEnd) {
-      return `${i18n.monthsShort[rangeStart.value]} ${rangeStart.year} - ${i18n.monthsShort[rangeEnd.value]} ${rangeEnd.year}`
+      return `${periodLabel(rangeStart.year, i18n.monthsShort[rangeStart.value])} - ${periodLabel(rangeEnd.year, i18n.monthsShort[rangeEnd.value])}`
     }
     if (year !== undefined && month !== undefined) {
-      return `${i18n.monthsShort[month]} ${year}`
+      return periodLabel(year, i18n.monthsShort[month])
     }
     return ""
   }
 
   if (period === "quarter") {
     if (rangeStart && rangeEnd) {
-      return `${i18n.quarters[rangeStart.value]} ${rangeStart.year} - ${i18n.quarters[rangeEnd.value]} ${rangeEnd.year}`
+      return `${periodLabel(rangeStart.year, i18n.quarters[rangeStart.value])} - ${periodLabel(rangeEnd.year, i18n.quarters[rangeEnd.value])}`
     }
     if (year !== undefined && quarter !== undefined) {
-      return `${i18n.quarters[quarter]} ${year}`
+      return periodLabel(year, i18n.quarters[quarter])
     }
     return ""
   }
 
   if (period === "half-year") {
     if (rangeStart && rangeEnd) {
-      return `${i18n.halfYears[rangeStart.value]} ${rangeStart.year} - ${i18n.halfYears[rangeEnd.value]} ${rangeEnd.year}`
+      return `${periodLabel(rangeStart.year, i18n.halfYears[rangeStart.value])} - ${periodLabel(rangeEnd.year, i18n.halfYears[rangeEnd.value])}`
     }
     if (year !== undefined && halfYear !== undefined) {
-      return `${i18n.halfYears[halfYear]} ${year}`
+      return periodLabel(year, i18n.halfYears[halfYear])
     }
     return ""
   }
@@ -753,6 +785,7 @@ function DateSelectorPeriodTabs({
             <Button
               variant="ghost"
               className="size-8.5"
+              aria-label={i18n.previousMonth ?? DEFAULT_DATE_SELECTOR_I18N.previousMonth}
               onClick={() => onMonthChange(subMonths(calendarMonth, 1))}
             >
               <IconPlaceholder
@@ -767,6 +800,7 @@ function DateSelectorPeriodTabs({
             <Button
               variant="ghost"
               className="size-8.5"
+              aria-label={i18n.nextMonth ?? DEFAULT_DATE_SELECTOR_I18N.nextMonth}
               onClick={() => onMonthChange(addMonths(calendarMonth, 1))}
             >
               <IconPlaceholder
@@ -878,7 +912,9 @@ function DateSelectorDayPicker({
     formatMonthCaption: (date: Date) => {
       const monthIndex = date.getMonth()
       const year = date.getFullYear()
-      return `${i18n.months[monthIndex]} ${year}`
+      return i18n.dateLocale?.code === "ko"
+        ? `${year}년 ${i18n.months[monthIndex]}`
+        : `${i18n.months[monthIndex]} ${year}`
     },
   }
 
@@ -890,6 +926,7 @@ function DateSelectorDayPicker({
       data-ien-gradient={ienTheme.useGradient} className={cn("flex w-full items-center justify-between", className)}>
       {isRange ? (
         <Calendar
+          locale={i18n.dateLocale}
           month={currentMonth}
           mode="range"
           selected={selected as DateRange | undefined}
@@ -910,6 +947,7 @@ function DateSelectorDayPicker({
         />
       ) : (
         <Calendar
+          locale={i18n.dateLocale}
           month={currentMonth}
           mode="single"
           selected={selected as Date | undefined}
@@ -1094,6 +1132,7 @@ function DateSelectorYearList({
 }
 
 export interface DateSelectorProps {
+  locale?: "ko" | "en"
   tone?: IenToneProps["tone"]
   useGradient?: boolean
 
@@ -1137,16 +1176,17 @@ export function DateSelector({
   baseYear,
   minYear = 2015,
   maxYear = 2026,
+  locale = "en",
   i18n: i18nOverride,
   inputHint,
-  dayDateFormat = "MM/dd/yyyy",
+  dayDateFormat = locale === "ko" ? "yyyy-MM-dd" : "MM/dd/yyyy",
   dayDateFormats,
   weekStartsOn,
 }: DateSelectorProps & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const mergedI18n = useMemo(
-    () => ({ ...DEFAULT_DATE_SELECTOR_I18N, ...i18nOverride }),
-    [i18nOverride]
+    () => ({ ...(locale === "ko" ? DATE_SELECTOR_I18N_KO : DEFAULT_DATE_SELECTOR_I18N), ...i18nOverride }),
+    [locale, i18nOverride]
   )
 
   const selector = useDateSelector({
@@ -1214,6 +1254,7 @@ export function DateSelector({
     // Default formats: use dayDateFormat first, then common alternatives
     const defaultFormats = [
       dayDateFormat,
+      "MM/dd/yyyy",
       "dd/MM/yyyy",
       "yyyy-MM-dd",
       "MM-dd-yyyy",
@@ -1263,7 +1304,7 @@ export function DateSelector({
       // Try parsing as date using computed formats
       for (const dateFormat of dateFormats) {
         try {
-          const parsed = parse(trimmed, dateFormat, new Date())
+          const parsed = parse(trimmed, dateFormat, new Date(), { locale: mergedI18n.dateLocale })
           if (!isNaN(parsed.getTime())) {
             return {
               period: "day",
@@ -1278,7 +1319,7 @@ export function DateSelector({
 
       return null
     },
-    [filterType, presetMode, dateFormats]
+    [filterType, presetMode, dateFormats, mergedI18n.dateLocale]
   )
 
   const handleInputChange = useCallback(
@@ -1336,7 +1377,7 @@ export function DateSelector({
               value={inputHint ? inputValue : displayValue}
               readOnly={!inputHint}
               placeholder={
-                isInputFocused && inputHint ? inputHint : mergedI18n.placeholder
+                isInputFocused && inputHint ? inputHint : filterType === "between" ? mergedI18n.rangePlaceholder : mergedI18n.placeholder
               }
               onFocus={() => setIsInputFocused(true)}
               onBlur={handleInputBlur}
@@ -1346,6 +1387,7 @@ export function DateSelector({
                 <button
                 type="button"
                 onClick={clearSelection}
+                aria-label={mergedI18n.clear}
                 className={cn(
                   // Base Styles
                   "rounded-xs absolute end-2.5 top-1/2 size-4 -translate-y-1/2 cursor-pointer",

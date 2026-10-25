@@ -4,6 +4,10 @@ import { Slot } from "radix-ui"
 
 import { cn } from "cn"
 
+const smallBadgeSize = "px-[calc(var(--ien-spacing-xxs)+var(--ien-spacing-xxxs))] py-(--ien-spacing-xxxs) text-[length:var(--ien-font-size-caption)] leading-(--ien-line-height-caption) font-normal gap-(--ien-spacing-xxs)"
+const mediumBadgeSize = "px-(--ien-spacing-xs) py-[calc(var(--ien-spacing-xxxs)*1.5)] text-[length:var(--ien-font-size-label2)] leading-(--ien-line-height-label2) font-semibold gap-(--ien-spacing-xxs)"
+const largeBadgeSize = "px-[calc(var(--ien-spacing-sm)-var(--ien-spacing-xxxs))] py-[calc(var(--ien-spacing-xxs)+var(--ien-spacing-xxxs)/2)] text-[length:var(--ien-font-size-label1)] leading-(--ien-line-height-label1) font-semibold gap-(--ien-spacing-xxs)"
+
 const badgeVariants = cva(
   [
     "relative inline-flex shrink-0 items-center justify-center w-fit border font-medium whitespace-nowrap outline-none transition-shadow",
@@ -19,22 +23,24 @@ const badgeVariants = cva(
         ghost: "ien-clear",
       },
       size: {
+        small: smallBadgeSize,
+        medium: mediumBadgeSize,
+        large: largeBadgeSize,
         xs: "px-1 py-0.25 text-[0.6rem] leading-none h-4 min-w-4 gap-1",
-        sm: "px-1 py-0.25 text-[0.625rem] leading-none h-4.5 min-w-4.5 gap-1",
-        default: "px-1.25 py-0.5 text-xs h-5 min-w-5 gap-1",
-        lg: "px-1.5 py-0.5 text-xs h-5.5 min-w-5.5 gap-1",
+        sm: smallBadgeSize,
+        default: mediumBadgeSize,
+        lg: largeBadgeSize,
         xl: "px-2 py-0.75 text-sm h-6 min-w-6 gap-1.5",
       },
-      /** `default`: active style radius. `full`: pill radius. */
+      /** CMP와 동일한 캡슐 모서리. `full`은 기존 API 호환용입니다. */
       radius: {
-        default:
-          "rounded-sm",
+        default: "rounded-full",
         full: "rounded-full",
       },
     },
     defaultVariants: {
       variant: "fill",
-      size: "default",
+      size: "medium",
       radius: "default",
     },
   },
@@ -64,7 +70,7 @@ function Badge({
   return (
     <Comp
       data-slot="badge"
-      data-ien-typography="label1"
+      data-ien-typography={size === "small" || size === "sm" || size === "xs" ? "caption" : size === "large" || size === "lg" || size === "xl" ? "label1" : "label2"}
       data-ien=""
       data-ien-tone={resolveIenTone(ienTone, variant)}
       data-ien-gradient={ienUseGradient}
