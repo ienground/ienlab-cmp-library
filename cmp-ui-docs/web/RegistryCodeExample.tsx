@@ -1,6 +1,7 @@
+import { Typography } from "@/components/ui/typography";
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
-import { Button } from "./components/ui/button";
+import { Button } from "@/components/ui/button";
 import { CodeBlock } from "../../cmp-ui-web-registry/reui/code-block/code-block";
 import { copyTextToClipboard } from "./clipboard";
 
@@ -19,8 +20,8 @@ export function CodeExample({ label, code }: { label: string; code: string }) {
   return (
     <div className="web-code-example">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-medium">{label}</h3>
-        <Button variant="outline" size="sm" onClick={copyCode}>
+        <Typography variant="title2" asChild><h3>{label}</h3></Typography>
+        <Button variant="line" size="sm" onClick={copyCode}>
           {copyStatus === "복사했습니다." ? (
             <Check aria-hidden="true" />
           ) : (

@@ -1,3 +1,4 @@
+import { Typography } from "@/components/ui/typography";
 import {
   createContext,
   createElement,
@@ -10,8 +11,8 @@ import {
   type ElementType,
   type ReactNode,
 } from "react";
-import { Button } from "./components/ui/button";
-import { Input } from "./components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Switch } from "../../cmp-ui-web-registry/ui/switch";
 import { Textarea } from "../../cmp-ui-web-registry/ui/textarea";
 import { CodeExample } from "./RegistryCodeExample";
@@ -377,7 +378,7 @@ export function WebPlayground({
     <div className="web-playground">
       <section className="playground-panel" aria-label="Playground 미리보기">
         <div className="playground-heading">
-          <h3>미리보기</h3>
+          <Typography variant="title2" asChild><h3>미리보기</h3></Typography>
           <label>
             미리보기 너비{" "}
             <select
@@ -412,10 +413,10 @@ export function WebPlayground({
       <section className="playground-panel" aria-label="속성 조정">
         <div className="playground-heading">
           <div>
-            <h3>속성 조정</h3>
+            <Typography variant="title2" asChild><h3>속성 조정</h3></Typography>
             <p>값을 바꾸면 실제 컴포넌트에 바로 반영됩니다.</p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => reset()}>
+          <Button variant="line" size="sm" onClick={() => reset()}>
             전체 초기화
           </Button>
         </div>
@@ -493,7 +494,7 @@ export function WebPlayground({
       </section>
       <section className="playground-panel" aria-label="이벤트 기록">
         <div className="playground-heading">
-          <h3>이벤트 기록</h3>
+          <Typography variant="title2" asChild><h3>이벤트 기록</h3></Typography>
           <Button variant="ghost" size="sm" onClick={() => setEventLog([])}>
             기록 지우기
           </Button>

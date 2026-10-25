@@ -1,7 +1,8 @@
+import { Typography } from "@/components/ui/typography";
 import { useEffect, useRef, useState } from "react";
 import { generatePath } from "@lisse/core/path";
-import { Button } from "./components/ui/button";
-import { Input } from "./components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { CodeExample } from "./RegistryCodeExample";
 import { WebComponentPreview } from "./WebRegistryDocs";
 import { webCatalog } from "./web-registry";
@@ -193,10 +194,10 @@ export function WebProjects({
         aria-label="프로젝트 설정"
       >
         <div className="panel-heading">
-          <h2>
+          <Typography variant="title1" asChild><h2>
             {project.title}
             {dirty ? " · 편집됨" : ""}
-          </h2>
+          </h2></Typography>
         </div>
         <div className="project-editor">
           <div className="playground-heading">
@@ -220,7 +221,7 @@ export function WebProjects({
               </select>
             </label>
             <Button
-              variant="outline"
+              variant="line"
               size="sm"
               disabled={!dirty && !Object.keys(drafts).length}
               onClick={() => {
@@ -267,11 +268,11 @@ export function WebProjects({
               value={newName}
               onChange={(event) => setNewName(event.target.value)}
             />
-            <Button variant="outline" size="sm" onClick={create}>
+            <Button variant="line" size="sm" onClick={create}>
               현재 설정으로 프로젝트 추가
             </Button>
             <Button
-              variant="outline"
+              variant="line"
               size="sm"
               onClick={() => fileInput.current?.click()}
             >
@@ -303,7 +304,7 @@ export function WebProjects({
             />
           </div>
           <section aria-label="프로젝트 반경">
-            <h3>반경</h3>
+            <Typography variant="title2" asChild><h3>반경</h3></Typography>
             <p>기존 radius 값에 연속 곡률(continuous)을 적용합니다.</p>
             <div className="playground-controls">
               {Object.keys(projectDefaults.light)
@@ -319,7 +320,7 @@ export function WebProjects({
             </div>
           </section>
           <section aria-label="프로젝트 간격과 폰트">
-            <h3>간격·폰트</h3>
+            <Typography variant="title2" asChild><h3>간격·폰트</h3></Typography>
             <div className="playground-controls">
               {variable("theme", "spacing", "레이아웃 간격 단위", "width")}
               {variable(
@@ -343,7 +344,7 @@ export function WebProjects({
             </div>
           </section>
           <section aria-label="프로젝트 타이포그래피">
-            <h3>타이포그래피</h3>
+            <Typography variant="title2" asChild><h3>타이포그래피</h3></Typography>
             <p>
               기존 컴포넌트의 글자 크기를 유지합니다. 값을 편집한 역할에만
               크기·행간·굵기를 적용합니다.
@@ -376,7 +377,7 @@ export function WebProjects({
           </section>
           <section aria-label="프로젝트 색상">
             <div className="playground-heading">
-              <h3>색상</h3>
+              <Typography variant="title2" asChild><h3>색상</h3></Typography>
               <label>
                 편집할 색상 모드{" "}
                 <select
@@ -458,14 +459,14 @@ export function WebProjects({
       <aside className="project-preview-panel" aria-label="프로젝트 미리보기">
         <div className="playground-heading">
           <div>
-            <h2>실시간 미리보기</h2>
+            <Typography variant="title1" asChild><h2>실시간 미리보기</h2></Typography>
             <p>
               {project.title}
               {dirty ? " · 편집 중" : ""}
             </p>
           </div>
           <Button
-            variant="outline"
+            variant="line"
             size="sm"
             onClick={() => setPreviewRevision((value) => value + 1)}
           >
@@ -547,7 +548,7 @@ export function WebProjects({
           className="project-preview-tokens"
           aria-label="타이포그래피 미리보기"
         >
-          <h3>타이포그래피</h3>
+          <Typography variant="title2" asChild><h3>타이포그래피</h3></Typography>
           {typographyRoles.map((role) => (
             <div className="project-type-sample" key={role}>
               <code>
@@ -576,7 +577,7 @@ export function WebProjects({
           className="project-preview-tokens"
           aria-label="반경과 간격 미리보기"
         >
-          <h3>반경·간격</h3>
+          <Typography variant="title2" asChild><h3>반경·간격</h3></Typography>
           <div className="project-radius-samples">
             {Object.keys(projectDefaults.light)
               .filter((name) => name.startsWith("ien-radius-"))
@@ -612,7 +613,7 @@ export function WebProjects({
           className="project-preview-tokens"
           aria-label="의미적 색상 미리보기"
         >
-          <h3>의미적 색상</h3>
+          <Typography variant="title2" asChild><h3>의미적 색상</h3></Typography>
           <div className="project-tone-samples">
             {["neutral", "brand", "success", "warning", "danger", "info"].map(
               (tone) => (

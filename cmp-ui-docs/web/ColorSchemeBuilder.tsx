@@ -1,11 +1,12 @@
+import { Typography } from "@/components/ui/typography";
 import { useCallback, useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { Link } from "react-router";
-import { Button } from "./components/ui/button";
-import { Card } from "./components/ui/card";
-import { Input } from "./components/ui/input";
-import { Badge } from "./components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/reui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   colorDescriptions,
   colorRoles,
@@ -216,9 +217,9 @@ export function ColorSchemeBuilder({
       <div className="panel-heading">
         <div>
           <p className="panel-kicker">THEME BUILDER</p>
-          <h2>ColorScheme 생성기</h2>
+          <Typography variant="title1" asChild><h2>ColorScheme 생성기</h2></Typography>
         </div>
-        <Badge variant="outline">IenColorScheme · 32 colors</Badge>
+        <Badge variant="line">IenColorScheme · 32 colors</Badge>
       </div>
       <p className="panel-description">
         기준색을 선택하면 라이트·다크 상태 색상을 자동 생성합니다. 세부 색상을
@@ -243,7 +244,7 @@ export function ColorSchemeBuilder({
         />
       </Card>
       <Card className="color-builder-card">
-        <h3>아이콘 스타일</h3>
+        <Typography variant="title2" asChild><h3>아이콘 스타일</h3></Typography>
         <p className="color-hint">
           선택한 스타일을 컴포넌트 미리보기와 생성한 Kotlin 테마에 적용합니다.
         </p>
@@ -266,7 +267,7 @@ export function ColorSchemeBuilder({
         </Tabs>
       </Card>
       <Card id={cmpColorSchemeSections[0].id} className="color-builder-card">
-        <h3>기준 색상</h3>
+        <Typography variant="title2" asChild><h3>기준 색상</h3></Typography>
         <div className="color-seeds">
           {semanticGroups.map((group) => (
             <ColorInput
@@ -290,7 +291,7 @@ export function ColorSchemeBuilder({
           중립색은 라이브러리 기본값을 사용합니다.
         </p>
         <Button
-          variant="outline"
+          variant="line"
           onClick={() => {
             setSeeds(defaultColorSeeds());
             setSchemes(defaultColorSchemes());
@@ -321,7 +322,7 @@ export function ColorSchemeBuilder({
             className="content-panel color-palette"
           >
             <Card className="color-builder-card">
-              <h3>색상 역할 편집</h3>
+              <Typography variant="title2" asChild><h3>색상 역할 편집</h3></Typography>
               <p className="color-hint">
                 HEX 8자리의 마지막 두 자리는 투명도입니다. 예: #00000099
               </p>
@@ -355,7 +356,7 @@ export function ColorSchemeBuilder({
         ))}
       </Tabs>
       <Card id={cmpColorSchemeSections[2].id} className="color-builder-card">
-        <h3>상태 색상과 대비</h3>
+        <Typography variant="title2" asChild><h3>상태 색상과 대비</h3></Typography>
         <div
           className="color-swatches"
           style={{
@@ -412,9 +413,9 @@ export function ColorSchemeBuilder({
       </Card>
       <Card id={cmpColorSchemeSections[3].id} className="color-builder-card">
         <div className="color-code-heading">
-          <h3>Kotlin 테마 코드</h3>
+          <Typography variant="title2" asChild><h3>Kotlin 테마 코드</h3></Typography>
           <div className="color-actions">
-            <Button variant="outline" disabled={invalid} onClick={copyCode}>
+            <Button variant="line" disabled={invalid} onClick={copyCode}>
               코드 복사
             </Button>
             <Button disabled={invalid} onClick={downloadCode}>
@@ -480,8 +481,8 @@ function WebColorScheme({ themeMode }: { themeMode: ColorMode }) {
   return (
     <Card id="web-color-scheme" className="color-builder-card">
       <div className="color-code-heading">
-        <h3>웹 컬러 스킴</h3>
-        <Button asChild variant="outline" size="sm">
+        <Typography variant="title2" asChild><h3>웹 컬러 스킴</h3></Typography>
+        <Button asChild variant="line" size="sm">
           <Link to="/projects">프로젝트 색상 편집</Link>
         </Button>
       </div>
@@ -517,7 +518,7 @@ function WebColorScheme({ themeMode }: { themeMode: ColorMode }) {
       <div className={mode} style={style}>
         {groups.map((group) => (
           <section key={group.title} className="space-y-4 mb-6">
-            <h4>{group.title}</h4>
+            <Typography variant="title3" asChild><h4>{group.title}</h4></Typography>
             <div className="color-roles">
               {group.names.map((name) => (
                 <div key={name} className="min-w-0">

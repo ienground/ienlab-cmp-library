@@ -4349,6 +4349,77 @@
       "dependencies": [
         "@lisse/core@0.7.3"
       ]
+    },
+    {
+      "name": "sheet",
+      "type": "registry:ui",
+      "title": "Sheet",
+      "description": "IEN 테마를 사용하는 측면 패널입니다.",
+      "dependencies": [
+        "radix-ui",
+        "cn",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/button"
+      ],
+      "files": [
+        {
+          "path": "ui/sheet.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/sheet.tsx"
+        }
+      ],
+      "meta": {
+        "category": "Shadcn",
+        "cmpIds": [],
+        "exports": [
+          "Sheet",
+          "SheetTrigger",
+          "SheetClose",
+          "SheetContent",
+          "SheetHeader",
+          "SheetFooter",
+          "SheetTitle",
+          "SheetDescription"
+        ],
+        "ienDesign": true,
+        "preview": "previews/sheet.tsx",
+        "example": "import { Button } from \"@/components/ui/button\"\nimport {\n  Sheet,\n  SheetTrigger,\n  SheetContent,\n  SheetHeader,\n  SheetTitle,\n  SheetDescription,\n} from \"@/components/ui/sheet\"\n\nexport function Pattern() {\n  return (\n    <Sheet>\n      <SheetTrigger asChild>\n        <Button variant=\"line\">패널 열기</Button>\n      </SheetTrigger>\n      <SheetContent>\n        <SheetHeader>\n          <SheetTitle>패널 제목</SheetTitle>\n          <SheetDescription>추가 정보와 작업을 표시하는 패널입니다.</SheetDescription>\n        </SheetHeader>\n      </SheetContent>\n    </Sheet>\n  )\n}\nexport default Pattern\n"
+      }
+    },
+    {
+      "name": "typography",
+      "type": "registry:ui",
+      "title": "Typography",
+      "description": "프로젝트의 IEN 타이포그래피 토큰을 사용하는 텍스트입니다.",
+      "dependencies": [
+        "radix-ui",
+        "class-variance-authority",
+        "cn"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme"
+      ],
+      "files": [
+        {
+          "path": "ui/typography.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/typography.tsx"
+        }
+      ],
+      "meta": {
+        "category": "Shadcn",
+        "cmpIds": [],
+        "exports": [
+          "Typography",
+          "typographyVariants"
+        ],
+        "preview": "previews/typography.tsx",
+        "ienDesign": true,
+        "example": "import { Typography } from \"@/components/ui/typography\"\n\nexport function Pattern() {\n  return (\n    <div className=\"space-y-4\">\n      <Typography variant=\"display\" asChild><h1>페이지 제목</h1></Typography>\n      <Typography variant=\"title1\" asChild><h2>섹션 제목</h2></Typography>\n      <Typography variant=\"title2\" asChild><h3>소제목</h3></Typography>\n      <Typography variant=\"title3\" asChild><h4>세부 제목</h4></Typography>\n      <Typography>본문 내용입니다.</Typography>\n      <Typography variant=\"caption\">보조 설명입니다.</Typography>\n    </div>\n  )\n}\nexport default Pattern\n"
+      }
     }
   ]
 }

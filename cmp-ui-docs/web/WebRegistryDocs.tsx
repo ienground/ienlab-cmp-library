@@ -1,3 +1,4 @@
+import { Typography } from "@/components/ui/typography";
 import {
   Component,
   lazy,
@@ -100,7 +101,7 @@ export function WebRegistryDocs({
           <p className="panel-kicker">
             {tab === "preview" ? "LIVE WEB COMPONENT" : tab === "playground" ? "COMPONENT PLAYGROUND" : "SHADCN REGISTRY"}
           </p>
-          <h2>{item.name}</h2>
+          <Typography variant="title1" asChild><h2>{item.name}</h2></Typography>
           <p>{item.description}</p>
         </div>
       </div>
@@ -169,7 +170,7 @@ export function WebRegistryDocs({
         </>
       )}
       <section aria-label="접근성">
-        <h3>접근성</h3>
+        <Typography variant="title2" asChild><h3>접근성</h3></Typography>
         <p>
           입력에는 연결된 label을, 아이콘만 있는 버튼에는 aria-label을
           지정하세요. 오버레이의 제목과 설명을 유지하고 Tab·방향키·Escape로
@@ -178,7 +179,7 @@ export function WebRegistryDocs({
         </p>
       </section>
       <section aria-label="공개 API">
-        <h3>공개 API</h3>
+        <Typography variant="title2" asChild><h3>공개 API</h3></Typography>
         <p className="break-words text-sm">{item.api.join(", ")}</p>
         {item.apiEntries.map((entry) => (
           <details className="web-docs-disclosure" key={entry.name}>
@@ -213,7 +214,7 @@ export function WebRegistryDocs({
       </section>
       {item.cmpIds.length > 0 && (
         <section>
-          <h3>CMP 대응 컴포넌트</h3>
+          <Typography variant="title2" asChild><h3>CMP 대응 컴포넌트</h3></Typography>
           <ul>
             {item.cmpIds.map((id) => (
               <li key={id}>
@@ -231,7 +232,7 @@ export function WebRegistryDocs({
       )}
       {item.limitations.length > 0 && (
         <section>
-          <h3>플랫폼 차이</h3>
+          <Typography variant="title2" asChild><h3>플랫폼 차이</h3></Typography>
           <ul>
             {item.limitations.map((note) => (
               <li key={note}>{note}</li>

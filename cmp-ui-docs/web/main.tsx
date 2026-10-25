@@ -1,3 +1,4 @@
+import { Typography } from "@/components/ui/typography";
 import {
   Fragment,
   StrictMode,
@@ -32,19 +33,19 @@ import {
   useNavigate,
   useParams,
 } from "react-router";
-import { Badge } from "./components/ui/badge";
-import { Button } from "./components/ui/button";
-import { Card } from "./components/ui/card";
-import { Input } from "./components/ui/input";
-import { ScrollArea } from "./components/ui/scroll-area";
+import { Badge } from "@/components/reui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetClose,
   SheetContent,
   SheetTitle,
-} from "./components/ui/sheet";
-import { Skeleton } from "./components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
+} from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { catalog, categories } from "./catalog.js";
 import { webCatalog } from "./web-registry";
 import apiDocs from "./generated-api-docs.json";
@@ -257,7 +258,6 @@ function ComponentPage({
   const isProjectsPage = pathname === "/projects";
   const isSettingsPage = isColorSchemePage || isProjectsPage;
   const isWebPage = section === "web";
-  const [headerScrolled, setHeaderScrolled] = useState(false);
   const [activeColorSection, setActiveColorSection] = useState(
     colorSchemeSections[0].id,
   );
@@ -279,13 +279,6 @@ function ComponentPage({
       ),
     [requestedComponentId, isSettingsPage, lastComponentId, isWebPage],
   );
-  useEffect(() => {
-    const updateHeader = () => setHeaderScrolled(window.scrollY > 24);
-    updateHeader();
-    window.addEventListener("scroll", updateHeader, { passive: true });
-    return () => window.removeEventListener("scroll", updateHeader);
-  }, []);
-
   useEffect(() => {
     let pendingPreviewHeight: number | null = null;
     let heightUpdateTimeout: number | undefined;
@@ -454,7 +447,7 @@ function ComponentPage({
 
   return (
     <>
-      <header className={headerScrolled ? "topbar header-floating" : "topbar"}>
+      <header className="topbar">
         <nav className="header-navigation" aria-label="데모 페이지">
           <Button
             asChild
@@ -500,7 +493,7 @@ function ComponentPage({
           <img alt="" src={ienlabLogo} width={32} height={32} />
           <span className="header-brand-label">
             <span className="header-brand-name">cmp-library</span>
-            <Badge className="header-version" variant="secondary">
+            <Badge className="header-version" variant="weak">
               v{libraryVersion}
             </Badge>
           </span>
@@ -522,7 +515,7 @@ function ComponentPage({
             onClick={() => onThemeModeChange(nextThemeMode)}
             size="icon-sm"
             title={themeModeLabel}
-            variant="outline"
+            variant="line"
           >
             {themeMode === "light" ? (
               <Sun aria-hidden="true" />
@@ -570,15 +563,15 @@ function ComponentPage({
         />}
 
         <div className="main-column">
-          <main className="main-content">
+          <Typography variant="body1" asChild><main className="main-content">
             <div className="page-heading">
               <div className="page-heading-copy">
                 <p className="eyebrow">
                   {isProjectsPage ? "PROJECT SETTINGS" : isColorSchemePage ? "THEME BUILDER" : isWebPage ? "WEB COMPONENT REGISTRY" : "COMPONENT LIBRARY"}
                 </p>
-                <h1>
+                <Typography variant="display" asChild><h1>
                   {isProjectsPage ? "프로젝트 설정" : isColorSchemePage ? "ColorScheme" : activeComponent.name}
-                </h1>
+                </h1></Typography>
                 <p className="component-description">
                   {isProjectsPage
                     ? "프로젝트별 디자인 토큰과 레지스트리 프리셋을 관리합니다."
@@ -588,7 +581,7 @@ function ComponentPage({
                 </p>
               </div>
               {!isSettingsPage && (
-                <Badge className="component-count" variant="secondary">
+                <Badge className="component-count" variant="weak">
                   {`${isWebPage ? webCatalog.length : catalog.length} components`}
                 </Badge>
               )}
@@ -649,9 +642,9 @@ function ComponentPage({
                       <div className="panel-heading">
                         <div>
                           <p className="panel-kicker">LIVE COMPONENT</p>
-                          <h2>Compose 미리보기</h2>
+                          <Typography variant="title1" asChild><h2>Compose 미리보기</h2></Typography>
                         </div>
-                        <Badge className="runtime-badge" variant="outline">
+                        <Badge className="runtime-badge" variant="line">
                           <span className="status-dot" /> Kotlin · Wasm
                         </Badge>
                       </div>
@@ -662,7 +655,7 @@ function ComponentPage({
                       {customColorSchemes && (
                         <Button
                           className="preview-reset"
-                          variant="outline"
+                          variant="line"
                           onClick={() => setCustomColorSchemes(null)}
                         >
                           기본 색상 복원
@@ -738,7 +731,7 @@ function ComponentPage({
                 }}
               />
             </section>
-          </main>
+          </main></Typography>
         </div>
       </div>
     </>
@@ -875,7 +868,7 @@ function SidebarContents({
           {isColorSchemePage ? "컬러 스킴" : isWebPage ? "(00) 웹 컴포넌트" : "(00) 컴포넌트"}
         </p>
         {!isColorSchemePage && (
-          <Badge variant="secondary">{filteredCatalog.length}</Badge>
+          <Badge variant="weak">{filteredCatalog.length}</Badge>
         )}
       </div>
       {isColorSchemePage && (
@@ -922,9 +915,9 @@ function SidebarContents({
               ) : (
                 visibleCategories.map((group, index) => (
                   <div className="navigation-group" key={group.category}>
-                    <h2>
+                    <Typography variant="title1" asChild><h2>
                       ({String(index + 1).padStart(2, "0")}) {group.category}
-                    </h2>
+                    </h2></Typography>
                     {group.items.map((item) => {
                       const isActive = activeComponentId === item.id;
 
@@ -939,7 +932,7 @@ function SidebarContents({
                           }
                           key={item.id}
                           size="sm"
-                          variant={isActive ? "secondary" : "ghost"}
+                          variant={isActive ? "weak" : "ghost"}
                         >
                           <Link
                             onClick={onSelect}
@@ -977,7 +970,7 @@ function ApiSidebar({ component }: { component: CatalogItem }) {
     <aside className="api-sidebar">
       <div className="api-sidebar-heading">
         <Command aria-hidden="true" className="api-heading-icon" />
-        <h2>API 참고</h2>
+        <Typography variant="title1" asChild><h2>API 참고</h2></Typography>
       </div>
       <p className="api-sidebar-description">
         미리보기 컴포넌트와 연결된 공개 API입니다.
@@ -993,7 +986,7 @@ function ApiSidebar({ component }: { component: CatalogItem }) {
       <div className="api-name-list">
         <p>API</p>
         {component.api.map((name) => (
-          <Badge key={name} variant="outline">
+          <Badge key={name} variant="line">
             {name}
           </Badge>
         ))}
@@ -1030,7 +1023,7 @@ function ApiDocumentation({ component }: { component: CatalogItem }) {
   return (
     <div className="api-documentation">
       <p className="panel-kicker">API REFERENCE</p>
-      <h2>{component.name} API</h2>
+      <Typography variant="title1" asChild><h2>{component.name} API</h2></Typography>
       <p className="panel-description">{component.description}</p>
       <Card className="api-detail-card">
         <span className="api-detail-label">PACKAGE</span>
@@ -1040,7 +1033,7 @@ function ApiDocumentation({ component }: { component: CatalogItem }) {
         <span className="api-detail-label">PUBLIC API</span>
         <div className="api-detail-names">
           {component.api.map((name) => (
-            <Badge key={name} variant="outline">
+            <Badge key={name} variant="line">
               {name}
             </Badge>
           ))}
@@ -1048,7 +1041,7 @@ function ApiDocumentation({ component }: { component: CatalogItem }) {
       </Card>
       {documentation.map((api, index) => (
         <Card className="api-reference-card" key={`${api.name}-${index}`}>
-          <h3>{api.name}</h3>
+          <Typography variant="title2" asChild><h3>{api.name}</h3></Typography>
           {api.signature ? (
             <pre className="api-signature">
               <code>{highlightKotlin(api.signature)}</code>
@@ -1079,7 +1072,7 @@ function ApiDocumentation({ component }: { component: CatalogItem }) {
             {apiSourceLabel} <ArrowUpRight aria-hidden="true" />
           </a>
         </Button>
-        <Button asChild size="sm" variant="secondary">
+        <Button asChild size="sm" variant="weak">
           <a href={sampleSource} rel="noreferrer" target="_blank">
             샘플 사용 코드 <ArrowUpRight aria-hidden="true" />
           </a>

@@ -227,7 +227,7 @@ body {
   grid-template-columns: clamp(var(--docs-layout-sidebar-min), 20vw, var(--docs-layout-sidebar-max)) minmax(0, 1fr);
   gap: var(--ien-spacing-xxxl);
   min-height: 100vh;
-  margin: var(--docs-layout-page-top) var(--ien-spacing-xxl) 0;
+  margin: var(--ien-spacing-xl) var(--ien-spacing-xxl) 0;
 }
 
 .sidebar {
@@ -385,8 +385,8 @@ body {
   margin: 0;
   padding: 0 var(--docs-spacing-10) var(--docs-spacing-7);
   color: var(--text-tertiary);
-  font-size: var(--docs-font-size-small);
-  font-weight: var(--docs-font-weight-semibold);
+
+
 }
 
 .component-link {
@@ -470,10 +470,8 @@ body {
 }
 
 .topbar {
-  position: fixed;
+  position: sticky;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
   z-index: 40;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -481,14 +479,8 @@ body {
   width: 100%;
   height: var(--docs-layout-header-height);
   padding: 0 var(--ien-spacing-xxl);
-  background: color-mix(in srgb, var(--background) 92%, transparent);
+  background: var(--background);
   border-bottom: var(--ien-stroke-thin) solid var(--border);
-  transition:
-    width var(--docs-motion-transition),
-    height var(--docs-motion-transition),
-    top var(--docs-motion-transition),
-    border-radius var(--docs-motion-transition),
-    background var(--docs-motion-transition);
 }
 
 .breadcrumbs {
@@ -548,10 +540,10 @@ body {
 
 .page-heading h1 {
   margin: 0;
-  font-size: clamp(var(--docs-font-size-page-min), 6vw, var(--docs-font-size-page-max));
-  font-weight: var(--docs-font-weight-medium);
-  line-height: var(--docs-line-height-heading);
-  letter-spacing: -0.06em;
+
+
+
+
   overflow-wrap: anywhere;
 }
 
@@ -622,9 +614,9 @@ body {
 .panel-heading h2,
 .api-documentation h2 {
   margin: 0;
-  font-size: var(--ien-font-size-body1);
-  font-weight: var(--docs-font-weight-heading);
-  letter-spacing: -0.015em;
+
+
+
 }
 
 .runtime-badge {
@@ -713,8 +705,8 @@ body {
 .skeleton-composer-code-heading h4 {
   margin: 0;
   color: var(--text-primary);
-  font-size: var(--ien-font-size-label1);
-  font-weight: var(--docs-font-weight-heading);
+
+
 }
 
 .skeleton-composer-heading > div > p:last-child,
@@ -1077,8 +1069,8 @@ body {
 
 .api-sidebar-heading h2 {
   margin: 0;
-  font-size: var(--ien-font-size-label2);
-  font-weight: var(--docs-font-weight-heading);
+
+
 }
 
 .api-sidebar-description {
@@ -1181,9 +1173,7 @@ body {
   padding: var(--ien-spacing-xs) var(--docs-spacing-3);
 }
 
-.api-documentation h2 {
-  font-size: var(--docs-font-size-api-heading);
-}
+
 
 .api-documentation .panel-description {
   max-width: 620px;
@@ -1236,8 +1226,8 @@ body {
 .api-reference-card h3 {
   margin: 0 0 var(--docs-spacing-10);
   color: var(--text-primary);
-  font-size: var(--ien-font-size-label2);
-  font-weight: var(--docs-font-weight-heading);
+
+
 }
 
 .api-signature {
@@ -1358,7 +1348,7 @@ body {
   }
 
   .app-shell {
-    margin: var(--docs-layout-page-top-mobile) var(--ien-spacing-md) 0;
+    margin: var(--ien-spacing-xl) var(--ien-spacing-md) 0;
   }
 
   .component-count {
@@ -1414,10 +1404,7 @@ body {
 .app-name-card input {
   width: min(320px, 48%);
 }
-.color-builder-card h3 {
-  font-size: var(--ien-font-size-body2);
-  font-weight: var(--docs-font-weight-semibold);
-}
+
 .color-seeds,
 .color-swatches {
   display: grid;
@@ -1584,17 +1571,6 @@ body {
   }
 }
 
-.header-floating {
-  top: var(--ien-spacing-sm);
-  width: min(var(--docs-layout-floating-header-max), calc(100% - 24px));
-  height: var(--docs-layout-header-height-mobile);
-  padding: 0 var(--ien-spacing-xl);
-  border: var(--ien-stroke-thin) solid var(--border);
-  border-radius: var(--docs-layout-floating-header-radius);
-  background: color-mix(in srgb, var(--background) 72%, transparent);
-  backdrop-filter: blur(var(--docs-layout-floating-header-blur)) saturate(150%);
-  box-shadow: var(--docs-layout-floating-header-shadow);
-}
 .header-navigation {
   display: flex;
   gap: var(--ien-spacing-xxs);
@@ -1663,7 +1639,7 @@ body {
 }
 .navigation-group h2 {
   font-family: var(--docs-font-code);
-  font-size: var(--ien-font-size-label1);
+
   color: var(--foreground);
   margin: 0 0 var(--ien-spacing-sm);
   padding: 0 var(--ien-spacing-sm);
@@ -1683,11 +1659,7 @@ body {
   background: transparent;
   box-shadow: none;
 }
-.color-builder-card h3 {
-  font-size: var(--docs-font-size-section);
-  font-weight: var(--docs-font-weight-medium);
-  letter-spacing: -0.035em;
-}
+
 .color-palette.content-panel {
   border: 0;
   padding: 0;
@@ -1726,15 +1698,10 @@ body {
   .topbar-actions {
     gap: var(--ien-spacing-xxs);
   }
-  .header-floating {
-    padding: 0 var(--ien-spacing-sm);
-  }
   .color-builder-card {
     padding: var(--ien-spacing-xl) 0;
   }
-  .color-builder-card h3 {
-    font-size: var(--ien-font-size-title1);
-  }
+
 }
 
 @font-face {
@@ -1772,9 +1739,6 @@ body {
     align-self: start;
   }
 
-  .app-shell {
-    margin-top: var(--docs-layout-page-top-small);
-  }
 }
 .header-brand-name {
   font-family: var(--ien-font-mono);

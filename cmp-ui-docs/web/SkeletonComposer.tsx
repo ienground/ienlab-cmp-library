@@ -1,9 +1,10 @@
+import { Typography } from "@/components/ui/typography";
 import { useState } from "react";
 import type { CSSProperties } from "react";
-import { Badge } from "./components/ui/badge";
-import { Button } from "./components/ui/button";
-import { Card } from "./components/ui/card";
-import { Input } from "./components/ui/input";
+import { Badge } from "@/components/reui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { ChevronDown, ChevronUp, Copy, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { DropdownMenu } from "radix-ui";
 import { highlightKotlin } from "./ColorSchemeBuilder";
@@ -910,7 +911,7 @@ function AddElementMenu({
           className="skeleton-add-trigger"
           size="sm"
           type="button"
-          variant="outline"
+          variant="line"
         >
           <Plus aria-hidden="true" /> {label}
         </Button>
@@ -958,7 +959,7 @@ function SkeletonNodeEditor({
   return (
     <div className={`skeleton-node-editor ${isContainer(node) ? "container" : ""}`}>
       <div className="skeleton-node-heading">
-        <Badge variant="secondary">{elementLabels[node.type]}</Badge>
+        <Badge variant="weak">{elementLabels[node.type]}</Badge>
         {isContainer(node) && (
           <AddElementMenu label="자식 추가" onAdd={(type) => onAddChild(node.id, type)} />
         )}
@@ -1213,17 +1214,17 @@ export function SkeletonComposer() {
       <div className="skeleton-composer-heading">
         <div>
           <p className="panel-kicker">SKELETON COMPOSER</p>
-          <h3 id="skeleton-composer-title">스켈레톤 조합기</h3>
+          <Typography variant="title2" asChild><h3 id="skeleton-composer-title">스켈레톤 조합기</h3></Typography>
           <p>기본 요소와 리스트 행 텍스트를 조합하고 Kotlin 코드를 복사하세요.</p>
         </div>
-        <Badge variant="outline">IenSkeletonElement</Badge>
+        <Badge variant="line">IenSkeletonElement</Badge>
       </div>
 
       <div className="skeleton-composer-grid">
         <Card className="skeleton-composer-card">
           <div className="skeleton-composer-card-heading">
             <div>
-              <h4>조합 미리보기</h4>
+              <Typography variant="title3" asChild><h4>조합 미리보기</h4></Typography>
               <p>분홍색 가이드라인은 부모 너비(100%)를 나타냅니다.</p>
             </div>
           </div>
@@ -1239,7 +1240,7 @@ export function SkeletonComposer() {
         <Card className="skeleton-composer-card">
           <div className="skeleton-composer-card-heading">
             <div>
-              <h4>요소 구조</h4>
+              <Typography variant="title3" asChild><h4>요소 구조</h4></Typography>
               <p>각 요소 안에 다른 요소를 넣어 레이아웃을 구성합니다.</p>
             </div>
             <div className="skeleton-composer-actions">
@@ -1278,15 +1279,15 @@ export function SkeletonComposer() {
       <Card className="skeleton-composer-code">
         <div className="skeleton-composer-code-heading">
           <div>
-            <h4>Kotlin 코드</h4>
+            <Typography variant="title3" asChild><h4>Kotlin 코드</h4></Typography>
             <p>현재 조합과 같은 구조를 사용하는 코드입니다.</p>
           </div>
           <div className="skeleton-composer-actions">
-            <Button onClick={copyCode} size="sm" type="button" variant="outline">
+            <Button onClick={copyCode} size="sm" type="button" variant="line">
               <Copy aria-hidden="true" />
               코드 복사
             </Button>
-            <Button onClick={copyCodeWithoutImports} size="sm" type="button" variant="outline">
+            <Button onClick={copyCodeWithoutImports} size="sm" type="button" variant="line">
               <Copy aria-hidden="true" />
               import 없이 복사
             </Button>
