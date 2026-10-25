@@ -1,3 +1,5 @@
+import { Skeleton, skeletonListRowTextsTypes, type SkeletonElement, type SkeletonBackground, type SkeletonPlay, type SkeletonRepeat } from "@/components/ui/skeleton";
+import { CodeExample } from "./RegistryCodeExample";
 import { Typography } from "@/components/ui/typography";
 import { useState } from "react";
 import type { CSSProperties } from "react";
@@ -13,13 +15,7 @@ import designTokens from "./generated-design-tokens.json";
 
 type PresetKind = "Title" | "Subtitle" | "List" | "ListWithIcon" | "Card";
 type ElementKind = "Block" | "Row" | "Column" | "Box" | "Spacer" | PresetKind | "ListRowTexts";
-const listRowTextsTypes = [
-  "OneRowTypeA", "OneRowTypeB", "OneRowTypeC",
-  "RightOneRowTypeA", "RightOneRowTypeB", "RightOneRowTypeC", "RightOneRowTypeD", "RightOneRowTypeE",
-  "TwoRowTypeA", "TwoRowTypeB", "TwoRowTypeC", "TwoRowTypeD", "TwoRowTypeE", "TwoRowTypeF", "TwoRowTypeG",
-  "RightTwoRowTypeA", "RightTwoRowTypeB", "RightTwoRowTypeC", "RightTwoRowTypeD", "RightTwoRowTypeE",
-  "ThreeRowTypeA", "ThreeRowTypeB", "ThreeRowTypeC", "ThreeRowTypeD", "ThreeRowTypeE", "ThreeRowTypeF",
-] as const;
+const listRowTextsTypes = skeletonListRowTextsTypes;
 type ListRowTextsType = typeof listRowTextsTypes[number];
 type BoxAlignment = "Center" | "TopStart" | "BottomEnd";
 type WidthValue =
@@ -1155,12 +1151,43 @@ function SkeletonNodeEditor({
   );
 }
 
-export function SkeletonComposer() {
-  const [nodes, setNodes] = useState(createDefaultNodes);
+function webDimension(value: SpacingValue | HeightValue): number | string {
+  if (typeof value === "number") return value;
+  if (value.unit === "radius") return `calc(var(--ien-radius-${value.token}) * ${value.multiplier})`;
+  if (value.unit === "token") return `var(--ien-spacing-${value.token})`;
+  if (value.unit === "typography") return typographyLineHeights[value.token];
+  return value.value;
+}
+function webElements(nodes: SkeletonNode[], parent: PreviewLayout = "Root"): SkeletonElement[] {
+  return nodes.map((node): SkeletonElement => {
+    if (node.type === "Spacer") return { type: "Spacer", width: webDimension(node.width), height: webDimension(node.height) };
+    if (node.type === "ListRowTexts") return { type: "ListRowTexts", textType: node.textType };
+    if (node.type !== "Block" && !isContainer(node)) return { type: node.type };
+    const width = node.width.mode === "fill" ? "100%" : node.width.mode === "fraction" ? `${node.width.fraction * 100}%`
+      : node.width.mode === "radius" ? webDimension({ ...node.width, unit: "radius" }) : node.width.value;
+    const layout = { width, ...(parent === "Row" && node.width.mode === "fill" ? { weight: 1 } : {}) };
+    if (node.type === "Block") return { type: "Block", ...layout, shape: node.shape,
+      ...(typeof node.height !== "number" && node.height.unit === "typography"
+        ? { typography: node.height.token } : { height: webDimension(node.height) }) };
+    return { type: node.type, ...layout, ...(node.height !== null ? { height: webDimension(node.height) } : {}),
+      spacing: webDimension(node.spacing), ...(node.type === "Box" ? { alignment: node.alignment } : {}),
+      elements: webElements(node.children, node.type) };
+  });
+}
+
+export function SkeletonComposer({ language = "kotlin" }: { language?: "kotlin" | "tsx" }) {
+  const [nodes, setNodes] = useState(() => language === "tsx" ? [createNode("ListWithIcon")] : createDefaultNodes());
+  const [background, setBackground] = useState<SkeletonBackground>("Grey");
+  const [play, setPlay] = useState<SkeletonPlay>("Show");
+  const [repeat, setRepeat] = useState<SkeletonRepeat>({ type: "Count", value: 1 });
+  const [radius, setRadius] = useState(radiusTokenValues.sm);
+  const elements = webElements(nodes);
   const [copiedCode, setCopiedCode] = useState("");
   const [copySucceeded, setCopySucceeded] = useState(false);
   const [copiedWithoutImports, setCopiedWithoutImports] = useState(false);
-  const code = generateKotlinCode(nodes);
+  const code = language === "tsx"
+    ? `import { Skeleton } from "@/components/ui/skeleton"\n\nexport function Pattern() {\n  return (\n    <Skeleton\n      background="${background}"\n      play="${play}"\n      radius={${radius}}\n      repeatLastItemCount={${JSON.stringify(repeat)}}\n      custom={${JSON.stringify(elements, null, 2)}}\n    />\n  )\n}\n`
+    : generateKotlinCode(nodes);
   const codeWithoutImports = code
     .split("\n")
     .filter((line) => !line.startsWith("import "))
@@ -1215,9 +1242,9 @@ export function SkeletonComposer() {
         <div>
           <p className="panel-kicker">SKELETON COMPOSER</p>
           <Typography variant="title2" asChild><h3 id="skeleton-composer-title">스켈레톤 조합기</h3></Typography>
-          <p>기본 요소와 리스트 행 텍스트를 조합하고 Kotlin 코드를 복사하세요.</p>
+          <p>{language === "tsx" ? "기본 요소와 리스트 행 텍스트를 조합하고 실제 웹 Skeleton과 TSX 코드를 확인하세요." : "기본 요소와 리스트 행 텍스트를 조합하고 Kotlin 코드를 복사하세요."}</p>
         </div>
-        <Badge variant="line">IenSkeletonElement</Badge>
+        <Badge variant="line">{language === "tsx" ? "SkeletonElement" : "IenSkeletonElement"}</Badge>
       </div>
 
       <div className="skeleton-composer-grid">
@@ -1226,13 +1253,25 @@ export function SkeletonComposer() {
             <div>
               <Typography variant="title3" asChild><h4>조합 미리보기</h4></Typography>
               <p>분홍색 가이드라인은 부모 너비(100%)를 나타냅니다.</p>
+              {language === "tsx" && <div className="mt-3 grid gap-3">
+                <label>배경 <select className="playground-select" value={background} onChange={(event) => setBackground(event.target.value as SkeletonBackground)}>
+                  {["White", "Grey", "GreyOpacity100"].map((value) => <option key={value}>{value}</option>)}
+                </select></label>
+                <label>재생 상태 <select className="playground-select" value={play} onChange={(event) => setPlay(event.target.value as SkeletonPlay)}>
+                  <option>Show</option><option>Hide</option>
+                </select></label>
+                <label>반복 방식 <select className="playground-select" value={repeat.type} onChange={(event) => setRepeat(event.target.value === "Infinite" ? { type: "Infinite" } : { type: "Count", value: 1 })}>
+                  <option>Count</option><option>Infinite</option>
+                </select></label>
+                {repeat.type === "Count" && <label>마지막 항목 반복 <Input type="number" min={1} step={1} value={repeat.value} onChange={(event) => setRepeat({ type: "Count", value: Number(event.target.value) })} /></label>}
+                <label>모서리 반경 <Input type="number" min={0} value={radius} onChange={(event) => setRadius(Number(event.target.value))} /></label>
+              </div>}
             </div>
           </div>
           <div className="skeleton-preview-stage" role="img" aria-label="현재 스켈레톤 조합">
             <div className="skeleton-preview-root">
-              {nodes.map((node, index) => (
-                <SkeletonPreviewNode key={node.id} node={node} parentLayout="Root" index={index} />
-              ))}
+              {language === "tsx" ? <Skeleton custom={elements} background={background} play={play} radius={radius} repeatLastItemCount={repeat} />
+                : nodes.map((node, index) => <SkeletonPreviewNode key={node.id} node={node} parentLayout="Root" index={index} />)}
             </div>
           </div>
         </Card>
@@ -1276,7 +1315,7 @@ export function SkeletonComposer() {
         </Card>
       </div>
 
-      <Card className="skeleton-composer-code">
+      {language === "tsx" ? <CodeExample label="React · TSX 사용 예시" code={code} /> : <Card className="skeleton-composer-code">
         <div className="skeleton-composer-code-heading">
           <div>
             <Typography variant="title3" asChild><h4>Kotlin 코드</h4></Typography>
@@ -1297,7 +1336,7 @@ export function SkeletonComposer() {
           <code>{highlightKotlin(code)}</code>
         </pre>
         <p className="skeleton-copy-message" aria-live="polite">{copyMessage}</p>
-      </Card>
+      </Card>}
     </section>
   );
 }

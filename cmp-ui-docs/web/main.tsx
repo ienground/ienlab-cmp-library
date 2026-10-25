@@ -402,7 +402,7 @@ function ComponentPage({
     !activeComponent ||
     (!isSettingsPage &&
       (isWebPage
-        ? page !== "preview" && page !== "playground" && page !== "registry"
+        ? page !== "preview" && page !== "playground" && page !== "registry" && !(page === "composer" && activeComponent.id === "skeleton")
         : section !== "components" ||
           (page !== "preview" &&
             page !== "api" &&
@@ -603,7 +603,7 @@ function ComponentPage({
                   if (
                     value === "preview" ||
                     (isWebPage
-                      ? value === "registry" || value === "playground"
+                      ? value === "registry" || value === "playground" || (value === "composer" && activeComponent.id === "skeleton")
                       : value === "api" || (value === "composer" && activeComponent.id === "skeleton"))
                   ) {
                     navigate(`/${isWebPage ? "web" : "components"}/${activeComponent.id}/${value}`);
@@ -616,7 +616,7 @@ function ComponentPage({
                     {isWebPage ? "웹 프리뷰" : "Preview"}
                   </TabsTrigger>
                   {isWebPage && <TabsTrigger className="view-tab" value="playground">Playground</TabsTrigger>}
-                  {!isWebPage && activeComponent.id === "skeleton" && (
+                  {activeComponent.id === "skeleton" && (
                     <TabsTrigger className="view-tab" value="composer">
                       조합기
                     </TabsTrigger>
@@ -629,11 +629,11 @@ function ComponentPage({
                 {isWebPage ? (
                   <TabsContent value={activeTab}>
                     <Suspense fallback={<p role="status">웹 컴포넌트를 불러오는 중입니다.</p>}>
-                      <WebRegistryDocs
+                      {activeTab === "composer" ? <SkeletonComposer language="tsx" /> : <WebRegistryDocs
                         key={activeComponent.id}
                         componentId={activeComponent.id}
                         tab={activeTab === "registry" ? "registry" : activeTab === "playground" ? "playground" : "preview"}
-                      />
+                      />}
                     </Suspense>
                   </TabsContent>
                 ) : (

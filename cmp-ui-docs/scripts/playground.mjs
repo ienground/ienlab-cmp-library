@@ -22,6 +22,7 @@ function declarationFile(source, from) {
 const parseSource = (source) =>
   parse(source, { sourceType: "module", plugins: ["typescript", "jsx"] });
 const singleExamples = {
+  skeleton: "import { Skeleton } from \"@/components/ui/skeleton\"\n\nexport function Pattern() {\n  return <Skeleton pattern=\"TopListWithIcon\" background=\"Grey\" play=\"Show\" repeatLastItemCount={{ type: \"Count\", value: 3 }} />\n}\nexport default Pattern\n",
   "progress-indicator": "import { ProgressIndicator } from \"@/components/ui/progress-indicator\"\n\nexport function Pattern() {\n  return <ProgressIndicator variant=\"circular\" shape=\"wavy\" size={48} strokeWidth={4} />\n}\nexport default Pattern\n",
   "loading-indicator": "import { LoadingIndicator } from \"@/components/ui/loading-indicator\"\n\nexport function Pattern() {\n  return <LoadingIndicator size={48} />\n}\nexport default Pattern\n",
   switch:
@@ -595,6 +596,16 @@ export function createPlaygroundCatalog(items, previews) {
             props.get(name).defaultValue = defaultValue;
         }
       for (const prop of props.values()) {
+        if (binding.name === "Skeleton" && ["tone", "useGradient"].includes(prop.name)) {
+          props.delete(prop.name);
+          continue;
+        }
+        if (binding.name === "Skeleton" && prop.name === "listRowTextsType") {
+          prop.kind = "select";
+          const source = readFileSync(file, "utf8");
+          const list = source.match(/skeletonListRowTextsTypes = \[([\s\S]*?)\] as const/);
+          prop.options = [...(list?.[1].matchAll(/"([^"\n]+)"/g) ?? [])].map((entry) => entry[1]);
+        }
         if (prop.name === "multiple" && prop.kind === "json")
           prop.kind = "boolean";
         if (prop.name === "useGradient" && prop.defaultValue === undefined)
@@ -631,6 +642,11 @@ export function createPlaygroundCatalog(items, previews) {
         if (["children", "render", "asChild"].includes(prop.name))
           prop.kind = "slot";
         if (prop.name === "ref") prop.kind = "reference";
+        if (binding.name === "Skeleton" && ["height", "width", "radius"].includes(prop.name)) {
+          prop.kind = "number";
+          if (prop.name === "radius") prop.defaultValue = 8;
+        }
+        if (binding.name === "Skeleton" && prop.name === "custom") prop.kind = "slot";
         if (prop.name === "items" && /TabItem\[\]/.test(prop.type)) prop.kind = "slot";
         if (binding.name === "Switch" && ["trackContent", "onTrackContent", "offTrackContent", "thumbContent"].includes(prop.name)) prop.kind = "icon";
       }
