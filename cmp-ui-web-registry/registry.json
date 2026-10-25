@@ -3130,7 +3130,9 @@
       "description": "Material 3 Expressive 원형·물결·선형 진행 표시입니다.",
       "dependencies": [
         "cn@^0.4.0",
-        "material@3.2.4"
+        "material@3.2.4",
+        "@kyralabs/m3e-motion@1.8.0",
+        "@kyralabs/m3e-shapes@1.8.0"
       ],
       "registryDependencies": [
         "@ienlab/ien-theme"
@@ -3167,7 +3169,8 @@
       "description": "Material 3 Expressive 다각형 모양이 변하는 로딩 표시입니다.",
       "dependencies": [
         "cn@^0.4.0",
-        "@alerix/m3-loading-indicator@1.0.5"
+        "@kyralabs/m3e-motion@1.8.0",
+        "@kyralabs/m3e-shapes@1.8.0"
       ],
       "registryDependencies": [
         "@ienlab/ien-theme"
@@ -3185,9 +3188,9 @@
           "loading-indicator"
         ],
         "upstream": {
-          "repository": "https://github.com/Aler1x/m3-loading-indicator",
-          "revision": "1.0.5",
-          "style": "Material 3 Expressive"
+          "repository": "https://github.com/androidx/androidx",
+          "revision": "Compose Material3 1.12.0-alpha03",
+          "style": "Material 3 Expressive / Compose"
         },
         "exports": [
           "LoadingIndicator"

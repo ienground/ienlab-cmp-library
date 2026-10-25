@@ -1,10 +1,18 @@
 "use client"
 
-import { useEffect, useRef, useState, type ComponentProps, type CSSProperties } from "react"
-import { M3LoadingIndicator } from "@alerix/m3-loading-indicator/react"
+import { useEffect, useMemo, useRef, type ComponentProps, type CSSProperties } from "react"
+import { indeterminateFrame, initialIndeterminateFrame } from "@kyralabs/m3e-motion"
+import { loadingIndicatorShapes } from "@kyralabs/m3e-shapes"
 import { cn } from "cn"
 import type { IenTone } from "@/lib/ien-theme"
-import { useMaterialIndicatorTheme } from "@/lib/ien-material-indicator"
+
+// CMP가 사용하는 Compose Material3 LoadingIndicator.kt의 시간과 스프링 설정입니다.
+const loadingTiming = {
+  morphIntervalMillis: 650,
+  rotationDurationMillis: 4666,
+  spring: { dampingRatio: 0.6, stiffness: 200 },
+  visibilityThreshold: 0.1,
+}
 
 type LoadingIndicatorProps = Omit<ComponentProps<"span">, "children" | "color"> & {
   tone?: IenTone
@@ -17,36 +25,58 @@ function LoadingIndicator({
   size = 48, color, tone = "brand",
   className, style, "aria-label": ariaLabel = "불러오는 중", ...props
 }: LoadingIndicatorProps) {
-  const ref = useRef<HTMLSpanElement>(null)
-  const [resolvedColor, setResolvedColor] = useState("transparent")
-  useMaterialIndicatorTheme(ref, setResolvedColor)
-  const [reducedMotion, setReducedMotion] = useState(false)
+  const pathRef = useRef<SVGPathElement>(null)
+  const rotationRef = useRef<SVGGElement>(null)
+  const shapes = useMemo(() => loadingIndicatorShapes(null, true, 38 / 48), [])
+
   useEffect(() => {
-    const query = window.matchMedia("(prefers-reduced-motion: reduce)")
-    const sync = () => setReducedMotion(query.matches)
-    sync()
-    query.addEventListener("change", sync)
-    return () => query.removeEventListener("change", sync)
-  }, [])
+    const path = pathRef.current
+    const rotation = rotationRef.current
+    if (!path || !rotation) return
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)")
+    let animationFrame = 0
+    let startedAt = performance.now()
+    const draw = (elapsed: number) => {
+      const frame = reducedMotion.matches
+        ? initialIndeterminateFrame
+        : indeterminateFrame(elapsed, shapes.morphs.length, loadingTiming)
+      path.setAttribute("d", shapes.pathData(frame.morphIndex, frame.morphProgress, 100))
+      rotation.setAttribute("transform", `rotate(${frame.rotation} 50 50)`)
+    }
+    const tick = (now: number) => {
+      draw(now - startedAt)
+      animationFrame = requestAnimationFrame(tick)
+    }
+    const start = () => {
+      cancelAnimationFrame(animationFrame)
+      startedAt = performance.now()
+      draw(0)
+      if (!reducedMotion.matches) animationFrame = requestAnimationFrame(tick)
+    }
+    start()
+    reducedMotion.addEventListener("change", start)
+    return () => {
+      cancelAnimationFrame(animationFrame)
+      reducedMotion.removeEventListener("change", start)
+    }
+  }, [shapes])
+
   return (
     <span
       {...props}
-      ref={ref}
       role="progressbar"
       aria-label={ariaLabel}
       data-slot="loading-indicator"
       data-ien=""
       data-ien-tone={tone}
-      className={cn("inline-flex size-[var(--ien-indicator-size)] shrink-0 align-middle", className)}
+      className={cn("inline-flex size-[var(--ien-indicator-size)] shrink-0 overflow-hidden align-middle", className)}
       style={{ "--ien-indicator-size": `${size}px`, color: color ?? "var(--ien-control-color)", ...style } as CSSProperties}
     >
-      <M3LoadingIndicator
-        size={size}
-        color={resolvedColor}
-        paused={reducedMotion}
-        aria-hidden="true"
-        style={{ width: "100%", height: "100%" }}
-      />
+      <svg viewBox="0 0 100 100" className="block size-full" aria-hidden="true" focusable="false">
+        <g ref={rotationRef} transform="rotate(90 50 50)">
+          <path ref={pathRef} d={shapes.pathData(0, 0, 100)} fill="currentColor" />
+        </g>
+      </svg>
     </span>
   )
 }
