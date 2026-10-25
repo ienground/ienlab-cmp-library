@@ -684,7 +684,7 @@
           "Checkbox"
         ],
         "preview": "previews/checkbox.tsx",
-        "example": "import { Checkbox } from \"@/components/ui/checkbox\"\nimport { Field, FieldLabel } from \"@/components/ui/field\"\n\nexport function Pattern() {\n  return (\n    <Field orientation=\"horizontal\" className=\"w-auto\">\n      <Checkbox id=\"terms\" />\n      <FieldLabel htmlFor=\"terms\">Basic checkbox</FieldLabel>\n    </Field>\n  )\n}\nexport default Pattern;\n",
+        "example": "import { Checkbox } from \"@/components/ui/checkbox\"\n\nexport function Pattern() {\n  return (\n    <div className=\"grid gap-4 sm:grid-cols-3\">\n      <div className=\"flex flex-col gap-1\">\n        <Checkbox label=\"원형 체크\" />\n        <Checkbox label=\"선택됨\" defaultChecked />\n        <Checkbox label=\"비활성\" enabled={false} />\n        <Checkbox label=\"비활성 선택됨\" defaultChecked enabled={false} />\n      </div>\n      <div className=\"flex flex-col gap-1\">\n        <Checkbox variant=\"dot\" label=\"점 체크\" />\n        <Checkbox variant=\"dot\" label=\"선택됨\" defaultChecked />\n        <Checkbox variant=\"dot\" label=\"비활성\" enabled={false} />\n      </div>\n      <div className=\"flex flex-col gap-1\">\n        <Checkbox variant=\"line\" label=\"라인 체크\" />\n        <Checkbox variant=\"line\" label=\"선택됨\" defaultChecked />\n        <Checkbox variant=\"line\" label=\"비활성\" enabled={false} />\n        <Checkbox label=\"일부 선택됨\" defaultChecked=\"indeterminate\" />\n      </div>\n    </div>\n  )\n}\nexport default Pattern\n",
         "ienDesign": true
       }
     },
@@ -4363,12 +4363,6 @@
           ":where([data-slot=\"card\"]:is([data-ien-tone]:not([data-ien-tone=\"neutral\"]), [data-tone-variant=\"weak\"])) :where([data-slot=\"card-description\"], [data-slot=\"card-footer\"])": {
             "color": "inherit",
             "background-color": "transparent"
-          },
-          ":where([data-slot=\"checkbox\"]):is([data-state=\"checked\"], [data-state=\"indeterminate\"])": {
-            "background-image": "var(--ien-gradient, linear-gradient(135deg, color-mix(in srgb, var(--ien-control-color), var(--ien-control-on) 18%), var(--ien-control-color), color-mix(in srgb, var(--ien-control-color), var(--ien-control-on) 36%)))",
-            "background-color": "var(--ien-control-color)",
-            "border-color": "var(--ien-control-color)",
-            "color": "var(--ien-control-on)"
           },
           ":where([data-slot=\"tabs-trigger\"][data-state=\"active\"])": {
             "background-color": "transparent",

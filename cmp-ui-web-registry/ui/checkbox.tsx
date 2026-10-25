@@ -1,48 +1,100 @@
 "use client"
+
 import type { IenToneProps } from "@/lib/ien-theme"
 import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
-
 import * as React from "react"
 import { cn } from "cn"
 import { Checkbox as CheckboxPrimitive } from "radix-ui"
-
 import { IconPlaceholder } from "@/lib/reui-icons"
+
+export type CheckboxProps = React.ComponentProps<typeof CheckboxPrimitive.Root> & IenToneProps & {
+  variant?: "circle" | "dot" | "line"
+  size?: number
+  enabled?: boolean
+  label?: string
+}
 
 function Checkbox({
   tone: ienTone,
   useGradient: ienUseGradient,
   className,
+  variant = "circle",
+  size,
+  enabled = true,
+  disabled,
+  label,
+  style,
+  onPointerDown,
   ...props
-}: React.ComponentProps<typeof CheckboxPrimitive.Root> & IenToneProps) {
+}: CheckboxProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const isDisabled = disabled || !enabled
+  const visualRef = React.useRef<HTMLSpanElement | null>(null)
+  const shake = React.useRef<Animation | null>(null)
+  React.useEffect(() => () => shake.current?.cancel(), [])
+
   return (
     <IenThemeContext.Provider value={ienTheme}>
       <CheckboxPrimitive.Root
         data-slot="checkbox"
+        data-ien-typography="body2"
         data-ien=""
         data-ien-tone={ienTheme.tone}
         data-ien-gradient={ienTheme.useGradient}
+        data-variant={variant}
+        disabled={isDisabled}
+        onPointerDown={(event) => {
+          onPointerDown?.(event)
+          if (event.defaultPrevented || !isDisabled || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+          shake.current?.cancel()
+          shake.current = visualRef.current?.animate([
+            { transform: "translateX(0)", offset: 0 },
+            { transform: "translateX(-6px)", offset: 0.15 },
+            { transform: "translateX(6px)", offset: 0.35 },
+            { transform: "translateX(-3.6px)", offset: 0.55 },
+            { transform: "translateX(3.6px)", offset: 0.75 },
+            { transform: "translateX(0)", offset: 1 },
+          ], { duration: 200 }) ?? null
+        }}
         className={cn(
-          "border-input dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary data-[state=checked]:border-primary aria-invalid:aria-checked:border-primary aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 flex size-4 items-center justify-center rounded-[4px] border transition-colors group-has-disabled/field:opacity-(--ien-state-disabled-alpha) focus-visible:ring-3 aria-invalid:ring-3 group-has-[:focus-visible]/field-label:ring-0 group-has-[:focus-visible]/field-label:not-data-[state=checked]:border-input group-has-[:focus-visible]/field-label:data-[state=checked]:border-primary peer relative shrink-0 outline-none after:absolute after:-inset-x-3 after:-inset-y-2 disabled:cursor-not-allowed disabled:opacity-(--ien-state-disabled-alpha)",
+          "group/checkbox peer relative inline-flex size-(--ien-checkbox-size) shrink-0 items-center gap-(--ien-spacing-xs) border-0 bg-transparent bg-none p-0 text-(--ien-text-primary) outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:ring-3 aria-invalid:ring-destructive/40 disabled:cursor-not-allowed disabled:text-(--ien-text-disabled) after:absolute after:inset-y-1/2 after:start-1/2 after:min-h-(--ien-state-minimum-touch-target) after:min-w-(--ien-state-minimum-touch-target) after:-translate-x-1/2 after:-translate-y-1/2 after:content-[''] rtl:after:translate-x-1/2",
+          label != null && "h-auto min-h-(--ien-state-minimum-touch-target) w-fit after:inset-0 after:min-w-0 after:translate-none rtl:after:translate-none",
           className,
         )}
+        style={{
+          "--ien-checkbox-size": `${size ?? (variant === "dot" ? 8 : 24)}px`,
+          "--ien-checkbox-gradient": ienTheme.useGradient === false ? "none" : "var(--ien-gradient, linear-gradient(135deg, color-mix(in srgb, var(--ien-brand), var(--ien-on-brand) 18%), var(--ien-brand), color-mix(in srgb, var(--ien-brand), var(--ien-on-brand) 36%)))",
+          ...style,
+        } as React.CSSProperties}
         {...props}
       >
-        <CheckboxPrimitive.Indicator
-          data-slot="checkbox-indicator"
-          data-ien=""
-          data-ien-tone={ienTheme.tone}
-          data-ien-gradient={ienTheme.useGradient}
-          className="[&>svg]:size-3.5 grid place-content-center text-current transition-none"
+        <span
+          ref={visualRef}
+          data-slot="checkbox-control"
+          aria-hidden="true"
+          className={cn(
+            "relative inline-flex size-(--ien-checkbox-size) shrink-0 items-center justify-center text-(--ien-border-strong) [--ien-control-corner-shape:round] [corner-shape:round] [transition:background-color_200ms_cubic-bezier(0.4,0,0.2,1),border-color_200ms_cubic-bezier(0.4,0,0.2,1),color_200ms_cubic-bezier(0.4,0,0.2,1),scale_var(--ien-button-press-duration)_var(--ien-button-press-easing)] group-[:enabled:active]/checkbox:scale-95 group-disabled/checkbox:opacity-(--ien-state-disabled-alpha) motion-reduce:transition-none",
+            label == null && "size-full",
+            variant !== "line" && "rounded-full border-(length:--ien-stroke-medium) border-(--ien-border-strong) group-data-[state=checked]/checkbox:border-(--ien-brand) group-data-[state=checked]/checkbox:bg-(--ien-brand) group-data-[state=checked]/checkbox:[background-image:var(--ien-checkbox-gradient)] group-data-[state=indeterminate]/checkbox:border-(--ien-brand) group-data-[state=indeterminate]/checkbox:bg-(--ien-brand) group-data-[state=indeterminate]/checkbox:[background-image:var(--ien-checkbox-gradient)]",
+            variant === "circle" && "group-data-[state=checked]/checkbox:text-white group-data-[state=indeterminate]/checkbox:text-white",
+            variant === "line" && "group-data-[state=checked]/checkbox:text-(--ien-brand) group-data-[state=indeterminate]/checkbox:text-(--ien-brand)",
+          )}
         >
-          <IconPlaceholder
-          lucide="CheckIcon"
-          tabler="IconCheck"
-          hugeicons="Tick02Icon"
-          phosphor="CheckIcon"
-          remixicon="RiCheckLine"
-        />
-        </CheckboxPrimitive.Indicator>
+          {variant !== "dot" && (
+            <>
+              <IconPlaceholder
+                lucide="CheckIcon"
+                tabler="IconCheck"
+                hugeicons="Tick02Icon"
+                phosphor="CheckIcon"
+                remixicon="RiCheckLine"
+                className={cn("max-h-full max-w-full shrink-0 group-data-[state=indeterminate]/checkbox:hidden", variant === "circle" ? "size-[calc(var(--ien-checkbox-size)*0.65)]" : "size-(--ien-checkbox-size)")}
+              />
+              <span className="hidden h-(--ien-stroke-medium) w-1/2 rounded-full bg-current group-data-[state=indeterminate]/checkbox:block" />
+            </>
+          )}
+        </span>
+        {label != null && <span>{label}</span>}
       </CheckboxPrimitive.Root>
     </IenThemeContext.Provider>
   )

@@ -31,6 +31,9 @@ const singleExamples = {
   tabs:
     'import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"\n\nexport function Pattern() {\n  return (\n    <Tabs defaultValue="summary" size="large" fluid={false} ariaLabel="주문 정보 탭">\n      <TabsList>\n        <TabsTrigger value="summary">요약</TabsTrigger>\n        <TabsTrigger value="detail" badge={-1}>상세</TabsTrigger>\n        <TabsTrigger value="history" badge={120}>내역</TabsTrigger>\n      </TabsList>\n      <TabsContent value="summary">주문 요약을 확인합니다.</TabsContent>\n      <TabsContent value="detail">상세 정보를 확인합니다.</TabsContent>\n      <TabsContent value="history">이전 내역을 확인합니다.</TabsContent>\n    </Tabs>\n  )\n}\nexport default Pattern\n',
 
+  checkbox:
+    'import { Checkbox } from "@/components/ui/checkbox"\n\nexport function Pattern() {\n  return <Checkbox variant="circle" label="이용 약관에 동의합니다" enabled />\n}\nexport default Pattern\n',
+
   input:
     'import { Input } from "@/components/ui/input"\n\nexport function Pattern() {\n  return <Input label="이름" labelOption="appear" placeholder="이름을 입력하세요" lengthLimit={{ mode: "block", maxLength: 20 }} />\n}\nexport default Pattern\n',
 
