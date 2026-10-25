@@ -97,15 +97,16 @@ import zone.ien.utils.ui.dialog.IenUpdateAlertDialog
 import zone.ien.utils.ui.feedback.IenBottomSheet
 import zone.ien.utils.ui.feedback.IenBottomSheetOption
 import zone.ien.utils.ui.feedback.IenBottomSheetSelect
-import zone.ien.utils.ui.feedback.IenCircularProgressIndicator
 import zone.ien.utils.ui.feedback.IenCircularWavyProgressIndicator
 import zone.ien.utils.ui.feedback.IenDialog
 import zone.ien.utils.ui.feedback.IenDialogAction
-import zone.ien.utils.ui.feedback.IenLinearProgressIndicator
 import zone.ien.utils.ui.feedback.IenLoader
 import zone.ien.utils.ui.feedback.IenLoaderSize
 import zone.ien.utils.ui.feedback.IenLoadingIndicator
 import zone.ien.utils.ui.feedback.IenProgressBar
+import zone.ien.utils.ui.feedback.IenProgressIndicator
+import zone.ien.utils.ui.feedback.IenProgressIndicatorShape
+import zone.ien.utils.ui.feedback.IenProgressIndicatorVariant
 import zone.ien.utils.ui.feedback.IenPullToRefreshBox
 import zone.ien.utils.ui.feedback.IenProgressBarSize
 import zone.ien.utils.ui.feedback.IenProgressStep
@@ -616,9 +617,10 @@ private val ComponentPlaygroundControls = mapOf(
         choiceControl("indicator", "표시기", listOf("Circular", "Loading", "Wavy")),
     ),
     "progress-indicator" to listOf(
-        choiceControl("variant", "형태", listOf("Circular", "Wavy", "Linear")),
-        toggleControl("determinate", "물결 진행률 지정", false),
-        numberControl("progress", "물결 진행률 (%)", 64, 0, 100),
+        choiceControl("variant", "형태", IenProgressIndicatorVariant.entries.map { it.name }),
+        choiceControl("shape", "진행선 모양", IenProgressIndicatorShape.entries.map { it.name }),
+        toggleControl("determinate", "진행률 지정", false),
+        numberControl("progress", "진행률 (%)", 64, 0, 100),
     ),
     "menu" to listOf(
         toggleControl("visible", "메뉴 표시", false),
@@ -857,7 +859,7 @@ private val AdditionalComponentPlaygroundControls = mapOf(
     ),
     "progress-indicator" to listOf(
         numberControl("strokeWidth", "선 두께", 4, 1, 12),
-        numberControl("waveAmplitude", "물결 진폭 (%)", 100, 0, 200),
+        numberControl("waveAmplitude", "물결 진폭 (%)", 100, 0, 100),
         numberControl("gapSize", "진행 간격", 4, 0, 16),
         numberControl("wavelength", "물결 길이", 40, 8, 100),
         choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
@@ -3089,32 +3091,21 @@ fun LoadingIndicatorSection(controls: Map<String, String> = emptyMap()) {
 fun ProgressIndicatorSection(controls: Map<String, String> = emptyMap()) {
     val progress = controls.intValue("progress", 64).coerceIn(0, 100) / 100f
     IenTheme {
-        val color = playgroundToneColor(controls.enumValue("tone", "Brand"))
         ComponentSection(title = "ProgressIndicator") {
-            when (controls.enumValue("variant", "Circular")) {
-                "Wavy" -> if (controls.booleanValue("determinate", false)) {
-                    IenCircularWavyProgressIndicator(
-                        progress = { progress },
-                        color = color,
-                        gapSize = controls.intValue("gapSize", IenTheme.spacing.xxs.value.toInt()).coerceIn(0, 16).dp,
-                        wavelength = controls.intValue("wavelength", 40).coerceIn(8, 100).dp,
-                        amplitude = { controls.intValue("waveAmplitude", 100).coerceIn(0, 200) / 100f },
-                    )
-                } else {
-                    IenCircularWavyProgressIndicator(
-                        color = color,
-                        gapSize = controls.intValue("gapSize", IenTheme.spacing.xxs.value.toInt()).coerceIn(0, 16).dp,
-                        wavelength = controls.intValue("wavelength", 40).coerceIn(8, 100).dp,
-                        amplitude = controls.intValue("waveAmplitude", 100).coerceIn(0, 200) / 100f,
-                    )
-                }
-                "Linear" -> IenLinearProgressIndicator(color = color)
-                else -> IenCircularProgressIndicator(
-                    color = color,
-                    strokeWidth = controls.intValue("strokeWidth", 4).coerceIn(1, 12).dp,
-                    gapSize = controls.intValue("gapSize", IenTheme.spacing.xxs.value.toInt()).coerceIn(0, 16).dp,
-                )
-            }
+            IenProgressIndicator(
+                variant = IenProgressIndicatorVariant.entries.firstOrNull {
+                    it.name == controls.enumValue("variant", "Circular")
+                } ?: IenProgressIndicatorVariant.Circular,
+                shape = IenProgressIndicatorShape.entries.firstOrNull {
+                    it.name == controls.enumValue("shape", "Flat")
+                } ?: IenProgressIndicatorShape.Flat,
+                tone = controls.toneValue("tone", IenSemanticTone.Brand),
+                progress = if (controls.booleanValue("determinate", false)) ({ progress }) else null,
+                strokeWidth = controls.intValue("strokeWidth", 4).coerceIn(1, 12).dp,
+                gapSize = controls.intValue("gapSize", IenTheme.spacing.xxs.value.toInt()).coerceIn(0, 16).dp,
+                wavelength = controls.intValue("wavelength", 40).coerceIn(8, 100).dp,
+                amplitude = controls.intValue("waveAmplitude", 100).coerceIn(0, 100) / 100f,
+            )
         }
     }
 }

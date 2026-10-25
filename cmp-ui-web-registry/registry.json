@@ -418,7 +418,7 @@
         "@ienlab/ien-theme",
         "@ienlab/reui-icons",
         "@ienlab/scroll-area",
-        "@ienlab/spinner"
+        "@ienlab/progress-indicator"
       ],
       "files": [
         {
@@ -1036,7 +1036,7 @@
         "@ienlab/select",
         "@ienlab/separator",
         "@ienlab/skeleton",
-        "@ienlab/spinner"
+        "@ienlab/progress-indicator"
       ],
       "files": [
         {
@@ -3124,37 +3124,76 @@
       }
     },
     {
-      "name": "spinner",
+      "name": "progress-indicator",
       "type": "registry:ui",
-      "title": "Spinner",
-      "description": "REUI spinner 컴포넌트입니다.",
+      "title": "ProgressIndicator",
+      "description": "Material 3 Expressive 원형·물결·선형 진행 표시입니다.",
       "dependencies": [
-        "cn@^0.4.0"
+        "cn@^0.4.0",
+        "material@3.2.4"
       ],
       "registryDependencies": [
-        "@ienlab/ien-theme",
-        "@ienlab/reui-icons"
+        "@ienlab/ien-theme"
       ],
       "files": [
         {
-          "path": "ui/spinner.tsx",
+          "path": "ui/progress-indicator.tsx",
           "type": "registry:ui",
-          "target": "@ui/spinner.tsx"
+          "target": "@ui/progress-indicator.tsx"
         }
       ],
       "meta": {
-        "category": "기본 컴포넌트",
-        "cmpIds": [],
+        "category": "피드백",
+        "cmpIds": [
+          "progress-indicator"
+        ],
         "upstream": {
-          "repository": "https://github.com/keenthemes/reui",
-          "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
-          "style": "radix-nova"
+          "repository": "https://github.com/floor/material",
+          "revision": "3.2.4",
+          "style": "Material 3 Expressive"
         },
         "exports": [
-          "Spinner"
+          "ProgressIndicator"
         ],
-        "preview": "previews/spinner.tsx",
-        "example": "import { Spinner } from \"@/components/ui/spinner\"\n\nexport function Pattern() {\n  return (\n    <div className=\"flex items-center justify-center gap-6\">\n      <Spinner />\n    </div>\n  )\n}\nexport default Pattern;\n",
+        "preview": "previews/progress-indicator.tsx",
+        "example": "import { ProgressIndicator } from \"@/components/ui/progress-indicator\"\n\nexport function Pattern() {\n  return (\n    <div className=\"flex w-full max-w-sm flex-col gap-6\">\n      <div className=\"flex items-center justify-center gap-6\">\n        <ProgressIndicator aria-label=\"원형 불확정 진행\" />\n        <ProgressIndicator shape=\"wavy\" aria-label=\"물결형 불확정 진행\" />\n        <ProgressIndicator shape=\"wavy\" progress={0.65} aria-label=\"65% 진행\" />\n      </div>\n      <ProgressIndicator variant=\"linear\" aria-label=\"선형 불확정 진행\" />\n      <ProgressIndicator variant=\"linear\" shape=\"wavy\" progress={0.65} aria-label=\"물결형 65% 진행\" />\n    </div>\n  )\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
+      "name": "loading-indicator",
+      "type": "registry:ui",
+      "title": "LoadingIndicator",
+      "description": "Material 3 Expressive 다각형 모양이 변하는 로딩 표시입니다.",
+      "dependencies": [
+        "cn@^0.4.0",
+        "@alerix/m3-loading-indicator@1.0.5"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme"
+      ],
+      "files": [
+        {
+          "path": "ui/loading-indicator.tsx",
+          "type": "registry:ui",
+          "target": "@ui/loading-indicator.tsx"
+        }
+      ],
+      "meta": {
+        "category": "피드백",
+        "cmpIds": [
+          "loading-indicator"
+        ],
+        "upstream": {
+          "repository": "https://github.com/Aler1x/m3-loading-indicator",
+          "revision": "1.0.5",
+          "style": "Material 3 Expressive"
+        },
+        "exports": [
+          "LoadingIndicator"
+        ],
+        "preview": "previews/loading-indicator.tsx",
+        "example": "import { LoadingIndicator } from \"@/components/ui/loading-indicator\"\n\nexport function Pattern() {\n  return (\n    <div className=\"flex items-center justify-center gap-6\">\n      <LoadingIndicator size={32} aria-label=\"작은 로딩 표시\" />\n      <LoadingIndicator aria-label=\"기본 로딩 표시\" />\n      <LoadingIndicator size={64} aria-label=\"큰 로딩 표시\" />\n    </div>\n  )\n}\nexport default Pattern\n",
         "ienDesign": true
       }
     },
@@ -3239,7 +3278,7 @@
           "Switch"
         ],
         "preview": "previews/switch.tsx",
-        "example": "import { Field, FieldLabel } from \"@/components/ui/field\"\nimport { Switch } from \"@/components/ui/switch\"\n\nexport function Pattern() {\n  return (\n    <div className=\"flex items-center justify-center\">\n      <Field orientation=\"horizontal\">\n        <Switch id=\"switch-basic\" />\n        <FieldLabel htmlFor=\"switch-basic\">Airplane Mode</FieldLabel>\n      </Field>\n    </div>\n  )\n}\nexport default Pattern;\n",
+        "example": "import { Field, FieldLabel } from \"@/components/ui/field\"\nimport { Switch } from \"@/components/ui/switch\"\nimport { CheckIcon, XIcon } from \"lucide-react\"\n\nexport function Pattern() {\n  return (\n    <div className=\"mx-auto flex w-full max-w-xs flex-col gap-5\">\n      <Field orientation=\"horizontal\">\n        <FieldLabel htmlFor=\"switch-basic\">자동 적용</FieldLabel>\n        <Switch id=\"switch-basic\" defaultChecked aria-label=\"자동 적용\" />\n      </Field>\n      <Field orientation=\"horizontal\">\n        <FieldLabel htmlFor=\"switch-track\">트랙 아이콘</FieldLabel>\n        <Switch id=\"switch-track\" defaultChecked aria-label=\"트랙 아이콘\"\n          onTrackContent={<CheckIcon />} offTrackContent={<XIcon />} />\n      </Field>\n      <Field orientation=\"horizontal\">\n        <FieldLabel htmlFor=\"switch-thumb\">손잡이 아이콘</FieldLabel>\n        <Switch id=\"switch-thumb\" aria-label=\"손잡이 아이콘\" thumbContent={<CheckIcon />} />\n      </Field>\n      <Field orientation=\"horizontal\">\n        <FieldLabel htmlFor=\"switch-disabled\">비활성</FieldLabel>\n        <Switch id=\"switch-disabled\" enabled={false} defaultChecked aria-label=\"비활성\" />\n      </Field>\n    </div>\n  )\n}\nexport default Pattern\n",
         "ienDesign": true
       }
     },
@@ -3677,6 +3716,11 @@
           "path": "lib/ien-continuous-corners.ts",
           "type": "registry:lib",
           "target": "@lib/ien-continuous-corners.ts"
+        },
+        {
+          "path": "lib/ien-material-indicator.ts",
+          "type": "registry:lib",
+          "target": "@lib/ien-material-indicator.ts"
         }
       ],
       "cssVars": {
@@ -3943,6 +3987,10 @@
           "ien-button-press-easing": "linear(0.000000, 0.058179, 0.182107, 0.323559, 0.458502, 0.576531, 0.674595, 0.753345, 0.815073, 0.862591, 0.898660, 0.925734, 0.945869, 0.960731, 0.971630, 0.979578, 0.985347, 0.989517, 0.992520, 0.994675, 0.996218, 0.997318, 0.998102, 0.998659, 0.999054, 0.999334, 0.999531, 0.999671, 0.999769, 0.999838, 1)",
           "ien-motion-spring-duration": "800ms",
           "ien-motion-spring-medium-bouncy": "linear(0.000000, 0.018669, 0.069413, 0.144584, 0.237037, 0.340300, 0.448681, 0.557338, 0.662293, 0.760425, 0.849426, 0.927734, 0.994459, 1.049288, 1.092398, 1.124355, 1.146025, 1.158491, 1.162971, 1.160750, 1.153123, 1.141346, 1.126596, 1.109946, 1.092341, 1.074591, 1.057363, 1.041185, 1.026452, 1.013433, 1.002289, 0.993083, 0.985795, 0.980342, 0.976587, 0.974359, 0.973461, 0.973685, 0.974820, 0.976658, 0.979007, 0.981688, 0.984545, 0.987443, 0.990269, 0.992934, 0.995372, 0.997535, 0.999395, 1.000939, 1.002170, 1.003099, 1.003748, 1.004144, 1.004318, 1.004305, 1.004138, 1.003853, 1.003479, 1.003048, 1.002585, 1.002112, 1.001649, 1.001210, 1.000807, 1.000448, 1.000137, 0.999879, 0.999671, 0.999513, 0.999401, 0.999331, 0.999298, 0.999296, 0.999320, 0.999365, 0.999424, 0.999493, 0.999568, 0.999645, 1)",
+          "ien-motion-switch-thumb-duration": "300ms",
+          "ien-motion-switch-thumb": "linear(0.000000, 0.055985, 0.179593, 0.325237, 0.467452, 0.593597, 0.698845, 0.782839, 0.847538, 0.895881, 0.931017, 0.955880, 0.973001, 0.984450, 0.991854, 0.996450, 0.999151, 1.000614, 1.001298, 1.001516, 1.001475, 1.001305, 1.001087, 1.000866, 1.000667, 1.000498, 1.000361, 1.000256, 1.000176, 1.000117, 1)",
+          "ien-motion-switch-track-duration": "400ms",
+          "ien-motion-switch-track": "linear(0.000000, 0.021568, 0.074641, 0.145728, 0.225479, 0.307568, 0.387857, 0.463770, 0.533839, 0.597357, 0.654136, 0.704327, 0.748290, 0.786506, 0.819513, 0.847864, 0.872100, 0.892732, 0.910231, 0.925024, 0.937492, 0.947975, 0.956766, 0.964123, 0.970267, 0.975390, 0.979653, 0.983196, 0.986136, 0.988573, 0.990589, 0.992257, 0.993634, 0.994770, 0.995706, 0.996477, 0.997112, 0.997633, 0.998062, 0.998414, 1)",
           "ien-background": "#FFFFFF",
           "ien-surface": "#FFFFFF",
           "ien-surface-raised": "#FFFFFF",
@@ -4293,7 +4341,7 @@
             "color": "inherit",
             "background-color": "transparent"
           },
-          ":where([data-slot=\"checkbox\"], [data-slot=\"radio-group-item\"], [data-slot=\"switch\"]):is([data-state=\"checked\"], [data-state=\"indeterminate\"])": {
+          ":where([data-slot=\"checkbox\"], [data-slot=\"radio-group-item\"]):is([data-state=\"checked\"], [data-state=\"indeterminate\"])": {
             "background-image": "var(--ien-gradient, linear-gradient(135deg, color-mix(in srgb, var(--ien-control-color), var(--ien-control-on) 18%), var(--ien-control-color), color-mix(in srgb, var(--ien-control-color), var(--ien-control-on) 36%)))",
             "background-color": "var(--ien-control-color)",
             "border-color": "var(--ien-control-color)",
@@ -4312,7 +4360,7 @@
             "color": "var(--ien-control-color)",
             "background-image": "var(--ien-gradient, linear-gradient(135deg, color-mix(in srgb, var(--ien-control-weak), var(--ien-control-color) 6%), var(--ien-control-weak), color-mix(in srgb, var(--ien-control-weak), var(--ien-control-color) 10%)))"
           },
-          ":where([data-slot=\"spinner\"][data-ien-tone], [data-slot=\"label\"][data-ien-tone], [data-slot=\"rating\"][data-ien-tone])": {
+          ":where([data-slot=\"progress-indicator\"][data-ien-tone], [data-slot=\"label\"][data-ien-tone], [data-slot=\"rating\"][data-ien-tone])": {
             "color": "var(--ien-control-color)"
           },
           ":where([data-slot=\"input\"], [data-slot=\"textarea\"], [data-slot=\"select-trigger\"], [data-slot=\"input-group\"])[data-ien-tone]:not([aria-invalid=\"true\"]):focus-within": {

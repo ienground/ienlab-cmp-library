@@ -47,7 +47,7 @@ import type {
 } from "@tanstack/react-virtual"
 import { cn } from "cn"
 
-import { Spinner } from "@/components/ui/spinner"
+import { ProgressIndicator } from "@/components/ui/progress-indicator"
 
 type DataGridTableVirtualScrollElements = {
   containerElement: HTMLDivElement | null
@@ -548,7 +548,7 @@ function DataGridTableVirtualBody<TData extends object>({
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient} className="flex items-center justify-center gap-2">
-            <Spinner className="size-4 opacity-60" />
+            <ProgressIndicator className="size-4 opacity-60" />
             {loadingMoreMessage}
           </div>
         </DataGridTableVirtualStatusRow>
@@ -645,7 +645,7 @@ function DataGridTableVirtualBody<TData extends object>({
     renderedRows.push(
       <DataGridTableVirtualStatusRow key="virtual-status-loading" table={table}>
         <div className="flex items-center justify-center gap-2">
-          <Spinner className="size-4 opacity-60" />
+          <ProgressIndicator className="size-4 opacity-60" />
           {loadingMoreMessage}
         </div>
       </DataGridTableVirtualStatusRow>

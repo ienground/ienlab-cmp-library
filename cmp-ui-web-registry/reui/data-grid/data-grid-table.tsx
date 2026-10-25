@@ -42,7 +42,7 @@ import { cn } from "cn"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Spinner } from "@/components/ui/spinner"
+import { ProgressIndicator } from "@/components/ui/progress-indicator"
 import { IconPlaceholder } from "@/lib/reui-icons"
 
 // Static spacing lookups; called once per cell, so they stay plain string
@@ -2736,7 +2736,7 @@ function DataGridTableLoader() {
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
       <div className="text-muted-foreground bg-card rounded-lg flex items-center gap-2 border px-4 py-2 text-sm leading-none font-medium">
-        <Spinner className="size-5 opacity-60" />
+        <ProgressIndicator className="size-5 opacity-60" />
         {props.loadingMessage || i18n.labels.loading}
       </div>
     </div>

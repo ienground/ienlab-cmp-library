@@ -22,6 +22,11 @@ function declarationFile(source, from) {
 const parseSource = (source) =>
   parse(source, { sourceType: "module", plugins: ["typescript", "jsx"] });
 const singleExamples = {
+  "progress-indicator": "import { ProgressIndicator } from \"@/components/ui/progress-indicator\"\n\nexport function Pattern() {\n  return <ProgressIndicator variant=\"circular\" shape=\"wavy\" size={48} strokeWidth={4} />\n}\nexport default Pattern\n",
+  "loading-indicator": "import { LoadingIndicator } from \"@/components/ui/loading-indicator\"\n\nexport function Pattern() {\n  return <LoadingIndicator size={48} />\n}\nexport default Pattern\n",
+  switch:
+    'import { Switch } from "@/components/ui/switch"\n\nexport function Pattern() {\n  return <Switch defaultChecked enabled aria-label="자동 적용" />\n}\nexport default Pattern\n',
+
   tabs:
     'import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"\n\nexport function Pattern() {\n  return (\n    <Tabs defaultValue="summary" size="large" fluid={false} ariaLabel="주문 정보 탭">\n      <TabsList>\n        <TabsTrigger value="summary">요약</TabsTrigger>\n        <TabsTrigger value="detail" badge={-1}>상세</TabsTrigger>\n        <TabsTrigger value="history" badge={120}>내역</TabsTrigger>\n      </TabsList>\n      <TabsContent value="summary">주문 요약을 확인합니다.</TabsContent>\n      <TabsContent value="detail">상세 정보를 확인합니다.</TabsContent>\n      <TabsContent value="history">이전 내역을 확인합니다.</TabsContent>\n    </Tabs>\n  )\n}\nexport default Pattern\n',
 
@@ -622,7 +627,7 @@ export function createPlaygroundCatalog(items, previews) {
           ].includes(prop.name)
         )
           prop.kind = "reference";
-        if (/^on[A-Z]/.test(prop.name)) prop.kind = "callback";
+        if (/^on[A-Z]/.test(prop.name) && prop.kind !== "slot") prop.kind = "callback";
         if (["children", "render", "asChild"].includes(prop.name))
           prop.kind = "slot";
         if (prop.name === "ref") prop.kind = "reference";

@@ -23,7 +23,7 @@ import { mergeProps } from "@base-ui/react/merge-props"
 import { useRender } from "@base-ui/react/use-render"
 
 import { cn } from "cn"
-import { Spinner } from "@/components/ui/spinner"
+import { ProgressIndicator } from "@/components/ui/progress-indicator"
 import { IconPlaceholder } from "@/lib/reui-icons"
 
 // Base UI extends its synthetic events with a handler-veto escape hatch.
@@ -605,7 +605,7 @@ const CascaderItem = React.memo(function CascaderItem({
           )}
         >
           {childrenLoading ? (
-            <Spinner aria-hidden="true" className="size-4" />
+            <ProgressIndicator aria-hidden="true" className="size-4" />
           ) : childrenError ? (
             <IconPlaceholder
               lucide="RotateCwIcon"
@@ -744,7 +744,7 @@ const CascaderItem = React.memo(function CascaderItem({
             )}
           >
             {childrenLoading ? (
-              <Spinner aria-hidden="true" className="size-4" />
+              <ProgressIndicator aria-hidden="true" className="size-4" />
             ) : childrenError ? (
               <IconPlaceholder
                 lucide="RotateCwIcon"

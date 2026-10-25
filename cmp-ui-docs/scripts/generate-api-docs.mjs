@@ -360,15 +360,18 @@ for (const [name, value] of Object.entries(webTokens.motion)) {
     variables[`ien-motion-${name}`] = value;
     continue;
   }
-  if (value.dampingRatio <= 0 || value.dampingRatio >= 1 || value.stiffness <= 0 || value.sampleCount < 2 || !Number.isFinite(springDuration)) {
+  const duration = value.durationMillis ?? springDuration;
+  if (value.dampingRatio <= 0 || value.dampingRatio > 1 || value.stiffness <= 0 || value.sampleCount < 2 || !Number.isFinite(duration) || duration <= 0) {
     throw new Error(`웹 스프링 ${name} 설정이 올바르지 않습니다.`);
   }
   const frequency = Math.sqrt(value.stiffness);
   const damped = frequency * Math.sqrt(1 - value.dampingRatio ** 2);
   variables[`ien-motion-${name}`] = `linear(${Array.from({ length: value.sampleCount }, (_, index) => {
     if (index === value.sampleCount - 1) return 1;
-    const time = index / (value.sampleCount - 1) * springDuration / 1000;
-    const response = 1 - Math.exp(-value.dampingRatio * frequency * time) * (Math.cos(damped * time) + value.dampingRatio * frequency / damped * Math.sin(damped * time));
+    const time = index / (value.sampleCount - 1) * duration / 1000;
+    const response = value.dampingRatio === 1
+      ? 1 - (1 + frequency * time) * Math.exp(-frequency * time)
+      : 1 - Math.exp(-value.dampingRatio * frequency * time) * (Math.cos(damped * time) + value.dampingRatio * frequency / damped * Math.sin(damped * time));
     return response.toFixed(6);
   }).join(", ")})`;
 }
