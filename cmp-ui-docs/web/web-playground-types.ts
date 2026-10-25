@@ -11,6 +11,7 @@ export interface PlaygroundProp {
     | "date"
     | "callback"
     | "slot"
+    | "icon"
     | "reference";
   optional: boolean;
   options?: (string | number | boolean | null)[];

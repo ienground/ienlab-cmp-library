@@ -101,7 +101,7 @@ function Switch({
       >
         {(resolvedOn != null || resolvedOff != null) && (
           <span aria-hidden="true" data-slot="switch-track-content" className="pointer-events-none absolute inset-x-0 top-1/2 h-(--switch-icon) -translate-y-1/2 overflow-hidden text-(--ien-surface)">
-            <span className="absolute inset-0 transition-transform duration-(--ien-motion-switch-track-duration) ease-(--ien-motion-switch-track) group-data-[state=unchecked]/switch:-translate-x-(--switch-content-travel) rtl:group-data-[state=unchecked]/switch:translate-x-(--switch-content-travel) motion-reduce:transition-none">
+            <span className="absolute inset-0 transition-transform duration-(--ien-motion-switch-thumb-duration) ease-(--ien-motion-switch-thumb) group-data-[state=unchecked]/switch:-translate-x-(--switch-content-travel) rtl:group-data-[state=unchecked]/switch:translate-x-(--switch-content-travel) group-active/switch:duration-0 motion-reduce:transition-none">
               <span className="absolute start-(--switch-on-content) inline-flex size-(--switch-icon) items-center justify-center text-xs [&_svg]:size-(--switch-icon)">{resolvedOn}</span>
               <span className="absolute start-(--switch-off-content) inline-flex size-(--switch-icon) items-center justify-center text-xs [&_svg]:size-(--switch-icon)">{resolvedOff}</span>
             </span>

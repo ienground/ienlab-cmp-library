@@ -1,4 +1,5 @@
 import { Typography } from "@/components/ui/typography";
+import { CheckIcon, XIcon, SunIcon, MoonIcon } from "lucide-react";
 import {
   createContext,
   createElement,
@@ -34,15 +35,27 @@ const controlledPairs = {
   open: "defaultOpen",
 };
 const remountProp = /^(?:default|value$|checked$|open$|multiple$)/;
+const playgroundIcons = { CheckIcon, XIcon, SunIcon, MoonIcon };
+const iconLabels = { CheckIcon: "체크", XIcon: "닫기", SunIcon: "해", MoonIcon: "달" };
+function iconSelection(value: unknown): keyof typeof playgroundIcons | "none" | undefined {
+  if (!value || typeof value !== "object" || !("playgroundIcon" in value)) return undefined;
+  const name = value.playgroundIcon;
+  return name === "none" || (typeof name === "string" && Object.hasOwn(playgroundIcons, name))
+    ? name as keyof typeof playgroundIcons | "none"
+    : undefined;
+}
 
 function conflictingProps(values: Record<string, unknown>) {
-  return Object.entries(controlledPairs).flatMap(([controlled, initial]) =>
+  const conflicts = Object.entries(controlledPairs).flatMap(([controlled, initial]) =>
     Object.hasOwn(values, controlled)
       ? [initial]
       : Object.hasOwn(values, initial)
         ? [controlled]
         : [],
   );
+  if (Object.hasOwn(values, "trackContent"))
+    conflicts.push(...["onTrackContent", "offTrackContent"].filter((name) => !Object.hasOwn(values, name)));
+  return conflicts;
 }
 export function usePlaygroundActive() {
   return useContext(PlaygroundContext) !== null;
@@ -58,6 +71,10 @@ export function playgroundComponent<C extends ElementType>(
     if (!context) return createElement(Component, props);
     const overrides = context.values[target] ?? {};
     const merged: Record<string, unknown> = { ...props, ...overrides };
+    for (const [name, value] of Object.entries(overrides)) {
+      const icon = iconSelection(value);
+      if (icon !== undefined) merged[name] = icon === "none" ? null : createElement(playgroundIcons[icon]);
+    }
     for (const name of conflictingProps(overrides)) delete merged[name];
     if (typeof overrides.multiple === "boolean" && merged.value !== undefined) {
       if (overrides.multiple && !Array.isArray(merged.value))
@@ -79,6 +96,8 @@ export function playgroundComponent<C extends ElementType>(
 }
 
 function codeValue(value: unknown): string {
+  const icon = iconSelection(value);
+  if (icon !== undefined) return icon === "none" ? "null" : `<${icon} />`;
   return value instanceof Date
     ? `new Date(${JSON.stringify(value.toISOString())})`
     : JSON.stringify(value);
@@ -114,13 +133,19 @@ export function playgroundExample(
         text: `{${codeValue(children)}}`,
       });
   }
-  return edits
+  const result = edits
     .sort((a, b) => b.start - a.start)
     .reduce(
       (text, edit) =>
         text.slice(0, edit.start) + edit.text + text.slice(edit.end),
       source,
     );
+  const icons = [...new Set(Object.values(values).flatMap((props) => Object.values(props).map(iconSelection)))]
+    .filter((name): name is keyof typeof playgroundIcons => name !== undefined && name !== "none");
+  const imported = [...source.matchAll(/import\s*\{([^}]+)\}\s*from\s*["']lucide-react["']/g)]
+    .flatMap((match) => match[1].split(",").map((name) => name.trim()));
+  const missing = icons.filter((name) => !imported.includes(name));
+  return missing.length ? `import { ${missing.join(", ")} } from "lucide-react"\n${result}` : result;
 }
 function eventValue(value: unknown): unknown {
   if (value === null || ["string", "number", "boolean"].includes(typeof value))
@@ -261,6 +286,16 @@ export function WebPlayground({
   ): ReactNode {
     const id = `playground-${target.name}-${path}`;
     const key = `${target.key}.${path}`;
+    if (prop.kind === "icon")
+      return (
+        <select id={id} className="playground-select"
+          value={iconSelection(value) ?? "default"}
+          onChange={(event) => event.target.value === "default" ? clear() : change({ playgroundIcon: event.target.value })}>
+          <option value="default">예시 기본값</option>
+          <option value="none">없음</option>
+          {Object.entries(iconLabels).map(([name, label]) => <option key={name} value={name}>{label}</option>)}
+        </select>
+      );
     if (prop.kind === "object") {
       const initial = value ?? prop.defaultValue;
       const object = initial && typeof initial === "object" && !Array.isArray(initial)
