@@ -1322,7 +1322,7 @@
           "DropdownMenuSubContent"
         ],
         "preview": "previews/dropdown-menu.tsx",
-        "example": "import { Button } from \"@/components/ui/button\"\nimport {\n  DropdownMenu,\n  DropdownMenuContent,\n  DropdownMenuGroup,\n  DropdownMenuItem,\n  DropdownMenuLabel,\n  DropdownMenuSeparator,\n  DropdownMenuTrigger,\n} from \"@/components/ui/dropdown-menu\"\n\nexport function Pattern() {\n  return (\n    <div className=\"flex items-center justify-center\">\n      <DropdownMenu>\n        <DropdownMenuTrigger asChild>\n          <Button variant=\"line\" className=\"w-fit\">\n            Open\n          </Button>\n        </DropdownMenuTrigger>\n        <DropdownMenuContent>\n          <DropdownMenuGroup>\n            <DropdownMenuLabel>My Account</DropdownMenuLabel>\n            <DropdownMenuItem>Profile</DropdownMenuItem>\n            <DropdownMenuItem>Billing</DropdownMenuItem>\n            <DropdownMenuItem>Settings</DropdownMenuItem>\n          </DropdownMenuGroup>\n          <DropdownMenuSeparator />\n          <DropdownMenuGroup>\n            <DropdownMenuItem>GitHub</DropdownMenuItem>\n            <DropdownMenuItem>Support</DropdownMenuItem>\n            <DropdownMenuItem disabled>API</DropdownMenuItem>\n          </DropdownMenuGroup>\n        </DropdownMenuContent>\n      </DropdownMenu>\n    </div>\n  )\n}\nexport default Pattern;\n",
+        "example": "import { Button } from \"@/components/ui/button\"\nimport {\n  DropdownMenu,\n  DropdownMenuContent,\n  DropdownMenuGroup,\n  DropdownMenuItem,\n  DropdownMenuLabel,\n  DropdownMenuSeparator,\n  DropdownMenuTrigger,\n  DropdownMenuCheckboxItem,\n  DropdownMenuRadioGroup,\n  DropdownMenuRadioItem,\n  DropdownMenuSub,\n  DropdownMenuSubTrigger,\n  DropdownMenuSubContent,\n} from \"@/components/ui/dropdown-menu\"\n\nexport function Pattern() {\n  const [notifications, setNotifications] = useState(true)\n  const [theme, setTheme] = useState(\"system\")\n  return (\n    <div className=\"flex items-center justify-center\">\n      <DropdownMenu>\n        <DropdownMenuTrigger asChild>\n          <Button variant=\"line\" className=\"w-fit\">\n            메뉴 열기\n          </Button>\n        </DropdownMenuTrigger>\n        <DropdownMenuContent>\n          <DropdownMenuGroup>\n            <DropdownMenuLabel>내 계정</DropdownMenuLabel>\n            <DropdownMenuItem selected><UserIcon />프로필</DropdownMenuItem>\n            <DropdownMenuItem><SettingsIcon />설정</DropdownMenuItem>\n            <DropdownMenuItem disabled>사용할 수 없는 항목</DropdownMenuItem>\n          </DropdownMenuGroup>\n          <DropdownMenuSeparator />\n          <DropdownMenuGroup>\n            <DropdownMenuCheckboxItem checked={notifications} onCheckedChange={setNotifications}>알림 받기</DropdownMenuCheckboxItem>\n            <DropdownMenuSub>\n              <DropdownMenuSubTrigger>테마</DropdownMenuSubTrigger>\n              <DropdownMenuSubContent>\n                <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>\n                  <DropdownMenuRadioItem value=\"system\">시스템 설정</DropdownMenuRadioItem>\n                  <DropdownMenuRadioItem value=\"light\">라이트</DropdownMenuRadioItem>\n                  <DropdownMenuRadioItem value=\"dark\">다크</DropdownMenuRadioItem>\n                </DropdownMenuRadioGroup>\n              </DropdownMenuSubContent>\n            </DropdownMenuSub>\n            <DropdownMenuItem variant=\"destructive\">삭제</DropdownMenuItem>\n          </DropdownMenuGroup>\n        </DropdownMenuContent>\n      </DropdownMenu>\n    </div>\n  )\n}\nexport default Pattern;\n\"use client\"\n\nimport { useState } from \"react\"\nimport { UserIcon, SettingsIcon } from \"lucide-react\"\n",
         "ienDesign": true
       }
     },
@@ -3739,6 +3739,11 @@
           "path": "lib/ien-material-indicator.ts",
           "type": "registry:lib",
           "target": "@lib/ien-material-indicator.ts"
+        },
+        {
+          "path": "lib/ien-menu.ts",
+          "type": "registry:lib",
+          "target": "@lib/ien-menu.ts"
         }
       ],
       "cssVars": {

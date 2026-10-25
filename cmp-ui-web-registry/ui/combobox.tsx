@@ -5,6 +5,7 @@ import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 import * as React from "react"
 import { Combobox as ComboboxPrimitive } from "@base-ui/react"
 import { cn } from "cn"
+import { menuSurfaceClassName, menuItemClassName, menuCheckedClassName, menuLabelClassName, menuSeparatorClassName, menuIndicatorClassName, menuBaseMotionClassName } from "@/lib/ien-menu"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -171,8 +172,8 @@ function ComboboxContent({
           data-ien-gradient={ienTheme.useGradient}
           data-chips={!!anchor}
           className={cn(
-            "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 *:data-[slot=input-group]:bg-input/30 *:data-[slot=input-group]:border-input/30 max-h-72 min-w-36 overflow-hidden rounded-lg shadow-md ring-1 duration-100 *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-8 *:data-[slot=input-group]:shadow-none data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2  animate-none! relative bg-popover/70 before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-2xl before:backdrop-saturate-150 **:data-[slot$=-item]:focus:bg-foreground/10 **:data-[slot$=-item]:data-highlighted:bg-foreground/10 **:data-[slot$=-separator]:bg-foreground/5 **:data-[slot$=-trigger]:focus:bg-foreground/10 **:data-[slot$=-trigger]:aria-expanded:bg-foreground/10! **:data-[variant=destructive]:focus:bg-foreground/10! **:data-[variant=destructive]:text-accent-foreground! **:data-[variant=destructive]:**:text-accent-foreground! group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-[calc(var(--anchor-width)+--spacing(7))] origin-(--transform-origin) data-[chips=true]:min-w-(--anchor-width)",
-            className
+        menuSurfaceClassName, menuBaseMotionClassName, "group/combobox-content max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-40 overflow-hidden origin-(--transform-origin) *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-8 *:data-[slot=input-group]:shadow-none",
+        className
           )}
           {...props}
         />
@@ -214,19 +215,20 @@ function ComboboxItem({
   return (
     <ComboboxPrimitive.Item
       data-slot="combobox-item"
-      data-ien-typography="label1"
+      data-ien-typography="body2"
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       className={cn(
-        "data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground gap-2 rounded-md py-1 pr-8 pl-1.5 text-sm [&_svg:not([class*='size-'])]:size-4 relative flex w-full cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-(--ien-state-disabled-alpha) [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        menuItemClassName, menuCheckedClassName, "w-full",
         className,
       )}
       {...props}
     >
-      {children}
       <ComboboxPrimitive.ItemIndicator
-        render={<span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center" />}
+        keepMounted
+        className={(state) => state.selected ? undefined : "invisible"}
+        render={<span className={menuIndicatorClassName} />}
       >
         <IconPlaceholder
           lucide="CheckIcon"
@@ -237,6 +239,7 @@ function ComboboxItem({
           className=" pointer-events-none"
         />
       </ComboboxPrimitive.ItemIndicator>
+      {children}
     </ComboboxPrimitive.Item>
   )
 }
@@ -270,11 +273,13 @@ function ComboboxLabel({
   return (
     <ComboboxPrimitive.GroupLabel
       data-slot="combobox-label"
-      data-ien-typography="label1"
+      data-ien-typography="caption"
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
-      className={cn("text-muted-foreground px-2 py-1.5 text-xs", className)}
+      className={cn(
+        menuLabelClassName,
+        className)}
       {...props}
     />
   )
@@ -318,7 +323,9 @@ function ComboboxSeparator({
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
-      className={cn("bg-border -mx-1 my-1 h-px", className)}
+      className={cn(
+        menuSeparatorClassName,
+        className)}
       {...props}
     />
   )

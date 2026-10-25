@@ -1,4 +1,5 @@
 "use client"
+import { menuItemClassName, menuSelectedClassName } from "@/lib/ien-menu"
 import type { IenToneProps } from "@/lib/ien-theme"
 import { useIenTheme } from "@/lib/ien-theme-context"
 
@@ -57,10 +58,8 @@ const ROW_GUTTER_CLASS =
 const INDICATOR_CLASS =
   "pointer-events-none absolute flex items-center justify-center size-4 end-[var(--cascader-row-inset,8px)]! rtl:right-auto!"
 
-// The row's type, gap, radius and icon size per style. No horizontal padding:
-// every row pairs this with `ROW_FLUSH_CLASS` or `ROW_GUTTER_CLASS`.
-const ROW_THEME_CLASS =
-  "data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground [&_svg:not([class*='size-'])]:size-4 rounded-md py-1"
+// 공통 메뉴 스타일에 계층별 들여쓰기와 체크 표시 공간을 조합합니다.
+const ROW_THEME_CLASS = `${menuItemClassName} ${menuSelectedClassName}`
 
 /**
  * The row's gap and type, per style, held apart from the rest of the theme.
@@ -75,7 +74,7 @@ const ROW_GAP_CLASS = "gap-2"
 const ROW_TEXT_CLASS =
   "text-sm"
 
-const ROW_SHELL_CLASS = `${ROW_THEME_CLASS} relative flex w-full cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-(--ien-state-disabled-alpha) [&_svg]:pointer-events-none [&_svg]:shrink-0 ${ROW_INSET_CLASS}`
+const ROW_SHELL_CLASS = `${ROW_THEME_CLASS} relative flex w-full cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:text-(--ien-text-disabled) [&_svg]:pointer-events-none [&_svg]:shrink-0 ${ROW_INSET_CLASS}`
 
 const ROW_CLASS = `${ROW_SHELL_CLASS} ${ROW_GAP_CLASS} ${ROW_TEXT_CLASS}`
 
@@ -88,7 +87,7 @@ const CASCADER_ACTION_INSET_CLASS = `${ROW_INSET_CLASS} ${ROW_FLUSH_CLASS}`
  *  leave a command painted as if it were still hovered. Disabled keys off
  *  `aria-disabled`, not `:disabled`, to keep it FOCUSABLE: a footer whose only
  *  row is disabled has no tab stop. */
-export const CASCADER_ACTION_CLASS = `${ROW_SHELL_CLASS} ${ROW_TEXT_CLASS} ${ROW_FLUSH_CLASS} hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground cursor-pointer gap-2 transition-colors aria-disabled:pointer-events-none aria-disabled:opacity-(--ien-state-disabled-alpha)`
+export const CASCADER_ACTION_CLASS = `${ROW_SHELL_CLASS} ${ROW_TEXT_CLASS} ${ROW_FLUSH_CLASS} hover:before:opacity-100 focus-visible:before:opacity-100 cursor-pointer gap-2 transition-colors aria-disabled:pointer-events-none aria-disabled:opacity-(--ien-state-disabled-alpha)`
 
 // The box around the affordances that are not the row. 20px around a 16px icon,
 // the outer 2px cancelled at the call site; 24px would set the row height.

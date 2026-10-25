@@ -6,6 +6,7 @@ import { Autocomplete as AutocompletePrimitive } from "@base-ui/react/autocomple
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "cn"
+import { menuSurfaceClassName, menuBaseMotionClassName, menuItemClassName, menuLabelClassName, menuSeparatorClassName } from "@/lib/ien-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { IconPlaceholder } from "@/lib/reui-icons"
 
@@ -227,18 +228,12 @@ function AutocompleteItem({
   return (
     <AutocompletePrimitive.Item
       data-slot="autocomplete-item"
-      data-ien-typography="label1"
+      data-ien-typography="body2"
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       className={cn(
-        "text-foreground data-highlighted:text-foreground data-highlighted:before:bg-accent gap-1.5",
-        "rounded-md",
-        "data-highlighted:before:rounded-md",
-        /* Icon sizing mirrors the shadcn Select item. Rhea tracks nova, as its
-           shadcn Input metrics match nova's; the row radius above follows the
-           shadcn Select and Dropdown Menu items, xl in rhea. */
-        "px-1.5 py-1 text-sm [&_svg:not([class*='size-'])]:size-4 relative flex cursor-default items-center outline-hidden transition-colors select-none data-disabled:pointer-events-none data-disabled:opacity-(--ien-state-disabled-alpha) data-highlighted:relative data-highlighted:z-0 data-highlighted:before:absolute data-highlighted:before:inset-x-0 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([role=img]):not([class*=text-])]:opacity-60",
+        menuItemClassName,
         className,
       )}
       {...props}
@@ -292,8 +287,8 @@ function AutocompleteContent({
             data-ien-tone={ienTheme.tone}
             data-ien-gradient={ienTheme.useGradient}
             className={cn(
-              "bg-popover text-popover-foreground rounded-lg shadow-md ring-foreground/10 flex max-h-[min(var(--available-height),24rem)] w-(--anchor-width) max-w-(--available-width) origin-(--transform-origin) scroll-pt-2 scroll-pb-2 flex-col overscroll-contain py-0.5 ring-1 transition-[scale,opacity] has-data-starting-style:scale-98 has-data-starting-style:opacity-0 has-data-[side=none]:scale-100 has-data-[side=none]:transition-none",
-              className
+        menuSurfaceClassName, menuBaseMotionClassName, "flex max-h-[min(var(--available-height),24rem)] w-(--anchor-width) min-w-40 max-w-(--available-width) origin-(--transform-origin) flex-col overscroll-contain overflow-hidden",
+        className
             )}
             {...props}
           >
@@ -324,12 +319,12 @@ function AutocompleteGroupLabel({
   return (
     <AutocompletePrimitive.GroupLabel
       data-slot="autocomplete-group-label"
-      data-ien-typography="label1"
+      data-ien-typography="caption"
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       className={cn(
-        "text-muted-foreground px-1.5 py-1 text-xs font-medium",
+        menuLabelClassName,
         className
       )}
       {...props}
@@ -445,7 +440,7 @@ function AutocompleteSeparator({
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       className={cn(
-        "bg-border my-1.5 h-px",
+        menuSeparatorClassName,
         className
       )}
       {...props}

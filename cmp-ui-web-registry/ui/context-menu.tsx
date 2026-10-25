@@ -4,6 +4,8 @@ import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import { cn } from "cn"
+import { menuSurfaceClassName, menuMotionClassName, menuItemClassName, menuSelectedClassName, menuCheckedClassName, menuLabelClassName, menuSeparatorClassName, menuIndicatorClassName, useDisabledMenuShake } from "@/lib/ien-menu"
+
 import { ContextMenu as ContextMenuPrimitive } from "radix-ui"
 
 import { IconPlaceholder } from "@/lib/reui-icons"
@@ -92,8 +94,8 @@ function ContextMenuContent({
         data-ien-tone={ienTheme.tone}
         data-ien-gradient={ienTheme.useGradient}
         className={cn(
-          "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 bg-popover text-popover-foreground min-w-36 rounded-lg p-1 shadow-md ring-1 duration-100  animate-none! relative bg-popover/70 before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-2xl before:backdrop-saturate-150 **:data-[slot$=-item]:focus:bg-foreground/10 **:data-[slot$=-item]:data-highlighted:bg-foreground/10 **:data-[slot$=-separator]:bg-foreground/5 **:data-[slot$=-trigger]:focus:bg-foreground/10 **:data-[slot$=-trigger]:aria-expanded:bg-foreground/10! **:data-[variant=destructive]:focus:bg-foreground/10! **:data-[variant=destructive]:text-accent-foreground! **:data-[variant=destructive]:**:text-accent-foreground! z-50 max-h-(--radix-context-menu-content-available-height) origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto",
-          className
+        menuSurfaceClassName, menuMotionClassName, "min-w-40 max-h-(--radix-context-menu-content-available-height) max-w-(--radix-context-menu-content-available-width) overflow-x-hidden overflow-y-auto p-(--ien-spacing-xxs) origin-(--radix-context-menu-content-transform-origin)",
+        className
         )}
         {...props}
       />
@@ -105,25 +107,31 @@ function ContextMenuItem({
   tone: ienTone,
   useGradient: ienUseGradient,
   className,
+  onPointerDown,
   inset,
+  selected = false,
   variant = "default",
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.Item> & {
   inset?: boolean
+  selected?: boolean
   variant?: "default" | "destructive"
 } & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const handlePointerDown = useDisabledMenuShake(onPointerDown)
   return (
     <ContextMenuPrimitive.Item
+      onPointerDown={handlePointerDown}
       data-slot="context-menu-item"
-      data-ien-typography="label1"
+      data-ien-typography="body2"
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       data-inset={inset}
+      data-selected={selected || undefined}
       data-variant={variant}
       className={cn(
-        "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:text-destructive focus:*:[svg]:text-accent-foreground gap-1.5 rounded-md px-1.5 py-1 text-sm data-inset:pl-7 [&_svg:not([class*='size-'])]:size-4 group/context-menu-item relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-(--ien-state-disabled-alpha) [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        menuItemClassName, menuSelectedClassName, "data-[variant=destructive]:text-(--ien-danger) data-[variant=destructive]:[&_svg]:text-(--ien-danger)",
         className,
       )}
       {...props}
@@ -135,6 +143,7 @@ function ContextMenuSubTrigger({
   tone: ienTone,
   useGradient: ienUseGradient,
   className,
+  onPointerDown,
   inset,
   children,
   ...props
@@ -142,16 +151,18 @@ function ContextMenuSubTrigger({
   inset?: boolean
 } & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const handlePointerDown = useDisabledMenuShake(onPointerDown)
   return (
     <ContextMenuPrimitive.SubTrigger
+      onPointerDown={handlePointerDown}
       data-slot="context-menu-sub-trigger"
-      data-ien-typography="label1"
+      data-ien-typography="body2"
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       data-inset={inset}
       className={cn(
-        "focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground gap-1.5 rounded-md px-1.5 py-1 text-sm data-inset:pl-7 [&_svg:not([class*='size-'])]:size-4 flex cursor-default items-center outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        menuItemClassName,
         className
       )}
       {...props}
@@ -163,7 +174,7 @@ function ContextMenuSubTrigger({
         hugeicons="ArrowRight01Icon"
         phosphor="CaretRightIcon"
         remixicon="RiArrowRightSLine"
-        className=" ml-auto"
+        className="ms-auto"
       />
     </ContextMenuPrimitive.SubTrigger>
   )
@@ -178,6 +189,7 @@ function ContextMenuSubContent({
   IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
+    <ContextMenuPrimitive.Portal>
     <ContextMenuPrimitive.SubContent
       data-slot="context-menu-sub-content"
       data-ien-typography="body2"
@@ -185,11 +197,12 @@ function ContextMenuSubContent({
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 bg-popover text-popover-foreground min-w-32 rounded-lg border p-1 shadow-lg duration-100  animate-none! relative bg-popover/70 before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-2xl before:backdrop-saturate-150 **:data-[slot$=-item]:focus:bg-foreground/10 **:data-[slot$=-item]:data-highlighted:bg-foreground/10 **:data-[slot$=-separator]:bg-foreground/5 **:data-[slot$=-trigger]:focus:bg-foreground/10 **:data-[slot$=-trigger]:aria-expanded:bg-foreground/10! **:data-[variant=destructive]:focus:bg-foreground/10! **:data-[variant=destructive]:text-accent-foreground! **:data-[variant=destructive]:**:text-accent-foreground! z-50 origin-(--radix-context-menu-content-transform-origin) overflow-hidden",
+        menuSurfaceClassName, menuMotionClassName, "min-w-40 max-h-(--radix-context-menu-content-available-height) max-w-(--radix-context-menu-content-available-width) overflow-x-hidden overflow-y-auto p-(--ien-spacing-xxs) origin-(--radix-context-menu-content-transform-origin)",
         className
       )}
       {...props}
     />
+    </ContextMenuPrimitive.Portal>
   )
 }
 
@@ -197,6 +210,7 @@ function ContextMenuCheckboxItem({
   tone: ienTone,
   useGradient: ienUseGradient,
   className,
+  onPointerDown,
   children,
   checked,
   inset,
@@ -205,22 +219,24 @@ function ContextMenuCheckboxItem({
   inset?: boolean
 } & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const handlePointerDown = useDisabledMenuShake(onPointerDown)
   return (
     <ContextMenuPrimitive.CheckboxItem
+      onPointerDown={handlePointerDown}
       data-slot="context-menu-checkbox-item"
-      data-ien-typography="label1"
+      data-ien-typography="body2"
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       data-inset={inset}
       className={cn(
-        "focus:bg-accent focus:text-accent-foreground gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm data-inset:pl-7 [&_svg:not([class*='size-'])]:size-4 relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-(--ien-state-disabled-alpha) [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        menuItemClassName, menuCheckedClassName, "data-[state=checked]:not-data-disabled:text-(--ien-text-primary)",
         className,
       )}
       checked={checked}
       {...props}
     >
-      <span className="absolute right-2 pointer-events-none">
+      <span className={menuIndicatorClassName}>
         <ContextMenuPrimitive.ItemIndicator>
           <IconPlaceholder
             lucide="CheckIcon"
@@ -240,6 +256,7 @@ function ContextMenuRadioItem({
   tone: ienTone,
   useGradient: ienUseGradient,
   className,
+  onPointerDown,
   children,
   inset,
   ...props
@@ -247,21 +264,23 @@ function ContextMenuRadioItem({
   inset?: boolean
 } & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const handlePointerDown = useDisabledMenuShake(onPointerDown)
   return (
     <ContextMenuPrimitive.RadioItem
+      onPointerDown={handlePointerDown}
       data-slot="context-menu-radio-item"
-      data-ien-typography="label1"
+      data-ien-typography="body2"
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       data-inset={inset}
       className={cn(
-        "focus:bg-accent focus:text-accent-foreground gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm data-inset:pl-7 [&_svg:not([class*='size-'])]:size-4 relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-(--ien-state-disabled-alpha) [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        menuItemClassName, menuCheckedClassName,
         className,
       )}
       {...props}
     >
-      <span className="absolute right-2 pointer-events-none">
+      <span className={menuIndicatorClassName}>
         <ContextMenuPrimitive.ItemIndicator>
           <IconPlaceholder
             lucide="CheckIcon"
@@ -290,12 +309,14 @@ function ContextMenuLabel({
   return (
     <ContextMenuPrimitive.Label
       data-slot="context-menu-label"
-      data-ien-typography="label1"
+      data-ien-typography="caption"
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       data-inset={inset}
-      className={cn("text-muted-foreground px-1.5 py-1 text-xs font-medium data-inset:pl-7", className)}
+      className={cn(
+        menuLabelClassName,
+        className)}
       {...props}
     />
   )
@@ -314,7 +335,9 @@ function ContextMenuSeparator({
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
-      className={cn("bg-border -mx-1 my-1 h-px", className)}
+      className={cn(
+        menuSeparatorClassName,
+        className)}
       {...props}
     />
   )
@@ -334,7 +357,9 @@ function ContextMenuShortcut({
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
-      className={cn("text-muted-foreground group-focus/context-menu-item:text-accent-foreground ml-auto text-xs tracking-widest", className)}
+      className={cn(
+        "ms-auto text-(--ien-text-tertiary) [[data-disabled]_&]:text-(--ien-text-disabled)",
+        className)}
       {...props}
     />
   )
