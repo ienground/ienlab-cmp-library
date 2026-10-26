@@ -48,6 +48,9 @@ const singleExamples = {
   textarea:
     'import { Textarea } from "@/components/ui/textarea"\n\nexport function Pattern() {\n  return <Textarea label="내용" labelOption="appear" placeholder="내용을 입력하세요" lengthLimit={{ mode: "block", maxLength: 200 }} minLines={4} maxLines={8} />\n}\nexport default Pattern\n',
 
+  chip:
+    'import { useState } from "react"\nimport { Chip } from "@/components/ui/chip"\n\nexport function Pattern() {\n  const [visible, setVisible] = useState(true)\n  return visible ? <Chip kind="input" onRemove={() => setVisible(false)}>선택 항목</Chip> : <p>삭제했습니다. 초기화를 누르면 복원됩니다.</p>\n}\nexport default Pattern\n',
+
   button:
     'import { Button } from "@/components/ui/button"\n\nexport function Pattern() {\n  return <Button>버튼</Button>\n}\nexport default Pattern\n',
   badge:
@@ -763,6 +766,8 @@ export function createPlaygroundCatalog(items, previews) {
         if (binding.name === "Skeleton" && prop.name === "custom") prop.kind = "slot";
         if (prop.name === "items" && /TabItem\[\]/.test(prop.type)) prop.kind = "slot";
         if (binding.name === "Switch" && ["trackContent", "onTrackContent", "offTrackContent", "thumbContent"].includes(prop.name)) prop.kind = "icon";
+        if (binding.name === "Chip" && ["leadingIcon", "selectedIcon", "trailingIcon", "avatar"].includes(prop.name)) prop.kind = "icon";
+        if (binding.name === "Chip" && prop.name === "selectedIcon") prop.defaultValue = { playgroundIcon: "CheckIcon" };
       }
       for (const prop of props.values()) {
         if (prop.kind !== "reference") continue;

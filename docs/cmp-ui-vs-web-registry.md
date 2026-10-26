@@ -16,14 +16,14 @@
 | 구분 | 구성 |
 | --- | --- |
 | CMP 문서 카탈로그 | 73개 항목. Compose 기본 API인 `AnimatedContent` 예제도 포함 |
-| 웹 컴포넌트 레지스트리 | UI 57개, 훅 5개, 공통 라이브러리 3개로 총 65개 |
+| 웹 컴포넌트 레지스트리 | UI 58개, 훅 5개, 공통 라이브러리 3개로 총 66개 |
 | 웹 프로젝트 레지스트리 | 기본 프로젝트 `ienlab` 1개. 위 컴포넌트 집계와 별도 |
 
-CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 복합 컴포넌트를 여러 설치 항목으로 나누기도 합니다. 따라서 57÷73을 구현률로 계산할 수 없습니다.
+CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 복합 컴포넌트를 여러 설치 항목으로 나누기도 합니다. 따라서 58÷73을 구현률로 계산할 수 없습니다.
 
 기본 입력·선택·로딩 컴포넌트는 양쪽에 상당 부분 구현되어 있습니다. 웹에서 부족한 영역은 CMP의 리스트·다이얼로그·알림·화면 구성 컴포넌트입니다. 반대로 데이터 테이블·일정·보드·계층 선택 같은 복잡한 데이터 UI는 웹이 더 풍부합니다.
 
-웹은 REUI와 shadcn/ui 기반 구조에 IEN 디자인과 CMP 기능을 반영한 상태입니다. 웹 UI 57개 모두 `ienDesign: true`로 등록되어 있지만, 이 메타데이터만으로 시각적 대응 완료를 판단하지 않습니다.
+웹은 REUI와 shadcn/ui 기반 구조에 IEN 디자인과 CMP 기능을 반영한 상태입니다. 웹 UI 58개 모두 `ienDesign: true`로 등록되어 있지만, 이 메타데이터만으로 시각적 대응 완료를 판단하지 않습니다.
 
 웹 문서의 컴포넌트 분류도 CMP와 같은 용도 기준인 `액션·선택`, `입력`, `레이아웃`, `콘텐츠`, `피드백`, `화면 구성`, `기초` 순서를 사용합니다. 웹 전용 컴포넌트도 역할에 따라 분류하며, 항목이 없는 분류는 표시하지 않습니다. REUI·shadcn/ui 출처 정보는 분류와 별도로 유지합니다.
 
@@ -31,6 +31,7 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 
 | 기능 | CMP | 웹 | 비교 |
 | --- | --- | --- | --- |
+| 칩 | Assist / Filter / Input / Suggestion 및 elevated 변형 | `Chip kind="assist / filter / input / suggestion"` | 선택·아이콘·avatar·삭제·로딩·elevated 제공. 양쪽 모두 Filter Chip 선택 시 기본 체크를 leading에 표시하며 `selectedIcon`으로 교체하거나 null로 숨길 수 있음. 웹의 `onRemove`는 독립된 삭제 버튼이며 인라인 텍스트 편집은 제공하지 않음 |
 | 기본 버튼 | `IenButton` | `Button` | `fill / weak / line / ghost` 제공 |
 | 배지 | `IenBadge` | `Badge` | 양쪽에 크기·색상·표현 변형 존재 |
 | 카드 | `IenCard` | `Card` | 웹도 채움·테두리, 색상, 여백, 모서리, elevation 제공 |
@@ -89,7 +90,6 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 | 날짜·시간 다이얼로그 | `IenDatePickerDialog`, `IenTimePickerDialog` | 선택기는 있으나 다이얼로그 형태의 전용 API 없음 |
 | 일시적 알림 | `IenSnackbar`, `IenToast`와 Host·Provider·표시 상태 관리 | 대응 없음 |
 | 슬라이더 | `IenSlider`, `IenRangeSlider` | 대응 UI 설치 항목 없음. `use-slider-input` 훅과 구분 필요 |
-| 칩 | Assist / Filter / Input / Suggestion 및 elevated 변형 | 대응 전용 컴포넌트 없음 |
 | 분할 선택 | `IenSegmentedControl` | 대응 전용 컴포넌트 없음 |
 | 플로팅 액션 | `IenFab`, `IenExtendedFab`, `IenFabMenu` | 대응 전용 컴포넌트 없음 |
 | 액션 바 | `IenActionBar` | 대응 없음 |
@@ -228,8 +228,9 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 
 ### CMP 연결 메타데이터
 
-웹 UI 57개 중 `cmpIds`가 설정된 것은 다음 4개입니다.
+웹 UI 58개 중 `cmpIds`가 설정된 것은 다음 5개입니다.
 
+- `chip`
 - `rating`
 - `skeleton`
 - `progress-indicator`
@@ -248,7 +249,7 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 웹의 CMP 대응을 높이는 목적일 때의 우선순위입니다. 구현이 확정된 작업 목록은 아닙니다.
 
 1. **Dialog / AlertDialog, Toast / Snackbar**: 기본 사용자 흐름에서 빠진 피드백 수단을 보완합니다.
-2. **Slider / RangeSlider, Chip, SegmentedControl**: 기본 입력·선택 영역을 보완합니다.
+2. **Slider / RangeSlider, SegmentedControl**: 기본 입력·선택 영역을 보완합니다.
 3. **ListRow / Section, 버튼 toggle·로딩 상태 표현, 입력 확장**: 반복적인 개별 구현을 줄이고 상태별 표현을 정렬합니다.
 4. **BottomSheet 높이·드래그, 화면 골격·CTA**: CMP 화면 구성 패턴을 대응합니다.
 5. **`cmpIds` 정비**: 확인된 대응 관계를 문서 생성에 반영합니다.

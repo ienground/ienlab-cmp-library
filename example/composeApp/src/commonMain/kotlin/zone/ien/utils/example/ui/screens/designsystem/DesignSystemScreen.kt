@@ -821,7 +821,10 @@ private val AdditionalComponentPlaygroundControls = mapOf(
         choiceControl("shape", "모양", listOf("Rounded", "Capsule"), "Rounded"),
         numberControl("contentPadding", "안쪽 여백", 16, 0, 32),
     ),
-    "chip" to listOf(textControl("text", "레이블", "Assist")),
+    "chip" to listOf(
+        textControl("text", "레이블", "Assist"),
+        choiceControl("selectedIcon", "선택 아이콘", listOf("Check", "Add", "Edit", "None"), "Check"),
+    ),
     "fab" to listOf(
         choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
         textControl("text", "버튼 레이블", "작성하기"),
@@ -2556,6 +2559,12 @@ fun ChipSection(controls: Map<String, String> = emptyMap()) {
         var selected by remember(controls["selected"]) {
             mutableStateOf(controls.booleanValue("selected", false))
         }
+        val selectedIcon: (@Composable () -> Unit)? = when (controls.enumValue("selectedIcon", "Check")) {
+            "None" -> null
+            "Add" -> { { IenIcon(IconData.Vector(SystemIcons.Add), contentDescription = null) } }
+            "Edit" -> { { IenIcon(IconData.Vector(SystemIcons.Edit), contentDescription = null) } }
+            else -> { { IenChipDefault.SelectedIcon() } }
+        }
         ComponentSection(title = "Chip") {
             when (variant) {
                 "ElevatedAssist" -> IenElevatedAssistChip(
@@ -2573,15 +2582,12 @@ fun ChipSection(controls: Map<String, String> = emptyMap()) {
                     colors = IenChipDefault.colors(
                         tone = if (selected) IenSemanticTone.Success else IenSemanticTone.Brand,
                     ),
-                    leadingIcon = if (selected) {
-                        { IenIcon(IconData.Vector(SystemIcons.Check), contentDescription = null) }
-                    } else {
-                        null
-                    },
+                    selectedIcon = selectedIcon,
                 ) { Text("Filter") }
                 "ElevatedFilter" -> IenElevatedFilterChip(
                     selected = selected,
                     onSelectedChange = { selected = it },
+                    selectedIcon = selectedIcon,
                     state = IenChipState(enabled = !disabled),
                 ) { Text("Elevated Filter") }
                 "Input" -> IenInputChip(

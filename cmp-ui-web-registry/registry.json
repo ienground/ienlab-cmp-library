@@ -654,6 +654,41 @@
       }
     },
     {
+      "name": "chip",
+      "type": "registry:ui",
+      "title": "Chip",
+      "description": "CMP에 대응하는 Assist·Filter·Input·Suggestion Chip입니다. 선택·삭제·아이콘·로딩과 elevated 표현을 제공합니다.",
+      "dependencies": [
+        "cn@^0.4.0",
+        "@tabler/icons-react@^3.49.0"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/progress-indicator"
+      ],
+      "files": [
+        {
+          "path": "ui/chip.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/chip.tsx"
+        }
+      ],
+      "meta": {
+        "category": "액션·선택",
+        "cmpIds": [
+          "chip"
+        ],
+        "exports": [
+          "Chip",
+          "ChipKind",
+          "ChipProps"
+        ],
+        "preview": "previews/chip.tsx",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { IconPlus, IconSparkles } from \"@tabler/icons-react\"\nimport { Chip, type ChipKind } from \"@/components/ui/chip\"\nimport { Button } from \"@/components/ui/button\"\n\nconst kinds: ChipKind[] = [\"assist\", \"filter\", \"input\", \"suggestion\"]\n\nexport function Pattern() {\n  const [selected, setSelected] = useState(false)\n  const [items, setItems] = useState([\"Kotlin\", \"Compose\", \"React\"])\n  const [action, setAction] = useState(\"작업을 선택하세요.\")\n\n  return (\n    <div className=\"flex flex-col gap-6\">\n      <div className=\"flex flex-wrap items-center gap-3\">\n        <Chip leadingIcon={<IconPlus />} onClick={() => setAction(\"Assist 작업을 실행했습니다.\")}>Assist</Chip>\n        <Chip kind=\"filter\" selected={selected} onSelectedChange={setSelected}>Filter</Chip>\n        <Chip kind=\"filter\" defaultSelected selectedIcon={<IconSparkles />}>커스텀 선택 아이콘</Chip>\n        <Chip kind=\"filter\" defaultSelected selectedIcon={null}>선택 아이콘 없음</Chip>\n        <Chip kind=\"suggestion\" leadingIcon={<IconSparkles />} onClick={() => setAction(\"추천 작업을 실행했습니다.\")}>Suggestion</Chip>\n      </div>\n      <p className=\"text-sm text-muted-foreground\" aria-live=\"polite\">{action} 필터: {selected ? \"선택됨\" : \"선택 안 됨\"}</p>\n      <div className=\"flex flex-wrap items-center gap-3\">\n        {items.map((item) => <Chip key={item} kind=\"input\" defaultSelected avatar={<span aria-hidden=\"true\">{item[0]}</span>} onRemove={() => setItems((previous) => previous.filter((value) => value !== item))}>{item}</Chip>)}\n        {items.length < 3 && <Button variant=\"ghost\" size=\"sm\" onClick={() => setItems([\"Kotlin\", \"Compose\", \"React\"])}>항목 복원</Button>}\n      </div>\n      <div className=\"flex flex-wrap items-center gap-3\">\n        {kinds.map((kind) => <Chip key={kind} kind={kind} elevated defaultSelected>{kind} elevated</Chip>)}\n      </div>\n      <div className=\"flex flex-wrap items-center gap-3\">\n        <Chip disabled>비활성화</Chip>\n        <Chip kind=\"filter\" selected disabled>선택·비활성화</Chip>\n        <Chip loading>불러오는 중</Chip>\n        <Chip kind=\"input\" loading defaultSelected onRemove={() => setAction(\"항목을 삭제했습니다.\")}>선택·로딩</Chip>\n      </div>\n    </div>\n  )\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
       "name": "checkbox",
       "type": "registry:ui",
       "title": "Checkbox",

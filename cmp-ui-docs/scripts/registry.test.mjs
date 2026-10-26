@@ -35,7 +35,7 @@ test("모든 웹 컴포넌트의 Playground와 실제 variant·상속 속성을 
   const items = await collectRegistry(path.join(repository, "registry.json"), repository);
   const previews = Object.fromEntries(await Promise.all(items.filter((item) => item.meta?.preview).map(async (item) => [item.name, await readFile(path.resolve(path.dirname(item.manifestPath), item.meta.preview), "utf8")])));
   const definitions = createPlaygroundCatalog(items, previews);
-  assert.equal(Object.keys(definitions).length, 52);
+  assert.equal(Object.keys(definitions).length, items.filter((item) => item.type === "registry:ui").length);
   const button = definitions.button.targets[0];
   assert.equal(button.name, "Button");
   assert.deepEqual(button.props.find((prop) => prop.name === "tone").options, ["neutral", "brand", "success", "warning", "danger", "info"]);
@@ -52,6 +52,23 @@ test("모든 웹 컴포넌트의 Playground와 실제 variant·상속 속성을 
       if (prop.kind === "select") assert.ok(prop.options.length, `${target.name}.${prop.name}`);
     }
   }
+});
+
+test("Chip의 설치 경로와 CMP 매핑, 네 가지 유형과 아이콘 컨트롤을 제공한다", async () => {
+  const items = await collectRegistry(path.join(repository, "registry.json"), repository);
+  const item = items.find((entry) => entry.name === "chip");
+  assert.ok(item);
+  assert.deepEqual(item.meta.cmpIds, ["chip"]);
+  assert.ok(item.registryDependencies.includes("@ienlab/progress-indicator"));
+  const web = createWebCatalog(items, catalog, repository).find((entry) => entry.id === "chip");
+  assert.equal(web.packageName, "@/components/ui/chip");
+  assert.equal(web.cmpId, "chip");
+  const previews = Object.fromEntries(await Promise.all(items.filter((entry) => entry.meta?.preview).map(async (entry) => [entry.name, await readFile(path.resolve(path.dirname(entry.manifestPath), entry.meta.preview), "utf8")])));
+  const target = createPlaygroundCatalog(items, previews).chip.targets[0];
+  assert.deepEqual(target.props.find((prop) => prop.name === "kind").options, ["assist", "filter", "input", "suggestion"]);
+  for (const name of ["leadingIcon", "selectedIcon", "trailingIcon", "avatar"]) assert.equal(target.props.find((prop) => prop.name === name).kind, "icon");
+  assert.deepEqual(target.props.find((prop) => prop.name === "selectedIcon").defaultValue, { playgroundIcon: "CheckIcon" });
+  for (const name of ["loading", "disabled", "selected", "elevated"]) assert.equal(target.props.find((prop) => prop.name === name).kind, "boolean");
 });
 
 test("문서 프리뷰의 실제 JSX 컴포넌트만 Playground에 연결한다", () => {
@@ -208,7 +225,7 @@ test("REUI 기본 컴포넌트와 필수 의존성을 하나의 레지스트리�
   }
 });
 
-test("모든 공개 웹 컴포넌트에 REUI 프리뷰와 올바른 설치 경로를 연결한다", async () => {
+test("모든 공개 웹 컴포넌트의 프리뷰와 CMP 매핑·설치 경로를 연결한다", async () => {
   const items = await collectRegistry(path.join(repository, "registry.json"), repository);
   const web = createWebCatalog(items, catalog, repository);
   assert.equal(web.length, items.filter((item) => item.type === "registry:ui").length);
@@ -216,7 +233,7 @@ test("모든 공개 웹 컴포넌트에 REUI 프리뷰와 올바른 설치 경�
     assert.ok(item.preview, `${item.id}: 프리뷰 누락`);
     assert.ok(item.example, `${item.id}: 사용 예시 누락`);
     assert.ok(item.api.length > 0, `${item.id}: 공개 API 누락`);
-    assert.equal(item.cmpId, "");
+    assert.equal(item.cmpId, catalog.find((component) => component.id === item.cmpIds[0])?.id ?? "");
     assert.equal(item.installCommand, `npx shadcn@latest add @ienlab/${item.id}`);
     assert.match(await readFile(path.join(repository, item.preview), "utf8"), /export default/);
   }
