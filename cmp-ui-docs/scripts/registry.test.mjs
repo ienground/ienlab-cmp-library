@@ -18,7 +18,6 @@ const repository = fileURLToPath(new URL("../../", import.meta.url));
 
 test("단독 Button이 연속 코너를 초기화하고 ghost variant는 테두리를 표시하지 않는다", async () => {
   const source = await readFile(path.join(repository, "cmp-ui-web-registry/ui/button.tsx"), "utf8");
-  assert.doesNotMatch(source, /^"use client"/);
   assert.match(source, /<IenContinuousCorners \/>/);
   assert.match(source, /bg-clip-border/);
   assert.doesNotMatch(source, /bg-clip-padding/);
@@ -194,7 +193,10 @@ test("REUI 기본 컴포넌트와 필수 의존성을 하나의 레지스트리�
   const items = await collectRegistry(path.join(repository, "registry.json"), repository);
   validateRegistry(items);
   const expected = "alert autocomplete badge cascader code-block color-picker data-grid date-selector emoji-picker event-calendar file-type filters frame gantt icon-stack icon-tile kanban number-field phone-input rating scrollspy signature-pad sortable stepper time-picker timeline tree".split(" ");
-  const components = items.filter((item) => item.meta?.category === "REUI");
+  const components = items.filter((item) =>
+    item.meta?.upstream?.repository === "https://github.com/keenthemes/reui" &&
+    item.files.some((file) => file.path.startsWith("reui/")),
+  );
   assert.deepEqual(components.map((item) => item.name).sort(), expected.sort());
   assert.ok(items.some((item) => item.name === "button"));
   assert.ok(items.some((item) => item.name === "use-mobile"));

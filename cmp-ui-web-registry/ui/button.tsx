@@ -1,3 +1,6 @@
+"use client"
+
+import { ProgressIndicator } from "@/components/ui/progress-indicator"
 import { IenContinuousCorners } from "@/lib/ien-theme-context"
 import { resolveIenTone, type IenToneProps } from "@/lib/ien-theme"
 import * as React from "react"
@@ -40,17 +43,51 @@ function Button({
   variant = "fill",
   size = "default",
   asChild = false,
+  loading = false,
+  disabled,
+  children,
+  onClickCapture,
+  onKeyDownCapture,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
+    /** 콘텐츠를 로더로 전환하고 색상을 유지한 채 입력을 막습니다. */
+    loading?: boolean
   } & IenToneProps) {
   const Comp = asChild ? Slot.Root : "button"
+  const blocked = disabled || loading
+  const spinnerRef = React.useRef<HTMLSpanElement>(null)
+  const [showSpinner, setShowSpinner] = React.useState(loading)
+  React.useEffect(() => {
+    if (loading) {
+      setShowSpinner(true)
+      return
+    }
+    if (!showSpinner || !spinnerRef.current) return
+    const duration = Number.parseFloat(getComputedStyle(spinnerRef.current).transitionDuration) * 1000
+    const timeout = window.setTimeout(() => setShowSpinner(false), duration || 0)
+    return () => window.clearTimeout(timeout)
+  }, [loading, showSpinner])
+  const transitionClassName = "transition-[opacity,transform] duration-(--ien-motion-fast) ease-(--ien-motion-standard-easing) motion-reduce:transition-none"
+  const content = (value: React.ReactNode) => (
+    <span
+      data-slot="button-content"
+      className={cn("inline-flex items-center justify-center gap-[inherit]", transitionClassName, loading && "scale-80 opacity-0")}
+    >
+      {value}
+    </span>
+  )
+  const child = asChild ? React.Children.only(children) : null
+  const slottedContent = React.isValidElement<{ children?: React.ReactNode }>(child)
+    ? React.cloneElement(child, {}, content(child.props.children))
+    : children
 
   return (
     <>
       <IenContinuousCorners />
       <Comp
+        {...props}
         data-slot="button"
         data-ien-typography="label1"
         data-ien=""
@@ -58,9 +95,38 @@ function Button({
         data-ien-gradient={ienUseGradient}
         data-variant={variant}
         data-size={size}
-        className={cn(buttonVariants({ variant, size, className }))}
-        {...props}
-      />
+        data-loading={loading || undefined}
+        aria-busy={loading || props["aria-busy"]}
+        aria-disabled={blocked || props["aria-disabled"]}
+        disabled={blocked}
+        className={cn(buttonVariants({ variant, size, className: cn("relative", className) }))}
+        onClickCapture={(event) => {
+          if (blocked) {
+            event.preventDefault()
+            event.stopPropagation()
+            return
+          }
+          onClickCapture?.(event)
+        }}
+        onKeyDownCapture={(event) => {
+          if (blocked && (event.key === "Enter" || event.key === " ")) {
+            event.preventDefault()
+            event.stopPropagation()
+            return
+          }
+          onKeyDownCapture?.(event)
+        }}
+      >
+        {asChild ? <Slot.Slottable>{slottedContent}</Slot.Slottable> : content(children)}
+        <span
+          ref={spinnerRef}
+          data-slot="button-spinner"
+          aria-hidden="true"
+          className={cn("pointer-events-none absolute inset-0 inline-flex items-center justify-center", transitionClassName, !loading && "scale-80 opacity-0")}
+        >
+          {(loading || showSpinner) && <ProgressIndicator size={20} strokeWidth={2} color="currentColor" trackColor="transparent" />}
+        </span>
+      </Comp>
     </>
   )
 }

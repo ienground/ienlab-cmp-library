@@ -801,10 +801,7 @@ function Sidebar({
   onSelect: () => void;
   query: string;
 }) {
-  const navigationCategories = isWebPage
-    ? [...new Set(webCatalog.map((item) => item.category))]
-    : categories;
-  const visibleCategories = navigationCategories
+  const visibleCategories = categories
     .map((category) => ({
       category,
       items: filteredCatalog.filter((item) => item.category === category),

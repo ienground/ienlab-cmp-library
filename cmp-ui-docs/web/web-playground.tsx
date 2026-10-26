@@ -17,6 +17,7 @@ import {
   type ElementType,
   type ReactNode,
 } from "react";
+import { ToggleGroup } from "radix-ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "../../cmp-ui-web-registry/ui/switch";
@@ -262,11 +263,22 @@ export function WebPlayground({
     () => playgroundExample(source, definition, values),
     [source, definition, values],
   );
+  const primaryProps = ["variant", "tone", "size", "icon", "loading", "disabled", "children", "value", "defaultValue", "checked", "defaultChecked", "placeholder", "label"];
   const editable = target.props.filter(
     (prop) =>
       !["callback", "slot", "reference"].includes(prop.kind) &&
       prop.name.toLowerCase().includes(query.toLowerCase()),
   );
+  editable.sort((left, right) => {
+    const rank = (prop: PlaygroundProp) => {
+      const index = primaryProps.indexOf(prop.name);
+      if (index >= 0) return index;
+      return /^(aria-|data-)/.test(prop.name) || ["id", "className", "style", "asChild", "ref"].includes(prop.name)
+        ? primaryProps.length + 1
+        : primaryProps.length;
+    };
+    return rank(left) - rank(right);
+  });
   const codeOnly = target.props.filter(
     (prop) =>
       ["slot", "reference"].includes(prop.kind) ||
@@ -434,10 +446,7 @@ export function WebPlayground({
           }
         >
           <option value="default" disabled={path.includes(".") && !prop.optional}>
-            예시 기본값
-            {prop.defaultValue !== undefined
-              ? ` (${String(prop.defaultValue)})`
-              : ""}
+            {prop.defaultValue !== undefined ? String(prop.defaultValue) : "기본값"}
           </option>
           {prop.options?.map((option, index) => (
             <option key={index} value={index}>
@@ -492,122 +501,121 @@ export function WebPlayground({
   }
   return (
     <div className="web-playground">
-      <section className="playground-panel" aria-label="Playground 미리보기">
-        <div className="playground-heading">
-          <Typography variant="title2" asChild><h3>미리보기</h3></Typography>
-          <label>
-            미리보기 너비{" "}
+      <div className="playground-workspace">
+        <section className="playground-stage" aria-label="Playground 미리보기">
+          <div className="playground-heading">
+            <Typography variant="title2" asChild><h3>미리보기</h3></Typography>
+            <ToggleGroup.Root
+              type="single"
+              className="playground-viewport"
+              aria-label="미리보기 너비"
+              value={viewport}
+              onValueChange={(value) => { if (value) setViewport(value); }}
+            >
+              {[
+                { value: "desktop", label: "데스크톱" },
+                { value: "tablet", label: "태블릿" },
+                { value: "mobile", label: "모바일" },
+              ].map((item) => (
+                <ToggleGroup.Item key={item.value} value={item.value} asChild>
+                  <Button variant="ghost" size="sm">{item.label}</Button>
+                </ToggleGroup.Item>
+              ))}
+            </ToggleGroup.Root>
+          </div>
+          <div className="web-component-preview playground-preview">
+            <div
+              style={{
+                width:
+                  viewport === "mobile"
+                    ? "360px"
+                    : viewport === "tablet"
+                      ? "768px"
+                      : "100%",
+                maxWidth: "100%",
+              }}
+            >
+              <PlaygroundContext.Provider value={context}>
+                {renderPreview(preview, values)}
+              </PlaygroundContext.Provider>
+            </div>
+          </div>
+        </section>
+        <section className="playground-sidebar" aria-label="속성 조정" tabIndex={0}>
+          <div className="playground-heading">
+            <div>
+              <Typography variant="title2" asChild><h3>컨트롤</h3></Typography>
+            </div>
+            <Button variant="line" size="sm" onClick={() => reset()}>
+              초기화
+            </Button>
+          </div>
+          <label className="playground-target">
+            구성 요소
             <select
               className="playground-select"
-              value={viewport}
-              onChange={(event) => setViewport(event.target.value)}
+              value={target.key}
+              onChange={(event) => {
+                setTargetKey(event.target.value);
+                setQuery("");
+              }}
             >
-              <option value="desktop">데스크톱</option>
-              <option value="tablet">태블릿</option>
-              <option value="mobile">모바일</option>
+              {definition.targets.map((entry) => (
+                <option key={entry.key} value={entry.key}>
+                  {entry.name}
+                </option>
+              ))}
             </select>
           </label>
-        </div>
-        <div className="web-component-preview playground-preview">
-          <div
-            style={{
-              width:
-                viewport === "mobile"
-                  ? "360px"
-                  : viewport === "tablet"
-                    ? "768px"
-                    : "100%",
-              maxWidth: "100%",
-            }}
-          >
-            <PlaygroundContext.Provider value={context}>
-              {renderPreview(preview, values)}
-            </PlaygroundContext.Provider>
-          </div>
-        </div>
-      </section>
-      <section className="playground-panel" aria-label="속성 조정">
-        <div className="playground-heading">
-          <div>
-            <Typography variant="title2" asChild><h3>속성 조정</h3></Typography>
-            <p>값을 바꾸면 실제 컴포넌트에 바로 반영됩니다.</p>
-          </div>
-          <Button variant="line" size="sm" onClick={() => reset()}>
-            전체 초기화
-          </Button>
-        </div>
-        <label className="playground-target">
-          구성 요소
-          <select
-            className="playground-select"
-            value={target.key}
-            onChange={(event) => {
-              setTargetKey(event.target.value);
-              setQuery("");
-            }}
-          >
-            {definition.targets.map((entry) => (
-              <option key={entry.key} value={entry.key}>
-                {entry.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <Input
-          aria-label="속성 검색"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="파라미터 이름으로 검색"
-        />
-        <div className="playground-controls">
-          {editable.map((prop) => (
-            <div
-              className="playground-control"
-              key={`${target.key}.${prop.name}`}
-            >
-              <div className="playground-control-heading">
-                <label htmlFor={`playground-${target.name}-${prop.name}`}>
+          <Input
+            aria-label="속성 검색"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="파라미터 이름으로 검색"
+          />
+          <div className="playground-controls">
+            {editable.map((prop) => (
+              <div
+                className={`playground-control${["array", "object", "record", "union"].includes(prop.kind) ? " playground-control-complex" : ""}`}
+                key={`${target.key}.${prop.name}`}
+              >
+                <label className="playground-control-label" htmlFor={`playground-${target.name}-${prop.name}`}>
                   {prop.name}
                   {!prop.optional && <span>필수</span>}
                 </label>
-                {Object.hasOwn(current, prop.name) ? (
-                  <Button
-                    variant="ghost"
-                    size="xs"
-                    aria-label={`${prop.name} 초기화`}
-                    onClick={() => reset(prop.name)}
-                  >
-                    초기화
-                  </Button>
-                ) : (
-                  <span>예시 기본값</span>
-                )}
+                <div className="playground-control-input">{control(prop, current[prop.name])}</div>
+                <details className="playground-control-info">
+                  <summary>속성 정보{Object.hasOwn(current, prop.name) ? " · 변경됨" : ""}</summary>
+                  <code className="playground-prop-type">{prop.type}</code>
+                  {prop.description && <p className="playground-prop-type">{prop.description}</p>}
+                  {Object.hasOwn(current, prop.name) && (
+                    <Button variant="ghost" size="xs" aria-label={`${prop.name} 초기화`} onClick={() => reset(prop.name)}>초기화</Button>
+                  )}
+                </details>
               </div>
-              <code className="playground-prop-type">{prop.type}</code>
-              {prop.description && <p className="playground-prop-type">{prop.description}</p>}
-              {control(prop, current[prop.name])}
-            </div>
-          ))}
-        </div>
-        {!editable.length && <p>검색 조건에 맞는 속성이 없습니다.</p>}
-        {codeOnly.length > 0 && (
-          <details className="web-docs-disclosure">
-            <summary>코드에서 구성하는 슬롯·참조 ({codeOnly.length})</summary>
-            <p>
-              React 요소·렌더 함수·ref는 아래 예시 코드의 구성을 사용합니다.
-            </p>
-            <ul>
-              {codeOnly.map((prop) => (
-                <li key={prop.name}>
-                  <code>
-                    {prop.name}: {prop.type}
-                  </code>
-                </li>
-              ))}
-            </ul>
-          </details>
-        )}
-      </section>
+            ))}
+          </div>
+          {!editable.length && <p>검색 조건에 맞는 속성이 없습니다.</p>}
+          {codeOnly.length > 0 && (
+            <details className="web-docs-disclosure">
+              <summary>코드에서 구성하는 슬롯·참조 ({codeOnly.length})</summary>
+              <p>
+                React 요소·렌더 함수·ref는 아래 예시 코드의 구성을 사용합니다.
+              </p>
+              <ul>
+                {codeOnly.map((prop) => (
+                  <li key={prop.name}>
+                    <code>
+                      {prop.name}: {prop.type}
+                    </code>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </section>
+      </div>
+      <CodeExample label="현재 설정이 반영된 사용 예시" code={code} />
       <section className="playground-panel" aria-label="이벤트 기록">
         <div className="playground-heading">
           <Typography variant="title2" asChild><h3>이벤트 기록</h3></Typography>
@@ -639,7 +647,6 @@ export function WebPlayground({
           맞춰 설정하세요.
         </p>
       )}
-      <CodeExample label="현재 설정이 반영된 사용 예시" code={code} />
     </div>
   );
 }
