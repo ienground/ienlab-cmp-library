@@ -98,7 +98,8 @@ internal fun resolveBottomBlurHeight(
  * IEN 라이브러리의 기본 스크래프트(Scaffold) 컴포저블입니다.
  * 콘텐츠 영역의 상/하단에 유려한 모서리 블러 효과([IenScaffoldContentEdge])를 적용할 수 있습니다.
  * 오른쪽 시스템 예약 영역이 있는 Duo에서는 버튼과 탭을 세로로 배치합니다.
- * Duo의 콘텐츠 스크롤 방향에 따라 상단 제목과 블러를 숨기거나 다시 표시합니다.
+ * [LocalIenSideBarEnabled]가 `false`인 영역에서는 일반 상단·하단 배치를 사용합니다.
+ * 오른쪽 바 배치에서는 콘텐츠 스크롤 방향에 따라 상단 제목과 블러를 숨기거나 다시 표시합니다.
  *
  * @param modifier 적용할 Modifier
  * @param topBar 상단 영역에 표시할 컴포저블
@@ -127,10 +128,14 @@ fun IenScaffold(
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val devicePlacement by rememberIenBarPlacement()
-    val placement = LocalIenBarPlacement.current ?: devicePlacement
+    val placement = if (LocalIenSideBarEnabled.current) {
+        LocalIenBarPlacement.current ?: devicePlacement
+    } else {
+        null
+    }
     val isSideBar = placement != null && placement.sideWidth > 0.dp
-    var topBarHidden by remember { mutableStateOf(false) }
-    val scrollConnection = remember {
+    var topBarHidden by remember(isSideBar) { mutableStateOf(false) }
+    val scrollConnection = remember(isSideBar) {
         object : NestedScrollConnection {
             override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
                 if (consumed.y != 0f) topBarHidden = consumed.y < 0f
@@ -139,7 +144,7 @@ fun IenScaffold(
         }
     }
     val topBarVisibility by animateFloatAsState(
-        targetValue = if (placement != null && topBarHidden) 0f else 1f,
+        targetValue = if (isSideBar && topBarHidden) 0f else 1f,
         animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing),
         label = "ienDuoTopBarVisibility",
     )
@@ -180,7 +185,7 @@ fun IenScaffold(
 
     val scaffoldContent: @Composable (PaddingValues) -> Unit = { contentPadding ->
         Box(modifier = Modifier.fillMaxSize().then(
-            if (placement != null) Modifier.nestedScroll(scrollConnection) else Modifier,
+            if (isSideBar) Modifier.nestedScroll(scrollConnection) else Modifier,
         )) {
             Box(
                 modifier = Modifier

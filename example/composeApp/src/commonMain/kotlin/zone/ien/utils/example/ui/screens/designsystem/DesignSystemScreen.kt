@@ -16,9 +16,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -31,6 +33,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
@@ -308,6 +311,7 @@ import zone.ien.utils.ui.screen.IenFixedBottomCTA
 import zone.ien.utils.ui.screen.IenFixedDoubleBottomCTA
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
+import zone.ien.utils.ui.screen.LocalIenSideBarEnabled
 import zone.ien.utils.ui.screen.IenTooltip
 import zone.ien.utils.ui.screen.IenTooltipClipToEnd
 import zone.ien.utils.ui.screen.IenTooltipMessageAlign
@@ -1432,60 +1436,69 @@ fun DesignSystemScreen(
         val isListPane = selectedComponent == null && isSplitLayout
         val showBackButton = selectedComponent == null || !isSplitLayout
 
-        IenScaffold(
-            modifier = modifier,
-            contentEdge = IenScaffoldContentEdge(scrollableState = scrollState),
-            topBar = {
-                IenTopBar(
-                    title = selectedComponent?.name ?: if (isListPane) "Ien UI" else "Ien CMP UI",
-                    subtitle = when {
-                        selectedComponent != null -> selectedComponent.category
-                        isListPane -> null
-                        else -> "토큰 기반 모바일 디자인 시스템"
-                    },
-                    navigationIcon = if (showBackButton) {
-                        {
-                            IenTextButton(onClick = navigateBack) {
-                                Text(if (selectedComponent == null) "닫기" else "목록")
-                            }
-                        }
-                    } else null,
-                    actions = {
-                        IenTextButton(onClick = navigateToColor) {
-                            Text("컬러 스킴")
-                        }
-                    },
-                )
-            },
-            snackbarHost = {
-                IenSnackbarHost(hostState = snackbarHostState)
-            },
-        ) { contentPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(contentPadding)
-                    .padding(horizontal = IenTheme.spacing.md),
-            ) {
-                Spacer(Modifier.height(IenTheme.spacing.md))
-                if (selectedComponent == null) {
-                    DesignSystemCatalog(
-                        query = query,
-                        onQueryChange = { query = it },
-                        selectedCategory = selectedCategory,
-                        onCategoryChange = { selectedCategory = it },
-                        onComponentClick = navigateToComponent,
-                    )
+        CompositionLocalProvider(
+            LocalIenSideBarEnabled provides (LocalIenSideBarEnabled.current && !isListPane),
+        ) {
+            IenScaffold(
+                modifier = modifier,
+                contentWindowInsets = if (isListPane) {
+                    ScaffoldDefaults.contentWindowInsets.only(WindowInsetsSides.Left + WindowInsetsSides.Vertical)
                 } else {
-                    DesignSystemComponentDetail(
-                        component = selectedComponent,
-                        snackbarHostState = snackbarHostState,
-                        toastState = toastState,
-                        coroutineScope = coroutineScope,
+                    ScaffoldDefaults.contentWindowInsets
+                },
+                contentEdge = IenScaffoldContentEdge(scrollableState = scrollState),
+                topBar = {
+                    IenTopBar(
+                        title = selectedComponent?.name ?: if (isListPane) "Ien UI" else "Ien CMP UI",
+                        subtitle = when {
+                            selectedComponent != null -> selectedComponent.category
+                            isListPane -> null
+                            else -> "토큰 기반 모바일 디자인 시스템"
+                        },
+                        navigationIcon = if (showBackButton) {
+                            {
+                                IenTextButton(onClick = navigateBack) {
+                                    Text(if (selectedComponent == null) "닫기" else "목록")
+                                }
+                            }
+                        } else null,
+                        actions = {
+                            IenTextButton(onClick = navigateToColor) {
+                                Text("컬러 스킴")
+                            }
+                        },
                     )
+                },
+                snackbarHost = {
+                    IenSnackbarHost(hostState = snackbarHostState)
+                },
+            ) { contentPadding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                        .padding(contentPadding)
+                        .padding(horizontal = IenTheme.spacing.md),
+                ) {
+                    Spacer(Modifier.height(IenTheme.spacing.md))
+                    if (selectedComponent == null) {
+                        DesignSystemCatalog(
+                            query = query,
+                            onQueryChange = { query = it },
+                            selectedCategory = selectedCategory,
+                            onCategoryChange = { selectedCategory = it },
+                            onComponentClick = navigateToComponent,
+                        )
+                    } else {
+                        DesignSystemComponentDetail(
+                            component = selectedComponent,
+                            snackbarHostState = snackbarHostState,
+                            toastState = toastState,
+                            coroutineScope = coroutineScope,
+                        )
+                    }
+                    Spacer(Modifier.height(IenTheme.spacing.lg))
                 }
-                Spacer(Modifier.height(IenTheme.spacing.lg))
             }
         }
     }

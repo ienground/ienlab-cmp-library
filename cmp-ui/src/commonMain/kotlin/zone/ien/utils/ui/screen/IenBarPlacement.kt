@@ -35,6 +35,12 @@ internal data class IenBarPlacement(
 internal val LocalIenBarPlacement = staticCompositionLocalOf<IenBarPlacement?> { null }
 internal object IenSideTopBar
 
+/**
+ * 하위 [IenScaffold]가 Duo의 오른쪽 시스템 예약 영역에 맞춰 바를 배치할지 지정합니다.
+ * 화면 오른쪽 끝에 닿지 않는 분할 pane에서는 `false`로 제공해 일반 상단·하단 배치를 사용합니다.
+ */
+val LocalIenSideBarEnabled = staticCompositionLocalOf { true }
+
 /** 현재 [IenScaffold]가 시스템 예약 영역에 맞춰 오른쪽에 버튼과 탭을 배치하는지 나타냅니다. */
 val isIenSideBarLayout: Boolean
     @Composable
