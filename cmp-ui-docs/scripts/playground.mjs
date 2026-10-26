@@ -48,6 +48,9 @@ const singleExamples = {
   textarea:
     'import { Textarea } from "@/components/ui/textarea"\n\nexport function Pattern() {\n  return <Textarea label="내용" labelOption="appear" placeholder="내용을 입력하세요" lengthLimit={{ mode: "block", maxLength: 200 }} minLines={4} maxLines={8} />\n}\nexport default Pattern\n',
 
+  "segmented-control":
+    "import { SegmentedControl } from \"@/components/ui/segmented-control\"\n\nexport function Pattern() {\n  return <SegmentedControl items={[{ value: \"all\", label: \"전체\" }, { value: \"active\", label: \"진행 중\" }, { value: \"done\", label: \"완료\", enabled: false }]} aria-label=\"작업 상태\" />\n}\nexport default Pattern\n",
+
   chip:
     'import { useState } from "react"\nimport { Chip } from "@/components/ui/chip"\n\nexport function Pattern() {\n  const [visible, setVisible] = useState(true)\n  return visible ? <Chip kind="input" onRemove={() => setVisible(false)}>선택 항목</Chip> : <p>삭제했습니다. 초기화를 누르면 복원됩니다.</p>\n}\nexport default Pattern\n',
 

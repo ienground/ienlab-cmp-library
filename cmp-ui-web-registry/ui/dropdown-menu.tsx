@@ -10,7 +10,7 @@ import { menuSurfaceClassName, menuMotionClassName, menuItemClassName, menuSelec
 
 import { IconPlaceholder } from "@/lib/reui-icons"
 
-const menuContentClassName = cn(menuSurfaceClassName, menuMotionClassName, "w-max min-w-40 max-w-[min(280px,var(--radix-dropdown-menu-content-available-width))] max-h-(--radix-dropdown-menu-content-available-height) overflow-x-hidden overflow-y-auto p-(--ien-spacing-xxs) origin-(--radix-dropdown-menu-content-transform-origin)")
+const menuContentClassName = cn(menuSurfaceClassName, menuMotionClassName, "w-max min-w-40 max-w-[min(280px,var(--radix-dropdown-menu-content-available-width))] max-h-(--radix-dropdown-menu-content-available-height) overflow-x-hidden overflow-y-auto p-(--ien-spacing-xs) origin-(--radix-dropdown-menu-content-transform-origin)")
 
 function DropdownMenu({
   tone: ienTone,

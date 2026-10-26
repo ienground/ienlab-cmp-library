@@ -58,7 +58,7 @@ function PopoverContent({
         align={align}
         sideOffset={sideOffset}
         className={cn(
-        menuSurfaceClassName, menuMotionClassName, "flex flex-col gap-(--ien-spacing-xs) p-(--ien-spacing-xxs) w-72 max-w-(--radix-popover-content-available-width) origin-(--radix-popover-content-transform-origin)",
+        menuSurfaceClassName, menuMotionClassName, "flex flex-col gap-(--ien-spacing-xs) p-(--ien-spacing-xs) w-72 max-w-(--radix-popover-content-available-width) origin-(--radix-popover-content-transform-origin)",
         className
         )}
         {...props}

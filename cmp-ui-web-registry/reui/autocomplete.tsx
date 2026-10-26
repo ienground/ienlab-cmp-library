@@ -179,7 +179,7 @@ function AutocompleteList({
         data-ien-tone={ienTheme.tone}
         data-ien-gradient={ienTheme.useGradient}
         className={cn(
-          "not-empty:px-1 not-empty:py-1 not-empty:scroll-py-1 in-data-has-overflow-y:me-3",
+          "not-empty:p-(--ien-spacing-xs) not-empty:scroll-py-(--ien-spacing-xs) in-data-has-overflow-y:me-3",
           className
         )}
         {...props}

@@ -94,7 +94,7 @@ function ContextMenuContent({
         data-ien-tone={ienTheme.tone}
         data-ien-gradient={ienTheme.useGradient}
         className={cn(
-        menuSurfaceClassName, menuMotionClassName, "min-w-40 max-h-(--radix-context-menu-content-available-height) max-w-(--radix-context-menu-content-available-width) overflow-x-hidden overflow-y-auto p-(--ien-spacing-xxs) origin-(--radix-context-menu-content-transform-origin)",
+        menuSurfaceClassName, menuMotionClassName, "min-w-40 max-h-(--radix-context-menu-content-available-height) max-w-(--radix-context-menu-content-available-width) overflow-x-hidden overflow-y-auto p-(--ien-spacing-xs) origin-(--radix-context-menu-content-transform-origin)",
         className
         )}
         {...props}
@@ -197,7 +197,7 @@ function ContextMenuSubContent({
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       className={cn(
-        menuSurfaceClassName, menuMotionClassName, "min-w-40 max-h-(--radix-context-menu-content-available-height) max-w-(--radix-context-menu-content-available-width) overflow-x-hidden overflow-y-auto p-(--ien-spacing-xxs) origin-(--radix-context-menu-content-transform-origin)",
+        menuSurfaceClassName, menuMotionClassName, "min-w-40 max-h-(--radix-context-menu-content-available-height) max-w-(--radix-context-menu-content-available-width) overflow-x-hidden overflow-y-auto p-(--ien-spacing-xs) origin-(--radix-context-menu-content-transform-origin)",
         className
       )}
       {...props}

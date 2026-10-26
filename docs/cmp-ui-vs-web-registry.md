@@ -90,7 +90,7 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 | 날짜·시간 다이얼로그 | `IenDatePickerDialog`, `IenTimePickerDialog` | 선택기는 있으나 다이얼로그 형태의 전용 API 없음 |
 | 일시적 알림 | `IenSnackbar`, `IenToast`와 Host·Provider·표시 상태 관리 | 대응 없음 |
 | 슬라이더 | `IenSlider`, `IenRangeSlider` | 대응 UI 설치 항목 없음. `use-slider-input` 훅과 구분 필요 |
-| 분할 선택 | `IenSegmentedControl` | 대응 전용 컴포넌트 없음 |
+| 분할 선택 | `IenSegmentedControl` | `SegmentedControl` — Small/Large, Fixed/Fluid, 비활성화, 선택 표시 애니메이션 |
 | 플로팅 액션 | `IenFab`, `IenExtendedFab`, `IenFabMenu` | 대응 전용 컴포넌트 없음 |
 | 액션 바 | `IenActionBar` | 대응 없음 |
 | 리스트 | `IenListRow`, Header / Footer, `IenBoardRow`, `IenTableRow`, Section | CMP의 행·섹션 API에 대응하는 컴포넌트 없음 |
@@ -249,7 +249,7 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 웹의 CMP 대응을 높이는 목적일 때의 우선순위입니다. 구현이 확정된 작업 목록은 아닙니다.
 
 1. **Dialog / AlertDialog, Toast / Snackbar**: 기본 사용자 흐름에서 빠진 피드백 수단을 보완합니다.
-2. **Slider / RangeSlider, SegmentedControl**: 기본 입력·선택 영역을 보완합니다.
+2. **Slider / RangeSlider**: 기본 입력·선택 영역을 보완합니다.
 3. **ListRow / Section, 버튼 toggle·로딩 상태 표현, 입력 확장**: 반복적인 개별 구현을 줄이고 상태별 표현을 정렬합니다.
 4. **BottomSheet 높이·드래그, 화면 골격·CTA**: CMP 화면 구성 패턴을 대응합니다.
 5. **`cmpIds` 정비**: 확인된 대응 관계를 문서 생성에 반영합니다.

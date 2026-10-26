@@ -172,7 +172,7 @@ function ComboboxContent({
           data-ien-gradient={ienTheme.useGradient}
           data-chips={!!anchor}
           className={cn(
-        menuSurfaceClassName, menuBaseMotionClassName, "group/combobox-content max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-40 overflow-hidden origin-(--transform-origin) *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-8 *:data-[slot=input-group]:shadow-none",
+        menuSurfaceClassName, menuBaseMotionClassName, "group/combobox-content max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-40 overflow-hidden origin-(--transform-origin) *:data-[slot=input-group]:m-(--ien-spacing-xs) *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-8 *:data-[slot=input-group]:shadow-none",
         className
           )}
           {...props}
@@ -196,7 +196,7 @@ function ComboboxList({
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       className={cn(
-        "no-scrollbar max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto p-1 data-empty:p-0 overflow-y-auto overscroll-contain",
+        "no-scrollbar max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-(--ien-spacing-xs) overflow-y-auto p-(--ien-spacing-xs) data-empty:p-0 overflow-y-auto overscroll-contain",
         className
       )}
       {...props}

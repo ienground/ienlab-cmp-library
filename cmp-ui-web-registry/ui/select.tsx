@@ -36,7 +36,7 @@ function SelectGroup({
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
-      className={cn("scroll-my-1 p-1", className)}
+      className={cn("scroll-my-1", className)}
       {...props}
     />
   )
@@ -119,7 +119,7 @@ function SelectContent({
         <SelectPrimitive.Viewport
           data-position={position}
           className={cn(
-            "p-(--ien-spacing-xxs) data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)",
+            "p-(--ien-spacing-xs) data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)",
             position === "popper" && ""
           )}
         >
