@@ -11,6 +11,23 @@ test("CMP 대응 컴포넌트의 공개 계약", async (context) => {
   const load = (file) => server.ssrLoadModule(`${repository}/cmp-ui-web-registry/${file}`);
   const render = (Component, props) => renderToStaticMarkup(React.createElement(Component, props));
   try {
+    await context.test("토스트 코너가 CMP 2.1.4의 실제 베지어·원호 좌표와 일치한다", async () => {
+      const { createIenContinuousRoundedRectanglePath } = await load("lib/ien-continuous-corners.ts");
+      // capsule-desktop 2.1.4의 G2Continuity에서 추출한 우측 상단 코너 좌표입니다.
+      const cases = [
+        { size: [300, 54, 24], expected: [265.7340282, 0, 276.71325820418605, 0, 284.5163585341644, 0, 291.16387788696846, 5.4001515796055095, 23.591653265817648, 23.591653265817648, 0, 0, 1, 294.5998484203945, 8.836122113031559, 300, 15.4836414658356, 300, 22.880329945291262, 300, 26.427333438503886] },
+        { size: [300, 76, 24], expected: [263.3120376, 0, 274.1803206885805, 0, 279.7833896520364, 0, 284.806159403151, 1.8281386829783557, 22.36292019111724, 22.36292019111724, 0, 0, 1, 298.17186131702164, 15.193840596849014, 300, 20.21661034796356, 300, 25.819679311419506, 300, 36.6879624] },
+        { size: [40, 40, 20], expected: [20, 0, 21.005050633883346, 0, 28.284271247461902, 0, 34.14213562373095, 5.857864376269049, 20, 20, 0, 0, 1, 34.14213562373095, 5.857864376269051, 40, 11.7157287525381, 40, 18.994949366116654, 40, 20] },
+      ];
+      for (const { size: [width, height, radius], expected } of cases) {
+        const path = createIenContinuousRoundedRectanglePath(width, height, [radius, radius, radius, radius]);
+        const corner = path.match(/[MLCAZ][^MLCAZ]*/g).slice(0, 4).join(" ");
+        const actual = corner.match(/-?\d*\.?\d+(?:e[+-]?\d+)?/gi).map(Number);
+        assert.equal(actual.length, expected.length);
+        for (let i = 0; i < expected.length; i++) assert.ok(Math.abs(actual[i] - expected[i]) < 1e-9, `${width}×${height}: 좌표 ${i}`);
+        assert.ok(path.endsWith("Z"));
+      }
+    });
     const { Input } = await load("ui/input.tsx");
     await context.test("비밀번호 표시 전환과 지우기는 입력 상태에 따라 노출한다", () => {
       const password = render(Input, { type: "password", defaultValue: "secret" });

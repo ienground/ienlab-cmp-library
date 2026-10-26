@@ -39,7 +39,7 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 | 웹 Chip | Assist·Filter·Input·Suggestion, elevated, 선택·로딩·아이콘·avatar·삭제 제공. 설치 항목·Preview·Playground·CMP 매핑 추가 | 구현 및 앞선 빌드 확인. 모든 상태의 브라우저 검증은 별도 |
 | CMP·웹 Filter Chip | 선택하면 leading에 기본 체크 표시. `selectedIcon`으로 교체하거나 null로 숨김. ElevatedFilter도 적용하며, Input·Assist·Suggestion에는 자동 체크를 적용하지 않음 | 양쪽 소스 확인. 플랫폼별 전체 상태 재검증은 별도 |
 | 웹 메뉴 | DropdownMenu·ContextMenu·Select·Combobox·Autocomplete의 항목에 공통 body2 14px/20px, 아이콘 16px, 그룹 레이블 caption 12px/16px 적용. Select Group 중복 패딩 제거. 메뉴 안쪽 여백 8px, 공통 바깥 radius 28px로 확대. Popover도 같은 표면·패딩 기준 적용 | 소스·타입 검사·빌드 확인. Dropdown 대표 화면은 확인했으나 최종 여백 수정 후 모든 메뉴 재확인은 남음 |
-| 웹 SegmentedControl | 전용 공개 컴포넌트·설치 항목·Preview·Playground·CMP 매핑 추가. 40/48px, Fixed/Fluid, 개별 크기·활성화, 방향키·단일 선택, 선택 항목 자동 노출. 선택 표시·포커스 영역에 CMP 캡슐 곡선 적용. 위치·너비에 800ms medium-bouncy 토큰, 비활성 항목 클릭 시 해당 항목만 흔들림. Fixed는 overflow hidden, Fluid는 가로 스크롤을 유지하며 스크롤바를 숨기고 트랙 밖 모션을 자름 | 브라우저에서 대표 크기·캡슐 모양·선택·방향키 포커스 및 Space 선택 확인. 마지막 overflow·비활성 흔들림 수정 후 화면 재확인과 bouncy 프레임 검증은 남음 |
+| 웹 SegmentedControl | 트랙·선택 표시 전용 색상(라이트 #F2F4F6/#FFFFFF, 다크 #20252B/#343A42). 전용 공개 컴포넌트·설치 항목·Preview·Playground·CMP 매핑 추가. 40/48px, Fixed/Fluid, 개별 크기·활성화, 방향키·단일 선택, 선택 항목 자동 노출. 선택 표시·포커스 영역에 CMP 캡슐 곡선 적용. 위치·너비에 800ms medium-bouncy 토큰, 비활성 항목 클릭 시 해당 항목만 흔들림. Fixed는 overflow hidden, Fluid는 가로 스크롤을 유지하며 스크롤바를 숨기고 트랙 밖 모션을 자름 | 브라우저에서 대표 크기·캡슐 모양·선택·방향키 포커스 및 Space 선택 확인. 마지막 overflow·비활성 흔들림 수정 후 화면 재확인과 bouncy 프레임 검증은 남음 |
 | 웹 Calendar | 좌우 24px·상하 16px 패딩. 날짜 7열의 최소 너비 확보, 주 번호 표시 시 8열 기준 적용 | 소스·타입 검사·사이트 빌드 확인. 최종 여백의 화면 재확인은 남음 |
 | 웹 Switch 기본 콘텐츠 | CMP·웹 모두 `onTrackContent` 기본 미지정. 공통 `trackContent`를 지정한 경우에만 대체 콘텐츠 사용 | 기본 API 확인. Playground의 아이콘 예시는 라이브러리 기본값과 구분 |
 
@@ -169,8 +169,8 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 
 | 컴포넌트 | CMP 기준 | 웹 기준 | 디자인 영향·확인 수준 |
 | --- | --- | --- | --- |
-| 기본 버튼 | 최소 높이 36 / 44 / 52dp, 기본 Large. 좌우 패딩 12 / 16 / 20dp | sm / md / default·lg 높이 36 / 44 / 52px, 같은 좌우 패딩 | 브라우저에서 높이와 굵기 600 확인. xs는 웹 확장 크기 |
-| 버튼 높이 토큰 | 기본 Large 52dp | 기본·lg 실제 높이에 IEN 토큰 사용 | 선언과 적용 정렬 |
+| 기본 버튼 | 최소 높이 36 / 44 / 52dp, 기본 Large. 좌우 패딩 12 / 16 / 20dp | xs / sm / default·md / lg 높이 24 / 28 / 32 / 36px, 기본 좌우 패딩 10px | 웹 밀도 유지. 기본 굵기 500·아이콘 16px |
+| 버튼 높이 토큰 | 기본 Large 52dp | 기본 32px·lg 36px의 웹 전용 IEN 토큰 사용 | 웹용 높이 토큰과 실제 적용 일치 |
 | 버튼 모서리 | 기본 12dp 연속 곡률. Full 배치는 직각. 호출자가 Shape 지정 가능 | 기본 12px 상당. 크기별 class와 ButtonGroup 규칙 존재 | Full·Capsule 표현 선택 추가. 곡률 렌더러의 구현 경로는 다름 |
 | 배지 기본 표현 | Weak, Medium, Brand | 기본 weak, medium, 기본 제어 색상 | 기본 강조도 정렬 |
 | 배지 크기 | 크기별 패딩, Fill·Weak에 별도 border 없음 | 같은 패딩과 타이포그래피, line에만 border | CSS border와 Compose 내부 테두리의 표현 경로는 다름 |

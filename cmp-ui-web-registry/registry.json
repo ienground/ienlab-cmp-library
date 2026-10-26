@@ -285,7 +285,7 @@
           "buttonVariants"
         ],
         "preview": "previews/button.tsx",
-        "example": "import { useState } from \"react\"\nimport { Button } from \"@/components/ui/button\"\nimport type { IenTone, IenVariant } from \"@/lib/ien-theme\"\n\nconst tones: IenTone[] = [\n  \"neutral\",\n  \"brand\",\n  \"success\",\n  \"warning\",\n  \"danger\",\n  \"info\",\n]\nconst variants: IenVariant[] = [\"fill\", \"weak\", \"line\", \"ghost\"]\n\nexport function Pattern() {\n  const [loading, setLoading] = useState(true)\n\n  return (\n    <div className=\"flex flex-col gap-3\">\n      <div className=\"flex flex-wrap gap-2\"><Button size=\"sm\">Small</Button><Button size=\"md\">Medium</Button><Button>Large</Button></div>\n      <div className=\"flex flex-wrap gap-2\">{variants.map((variant) => <Button key={variant} variant={variant} disabled>{variant} 비활성</Button>)}</div>\n      {variants.map((variant) => (\n        <div key={variant} className=\"flex flex-wrap gap-2\">\n          {tones.map((tone) => (\n            <Button key={tone} tone={tone} variant={variant}>\n              {tone}\n            </Button>\n          ))}\n        </div>\n      ))}\n      <Button tone=\"brand\" useGradient={false}>\n        단색 채움\n      </Button>\n      <Button variant=\"line\" onClick={() => setLoading((value) => !value)}>\n        {loading ? \"로딩 해제\" : \"로딩 시작\"}\n      </Button>\n      {variants.map((variant) => (\n        <div key={`loading-${variant}`} className=\"flex flex-wrap gap-2\">\n          {tones.map((tone) => (\n            <Button key={tone} tone={tone} variant={variant} loading={loading}>\n              {tone} 저장\n            </Button>\n          ))}\n        </div>\n      ))}\n      <div className=\"flex flex-wrap gap-2\">\n        <Button size=\"xs\" loading={loading}>아주 작게</Button>\n        <Button size=\"sm\" loading={loading}>작게</Button>\n        <Button size=\"lg\" loading={loading}>크게</Button>\n        <Button size=\"icon\" loading={loading} aria-label=\"즐겨찾기\">★</Button>\n        <Button asChild loading={loading}><a href=\"#button\">링크 버튼</a></Button>\n        <Button disabled loading={loading}>비활성 버튼</Button>\n      </div>\n    </div>\n  )\n}\nexport default Pattern\n",
+        "example": "import { useState } from \"react\"\nimport { Button } from \"@/components/ui/button\"\nimport type { IenTone, IenVariant } from \"@/lib/ien-theme\"\n\nconst tones: IenTone[] = [\n  \"neutral\",\n  \"brand\",\n  \"success\",\n  \"warning\",\n  \"danger\",\n  \"info\",\n]\nconst variants: IenVariant[] = [\"fill\", \"weak\", \"line\", \"ghost\"]\n\nexport function Pattern() {\n  const [loading, setLoading] = useState(true)\n\n  return (\n    <div className=\"flex flex-col gap-3\">\n      <div className=\"flex flex-wrap gap-2\"><Button size=\"sm\">Small</Button><Button>Default</Button><Button size=\"lg\">Large</Button></div>\n      <div className=\"flex flex-wrap gap-2\">{variants.map((variant) => <Button key={variant} variant={variant} disabled>{variant} 비활성</Button>)}</div>\n      {variants.map((variant) => (\n        <div key={variant} className=\"flex flex-wrap gap-2\">\n          {tones.map((tone) => (\n            <Button key={tone} tone={tone} variant={variant}>\n              {tone}\n            </Button>\n          ))}\n        </div>\n      ))}\n      <Button tone=\"brand\" useGradient={false}>\n        단색 채움\n      </Button>\n      <Button variant=\"line\" onClick={() => setLoading((value) => !value)}>\n        {loading ? \"로딩 해제\" : \"로딩 시작\"}\n      </Button>\n      {variants.map((variant) => (\n        <div key={`loading-${variant}`} className=\"flex flex-wrap gap-2\">\n          {tones.map((tone) => (\n            <Button key={tone} tone={tone} variant={variant} loading={loading}>\n              {tone} 저장\n            </Button>\n          ))}\n        </div>\n      ))}\n      <div className=\"flex flex-wrap gap-2\">\n        <Button size=\"xs\" loading={loading}>아주 작게</Button>\n        <Button size=\"sm\" loading={loading}>작게</Button>\n        <Button size=\"lg\" loading={loading}>크게</Button>\n        <Button size=\"icon\" loading={loading} aria-label=\"즐겨찾기\">★</Button>\n        <Button asChild loading={loading}><a href=\"#button\">링크 버튼</a></Button>\n        <Button disabled loading={loading}>비활성 버튼</Button>\n      </div>\n    </div>\n  )\n}\nexport default Pattern\n",
         "ienDesign": true
       }
     },
@@ -4112,18 +4112,18 @@
           "ien-control-corner-smoothing": "1",
           "ien-button-radius": "var(--ien-radius-default)",
           "ien-button-radius-group": "var(--ien-radius-default)",
-          "ien-button-height-xs": "1.75rem",
-          "ien-button-height-sm": "2.25rem",
-          "ien-button-height-default": "3.25rem",
-          "ien-button-height-lg": "3.25rem",
+          "ien-button-height-xs": "1.5rem",
+          "ien-button-height-sm": "1.75rem",
+          "ien-button-height-default": "2rem",
+          "ien-button-height-lg": "2.25rem",
           "ien-button-gap-xs": "var(--ien-spacing-xxs)",
           "ien-button-gap-sm": "var(--ien-spacing-xxs)",
           "ien-button-gap-default": "var(--ien-control-gap)",
           "ien-button-gap-lg": "var(--ien-control-gap)",
           "ien-button-padding-xs": "var(--ien-spacing-xs)",
-          "ien-button-padding-sm": "var(--ien-spacing-sm)",
-          "ien-button-padding-default": "var(--ien-spacing-lg)",
-          "ien-button-padding-lg": "var(--ien-spacing-lg)",
+          "ien-button-padding-sm": "0.625rem",
+          "ien-button-padding-default": "0.625rem",
+          "ien-button-padding-lg": "var(--ien-spacing-sm)",
           "ien-button-icon-padding-xs": "var(--ien-control-gap)",
           "ien-button-icon-padding-sm": "var(--ien-control-gap)",
           "ien-button-icon-padding-default": "var(--ien-spacing-xs)",
@@ -4150,8 +4150,8 @@
           "ien-button-gradient-fill-end": "36%",
           "ien-button-gradient-weak-start": "6%",
           "ien-button-press-duration": "300ms",
-          "ien-button-font-weight": "600",
-          "ien-button-height-md": "2.75rem",
+          "ien-button-font-weight": "500",
+          "ien-button-height-md": "2rem",
           "ien-button-press-easing": "linear(0.000000, 0.058179, 0.182107, 0.323559, 0.458502, 0.576531, 0.674595, 0.753345, 0.815073, 0.862591, 0.898660, 0.925734, 0.945869, 0.960731, 0.971630, 0.979578, 0.985347, 0.989517, 0.992520, 0.994675, 0.996218, 0.997318, 0.998102, 0.998659, 0.999054, 0.999334, 0.999531, 0.999671, 0.999769, 0.999838, 1)",
           "ien-motion-spring-duration": "800ms",
           "ien-motion-spring-medium-bouncy": "linear(0.000000, 0.018669, 0.069413, 0.144584, 0.237037, 0.340300, 0.448681, 0.557338, 0.662293, 0.760425, 0.849426, 0.927734, 0.994459, 1.049288, 1.092398, 1.124355, 1.146025, 1.158491, 1.162971, 1.160750, 1.153123, 1.141346, 1.126596, 1.109946, 1.092341, 1.074591, 1.057363, 1.041185, 1.026452, 1.013433, 1.002289, 0.993083, 0.985795, 0.980342, 0.976587, 0.974359, 0.973461, 0.973685, 0.974820, 0.976658, 0.979007, 0.981688, 0.984545, 0.987443, 0.990269, 0.992934, 0.995372, 0.997535, 0.999395, 1.000939, 1.002170, 1.003099, 1.003748, 1.004144, 1.004318, 1.004305, 1.004138, 1.003853, 1.003479, 1.003048, 1.002585, 1.002112, 1.001649, 1.001210, 1.000807, 1.000448, 1.000137, 0.999879, 0.999671, 0.999513, 0.999401, 0.999331, 0.999298, 0.999296, 0.999320, 0.999365, 0.999424, 0.999493, 0.999568, 0.999645, 1)",
@@ -4544,6 +4544,14 @@
           },
           ":where([data-slot=\"button\"]):not([aria-disabled=\"true\"]):active": {
             "box-shadow": "inset 0 0 0 100vmax rgb(0 0 0 / 8%)"
+          },
+          ":where([data-slot=\"segmented-control\"])": {
+            "--ien-segmented-container": "#F2F4F6",
+            "--ien-segmented-indicator": "#FFFFFF"
+          },
+          ":where(.dark [data-slot=\"segmented-control\"], [data-slot=\"segmented-control\"].dark)": {
+            "--ien-segmented-container": "#20252B",
+            "--ien-segmented-indicator": "#343A42"
           }
         },
         "@media (prefers-reduced-motion: reduce)": {
@@ -4877,6 +4885,8 @@
       "title": "Toast",
       "description": "일시적인 알림과 실행 취소·재시도 작업을 제공합니다.",
       "dependencies": [
+        "@tabler/icons-react@^3.49.0",
+        "cn@^0.4.0",
         "sonner@^2.0.7"
       ],
       "registryDependencies": [
@@ -4901,7 +4911,7 @@
           "snackbar"
         ],
         "preview": "previews/toast.tsx",
-        "example": "\"use client\"\n\nimport { Toaster, toast, snackbar } from \"@/components/ui/toast\"\nimport { Button } from \"@/components/ui/button\"\n\nexport function Pattern() {\n  return <div className=\"flex w-full max-w-lg flex-col gap-4\"><><Toaster /><Button onClick={() => toast.success(\"저장했습니다.\")}>성공 알림</Button><Button variant=\"weak\" onClick={() => snackbar(\"항목을 보관했습니다.\", { label: \"실행 취소\", onClick: () => toast(\"실행을 취소했습니다.\") })}>작업 알림</Button></></div>\n}\nexport default Pattern\n",
+        "example": "\"use client\"\n\nimport { Toaster, toast, snackbar } from \"@/components/ui/toast\"\nimport { Button } from \"@/components/ui/button\"\n\nexport function Pattern() {\n  return (\n    <div className=\"flex w-full max-w-lg flex-col gap-4\">\n      <Toaster />\n      <Button onClick={() => toast(\"클립보드에 복사했습니다.\")}>기본 알림</Button>\n      <div className=\"flex flex-wrap gap-2\">\n        <Button variant=\"weak\" tone=\"success\" onClick={() => toast.success(\"저장했습니다.\")}>성공 알림</Button>\n        <Button variant=\"weak\" tone=\"danger\" onClick={() => toast.error(\"저장하지 못했습니다.\")}>오류 알림</Button>\n        <Button variant=\"weak\" tone=\"warning\" onClick={() => toast.warning(\"입력 내용을 확인해 주세요.\")}>주의 알림</Button>\n        <Button variant=\"weak\" tone=\"info\" onClick={() => toast.info(\"새로운 업데이트가 있습니다.\")}>정보 알림</Button>\n      </div>\n      <Button variant=\"weak\" onClick={() => snackbar(\"항목을 보관했습니다.\", { label: \"실행 취소\", onClick: () => toast(\"실행을 취소했습니다.\") })}>작업 알림</Button>\n      <Button variant=\"line\" onClick={() => toast(\"변경 사항을 저장했습니다. 다른 기기에서도 같은 내용을 확인할 수 있습니다.\")}>긴 메시지</Button>\n    </div>\n  )\n}\nexport default Pattern\n",
         "ienDesign": true
       }
     },

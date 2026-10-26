@@ -9,7 +9,7 @@ import { cn } from "cn"
 import { Slot } from "radix-ui"
 
 const buttonVariants = cva(
-  "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-lg border bg-clip-border text-[length:var(--ien-font-size-label1)] leading-(--ien-line-height-label1) font-semibold focus-visible:ring-3 aria-invalid:ring-3 [&_svg:not([class*='size-'])]:size-6 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-lg border bg-clip-border text-[length:var(--ien-font-size-label1)] leading-(--ien-line-height-label1) font-medium focus-visible:ring-3 aria-invalid:ring-3 [&_svg:not([class*='size-'])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -19,16 +19,16 @@ const buttonVariants = cva(
         ghost: "ien-clear",
       },
       size: {
-        default: "h-(--ien-button-height-default) gap-2 px-5",
-        xs: "h-7 gap-1 px-2 text-[length:var(--ien-font-size-caption)]",
-        sm: "h-9 gap-1 px-3 text-[length:var(--ien-font-size-label2)] [&_svg:not([class*=size-])]:size-4.5",
-        md: "h-11 gap-2 px-4",
-        lg: "h-(--ien-button-height-lg) gap-2 px-5",
-        icon: "size-13 [&_svg:not([class*=size-])]:size-7",
-        "icon-xs": "size-7",
-        "icon-sm": "size-9 [&_svg:not([class*=size-])]:size-4.5",
-        "icon-md": "size-11",
-        "icon-lg": "size-13 [&_svg:not([class*=size-])]:size-7",
+        default: "h-(--ien-button-height-default) gap-1.5 px-2.5",
+        xs: "h-(--ien-button-height-xs) gap-1 px-2 text-[length:var(--ien-font-size-caption)] [&_svg:not([class*=size-])]:size-3",
+        sm: "h-(--ien-button-height-sm) gap-1 px-2.5 text-[length:var(--ien-font-size-label2)] [&_svg:not([class*=size-])]:size-3.5",
+        md: "h-(--ien-button-height-md) gap-1.5 px-2.5",
+        lg: "h-(--ien-button-height-lg) gap-1.5 px-3",
+        icon: "size-8",
+        "icon-xs": "size-6 [&_svg:not([class*=size-])]:size-3",
+        "icon-sm": "size-7 [&_svg:not([class*=size-])]:size-3.5",
+        "icon-md": "size-8",
+        "icon-lg": "size-9",
       },
     },
     defaultVariants: {

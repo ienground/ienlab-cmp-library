@@ -6,6 +6,64 @@ import {
   type SmoothCornerOptions,
 } from "@lisse/core";
 
+/** CMP capsule 2.1.4의 G2Continuity 코너를 반경과 가로·세로 제약에 맞춰 계산합니다. */
+export function createIenContinuousRoundedRectanglePath(
+  width: number,
+  height: number,
+  radii: readonly [number, number, number, number],
+): string {
+  const maxRadius = Math.max(0, Math.min(width, height) / 2);
+  const corners = [
+    [width, 0, 1, 0, radii[1], width, height],
+    [width, height, 0, 1, radii[2], height, width],
+    [0, height, -1, 0, radii[3], width, height],
+    [0, 0, 0, -1, radii[0], height, width],
+  ];
+  const commands: string[] = [];
+  for (const [originX, originY, rotationX, rotationY, radius, along, across] of corners) {
+    const r = Math.max(0, Math.min(radius, maxRadius));
+    const point = (x: number, y: number) =>
+      `${originX + x * rotationX - y * rotationY} ${originY + x * rotationY + y * rotationX}`;
+    const move = commands.length ? "L" : "M";
+    if (!r) {
+      commands.push(`${move} ${point(0, 0)}`);
+      continue;
+    }
+    const alongRatio = Math.min(1, Math.max(0, (along / (2 * r) - 1) / 0.5286651));
+    const acrossRatio = Math.min(1, Math.max(0, (across / (2 * r) - 1) / 0.5286651));
+    const ratio = Math.min(alongRatio, acrossRatio);
+    const extension = 0.5286651 * (0.75 + 0.25 * ratio);
+    const arcScale = 1 / (1 + 0.0732051 * ratio);
+    const angle = Math.PI / 4 * (1 - 5 / 9 * ratio);
+    const sin = Math.sin(angle);
+    const cos = Math.cos(angle);
+    const endX = Math.SQRT1_2 * (1 - arcScale) + sin * arcScale;
+    const endY = 1 - Math.SQRT1_2 * (1 - arcScale) - cos * arcScale;
+    const bezier = (axisRatio: number) => {
+      const offset = extension * axisRatio;
+      const curvature = 1 + 0.0732051 * axisRatio;
+      const c2 = endY * cos - (endX + offset) * sin;
+      const lambda0 = -c2 / sin - 1.5 * curvature * endY * endY / (sin * sin * sin);
+      const lambda3 = endY / sin;
+      return {
+        offset,
+        p1: -offset + Math.max(0, lambda0),
+        p2x: endX - Math.max(0, lambda3 * cos),
+        p2y: endY - Math.max(0, lambda3 * sin),
+      };
+    };
+    const horizontal = bezier(alongRatio);
+    const vertical = bezier(acrossRatio);
+    commands.push(
+      `${move} ${point(-r * (1 + horizontal.offset), 0)}`,
+      `C ${point(r * (horizontal.p1 - 1), 0)} ${point(r * (horizontal.p2x - 1), r * horizontal.p2y)} ${point(r * (endX - 1), r * endY)}`,
+      `A ${r * arcScale} ${r * arcScale} 0 0 1 ${point(-r * endY, r * (1 - endX))}`,
+      `C ${point(-r * vertical.p2y, r * (1 - vertical.p2x))} ${point(0, r * (1 - vertical.p1))} ${point(0, r * (1 + vertical.offset))}`,
+    );
+  }
+  return `${commands.join(" ")} Z`;
+}
+
 /** CMP capsule 2.1.4의 G2Continuity 기본 캡슐 곡선을 SVG로 옮깁니다. */
 function capsulePath(width: number, height: number): string {
   const vertical = width < height;
@@ -200,6 +258,7 @@ function start() {
             (Number.parseFloat(style.paddingTop) || 0) +
             (Number.parseFloat(style.paddingBottom) || 0));
       const isCapsule = element.dataset.ienShape === "capsule";
+      const useCmpProfile = style.getPropertyValue("--ien-control-corner-profile").trim() === "cmp";
       const radii = [
         style.borderTopLeftRadius,
         style.borderTopRightRadius,
@@ -254,10 +313,11 @@ function start() {
         colors,
         smoothing,
         isCapsule,
+        useCmpProfile,
       ]);
       if (signature === entry.signature) continue;
       entry.signature = signature;
-      if (!enabled || (supportsNativeCorners && smoothing === 1 && !isCapsule)) {
+      if (!enabled || (supportsNativeCorners && smoothing === 1 && !isCapsule && !useCmpProfile)) {
         updates.push(() => {
           restore(element, entry);
           entry.writtenStyle = element.getAttribute("style");
@@ -271,12 +331,16 @@ function start() {
         bottomRight: { radius: bottomRight, smoothing, preserveSmoothing: true },
         bottomLeft: { radius: bottomLeft, smoothing, preserveSmoothing: true },
       };
-      const outer = isCapsule ? capsulePath(width, height) : generatePath(width, height, options);
+      const outer = isCapsule
+        ? capsulePath(width, height)
+        : useCmpProfile
+          ? createIenContinuousRoundedRectanglePath(width, height, [topLeft, topRight, bottomRight, bottomLeft])
+          : generatePath(width, height, options);
       const uniform =
         borders.every((value) => value === top) &&
         colors.every((value) => value === colors[0]);
       let borderImage: string | undefined;
-      if (uniform && isCapsule) {
+      if (uniform && (isCapsule || useCmpProfile)) {
         const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><defs><clipPath id="capsule"><path d="${outer}"/></clipPath></defs><path d="${outer}" fill="none" stroke="${colors[0]}" stroke-width="${top * 2}" clip-path="url(#capsule)"/></svg>`;
         borderImage = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
       } else if (uniform) {

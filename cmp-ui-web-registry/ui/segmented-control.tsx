@@ -91,7 +91,7 @@ function SegmentedControl({
         data-ien-tone={theme.tone}
         data-ien-gradient={theme.useGradient}
         className={cn(
-          "max-w-full rounded-full bg-(--ien-surface-variant) bg-clip-border data-disabled:opacity-(--ien-state-disabled-alpha)",
+          "max-w-full rounded-full bg-(--ien-segmented-container) bg-clip-border data-disabled:opacity-(--ien-state-disabled-alpha)",
           alignment === "fixed" ? "w-full overflow-hidden" : "w-fit overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
           className,
         )}
@@ -106,7 +106,7 @@ function SegmentedControl({
             aria-hidden="true"
             data-slot="segmented-control-indicator"
             data-ien-shape="capsule"
-            className="pointer-events-none absolute inset-y-(--ien-spacing-xxs) left-0 -z-10 rounded-full bg-(--ien-surface-raised) bg-clip-border transition-[transform,width] duration-(--ien-motion-spring-duration) ease-(--ien-motion-spring-medium-bouncy) motion-reduce:transition-none"
+            className="pointer-events-none absolute inset-y-(--ien-spacing-xxs) left-0 -z-10 rounded-full bg-(--ien-segmented-indicator) bg-clip-border transition-[transform,width] duration-(--ien-motion-spring-duration) ease-(--ien-motion-spring-medium-bouncy) motion-reduce:transition-none"
             style={{ width: bounds.width, transform: `translateX(${bounds.left}px)` }}
           />}
           {items.map((item) => {
