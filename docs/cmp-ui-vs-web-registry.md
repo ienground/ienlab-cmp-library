@@ -7,7 +7,7 @@
 - CMP 주 범위: `cmp-ui`, 문서 카탈로그
 - CMP 보조 범위: `cmp-pref`, `cmp-adaptive`, `cmp-date`
 - 웹 범위: `cmp-ui-web-registry`의 설치 항목과 실제 구현
-- 검증 범위: 정적 소스 분석. 빌드·테스트·브라우저 시각 비교는 수행하지 않음
+- 검증 범위: 기능·API는 정적 소스 분석. 디자인은 토큰·스타일 소스 비교와 로컬 Chrome의 대표 프리뷰 확인을 병행. 빌드·자동 테스트는 수행하지 않음
 
 이 문서에서 **대응 없음**은 현재 라이브러리가 바로 사용할 수 있는 대응 컴포넌트를 제공하지 않는다는 뜻입니다. 기반 라이브러리나 기존 컴포넌트를 조합해 구현할 수 있는 가능성과는 구분합니다. **대응 존재**도 외형·애니메이션·접근성까지 동일하게 검증되었다는 뜻은 아닙니다.
 
@@ -122,6 +122,108 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 
 플랫폼 용도 차이가 크므로 이 항목 모두를 CMP에 추가해야 하는 결손으로 판단하지 않습니다. 특히 네이티브 권한·키패드·햅틱과 웹의 문서 탐색·복잡한 데이터 UI는 필요성을 별도로 판단해야 합니다.
 
+## 디자인 비교
+
+### 확인 범위와 판정 기준
+
+2026-10-26의 현재 소스를 기준으로 비교했습니다. CMP의 `dp / sp`와 웹의 CSS `px`는 같은 물리 크기를 보장하지 않습니다. 아래 숫자는 기본 밀도·글자 배율과 웹 루트 글꼴 16px를 전제로 한 설계 규격 비교입니다. 프로젝트 설정과 사용자 글꼴 배율을 적용하면 달라질 수 있습니다.
+
+- **소스 확인**: 기본 토큰, 컴포넌트의 실제 스타일, 상태 표현, 모션 설정을 확인했습니다.
+- **브라우저 확인**: `http://localhost:4800`에서 라이트 테마의 CMP Button·TextField 화면과 웹 Button·Input·Badge·Tabs 화면을 확인했습니다. 웹은 DOM의 실제 크기와 계산된 스타일도 읽었습니다.
+- **미검증**: Android·iOS 실기기, 모든 컴포넌트의 다크 테마·모바일·키보드 포커스, 모션의 프레임별 일치 여부는 확인하지 않았습니다. CMP 프리뷰 컨트롤에 선택된 값과 컴포넌트 API 기본값도 구분했습니다.
+
+디자인 차이가 가장 큰 부분은 **타이포그래피와 버튼·입력창의 밀도**입니다. 색상·간격·모서리 토큰과 일부 선택 컨트롤의 규격은 많이 공유하지만, 같은 토큰 이름이나 `data-ien-typography` 지정이 실제 크기 일치까지 보장하지는 않습니다.
+
+### 공통 토큰과 렌더링 방식
+
+| 항목 | CMP | 웹 | 판정 |
+| --- | --- | --- | --- |
+| 색상 | `IenLightColorTokens`, `IenDarkColorTokens` | 생성기가 CMP 색상에서 CSS 변수를 추출 | 기본 팔레트의 원본은 공유. 컴포넌트별 사용 방식·투명도는 별도 비교 필요 |
+| 간격 | 0 / 2 / 4 / 8 / 12 / 16 / 20 / 24 / 32 / 40dp | CMP에서 추출한 값을 rem으로 변환 | 토큰 단계는 대응. 컴포넌트의 고정 Tailwind 여백까지 자동으로 대응하지는 않음 |
+| 모서리 반경 | 0 / 4 / 8 / 12 / 16 / 24 / 999dp | CMP에서 추출. `radius-md → ien-radius-sm` 등 별도 별칭 사용 | IEN 이름과 shadcn 별칭 이름을 구분해야 함 |
+| 연속 곡률 | `ContinuousRoundedRectangle`, `ContinuousCapsule` | 네이티브 `corner-shape` 및 `@lisse/core`·SVG 보정 | 구현 경로가 다름. 반경이 같아도 모든 종횡비·브라우저에서 동일한 윤곽이라고 단정할 수 없음 |
+| 선 두께 | 0.5 / 1 / 1.5 / 2dp. 테두리를 경로 안쪽에 직접 그림 | 공유 토큰과 CSS border 사용 | 웹 border는 박스 계산에 참여하므로 외곽 크기·내부 공간이 달라질 수 있음 |
+| elevation | 0 / 4 / 12 / 24dp | 수치와 표면 tint 변수를 생성 | tonal elevation과 그림자를 구분해야 함. CMP `IenSurface`도 `tonalElevation`만으로 외부 그림자를 추가하지 않음 |
+| 기본 모션 | 80 / 160 / 240 / 360ms, `(0.2, 0, 0, 1)` | CMP에서 추출 | 공통 시간은 대응. 실제 컴포넌트에는 별도 spring·150ms·200ms 등도 혼재 |
+| 상태 토큰 | disabled 0.38, pressed 0.10, focused 0.12, selected 0.14, 최소 터치 44dp | 같은 상태 토큰 생성 | 토큰의 존재와 각 컨트롤 적용 여부는 별개 |
+| 글꼴 | 기본 `TextStyle`은 폰트 패밀리 미지정. 문서 앱은 Pretendard 리소스 주입 | Pretendard, 코드에는 JetBrains Mono | 문서 프리뷰의 글꼴과 라이브러리 기본 계약을 구분해야 함. 텍스트 렌더러도 Skia·DOM으로 다름 |
+
+근거: [CMP 테마](../cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/foundation/IenTheme.kt), [CMP 색상](../cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/foundation/IenColorScheme.kt), [토큰 생성기](../cmp-ui-docs/scripts/generate-api-docs.mjs), [웹 토큰](../cmp-ui-web-registry/tokens.json), [연속 곡률 구현](../cmp-ui-web-registry/lib/ien-continuous-corners.ts), [CMP Surface·테두리](../cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/primitives/IenPrimitives.kt).
+
+### 타이포그래피 규격
+
+표의 값은 `글자 크기 / 행간 / 굵기`입니다. CMP는 sp, 웹은 루트 16px 기준 CSS px입니다.
+
+| 단계 | CMP 기본값 | 웹 기본값 | 차이 |
+| --- | --- | --- | --- |
+| display | 30 / 38 / 700 | 24 / 32 / 700 | 웹 크기 -6, 행간 -6 |
+| title1 | 24 / 32 / 700 | 20 / 28 / 600 | 웹 크기 -4, 행간 -4, 굵기 감소 |
+| title2 | 20 / 28 / 600 | 18 / 28 / 600 | 웹 크기 -2 |
+| title3 | 18 / 26 / 600 | 16 / 24 / 600 | 웹 크기 -2, 행간 -2 |
+| body1 | 16 / 24 / 400 | 14 / 20 / 400 | 웹 크기 -2, 행간 -4 |
+| body2 | 15 / 22 / 400 | 14 / 20 / 400 | 웹 크기 -1, 행간 -2 |
+| label1 | 14 / 20 / 600 | 14 / 20 / 500 | 웹 굵기 감소 |
+| label2 | 13 / 18 / 600 | 12 / 16 / 500 | 웹 크기 -1, 행간 -2, 굵기 감소 |
+| caption | 12 / 16 / 400 | 12 / 16 / 400 | 토큰 규격 동일 |
+
+웹 타이포그래피는 `tokens.json`에 별도로 정의되어 있고 생성기는 이 값을 사용합니다. CMP에서 추출한 타이포그래피와 이름은 같아도 수치는 다릅니다.
+
+또한 `data-ien-typography`용 규칙은 폰트 패밀리·굵기를 지정하며 크기·행간까지 강제하지 않습니다. 실제 크기는 `text-sm`, `text-base`, `text-ien-*` 같은 클래스와 상속에 따라 달라집니다. 예를 들어 웹 `CardTitle`은 `title2`로 표시되지만 `text-base`를 사용하고, `EmptyTitle`은 `title2` 표시와 함께 `text-sm`을 사용합니다. 단계 메타데이터만 보고 18px이라고 판단하면 안 됩니다.
+
+근거: [CMP 기본 타이포그래피](../cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/foundation/IenTheme.kt), [웹 타이포그래피·공통 규칙](../cmp-ui-web-registry/tokens.json), [웹 Card](../cmp-ui-web-registry/ui/card.tsx), [웹 Empty](../cmp-ui-web-registry/ui/empty.tsx).
+
+### 컴포넌트별 외형 차이
+
+| 컴포넌트 | CMP 기준 | 웹 기준 | 디자인 영향·확인 수준 |
+| --- | --- | --- | --- |
+| 기본 버튼 | Small / Medium / Large 최소 높이 36 / 44 / 52dp. 기본 Large. 좌우 패딩 12 / 16 / 20dp | `xs / sm / default / lg` 높이 24 / 28 / 32 / 36px. 기본 좌우 패딩 10px | **차이 큼**. 웹 기본 버튼은 실제 32px·14px/20px·굵기 500으로 측정. CMP 기본 label1은 굵기 600 |
+| 버튼 높이 토큰 | 기본 Large 52dp | `ien-button-height-default`는 52px 상당이지만 실제 `Button`은 `h-8` 사용 | **선언과 적용이 다름**. 높이 토큰이 있다는 이유로 대응 완료로 집계하면 안 됨 |
+| 버튼 모서리 | 기본 12dp 연속 곡률. Full 배치는 직각. 호출자가 Shape 지정 가능 | 기본 12px 상당. 크기별 class와 ButtonGroup 규칙 존재 | 기본 반경은 유사하나 Full·Capsule 등 표현 선택과 곡률 렌더러는 다름 |
+| 배지 기본 표현 | 기본 `Weak`, Medium, Brand | 기본 `fill`, medium. tone 미지정 시 공통 제어 색상 사용 | **기본 강조도가 다름**. 같은 최소 호출로 같은 외형이 나오지 않음 |
+| 배지 크기 | Small / Medium / Large 패딩은 좌우 6 / 8 / 10dp, 위아래 2 / 3 / 5dp. Fill·Weak에는 별도 border 없음 | 같은 패딩 수치에 모든 variant가 1px border 박스를 사용 | 웹 실측 높이 22 / 24 / 32px. CMP 토큰 행간+패딩은 20 / 24 / 30dp. Medium은 전체 높이가 같아도 글자 크기·행간은 다름 |
+| 카드 | 기본 반경 16dp, 여백 16dp. 자식은 Box에 배치 | 기본 반경·여백은 대응. 루트는 flex-column과 기본 16px gap, Header / Footer 규칙 제공 | 표면 의도는 가깝지만 여러 자식의 간격·제목 크기·Footer 여백에서 차이 발생 |
+| 입력창 | 기본 Box 단일 행 높이 52dp, 본문 16sp/24sp, 좌우 14dp | 기본 boxed 높이 32px, 데스크톱 본문 14px/20px, 좌우 10px | **차이 큼**. 웹 실측 높이·글꼴·여백 확인. 웹 `text-base md:text-sm`은 화면 폭에 따라 글자 크기도 달라짐 |
+| 입력 변형 | Box / Line / Big / Hero. Big·Hero는 title2·display와 큰 여백 사용 | boxed / underline / plain | 웹의 plain은 Big·Hero와 다른 표현. 큰 금액·헤드라인 입력 디자인이 빠져 있음 |
+| 체크박스·라디오 | 체크박스 circle / dot / line, 기본 circle 24dp·dot 8dp. 라디오와 함께 IEN 색상·선 사용 | 대응 변형과 크기, 1.5px 선, 원형 표시 제공 | 규격은 가까운 편. 웹도 brand를 직접 참조하는 부분이 있어 `tone` 속성만으로 모든 선택 표시 색상이 바뀐다고 판단하면 안 됨 |
+| 스위치 | Material3 Switch 기반. 52×32 규격을 전제로 트랙 콘텐츠 배치 | 기본 52×32px, 손잡이 16→24px·눌림 28px. 추가 sm 24×14px | 웹이 기본 비례를 재현. sm은 CMP의 별도 크기 API와 대응하지 않음. 모션은 별도 확인 필요 |
+| 탭 | Small / Large 높이 40 / 48dp. 선택 선 두께 2dp, 폭은 항목 폭-24dp·최소 20dp | 같은 높이·선 계산을 구현 | 웹 실측 높이 40 / 48px, 선택 선 2px 확인. Small 글자는 CMP 13sp/18sp, 웹 12px/16px로 차이 |
+| 별점 | 아이콘 18 / 24 / 34 / 44 / 56dp, 간격 2 / 2 / 4 / 8 / 8dp | 같은 크기·간격 수치와 비례 채움 구현 | 도형 크기는 가까움. 숫자 레이블의 타이포그래피는 label2 차이의 영향을 받음 |
+| 날짜·기간 휠 | 기본 5행, 행 높이는 최소 44dp와 title3 크기를 고려. 텍스트는 title3 | 기본 5행·행 높이 44px, 원통 변형·선택 배경 구현. 공통 휠 항목은 글자 크기를 직접 지정하지 않음 | 행 규격은 유사하나 웹 텍스트는 상속에 따라 달라짐. 팝오버·하단 초기화/확인 버튼은 CMP 휠 단독 구조와 별도 |
+| 스켈레톤 | 패턴과 텍스트 단계별 크기, 위상차가 있는 밝기·크기 변화 | 패턴·위상차·밝기·크기 변화 구현 | 레이아웃과 모션 의도는 유사. 웹 body·title 토큰 차이로 텍스트 블록 높이·전체 밀도는 달라질 수 있음 |
+| 진행·로딩 표시 | Compose Material3 원형·선형·물결·도형 변형 | SVG·Material 웹 구현과 별도 타이밍·도형 라이브러리 사용 | 대응 표현 존재. 같은 이름만으로 파형·회전 위상·선 끝·프레임 일치까지 확인된 것은 아님 |
+| 툴팁 | 12dp 반경, 화살표를 포함한 Shape, 방향별 패딩, 16dp 그림자 | 12px 반경, 별도 12×6px 화살표, 좌우 16px·상하 10px, `0 8px 16px #001d3a26` 그림자 | 몸체·화살표 연결과 그림자 퍼짐이 다른 구현. 글자도 CMP 13sp/18sp, 웹 12px/16px 규격 |
+| 시트 | 하단 시트의 높이 단계·확장·드래그와 전용 헤더·선택 목록 | 기본 오른쪽 패널. bottom으로 지정해야 하단 배치 | 초기 외형부터 다름. 웹은 사방향 경계선·슬라이드·닫기 버튼 구조이며 CMP 바텀시트 디자인과 동일하지 않음 |
+| 빈 상태 | 기본 항목 간격 8dp, 제목 title2·Bold, 아이콘 프레임과 버튼 슬롯 제공 | 루트 여백 24px·간격 16px, EmptyTitle은 `text-sm font-medium`, icon 변형은 32px 박스·16px 아이콘 | 기능 대응은 있지만 제목 강조·아이콘 비례·전체 여백의 차이가 큼 |
+
+근거: [CMP 버튼](../cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenButton.kt), [웹 버튼](../cmp-ui-web-registry/ui/button.tsx), [CMP 배지](../cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenBadge.kt), [웹 배지](../cmp-ui-web-registry/reui/badge.tsx), [CMP 입력](../cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenTextField.kt), [웹 입력](../cmp-ui-web-registry/ui/input.tsx), [CMP 선택 컨트롤](../cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenSelection.kt), [웹 탭](../cmp-ui-web-registry/ui/tabs.tsx), [웹 휠](../cmp-ui-web-registry/lib/ien-wheel-picker.tsx).
+
+### 색상·상태·모션 차이
+
+| 항목 | 비교 결과 | 확인 수준 |
+| --- | --- | --- |
+| 기본 색상 | 라이트 brand `#7C4DFF`, textPrimary `#191F28`, 다크 brand `#B69CFF` 등은 CMP 원본에서 생성. 라이트 웹 버튼의 brand 배경도 `rgb(124,77,255)`로 측정 | 소스 및 라이트 웹 실측 |
+| 그라데이션 | 양쪽 모두 Fill의 전경색 혼합 18%·36%, Weak의 6%·10%를 사용. CMP `Brush.linearGradient`와 CSS `linear-gradient(135deg, …)`는 좌표·박스·색 보간 경로가 달라 픽셀 일치를 보장하지 않음 | 계수·구현 소스 확인. 모든 종횡비의 픽셀 비교 미실행 |
+| 버튼 비활성 | CMP는 surfaceVariant·textDisabled 등 전용 색상으로 바꾸고 그라데이션을 제거. 웹은 원래 tone·그라데이션을 유지하며 명시적 disabled에 `--ien-state-disabled-alpha` 적용 | 소스 확인. 같은 비활성 상태라도 채도·배경 합성 방식이 다름 |
+| 버튼 로딩 | 양쪽 모두 활성 색상을 유지하며 입력을 제한. 웹은 loading과 명시적 disabled의 불투명도 처리를 구분하고, 기존 콘텐츠를 유지해 너비를 보존함. asChild 링크는 차단 중 href와 탭 이동도 제한 | 수정 소스 확인. 수정 후 브라우저의 실제 외형·클릭·키보드 검증은 미실행 |
+| 버튼 눌림 | 양쪽 축소 목표는 0.975. CMP는 검정 오버레이 8% 또는 4%도 표시. 웹 기본 active 규칙에는 축소가 있고 hover에서는 brightness 0.96 사용 | 소스 확인. 눌림·hover의 명암 표현이 같지는 않음 |
+| 버튼 스프링 | CMP는 `StiffnessMedium`·`DampingRatioNoBouncy`. 웹은 stiffness 1500·dampingRatio 1을 300ms CSS `linear()`로 표본화 | 목표 특성은 유사. Compose의 실제 수렴 시간·중단 처리와 고정 CSS 구간은 다름 |
+| 로딩 전환 | CMP는 콘텐츠·로더의 전환을 Compose 애니메이션으로 구성. 웹은 콘텐츠를 유지한 채 opacity·scale을 160ms 전환 | 소스 확인. 폭 유지 방식과 종료 시점의 세부 동작까지 동일하다고 판정하지 않음 |
+| 입력 오류 | CMP는 오류 상태 진입 시 -8→8→-6→6→-3→3→0 이동을 각 40ms로 실행. 웹은 테두리·도움말·ring으로 표시하며 같은 오류 진입 흔들림 없음 | 소스 확인 |
+| 키보드 포커스 | 웹은 버튼·입력 등에 명시적인 3px focus-visible ring 사용. CMP 버튼에는 동일한 CSS ring에 대응하는 별도 테두리 애니메이션이 없음 | 소스 확인. 네이티브 포커스 표시의 실제 외형은 플랫폼 검증 필요 |
+| 탭 선택 선 | CMP는 `MediumBouncy / MediumLow` spring, 웹은 stiffness 400·dampingRatio 0.5 표본을 800ms로 재생 | 소스 및 웹 계산 스타일 0.8s 확인. 이동·크기 변화의 수렴 특성은 다름 |
+| 스위치 | 웹 손잡이·트랙 콘텐츠에는 300ms 표본 spring 사용. CMP 트랙 콘텐츠는 `NoBouncy / Medium` spring이며 손잡이는 Material3 동작 사용 | 소스 확인. 고정 크기가 비슷해도 움직임의 완전 일치는 미검증 |
+| 모션 줄이기 | 웹은 여러 컴포넌트에 `prefers-reduced-motion` 대응을 명시. CMP는 Compose·플랫폼 애니메이션 처리에 의존하는 부분 존재 | 소스 확인. OS별 모션 축소 결과는 미검증 |
+
+### 디자인 정렬 시 우선 확인할 항목
+
+1. **타이포그래피 기준 결정**: 웹 전용으로 축소한 단계와 CMP 동일 단계 중 의도한 규격을 결정합니다. 모든 플랫폼의 수치를 무조건 같게 바꾸는 것은 이 분석의 결론이 아닙니다.
+2. **버튼·입력창 밀도 정렬**: 실제 `h-8`·패딩·글자 크기와 선언된 높이 토큰의 관계를 정리합니다. 특히 기본 버튼·입력 32px와 CMP 52dp 차이를 우선 다룹니다.
+3. **상태 표현 정렬**: 비활성 색상, 로딩 중 opacity, 눌림 오버레이, 오류 흔들림, 포커스 표시를 각각 비교합니다.
+4. **타이포그래피 표기와 실제 클래스 정렬**: CardTitle·EmptyTitle·휠처럼 메타데이터나 토큰 이름만으로 실제 크기를 알 수 없는 부분을 확인합니다.
+5. **곡률·테두리·모션의 화면 검증**: Fill / Weak / Line / Ghost와 캡슐을 모두 확인하고, 다크 테마·모바일·실기기·상태 전환에서 차이를 재확인합니다.
+
+이 절은 차이를 기록한 분석이며, 컴포넌트 스타일이나 디자인 토큰을 변경한 것은 아닙니다.
+
 ## 문서와 매핑의 부족한 부분
 
 ### CMP 연결 메타데이터
@@ -147,7 +249,7 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 
 1. **Dialog / AlertDialog, Toast / Snackbar**: 기본 사용자 흐름에서 빠진 피드백 수단을 보완합니다.
 2. **Slider / RangeSlider, Chip, SegmentedControl**: 기본 입력·선택 영역을 보완합니다.
-3. **ListRow / Section, 버튼 loading·toggle, 입력 확장**: 반복적인 개별 구현을 줄입니다.
+3. **ListRow / Section, 버튼 toggle·로딩 상태 표현, 입력 확장**: 반복적인 개별 구현을 줄이고 상태별 표현을 정렬합니다.
 4. **BottomSheet 높이·드래그, 화면 골격·CTA**: CMP 화면 구성 패턴을 대응합니다.
 5. **`cmpIds` 정비**: 확인된 대응 관계를 문서 생성에 반영합니다.
 

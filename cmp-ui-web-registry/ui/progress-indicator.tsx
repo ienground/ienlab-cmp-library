@@ -129,6 +129,7 @@ function ProgressIndicator({
       data-ien-tone={tone}
       className={cn("inline-flex shrink-0 align-middle", variant === "linear" ? "w-full" : "size-[var(--ien-indicator-size)]", className)}
       style={{
+        color,
         "--ien-indicator-size": `${size}px`,
         "--mtrl-sys-color-primary": color ?? "var(--ien-control-color)",
         "--mtrl-sys-color-secondary-container": trackColor ?? "var(--ien-control-weak)",

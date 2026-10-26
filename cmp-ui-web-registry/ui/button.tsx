@@ -9,7 +9,7 @@ import { cn } from "cn"
 import { Slot } from "radix-ui"
 
 const buttonVariants = cva(
-  "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-lg border bg-clip-border text-sm font-medium focus-visible:ring-3 aria-invalid:ring-3 [&_svg:not([class*='size-'])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-(--ien-state-disabled-alpha) [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-lg border bg-clip-border text-sm font-medium focus-visible:ring-3 aria-invalid:ring-3 [&_svg:not([class*='size-'])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -52,7 +52,7 @@ function Button({
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
-    /** 콘텐츠를 로더로 전환하고 색상을 유지한 채 입력을 막습니다. */
+    /** 아이콘이 있으면 아이콘만, 없으면 콘텐츠를 로더로 전환하고 입력을 막습니다. */
     loading?: boolean
   } & IenToneProps) {
   const Comp = asChild ? Slot.Root : "button"
@@ -70,17 +70,60 @@ function Button({
     return () => window.clearTimeout(timeout)
   }, [loading, showSpinner])
   const transitionClassName = "transition-[opacity,transform] duration-(--ien-motion-fast) ease-(--ien-motion-standard-easing) motion-reduce:transition-none"
-  const content = (value: React.ReactNode) => (
+  const spinner = (inline = false) => (
     <span
-      data-slot="button-content"
-      className={cn("inline-flex items-center justify-center gap-[inherit]", transitionClassName, loading && "scale-80 opacity-0")}
+      ref={spinnerRef}
+      data-slot="button-spinner"
+      aria-hidden="true"
+      className={cn("pointer-events-none absolute inset-0 inline-flex items-center justify-center", transitionClassName, !loading && "scale-80 opacity-0")}
     >
-      {value}
+      {(loading || showSpinner) && (
+        <ProgressIndicator size={20} strokeWidth={2} color="currentColor" trackColor="transparent"
+          style={inline ? { width: "100%", height: "100%" } : undefined} />
+      )}
     </span>
   )
   const child = asChild ? React.Children.only(children) : null
-  const slottedContent = React.isValidElement<{ children?: React.ReactNode }>(child)
-    ? React.cloneElement(child, {}, content(child.props.children))
+  const childElement = React.isValidElement<React.HTMLProps<HTMLElement>>(child) ? child : null
+  let hasIcon = false
+  const replaceIcon = (value: React.ReactNode): React.ReactNode => React.Children.map(value, (node) => {
+    if (!React.isValidElement<{ children?: React.ReactNode; "data-icon"?: string }>(node)) return node
+    if (node.type === React.Fragment) {
+      return React.cloneElement(node, {}, replaceIcon(node.props.children))
+    }
+    if (hasIcon || (node.type !== "svg" && !node.props["data-icon"])) return node
+    hasIcon = true
+    return (
+      <span data-slot="button-icon" className="relative inline-flex shrink-0">
+        <span className={cn("inline-flex", transitionClassName, loading && "scale-80 opacity-0")}>{node}</span>
+        {spinner(true)}
+      </span>
+    )
+  })
+  const iconContent = replaceIcon(childElement ? childElement.props.children : children)
+  const content = (
+    <span
+      data-slot="button-content"
+      className={cn("inline-flex items-center justify-center gap-[inherit]", transitionClassName, loading && !hasIcon && "scale-80 opacity-0")}
+    >
+      {iconContent}
+    </span>
+  )
+  const blockInteraction = (event: React.SyntheticEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+  }
+  const slottedContent = childElement
+    ? React.cloneElement(childElement, blocked ? {
+        href: undefined,
+        tabIndex: -1,
+        onClickCapture: blockInteraction,
+        onAuxClickCapture: blockInteraction,
+        onKeyDownCapture: (event) => {
+          if (event.key === "Enter" || event.key === " ") blockInteraction(event)
+          else childElement.props.onKeyDownCapture?.(event)
+        },
+      } : {}, content)
     : children
 
   return (
@@ -99,7 +142,7 @@ function Button({
         aria-busy={loading || props["aria-busy"]}
         aria-disabled={blocked || props["aria-disabled"]}
         disabled={blocked}
-        className={cn(buttonVariants({ variant, size, className: cn("relative", className) }))}
+        className={cn(buttonVariants({ variant, size, className: cn("relative", disabled && "opacity-(--ien-state-disabled-alpha)", className) }))}
         onClickCapture={(event) => {
           if (blocked) {
             event.preventDefault()
@@ -117,15 +160,8 @@ function Button({
           onKeyDownCapture?.(event)
         }}
       >
-        {asChild ? <Slot.Slottable>{slottedContent}</Slot.Slottable> : content(children)}
-        <span
-          ref={spinnerRef}
-          data-slot="button-spinner"
-          aria-hidden="true"
-          className={cn("pointer-events-none absolute inset-0 inline-flex items-center justify-center", transitionClassName, !loading && "scale-80 opacity-0")}
-        >
-          {(loading || showSpinner) && <ProgressIndicator size={20} strokeWidth={2} color="currentColor" trackColor="transparent" />}
-        </span>
+        {asChild ? <Slot.Slottable>{slottedContent}</Slot.Slottable> : content}
+        {!hasIcon && spinner()}
       </Comp>
     </>
   )

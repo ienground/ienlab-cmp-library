@@ -8,6 +8,7 @@ import {
 import {
   createContext,
   createElement,
+  Fragment,
   useCallback,
   useContext,
   useMemo,
@@ -86,6 +87,17 @@ export function playgroundComponent<C extends ElementType>(
       const icon = iconSelection(value);
       if (icon !== undefined) merged[name] = icon === "none" ? null : createElement(playgroundIcons[icon]);
     }
+    if (target.endsWith("#Button") && Object.hasOwn(overrides, "icon")) {
+      const icon = iconSelection(overrides.icon);
+      delete merged.icon;
+      if (icon && icon !== "none") {
+        const iconProps = { "data-icon": "inline-start", "aria-hidden": true };
+        merged.children = createElement(Fragment, null,
+          createElement(playgroundIcons[icon], iconProps),
+          merged.children as ReactNode,
+        );
+      }
+    }
     for (const name of conflictingProps(overrides)) delete merged[name];
     if (typeof overrides.multiple === "boolean" && merged.value !== undefined) {
       if (overrides.multiple && !Array.isArray(merged.value))
@@ -129,6 +141,8 @@ export function playgroundExample(
       if (conflicts.includes(attribute.name))
         edits.push({ start: attribute.start, end: attribute.end, text: "" });
     const { children, ...props } = overrides;
+    const buttonIcon = edit.key.endsWith("#Button") ? iconSelection(props.icon) : undefined;
+    if (buttonIcon !== undefined) delete props.icon;
     if (Object.keys(props).length) {
       const text = Object.entries(props)
         .map(([name, value]) => `${JSON.stringify(name)}: ${codeValue(value)}`)
@@ -139,12 +153,18 @@ export function playgroundExample(
         text: ` {...{ ${text} }}`,
       });
     }
-    if (children !== undefined && edit.childrenEnd !== undefined)
+    if ((children !== undefined || buttonIcon !== undefined) && edit.childrenEnd !== undefined) {
+      const content = children !== undefined
+        ? `{${codeValue(children)}}`
+        : source.slice(edit.childrenStart, edit.childrenEnd);
       edits.push({
         start: edit.childrenStart,
         end: edit.childrenEnd,
-        text: `{${codeValue(children)}}`,
+        text: buttonIcon && buttonIcon !== "none"
+          ? `<${buttonIcon} data-icon="inline-start" aria-hidden />${content}`
+          : content,
       });
+    }
   }
   const result = edits
     .sort((a, b) => b.start - a.start)
@@ -321,7 +341,7 @@ export function WebPlayground({
     if (prop.kind === "icon")
       return (
         <select id={id} aria-label={path} className="playground-select"
-          value={iconSelection(value) ?? "default"}
+          value={iconSelection(value ?? prop.defaultValue) ?? "default"}
           onChange={(event) => event.target.value === "default" ? clear() : change({ playgroundIcon: event.target.value })}>
           <option value="default">예시 기본값</option>
           <option value="none">없음</option>

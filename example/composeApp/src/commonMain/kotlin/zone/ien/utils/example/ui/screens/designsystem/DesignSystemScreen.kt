@@ -813,6 +813,7 @@ private val AdditionalComponentPlaygroundControls = mapOf(
     "button" to listOf(
         choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
         textControl("text", "버튼 레이블", "속성 적용 미리보기"),
+        choiceControl("icon", "아이콘", listOf("None", "Check", "Add", "Edit", "Close"), "None"),
         numberControl("contentPadding", "안쪽 여백", 16, 0, 32),
         numberControl("verticalContentPadding", "상하 안쪽 여백", 8, 0, 32),
     ),
@@ -2341,6 +2342,16 @@ fun ButtonSection(controls: Map<String, String> = emptyMap()) {
                 },
                 display = display,
             ) {
+                val icon = when (controls.enumValue("icon", "None")) {
+                    "Check" -> SystemIcons.Check
+                    "Add" -> SystemIcons.Add
+                    "Edit" -> SystemIcons.Edit
+                    "Close" -> SystemIcons.Close
+                    else -> null
+                }
+                if (icon != null) {
+                    IenIcon(icon = IconData.Vector(icon), contentDescription = null)
+                }
                 Text(controls.textValue("text", "속성 적용 미리보기"))
             }
             if (!LocalComponentVariantShowcase.current) {

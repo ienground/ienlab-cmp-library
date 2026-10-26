@@ -784,6 +784,16 @@ export function createPlaygroundCatalog(items, previews) {
         if (["value", "defaultValue", "loadKey"].includes(prop.name) && /^(?:any|unknown|T|Value)$/.test(prop.type)) prop.kind = "text";
         if (["value", "defaultValue"].includes(prop.name) && /AriaCombobox.*(?:inputValue|defaultInputValue)/.test(prop.type)) prop.kind = "text";
       }
+      if (binding.name === "Button") {
+        props.set("icon", {
+          name: "icon",
+          type: "React.ReactNode",
+          kind: "icon",
+          optional: true,
+          defaultValue: { playgroundIcon: "none" },
+          description: "버튼 콘텐츠 앞에 표시할 아이콘입니다.",
+        });
+      }
       const textChildren =
         node.children.length > 0 &&
         node.children.every(
