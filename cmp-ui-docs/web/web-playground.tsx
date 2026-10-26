@@ -1,5 +1,10 @@
 import { Typography } from "@/components/ui/typography";
-import { CheckIcon, XIcon, SunIcon, MoonIcon } from "lucide-react";
+import {
+  IconCheck as CheckIcon,
+  IconX as XIcon,
+  IconSun as SunIcon,
+  IconMoon as MoonIcon,
+} from "@tabler/icons-react";
 import {
   createContext,
   createElement,
@@ -35,6 +40,12 @@ const controlledPairs = {
 };
 const remountProp = /^(?:default|value$|checked$|open$|multiple$)/;
 const playgroundIcons = { CheckIcon, XIcon, SunIcon, MoonIcon };
+const playgroundIconExports = {
+  CheckIcon: "IconCheck",
+  XIcon: "IconX",
+  SunIcon: "IconSun",
+  MoonIcon: "IconMoon",
+};
 const iconLabels = { CheckIcon: "체크", XIcon: "닫기", SunIcon: "해", MoonIcon: "달" };
 function iconSelection(value: unknown): keyof typeof playgroundIcons | "none" | undefined {
   if (!value || typeof value !== "object" || !("playgroundIcon" in value)) return undefined;
@@ -143,10 +154,11 @@ export function playgroundExample(
     );
   const icons = [...new Set(Object.values(values).flatMap((props) => Object.values(props).map(iconSelection)))]
     .filter((name): name is keyof typeof playgroundIcons => name !== undefined && name !== "none");
-  const imported = [...source.matchAll(/import\s*\{([^}]+)\}\s*from\s*["']lucide-react["']/g)]
-    .flatMap((match) => match[1].split(",").map((name) => name.trim()));
+  const imported = [...source.matchAll(/import\s*\{([^}]+)\}\s*from\s*["']@tabler\/icons-react["']/g)]
+    .flatMap((match) => match[1].split(",").map((name) => name.trim().split(/\s+as\s+/).at(-1)));
   const missing = icons.filter((name) => !imported.includes(name));
-  return missing.length ? `import { ${missing.join(", ")} } from "lucide-react"\n${result}` : result;
+  const names = missing.map((name) => `${playgroundIconExports[name]} as ${name}`);
+  return names.length ? `import { ${names.join(", ")} } from "@tabler/icons-react"\n${result}` : result;
 }
 function eventValue(value: unknown): unknown {
   if (value === null || ["string", "number", "boolean"].includes(typeof value))

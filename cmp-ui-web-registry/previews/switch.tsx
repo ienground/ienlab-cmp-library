@@ -1,6 +1,6 @@
 import { Field, FieldLabel } from "@/components/ui/field"
 import { Switch } from "@/components/ui/switch"
-import { CheckIcon, XIcon } from "lucide-react"
+import { IconCheck as CheckIcon, IconX as XIcon } from "@tabler/icons-react"
 
 export function Pattern() {
   return (

@@ -186,11 +186,11 @@ for (const [file] of sourceFiles) {
   moduleNames.set(alias.replace(/\.tsx?$/, ""), owner(file));
 }
 
-const lucide = await import("lucide-react");
-const icons = new Set(["SquareIcon"]);
+const tabler = await import("@tabler/icons-react");
+const icons = new Set(["IconSquareRounded"]);
 function walk(node) {
   if (!node || typeof node !== "object") return;
-  if (node.type === "StringLiteral" && /^[A-Z]\w+$/.test(node.value) && node.value in lucide) icons.add(node.value);
+  if (node.type === "JSXAttribute" && node.name?.name === "tabler" && node.value?.type === "StringLiteral" && node.value.value in tabler) icons.add(node.value.value);
   for (const value of Object.values(node)) {
     if (Array.isArray(value)) value.forEach(walk);
     else if (value && typeof value === "object") walk(value);
@@ -198,7 +198,7 @@ function walk(node) {
 }
 for (const content of sourceFiles.values()) walk(parse(content, { sourceType: "module", plugins: ["typescript", "jsx"] }));
 const names = [...icons].sort();
-sourceFiles.set("lib/reui-icons.tsx", `import { ${names.join(", ")} } from "lucide-react";\nimport type { ComponentProps } from "react";\n\nconst icons = { ${names.join(", ")} };\ntype IconProps = ComponentProps<typeof SquareIcon> & { lucide?: string; tabler?: string; hugeicons?: string; phosphor?: string; remixicon?: string };\nexport function IconPlaceholder({ lucide, tabler: _tabler, hugeicons: _hugeicons, phosphor: _phosphor, remixicon: _remixicon, ...props }: IconProps) {\n  const Icon = lucide && Object.hasOwn(icons, lucide) ? icons[lucide as keyof typeof icons] : SquareIcon;\n  return <Icon {...props} />;\n}\n`);
+sourceFiles.set("lib/reui-icons.tsx", `import { ${names.join(", ")} } from "@tabler/icons-react";\nimport type { ComponentProps } from "react";\n\nconst icons = { ${names.join(", ")} };\ntype IconProps = ComponentProps<typeof IconSquareRounded> & { lucide?: string; tabler?: string; hugeicons?: string; phosphor?: string; remixicon?: string };\nexport function IconPlaceholder({ tabler, lucide: _lucide, hugeicons: _hugeicons, phosphor: _phosphor, remixicon: _remixicon, ...props }: IconProps) {\n  const Icon = tabler && Object.hasOwn(icons, tabler) ? icons[tabler as keyof typeof icons] : IconSquareRounded;\n  return <Icon {...props} />;\n}\n`);
 moduleNames.set("@/lib/reui-icons", "reui-icons");
 
 const items = new Map();
@@ -221,7 +221,7 @@ for (const module of modules.values()) {
     items.set(name, item);
   }
 }
-items.set("reui-icons", { name: "reui-icons", type: "registry:lib", dependencies: ["lucide-react"], files: [{ path: "lib/reui-icons.tsx", type: "registry:lib", target: "@lib/reui-icons.tsx" }] });
+items.set("reui-icons", { name: "reui-icons", type: "registry:lib", dependencies: ["@tabler/icons-react"], files: [{ path: "lib/reui-icons.tsx", type: "registry:lib", target: "@lib/reui-icons.tsx" }] });
 
 const upstreamPackage = JSON.parse(await download("package.json"));
 const packageFile = path.join(repository, "cmp-ui-docs/package.json");

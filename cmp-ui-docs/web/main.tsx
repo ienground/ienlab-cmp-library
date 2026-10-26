@@ -10,19 +10,19 @@ import {
   useState,
 } from "react";
 import { createRoot } from "react-dom/client";
-import { RiGithubFill } from "@remixicon/react";
 import type { CatalogItem } from "./catalog.js";
 import {
-  ArrowUpRight,
-  Command,
-  Info,
-  Menu,
-  Monitor,
-  Moon,
-  Search,
-  Sun,
-  X,
-} from "lucide-react";
+  IconArrowUpRight as ArrowUpRight,
+  IconBrandGithub,
+  IconCommand as Command,
+  IconInfoCircle as Info,
+  IconMenu2 as Menu,
+  IconDeviceDesktop as Monitor,
+  IconMoon as Moon,
+  IconSearch as Search,
+  IconSun as Sun,
+  IconX as X,
+} from "@tabler/icons-react";
 import {
   BrowserRouter,
   Link,
@@ -537,7 +537,7 @@ function ComponentPage({
               target="_blank"
               aria-label="GitHub 저장소"
             >
-              <RiGithubFill aria-hidden="true" />
+              <IconBrandGithub aria-hidden="true" />
             </a>
           </Button>
         </div>

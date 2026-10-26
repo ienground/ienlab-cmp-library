@@ -7,7 +7,14 @@ import { Badge } from "@/components/reui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ChevronDown, ChevronUp, Copy, Plus, RotateCcw, Trash2 } from "lucide-react";
+import {
+  IconChevronDown as ChevronDown,
+  IconChevronUp as ChevronUp,
+  IconCopy as Copy,
+  IconPlus as Plus,
+  IconRestore as RotateCcw,
+  IconTrash as Trash2,
+} from "@tabler/icons-react";
 import { DropdownMenu } from "radix-ui";
 import { highlightKotlin } from "./ColorSchemeBuilder";
 import { copyTextToClipboard } from "./clipboard";

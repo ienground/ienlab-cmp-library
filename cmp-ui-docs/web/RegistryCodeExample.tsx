@@ -1,6 +1,6 @@
 import { Typography } from "@/components/ui/typography";
 import { useState } from "react";
-import { Check, Copy } from "lucide-react";
+import { IconCheck as Check, IconCopy as Copy } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { CodeBlock } from "../../cmp-ui-web-registry/reui/code-block/code-block";
 import { copyTextToClipboard } from "./clipboard";

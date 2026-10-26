@@ -22,11 +22,13 @@ function declarationFile(source, from) {
 const parseSource = (source) =>
   parse(source, { sourceType: "module", plugins: ["typescript", "jsx"] });
 const singleExamples = {
+  rating: 'import { useState } from "react"\nimport { Rating } from "@/components/reui/rating"\n\nexport function Pattern() {\n  const [value, setValue] = useState(3.8)\n  return <Rating value={value} onValueChange={setValue} max={5} readOnly={false} size="medium" variant="full" disabled={false} enabled={true} ariaLabel="별점 평가" />\n}\nexport default Pattern\n',
+
   skeleton: "import { Skeleton } from \"@/components/ui/skeleton\"\n\nexport function Pattern() {\n  return <Skeleton pattern=\"TopListWithIcon\" background=\"Grey\" play=\"Show\" repeatLastItemCount={{ type: \"Count\", value: 3 }} />\n}\nexport default Pattern\n",
   "progress-indicator": "import { ProgressIndicator } from \"@/components/ui/progress-indicator\"\n\nexport function Pattern() {\n  return <ProgressIndicator variant=\"circular\" shape=\"wavy\" size={48} strokeWidth={4} />\n}\nexport default Pattern\n",
   "loading-indicator": "import { LoadingIndicator } from \"@/components/ui/loading-indicator\"\n\nexport function Pattern() {\n  return <LoadingIndicator size={48} />\n}\nexport default Pattern\n",
   switch:
-    'import { Switch } from "@/components/ui/switch"\nimport { CheckIcon, XIcon } from "lucide-react"\n\nexport function Pattern() {\n  return <Switch defaultChecked enabled onTrackContent={<CheckIcon />} offTrackContent={<XIcon />} aria-label="자동 적용" />\n}\nexport default Pattern\n',
+    'import { Switch } from "@/components/ui/switch"\nimport { IconCheck as CheckIcon, IconX as XIcon } from "@tabler/icons-react"\n\nexport function Pattern() {\n  return <Switch defaultChecked enabled onTrackContent={<CheckIcon />} offTrackContent={<XIcon />} aria-label="자동 적용" />\n}\nexport default Pattern\n',
 
   tabs:
     'import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"\n\nexport function Pattern() {\n  return (\n    <Tabs defaultValue="summary" size="large" fluid={false} ariaLabel="주문 정보 탭">\n      <TabsList>\n        <TabsTrigger value="summary">요약</TabsTrigger>\n        <TabsTrigger value="detail" badge={-1}>상세</TabsTrigger>\n        <TabsTrigger value="history" badge={120}>내역</TabsTrigger>\n      </TabsList>\n      <TabsContent value="summary">주문 요약을 확인합니다.</TabsContent>\n      <TabsContent value="detail">상세 정보를 확인합니다.</TabsContent>\n      <TabsContent value="history">이전 내역을 확인합니다.</TabsContent>\n    </Tabs>\n  )\n}\nexport default Pattern\n',
@@ -686,6 +688,14 @@ export function createPlaygroundCatalog(items, previews) {
             props.get(name).defaultValue = defaultValue;
         }
       for (const prop of props.values()) {
+        if (binding.name === "Rating") {
+          if (["rating", "maxRating", "editable", "onRatingChange", "showValue", "starClassName"].includes(prop.name)) {
+            props.delete(prop.name);
+            continue;
+          }
+          if (prop.name === "max") prop.defaultValue = 5;
+          if (prop.name === "value") prop.defaultValue = 3.8;
+        }
         if (binding.name === "Card") {
           if (prop.name === "contentPadding") {
             const padding = reference(file, "CardPadding");

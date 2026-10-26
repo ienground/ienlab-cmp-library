@@ -57,4 +57,4 @@ export default Pattern;
 "use client"
 
 import { useState } from "react"
-import { UserIcon, SettingsIcon } from "lucide-react"
+import { IconUser as UserIcon, IconSettings as SettingsIcon } from "@tabler/icons-react"
