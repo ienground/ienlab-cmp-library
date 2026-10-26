@@ -9,7 +9,11 @@ plugins {
 
 android {
     namespace = "zone.ien.utils.example"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk {
+        version = release(libs.versions.android.compileSdk.get().toInt()) {
+            minorApiLevel = 1
+        }
+    }
 
     defaultConfig {
         applicationId = "zone.ien.utils.example"

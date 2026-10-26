@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
+import androidx.window.core.layout.WindowSizeClass
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import zone.ien.utils.icon.IconStyle
@@ -131,6 +133,13 @@ fun HomeScreen(
     var bottomText by remember { mutableStateOf("") }
     var nativeInputText by remember { mutableStateOf("") }
     var textFieldText by remember { mutableStateOf("") }
+    val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
+    val useTwoColumns = windowSizeClass.isWidthAtLeastBreakpoint(
+        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+    )
+    val menuColumns = if (
+        windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_LARGE_LOWER_BOUND)
+    ) 3 else 2
 
     IenAdaptiveTheme(
         target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
@@ -299,240 +308,259 @@ fun HomeScreen(
             },
             modifier = modifier
         ) { pv, title ->
-            Column(
+            Row(
                 modifier = Modifier
                     .layerBackdrop(backdrop)
                     .verticalScroll(scrollState)
                     .padding(pv)
-                    .imePadding()
+                    .imePadding(),
             ) {
-                title()
-                IenTextField(
-                    value = bottomText,
-                    onValueChange = { bottomText = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .keyboardDismissAction()
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(horizontal = IenTheme.spacing.md)
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        text = "set material3",
-                        modifier = Modifier.weight(1f)
+                Column(modifier = Modifier.weight(1f)) {
+                    title()
+                    IenTextField(
+                        value = bottomText,
+                        onValueChange = { bottomText = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .keyboardDismissAction()
                     )
-                    AdaptiveSwitch(
-                        checked = isMaterialTheme,
-                        onCheckedChange = { isMaterialTheme = it }
-                    )
-                }
-                Column(
-                    modifier = Modifier.padding(horizontal = IenTheme.spacing.md),
-                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-                ) {
-                    Text(text = "아이콘 스타일")
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(horizontal = IenTheme.spacing.md)
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "set material3",
+                            modifier = Modifier.weight(1f)
+                        )
+                        AdaptiveSwitch(
+                            checked = isMaterialTheme,
+                            onCheckedChange = { isMaterialTheme = it }
+                        )
+                    }
+                    Column(
+                        modifier = Modifier.padding(horizontal = IenTheme.spacing.md),
                         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                     ) {
-                        val iconStyles = listOf(
-                            IconStyle.Tabler to "Tabler",
-                            IconStyle.Material.Filled to "Material Filled",
-                            IconStyle.Material.Rounded to "Material Rounded",
-                            IconStyle.Material.Sharp to "Material Sharp",
-                        )
-                        iconStyles.forEach { (style, label) ->
-                            CompositionLocalProvider(LocalIconStyle provides style) {
-                                IenFilterChip(
-                                    selected = iconStyle == style,
-                                    onSelectedChange = { onIconStyleChange(style) },
-                                    leadingIcon = { IenIcon(IconData.Vector(SystemIcons.Search), contentDescription = null) },
-                                    label = { Text(text = label) },
-                                )
+                        Text(text = "아이콘 스타일")
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                        ) {
+                            val iconStyles = listOf(
+                                IconStyle.Tabler to "Tabler",
+                                IconStyle.Material.Filled to "Material Filled",
+                                IconStyle.Material.Rounded to "Material Rounded",
+                                IconStyle.Material.Sharp to "Material Sharp",
+                            )
+                            iconStyles.forEach { (style, label) ->
+                                CompositionLocalProvider(LocalIconStyle provides style) {
+                                    IenFilterChip(
+                                        selected = iconStyle == style,
+                                        onSelectedChange = { onIconStyleChange(style) },
+                                        leadingIcon = { IenIcon(IconData.Vector(SystemIcons.Search), contentDescription = null) },
+                                        label = { Text(text = label) },
+                                    )
+                                }
                             }
                         }
                     }
-                }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(horizontal = IenTheme.spacing.md)
-                        .fillMaxWidth()
-                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(horizontal = IenTheme.spacing.md)
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "isDropdownMenu",
+                            modifier = Modifier.weight(1f)
+                        )
+                        AdaptiveSwitch(
+                            checked = isDropdownMenu,
+                            onCheckedChange = { isDropdownMenu = it }
+                        )
+                    }
                     Text(
-                        text = "isDropdownMenu",
-                        modifier = Modifier.weight(1f)
+                        text = "result: ${resultStore.getResult<String>("text")}"
                     )
-                    AdaptiveSwitch(
-                        checked = isDropdownMenu,
-                        onCheckedChange = { isDropdownMenu = it }
-                    )
-                }
-                Text(
-                    text = "result: ${resultStore.getResult<String>("text")}"
-                )
-                val onBackPressed = rememberRepeatClick(
-                    onClick = {
-                        coroutineScope.launch {
-                            snackbarState.showSnackbar("한번더")
+                    val onBackPressed = rememberRepeatClick(
+                        onClick = {
+                            coroutineScope.launch {
+                                snackbarState.showSnackbar("한번더")
+                            }
+                        },
+                        onNthClick = {
+                            moveToBackground()
                         }
-                    },
-                    onNthClick = {
-                        moveToBackground()
-                    }
-                )
+                    )
 
-                IenButton(
-                    onClick = onBackPressed,
-                    variant = IenButtonVariant.Weak,
-                    display = IenButtonDisplay.Full,
-                ) {
-                    Text("move to background")
-                }
-                IenButton(
-                    onClick = {
-                        shareText("text share")
-                    },
-                    variant = IenButtonVariant.Fill,
-                    display = IenButtonDisplay.Full,
-                ) {
-                    Text("Text share")
-                }
-                AnimatedVisibility(
-                    visible = !isDropdownMenu,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .padding(horizontal = IenTheme.spacing.md)
-                            .fillMaxWidth()
+                    IenButton(
+                        onClick = onBackPressed,
+                        variant = IenButtonVariant.Weak,
+                        display = IenButtonDisplay.Full,
                     ) {
-                        Text(
-                            text = "showVisible",
-                            modifier = Modifier.weight(1f)
-                        )
-                        AdaptiveSwitch(
-                            checked = showVisible,
-                            onCheckedChange = { showVisible = it }
-                        )
+                        Text("move to background")
                     }
-                }
-                AnimatedVisibility(
-                    visible = !isDropdownMenu,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .padding(horizontal = IenTheme.spacing.md)
-                            .fillMaxWidth()
+                    IenButton(
+                        onClick = {
+                            shareText("text share")
+                        },
+                        variant = IenButtonVariant.Fill,
+                        display = IenButtonDisplay.Full,
                     ) {
-                        Text(
-                            text = "real single",
-                            modifier = Modifier.weight(1f)
-                        )
-                        AdaptiveSwitch(
-                            checked = showSingle,
-                            onCheckedChange = { showSingle = it }
-                        )
+                        Text("Text share")
                     }
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(horizontal = IenTheme.spacing.md)
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        text = "all invisible",
-                        modifier = Modifier.weight(1f)
-                    )
-                    AdaptiveSwitch(
-                        checked = allInvisible,
-                        onCheckedChange = { allInvisible = it }
-                    )
-                }
-
-                // --- 2-column grid menu ---
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.xs),
-                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
-                ) {
-                    Text(
-                        text = "MENU",
-                        style = IenTheme.typography.title2.copy(fontWeight = FontWeight.Bold),
-                        color = IenTheme.colors.textPrimary,
-                    )
-                    menuItems.chunked(2).forEach { rowItems ->
+                    AnimatedVisibility(
+                        visible = !isDropdownMenu,
+                    ) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .padding(horizontal = IenTheme.spacing.md)
+                                .fillMaxWidth()
                         ) {
-                            rowItems.forEach { item ->
-                                HomeMenuCard(
-                                    name = item.name,
-                                    color = item.color,
-                                    onClick = { backStack.add(item.route) },
-                                    modifier = Modifier.weight(1f),
-                                )
-                            }
-                            if (rowItems.size == 1) {
-                                Spacer(modifier = Modifier.weight(1f))
-                            }
+                            Text(
+                                text = "showVisible",
+                                modifier = Modifier.weight(1f)
+                            )
+                            AdaptiveSwitch(
+                                checked = showVisible,
+                                onCheckedChange = { showVisible = it }
+                            )
                         }
                     }
+                    AnimatedVisibility(
+                        visible = !isDropdownMenu,
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .padding(horizontal = IenTheme.spacing.md)
+                                .fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "real single",
+                                modifier = Modifier.weight(1f)
+                            )
+                            AdaptiveSwitch(
+                                checked = showSingle,
+                                onCheckedChange = { showSingle = it }
+                            )
+                        }
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(horizontal = IenTheme.spacing.md)
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "all invisible",
+                            modifier = Modifier.weight(1f)
+                        )
+                        AdaptiveSwitch(
+                            checked = allInvisible,
+                            onCheckedChange = { allInvisible = it }
+                        )
+                    }
+
+                    if (!useTwoColumns) {
+                        HomeMenuGrid(columns = menuColumns, onNavigate = { backStack.add(it) })
+                    }
+                    IenTextField(
+                        value = nativeInputText,
+                        onValueChange = { nativeInputText = it },
+                        keyboardOptions = KeyboardOptions.Default.enableNativeInput(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .keyboardDismissAction()
+                    )
+                    IenTextField(
+                        value = textFieldText,
+                        onValueChange = { textFieldText = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .keyboardDismissAction()
+                    )
+                    BasicTextField(
+                        state = rememberTextFieldState(),
+                        keyboardOptions = KeyboardOptions.Default.enableNativeInput(),
+                        decorator = TextFieldDecorator { innerTextField ->
+                            Box(
+                                modifier = Modifier.background(Color.Yellow)
+                            ) {
+                                innerTextField()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .keyboardDismissAction()
+                    )
+                    BasicTextField(
+                        state = rememberTextFieldState(),
+                        decorator = TextFieldDecorator { innerTextField ->
+                            Box(
+                                modifier = Modifier.background(Color.Yellow)
+                            ) {
+                                innerTextField()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .keyboardDismissAction()
+                    )
+                    Spacer(modifier = Modifier.height(96.dp))
                 }
-                IenTextField(
-                    value = nativeInputText,
-                    onValueChange = { nativeInputText = it },
-                    keyboardOptions = KeyboardOptions.Default.enableNativeInput(),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .keyboardDismissAction()
-                )
-                IenTextField(
-                    value = textFieldText,
-                    onValueChange = { textFieldText = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .keyboardDismissAction()
-                )
-                BasicTextField(
-                    state = rememberTextFieldState(),
-                    keyboardOptions = KeyboardOptions.Default.enableNativeInput(),
-                    decorator = TextFieldDecorator { innerTextField ->
-                        Box(
-                            modifier = Modifier.background(Color.Yellow)
-                        ) {
-                            innerTextField()
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .keyboardDismissAction()
-                )
-                BasicTextField(
-                    state = rememberTextFieldState(),
-                    decorator = TextFieldDecorator { innerTextField ->
-                        Box(
-                            modifier = Modifier.background(Color.Yellow)
-                        ) {
-                            innerTextField()
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .keyboardDismissAction()
-                )
-                Spacer(modifier = Modifier.height(96.dp))
+                if (useTwoColumns) {
+                    HomeMenuGrid(
+                        columns = menuColumns,
+                        onNavigate = { backStack.add(it) },
+                        modifier = Modifier.weight(1f).padding(top = IenTheme.spacing.md),
+                    )
+                }
             }
         }
     }
 
+}
+
+@Composable
+private fun HomeMenuGrid(
+    columns: Int,
+    onNavigate: (RootRoute) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.xs),
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+    ) {
+        Text(
+            text = "MENU",
+            style = IenTheme.typography.title2.copy(fontWeight = FontWeight.Bold),
+            color = IenTheme.colors.textPrimary,
+        )
+        menuItems.chunked(columns).forEach { rowItems ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+            ) {
+                rowItems.forEach { item ->
+                    HomeMenuCard(
+                        name = item.name,
+                        color = item.color,
+                        onClick = { onNavigate(item.route) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                repeat(columns - rowItems.size) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
+        }
+    }
 }
 
 @Composable

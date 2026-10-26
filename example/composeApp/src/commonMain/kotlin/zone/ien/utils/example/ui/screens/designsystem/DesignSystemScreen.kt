@@ -34,6 +34,8 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.navigation3.LocalListDetailSceneScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -43,6 +45,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
@@ -1407,6 +1410,7 @@ internal fun DesignSystemPlayground(
     }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Preview
 @Composable
 fun DesignSystemScreen(
@@ -1421,26 +1425,31 @@ fun DesignSystemScreen(
         val toastState = LocalIenToastState.current
         val coroutineScope = rememberCoroutineScope()
         val scrollState = rememberScrollState()
-        var query by remember { mutableStateOf("") }
-        var selectedCategory by remember { mutableStateOf("전체") }
+        var query by rememberSaveable { mutableStateOf("") }
+        var selectedCategory by rememberSaveable { mutableStateOf("전체") }
         val selectedComponent = DesignSystemComponents.firstOrNull { it.id == componentId }
+        val isSplitLayout = LocalListDetailSceneScope.current != null
+        val isListPane = selectedComponent == null && isSplitLayout
+        val showBackButton = selectedComponent == null || !isSplitLayout
 
         IenScaffold(
             modifier = modifier,
             contentEdge = IenScaffoldContentEdge(scrollableState = scrollState),
             topBar = {
                 IenTopBar(
-                    title = selectedComponent?.name ?: "Ien CMP UI",
-                    subtitle = if (selectedComponent == null) {
-                        "토큰 기반 모바일 디자인 시스템"
-                    } else {
-                        selectedComponent.category
+                    title = selectedComponent?.name ?: if (isListPane) "Ien UI" else "Ien CMP UI",
+                    subtitle = when {
+                        selectedComponent != null -> selectedComponent.category
+                        isListPane -> null
+                        else -> "토큰 기반 모바일 디자인 시스템"
                     },
-                    navigationIcon = {
-                        IenTextButton(onClick = navigateBack) {
-                            Text(if (selectedComponent == null) "닫기" else "목록")
+                    navigationIcon = if (showBackButton) {
+                        {
+                            IenTextButton(onClick = navigateBack) {
+                                Text(if (selectedComponent == null) "닫기" else "목록")
+                            }
                         }
-                    },
+                    } else null,
                     actions = {
                         IenTextButton(onClick = navigateToColor) {
                             Text("컬러 스킴")
