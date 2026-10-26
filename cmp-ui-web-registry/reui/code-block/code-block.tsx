@@ -1,6 +1,6 @@
 "use client"
 import type { IenToneProps } from "@/lib/ien-theme"
-import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
+import { IenThemeContext, useIenLanguage, useIenTheme } from "@/lib/ien-theme-context"
 
 // Title: Code Block
 // Description: Shadcn code block with Shiki highlighting, streaming, diffs, folding and per-line interaction for AI chat UIs.
@@ -488,6 +488,7 @@ const CodeBlockLineRow = memo(function CodeBlockLineRow({
   folded,
   onToggleFold,
 }: CodeBlockLineRowProps) {
+  const uiLanguage = useIenLanguage()
   const state = line.state
   const blurred = focusMode && !state?.focused
   const lineDomId = domIdBase ? `${domIdBase}-L${line.number}` : undefined
@@ -558,8 +559,12 @@ const CodeBlockLineRow = memo(function CodeBlockLineRow({
           aria-expanded={!folded}
           aria-label={
             folded
-              ? `Unfold lines ${foldRegion.start + startLine - 1} to ${foldRegion.end + startLine - 1}`
-              : `Fold lines ${foldRegion.start + startLine - 1} to ${foldRegion.end + startLine - 1}`
+              ? uiLanguage === "ko"
+                ? `${foldRegion.start + startLine - 1}–${foldRegion.end + startLine - 1}줄 펼치기`
+                : `Unfold lines ${foldRegion.start + startLine - 1} to ${foldRegion.end + startLine - 1}`
+              : uiLanguage === "ko"
+                ? `${foldRegion.start + startLine - 1}–${foldRegion.end + startLine - 1}줄 접기`
+                : `Fold lines ${foldRegion.start + startLine - 1} to ${foldRegion.end + startLine - 1}`
           }
           onClick={(event) => {
             /* The row itself may be a selection target, and a fold is not a
@@ -651,7 +656,7 @@ const CodeBlockLineRow = memo(function CodeBlockLineRow({
             type="button"
             tabIndex={selectable ? -1 : undefined}
             data-slot="code-block-fold-marker"
-            aria-label={`Unfold ${hiddenCount} hidden lines`}
+            aria-label={uiLanguage === "ko" ? `숨겨진 ${hiddenCount}줄 펼치기` : `Unfold ${hiddenCount} hidden lines`}
             onClick={(event) => {
               event.stopPropagation()
               onToggleFold?.(line.number)
@@ -662,7 +667,7 @@ const CodeBlockLineRow = memo(function CodeBlockLineRow({
                instead of riding high. */
             className="bg-muted/80 text-muted-foreground hover:bg-muted ml-2 inline-flex h-(--code-block-fold-width) translate-y-[calc((var(--code-block-line-height)-var(--code-block-fold-width))/2)] cursor-pointer items-center rounded-sm px-1.5 align-top text-[0.8em] leading-none select-none"
           >
-            {`... ${hiddenCount} lines`}
+            {uiLanguage === "ko" ? `... ${hiddenCount}줄` : `... ${hiddenCount} lines`}
           </button>
         ) : null}
         {caret ? (
@@ -779,6 +784,7 @@ function CodeBlock({
   ...props
 }: CodeBlockProps & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const uiLanguage = useIenLanguage()
   const contentId = useId()
   const source = code ?? ""
   const resolvedLanguage = resolveCodeBlockLanguage(language)
@@ -1211,7 +1217,7 @@ function CodeBlock({
     toggleLine,
     visibleLines,
     streaming,
-    label: label ?? (language ? `${language} code` : "Code"),
+    label: label ?? (language ? `${language} ${uiLanguage === "ko" ? "코드" : "code"}` : uiLanguage === "ko" ? "코드" : "Code"),
     contentId,
     actions: lineActions,
     completeAnnouncement,
@@ -1375,6 +1381,7 @@ function CodeBlockSurface({
   className,
 }: CodeBlockSurfaceProps & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const uiLanguage = useIenLanguage()
   const viewportRef = useRef<HTMLDivElement | null>(null)
   const preRef = useRef<HTMLPreElement | null>(null)
   const [activeLine, setActiveLine] = useState<number | null>(null)
@@ -1391,11 +1398,11 @@ function CodeBlockSurface({
     if (wasStreaming.current && !streaming) {
       setAnnouncement(
         completeAnnouncement ??
-          `Code generation complete, ${lines.length} lines.`
+          (uiLanguage === "ko" ? `코드 생성 완료, ${lines.length}줄.` : `Code generation complete, ${lines.length} lines.`)
       )
     }
     wasStreaming.current = streaming
-  }, [streaming, lines.length, completeAnnouncement])
+  }, [streaming, lines.length, completeAnnouncement, uiLanguage])
 
   /* Stick-to-bottom follows whichever element ACTUALLY scrolls - writing
      scrollTop to the composed mode's inert viewport was a silent no-op.
@@ -1865,6 +1872,7 @@ function CodeBlockCopyButton({
   ...props
 }: CodeBlockCopyButtonProps & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const uiLanguage = useIenLanguage()
   const context = useContext(CodeBlockConfigContext)
   const inHeader = useContext(CodeBlockHeaderContext)
   const [copied, setCopied] = useState(false)
@@ -1931,7 +1939,9 @@ function CodeBlockCopyButton({
       data-copy-failed={copyFailed || undefined}
       data-position={resolvedPosition}
       aria-label={
-        copied ? (labels?.copied ?? "Copied") : (labels?.copy ?? "Copy code")
+        copied
+          ? (labels?.copied ?? (uiLanguage === "ko" ? "복사됨" : "Copied"))
+          : (labels?.copy ?? (uiLanguage === "ko" ? "코드 복사" : "Copy code"))
       }
       variant={variant}
       size={resolvedSize}
@@ -1970,6 +1980,7 @@ function CodeBlockWrapToggle({
   ...props
 }: ComponentProps<typeof Button> & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const uiLanguage = useIenLanguage()
   const { wrap, setWrap } = useInternalConfig("CodeBlockWrapToggle")
 
   return (
@@ -1990,7 +2001,7 @@ function CodeBlockWrapToggle({
       className={cn("shrink-0", className)}
       {...props}
     >
-      {children ?? (wrap ? "No wrap" : "Wrap")}
+      {children ?? (uiLanguage === "ko" ? (wrap ? "줄바꿈 안 함" : "줄바꿈") : (wrap ? "No wrap" : "Wrap"))}
     </Button>
   )
 }
@@ -2012,6 +2023,7 @@ function CodeBlockExpandButton({
   ...props
 }: ComponentProps<typeof Button> & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const uiLanguage = useIenLanguage()
   const { expanded, setExpanded, collapsible, contentId } = useInternalConfig(
     "CodeBlockExpandButton"
   )
@@ -2051,7 +2063,7 @@ function CodeBlockExpandButton({
         }}
         {...props}
       >
-        {children ?? (expanded ? "Show less" : "Show more")}
+        {children ?? (uiLanguage === "ko" ? (expanded ? "접기" : "더 보기") : (expanded ? "Show less" : "Show more"))}
       </Button>
     </div>
   )
@@ -2142,6 +2154,7 @@ function CodeBlockDownloadButton({
   ...props
 }: CodeBlockDownloadButtonProps & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const uiLanguage = useIenLanguage()
   const context = useContext(CodeBlockConfigContext)
   const document_ = useContext(CodeBlockDocumentContext)
   const inHeader = useContext(CodeBlockHeaderContext)
@@ -2180,7 +2193,7 @@ function CodeBlockDownloadButton({
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       data-position={resolvedPosition}
-      aria-label={label ?? "Download code"}
+      aria-label={label ?? (uiLanguage === "ko" ? "코드 다운로드" : "Download code")}
       variant={variant}
       size={resolvedSize}
       onClick={handleClick}

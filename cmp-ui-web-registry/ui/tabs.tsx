@@ -1,7 +1,7 @@
 "use client"
 
 import type { IenToneProps } from "@/lib/ien-theme"
-import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
+import { IenThemeContext, useIenLanguage, useIenTheme } from "@/lib/ien-theme-context"
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
@@ -24,6 +24,7 @@ export interface TabItem {
 interface TabLayout {
   size: TabSize
   fluid: boolean
+  language: "ko" | "en"
   itemGap?: number
   ariaLabel?: string
   onValuesChange?: (values: string[]) => void
@@ -31,7 +32,7 @@ interface TabLayout {
 }
 
 const TabLayoutContext = React.createContext<TabLayout>({
-  size: "large", fluid: false, orientation: "horizontal",
+  size: "large", fluid: false, language: "en", orientation: "horizontal",
 })
 
 export type TabsProps = Omit<React.ComponentProps<typeof TabsPrimitive.Root>, "onChange"> & IenToneProps & {
@@ -54,12 +55,13 @@ function Tabs({
   ...props
 }: TabsProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const language = useIenLanguage("ko")
   const [registeredValues, setRegisteredValues] = React.useState<string[]>([])
   const [localValue, setLocalValue] = React.useState(defaultValue)
   const onValuesChange = React.useCallback((next: string[]) => {
     setRegisteredValues((previous) => previous.length === next.length && previous.every((value, index) => value === next[index]) ? previous : next)
   }, [])
-  const layout = React.useMemo(() => ({ size, fluid, itemGap, ariaLabel, orientation, onValuesChange }), [size, fluid, itemGap, ariaLabel, orientation, onValuesChange])
+  const layout = React.useMemo(() => ({ size, fluid, language, itemGap, ariaLabel, orientation, onValuesChange }), [size, fluid, language, itemGap, ariaLabel, orientation, onValuesChange])
   const values = items ? items.map((_, index) => String(index)) : registeredValues
   return (
     <IenThemeContext.Provider value={ienTheme}>
@@ -81,7 +83,7 @@ function Tabs({
           {...props}
         >
           {items && (
-            <TabsList aria-label={ariaLabel ?? "탭 목록"}>
+            <TabsList aria-label={ariaLabel ?? (language === "ko" ? "탭 목록" : "Tabs")}>
               {items.map((item, index) => (
                 <TabsTrigger key={item.key ?? index} value={String(index)} disabled={item.enabled === false}
                   aria-label={item.ariaLabel} badge={item.badge} redBean={item.redBean}
@@ -175,7 +177,7 @@ function TabsList({
         }}
         data-slot="tabs-list" data-ien="" data-ien-tone={ienTheme.tone} data-ien-gradient={ienTheme.useGradient}
         data-variant={variant} data-size={layout.size} data-fluid={layout.fluid}
-        aria-label={layout.ariaLabel ?? "탭 목록"}
+        aria-label={layout.ariaLabel ?? (layout.language === "ko" ? "탭 목록" : "Tabs")}
         className={cn(tabsListVariants({ variant }),
           layout.orientation === "vertical" ? "h-fit flex-col" : layout.size === "small" ? "h-10" : "h-12",
           layout.fluid
@@ -206,7 +208,7 @@ function TabsTrigger({
   selectedIcon?: React.ReactNode
 }) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
-  const { size, fluid, orientation } = React.useContext(TabLayoutContext)
+  const { size, fluid, orientation, language } = React.useContext(TabLayoutContext)
   const count = badge !== 0 ? badge : redBean ? -1 : 0
   return (
     <TabsPrimitive.Trigger
@@ -224,7 +226,7 @@ function TabsTrigger({
         {selectedIcon ? <><span aria-hidden="true" className="inline-flex group-data-[state=active]/tab:hidden">{icon}</span><span aria-hidden="true" className="hidden group-data-[state=active]/tab:inline-flex">{selectedIcon}</span></> : icon && <span aria-hidden="true" className="inline-flex">{icon}</span>}
         <span className="relative min-w-0">
           {children}
-          {count < 0 && <span data-slot="tabs-dot" aria-label="새 알림" className="absolute -top-px -end-[7px] size-[5px] rounded-full [--ien-control-corner-shape:round] [corner-shape:round] bg-(--ien-danger)" />}
+          {count < 0 && <span data-slot="tabs-dot" aria-label={language === "ko" ? "새 알림" : "New notification"} className="absolute -top-px -end-[7px] size-[5px] rounded-full [--ien-control-corner-shape:round] [corner-shape:round] bg-(--ien-danger)" />}
         </span>
         {count > 0 && <Badge size="small" variant="fill" tone="danger">{count > 99 ? "99+" : count}</Badge>}
       </span>

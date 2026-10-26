@@ -8,6 +8,9 @@ export type IenTone =
 
 export type IenVariant = "fill" | "weak" | "line" | "ghost"
 
+/** 내장 문구와 접근성 라벨에 사용하는 UI 언어입니다. */
+export type IenLanguage = "ko" | "en"
+
 export interface IenToneProps {
   /** CMP의 의미적 색상입니다. 생략하면 상위 컴포넌트의 tone을 따릅니다. */
   tone?: IenTone

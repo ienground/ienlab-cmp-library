@@ -1,7 +1,7 @@
 "use client"
 import { menuSurfaceClassName, menuBaseMotionClassName } from "@/lib/ien-menu"
 import type { IenToneProps } from "@/lib/ien-theme"
-import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
+import { IenThemeContext, useIenLanguage, useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import {
@@ -780,6 +780,7 @@ function Cascader<T>({
   children,
 }: CascaderProps<T> & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const language = useIenLanguage()
   const baseIndex = React.useMemo(
     () => buildCascaderIndex(items, getParent),
     // `getParent` is stable by design: an inline accessor must not rebuild a
@@ -794,8 +795,8 @@ function Cascader<T>({
   const stableLabelsProp = useShallowStable(labelsProp, shallowEqualRecords)
 
   const labels = React.useMemo(
-    () => resolveCascaderLabels(stableLabelsProp),
-    [stableLabelsProp]
+    () => resolveCascaderLabels(stableLabelsProp, language),
+    [stableLabelsProp, language]
   )
 
   useCascaderDevWarnings({

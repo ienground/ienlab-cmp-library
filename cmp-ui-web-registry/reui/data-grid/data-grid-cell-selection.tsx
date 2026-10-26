@@ -2545,7 +2545,7 @@ function DataGridSelectionBar({
   children,
   className,
   label,
-  clearLabel = "Clear",
+  clearLabel,
   onClear,
 }: {
   children?: ReactNode
@@ -2576,7 +2576,7 @@ function DataGridSelectionBar({
             )}
           >
             <span className="text-foreground text-sm font-medium">
-              {label ? label(count) : `${count} selected`}
+              {label ? label(count) : context.i18n.labels.selectionCount(count)}
             </span>
             <div className="flex flex-1 flex-wrap items-center justify-end gap-2.5">
               {children}
@@ -2588,7 +2588,7 @@ function DataGridSelectionBar({
                   onClear?.()
                 }}
               >
-                {clearLabel}
+                {clearLabel ?? context.i18n.labels.clearSelection}
               </Button>
             </div>
           </div>

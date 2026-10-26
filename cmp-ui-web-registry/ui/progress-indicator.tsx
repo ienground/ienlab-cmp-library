@@ -6,6 +6,7 @@ import { circularIndeterminateFrame, cubicBezier, waveOffset, waveTravelMillis }
 import { CircularWavyPathCache, circularWavyVertexCount, toSvgPathData } from "@kyralabs/m3e-shapes"
 import { cn } from "cn"
 import type { IenTone } from "@/lib/ien-theme"
+import { useIenLanguage } from "@/lib/ien-theme-context"
 import { useMaterialIndicatorTheme } from "@/lib/ien-material-indicator"
 
 // Compose ProgressIndicator.kt의 keyframes에서 추가 회전 구간은 선형입니다.
@@ -113,8 +114,10 @@ type ProgressIndicatorProps = Omit<ComponentProps<"span">, "children" | "color">
 function ProgressIndicator({
   variant = "circular", shape = "flat", progress, size = shape === "wavy" ? 48 : 40,
   strokeWidth = 4, color, trackColor, tone = "brand",
-  className, style, "aria-label": ariaLabel = "불러오는 중", ...props
+  className, style, "aria-label": ariaLabelProp, ...props
 }: ProgressIndicatorProps) {
+  const language = useIenLanguage("ko")
+  const ariaLabel = ariaLabelProp ?? (language === "ko" ? "불러오는 중" : "Loading")
   const ref = useRef<HTMLSpanElement>(null)
   useMaterialIndicatorTheme(ref)
   return (

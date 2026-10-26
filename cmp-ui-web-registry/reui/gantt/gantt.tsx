@@ -2,8 +2,8 @@
 // Description: Headless-first gantt - horizontal resource timeline with day-to-year scales, external CRUD contract, and a subscribable store.
 
 "use client"
-import type { IenToneProps, IenVariant } from "@/lib/ien-theme"
-import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
+import type { IenLanguage, IenToneProps, IenVariant } from "@/lib/ien-theme"
+import { IenThemeContext, useIenLanguage, useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   createContext,
@@ -60,6 +60,7 @@ import type {
   GanttUpdateResult,
 } from "@/components/reui/gantt/gantt-types"
 import type { Locale } from "date-fns"
+import { enUS, ko } from "date-fns/locale"
 import { Slot } from "radix-ui"
 
 import { cn } from "cn"
@@ -153,6 +154,7 @@ interface UseGanttStateOptions<TData = unknown> extends GanttCallbacks<TData> {
   loading?: boolean
   timeZone?: string
   locale?: Locale
+  language?: IenLanguage
   weekStartsOn?: WeekStartsOn
   slotDuration?: number
   snapDuration?: number
@@ -299,18 +301,20 @@ function resolveSettings<TData>(
   const getEventPriority =
     options.getEventPriority ??
     ((event: GanttEvent<TData>) => event.priority ?? 0)
+  const language = options.language ?? "en"
+  const locale = options.locale ?? (language === "ko" ? ko : enUS)
   return {
     ...rest,
     timeZone:
       options.timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
-    locale: options.locale,
+    locale,
     // locale-first default: a de/fr locale gets Monday weeks without also
     // having to set weekStartsOn; an explicit weekStartsOn always wins
     weekStartsOn:
-      options.weekStartsOn ?? options.locale?.options?.weekStartsOn ?? 0,
+      options.weekStartsOn ?? locale.options?.weekStartsOn ?? 0,
     slotDuration: options.slotDuration ?? 30,
     snapDuration: options.snapDuration ?? 15,
-    i18n: mergeGanttI18n(options.i18n),
+    i18n: mergeGanttI18n(options.i18n, language),
     rangeBounds: options.rangeBounds,
     resources: options.resources ?? [],
     overlap: options.overlap ?? "allow",
@@ -790,6 +794,7 @@ function createGanttStore<TData>(
   const SETTINGS_KEYS = [
     "timeZone",
     "locale",
+    "language",
     "weekStartsOn",
     "slotDuration",
     "snapDuration",
@@ -854,8 +859,10 @@ function createGanttStore<TData>(
 function useGanttState<TData = unknown>(
   options: UseGanttStateOptions<TData> = {}
 ): GanttInstance<TData> {
-  const [store] = useState(() => createGanttStore<TData>(options))
-  const changed = store.setOptions(options)
+  const language = useIenLanguage("en", options.language)
+  const resolvedOptions = options.language === language ? options : { ...options, language }
+  const [store] = useState(() => createGanttStore<TData>(resolvedOptions))
+  const changed = store.setOptions(resolvedOptions)
   const changedRef = useRef(false)
   if (changed) changedRef.current = true
   useLayoutEffect(() => {
@@ -1636,6 +1643,7 @@ const OPTION_KEYS: Array<keyof UseGanttStateOptions> = [
   "loading",
   "timeZone",
   "locale",
+  "language",
   "weekStartsOn",
   "slotDuration",
   "snapDuration",

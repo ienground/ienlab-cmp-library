@@ -1,6 +1,6 @@
 "use client"
 import type { IenToneProps } from "@/lib/ien-theme"
-import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
+import { IenThemeContext, useIenLanguage, useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import { FiltersAdvanced } from "@/components/reui/filters/filters-advanced"
@@ -48,6 +48,7 @@ import {
   createFilterOperators,
   DEFAULT_FILTER_OPERATOR_LABELS,
   DEFAULT_FILTER_OPERATORS,
+  FILTER_OPERATOR_LABELS_KO,
   getFilterOperator,
   negateFilterOperator,
   operatorTakesValue,
@@ -291,6 +292,7 @@ export function Filters<V = unknown, O = unknown>({
   children,
 }: FiltersProps<V, O> & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const language = useIenLanguage()
   const { query, queryRef, setQuery } = useControllableQuery<V, O>(
     controlledQuery,
     defaultQuery,
@@ -337,17 +339,18 @@ export function Filters<V = unknown, O = unknown>({
   )
 
   const labels = React.useMemo(
-    () => resolveFilterLabels(labelsProp),
-    [labelsProp]
+    () => resolveFilterLabels(labelsProp, language),
+    [labelsProp, language]
   )
 
   const operatorCatalog = React.useMemo(() => {
-    if (!operatorLabelsProp) return DEFAULT_FILTER_OPERATORS
+    const baseLabels = language === "ko" ? FILTER_OPERATOR_LABELS_KO : DEFAULT_FILTER_OPERATOR_LABELS
+    if (!operatorLabelsProp && language === "en") return DEFAULT_FILTER_OPERATORS
     return createFilterOperators({
-      ...DEFAULT_FILTER_OPERATOR_LABELS,
+      ...baseLabels,
       ...operatorLabelsProp,
     })
-  }, [operatorLabelsProp])
+  }, [operatorLabelsProp, language])
 
   const editors = React.useMemo(
     () => ({ ...DEFAULT_FILTER_EDITORS, ...editorsProp }),

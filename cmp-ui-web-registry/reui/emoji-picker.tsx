@@ -1,5 +1,7 @@
 "use client"
 import type { IenToneProps } from "@/lib/ien-theme"
+import type { IenLanguage } from "@/lib/ien-theme"
+import { useIenLanguage } from "@/lib/ien-theme-context"
 import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 // Title: Emoji Picker
@@ -255,17 +257,56 @@ export const DEFAULT_EMOJI_PICKER_I18N: EmojiPickerI18nConfig = {
   },
 }
 
+const EMOJI_PICKER_I18N_KO: EmojiPickerI18nConfig = {
+  labels: {
+    trigger: "이모지 추가",
+    panel: "이모지 선택기",
+    search: "이모지 검색",
+    clearSearch: "검색어 지우기",
+    list: "이모지",
+    categories: "이모지 카테고리",
+    frequent: "자주 사용",
+    recent: "최근 사용",
+    searchResults: "검색 결과",
+    custom: "사용자 지정",
+    smileys: "스마일과 감정",
+    people: "사람과 신체",
+    nature: "동물과 자연",
+    food: "음식과 음료",
+    travel: "여행과 장소",
+    activities: "활동",
+    objects: "사물",
+    symbols: "기호",
+    flags: "깃발",
+    skinTone: "피부색",
+    skinTones: ["기본", "밝음", "중간 밝음", "중간", "중간 어두움", "어두움"],
+    empty: "이모지를 찾을 수 없습니다",
+    emptyHint: "다른 단어나 단축 코드를 입력해 보세요",
+    loading: "이모지를 불러오는 중",
+    error: "이모지를 불러오지 못했습니다",
+    retry: "다시 시도",
+    preview: "이모지 선택",
+  },
+  functions: {
+    formatResultCount: (count) => `${count}개 이모지 검색됨`,
+    formatSelected: (label) => `${label} 선택됨`,
+    formatLabel: (label) => label,
+  },
+}
+
 /** Merges per section, so an override can carry one key without restating the rest. */
 export function mergeEmojiPickerI18n(
-  overrides?: EmojiPickerI18nOverrides
+  overrides?: EmojiPickerI18nOverrides,
+  language: IenLanguage = "en",
 ): EmojiPickerI18nConfig {
+  const defaults = language === "ko" ? EMOJI_PICKER_I18N_KO : DEFAULT_EMOJI_PICKER_I18N
   if (!overrides?.labels && !overrides?.functions) {
-    return DEFAULT_EMOJI_PICKER_I18N
+    return defaults
   }
   return {
-    labels: { ...DEFAULT_EMOJI_PICKER_I18N.labels, ...overrides.labels },
+    labels: { ...defaults.labels, ...overrides.labels },
     functions: {
-      ...DEFAULT_EMOJI_PICKER_I18N.functions,
+      ...defaults.functions,
       ...overrides.functions,
     },
   }
@@ -1387,13 +1428,14 @@ function normalizeCustom(emoji: EmojiPickerCustomEmoji): EmojiPickerEmoji {
 
 export function EmojiPicker(props: EmojiPickerProps & IenToneProps) {
   const ienTheme = useIenTheme(props)
+  const language = useIenLanguage("en", props.locale === "ko" || props.locale === "en" ? props.locale : undefined)
   const {
     onEmojiSelect,
     open: openProp,
     defaultOpen = false,
     onOpenChange,
     data: dataProp,
-    locale = "en",
+    locale: localeProp,
     dataUrl,
     shortcodes = "github",
     emojiVersion = "auto",
@@ -1430,6 +1472,7 @@ export function EmojiPicker(props: EmojiPickerProps & IenToneProps) {
     className,
     children,
   } = props
+  const locale = localeProp ?? language
   const multiple = props.multiple === true
   const max = props.multiple ? props.max : undefined
   const closeOnSelect = props.closeOnSelect ?? !multiple
@@ -1505,7 +1548,7 @@ export function EmojiPicker(props: EmojiPickerProps & IenToneProps) {
     enabled: wanted || open,
   })
   const support = useEmojiSupport(data, emojiVersion)
-  const i18n = useMemo(() => mergeEmojiPickerI18n(i18nProp), [i18nProp])
+  const i18n = useMemo(() => mergeEmojiPickerI18n(i18nProp, language), [i18nProp, language])
   const { labels } = i18n
   const columnCount =
     columns === "auto" ? (measuredColumns ?? 8) : Math.max(1, columns)

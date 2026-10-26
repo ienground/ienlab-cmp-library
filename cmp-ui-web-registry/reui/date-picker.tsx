@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import type { IenToneProps } from "@/lib/ien-theme"
+import { useIenLanguage } from "@/lib/ien-theme-context"
 import { IenWheelColumn, IenWheelPickerFrame, formatPickerUnit, pickerLabels, type PickerLocale } from "@/lib/ien-wheel-picker"
 
 type CalendarDate = { year: number; month: number; day: number }
@@ -55,10 +56,11 @@ export interface DatePickerProps extends IenToneProps {
 
 /** CMP 연·월·일 휠입니다. 월·연도 변경 시 말일과 선택 가능 날짜를 보정합니다. */
 export function DatePicker({
-  value, defaultValue = null, onValueChange, locale = "ko", yearRange = { start: 1900, end: 2100 },
+  value, defaultValue = null, onValueChange, locale: localeProp, yearRange = { start: 1900, end: 2100 },
   min, max, isDateDisabled, isYearDisabled, disabled = false, readOnly = false, fade = true, inline = false,
   className, "aria-label": label, tone, useGradient,
 }: DatePickerProps) {
+  const locale = useIenLanguage("ko", localeProp)
   const [uncontrolled, setUncontrolled] = useState<string | null>(defaultValue)
   const [reference] = useState(today)
   const { start, end } = yearRange

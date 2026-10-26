@@ -11,6 +11,8 @@ import { CodeExample } from "./RegistryCodeExample";
 import { webCatalog } from "./web-registry";
 import { WebPlayground } from "./web-playground";
 import { useWebProject } from "./web-project-context";
+import type { IenLanguage } from "../../cmp-ui-web-registry/lib/ien-theme";
+import { IenLanguageProvider } from "../../cmp-ui-web-registry/lib/ien-theme-context";
 
 const previewModules = import.meta.glob<{ default: ComponentType }>(
   "../../cmp-ui-web-registry/**/previews/*.tsx",
@@ -67,22 +69,26 @@ class PreviewBoundary extends Component<
     );
   }
 }
-export function WebComponentPreview({ componentId, resetKey }: { componentId: string; resetKey?: unknown }) {
+export function WebComponentPreview({ componentId, language, resetKey }: { componentId: string; language: IenLanguage; resetKey?: unknown }) {
   const item = webCatalog.find((entry) => entry.id === componentId);
   const Preview = item && previews[item.preview];
   return (
     <PreviewBoundary key={componentId} resetKey={resetKey}>
-      <Suspense fallback={<p role="status">프리뷰를 불러오는 중입니다.</p>}>
-        {Preview ? <Preview /> : <p role="alert">연결된 프리뷰가 없습니다.</p>}
-      </Suspense>
+      <IenLanguageProvider language={language}>
+        <Suspense fallback={<p role="status">프리뷰를 불러오는 중입니다.</p>}>
+          {Preview ? <Preview /> : <p role="alert">연결된 프리뷰가 없습니다.</p>}
+        </Suspense>
+      </IenLanguageProvider>
     </PreviewBoundary>
   );
 }
 export function WebRegistryDocs({
   componentId,
+  language,
   tab,
 }: {
   componentId: string;
+  language: IenLanguage;
   tab: "preview" | "playground" | "registry";
 }) {
   const { project, published, dirty } = useWebProject();
@@ -107,12 +113,14 @@ export function WebRegistryDocs({
       </div>
       {tab === "playground" && Preview ? (
         <WebPlayground definition={item.playground} source={item.playground.example} Preview={Preview} renderPreview={(preview, resetKey) => (
-          <PreviewBoundary resetKey={resetKey}><Suspense fallback={<p role="status">프리뷰를 불러오는 중입니다.</p>}>{preview}</Suspense></PreviewBoundary>
+          <IenLanguageProvider language={language}>
+            <PreviewBoundary resetKey={resetKey}><Suspense fallback={<p role="status">프리뷰를 불러오는 중입니다.</p>}>{preview}</Suspense></PreviewBoundary>
+          </IenLanguageProvider>
         )} />
       ) : tab === "preview" ? (
         <>
           <div className="web-component-preview min-h-48 overflow-auto rounded-ien-lg border border-ien-border p-ien-xl">
-            <WebComponentPreview componentId={item.id} />
+            <WebComponentPreview componentId={item.id} language={language} />
           </div>
           <CodeExample label="사용 예시" code={item.example} />
           <details className="web-docs-disclosure">

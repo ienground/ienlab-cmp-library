@@ -3,6 +3,7 @@
 import * as React from "react"
 import { cn } from "cn"
 import { Dialog as SheetPrimitive } from "radix-ui"
+import { useIenLanguage } from "@/lib/ien-theme-context"
 
 import { Button } from "@/components/ui/button"
 import { IconX as XIcon } from "@tabler/icons-react"
@@ -55,6 +56,7 @@ function SheetContent({
   side?: "top" | "right" | "bottom" | "left"
   showCloseButton?: boolean
 }) {
+  const language = useIenLanguage("ko")
   return (
     <SheetPortal>
       <SheetOverlay />
@@ -77,7 +79,7 @@ function SheetContent({
             >
               <XIcon
               />
-              <span className="sr-only">닫기</span>
+              <span className="sr-only">{language === "ko" ? "닫기" : "Close"}</span>
             </Button>
           </SheetPrimitive.Close>
         )}

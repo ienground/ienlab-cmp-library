@@ -15,11 +15,14 @@ import {
   type ProjectMode,
 } from "./project-presets";
 import { projectDefaults, useWebProject } from "./web-project-context";
+import type { IenLanguage } from "../../cmp-ui-web-registry/lib/ien-theme";
 
 export function WebProjects({
+  language,
   theme,
   onThemeChange,
 }: {
+  language: IenLanguage;
   theme: "light" | "dark";
   onThemeChange: (theme: "light" | "dark") => void;
 }) {
@@ -540,6 +543,7 @@ export function WebProjects({
             <WebComponentPreview
               key={`${project.name}.${previewRevision}`}
               componentId={previewId}
+              language={language}
               resetKey={project.cssVars}
             />
           </div>

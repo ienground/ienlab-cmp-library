@@ -1,6 +1,6 @@
 "use client"
 import type { IenToneProps } from "@/lib/ien-theme"
-import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
+import { IenThemeContext, useIenLanguage, useIenTheme } from "@/lib/ien-theme-context"
 
 import type { ChangeEvent, ComponentProps } from "react"
 import {
@@ -1176,14 +1176,16 @@ export function DateSelector({
   baseYear,
   minYear = 2015,
   maxYear = 2026,
-  locale = "en",
+  locale: localeProp,
   i18n: i18nOverride,
   inputHint,
-  dayDateFormat = locale === "ko" ? "yyyy-MM-dd" : "MM/dd/yyyy",
+  dayDateFormat,
   dayDateFormats,
   weekStartsOn,
 }: DateSelectorProps & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const locale = useIenLanguage("en", localeProp)
+  const resolvedDayDateFormat = dayDateFormat ?? (locale === "ko" ? "yyyy-MM-dd" : "MM/dd/yyyy")
   const mergedI18n = useMemo(
     () => ({ ...(locale === "ko" ? DATE_SELECTOR_I18N_KO : DEFAULT_DATE_SELECTOR_I18N), ...i18nOverride }),
     [locale, i18nOverride]
@@ -1230,7 +1232,7 @@ export function DateSelector({
     isYearInRange,
   } = selector
 
-  const displayValue = formatDateValue(currentValue, mergedI18n, dayDateFormat)
+  const displayValue = formatDateValue(currentValue, mergedI18n, resolvedDayDateFormat)
   const [inputValue, setInputValue] = useState(displayValue)
   const [isInputFocused, setIsInputFocused] = useState(false)
 
@@ -1246,14 +1248,14 @@ export function DateSelector({
     if (dayDateFormats && dayDateFormats.length > 0) {
       // Use provided formats, with dayDateFormat first if not already included
       const formats = [...dayDateFormats]
-      if (!formats.includes(dayDateFormat)) {
-        formats.unshift(dayDateFormat)
+      if (!formats.includes(resolvedDayDateFormat)) {
+        formats.unshift(resolvedDayDateFormat)
       }
       return formats
     }
     // Default formats: use dayDateFormat first, then common alternatives
     const defaultFormats = [
-      dayDateFormat,
+      resolvedDayDateFormat,
       "MM/dd/yyyy",
       "dd/MM/yyyy",
       "yyyy-MM-dd",
@@ -1262,7 +1264,7 @@ export function DateSelector({
     ]
     // Remove duplicates while preserving order
     return Array.from(new Set(defaultFormats))
-  }, [dayDateFormat, dayDateFormats])
+  }, [resolvedDayDateFormat, dayDateFormats])
 
   // Parse input text to DateSelectorValue
   const parseInputValue = useCallback(

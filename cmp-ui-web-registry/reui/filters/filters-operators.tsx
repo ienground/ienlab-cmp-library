@@ -38,6 +38,34 @@ export const DEFAULT_FILTER_OPERATOR_LABELS: FilterOperatorLabels = {
   not_empty: "is not empty",
 }
 
+export const FILTER_OPERATOR_LABELS_KO: FilterOperatorLabels = {
+  contains: "포함",
+  not_contains: "포함하지 않음",
+  starts_with: "다음으로 시작",
+  ends_with: "다음으로 끝남",
+  is: "같음",
+  is_not: "같지 않음",
+  is_any_of: "다음 중 하나와 같음",
+  is_none_of: "다음 중 어느 것과도 같지 않음",
+  has_any_of: "다음 중 하나 이상 포함",
+  has_all_of: "다음 모두 포함",
+  has_none_of: "다음 중 어느 것도 포함하지 않음",
+  eq: "같음",
+  neq: "같지 않음",
+  gt: "보다 큼",
+  gte: "보다 크거나 같음",
+  lt: "보다 작음",
+  lte: "보다 작거나 같음",
+  between: "사이",
+  not_between: "사이가 아님",
+  is_before: "이전",
+  is_after: "이후",
+  is_on_or_before: "이전 또는 당일",
+  is_on_or_after: "이후 또는 당일",
+  empty: "비어 있음",
+  not_empty: "비어 있지 않음",
+}
+
 /**
  * Operator catalog per value type: value, arity, inverse, labels resolved at
  * build time so translating one operator never restates the catalog. `arity`

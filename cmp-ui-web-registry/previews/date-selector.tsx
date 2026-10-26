@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useIenLanguage } from "@/lib/ien-theme-context"
 import {
   DateSelector,
   type DateSelectorValue,
@@ -11,8 +12,11 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 
 export function Pattern() {
-  const [locale, setLocale] = useState<"ko" | "en">("ko")
+  const language = useIenLanguage("ko")
+  const [locale, setLocale] = useState<"ko" | "en">(language)
   const [value, setValue] = useState<DateSelectorValue | undefined>()
+
+  useEffect(() => setLocale(language), [language])
 
   return (
     <div className="flex w-full flex-col items-center gap-5">

@@ -1,6 +1,6 @@
 "use client"
 import type { IenToneProps } from "@/lib/ien-theme"
-import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
+import { IenThemeContext, useIenLanguage, useIenTheme } from "@/lib/ien-theme-context"
 
 // Title: Signature Pad
 // Description: Shadcn signature pad with pressure and velocity ink, touch and stylus input, undo and redo, form fields and PNG, JPEG or SVG export.
@@ -742,6 +742,7 @@ function SignaturePadArea({
   ...props
 }: SignaturePadAreaProps & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const language = useIenLanguage()
   const api = useSignaturePad()
   const config = useSignaturePadConfig("SignaturePadArea")
   const liveRef = useRef<LiveStroke | null>(null)
@@ -984,8 +985,8 @@ function SignaturePadArea({
         else if (ref) ref.current = node
       }}
       role="application"
-      aria-roledescription="signature pad"
-      aria-label={labelled ? undefined : "Signature pad"}
+      aria-roledescription={language === "ko" ? "서명 입력란" : "signature pad"}
+      aria-label={labelled ? undefined : language === "ko" ? "서명 입력란" : "Signature pad"}
       aria-disabled={api.disabled || undefined}
       aria-describedby={describedBy ? `${describedBy} ${statusId}` : statusId}
       tabIndex={config.interactive ? 0 : -1}
@@ -1029,8 +1030,8 @@ function SignaturePadArea({
       {children}
       {/* The ink is invisible to assistive tech, so its state is spoken here. */}
       <span id={statusId} className="sr-only">
-        {api.isEmpty ? "Empty" : "Signed"}
-        {api.readOnly ? ", read only" : ""}
+        {api.isEmpty ? (language === "ko" ? "비어 있음" : "Empty") : (language === "ko" ? "서명됨" : "Signed")}
+        {api.readOnly ? (language === "ko" ? ", 읽기 전용" : ", read only") : ""}
       </span>
       <svg
         data-slot="signature-pad-canvas"
@@ -1116,6 +1117,7 @@ function SignaturePadPlaceholder({
   ...props
 }: ComponentProps<"div"> & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const language = useIenLanguage()
   const { isEmpty, isDrawing } = useSignaturePad()
   if (!isEmpty || isDrawing) return null
 
@@ -1132,7 +1134,7 @@ function SignaturePadPlaceholder({
       )}
       {...props}
     >
-      {children ?? "Sign here"}
+      {children ?? (language === "ko" ? "여기에 서명하세요" : "Sign here")}
     </div>
   )
 }
@@ -1196,12 +1198,13 @@ function SignaturePadClear({
   ...props
 }: SignaturePadControlProps) {
   const api = useSignaturePad()
+  const language = useIenLanguage()
 
   return (
     <Button
       type="button"
       data-slot="signature-pad-clear"
-      aria-label={children === undefined ? "Clear signature" : undefined}
+      aria-label={children === undefined ? (language === "ko" ? "서명 지우기" : "Clear signature") : undefined}
       variant={variant}
       size={size}
       {...props}
@@ -1236,13 +1239,14 @@ function SignaturePadUndo({
   ...props
 }: SignaturePadControlProps) {
   const api = useSignaturePad()
+  const language = useIenLanguage()
   const { undoDepth } = useSignaturePadConfig("SignaturePadUndo")
 
   return (
     <Button
       type="button"
       data-slot="signature-pad-undo"
-      aria-label={children === undefined ? "Undo" : undefined}
+      aria-label={children === undefined ? (language === "ko" ? "실행 취소" : "Undo") : undefined}
       variant={variant}
       size={size}
       {...props}
@@ -1277,13 +1281,14 @@ function SignaturePadRedo({
   ...props
 }: SignaturePadControlProps) {
   const api = useSignaturePad()
+  const language = useIenLanguage()
   const { redoDepth } = useSignaturePadConfig("SignaturePadRedo")
 
   return (
     <Button
       type="button"
       data-slot="signature-pad-redo"
-      aria-label={children === undefined ? "Redo" : undefined}
+      aria-label={children === undefined ? (language === "ko" ? "다시 실행" : "Redo") : undefined}
       variant={variant}
       size={size}
       {...props}
@@ -1326,12 +1331,13 @@ function SignaturePadSave({
   onSave?: (value: string, strokes: SignaturePadStroke[]) => void
 }) {
   const api = useSignaturePad()
+  const language = useIenLanguage()
 
   return (
     <Button
       type="button"
       data-slot="signature-pad-save"
-      aria-label={children === undefined ? "Save signature" : undefined}
+      aria-label={children === undefined ? (language === "ko" ? "서명 저장" : "Save signature") : undefined}
       variant={variant}
       size={size}
       {...props}
@@ -1379,6 +1385,7 @@ function SignaturePadPreview({
   color?: string
 } & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const language = useIenLanguage()
   if (strokes.length === 0) return null
   const { x, y, width, height } = resolveFrame(strokes, { padding })
 
@@ -1389,7 +1396,7 @@ function SignaturePadPreview({
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       role="img"
-      aria-label="Signature"
+      aria-label={language === "ko" ? "서명" : "Signature"}
       viewBox={`${x} ${y} ${width} ${height}`}
       width={width}
       height={height}

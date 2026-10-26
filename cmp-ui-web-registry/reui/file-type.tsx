@@ -1,4 +1,7 @@
+"use client"
+
 import type { IenToneProps } from "@/lib/ien-theme"
+import { useIenLanguage } from "@/lib/ien-theme-context"
 // Title: File Type
 // Description: Shadcn file type icon in brand and family colors, outline, solid, light and mono variants, sizes down to 18px for data grid rows, and resolution from a file name or MIME type.
 import type { ComponentProps, CSSProperties, ReactNode } from "react"
@@ -83,6 +86,23 @@ const CATEGORY_NAMES: Record<FileTypeCategory, string> = {
   presentation: "Presentation",
   spreadsheet: "Spreadsheet",
   video: "Video",
+}
+
+const CATEGORY_NAMES_KO: Record<FileTypeCategory, string> = {
+  archive: "압축 파일",
+  audio: "오디오 파일",
+  code: "코드 파일",
+  design: "디자인 파일",
+  document: "문서",
+  empty: "파일",
+  executable: "애플리케이션",
+  file: "파일",
+  folder: "폴더",
+  font: "글꼴 파일",
+  image: "이미지",
+  presentation: "프레젠테이션",
+  spreadsheet: "스프레드시트",
+  video: "동영상",
 }
 
 /**
@@ -898,6 +918,7 @@ function FileType({
   className,
   ...props
 }: FileTypeProps & IenToneProps) {
+  const language = useIenLanguage()
   const resolved = resolveFileType(type)
   // `null` hides the label like "", where `??` would fall back to it.
   const text = label !== undefined ? label : resolved.label
@@ -905,8 +926,8 @@ function FileType({
   // The name spells out a key its label shortens (DOCKERFILE, not DOCK).
   const spelled = resolved.label ? resolved.type.toUpperCase() : undefined
   const typeName = spelled
-    ? `${spelled} file`
-    : CATEGORY_NAMES[resolved.category]
+    ? `${spelled} ${language === "ko" ? "파일" : "file"}`
+    : (language === "ko" ? CATEGORY_NAMES_KO : CATEGORY_NAMES)[resolved.category]
   // A custom string label is part of what the icon says ("V3, DOCX file").
   const custom = typeof label === "string" ? label.toUpperCase() : ""
   const name =

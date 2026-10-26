@@ -5,6 +5,7 @@ import { indeterminateFrame, initialIndeterminateFrame } from "@kyralabs/m3e-mot
 import { loadingIndicatorShapes } from "@kyralabs/m3e-shapes"
 import { cn } from "cn"
 import type { IenTone } from "@/lib/ien-theme"
+import { useIenLanguage } from "@/lib/ien-theme-context"
 
 // CMP가 사용하는 Compose Material3 LoadingIndicator.kt의 시간과 스프링 설정입니다.
 const loadingTiming = {
@@ -23,8 +24,10 @@ type LoadingIndicatorProps = Omit<ComponentProps<"span">, "children" | "color"> 
 
 function LoadingIndicator({
   size = 48, color, tone = "brand",
-  className, style, "aria-label": ariaLabel = "불러오는 중", ...props
+  className, style, "aria-label": ariaLabelProp, ...props
 }: LoadingIndicatorProps) {
+  const language = useIenLanguage("ko")
+  const ariaLabel = ariaLabelProp ?? (language === "ko" ? "불러오는 중" : "Loading")
   const pathRef = useRef<SVGPathElement>(null)
   const rotationRef = useRef<SVGGElement>(null)
   const shapes = useMemo(() => loadingIndicatorShapes(null, true, 38 / 48), [])

@@ -68,6 +68,7 @@ import type {
 } from "@tanstack/react-table"
 
 import { cn } from "cn"
+import { useIenLanguage } from "@/lib/ien-theme-context"
 
 /**
  * Per-column extras the grid reads off `columnDef.meta`.
@@ -1091,7 +1092,8 @@ function DataGridProvider<TData extends object>({
   // change, including each resize tick.
   const propsRef = useRef(props)
   propsRef.current = props
-  const i18n = mergeDataGridI18n(props.i18n)
+  const language = useIenLanguage()
+  const i18n = mergeDataGridI18n(props.i18n, language)
   const i18nRef = useRef(i18n)
   i18nRef.current = i18n
   const tableRef = useRef(table)

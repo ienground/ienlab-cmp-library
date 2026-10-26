@@ -3,7 +3,7 @@
 import * as React from "react"
 import { cn } from "cn"
 import type { IenToneProps } from "@/lib/ien-theme"
-import { useIenTheme } from "@/lib/ien-theme-context"
+import { useIenLanguage, useIenTheme } from "@/lib/ien-theme-context"
 
 export const skeletonListRowTextsTypes = [
   "OneRowTypeA", "OneRowTypeB", "OneRowTypeC",
@@ -159,7 +159,9 @@ export type SkeletonProps = React.ComponentProps<"div"> & IenToneProps & {
 }
 function Skeleton({ height, width, radius = "var(--ien-radius-sm)", pattern, listRowTextsType = "OneRowTypeA", custom,
   repeatLastItemCount = { type: "Count", value: 3 }, play = "Show", background = "Grey", tone, useGradient,
-  className, style, children, "aria-label": ariaLabel = "불러오는 중", ...props }: SkeletonProps) {
+  className, style, children, "aria-label": ariaLabelProp, ...props }: SkeletonProps) {
+  const language = useIenLanguage("ko")
+  const ariaLabel = ariaLabelProp ?? (language === "ko" ? "불러오는 중" : "Loading")
   useIenTheme({ tone, useGradient })
   if (play === "Hide") return null
   // 기존 className으로 크기를 정하던 단일 블록 호출을 유지합니다.

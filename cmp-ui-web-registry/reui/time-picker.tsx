@@ -1,7 +1,7 @@
 "use client"
 import type { IenToneProps } from "@/lib/ien-theme"
 import { IenWheelColumn, type PickerLocale } from "@/lib/ien-wheel-picker"
-import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
+import { IenThemeContext, useIenLanguage, useIenTheme } from "@/lib/ien-theme-context"
 
 // Title: Time Picker
 // Description: CMP 휠 디자인을 적용한 시·분·초·오전/오후 선택기입니다. 직접 입력, 간격, 범위, 다국어 레이블을 지원합니다.
@@ -631,7 +631,7 @@ export function TimePicker({
   open: openProp,
   defaultOpen = false,
   onOpenChange,
-  locale = "ko",
+  locale: localeProp,
   hourCycle = 24,
   granularity = "minute",
   periodPosition = "start",
@@ -660,6 +660,7 @@ export function TimePicker({
   children,
 }: TimePickerProps & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const locale = useIenLanguage("ko", localeProp)
   const generatedId = useId()
   const id = idProp ?? generatedId
   const [uncontrolled, setUncontrolled] = useState(defaultValue)

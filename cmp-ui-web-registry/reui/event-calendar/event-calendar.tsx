@@ -2,8 +2,8 @@
 // Description: Headless-first event calendar with month, week, day, N-day and agenda views, external CRUD contract, and a subscribable store.
 
 "use client"
-import type { IenToneProps, IenVariant } from "@/lib/ien-theme"
-import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
+import type { IenLanguage, IenToneProps, IenVariant } from "@/lib/ien-theme"
+import { IenThemeContext, useIenLanguage, useIenTheme } from "@/lib/ien-theme-context"
 
 import {
   createContext,
@@ -59,6 +59,7 @@ import type {
   EventCalendarViewSettings,
 } from "@/components/reui/event-calendar/event-calendar-types"
 import { addDays, type Locale } from "date-fns"
+import { enUS, ko } from "date-fns/locale"
 import { Slot } from "radix-ui"
 
 import { cn } from "cn"
@@ -170,6 +171,7 @@ interface UseEventCalendarStateOptions<
   views?: CalendarView[]
   timeZone?: string
   locale?: Locale
+  language?: IenLanguage
   weekStartsOn?: WeekStartsOn
   dayStartHour?: number
   dayEndHour?: number
@@ -331,15 +333,17 @@ function resolveSettings<TData>(
   const getEventPriority =
     options.getEventPriority ??
     (DEFAULT_EVENT_PRIORITY as (event: CalendarEvent<TData>) => number)
+  const language = options.language ?? "en"
+  const locale = options.locale ?? (language === "ko" ? ko : enUS)
   return {
     ...rest,
     timeZone:
       options.timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
-    locale: options.locale,
+    locale,
     // locale-first default: a de/fr locale gets Monday weeks without also
     // having to set weekStartsOn; an explicit weekStartsOn always wins
     weekStartsOn:
-      options.weekStartsOn ?? options.locale?.options?.weekStartsOn ?? 0,
+      options.weekStartsOn ?? locale.options?.weekStartsOn ?? 0,
     // the resource view only makes sense with resources configured
     views:
       options.views ?? (options.resources?.length ? ALL_VIEWS : BASE_VIEWS),
@@ -350,7 +354,7 @@ function resolveSettings<TData>(
     agendaDayCount: options.agendaDayCount ?? 30,
     fixedWeeks: options.fixedWeeks ?? true,
     showOutsideDays: options.showOutsideDays ?? true,
-    i18n: mergeEventCalendarI18n(options.i18n),
+    i18n: mergeEventCalendarI18n(options.i18n, language),
     resources: options.resources ?? EMPTY_RESOURCES,
     getEventPriority,
     eventOrder: options.eventOrder ?? priorityEventOrder(getEventPriority),
@@ -881,6 +885,7 @@ function createEventCalendarStore<TData>(
   const SETTINGS_KEYS = [
     "timeZone",
     "locale",
+    "language",
     "weekStartsOn",
     "views",
     "dayStartHour",
@@ -939,8 +944,10 @@ function createEventCalendarStore<TData>(
 function useEventCalendarState<TData = unknown>(
   options: UseEventCalendarStateOptions<TData> = {}
 ): EventCalendarInstance<TData> {
-  const [store] = useState(() => createEventCalendarStore<TData>(options))
-  const changed = store.setOptions(options)
+  const language = useIenLanguage("en", options.language)
+  const resolvedOptions = options.language === language ? options : { ...options, language }
+  const [store] = useState(() => createEventCalendarStore<TData>(resolvedOptions))
+  const changed = store.setOptions(resolvedOptions)
   const changedRef = useRef(false)
   if (changed) changedRef.current = true
   useLayoutEffect(() => {
@@ -1761,6 +1768,7 @@ const OPTION_KEYS: Array<keyof UseEventCalendarStateOptions> = [
   "views",
   "timeZone",
   "locale",
+  "language",
   "weekStartsOn",
   "dayStartHour",
   "dayEndHour",

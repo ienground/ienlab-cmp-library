@@ -1,6 +1,7 @@
 "use client"
 import type { IenToneProps } from "@/lib/ien-theme"
-import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
+import type { IenLanguage } from "@/lib/ien-theme"
+import { IenThemeContext, useIenLanguage, useIenTheme } from "@/lib/ien-theme-context"
 
 // Title: Color Picker
 // Description: Shadcn color picker with a saturation area, hue, alpha and channel sliders, a hue wheel, HEX, RGB, HSL, HSB and OKLCH fields, swatches and an eye dropper.
@@ -835,21 +836,34 @@ const HUE_NAMES: Array<[number, string]> = [
   [360, "pink"],
 ]
 
-/** A rough English name: "dark vibrant blue", "light gray". Swap it through `i18n.functions`. */
-function nameColor(color: ColorPickerColor) {
+/** A rough color name, overridable through `i18n.functions`. */
+function nameColor(color: ColorPickerColor, language: IenLanguage = "en") {
   const [lightness, chroma, hue] = toSpace(color, "oklch")
   const l = lightness / 100
   if (chroma < 0.025) {
-    if (l < 0.2) return "black"
-    if (l < 0.45) return "dark gray"
-    if (l < 0.75) return "gray"
-    return l < 0.95 ? "light gray" : "white"
+    if (l < 0.2) return language === "ko" ? "검정" : "black"
+    if (l < 0.45) return language === "ko" ? "진한 회색" : "dark gray"
+    if (l < 0.75) return language === "ko" ? "회색" : "gray"
+    return l < 0.95
+      ? language === "ko" ? "밝은 회색" : "light gray"
+      : language === "ko" ? "흰색" : "white"
   }
   let name = HUE_NAMES.find(([end]) => hue < end)?.[1] ?? "pink"
   if (l < 0.6 && hue >= 40 && hue < 100) name = "brown"
   else if (l < 0.6 && hue >= 100 && hue < 135) name = "olive"
   const tone = chroma < 0.07 ? "grayish " : chroma > 0.2 ? "vibrant " : ""
   const shade = l < 0.45 ? "dark " : l > 0.82 ? "light " : ""
+  if (language === "ko") {
+    const colors: Record<string, string> = {
+      red: "빨강", orange: "주황", yellow: "노랑", lime: "라임",
+      green: "초록", cyan: "청록", "sky blue": "하늘색", blue: "파랑",
+      violet: "바이올렛", purple: "보라", magenta: "자홍", pink: "분홍",
+      brown: "갈색", olive: "올리브",
+    }
+    const shadeLabel = shade === "dark " ? "어두운 " : shade === "light " ? "밝은 " : ""
+    const toneLabel = tone === "grayish " ? "회색빛 " : tone === "vibrant " ? "선명한 " : ""
+    return `${shadeLabel}${toneLabel}${colors[name] ?? name}`
+  }
   return `${shade}${tone}${name}`
 }
 
@@ -879,17 +893,45 @@ export const DEFAULT_COLOR_PICKER_I18N: ColorPickerI18nConfig = {
   functions: { getColorName: nameColor },
 }
 
+const COLOR_PICKER_I18N_KO: ColorPickerI18nConfig = {
+  labels: {
+    placeholder: "색상 선택",
+    panelLabel: "색상 선택",
+    openPicker: "색상 선택기 열기",
+    area: "색상",
+    hue: "색조",
+    saturation: "채도",
+    brightness: "밝기",
+    lightness: "명도",
+    chroma: "색도",
+    red: "빨강",
+    green: "초록",
+    blue: "파랑",
+    alpha: "불투명도",
+    hex: "16진수",
+    format: "색상 형식",
+    eyeDropper: "화면에서 색상 선택",
+    copy: "색상 복사",
+    copied: "복사됨",
+    clear: "초기화",
+    swatches: "색상 견본",
+  },
+  functions: { getColorName: (color) => nameColor(color, "ko") },
+}
+
 /** Merges per section, so an override can carry one key without restating the rest. */
 export function mergeColorPickerI18n(
-  overrides?: ColorPickerI18nOverrides
+  overrides?: ColorPickerI18nOverrides,
+  language: IenLanguage = "en",
 ): ColorPickerI18nConfig {
+  const defaults = language === "ko" ? COLOR_PICKER_I18N_KO : DEFAULT_COLOR_PICKER_I18N
   if (!overrides?.labels && !overrides?.functions) {
-    return DEFAULT_COLOR_PICKER_I18N
+    return defaults
   }
   return {
-    labels: { ...DEFAULT_COLOR_PICKER_I18N.labels, ...overrides.labels },
+    labels: { ...defaults.labels, ...overrides.labels },
     functions: {
-      ...DEFAULT_COLOR_PICKER_I18N.functions,
+      ...defaults.functions,
       ...overrides.functions,
     },
   }
@@ -1180,6 +1222,7 @@ export function ColorPicker({
   children,
 }: ColorPickerProps & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const language = useIenLanguage()
   const generatedId = useId()
   const id = idProp ?? generatedId
   const [uncontrolled, setUncontrolled] = useState(defaultValue)
@@ -1212,7 +1255,7 @@ export function ColorPicker({
   const focusTarget = useRef<HTMLElement | null>(null)
   const fieldRef = useRef<HTMLInputElement | null>(null)
   const resetRef = useRef(() => {})
-  const i18n = mergeColorPickerI18n(i18nProp)
+  const i18n = mergeColorPickerI18n(i18nProp, language)
   const editable = !disabled && !readOnly
 
   const setOpen = (next: boolean) => {

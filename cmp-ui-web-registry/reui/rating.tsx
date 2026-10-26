@@ -1,7 +1,7 @@
 "use client"
 
 import type { IenToneProps } from "@/lib/ien-theme"
-import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
+import { IenThemeContext, useIenLanguage, useIenTheme } from "@/lib/ien-theme-context"
 import { useEffect, useId, useRef, useState, type ComponentProps, type PointerEvent } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
@@ -101,6 +101,7 @@ function Rating({
   ...props
 }: RatingProps) {
   const ienTheme = useIenTheme({ tone: ienTone ?? "brand", useGradient: ienUseGradient })
+  const language = useIenLanguage("ko")
   const id = useId()
   const root = useRef<HTMLDivElement>(null)
   const shake = useRef<Animation | null>(null)
@@ -117,8 +118,8 @@ function Rating({
   const interactive = !isReadOnly && !isDisabled
   const displayVariant = isReadOnly ? variant : "full"
   const displayValue = resolvedValue
-  const label = ariaLabel ?? props["aria-label"] ?? (isReadOnly ? "현재 별점" : "별점 평가")
-  const description = valueText ?? `${itemCount}점 만점에 ${Number(resolvedValue.toFixed(1))}점`
+  const label = ariaLabel ?? props["aria-label"] ?? (language === "ko" ? (isReadOnly ? "현재 별점" : "별점 평가") : (isReadOnly ? "Current rating" : "Rate this item"))
+  const description = valueText ?? (language === "ko" ? `${itemCount}점 만점에 ${Number(resolvedValue.toFixed(1))}점` : `${Number(resolvedValue.toFixed(1))} out of ${itemCount}`)
   const text = Number(displayValue.toFixed(1)).toString()
 
   function change(next: number) {

@@ -1,9 +1,10 @@
 "use client"
 import type { IenToneProps } from "@/lib/ien-theme"
-import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
+import { IenThemeContext, useIenLanguage, useIenTheme } from "@/lib/ien-theme-context"
 
 import * as React from "react"
 import { cn } from "cn"
+import { enUS, ko } from "date-fns/locale"
 import {
   DayPicker,
   getDefaultClassNames,
@@ -30,6 +31,8 @@ function Calendar({
   buttonVariant?: React.ComponentProps<typeof Button>["variant"]
 } & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const language = useIenLanguage()
+  const resolvedLocale = locale ?? (language === "ko" ? ko : enUS)
   const defaultClassNames = getDefaultClassNames()
 
   return (
@@ -43,10 +46,10 @@ function Calendar({
         className
       )}
         captionLayout={captionLayout}
-        locale={locale}
+        locale={resolvedLocale}
         formatters={{
         formatMonthDropdown: (date) =>
-          date.toLocaleString(locale?.code, { month: "short" }),
+          date.toLocaleString(resolvedLocale.code, { month: "short" }),
         ...formatters,
       }}
         classNames={{

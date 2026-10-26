@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import type { IenToneProps } from "@/lib/ien-theme"
+import { useIenLanguage } from "@/lib/ien-theme-context"
 import { IenWheelColumn, IenWheelPickerFrame, formatPickerUnit, pickerLabels, type PickerLocale } from "@/lib/ien-wheel-picker"
 
 export interface DurationPickerProps extends IenToneProps {
@@ -25,11 +26,12 @@ export interface DurationPickerProps extends IenToneProps {
 
 /** 시각과 구별되는 기간 선택기입니다. 24시간 이상의 기간을 지원합니다. */
 export function DurationPicker({
-  value, defaultValue = 0, onValueChange, locale = "ko",
+  value, defaultValue = 0, onValueChange, locale: localeProp,
   showHours = true, showMinutes = true, showSeconds = true, maxHours = 23,
   disabled = false, readOnly = false, fade = true, inline = false,
   className, "aria-label": label, tone, useGradient,
 }: DurationPickerProps) {
+  const locale = useIenLanguage("ko", localeProp)
   const [uncontrolled, setUncontrolled] = useState<number | null>(defaultValue)
   if (!showHours && !showMinutes && !showSeconds) throw new RangeError("적어도 하나의 필드를 표시해야 합니다.")
   if (!Number.isInteger(maxHours) || maxHours < 0 || maxHours > 9999) throw new RangeError("maxHours는 0..9999의 정수여야 합니다.")

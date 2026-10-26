@@ -5,6 +5,7 @@ import type {
   CalendarView,
   EventCalendarDateRange,
 } from "@/components/reui/event-calendar/event-calendar-types"
+import type { IenLanguage } from "@/lib/ien-theme"
 import {
   format,
   isSameMonth,
@@ -182,6 +183,58 @@ const DEFAULT_FORMATS: EventCalendarI18nConfig["formats"] = {
   monthCellDay: "d",
 }
 
+const KO_LABELS: EventCalendarI18nConfig["labels"] = {
+  ...DEFAULT_LABELS,
+  today: "오늘",
+  previous: "이전",
+  next: "다음",
+  addEvent: "일정 추가",
+  allDay: "하루 종일",
+  more: (count) => `+${count}개 더 보기`,
+  noEvents: "일정이 없습니다",
+  loading: "일정을 불러오는 중",
+  event: "일정",
+  events: (count) => `${count}개 일정`,
+  selectView: "보기 선택",
+  week: (weekNumber) => `${weekNumber}주`,
+  resources: "리소스",
+  goToDate: "날짜로 이동",
+  dropNotAllowed: "여기에 놓을 수 없습니다",
+  continues: "계속됨",
+  timeFrom: (time) => `${time}부터`,
+  timeUntil: (time) => `${time}까지`,
+  viewShortcuts: { month: "월", week: "주", day: "일", days: "5", agenda: "목록", resource: "리소스" },
+  toggleDayEvents: (count, expanded) => `${count}개 일정 ${expanded ? "접기" : "펼치기"}`,
+  eventDetails: (title) => title,
+  moreCompact: (count) => `+${count}개`,
+  timeRange: (from, to) => `${from} - ${to}`,
+}
+
+const KO_VIEW_NAMES: EventCalendarI18nConfig["viewNames"] = {
+  month: "월",
+  week: "주",
+  day: "일",
+  days: (count) => `${count}일`,
+  agenda: "목록",
+  resource: "시간표",
+}
+
+const KO_FORMATS: EventCalendarI18nConfig["formats"] = {
+  ...DEFAULT_FORMATS,
+  monthTitle: "yyyy년 M월",
+  dayTitle: "yyyy년 M월 d일 EEEE",
+  monthDayHeader: "EEE",
+  monthDayHeaderNarrow: "EEEEE",
+  timeGridDayHeader: "EEE d일",
+  agendaDayHeader: "yyyy년 M월 d일 EEEE",
+  agendaDayNumber: "d일",
+  agendaWeekday: "EEE",
+  moreDayHeader: "yyyy년 M월 d일 EEEE",
+  timeGutter: "a h시",
+  timeGutterMinute: "a h:mm",
+  eventTime: "a h:mm",
+}
+
 /**
  * Default formatting functions BOUND to a config's labels/formats, so that
  * `formats` overrides flow into the default renderers (a consumer overriding
@@ -256,6 +309,12 @@ const DEFAULT_EVENT_CALENDAR_I18N: EventCalendarI18nConfig = {
     formats: DEFAULT_FORMATS,
   }),
 }
+const KO_EVENT_CALENDAR_I18N: EventCalendarI18nConfig = {
+  labels: KO_LABELS,
+  viewNames: KO_VIEW_NAMES,
+  formats: KO_FORMATS,
+  functions: makeDefaultFunctions({ labels: KO_LABELS, formats: KO_FORMATS }),
+}
 
 /**
  * One level deeper than `Partial`, because the merge below is per nested
@@ -273,12 +332,14 @@ type EventCalendarI18nOverrides = {
  * overrides still win.
  */
 function mergeEventCalendarI18n(
-  overrides?: EventCalendarI18nOverrides
+  overrides?: EventCalendarI18nOverrides,
+  language: IenLanguage = "en",
 ): EventCalendarI18nConfig {
-  if (!overrides) return DEFAULT_EVENT_CALENDAR_I18N
-  const labels = { ...DEFAULT_LABELS, ...overrides.labels }
-  const viewNames = { ...DEFAULT_VIEW_NAMES, ...overrides.viewNames }
-  const formats = { ...DEFAULT_FORMATS, ...overrides.formats }
+  const base = language === "ko" ? KO_EVENT_CALENDAR_I18N : DEFAULT_EVENT_CALENDAR_I18N
+  if (!overrides) return base
+  const labels = { ...base.labels, ...overrides.labels }
+  const viewNames = { ...base.viewNames, ...overrides.viewNames }
+  const formats = { ...base.formats, ...overrides.formats }
   return {
     labels,
     viewNames,

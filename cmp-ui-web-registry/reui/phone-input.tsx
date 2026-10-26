@@ -1,11 +1,13 @@
 "use client"
 import type { IenToneProps } from "@/lib/ien-theme"
-import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
+import { IenThemeContext, useIenLanguage, useIenTheme } from "@/lib/ien-theme-context"
 
 import type { ComponentProps } from "react"
 import { createContext, useContext, useMemo, useState } from "react"
 import * as BasePhoneInput from "react-phone-number-input"
 import flags from "react-phone-number-input/flags"
+import englishCountryLabels from "react-phone-number-input/locale/en.json"
+import koreanCountryLabels from "react-phone-number-input/locale/ko.json"
 
 import { cn } from "cn"
 import { Button } from "@/components/ui/button"
@@ -60,9 +62,11 @@ function PhoneInput({
   scrollAreaClassName,
   onChange,
   value,
+  labels: countryLabels,
   ...props
 }: PhoneInputProps & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const language = useIenLanguage()
   const phoneInputSize = variant || "default"
   return (
     <IenThemeContext.Provider value={ienTheme}>
@@ -80,6 +84,7 @@ function PhoneInput({
         countrySelectComponent={CountrySelect}
         inputComponent={InputComponent}
         smartCaret={false}
+        labels={countryLabels ?? (language === "ko" ? koreanCountryLabels : englishCountryLabels)}
         value={value || undefined}
         onChange={(value) => onChange?.(value || ("" as BasePhoneInput.Value))}
         {...props}
@@ -134,6 +139,7 @@ function CountrySelect({
   onChange,
 }: CountrySelectProps & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
+  const language = useIenLanguage()
   const { variant, popupClassName } = useContext(PhoneInputContext)
   const [searchValue, setSearchValue] = useState("")
 
@@ -189,7 +195,7 @@ function CountrySelect({
         )}
       >
         <ComboboxInput
-          placeholder="e.g. United States"
+          placeholder={language === "ko" ? "예: 대한민국" : "e.g. United States"}
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           showTrigger={false}
@@ -197,7 +203,7 @@ function CountrySelect({
         />
         <ComboboxSeparator />
         <ComboboxEmpty className="px-4 py-2.5 text-sm">
-          No country found.
+          {language === "ko" ? "국가를 찾을 수 없습니다." : "No country found."}
         </ComboboxEmpty>
         {/* The rows scroll inside the list's own max height, its per-style
             padding moved inside, so the last country can be reached; the list

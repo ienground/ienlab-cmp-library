@@ -5,6 +5,7 @@ import type {
   GanttDateRange,
   GanttScale,
 } from "@/components/reui/gantt/gantt-types"
+import type { IenLanguage } from "@/lib/ien-theme"
 import {
   format,
   isSameMonth,
@@ -140,6 +141,44 @@ const DEFAULT_FORMATS: GanttI18nConfig["formats"] = {
   eventTime: "h:mm a",
 }
 
+const KO_LABELS: GanttI18nConfig["labels"] = {
+  ...DEFAULT_LABELS,
+  today: "오늘",
+  previous: "이전",
+  next: "다음",
+  addEvent: "일정 추가",
+  addTask: "작업 추가",
+  allDay: "하루 종일",
+  loading: "일정을 불러오는 중",
+  event: "일정",
+  events: (count) => `${count}개 일정`,
+  week: (weekNumber) => `${weekNumber}주`,
+  resources: "리소스",
+  goToDate: "날짜로 이동",
+  scheduleHint: "클릭하여 일정 추가",
+  scheduleHintDrag: "클릭하거나 끌어서 일정 추가",
+  reorder: "순서 변경",
+  selectView: "보기 선택",
+  zoomIn: "확대",
+  zoomOut: "축소",
+  resizePanel: "패널 크기 조절",
+  jumpToBar: (title) => `"${title}" 일정으로 이동`,
+  progress: (percent) => `${percent}% 완료`,
+  durationDays: (days) => `${days}일`,
+  continues: "계속됨",
+  planned: (rangeLabel) => `예정 ${rangeLabel}`,
+  milestone: "마일스톤",
+  scales: { day: "일", week: "주", month: "월", quarter: "분기", year: "년" },
+}
+
+const KO_FORMATS: GanttI18nConfig["formats"] = {
+  ...DEFAULT_FORMATS,
+  monthTitle: "yyyy년 M월",
+  dayTitle: "yyyy년 M월 d일 EEEE",
+  timeGutter: "a h시",
+  eventTime: "a h:mm",
+}
+
 /**
  * Default formatting functions BOUND to a config's labels/formats, so that
  * `formats` overrides flow into the default renderers (a consumer overriding
@@ -247,6 +286,11 @@ const DEFAULT_GANTT_I18N: GanttI18nConfig = {
     formats: DEFAULT_FORMATS,
   }),
 }
+const KO_GANTT_I18N: GanttI18nConfig = {
+  labels: KO_LABELS,
+  formats: KO_FORMATS,
+  functions: makeDefaultGanttFunctions({ labels: KO_LABELS, formats: KO_FORMATS }),
+}
 
 /** Deep-partial override shape: replace individual keys, never sections. */
 interface GanttI18nOverrides {
@@ -264,18 +308,22 @@ interface GanttI18nOverrides {
  * `labels.continues`) override reaches the default renderers; explicit
  * `functions` overrides still win.
  */
-function mergeGanttI18n(overrides?: GanttI18nOverrides): GanttI18nConfig {
-  if (!overrides) return DEFAULT_GANTT_I18N
+function mergeGanttI18n(
+  overrides?: GanttI18nOverrides,
+  language: IenLanguage = "en",
+): GanttI18nConfig {
+  const base = language === "ko" ? KO_GANTT_I18N : DEFAULT_GANTT_I18N
+  if (!overrides) return base
   const labels = {
-    ...DEFAULT_LABELS,
+    ...base.labels,
     ...overrides.labels,
     // nested section: replace individual scale names, never the whole set
     scales: {
-      ...DEFAULT_LABELS.scales,
+      ...base.labels.scales,
       ...overrides.labels?.scales,
     },
   }
-  const formats = { ...DEFAULT_FORMATS, ...overrides.formats }
+  const formats = { ...base.formats, ...overrides.formats }
   return {
     labels,
     formats,

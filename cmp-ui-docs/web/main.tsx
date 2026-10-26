@@ -60,6 +60,7 @@ import { composeColorQuery } from "./color-scheme";
 import type { ColorSchemes, IconStyle } from "./color-scheme";
 import "./styles.css";
 import { WebProjectProvider } from "./web-project-context";
+import type { IenLanguage } from "../../cmp-ui-web-registry/lib/ien-theme";
 
 const SkeletonComposer = lazy(() =>
   import("./SkeletonComposer").then(({ SkeletonComposer: component }) => ({
@@ -150,6 +151,7 @@ function getInitialThemeMode(): ThemeMode {
 
 function App() {
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialThemeMode);
+  const [webLanguage, setWebLanguage] = useState<IenLanguage>("ko");
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() =>
     window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light",
   );
@@ -195,8 +197,10 @@ function App() {
             element={
               <ComponentPage
                 onThemeModeChange={changeThemeMode}
+                onWebLanguageChange={setWebLanguage}
                 resolvedTheme={resolvedTheme}
                 themeMode={themeMode}
+                webLanguage={webLanguage}
               />
             }
             path="/:section/:componentId?/:page?"
@@ -244,12 +248,16 @@ function InitialRedirect() {
 
 function ComponentPage({
   onThemeModeChange,
+  onWebLanguageChange,
   resolvedTheme,
   themeMode,
+  webLanguage,
 }: {
   onThemeModeChange: (themeMode: ThemeMode) => void;
+  onWebLanguageChange: (language: IenLanguage) => void;
   resolvedTheme: ResolvedTheme;
   themeMode: ThemeMode;
+  webLanguage: IenLanguage;
 }) {
   const { section, componentId: requestedComponentId, page } = useParams();
   const navigate = useNavigate();
@@ -525,6 +533,30 @@ function ComponentPage({
               <Monitor aria-hidden="true" />
             )}
           </Button>
+          {(isWebPage || isProjectsPage) && (
+            <div className="flex items-center gap-0.5" role="group" aria-label="프리뷰 언어 / Preview language">
+              <Button
+                aria-label="한국어"
+                aria-pressed={webLanguage === "ko"}
+                onClick={() => onWebLanguageChange("ko")}
+                size="sm"
+                title="한국어"
+                variant={webLanguage === "ko" ? "line" : "ghost"}
+              >
+                KO
+              </Button>
+              <Button
+                aria-label="English"
+                aria-pressed={webLanguage === "en"}
+                onClick={() => onWebLanguageChange("en")}
+                size="sm"
+                title="English"
+                variant={webLanguage === "en" ? "line" : "ghost"}
+              >
+                EN
+              </Button>
+            </div>
+          )}
           <Button
             asChild
             className="github-link"
@@ -589,7 +621,7 @@ function ComponentPage({
 
             {isProjectsPage && (
               <Suspense fallback={<p role="status">프로젝트 설정을 불러오는 중입니다.</p>}>
-                <WebProjects theme={resolvedTheme} onThemeChange={onThemeModeChange} />
+                <WebProjects language={webLanguage} theme={resolvedTheme} onThemeChange={onThemeModeChange} />
               </Suspense>
             )}
             {!isSettingsPage && (
@@ -632,6 +664,7 @@ function ComponentPage({
                       {activeTab === "composer" ? <SkeletonComposer language="tsx" /> : <WebRegistryDocs
                         key={activeComponent.id}
                         componentId={activeComponent.id}
+                        language={webLanguage}
                         tab={activeTab === "registry" ? "registry" : activeTab === "playground" ? "playground" : "preview"}
                       />}
                     </Suspense>

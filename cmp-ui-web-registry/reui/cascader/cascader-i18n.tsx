@@ -2,6 +2,7 @@ import type {
   CascaderLabels,
   CascaderMode,
 } from "@/components/reui/cascader/cascader-types"
+import type { IenLanguage } from "@/lib/ien-theme"
 
 /** Name of the root level. Hoisted so the root announcement can reuse it. */
 const ROOT_LEVEL = "Top level"
@@ -70,15 +71,57 @@ export const CASCADER_LABELS: CascaderLabels = {
   searchingAnnouncement: "Searching...",
 }
 
+const CASCADER_LABELS_KO: CascaderLabels = {
+  search: (parentLabel) => parentLabel ? `${parentLabel} 검색...` : "검색...",
+  back: "뒤로",
+  loading: "불러오는 중...",
+  loadingMore: "더 불러오는 중...",
+  loadMore: "더 불러오기",
+  error: "항목을 불러오지 못했습니다.",
+  retry: "다시 시도",
+  empty: "검색 결과가 없습니다.",
+  selectedCount: (count) => `${count}개 선택됨`,
+  breadcrumbLabel: "경로",
+  chipsLabel: "선택한 항목",
+  removeChip: (label) => `${label} 선택 해제`,
+  pathSeparator: "/",
+  rootLevel: "최상위",
+  itemCount: (count) => `${count}개 항목`,
+  branchAffordance: "하위 메뉴",
+  selectedState: "선택됨",
+  partiallySelectedState: "일부 선택됨",
+  columnsLabel: "단계",
+  actionsLabel: "작업",
+  submenuAffordance: "메뉴 열기",
+  panelLabel: "옵션",
+  keyboardHint: (mode, dir) => {
+    const open = dir === "rtl" ? "왼쪽" : "오른쪽"
+    const back = dir === "rtl" ? "오른쪽" : "왼쪽"
+    if (mode === "tree") return `${open} 화살표 키로 펼치고 ${back} 화살표 키로 접습니다.`
+    if (mode === "columns") return `${open} 화살표 키로 다음 열을 열고 ${back} 화살표 키로 돌아갑니다.`
+    return `${open} 화살표 키로 하위 항목을 열고 ${back} 화살표 키로 돌아갑니다.`
+  },
+  rootAnnouncement: (count) => `최상위, ${count}개 항목`,
+  expandedAnnouncement: (label, count) => `${label} 펼침, ${count}개 항목`,
+  collapsedAnnouncement: (label) => `${label} 접힘`,
+  levelAnnouncement: (parentLabel, depth, count) => `${parentLabel}, ${depth}단계, ${count}개 항목`,
+  resultsAnnouncement: (count) => `${count}개 결과`,
+  maxReachedAnnouncement: (max) => `최대 ${max}개까지 선택할 수 있습니다.`,
+  cascadeAnnouncement: (label, count, selecting) => `${label} ${selecting ? "선택됨" : "선택 해제됨"}, ${count}개 항목에 적용됨`,
+  searchingAnnouncement: "검색 중...",
+}
+
 /**
  * Shallow-merges consumer overrides over the defaults, so `labels` can carry a
  * single key without restating the rest.
  */
 export function resolveCascaderLabels(
-  labels?: Partial<CascaderLabels>
+  labels?: Partial<CascaderLabels>,
+  language: IenLanguage = "en",
 ): CascaderLabels {
-  if (!labels) return CASCADER_LABELS
-  return { ...CASCADER_LABELS, ...labels }
+  const defaults = language === "ko" ? CASCADER_LABELS_KO : CASCADER_LABELS
+  if (!labels) return defaults
+  return { ...defaults, ...labels }
 }
 
 /** Resolves the search placeholder, which may be a string or a function. */
