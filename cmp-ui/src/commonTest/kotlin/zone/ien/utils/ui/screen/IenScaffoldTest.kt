@@ -1,10 +1,33 @@
 package zone.ien.utils.ui.screen
 
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.LayoutDirection
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class IenScaffoldTest {
+    @Test
+    fun sideBarReservesRightInsetOnce() {
+        val padding = ienSideBarContentPadding(0.dp, 0.dp, 80.dp, 24.dp, 72.dp, 80.dp)
+        assertEquals(80.dp, padding.calculateRightPadding(LayoutDirection.Ltr))
+        assertEquals(72.dp, padding.calculateTopPadding())
+        assertEquals(24.dp, padding.calculateBottomPadding())
+    }
+
+    @Test
+    fun sideBarStaysOnPhysicalRightInRtl() {
+        val padding = ienSideBarContentPadding(4.dp, 20.dp, 0.dp, 0.dp, 0.dp, 80.dp)
+        assertEquals(80.dp, padding.calculateRightPadding(LayoutDirection.Rtl))
+        assertEquals(4.dp, padding.calculateLeftPadding(LayoutDirection.Rtl))
+        assertEquals(20.dp, padding.calculateTopPadding())
+    }
+
+    @Test
+    fun emptyOuterScaffoldDoesNotReserveAnotherSideBar() {
+        val padding = ienSideBarContentPadding(0.dp, 0.dp, 0.dp, 0.dp, 0.dp, 0.dp)
+        assertEquals(0.dp, padding.calculateRightPadding(LayoutDirection.Ltr))
+    }
+
     @Test
     fun topBlurRemainsHiddenAtScrollStart() {
         assertEquals(0f, resolveLazyTopEdgeProgress(false, null, 48f))

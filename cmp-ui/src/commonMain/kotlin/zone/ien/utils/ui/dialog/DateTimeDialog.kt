@@ -15,6 +15,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimeInput
+import androidx.compose.material3.TimeInputDefaults
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TimePickerState
@@ -295,15 +297,15 @@ fun IenTimePicker(
     val timePickerColors = TimePickerDefaults.colors(
         selectorColor = IenTheme.colors.brand,
         clockDialSelectedContentColor = IenTheme.colors.onBrand,
-        clockDialUnselectedContentColor = IenTheme.colors.textPrimary,
+        clockDialContentColor = IenTheme.colors.textPrimary,
         timeSelectorSelectedContainerColor = IenTheme.colors.brandWeak,
         timeSelectorSelectedContentColor = IenTheme.colors.brand,
-        timeSelectorUnselectedContainerColor = IenTheme.colors.surfaceWeak,
-        timeSelectorUnselectedContentColor = IenTheme.colors.textPrimary,
+        timeSelectorContainerColor = IenTheme.colors.surfaceWeak,
+        timeSelectorContentColor = IenTheme.colors.textPrimary,
         periodSelectorSelectedContainerColor = IenTheme.colors.brandWeak,
         periodSelectorSelectedContentColor = IenTheme.colors.brand,
-        periodSelectorUnselectedContainerColor = IenTheme.colors.surfaceRaised,
-        periodSelectorUnselectedContentColor = IenTheme.colors.textPrimary,
+        periodSelectorContainerColor = IenTheme.colors.surfaceRaised,
+        periodSelectorContentColor = IenTheme.colors.textPrimary,
     )
 
     if (isDial) {
@@ -316,7 +318,20 @@ fun IenTimePicker(
         TimeInput(
             state = state,
             modifier = modifier,
-            colors = timePickerColors,
+            colors = TimeInputDefaults.colors(
+                containerColor = timePickerColors.containerColor,
+                periodSelectorBorderColor = timePickerColors.periodSelectorBorderColor,
+                periodSelectorSelectedContainerColor = timePickerColors.periodSelectorSelectedContainerColor,
+                periodSelectorContainerColor = timePickerColors.periodSelectorContainerColor,
+                periodSelectorSelectedContentColor = timePickerColors.periodSelectorSelectedContentColor,
+                periodSelectorContentColor = timePickerColors.periodSelectorContentColor,
+                timeTextFieldColors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = timePickerColors.timeSelectorSelectedContainerColor,
+                    unfocusedContainerColor = timePickerColors.timeSelectorContainerColor,
+                    focusedTextColor = timePickerColors.timeSelectorSelectedContentColor,
+                    unfocusedTextColor = timePickerColors.timeSelectorContentColor,
+                ),
+            ),
         )
     }
 }

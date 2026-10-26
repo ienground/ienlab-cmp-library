@@ -25,8 +25,11 @@ kotlin {
             instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
     }
-    iosArm64()
-    iosSimulatorArm64()
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
+        target.compilations.getByName("main").cinterops.create("ienBarPlacement") {
+            definitionFile.set(project.file("src/nativeInterop/cinterop/ienBarPlacement.def"))
+        }
+    }
     wasmJs {
         browser()
     }

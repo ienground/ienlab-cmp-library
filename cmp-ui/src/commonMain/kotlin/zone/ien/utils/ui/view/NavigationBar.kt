@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -31,6 +32,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -82,6 +84,7 @@ import zone.ien.utils.ui.interactive.IenBadgeVariant
 import zone.ien.utils.ui.interactive.toneGradientBrush
 import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.screen.LocalIenBarPlacement
 
 // ─── CompositionLocals ───────────────────────────────────────────────────────
 
@@ -116,14 +119,18 @@ internal val LocalNavigationBarColors = compositionLocalOf {
 }
 
 /**
- * 네비게이션 바에서 각 항목의 가로 위치 정보(왼쪽 시작 지점과 너비)를 나타내는 데이터 클래스입니다.
+ * 네비게이션 바에서 각 항목의 위치와 크기를 나타냅니다.
  *
  * @property left 항목의 왼쪽 시작 지점 (Dp)
  * @property width 항목의 너비 (Dp)
+ * @property top 항목의 위쪽 시작 지점 (Dp)
+ * @property height 항목의 높이 (Dp)
  */
 internal data class NavigationBarItemBounds(
     val left: Dp,
     val width: Dp,
+    val top: Dp = 0.dp,
+    val height: Dp = 0.dp,
 )
 
 /**
@@ -261,6 +268,7 @@ fun IenNavigationBar2(
     visible: Boolean = true,
     content: @Composable RowScope.() -> Unit,
 ) {
+    val isSideBar = LocalIenBarPlacement.current?.sideWidth?.let { it > 0.dp } == true
     val navBarPadding = windowInsets.asPaddingValues()
     val layoutDirection = LocalLayoutDirection.current
 
@@ -296,15 +304,18 @@ fun IenNavigationBar2(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = navBarPadding.calculateStartPadding(layoutDirection),
-                    end = navBarPadding.calculateEndPadding(layoutDirection),
-                    bottom = navBarPadding.calculateBottomPadding(),
+                    start = if (isSideBar) 0.dp else navBarPadding.calculateStartPadding(layoutDirection),
+                    end = if (isSideBar) 0.dp else navBarPadding.calculateEndPadding(layoutDirection),
+                    bottom = if (isSideBar) 0.dp else navBarPadding.calculateBottomPadding(),
                 ),
         ) {
             Box(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .padding(horizontal = IenTheme.spacing.xs, vertical = IenTheme.spacing.md + IenTheme.spacing.xxxs),
+                    .padding(
+                        horizontal = IenTheme.spacing.xs,
+                        vertical = if (isSideBar) IenTheme.spacing.xs else IenTheme.spacing.md + IenTheme.spacing.xxxs,
+                    ),
             ) {
                 Surface(
                     color = colors.containerColor,
@@ -312,22 +323,23 @@ fun IenNavigationBar2(
                     tonalElevation = IenTheme.elevation.none,
                     shadowElevation = 18.dp,
                     modifier = Modifier
-                        .width(IntrinsicSize.Max)
-                        .height(78.dp),
+                        .then(if (isSideBar) Modifier.width(64.dp) else Modifier.width(IntrinsicSize.Max).height(78.dp)),
                 ) {
                     CompositionLocalProvider(
                         LocalNavigationBarSelectedIndex provides selectedIndex,
                         LocalNavigationBarColors provides colors,
                         LocalIenNavigationBarType provides IenNavigationBarType.Type2,
                     ) {
-                        Row(
+                        IenNavigationBarItemsLayout(
                             modifier = Modifier
-                                .fillMaxHeight()
+                                .then(if (isSideBar) Modifier else Modifier.fillMaxHeight())
                                 .fillMaxWidth()
                                 .selectableGroup()
-                                .padding(horizontal = IenTheme.spacing.sm - IenTheme.spacing.xxxs),
-                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-                            verticalAlignment = Alignment.CenterVertically,
+                                .padding(
+                                    horizontal = if (isSideBar) IenTheme.spacing.xs else IenTheme.spacing.sm - IenTheme.spacing.xxxs,
+                                    vertical = if (isSideBar) IenTheme.spacing.xs else 0.dp,
+                                ),
+                            spacing = IenTheme.spacing.xs,
                             content = content,
                         )
                     }
@@ -347,12 +359,13 @@ private fun IenNavigationBarImpl(
     visible: Boolean,
     content: @Composable RowScope.() -> Unit,
 ) {
+    val isSideBar = LocalIenBarPlacement.current?.sideWidth?.let { it > 0.dp } == true
     val navBarPadding = windowInsets.asPaddingValues()
     val layoutDirection = LocalLayoutDirection.current
     val itemBounds = remember { mutableStateMapOf<Int, NavigationBarItemBounds>() }
     val selectedBounds = itemBounds[selectedIndex]
     val indicatorOffset by animateDpAsState(
-        targetValue = selectedBounds?.left ?: 0.dp,
+        targetValue = (if (isSideBar) selectedBounds?.top else selectedBounds?.left) ?: 0.dp,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioNoBouncy,
             stiffness = Spring.StiffnessMedium,
@@ -360,7 +373,7 @@ private fun IenNavigationBarImpl(
         label = "navigationBarIndicatorOffset",
     )
     val indicatorWidth by animateDpAsState(
-        targetValue = selectedBounds?.width ?: 0.dp,
+        targetValue = (if (isSideBar) selectedBounds?.height else selectedBounds?.width) ?: 0.dp,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioNoBouncy,
             stiffness = Spring.StiffnessMedium,
@@ -406,15 +419,18 @@ private fun IenNavigationBarImpl(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        start = navBarPadding.calculateStartPadding(layoutDirection),
-                        end = navBarPadding.calculateEndPadding(layoutDirection),
-                        bottom = navBarPadding.calculateBottomPadding(),
+                        start = if (isSideBar) 0.dp else navBarPadding.calculateStartPadding(layoutDirection),
+                        end = if (isSideBar) 0.dp else navBarPadding.calculateEndPadding(layoutDirection),
+                        bottom = if (isSideBar) 0.dp else navBarPadding.calculateBottomPadding(),
                     ),
             ) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.md),
+                        .padding(
+                            horizontal = if (isSideBar) IenTheme.spacing.xs else IenTheme.spacing.md,
+                            vertical = if (isSideBar) IenTheme.spacing.xs else IenTheme.spacing.md,
+                        ),
                 ) {
                     val containerShape = ContinuousCapsule()
                     Surface(
@@ -423,11 +439,11 @@ private fun IenNavigationBarImpl(
                         tonalElevation = IenTheme.elevation.none,
                         shadowElevation = 18.dp,
                         modifier = Modifier
-                            .height(78.dp)
+                            .then(if (isSideBar) Modifier.width(64.dp) else Modifier.height(78.dp))
                     ) {
                         Box(
                             modifier = Modifier
-                                .fillMaxHeight()
+                                .then(if (isSideBar) Modifier else Modifier.fillMaxHeight())
                                 .background(
                                     brush = if (colors.containerColor == IenTheme.colors.brand) {
                                         toneGradientBrush(IenSemanticTone.Brand)
@@ -441,19 +457,17 @@ private fun IenNavigationBarImpl(
                             if (selectedBounds != null) {
                                 Box(
                                     modifier = Modifier
-                                        .offset(x = indicatorOffset)
-                                        .width(indicatorWidth)
-                                        .fillMaxHeight()
+                                        .then(if (isSideBar) Modifier.offset(y = indicatorOffset).height(indicatorWidth).fillMaxWidth()
+                                            else Modifier.offset(x = indicatorOffset).width(indicatorWidth).fillMaxHeight())
                                         .background(
                                             color = colors.selectedItemBackgroundColor,
                                             shape = ContinuousCapsule(),
                                         )
                                 )
                             }
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxHeight(),
+                            IenNavigationBarItemsLayout(
+                                spacing = IenTheme.spacing.xxs,
+                                modifier = if (isSideBar) Modifier else Modifier.fillMaxHeight(),
                             ) {
                                 content()
                             }
@@ -462,6 +476,30 @@ private fun IenNavigationBarImpl(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun IenNavigationBarItemsLayout(
+    modifier: Modifier,
+    spacing: Dp,
+    content: @Composable RowScope.() -> Unit,
+) {
+    if (LocalIenBarPlacement.current?.sideWidth?.let { it > 0.dp } == true) {
+        FlowRow(
+            modifier = modifier,
+            maxItemsInEachRow = 1,
+            horizontalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(spacing),
+            content = content,
+        )
+    } else {
+        Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(spacing),
+            verticalAlignment = Alignment.CenterVertically,
+            content = content,
+        )
     }
 }
 
@@ -494,6 +532,8 @@ fun RowScope.IenNavigationBarItem(
     badge: Int = 0,
     selectedIcon: (@Composable () -> Unit)? = null,
 ) {
+    val isSideBar = LocalIenBarPlacement.current?.sideWidth?.let { it > 0.dp } == true
+    val itemDirection = if (isSideBar) IenNavigationBarItemDirection.Vertical else direction
     if (LocalIenNavigationBarType.current == IenNavigationBarType.Type2) {
         IenNavigationBar2Item(
             index = index,
@@ -501,7 +541,7 @@ fun RowScope.IenNavigationBarItem(
             icon = icon,
             selectedIcon = selectedIcon,
             label = label,
-            direction = direction,
+            direction = itemDirection,
             alwaysShowLabel = alwaysShowLabel,
             enabled = enabled,
             modifier = modifier,
@@ -552,19 +592,22 @@ fun RowScope.IenNavigationBarItem(
         modifier = modifier
             .then(
                 when {
-                    direction == IenNavigationBarItemDirection.Vertical && (selected || alwaysShowLabel) ->
+                    isSideBar -> Modifier.width(48.dp).heightIn(min = 48.dp)
+                    itemDirection == IenNavigationBarItemDirection.Vertical && (selected || alwaysShowLabel) ->
                         Modifier.widthIn(min = 64.dp)
                     selected || alwaysShowLabel -> Modifier
                     else -> Modifier.width(48.dp)
                 }
             )
-            .fillMaxHeight()
+            .then(if (isSideBar) Modifier else Modifier.fillMaxHeight())
             .onGloballyPositioned { coordinates ->
                 updateItemBounds(
                     index,
                     NavigationBarItemBounds(
                         left = with(density) { coordinates.positionInParent().x.toDp() },
                         width = with(density) { coordinates.size.width.toDp() },
+                        top = with(density) { coordinates.positionInParent().y.toDp() },
+                        height = with(density) { coordinates.size.height.toDp() },
                     )
                 )
             }
@@ -575,10 +618,12 @@ fun RowScope.IenNavigationBarItem(
             .shakeOnDisabledClick(enabled)
             .clickable(
                 enabled = enabled,
+                role = Role.Tab,
                 indication = null,
                 interactionSource = interactionSource,
                 onClick = onClick
             )
+            .semantics { this.selected = selected }
     ) {
         val showLabel = alwaysShowLabel || selected
 
@@ -589,15 +634,15 @@ fun RowScope.IenNavigationBarItem(
                 .align(Alignment.Center)
                 .then(
                     when {
-                        direction == IenNavigationBarItemDirection.Vertical ->
+                        itemDirection == IenNavigationBarItemDirection.Vertical ->
                             Modifier.padding(horizontal = IenTheme.spacing.xxs)
                         showLabel -> Modifier.padding(horizontal = IenTheme.spacing.xl)
                         else -> Modifier.width(48.dp)
                     }
                 )
-                .fillMaxHeight()
+                .then(if (isSideBar) Modifier else Modifier.fillMaxHeight())
         ) {
-            when (direction) {
+            when (itemDirection) {
                 IenNavigationBarItemDirection.Horizontal -> {
                     CompositionLocalProvider(LocalContentColor provides iconColor) {
                         IenNavigationBarItemIcon(badge = badge, icon = itemIcon)
@@ -620,6 +665,7 @@ fun RowScope.IenNavigationBarItem(
 
                 IenNavigationBarItemDirection.Vertical -> {
                     Column(
+                        modifier = if (isSideBar) Modifier.padding(vertical = IenTheme.spacing.xs) else Modifier,
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
@@ -629,9 +675,9 @@ fun RowScope.IenNavigationBarItem(
 
                         if (showLabel) {
                             Spacer(modifier = Modifier.height(IenTheme.spacing.xxxs + IenTheme.spacing.xxxs / 2f))
-                            Box(modifier = Modifier.padding(horizontal = IenTheme.spacing.md)) {
+                            Box(modifier = if (isSideBar) Modifier else Modifier.padding(horizontal = IenTheme.spacing.md)) {
                                 ProvideTextStyle(
-                                    IenTheme.typography.label2.copy(color = textColor)
+                                    (if (isSideBar) IenTheme.typography.caption else IenTheme.typography.label2).copy(color = textColor)
                                 ) {
                                     label()
                                 }
@@ -657,6 +703,7 @@ private fun RowScope.IenNavigationBar2Item(
     modifier: Modifier,
     badge: Int,
 ) {
+    val isSideBar = LocalIenBarPlacement.current?.sideWidth?.let { it > 0.dp } == true
     val selected = index == LocalNavigationBarSelectedIndex.current
     val colors = LocalNavigationBarColors.current
     val interactionSource = remember { MutableInteractionSource() }
@@ -715,7 +762,9 @@ private fun RowScope.IenNavigationBar2Item(
     }
 
     val showLabel = alwaysShowLabel || selected
-    val itemSizeModifier = if (alwaysShowLabel) {
+    val itemSizeModifier = if (isSideBar) {
+        Modifier.width(48.dp)
+    } else if (alwaysShowLabel) {
         Modifier.weight(1f).widthIn(min = 54.dp)
     } else if (selected) {
         Modifier.weight(1.75f).widthIn(min = 112.dp)
@@ -727,7 +776,7 @@ private fun RowScope.IenNavigationBar2Item(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .then(itemSizeModifier)
-            .height(66.dp)
+            .then(if (isSideBar) Modifier.heightIn(min = 66.dp) else Modifier.height(66.dp))
             .graphicsLayer {
                 scaleX = itemScale * selectedBounce.value
                 scaleY = itemScale * selectedBounce.value
@@ -765,7 +814,7 @@ private fun RowScope.IenNavigationBar2Item(
             }
         }
         val navigationBarLabel: @Composable () -> Unit = {
-            ProvideTextStyle(IenTheme.typography.label2.copy(color = textColor)) {
+            ProvideTextStyle((if (isSideBar) IenTheme.typography.caption else IenTheme.typography.label2).copy(color = textColor)) {
                 label()
             }
         }
@@ -787,7 +836,7 @@ private fun RowScope.IenNavigationBar2Item(
 
             IenNavigationBarItemDirection.Vertical -> {
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().then(if (isSideBar) Modifier.padding(vertical = IenTheme.spacing.xs) else Modifier),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {

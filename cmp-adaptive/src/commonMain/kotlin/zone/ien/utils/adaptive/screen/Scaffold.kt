@@ -91,6 +91,7 @@ import zone.ien.utils.ui.screen.LocalIsM3TopBarCenterAligned
 import zone.ien.utils.ui.screen.LocalIsScrollTint
 import zone.ien.utils.ui.screen.LocalTopBarMode
 import zone.ien.utils.ui.screen.IenScaffold
+import zone.ien.utils.ui.screen.isIenSideBarLayout
 import zone.ien.utils.ui.screen.IenTopAppBar
 import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
@@ -304,51 +305,60 @@ fun AdaptiveTopAppBarScaffold(
             val topBarHeight = remember { mutableStateOf(0f) }
             var navigationTitleVisible by remember { mutableStateOf(true) }
 
+            @Composable
+            fun TopBar() {
+                IenTopAppBar(
+                    title = {
+                        AnimatedVisibility(
+                            visible = topBarMode == TopBarMode.Static ||
+                                !navigationTitleVisible,
+                            enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
+                            exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
+                        ) {
+                            title()
+                        }
+                    },
+                    subtitle = subtitle?.let {
+                        {
+                            AnimatedVisibility(
+                                visible = topBarMode == TopBarMode.Static ||
+                                    !navigationTitleVisible,
+                                enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
+                                exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
+                            ) {
+                                it()
+                            }
+                        }
+                    },
+                    modifier = topBarModifier.onGloballyPositioned {
+                        topBarHeight.value = it.size.height.toFloat()
+                    },
+                    navigationIcon = navigationIcon,
+                    actions = actions,
+                    windowInsets = materialAdaptation.topBarWindowInsets,
+                    isCenterAligned = materialAdaptation.isCenterAligned,
+                    isScrollTint = materialAdaptation.isScrollTint,
+                    mode = TopBarMode.Static,
+                )
+            }
+
             CompositionLocalProvider(LocalBackdrop provides backdrop) {
                 IenScaffold(
                     modifier = modifier.onGloballyPositioned {
                         scaffoldCoordinates.value = it
                     },
-                    topBar = {
+                    topBar = topBar@{
+                        if (isIenSideBarLayout) {
+                            if (showTopBar) TopBar()
+                            return@topBar
+                        }
                         Box {
                             AnimatedVisibility(
                                 visible = showTopBar,
                                 enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
                                 exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
                             ) {
-                                IenTopAppBar(
-                                    title = {
-                                        AnimatedVisibility(
-                                            visible = topBarMode == TopBarMode.Static ||
-                                                !navigationTitleVisible,
-                                            enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
-                                            exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
-                                        ) {
-                                            title()
-                                        }
-                                    },
-                                    subtitle = subtitle?.let {
-                                        {
-                                            AnimatedVisibility(
-                                                visible = topBarMode == TopBarMode.Static ||
-                                                    !navigationTitleVisible,
-                                                enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
-                                                exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
-                                            ) {
-                                                it()
-                                            }
-                                        }
-                                    },
-                                    modifier = topBarModifier.onGloballyPositioned {
-                                        topBarHeight.value = it.size.height.toFloat()
-                                    },
-                                    navigationIcon = navigationIcon,
-                                    actions = actions,
-                                    windowInsets = materialAdaptation.topBarWindowInsets,
-                                    isCenterAligned = materialAdaptation.isCenterAligned,
-                                    isScrollTint = materialAdaptation.isScrollTint,
-                                    mode = TopBarMode.Static,
-                                )
+                                TopBar()
                             }
                             AnimatedVisibility(
                                 visible = !showTopBar,
@@ -888,8 +898,9 @@ private fun IenNavigationTitle(
             .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.xs)
             .alpha(animatedAlpha)
             .onGloballyPositioned {
+                if (!it.isAttached) return@onGloballyPositioned
                 actualTitleHeight = it.size.height.toFloat()
-                val scaffoldTop = scaffoldCoordinates?.boundsInWindow()?.top ?: 0f
+                val scaffoldTop = scaffoldCoordinates?.takeIf { it.isAttached }?.boundsInWindow()?.top ?: 0f
                 offsetDifference = (topBarHeight - it.boundsInWindow().top) + scaffoldTop
                 onVisibilityChange(!topAppBarExists || offsetDifference < it.size.height)
             },

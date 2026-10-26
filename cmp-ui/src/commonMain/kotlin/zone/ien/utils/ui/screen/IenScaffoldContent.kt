@@ -3,6 +3,7 @@ package zone.ien.utils.ui.screen
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -27,8 +28,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -91,6 +97,8 @@ internal fun resolveBottomBlurHeight(
 /**
  * IEN 라이브러리의 기본 스크래프트(Scaffold) 컴포저블입니다.
  * 콘텐츠 영역의 상/하단에 유려한 모서리 블러 효과([IenScaffoldContentEdge])를 적용할 수 있습니다.
+ * 오른쪽 시스템 예약 영역이 있는 Duo에서는 버튼과 탭을 세로로 배치합니다.
+ * Duo의 콘텐츠 스크롤 방향에 따라 상단 제목과 블러를 숨기거나 다시 표시합니다.
  *
  * @param modifier 적용할 Modifier
  * @param topBar 상단 영역에 표시할 컴포저블
@@ -118,6 +126,23 @@ fun IenScaffold(
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    val devicePlacement by rememberIenBarPlacement()
+    val placement = LocalIenBarPlacement.current ?: devicePlacement
+    val isSideBar = placement != null && placement.sideWidth > 0.dp
+    var topBarHidden by remember { mutableStateOf(false) }
+    val scrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                if (consumed.y != 0f) topBarHidden = consumed.y < 0f
+                return Offset.Zero
+            }
+        }
+    }
+    val topBarVisibility by animateFloatAsState(
+        targetValue = if (placement != null && topBarHidden) 0f else 1f,
+        animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing),
+        label = "ienDuoTopBarVisibility",
+    )
     val defaultScrollState = rememberScrollState()
     val effectiveContentEdge = if (contentEdge.scrollableState == null) {
         contentEdge.copy(scrollableState = defaultScrollState)
@@ -153,28 +178,10 @@ fun IenScaffold(
         label = "bottom_bar_blur_height",
     )
 
-    Scaffold(
-        modifier = modifier,
-        topBar = topBar,
-        bottomBar = {
-            if (bottomBar != null) {
-                Box(
-                    modifier = Modifier.onSizeChanged { size ->
-                        bottomBarHeightPx = size.height
-                    },
-                ) {
-                    bottomBar()
-                }
-            }
-        },
-        snackbarHost = snackbarHost,
-        floatingActionButton = floating,
-        floatingActionButtonPosition = floatingActionButtonPosition,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        contentWindowInsets = contentWindowInsets,
-    ) { contentPadding ->
-        Box(modifier = Modifier.fillMaxSize()) {
+    val scaffoldContent: @Composable (PaddingValues) -> Unit = { contentPadding ->
+        Box(modifier = Modifier.fillMaxSize().then(
+            if (placement != null) Modifier.nestedScroll(scrollConnection) else Modifier,
+        )) {
             Box(
                 modifier = Modifier
                     .matchParentSize()
@@ -191,16 +198,57 @@ fun IenScaffold(
                     showTop = effectiveContentEdge.topEnabled,
                     showBottom = effectiveContentEdge.bottomEnabled,
                     topProgress = effectiveTopProgress,
+                    topBarVisibility = topBarVisibility,
                     bottomProgress = effectiveBottomProgress,
                     topHeight = effectiveContentEdge.topHeight,
                     bottomHeight = resolveBottomBlurHeight(
                         bottomHeight = effectiveContentEdge.bottomHeight,
-                        bottomBarHeight = bottomBarHeight,
+                        bottomBarHeight = if (isSideBar) 0.dp else bottomBarHeight,
                     ),
                     radius = effectiveContentEdge.radius,
                     color = contentEdgeColor,
                 )
             }
+        }
+    }
+    CompositionLocalProvider(LocalIenBarPlacement provides placement) {
+        if (isSideBar) {
+            IenSideBarScaffold(
+                modifier = modifier,
+                placement = placement,
+                topBarVisibility = topBarVisibility,
+                topBar = topBar,
+                bottomBar = bottomBar,
+                snackbarHost = snackbarHost,
+                floating = floating,
+                floatingPosition = floatingActionButtonPosition,
+                containerColor = containerColor,
+                contentColor = contentColor,
+                contentWindowInsets = contentWindowInsets,
+                content = scaffoldContent,
+            )
+        } else {
+            Scaffold(
+                modifier = modifier,
+                topBar = {
+                    Box(Modifier.graphicsLayer {
+                        translationY = -size.height * (1f - topBarVisibility)
+                        alpha = topBarVisibility
+                    }) { topBar() }
+                },
+                bottomBar = {
+                    if (bottomBar != null) {
+                        Box(Modifier.onSizeChanged { bottomBarHeightPx = it.height }) { bottomBar() }
+                    }
+                },
+                snackbarHost = snackbarHost,
+                floatingActionButton = floating,
+                floatingActionButtonPosition = floatingActionButtonPosition,
+                containerColor = containerColor,
+                contentColor = contentColor,
+                contentWindowInsets = contentWindowInsets,
+                content = scaffoldContent,
+            )
         }
     }
 }
@@ -320,6 +368,7 @@ private fun IenScaffoldEdgeBlur(
     showTop: Boolean,
     showBottom: Boolean,
     topProgress: Float,
+    topBarVisibility: Float,
     bottomProgress: Float,
     topHeight: Dp,
     bottomHeight: Dp,
@@ -333,6 +382,10 @@ private fun IenScaffoldEdgeBlur(
                     .align(Alignment.TopCenter)
                     .fillMaxWidth()
                     .height(topHeight)
+                    .graphicsLayer {
+                        translationY = -size.height * (1f - topBarVisibility)
+                        alpha = topBarVisibility
+                    }
                     .drawPlainBackdrop(
                         backdrop = backdrop,
                         shape = { RectangleShape },
