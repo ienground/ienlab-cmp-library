@@ -16,14 +16,14 @@
 | 구분 | 구성 |
 | --- | --- |
 | CMP 문서 카탈로그 | 73개 항목. Compose 기본 API인 `AnimatedContent` 예제도 포함 |
-| 웹 컴포넌트 레지스트리 | UI 59개, 훅 5개, 공통 라이브러리 3개로 총 67개 |
+| 웹 컴포넌트 레지스트리 | UI 60개, 훅 5개, 공통 라이브러리 3개로 총 68개 |
 | 웹 프로젝트 레지스트리 | 기본 프로젝트 `ienlab` 1개. 위 컴포넌트 집계와 별도 |
 
-CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 복합 컴포넌트를 여러 설치 항목으로 나누기도 합니다. 따라서 59÷73을 구현률로 계산할 수 없습니다.
+CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 복합 컴포넌트를 여러 설치 항목으로 나누기도 합니다. 따라서 60÷73을 구현률로 계산할 수 없습니다.
 
 기본 입력·선택·로딩 컴포넌트는 양쪽에 상당 부분 구현되어 있습니다. 웹에서 부족한 영역은 CMP의 리스트·다이얼로그·알림·화면 구성 컴포넌트입니다. 반대로 데이터 테이블·일정·보드·계층 선택 같은 복잡한 데이터 UI는 웹이 더 풍부합니다.
 
-웹은 REUI와 shadcn/ui 기반 구조에 IEN 디자인과 CMP 기능을 반영한 상태입니다. 웹 UI 59개 모두 `ienDesign: true`로 등록되어 있지만, 이 메타데이터만으로 시각적 대응 완료를 판단하지 않습니다.
+웹은 REUI와 shadcn/ui 기반 구조에 IEN 디자인과 CMP 기능을 반영한 상태입니다. 웹 UI 60개 모두 `ienDesign: true`로 등록되어 있지만, 이 메타데이터만으로 시각적 대응 완료를 판단하지 않습니다.
 
 웹 문서의 컴포넌트 분류도 CMP와 같은 용도 기준인 `액션·선택`, `입력`, `레이아웃`, `콘텐츠`, `피드백`, `화면 구성`, `기초` 순서를 사용합니다. 웹 전용 컴포넌트도 역할에 따라 분류하며, 항목이 없는 분류는 표시하지 않습니다. REUI·shadcn/ui 출처 정보는 분류와 별도로 유지합니다.
 
@@ -69,6 +69,7 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 | 메뉴 | `IenMenu`, `IenDropdownMenu`, `IenActionsMenu` | `DropdownMenu`, `ContextMenu` 등 | 대응 구현 존재. 호출 구조와 조합 방식은 다름 |
 | 툴팁 | `IenTooltip` | `Tooltip` | 표시·위치·너비·정렬 대응. 세부 옵션 차이 존재 |
 | 빈 상태 | `IenEmpty` | `Empty` | 대응 구현 존재 |
+| 당김 갱신 | `IenPullToRefreshBox`, `IenPullToRefreshIndicator` | `PullToRefresh`, `PullToRefreshIndicator` | 56px 기준·최대 96px 이동·세 점 표시. 터치·마우스 당김·휠/트랙패드 상단 오버스크롤·Alt+R, 외부 갱신 상태와 커스텀 인디케이터 제공. 요청·오류 처리는 호출자가 담당 |
 
 ## 존재하지만 기능이나 API가 다른 영역
 
@@ -112,7 +113,7 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 | 플로팅 액션 | `IenFab`, `IenExtendedFab`, `IenFabMenu` | 대응 전용 컴포넌트 없음 |
 | 액션 바 | `IenActionBar` | 대응 없음 |
 | 리스트 | `IenListRow`, Header / Footer, `IenBoardRow`, `IenTableRow`, Section | CMP의 행·섹션 API에 대응하는 컴포넌트 없음 |
-| 스와이프·새로고침 | `IenSwipeBox`, `IenPullToRefreshBox` | 대응 없음 |
+| 스와이프 | `IenSwipeBox` | 대응 없음. 이번 웹 구현 범위에서 제외 |
 | 화면 골격 | Scaffold, TopBar, BottomBar, NavigationBar | 대응 전용 컴포넌트 없음 |
 | 하단 작업 영역 | BottomCTA, DoubleBottomCTA, ChatBottomBar, BottomInfo | 대응 전용 컴포넌트 없음 |
 | 약관 | 필수·선택, 전체 동의, 펼침 등을 포함한 `IenAgreement` | 체크박스 기반의 전용 약관 컴포넌트 없음 |
@@ -242,11 +243,18 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 
 이 절은 남아 있는 디자인 차이를 기록합니다. 최근 실제 스타일 변경과 검증 범위는 위의 「최근 구현·수정 반영 사항」을 함께 참고합니다.
 
+## 이번 웹 구현 범위 조정
+
+- Dialog 계열은 보류합니다.
+- FAB·FAB Menu, 전용 키패드, SwipeBox, 앱 전용 Scaffold·TopBar·BottomBar·NavigationBar, 모바일 전용 하단 구성, 네이티브 권한 안내, PrefsScreen·플랫폼 저장 연동, 범용 AnimatedRow·AnimatedColumn은 제외합니다. 기존 웹 컴포넌트는 삭제하지 않습니다.
+- Sheet의 기본 하단 배치와 선택 목록은 유지하되, 모바일식 다단 높이·드래그 확장은 제외합니다.
+- PullToRefresh는 예외적으로 구현했습니다. 설치 항목·CMP 매핑·Preview·Playground를 연결했습니다. 상단에서 위쪽 휠/트랙패드 입력을 누적하고, 표시 거리가 56px를 넘은 뒤 입력이 180ms 멈추면 갱신합니다. 브라우저의 터치 제스처·실기기 검증은 별도로 남아 있습니다.
+
 ## 문서와 매핑의 부족한 부분
 
 ### CMP 연결 메타데이터
 
-웹 UI 59개 중 `cmpIds`가 설정된 것은 다음 6개입니다.
+웹 UI 60개 중 `cmpIds`가 설정된 것은 다음 7개입니다.
 
 - `chip`
 - `rating`
@@ -254,6 +262,7 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 - `progress-indicator`
 - `loading-indicator`
 - `segmented-control`
+- `pull-to-refresh`
 
 버튼·카드·체크박스·탭·휠 선택기 등은 실제 대응 구현이 있지만 `cmpIds`가 비어 있습니다. 문서 생성기는 이 필드로 CMP 카탈로그 연결을 찾으므로 실제 대응 범위가 문서에 충분히 드러나지 않습니다.
 
@@ -275,10 +284,10 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 
 ### 남은 작업 정리
 
-- **새 대응 컴포넌트**: Dialog·AlertDialog·목적별 다이얼로그, Toast·Snackbar, Slider·RangeSlider, ListRow·Section, FAB·FAB Menu, ActionBar, 약관 등. 전체 목록은 「CMP에는 있고 웹에 대응 컴포넌트가 없는 영역」 참조.
-- **기존 API 확장**: 버튼·아이콘 toggle, 전용 Split Button, 검색·비밀번호·분할 입력과 포맷, 바텀시트 높이·드래그·선택 목록, 휠 선택기 사이의 확인 절차·폼·열림 제어 차이.
+- **새 대응 컴포넌트**: Toast·Snackbar, Slider·RangeSlider, ListRow·Section, ActionBar, 약관 등. Dialog 계열은 보류하며, 위의 「이번 웹 구현 범위 조정」에서 제외한 항목은 수행하지 않습니다.
+- **기존 API 확장**: 버튼·아이콘 toggle, 전용 Split Button, 검색·비밀번호·분할 입력과 포맷, 바텀시트 선택 목록, 휠 선택기 사이의 확인 절차·폼·열림 제어 차이.
 - **디자인 정렬**: 웹 타이포그래피와 버튼·입력 높이, CardTitle·EmptyTitle·휠의 실제 텍스트 규격, 비활성·포커스·오류 상태 표현. 메뉴·캘린더 여백과 SegmentedControl 캡슐·모션은 구현에 반영했으므로 신규 구현 대기 항목으로 취급하지 않음.
-- **문서 연결**: 아직 `cmpIds`가 없는 실제 대응 컴포넌트의 매핑. 현재 매핑은 6개이며 대응 UI 전체가 아님.
+- **문서 연결**: 아직 `cmpIds`가 없는 실제 대응 컴포넌트의 매핑. 현재 매핑은 7개이며 대응 UI 전체가 아님.
 - **추가 검증**: 최종 메뉴·캘린더 여백, SegmentedControl 양끝 bouncy 넘침·Fluid 스크롤·비활성 흔들림, Button의 모든 variant·아이콘·asChild 링크. 다크 테마·모바일·접근성·실기기 및 자동 테스트 전체 결과는 별도 확인 필요.
 
 ## 근거 소스와 가져오기 정보

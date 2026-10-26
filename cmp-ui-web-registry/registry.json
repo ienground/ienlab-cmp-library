@@ -4488,6 +4488,9 @@
             "animation-delay": "var(--ien-skeleton-delay, -1200ms)",
             "animation-timing-function": "linear(0.5000000, 0.5652631, 0.6294095, 0.6913417, 0.7500000, 0.8043807, 0.8535534, 0.8966767, 0.9330127, 0.9619398, 0.9829629, 0.9957224, 1.0000000, 0.9957224, 0.9829629, 0.9619398, 0.9330127, 0.8966767, 0.8535534, 0.8043807, 0.7500000, 0.6913417, 0.6294095, 0.5652631, 0.5000000, 0.4347369, 0.3705905, 0.3086583, 0.2500000, 0.1956193, 0.1464466, 0.1033233, 0.0669873, 0.0380602, 0.0170371, 0.0042776, 0.0000000, 0.0042776, 0.0170371, 0.0380602, 0.0669873, 0.1033233, 0.1464466, 0.1956193, 0.2500000, 0.3086583, 0.3705905, 0.4347369, 0.5000000)",
             "transform-origin": "center"
+          },
+          ".ien-pull-to-refresh-dot": {
+            "animation": "ien-pull-to-refresh-dot 900ms linear infinite"
           }
         },
         "@media (prefers-reduced-motion: reduce)": {
@@ -4502,6 +4505,11 @@
             "animation": "none",
             "opacity": "1",
             "transform": "none"
+          },
+          ".ien-pull-to-refresh-dot": {
+            "animation": "none",
+            "opacity": "1",
+            "transform": "none"
           }
         },
         "@keyframes ien-skeleton-wave": {
@@ -4512,6 +4520,20 @@
           "to": {
             "opacity": "1",
             "transform": "scale(1)"
+          }
+        },
+        "@keyframes ien-pull-to-refresh-dot": {
+          "0%, 65%, 100%": {
+            "transform": "translateY(0) scale(0.72)",
+            "opacity": "0.55"
+          },
+          "35%": {
+            "transform": "translateY(-6px) scale(1.18)",
+            "opacity": "1",
+            "animation-timing-function": "var(--ien-motion-standard-easing)"
+          },
+          "0%": {
+            "animation-timing-function": "var(--ien-motion-standard-easing)"
           }
         }
       },
@@ -4644,6 +4666,46 @@
         ],
         "preview": "previews/segmented-control.tsx",
         "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { SegmentedControl } from \"@/components/ui/segmented-control\"\n\nconst items = [\n  { value: \"all\", label: \"전체\" },\n  { value: \"active\", label: \"진행 중\" },\n  { value: \"done\", label: \"완료\" },\n]\n\nexport function Pattern() {\n  const [value, setValue] = useState(\"all\")\n  return (\n    <div className=\"flex w-full max-w-lg flex-col gap-6\">\n      <SegmentedControl items={items} value={value} onValueChange={setValue} aria-label=\"작업 상태\" />\n      <p className=\"text-sm text-muted-foreground\" aria-live=\"polite\">선택: {items.find((item) => item.value === value)?.label}</p>\n      <SegmentedControl items={items} size=\"large\" defaultValue=\"active\" aria-label=\"큰 크기\" />\n      <div className=\"max-w-64\">\n        <SegmentedControl alignment=\"fluid\" items={[...items, { value: \"waiting\", label: \"검토 대기 중\" }, { value: \"blocked\", label: \"선택 불가\", enabled: false }]} aria-label=\"가로 스크롤\" />\n      </div>\n      <SegmentedControl items={items} enabled={false} aria-label=\"비활성화\" />\n    </div>\n  )\n}\n\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
+      "name": "pull-to-refresh",
+      "type": "registry:ui",
+      "title": "PullToRefresh",
+      "description": "CMP의 세 점 인디케이터를 사용하는 당김 갱신입니다. 터치·마우스 당김, 휠·트랙패드의 상단 오버스크롤, 키보드와 외부 갱신 상태를 지원합니다. 높이가 제한된 영역에서 사용하며 요청·오류 처리는 호출자가 담당합니다.",
+      "dependencies": [
+        "cn@^0.4.0"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme"
+      ],
+      "files": [
+        {
+          "path": "ui/pull-to-refresh.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/pull-to-refresh.tsx"
+        },
+        {
+          "path": "lib/ien-pull-to-refresh.ts",
+          "type": "registry:lib",
+          "target": "@lib/ien-pull-to-refresh.ts"
+        }
+      ],
+      "meta": {
+        "category": "피드백",
+        "cmpIds": [
+          "pull-to-refresh"
+        ],
+        "exports": [
+          "PullToRefresh",
+          "PullToRefreshIndicator",
+          "PullToRefreshProps",
+          "PullToRefreshIndicatorProps",
+          "PullToRefreshState"
+        ],
+        "preview": "previews/pull-to-refresh.tsx",
+        "example": "\"use client\"\n\nimport { useEffect, useRef, useState } from \"react\"\nimport { PullToRefresh } from \"@/components/ui/pull-to-refresh\"\n\nexport function Pattern() {\n  const [isRefreshing, setIsRefreshing] = useState(false)\n  const [revision, setRevision] = useState(0)\n  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)\n  useEffect(() => () => clearTimeout(timer.current), [])\n  const refresh = () => {\n    setIsRefreshing(true)\n    // 프리뷰에서만 요청 시간을 재현합니다. 실제 사용 시 데이터 요청의 finally에서 종료합니다.\n    timer.current = setTimeout(() => {\n      setRevision((value) => value + 1)\n      setIsRefreshing(false)\n    }, 1400)\n  }\n  return (\n    <div className=\"w-full max-w-md space-y-3\">\n      <p className=\"text-sm text-muted-foreground\">목록 맨 위에서 아래로 당기거나 위로 더 스크롤해 보세요. 마우스 드래그 또는 목록에 포커스한 뒤 Alt+R로도 갱신할 수 있습니다.</p>\n      <p className=\"text-sm text-muted-foreground\" aria-live=\"polite\">갱신 횟수: {revision}</p>\n      <PullToRefresh isRefreshing={isRefreshing} onRefresh={refresh} className=\"h-80 rounded-2xl border border-(--ien-border) bg-(--ien-surface)\" aria-label=\"최근 활동 목록\">\n        <ul className=\"divide-y divide-(--ien-border) px-4\">\n          {Array.from({ length: 12 }, (_, index) => (\n            <li key={index} className=\"flex min-h-19 items-center gap-3 py-4\">\n              <span className=\"flex size-11 shrink-0 items-center justify-center rounded-xl bg-(--ien-brand-weak) text-(--ien-brand)\" aria-hidden=\"true\">{index + 1}</span>\n              <div className=\"min-w-0\">\n                <p className=\"text-base font-semibold\">최근 활동 {index + 1}</p>\n                <p className=\"text-sm text-muted-foreground\">{revision === 0 ? \"기존 항목을 유지하며 새로고침합니다.\" : `${revision}번째 갱신 내용입니다.`}</p>\n              </div>\n            </li>\n          ))}\n        </ul>\n      </PullToRefresh>\n    </div>\n  )\n}\n\nexport default Pattern\n",
         "ienDesign": true
       }
     }

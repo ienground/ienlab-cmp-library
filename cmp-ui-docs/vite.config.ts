@@ -22,13 +22,26 @@ if (!libraryVersion) throw new Error("라이브러리 버전을 찾을 수 없�
 
 export default defineConfig(async ({ command }) => {
   const repository = fileURLToPath(new URL("../", import.meta.url));
-  const aliases = registryModuleAliases(
-    await collectRegistry(`${repository}/registry.json`, repository),
-  );
+  const registryItems = await collectRegistry(`${repository}/registry.json`, repository);
+  const aliases = registryModuleAliases(registryItems);
+  const registryManifests = new Set([
+    fileURLToPath(new URL("../registry.json", import.meta.url)),
+    ...registryItems.map((item) => item.manifestPath),
+  ]);
   return {
     root: "web",
     base: "/",
     plugins: [{
+      name: "registry-alias-reload",
+      configureServer(server) {
+        server.watcher.add([...registryManifests]);
+        const reload = (file: string) => {
+          if (registryManifests.has(file)) void server.restart();
+        };
+        server.watcher.on("change", reload);
+        server.httpServer?.once("close", () => server.watcher.off("change", reload));
+      },
+    }, {
       name: "web-component-playground",
       enforce: "pre",
       transform(source, id) {
