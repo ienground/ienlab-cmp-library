@@ -40,7 +40,7 @@ function Calendar({
       <DayPicker
         showOutsideDays={showOutsideDays}
         className={cn(
-        "p-2 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(7)] group/calendar bg-background in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
+        "px-(--ien-spacing-xl) py-(--ien-spacing-md) [--cell-radius:var(--radius-md)] [--cell-size:--spacing(7)] group/calendar bg-background in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
         String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
         className
@@ -96,7 +96,11 @@ function Calendar({
             : "h-6 pr-1 pl-1.5 flex items-center gap-1 rounded-(--cell-radius) text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground",
           defaultClassNames.caption_label
         ),
-          month_grid: cn("w-full border-collapse", defaultClassNames.month_grid),
+          month_grid: cn(
+            "w-full border-collapse",
+            props.showWeekNumber ? "min-w-[calc(var(--cell-size)*8)]" : "min-w-[calc(var(--cell-size)*7)]",
+            defaultClassNames.month_grid,
+          ),
           weekdays: cn("flex", defaultClassNames.weekdays),
           weekday: cn(
           "flex-1 rounded-(--cell-radius) text-[0.8rem] font-normal text-muted-foreground select-none",

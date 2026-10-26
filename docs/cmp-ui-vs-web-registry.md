@@ -7,7 +7,7 @@
 - CMP 주 범위: `cmp-ui`, 문서 카탈로그
 - CMP 보조 범위: `cmp-pref`, `cmp-adaptive`, `cmp-date`
 - 웹 범위: `cmp-ui-web-registry`의 설치 항목과 실제 구현
-- 검증 범위: 기능·API는 정적 소스 분석. 디자인은 토큰·스타일 소스 비교와 로컬 Chrome의 대표 프리뷰 확인을 병행. 빌드·자동 테스트는 수행하지 않음
+- 검증 범위: 기능·API는 현재 소스와 레지스트리를 대조. 디자인은 토큰·스타일 소스 비교와 로컬 Chrome의 대표 프리뷰 확인을 병행. 최근 구현 작업에서 타입 검사·사이트 빌드·설치 레지스트리 생성을 통과했으며, 이 문서 갱신에서는 빌드·자동 테스트를 재실행하지 않음
 
 이 문서에서 **대응 없음**은 현재 라이브러리가 바로 사용할 수 있는 대응 컴포넌트를 제공하지 않는다는 뜻입니다. 기반 라이브러리나 기존 컴포넌트를 조합해 구현할 수 있는 가능성과는 구분합니다. **대응 존재**도 외형·애니메이션·접근성까지 동일하게 검증되었다는 뜻은 아닙니다.
 
@@ -16,16 +16,34 @@
 | 구분 | 구성 |
 | --- | --- |
 | CMP 문서 카탈로그 | 73개 항목. Compose 기본 API인 `AnimatedContent` 예제도 포함 |
-| 웹 컴포넌트 레지스트리 | UI 58개, 훅 5개, 공통 라이브러리 3개로 총 66개 |
+| 웹 컴포넌트 레지스트리 | UI 59개, 훅 5개, 공통 라이브러리 3개로 총 67개 |
 | 웹 프로젝트 레지스트리 | 기본 프로젝트 `ienlab` 1개. 위 컴포넌트 집계와 별도 |
 
-CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 복합 컴포넌트를 여러 설치 항목으로 나누기도 합니다. 따라서 58÷73을 구현률로 계산할 수 없습니다.
+CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 복합 컴포넌트를 여러 설치 항목으로 나누기도 합니다. 따라서 59÷73을 구현률로 계산할 수 없습니다.
 
 기본 입력·선택·로딩 컴포넌트는 양쪽에 상당 부분 구현되어 있습니다. 웹에서 부족한 영역은 CMP의 리스트·다이얼로그·알림·화면 구성 컴포넌트입니다. 반대로 데이터 테이블·일정·보드·계층 선택 같은 복잡한 데이터 UI는 웹이 더 풍부합니다.
 
-웹은 REUI와 shadcn/ui 기반 구조에 IEN 디자인과 CMP 기능을 반영한 상태입니다. 웹 UI 58개 모두 `ienDesign: true`로 등록되어 있지만, 이 메타데이터만으로 시각적 대응 완료를 판단하지 않습니다.
+웹은 REUI와 shadcn/ui 기반 구조에 IEN 디자인과 CMP 기능을 반영한 상태입니다. 웹 UI 59개 모두 `ienDesign: true`로 등록되어 있지만, 이 메타데이터만으로 시각적 대응 완료를 판단하지 않습니다.
 
 웹 문서의 컴포넌트 분류도 CMP와 같은 용도 기준인 `액션·선택`, `입력`, `레이아웃`, `콘텐츠`, `피드백`, `화면 구성`, `기초` 순서를 사용합니다. 웹 전용 컴포넌트도 역할에 따라 분류하며, 항목이 없는 분류는 표시하지 않습니다. REUI·shadcn/ui 출처 정보는 분류와 별도로 유지합니다.
+
+## 최근 구현·수정 반영 사항
+
+아래는 현재 소스에 반영된 내용입니다. 구현 여부와 실제 화면·상호작용 검증 여부를 구분합니다.
+
+| 영역 | 반영 내용 | 확인 범위 |
+| --- | --- | --- |
+| CMP·웹 Playground | 미리보기 옆에 컨트롤을 배치하고 각각 스크롤. 좁은 화면에서는 세로 배치. 웹 미리보기 너비는 데스크톱·태블릿·모바일 단일 선택 Segmented 형태로 제공 | 현재 구현 및 앞선 대표 화면 확인. 웹 너비 선택은 Radix ToggleGroup·Button 조합이며 신규 `SegmentedControl`을 사용하는 것은 아님 |
+| 웹 Button 로딩 | loading과 disabled의 불투명도 분리, 색상·너비 유지, 아이콘만 로더로 교체, 아이콘 없는 경우 전체 전환. `asChild` 링크의 href·탭 이동·클릭·키보드 활성화 제한. Playground에 아이콘 선택 추가 | 구현·타입 검사·빌드 확인. 수정 후 모든 variant·링크 상호작용 재검증은 남음 |
+| 웹 ProgressIndicator | 전달한 색상이 기본 brand에 덮이지 않도록 적용. 버튼 로더는 `currentColor`·투명 트랙 사용 | 구현·빌드 확인 |
+| 웹 Chip | Assist·Filter·Input·Suggestion, elevated, 선택·로딩·아이콘·avatar·삭제 제공. 설치 항목·Preview·Playground·CMP 매핑 추가 | 구현 및 앞선 빌드 확인. 모든 상태의 브라우저 검증은 별도 |
+| CMP·웹 Filter Chip | 선택하면 leading에 기본 체크 표시. `selectedIcon`으로 교체하거나 null로 숨김. ElevatedFilter도 적용하며, Input·Assist·Suggestion에는 자동 체크를 적용하지 않음 | 양쪽 소스 확인. 플랫폼별 전체 상태 재검증은 별도 |
+| 웹 메뉴 | DropdownMenu·ContextMenu·Select·Combobox·Autocomplete의 항목에 공통 body2 14px/20px, 아이콘 16px, 그룹 레이블 caption 12px/16px 적용. Select Group 중복 패딩 제거. 메뉴 안쪽 여백 8px, 공통 바깥 radius 28px로 확대. Popover도 같은 표면·패딩 기준 적용 | 소스·타입 검사·빌드 확인. Dropdown 대표 화면은 확인했으나 최종 여백 수정 후 모든 메뉴 재확인은 남음 |
+| 웹 SegmentedControl | 전용 공개 컴포넌트·설치 항목·Preview·Playground·CMP 매핑 추가. 40/48px, Fixed/Fluid, 개별 크기·활성화, 방향키·단일 선택, 선택 항목 자동 노출. 선택 표시·포커스 영역에 CMP 캡슐 곡선 적용. 위치·너비에 800ms medium-bouncy 토큰, 비활성 항목 클릭 시 해당 항목만 흔들림. Fixed는 overflow hidden, Fluid는 가로 스크롤을 유지하며 스크롤바를 숨기고 트랙 밖 모션을 자름 | 브라우저에서 대표 크기·캡슐 모양·선택·방향키 포커스 및 Space 선택 확인. 마지막 overflow·비활성 흔들림 수정 후 화면 재확인과 bouncy 프레임 검증은 남음 |
+| 웹 Calendar | 좌우 24px·상하 16px 패딩. 날짜 7열의 최소 너비 확보, 주 번호 표시 시 8열 기준 적용 | 소스·타입 검사·사이트 빌드 확인. 최종 여백의 화면 재확인은 남음 |
+| 웹 Switch 기본 콘텐츠 | CMP·웹 모두 `onTrackContent` 기본 미지정. 공통 `trackContent`를 지정한 경우에만 대체 콘텐츠 사용 | 기본 API 확인. Playground의 아이콘 예시는 라이브러리 기본값과 구분 |
+
+근거: [웹 Playground](../cmp-ui-docs/web/web-playground.tsx), [웹 Button](../cmp-ui-web-registry/ui/button.tsx), [웹 Chip](../cmp-ui-web-registry/ui/chip.tsx), [CMP Chip](../cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/interactive/IenChip.kt), [공통 메뉴 스타일·흔들림](../cmp-ui-web-registry/lib/ien-menu.ts), [웹 Select](../cmp-ui-web-registry/ui/select.tsx), [웹 SegmentedControl](../cmp-ui-web-registry/ui/segmented-control.tsx), [웹 Calendar](../cmp-ui-web-registry/ui/calendar.tsx), [웹 Switch](../cmp-ui-web-registry/ui/switch.tsx).
 
 ## 양쪽에 존재하는 주요 기능
 
@@ -37,7 +55,8 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 | 카드 | `IenCard` | `Card` | 웹도 채움·테두리, 색상, 여백, 모서리, elevation 제공 |
 | 체크박스 | `IenCircleCheckbox`, `IenDotCheckbox`, `IenLineCheckbox` | `Checkbox` | 웹도 `circle / dot / line` 제공 |
 | 라디오 | `IenRadioButton`, `IenRadioGroup` | `RadioGroup` | 기본 선택 기능 대응 |
-| 스위치 | `IenSwitch` | `Switch` | 기본 선택 기능 대응 |
+| 스위치 | `IenSwitch` | `Switch` | 기본 트랙 콘텐츠는 없음. `onTrackContent`·`offTrackContent`로 상태별 콘텐츠를 지정하며, `trackContent`는 양쪽의 대체 콘텐츠로 사용 |
+| 분할 선택 | `IenSegmentedControl` | `SegmentedControl` | Small/Large(40/48), Fixed/Fluid, 제어·비제어 선택, 개별 비활성화 제공. 캡슐 선택 표시·bouncy 이동·비활성 항목 클릭 흔들림 구현 |
 | 탭 | `IenTab` | `Tabs` | 웹도 항목 배열, 인덱스 제어, 아이콘, 배지, 알림 점 제공 |
 | 텍스트 입력 | `IenTextField`, `IenTextArea` | `Input`, `Textarea` | 레이블, 오류·성공 상태, 도움말, 길이 제한 제공 |
 | 별점 | `IenRating` | `Rating` | 읽기·편집, 소수 채움, 세 표시 방식 등 상당 부분 대응 |
@@ -55,7 +74,7 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 
 | 영역 | 현재 차이 및 부족한 부분 |
 | --- | --- |
-| 버튼 로딩 | 양쪽 모두 `loading` 상태와 상호작용 제한을 내장합니다. 웹 `Button`은 기존 색상과 콘텐츠 너비를 유지하며 원형 로더로 전환하고, `asChild` 링크의 클릭·키보드 활성화도 제한합니다. |
+| 버튼 로딩 | 양쪽 모두 `loading` 상태와 상호작용 제한을 내장합니다. 웹 `Button`은 색상·콘텐츠 너비를 유지합니다. SVG 또는 `data-icon`으로 식별한 아이콘이 있으면 첫 아이콘만 원형 로더로 바꾸고 텍스트는 유지하며, 없으면 전체 콘텐츠를 로더로 전환합니다. 로더는 `currentColor`를 사용하고 `asChild` 링크의 클릭·키보드 활성화도 제한합니다. |
 | 토글·아이콘 버튼 | 웹은 아이콘 크기의 `Button`을 제공합니다. CMP의 `IenToggleButton`, `IenIconToggleButton`에 대응하는 선택 상태 API는 없습니다. |
 | Split Button | 웹 `ButtonGroup`과 메뉴로 조합할 수 있지만, CMP처럼 주 동작과 보조 메뉴를 묶은 전용 API는 없습니다. |
 | 입력 확장 | CMP의 지우기·비밀번호 표시 전환·검색·분할 입력을 묶어 제공하는 웹 전용 API가 부족합니다. `type="password"`만으로 표시 전환까지 제공하지는 않습니다. |
@@ -90,7 +109,6 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 | 날짜·시간 다이얼로그 | `IenDatePickerDialog`, `IenTimePickerDialog` | 선택기는 있으나 다이얼로그 형태의 전용 API 없음 |
 | 일시적 알림 | `IenSnackbar`, `IenToast`와 Host·Provider·표시 상태 관리 | 대응 없음 |
 | 슬라이더 | `IenSlider`, `IenRangeSlider` | 대응 UI 설치 항목 없음. `use-slider-input` 훅과 구분 필요 |
-| 분할 선택 | `IenSegmentedControl` | `SegmentedControl` — Small/Large, Fixed/Fluid, 비활성화, 선택 표시 애니메이션 |
 | 플로팅 액션 | `IenFab`, `IenExtendedFab`, `IenFabMenu` | 대응 전용 컴포넌트 없음 |
 | 액션 바 | `IenActionBar` | 대응 없음 |
 | 리스트 | `IenListRow`, Header / Footer, `IenBoardRow`, `IenTableRow`, Section | CMP의 행·섹션 API에 대응하는 컴포넌트 없음 |
@@ -204,10 +222,10 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 | 기본 색상 | 라이트 brand `#7C4DFF`, textPrimary `#191F28`, 다크 brand `#B69CFF` 등은 CMP 원본에서 생성. 라이트 웹 버튼의 brand 배경도 `rgb(124,77,255)`로 측정 | 소스 및 라이트 웹 실측 |
 | 그라데이션 | 양쪽 모두 Fill의 전경색 혼합 18%·36%, Weak의 6%·10%를 사용. CMP `Brush.linearGradient`와 CSS `linear-gradient(135deg, …)`는 좌표·박스·색 보간 경로가 달라 픽셀 일치를 보장하지 않음 | 계수·구현 소스 확인. 모든 종횡비의 픽셀 비교 미실행 |
 | 버튼 비활성 | CMP는 surfaceVariant·textDisabled 등 전용 색상으로 바꾸고 그라데이션을 제거. 웹은 원래 tone·그라데이션을 유지하며 명시적 disabled에 `--ien-state-disabled-alpha` 적용 | 소스 확인. 같은 비활성 상태라도 채도·배경 합성 방식이 다름 |
-| 버튼 로딩 | 양쪽 모두 활성 색상을 유지하며 입력을 제한. 웹은 loading과 명시적 disabled의 불투명도 처리를 구분하고, 기존 콘텐츠를 유지해 너비를 보존함. asChild 링크는 차단 중 href와 탭 이동도 제한 | 수정 소스 확인. 수정 후 브라우저의 실제 외형·클릭·키보드 검증은 미실행 |
+| 버튼 로딩 | 양쪽 모두 활성 색상을 유지하며 입력을 제한. 웹은 loading과 명시적 disabled의 불투명도를 구분하고 기존 콘텐츠로 너비를 보존함. 식별 가능한 첫 아이콘만 로더로 교체하며, 아이콘이 없으면 전체 콘텐츠를 전환. 로더는 currentColor 사용. asChild 링크는 차단 중 href와 탭 이동도 제한 | 수정 소스 확인. 수정 후 브라우저의 실제 외형·클릭·키보드 검증은 미실행 |
 | 버튼 눌림 | 양쪽 축소 목표는 0.975. CMP는 검정 오버레이 8% 또는 4%도 표시. 웹 기본 active 규칙에는 축소가 있고 hover에서는 brightness 0.96 사용 | 소스 확인. 눌림·hover의 명암 표현이 같지는 않음 |
 | 버튼 스프링 | CMP는 `StiffnessMedium`·`DampingRatioNoBouncy`. 웹은 stiffness 1500·dampingRatio 1을 300ms CSS `linear()`로 표본화 | 목표 특성은 유사. Compose의 실제 수렴 시간·중단 처리와 고정 CSS 구간은 다름 |
-| 로딩 전환 | CMP는 콘텐츠·로더의 전환을 Compose 애니메이션으로 구성. 웹은 콘텐츠를 유지한 채 opacity·scale을 160ms 전환 | 소스 확인. 폭 유지 방식과 종료 시점의 세부 동작까지 동일하다고 판정하지 않음 |
+| 로딩 전환 | CMP는 콘텐츠·로더의 전환을 Compose 애니메이션으로 구성. 웹은 아이콘 또는 전체 콘텐츠를 유지한 채 opacity·scale을 160ms 전환 | 소스 확인. 폭 유지 방식과 종료 시점의 세부 동작까지 동일하다고 판정하지 않음 |
 | 입력 오류 | CMP는 오류 상태 진입 시 -8→8→-6→6→-3→3→0 이동을 각 40ms로 실행. 웹은 테두리·도움말·ring으로 표시하며 같은 오류 진입 흔들림 없음 | 소스 확인 |
 | 키보드 포커스 | 웹은 버튼·입력 등에 명시적인 3px focus-visible ring 사용. CMP 버튼에는 동일한 CSS ring에 대응하는 별도 테두리 애니메이션이 없음 | 소스 확인. 네이티브 포커스 표시의 실제 외형은 플랫폼 검증 필요 |
 | 탭 선택 선 | CMP는 `MediumBouncy / MediumLow` spring, 웹은 stiffness 400·dampingRatio 0.5 표본을 800ms로 재생 | 소스 및 웹 계산 스타일 0.8s 확인. 이동·크기 변화의 수렴 특성은 다름 |
@@ -222,19 +240,20 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 4. **타이포그래피 표기와 실제 클래스 정렬**: CardTitle·EmptyTitle·휠처럼 메타데이터나 토큰 이름만으로 실제 크기를 알 수 없는 부분을 확인합니다.
 5. **곡률·테두리·모션의 화면 검증**: Fill / Weak / Line / Ghost와 캡슐을 모두 확인하고, 다크 테마·모바일·실기기·상태 전환에서 차이를 재확인합니다.
 
-이 절은 차이를 기록한 분석이며, 컴포넌트 스타일이나 디자인 토큰을 변경한 것은 아닙니다.
+이 절은 남아 있는 디자인 차이를 기록합니다. 최근 실제 스타일 변경과 검증 범위는 위의 「최근 구현·수정 반영 사항」을 함께 참고합니다.
 
 ## 문서와 매핑의 부족한 부분
 
 ### CMP 연결 메타데이터
 
-웹 UI 58개 중 `cmpIds`가 설정된 것은 다음 5개입니다.
+웹 UI 59개 중 `cmpIds`가 설정된 것은 다음 6개입니다.
 
 - `chip`
 - `rating`
 - `skeleton`
 - `progress-indicator`
 - `loading-indicator`
+- `segmented-control`
 
 버튼·카드·체크박스·탭·휠 선택기 등은 실제 대응 구현이 있지만 `cmpIds`가 비어 있습니다. 문서 생성기는 이 필드로 CMP 카탈로그 연결을 찾으므로 실제 대응 범위가 문서에 충분히 드러나지 않습니다.
 
@@ -250,9 +269,17 @@ CMP는 하나의 카탈로그 항목에 여러 컴포넌트를 묶고, 웹은 �
 
 1. **Dialog / AlertDialog, Toast / Snackbar**: 기본 사용자 흐름에서 빠진 피드백 수단을 보완합니다.
 2. **Slider / RangeSlider**: 기본 입력·선택 영역을 보완합니다.
-3. **ListRow / Section, 버튼 toggle·로딩 상태 표현, 입력 확장**: 반복적인 개별 구현을 줄이고 상태별 표현을 정렬합니다.
+3. **ListRow / Section, 버튼 toggle·아이콘 toggle, 입력 확장**: 반복적인 개별 구현을 줄이고 상태별 표현을 정렬합니다.
 4. **BottomSheet 높이·드래그, 화면 골격·CTA**: CMP 화면 구성 패턴을 대응합니다.
 5. **`cmpIds` 정비**: 확인된 대응 관계를 문서 생성에 반영합니다.
+
+### 남은 작업 정리
+
+- **새 대응 컴포넌트**: Dialog·AlertDialog·목적별 다이얼로그, Toast·Snackbar, Slider·RangeSlider, ListRow·Section, FAB·FAB Menu, ActionBar, 약관 등. 전체 목록은 「CMP에는 있고 웹에 대응 컴포넌트가 없는 영역」 참조.
+- **기존 API 확장**: 버튼·아이콘 toggle, 전용 Split Button, 검색·비밀번호·분할 입력과 포맷, 바텀시트 높이·드래그·선택 목록, 휠 선택기 사이의 확인 절차·폼·열림 제어 차이.
+- **디자인 정렬**: 웹 타이포그래피와 버튼·입력 높이, CardTitle·EmptyTitle·휠의 실제 텍스트 규격, 비활성·포커스·오류 상태 표현. 메뉴·캘린더 여백과 SegmentedControl 캡슐·모션은 구현에 반영했으므로 신규 구현 대기 항목으로 취급하지 않음.
+- **문서 연결**: 아직 `cmpIds`가 없는 실제 대응 컴포넌트의 매핑. 현재 매핑은 6개이며 대응 UI 전체가 아님.
+- **추가 검증**: 최종 메뉴·캘린더 여백, SegmentedControl 양끝 bouncy 넘침·Fluid 스크롤·비활성 흔들림, Button의 모든 variant·아이콘·asChild 링크. 다크 테마·모바일·접근성·실기기 및 자동 테스트 전체 결과는 별도 확인 필요.
 
 ## 근거 소스와 가져오기 정보
 
