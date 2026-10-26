@@ -39,11 +39,11 @@ static inline CGRect IENCameraRegion(UIView *view) {
     return CGRectZero;
 }
 
-static inline NSObject *IENObserveHinge(UIView *view, void (^handler)(BOOL)) {
+static inline NSObject *IENObserveHinge(UIView *view, void (^handler)(BOOL, BOOL)) {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 270100
     if (@available(iOS 27.1, *)) {
         UIHingeInteraction *interaction = [[UIHingeInteraction alloc] initWithUpdateHandler:^(UIHingeInteraction *interaction, UIHingeInteractionUpdate *update) {
-            handler(update.hinge != nil);
+            handler(update.hinge != nil, update.hinge.status == UIHingeStatusClosed);
         }];
         [view addInteraction:interaction];
         return interaction;

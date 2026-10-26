@@ -82,6 +82,7 @@ internal fun IenSideBarScaffold(
             val sideWidth = placement.sideWidth.roundToPx().coerceAtMost(width)
             val controlsTop = placement.controlsTop.roundToPx().coerceAtMost(height)
             val controlsBottom = placement.controlsBottom.roundToPx().coerceAtMost(height - controlsTop)
+            val topShadowPadding = shadowPadding.roundToPx().coerceAtMost(controlsTop)
             val gap = 8.dp.roundToPx()
             val controlsHeight = height - controlsTop - controlsBottom
             val loose = Constraints(maxWidth = width, maxHeight = height)
@@ -89,11 +90,12 @@ internal fun IenSideBarScaffold(
                 val isSide = measurable.layoutId == IenSideTopBar
                 val barConstraints = if (isSide) Constraints(
                     maxWidth = sideWidth,
-                    maxHeight = if (bottomBar == null) controlsHeight else controlsHeight / 2,
+                    maxHeight = (if (bottomBar == null) controlsHeight else controlsHeight / 2) + topShadowPadding,
                 ) else loose
                 isSide to measurable.measure(barConstraints)
             }
-            val sideTopHeight = top.filter { it.first }.maxOfOrNull { it.second.height } ?: 0
+            val sideTopHeight = ((top.filter { it.first }.maxOfOrNull { it.second.height } ?: 0) - topShadowPadding)
+                .coerceAtLeast(0)
             val bottom = subcompose("bottom") {
                 if (bottomBar != null) {
                     Box(Modifier.verticalScroll(bottomScrollState, reverseScrolling = true).padding(vertical = shadowPadding)) {
@@ -133,7 +135,7 @@ internal fun IenSideBarScaffold(
                     if (isSide) {
                         bar.place(
                             (width - placement.centerFromRight.roundToPx() - bar.width / 2).coerceIn(0, width - bar.width),
-                            controlsTop,
+                            controlsTop - topShadowPadding,
                         )
                     } else {
                         bar.placeWithLayer(0, 0) {

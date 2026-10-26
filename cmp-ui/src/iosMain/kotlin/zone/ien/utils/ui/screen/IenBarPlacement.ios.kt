@@ -25,6 +25,7 @@ internal actual fun rememberIenBarPlacement(): State<IenBarPlacement?> {
     DisposableEffect(controller) {
         val parent = controller.view
         var hasHinge = false
+        var isHingeClosed = false
         val observer = object : UIView(parent.bounds) {
             override fun layoutSubviews() {
                 super.layoutSubviews()
@@ -50,7 +51,12 @@ internal actual fun rememberIenBarPlacement(): State<IenBarPlacement?> {
                     val viewHeight = parent.bounds.useContents { size.height }
                     val statusTop = origin.y
                     val statusBottom = origin.y + size.height
-                    val sideWidth = maxOf(size.width, parent.safeAreaInsets.useContents { right }, 72.0)
+                    val controlsWidth = 72.0
+                    val sideWidth = maxOf(size.width, parent.safeAreaInsets.useContents { right }, controlsWidth)
+                    // 시스템 표시기는 예약 영역 안쪽의 72pt 열을 기준으로 정렬됩니다.
+                    val statusCenterFromRight = if (size.width > 0.0)
+                        viewWidth - origin.x - minOf(size.width, controlsWidth) / 2
+                    else sideWidth / 2
                     val camera = IENCameraRegion(parent)
                     IenBarPlacement(
                         sideWidth = sideWidth.dp,
@@ -59,8 +65,9 @@ internal actual fun rememberIenBarPlacement(): State<IenBarPlacement?> {
                         controlsBottom = (if (statusTop >= viewHeight / 2) viewHeight - statusTop + 8.0
                             else 24.0).dp,
                         centerFromRight = camera.useContents {
-                            if (size.width > 0.0) (viewWidth - origin.x - size.width / 2).dp
-                            else (sideWidth / 2).dp
+                            if (isHingeClosed && size.width > 0.0)
+                                (viewWidth - origin.x - size.width / 2).dp
+                            else statusCenterFromRight.dp
                         },
                         titleTopInset = camera.useContents {
                             if (size.height > 0.0 && origin.y < viewHeight / 2)
@@ -75,8 +82,9 @@ internal actual fun rememberIenBarPlacement(): State<IenBarPlacement?> {
             autoresizingMask = UIViewAutoresizingFlexibleWidth or UIViewAutoresizingFlexibleHeight
         }
         parent.addSubview(observer)
-        val hingeObserver = IENObserveHinge(parent) {
-            hasHinge = it
+        val hingeObserver = IENObserveHinge(parent) { available, closed ->
+            hasHinge = available
+            isHingeClosed = closed
             observer.setNeedsLayout()
         }
         onDispose {
