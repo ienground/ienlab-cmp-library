@@ -8,7 +8,7 @@
     "generate:api": "node scripts/generate-api-docs.mjs",
     "build:registry": "npm run generate:api && shadcn build --cwd .. --output cmp-ui-docs/build/site/r registry.json",
     "typecheck": "tsc --noEmit",
-    "test": "npm run generate:api && node --test web/color-scheme.test.ts scripts/registry.test.mjs scripts/pull-to-refresh.test.mjs",
+    "test": "npm run generate:api && node --test web/color-scheme.test.ts scripts/registry.test.mjs scripts/pull-to-refresh.test.mjs scripts/components.test.mjs",
     "build": "npm run generate:api && npm run typecheck && vite build",
     "copy:compose": "node scripts/copy-compose-preview.mjs",
     "build:site": "npm run build && npm run build:registry && npm run copy:compose",

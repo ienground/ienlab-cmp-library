@@ -13,7 +13,7 @@ const largeBadgeSize = "px-[calc(var(--ien-spacing-sm)-var(--ien-spacing-xxxs))]
 
 const badgeVariants = cva(
   [
-    "relative inline-flex shrink-0 items-center justify-center w-fit border font-medium whitespace-nowrap outline-none transition-shadow",
+    "relative inline-flex shrink-0 items-center justify-center w-fit font-medium whitespace-nowrap outline-none transition-shadow",
     "focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-(--ien-state-disabled-alpha)",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-3",
   ],
@@ -22,7 +22,7 @@ const badgeVariants = cva(
       variant: {
         fill: "ien-fill",
         weak: "ien-weak",
-        line: "ien-outline",
+        line: "ien-outline border",
         ghost: "ien-clear",
       },
       size: {
@@ -42,7 +42,7 @@ const badgeVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "fill",
+      variant: "weak",
       size: "medium",
       radius: "default",
     },
@@ -79,7 +79,7 @@ function Badge({
       data-ien=""
       data-ien-tone={resolveIenTone(ienTheme.tone, variant)}
       data-ien-gradient={ienTheme.useGradient}
-      data-variant={variant ?? "fill"}
+      data-variant={variant ?? "weak"}
       className={cn(badgeVariants({ variant, size, radius, className }))}
       {...props}
     />

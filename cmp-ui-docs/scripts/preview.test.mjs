@@ -10,7 +10,7 @@ import { readFile } from "node:fs/promises";
 
 const repository = fileURLToPath(new URL("../../", import.meta.url));
 test("모든 REUI 공식 프리뷰를 브라우저 전역 없이 서버 렌더링한다", { timeout: 120000 }, async (context) => {
-  const server = await createServer({ server: { middlewareMode: true, hmr: false }, appType: "custom" });
+  const server = await createServer({ cacheDir: fileURLToPath(new URL("../node_modules/.vite-preview-tests", import.meta.url)), server: { middlewareMode: true, hmr: false }, appType: "custom" });
   try {
     const items = createWebCatalog(await collectRegistry(`${repository}/registry.json`, repository), catalog, repository);
     const generated = JSON.parse(await readFile(`${repository}/cmp-ui-docs/web/generated-web-catalog.json`, "utf8"));
@@ -28,7 +28,10 @@ test("모든 REUI 공식 프리뷰를 브라우저 전역 없이 서버 렌더�
         assert.doesNotMatch(playground, /프리뷰를 불러오지 못했습니다/);
         if (item.id === "button") {
           const previewHtml = playground.match(/aria-label="Playground 미리보기"([\s\S]*?)<\/section>/)?.[1] ?? "";
-          assert.equal((previewHtml.match(/data-slot="button"/g) ?? []).length, 1);
+          const componentStart = previewHtml.indexOf('class="web-component-preview playground-preview"');
+          assert.ok(componentStart >= 0);
+          const componentHtml = previewHtml.slice(componentStart);
+          assert.equal((componentHtml.match(/data-slot="button"/g) ?? []).length, 1);
           const example = playgroundExample(definition.example, definition, { [definition.targets[0].key]: { tone: "danger", variant: "weak", children: "변경한 버튼" } });
           assert.match(example, /"tone": "danger"/);
           assert.match(example, /변경한 버튼/);

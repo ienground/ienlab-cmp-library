@@ -83,7 +83,7 @@ function RadioGroupItem({
       <span
         data-slot="radio-group-circle"
         aria-hidden="true"
-        className="relative flex size-(--ien-radio-size) shrink-0 items-center justify-center rounded-full border-(length:--ien-stroke-medium) border-(--ien-border-strong) [corner-shape:round] [transition:border-color_200ms_cubic-bezier(0.4,0,0.2,1),scale_var(--ien-button-press-duration)_var(--ien-button-press-easing)] group-data-[state=checked]/radio-group-item:border-(--ien-brand) group-[:enabled:active]/radio-group-item:scale-95 group-disabled/radio-group-item:opacity-(--ien-state-disabled-alpha) motion-reduce:transition-none"
+        className="relative flex size-(--ien-radio-size) shrink-0 items-center justify-center rounded-full border-(length:--ien-stroke-medium) border-(--ien-border-strong) [corner-shape:round] [transition:border-color_200ms_cubic-bezier(0.4,0,0.2,1),scale_var(--ien-button-press-duration)_var(--ien-button-press-easing)] group-data-[state=checked]/radio-group-item:border-(--ien-control-color) group-[:enabled:active]/radio-group-item:scale-95 group-disabled/radio-group-item:opacity-(--ien-state-disabled-alpha) motion-reduce:transition-none"
       >
         <RadioGroupPrimitive.Indicator
           forceMount
@@ -91,8 +91,8 @@ function RadioGroupItem({
           data-ien=""
           data-ien-tone={ienTheme.tone}
           data-ien-gradient={ienTheme.useGradient}
-          className="absolute size-[calc(var(--ien-radio-size)/2)] scale-0 rounded-full bg-(--ien-brand) opacity-0 [corner-shape:round] transition-[scale,opacity] duration-(--ien-button-press-duration) ease-(--ien-button-press-easing) data-[state=checked]:scale-100 data-[state=checked]:opacity-100 motion-reduce:transition-none"
-          style={{ backgroundImage: ienTheme.useGradient === false ? "none" : "var(--ien-gradient, linear-gradient(135deg, color-mix(in srgb, var(--ien-brand), var(--ien-on-brand) 18%), var(--ien-brand), color-mix(in srgb, var(--ien-brand), var(--ien-on-brand) 36%)))" }}
+          className="absolute size-[calc(var(--ien-radio-size)/2)] scale-0 rounded-full bg-(--ien-control-color) opacity-0 [corner-shape:round] transition-[scale,opacity] duration-(--ien-button-press-duration) ease-(--ien-button-press-easing) data-[state=checked]:scale-100 data-[state=checked]:opacity-100 motion-reduce:transition-none"
+          style={{ backgroundImage: ienTheme.useGradient === false ? "none" : "var(--ien-gradient, linear-gradient(135deg, color-mix(in srgb, var(--ien-control-color), var(--ien-control-on) 18%), var(--ien-control-color), color-mix(in srgb, var(--ien-control-color), var(--ien-control-on) 36%)))" }}
         />
       </span>
       {label != null && <span>{label}</span>}

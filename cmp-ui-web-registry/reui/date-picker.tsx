@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 import type { IenToneProps } from "@/lib/ien-theme"
 import { useIenLanguage } from "@/lib/ien-theme-context"
-import { IenWheelColumn, IenWheelPickerFrame, formatPickerUnit, pickerLabels, type PickerLocale } from "@/lib/ien-wheel-picker"
+import { IenWheelColumn, IenWheelPickerFrame, useWheelPickerValue, formatPickerUnit, pickerLabels, type PickerLocale } from "@/lib/ien-wheel-picker"
 
 type CalendarDate = { year: number; month: number; day: number }
 
@@ -51,6 +51,12 @@ export interface DatePickerProps extends IenToneProps {
   fade?: boolean
   inline?: boolean
   className?: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  requireConfirm?: boolean
+  name?: string
+  form?: string
+  required?: boolean
   "aria-label"?: string
 }
 
@@ -58,14 +64,14 @@ export interface DatePickerProps extends IenToneProps {
 export function DatePicker({
   value, defaultValue = null, onValueChange, locale: localeProp, yearRange = { start: 1900, end: 2100 },
   min, max, isDateDisabled, isYearDisabled, disabled = false, readOnly = false, fade = true, inline = false,
-  className, "aria-label": label, tone, useGradient,
+  className, "aria-label": label, tone, useGradient, open, onOpenChange, requireConfirm = false, name, form, required,
 }: DatePickerProps) {
   const locale = useIenLanguage("ko", localeProp)
-  const [uncontrolled, setUncontrolled] = useState<string | null>(defaultValue)
+  const selection = useWheelPickerValue<string | null>({ value, defaultValue, onValueChange, open, onOpenChange, requireConfirm, inline })
   const [reference] = useState(today)
   const { start, end } = yearRange
   if (!Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end > 9999 || start > end) throw new RangeError("yearRange는 1..9999 안의 유효한 범위여야 합니다.")
-  const raw = value !== undefined ? value : uncontrolled
+  const raw = selection.selected
   const parsed = parseDate(raw)
   const availability = useMemo(() => {
     const minimum = parseDate(min), maximum = parseDate(max)
@@ -126,12 +132,13 @@ export function DatePicker({
   const select = (next: CalendarDate | null) => {
     if (disabled || readOnly || !hasDates) return
     const result = next ? formatDate(next) : null
-    if (value === undefined) setUncontrolled(result)
-    if (result !== raw) onValueChange?.(result)
+    selection.select(result)
   }
   const text = pickerLabels[locale]
 
-  return <IenWheelPickerFrame locale={locale} slotPrefix="date-picker" label={label ?? text.date}
+  return <>
+    {(name || required) && <input ref={selection.fieldRef} type="text" name={name} form={form} required={required} disabled={disabled} value={selection.actual ?? ""} onChange={() => {}} tabIndex={-1} aria-label={label ?? text.date} onFocus={() => selection.setOpen(true)} className="pointer-events-none absolute size-px opacity-0" />}
+    <IenWheelPickerFrame open={selection.open} onOpenChange={selection.setOpen} onConfirm={selection.confirm} locale={locale} slotPrefix="date-picker" label={label ?? text.date}
     displayValue={parsed ? (["year", "month", "day"] as const).map((unit) => formatPickerUnit(display[unit], unit, locale)).join(" ") : ""}
     placeholder={text.date} inline={inline} disabled={disabled || !hasDates} readOnly={readOnly} onClear={() => select(null)}
     quickAction={{ label: text.today, onClick: () => { const next = nearest(today()); if (next) select(next) } }}
@@ -151,5 +158,5 @@ export function DatePicker({
           if (result) select(result)
         }} />
     )}
-  </IenWheelPickerFrame>
+  </IenWheelPickerFrame></>
 }

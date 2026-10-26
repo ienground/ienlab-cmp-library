@@ -215,8 +215,8 @@ export function createWebCatalog(items, cmpCatalog, repository) {
       return {
         id: item.name,
         name:
-          cmp?.name ??
           item.title ??
+          cmp?.name ??
           item.name
             .split("-")
             .map((word) => word[0].toUpperCase() + word.slice(1))

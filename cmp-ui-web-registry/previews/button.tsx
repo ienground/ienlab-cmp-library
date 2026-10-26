@@ -17,6 +17,8 @@ export function Pattern() {
 
   return (
     <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap gap-2"><Button size="sm">Small</Button><Button size="md">Medium</Button><Button>Large</Button></div>
+      <div className="flex flex-wrap gap-2">{variants.map((variant) => <Button key={variant} variant={variant} disabled>{variant} 비활성</Button>)}</div>
       {variants.map((variant) => (
         <div key={variant} className="flex flex-wrap gap-2">
           {tones.map((tone) => (

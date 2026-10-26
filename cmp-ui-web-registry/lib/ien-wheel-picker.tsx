@@ -10,6 +10,44 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 export type PickerLocale = "ko" | "en"
 
+export interface WheelPickerValueOptions<T> {
+  value?: T
+  defaultValue: T
+  onValueChange?: (value: T) => void
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  requireConfirm?: boolean
+  inline?: boolean
+}
+
+/** 확인 전 선택값과 실제 폼 값을 분리하고 닫기·취소 시 임시 선택을 버립니다. */
+export function useWheelPickerValue<T>({ value, defaultValue, onValueChange, open, onOpenChange, requireConfirm, inline }: WheelPickerValueOptions<T>) {
+  const fieldRef = useRef<HTMLInputElement>(null)
+  const [local, setLocal] = useState(defaultValue)
+  const actual = value === undefined ? local : value
+  const [localOpen, setLocalOpen] = useState(false)
+  const isOpen = open ?? localOpen
+  const [draft, setDraft] = useState(actual)
+  const deferred = requireConfirm && !inline && isOpen
+  useEffect(() => { setDraft(actual) }, [actual])
+  useEffect(() => {
+    const form = fieldRef.current?.form
+    if (!form || value !== undefined) return
+    const reset = (event: Event) => queueMicrotask(() => {
+      if (!event.defaultPrevented) { setLocal(defaultValue); setDraft(defaultValue); setLocalOpen(false) }
+    })
+    form.addEventListener("reset", reset)
+    return () => form.removeEventListener("reset", reset)
+  }, [value, defaultValue])
+  const commit = (next: T) => { if (value === undefined) setLocal(next); if (!Object.is(next, actual)) onValueChange?.(next) }
+  return {
+    fieldRef, actual, selected: deferred ? draft : actual, open: isOpen,
+    setOpen(next: boolean) { if (next) setDraft(actual); if (open === undefined) setLocalOpen(next); onOpenChange?.(next) },
+    select(next: T) { if (deferred) setDraft(next); else commit(next) },
+    confirm() { if (deferred) commit(draft) },
+  }
+}
+
 export const pickerLabels = {
   ko: { clear: "초기화", confirm: "확인", now: "현재 시간", today: "오늘", date: "날짜 선택", duration: "기간 선택", year: "년", month: "월", day: "일", hour: "시간", minute: "분", second: "초" },
   en: { clear: "Clear", confirm: "OK", now: "Now", today: "Today", date: "Choose date", duration: "Choose duration", year: "Year", month: "Month", day: "Day", hour: "Hour", minute: "Minute", second: "Second" },
@@ -174,7 +212,7 @@ export function IenWheelColumn({
       className={cn("relative flex min-w-20 flex-1 flex-col overflow-hidden [--time-picker-option-height:var(--ien-state-minimum-touch-target,44px)] aria-disabled:opacity-(--ien-state-disabled-alpha)", className)} {...props}>
       <div id={`${id}-label`} data-slot={`${slotPrefix}-column-label`} className="sr-only">{label}</div>
       <div aria-hidden="true" data-slot={`${slotPrefix}-selection`}
-        className="pointer-events-none absolute inset-x-0 top-1/2 h-(--time-picker-option-height) -translate-y-1/2 rounded-(--ien-radius-sm) bg-[color-mix(in_srgb,var(--ien-brand)_calc(var(--ien-state-selected-alpha)*100%),transparent)]" />
+        className="pointer-events-none absolute inset-x-0 top-1/2 h-(--time-picker-option-height) -translate-y-1/2 rounded-(--ien-radius-sm) bg-[color-mix(in_srgb,var(--ien-control-color)_calc(var(--ien-state-selected-alpha)*100%),transparent)]" />
       <div ref={listRef} role="listbox" aria-labelledby={`${id}-label`} aria-describedby={describedBy}
         aria-activedescendant={highlightedIndex >= start && highlightedIndex < end ? optionId(highlightedIndex) : undefined}
         aria-disabled={disabled || undefined} aria-readonly={readOnly || undefined} tabIndex={disabled ? -1 : 0}
@@ -198,7 +236,7 @@ export function IenWheelColumn({
             aria-posinset={index + 1} aria-setsize={options.length} data-slot={`${slotPrefix}-option`}
             data-ien-typography="title3" data-highlighted={index === highlightedIndex ? "" : undefined}
             onClick={() => choose(index, true)}
-            className="flex h-(--time-picker-option-height) shrink-0 cursor-default items-center justify-center px-(--ien-spacing-xs) text-center whitespace-nowrap tabular-nums select-none [scroll-snap-align:center] text-(--ien-text-secondary) data-wheel-center:text-(--ien-brand) aria-disabled:opacity-(--ien-state-disabled-alpha) forced-colors:data-wheel-center:text-[Highlight]">
+            className="text-[length:var(--ien-font-size-title3)] leading-(--ien-line-height-title3) flex h-(--time-picker-option-height) shrink-0 cursor-default items-center justify-center px-(--ien-spacing-xs) text-center whitespace-nowrap tabular-nums select-none [scroll-snap-align:center] text-(--ien-text-secondary) data-wheel-center:text-(--ien-control-color) aria-disabled:opacity-(--ien-state-disabled-alpha) forced-colors:data-wheel-center:text-[Highlight]">
             <span data-slot={`${slotPrefix}-option-text`} className="flex size-full items-center justify-center">{option.label}</span>
           </div>
         })}
@@ -221,17 +259,23 @@ interface IenWheelPickerFrameProps extends IenToneProps {
   onClear: () => void
   quickAction?: { label: string; onClick: () => void }
   slotPrefix: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  onConfirm?: () => void
 }
 
 /** 팝오버와 인라인 선택기의 공통 버튼·배치를 유지합니다. */
-export function IenWheelPickerFrame({ children, locale, label, displayValue, placeholder, inline, disabled, readOnly, className, onClear, quickAction, slotPrefix, tone, useGradient }: IenWheelPickerFrameProps) {
+export function IenWheelPickerFrame({ children, locale, label, displayValue, placeholder, inline, disabled, readOnly, className, onClear, quickAction, slotPrefix, tone, useGradient, open: controlledOpen, onOpenChange, onConfirm }: IenWheelPickerFrameProps) {
   const theme = useIenTheme({ tone, useGradient })
-  const [open, setOpen] = useState(false)
+  const [localOpen, setLocalOpen] = useState(false)
+  const open = controlledOpen ?? localOpen
+  const setOpen = (next: boolean) => { if (controlledOpen === undefined) setLocalOpen(next); onOpenChange?.(next) }
   const text = pickerLabels[locale]
   const panel = <div role="group" lang={locale} aria-label={label} data-slot={`${slotPrefix}-panel`} data-ien=""
     onKeyDown={(event) => {
       if (!inline && !event.defaultPrevented && event.key === "Enter" && event.target instanceof HTMLElement && event.target.getAttribute("role") === "listbox") {
         event.preventDefault()
+        onConfirm?.()
         setOpen(false)
       }
     }}
@@ -240,7 +284,7 @@ export function IenWheelPickerFrame({ children, locale, label, displayValue, pla
     <div className="flex items-center justify-between gap-(--ien-spacing-xs) p-(--ien-spacing-xs)">
       {quickAction && <Button type="button" variant="weak" tone="brand" size="sm" disabled={disabled || readOnly} onClick={quickAction.onClick}>{quickAction.label}</Button>}
       <Button type="button" variant="weak" tone="neutral" size="sm" disabled={disabled || readOnly} onClick={onClear}>{text.clear}</Button>
-      {!inline && <Button type="button" variant="fill" tone="brand" size="sm" disabled={disabled} onClick={() => setOpen(false)}>{text.confirm}</Button>}
+      {!inline && <Button type="button" variant="fill" tone="brand" size="sm" disabled={disabled} onClick={() => { onConfirm?.(); setOpen(false) }}>{text.confirm}</Button>}
     </div>
   </div>
   if (inline) return panel

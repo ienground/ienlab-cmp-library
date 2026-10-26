@@ -59,17 +59,23 @@ export function useTextField({
   const descriptionIds = [describedBy, descriptionId, counterId].filter(Boolean).join(" ") || undefined
 
   React.useEffect(() => {
+    if (!invalid || !inputRef.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    const animation = inputRef.current.animate([{ transform: "translateX(-8px)" }, { transform: "translateX(8px)" }, { transform: "translateX(-6px)" }, { transform: "translateX(6px)" }, { transform: "translateX(-3px)" }, { transform: "translateX(3px)" }, { transform: "translateX(0px)" }], { duration: 240 })
+    return () => animation.cancel()
+  }, [invalid])
+
+  React.useEffect(() => {
     const input = inputRef.current
     const form = input?.form
     if (!input || !form || value !== undefined) return
     const reset = (event: Event) => {
       queueMicrotask(() => {
-        if (!event.defaultPrevented) setLocalValue(input.value)
+        if (!event.defaultPrevented) setLocalValue(String(defaultValue ?? ""))
       })
     }
     form.addEventListener("reset", reset)
     return () => form.removeEventListener("reset", reset)
-  }, [value])
+  }, [value, defaultValue])
 
   return {
     inputId, inputRef, currentValue, focused, setFocused, limit, exceeded,

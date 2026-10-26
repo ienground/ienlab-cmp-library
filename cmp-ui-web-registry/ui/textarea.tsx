@@ -9,7 +9,7 @@ export type TextareaLengthLimit = TextFieldLengthLimit
 export type TextareaState = TextFieldState
 
 export type TextareaProps = React.ComponentProps<"textarea"> & IenToneProps & TextFieldOptions & {
-  variant?: "boxed" | "underline" | "plain"
+  variant?: "boxed" | "underline" | "plain" | "big" | "hero"
   minLines?: number
   maxLines?: number
 }
@@ -50,6 +50,7 @@ function Textarea({
   const { inputId, inputRef, currentValue, invalid, descriptionIds } = field
   const minimumLines = Math.max(1, Math.trunc(minLines ?? rows ?? 4))
   const maximumLines = Math.max(minimumLines, Math.trunc(maxLines))
+  const blockPadding = variant === "hero" ? 40 : variant === "big" ? 32 : 28
   const textarea = (
     <textarea
       ref={(node) => {
@@ -79,8 +80,8 @@ function Textarea({
       onFocus={(event) => { field.setFocused(true); onFocus?.(event) }}
       onBlur={(event) => { field.setFocused(false); onBlur?.(event) }}
       style={{
-        minHeight: `calc(${minimumLines}lh + 1rem + 2px)`,
-        maxHeight: `calc(${maximumLines}lh + 1rem + 2px)`,
+        minHeight: `calc(${minimumLines}lh + ${blockPadding + 2}px)`,
+        maxHeight: `calc(${maximumLines}lh + ${blockPadding + 2}px)`,
         ...style,
       }}
       data-slot="textarea"
@@ -90,13 +91,15 @@ function Textarea({
       data-ien-gradient={ienUseGradient}
       {...props}
       className={cn(
-        "border-input dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 disabled:bg-input/50 dark:disabled:bg-input/80 rounded-lg border bg-transparent px-2.5 py-2 text-base transition-colors focus-visible:ring-3 aria-invalid:ring-3 md:text-sm flex field-sizing-content resize-none overflow-y-auto leading-5 w-full outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-(--ien-state-disabled-alpha)",
+        "border-input dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 disabled:bg-input/50 dark:disabled:bg-input/80 rounded-lg border bg-transparent px-3.5 py-3.5 text-[length:var(--ien-font-size-body1)] leading-(--ien-line-height-body1) transition-colors focus-visible:ring-3 aria-invalid:ring-3 flex field-sizing-content resize-none overflow-y-auto w-full outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-(--ien-state-disabled-alpha)",
         variant === "underline"
           ? "rounded-none border-x-0 border-t-0 bg-transparent px-0 dark:bg-transparent"
           : variant === "plain"
             ? "border-transparent bg-transparent shadow-none focus-visible:border-transparent dark:bg-transparent"
             : "",
         !invalid && state?.status?.type === "success" && "border-(--ien-success) focus-visible:border-(--ien-success)",
+        variant === "big" && "h-auto min-h-17 px-5 py-4 text-[length:var(--ien-font-size-title2)] leading-(--ien-line-height-title2)",
+        variant === "hero" && "h-auto min-h-21 border-transparent px-0 py-5 text-[length:var(--ien-font-size-display)] leading-(--ien-line-height-display) font-bold",
         className,
       )}
     />

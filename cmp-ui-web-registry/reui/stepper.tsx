@@ -22,11 +22,12 @@ import { cn } from "cn"
 
 // Types
 type StepperOrientation = "horizontal" | "vertical"
-type StepState = "active" | "completed" | "inactive" | "loading"
+type StepState = "active" | "completed" | "inactive" | "loading" | "error"
 type StepIndicators = {
   active?: React.ReactNode
   completed?: React.ReactNode
   inactive?: React.ReactNode
+  error?: React.ReactNode
   loading?: React.ReactNode
 }
 
@@ -188,6 +189,7 @@ interface StepperItemProps extends React.HTMLAttributes<HTMLDivElement> {
   step: number
   completed?: boolean
   disabled?: boolean
+  error?: boolean
   loading?: boolean
 }
 
@@ -198,6 +200,7 @@ function StepperItem({
   completed = false,
   disabled = false,
   loading = false,
+  error = false,
   className,
   children,
   ...props
@@ -205,7 +208,7 @@ function StepperItem({
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const { activeStep } = useStepper()
 
-  const state: StepState =
+  const state: StepState = error ? "error" :
     completed || step < activeStep
       ? "completed"
       : activeStep === step
@@ -369,21 +372,21 @@ function StepperIndicator({
       data-state={state}
       className={cn(
         "border-background bg-accent text-accent-foreground data-[state=completed]:bg-primary data-[state=completed]:text-primary-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground relative flex size-6 shrink-0 items-center justify-center overflow-hidden",
-        "rounded-full [--ien-control-corner-shape:round] [corner-shape:round] text-xs",
+        "data-[state=error]:bg-(--ien-danger-weak) data-[state=error]:text-(--ien-danger) rounded-full [--ien-control-corner-shape:round] [corner-shape:round] text-xs",
         className
       )}
     >
       <div className="absolute">
         {indicators &&
-        ((isLoading && indicators.loading) ||
+        ((state === "error" && indicators.error) || (isLoading && indicators.loading) ||
           (state === "completed" && indicators.completed) ||
           (state === "active" && indicators.active) ||
           (state === "inactive" && indicators.inactive))
-          ? (isLoading && indicators.loading) ||
+          ? (state === "error" && indicators.error) || (isLoading && indicators.loading) ||
             (state === "completed" && indicators.completed) ||
             (state === "active" && indicators.active) ||
             (state === "inactive" && indicators.inactive)
-          : children}
+          : state === "error" ? <span aria-label="오류">!</span> : children}
       </div>
     </div>
   )

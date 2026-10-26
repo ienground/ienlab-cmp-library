@@ -63,7 +63,7 @@ function Checkbox({
         )}
         style={{
           "--ien-checkbox-size": `${size ?? (variant === "dot" ? 8 : 24)}px`,
-          "--ien-checkbox-gradient": ienTheme.useGradient === false ? "none" : "var(--ien-gradient, linear-gradient(135deg, color-mix(in srgb, var(--ien-brand), var(--ien-on-brand) 18%), var(--ien-brand), color-mix(in srgb, var(--ien-brand), var(--ien-on-brand) 36%)))",
+          "--ien-checkbox-gradient": ienTheme.useGradient === false ? "none" : "var(--ien-gradient, linear-gradient(135deg, color-mix(in srgb, var(--ien-control-color), var(--ien-control-on) 18%), var(--ien-control-color), color-mix(in srgb, var(--ien-control-color), var(--ien-control-on) 36%)))",
           ...style,
         } as React.CSSProperties}
         {...props}
@@ -75,9 +75,9 @@ function Checkbox({
           className={cn(
             "relative inline-flex size-(--ien-checkbox-size) shrink-0 items-center justify-center text-(--ien-border-strong) [--ien-control-corner-shape:round] [corner-shape:round] [transition:background-color_200ms_cubic-bezier(0.4,0,0.2,1),border-color_200ms_cubic-bezier(0.4,0,0.2,1),color_200ms_cubic-bezier(0.4,0,0.2,1),scale_var(--ien-button-press-duration)_var(--ien-button-press-easing)] group-[:enabled:active]/checkbox:scale-95 group-disabled/checkbox:opacity-(--ien-state-disabled-alpha) motion-reduce:transition-none",
             label == null && "size-full",
-            variant !== "line" && "rounded-full border-(length:--ien-stroke-medium) border-(--ien-border-strong) group-data-[state=checked]/checkbox:border-(--ien-brand) group-data-[state=checked]/checkbox:bg-(--ien-brand) group-data-[state=checked]/checkbox:[background-image:var(--ien-checkbox-gradient)] group-data-[state=indeterminate]/checkbox:border-(--ien-brand) group-data-[state=indeterminate]/checkbox:bg-(--ien-brand) group-data-[state=indeterminate]/checkbox:[background-image:var(--ien-checkbox-gradient)]",
+            variant !== "line" && "rounded-full border-(length:--ien-stroke-medium) border-(--ien-border-strong) group-data-[state=checked]/checkbox:border-(--ien-control-color) group-data-[state=checked]/checkbox:bg-(--ien-control-color) group-data-[state=checked]/checkbox:[background-image:var(--ien-checkbox-gradient)] group-data-[state=indeterminate]/checkbox:border-(--ien-control-color) group-data-[state=indeterminate]/checkbox:bg-(--ien-control-color) group-data-[state=indeterminate]/checkbox:[background-image:var(--ien-checkbox-gradient)]",
             variant === "circle" && "group-data-[state=checked]/checkbox:text-white group-data-[state=indeterminate]/checkbox:text-white",
-            variant === "line" && "group-data-[state=checked]/checkbox:text-(--ien-brand) group-data-[state=indeterminate]/checkbox:text-(--ien-brand)",
+            variant === "line" && "group-data-[state=checked]/checkbox:text-(--ien-control-color) group-data-[state=indeterminate]/checkbox:text-(--ien-control-color)",
           )}
         >
           {variant !== "dot" && (

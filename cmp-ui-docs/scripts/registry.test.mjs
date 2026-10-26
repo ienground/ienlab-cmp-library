@@ -16,6 +16,14 @@ import { createPlaygroundCatalog, instrumentPlayground } from "./playground.mjs"
 
 const repository = fileURLToPath(new URL("../../", import.meta.url));
 
+test("CMP 매핑이 웹 선택기와 토글의 고유 이름을 덮어쓰지 않는다", async () => {
+  const items = await collectRegistry(path.join(repository, "registry.json"), repository);
+  const web = createWebCatalog(items, catalog, repository);
+  for (const name of ["date-picker", "duration-picker", "time-picker", "toggle-button"]) {
+    assert.equal(web.find((item) => item.id === name).name, items.find((item) => item.name === name).title);
+  }
+});
+
 test("단독 Button이 연속 코너를 초기화하고 ghost variant는 테두리를 표시하지 않는다", async () => {
   const source = await readFile(path.join(repository, "cmp-ui-web-registry/ui/button.tsx"), "utf8");
   assert.match(source, /<IenContinuousCorners \/>/);

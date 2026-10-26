@@ -9,7 +9,7 @@ import { cn } from "cn"
 import { Slot } from "radix-ui"
 
 const buttonVariants = cva(
-  "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-lg border bg-clip-border text-sm font-medium focus-visible:ring-3 aria-invalid:ring-3 [&_svg:not([class*='size-'])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-lg border bg-clip-border text-[length:var(--ien-font-size-label1)] leading-(--ien-line-height-label1) font-semibold focus-visible:ring-3 aria-invalid:ring-3 [&_svg:not([class*='size-'])]:size-6 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -19,14 +19,16 @@ const buttonVariants = cva(
         ghost: "ien-clear",
       },
       size: {
-        default: "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-        xs: "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
-        lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-        icon: "size-8",
-        "icon-xs": "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
-        "icon-sm": "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
-        "icon-lg": "size-9",
+        default: "h-(--ien-button-height-default) gap-2 px-5",
+        xs: "h-7 gap-1 px-2 text-[length:var(--ien-font-size-caption)]",
+        sm: "h-9 gap-1 px-3 text-[length:var(--ien-font-size-label2)] [&_svg:not([class*=size-])]:size-4.5",
+        md: "h-11 gap-2 px-4",
+        lg: "h-(--ien-button-height-lg) gap-2 px-5",
+        icon: "size-13 [&_svg:not([class*=size-])]:size-7",
+        "icon-xs": "size-7",
+        "icon-sm": "size-9 [&_svg:not([class*=size-])]:size-4.5",
+        "icon-md": "size-11",
+        "icon-lg": "size-13 [&_svg:not([class*=size-])]:size-7",
       },
     },
     defaultVariants: {
@@ -43,6 +45,8 @@ function Button({
   variant = "fill",
   size = "default",
   asChild = false,
+  display = "inline",
+  shape = "rounded",
   loading = false,
   disabled,
   children,
@@ -52,6 +56,8 @@ function Button({
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
+    display?: "inline" | "block" | "full"
+    shape?: "rounded" | "capsule"
     /** 아이콘이 있으면 아이콘만, 없으면 콘텐츠를 로더로 전환하고 입력을 막습니다. */
     loading?: boolean
   } & IenToneProps) {
@@ -138,11 +144,14 @@ function Button({
         data-ien-gradient={ienUseGradient}
         data-variant={variant}
         data-size={size}
+        data-display={display}
+        data-ien-shape={shape === "capsule" && display !== "full" ? "capsule" : undefined}
         data-loading={loading || undefined}
+        data-ien-disabled={disabled || undefined}
         aria-busy={loading || props["aria-busy"]}
         aria-disabled={blocked || props["aria-disabled"]}
         disabled={blocked}
-        className={cn(buttonVariants({ variant, size, className: cn("relative", disabled && "opacity-(--ien-state-disabled-alpha)", className) }))}
+        className={cn(buttonVariants({ variant, size, className: cn("relative", display !== "inline" && "w-full", shape === "capsule" && "rounded-full", display === "full" && "rounded-none", className) }))}
         onClickCapture={(event) => {
           if (blocked) {
             event.preventDefault()

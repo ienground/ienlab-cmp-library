@@ -158,3 +158,14 @@ function ProgressIndicator({
 
 export { ProgressIndicator }
 export type { ProgressIndicatorProps }
+
+
+/** 기존 진행 표시를 크기 단계와 선택적 진행률 레이블로 제공합니다. */
+function ProgressBar({ progress = 0, barSize = "normal", showLabel = false, ...props }: Omit<ProgressIndicatorProps, "variant" | "size"> & { barSize?: "small" | "normal" | "large"; showLabel?: boolean }) {
+  const safe = Math.max(0, Math.min(1, progress))
+  return <span className="flex w-full items-center gap-3"><ProgressIndicator {...props} variant="linear" progress={safe} style={{ height: { small: 4, normal: 8, large: 12 }[barSize], ...props.style }} />{showLabel && <span className="text-[length:var(--ien-font-size-label2)] tabular-nums">{Math.round(safe * 100)}%</span>}</span>
+}
+function Loader({ label, loaderSize = "medium", ...props }: ProgressIndicatorProps & { label?: string; loaderSize?: "small" | "medium" | "large" }) {
+  return <span className="inline-flex flex-col items-center gap-3"><ProgressIndicator {...props} size={props.size ?? { small: 20, medium: 32, large: 48 }[loaderSize]} aria-label={label ?? props["aria-label"]} />{label && <span className="text-[length:var(--ien-font-size-body2)]">{label}</span>}</span>
+}
+export { ProgressBar, Loader }

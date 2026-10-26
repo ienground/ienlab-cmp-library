@@ -195,7 +195,9 @@
       ],
       "meta": {
         "category": "콘텐츠",
-        "cmpIds": [],
+        "cmpIds": [
+          "badge"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
@@ -269,7 +271,10 @@
       ],
       "meta": {
         "category": "액션·선택",
-        "cmpIds": [],
+        "cmpIds": [
+          "button",
+          "icon-button"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
@@ -280,7 +285,7 @@
           "buttonVariants"
         ],
         "preview": "previews/button.tsx",
-        "example": "import { useState } from \"react\"\nimport { Button } from \"@/components/ui/button\"\nimport type { IenTone, IenVariant } from \"@/lib/ien-theme\"\n\nconst tones: IenTone[] = [\n  \"neutral\",\n  \"brand\",\n  \"success\",\n  \"warning\",\n  \"danger\",\n  \"info\",\n]\nconst variants: IenVariant[] = [\"fill\", \"weak\", \"line\", \"ghost\"]\n\nexport function Pattern() {\n  const [loading, setLoading] = useState(true)\n\n  return (\n    <div className=\"flex flex-col gap-3\">\n      {variants.map((variant) => (\n        <div key={variant} className=\"flex flex-wrap gap-2\">\n          {tones.map((tone) => (\n            <Button key={tone} tone={tone} variant={variant}>\n              {tone}\n            </Button>\n          ))}\n        </div>\n      ))}\n      <Button tone=\"brand\" useGradient={false}>\n        단색 채움\n      </Button>\n      <Button variant=\"line\" onClick={() => setLoading((value) => !value)}>\n        {loading ? \"로딩 해제\" : \"로딩 시작\"}\n      </Button>\n      {variants.map((variant) => (\n        <div key={`loading-${variant}`} className=\"flex flex-wrap gap-2\">\n          {tones.map((tone) => (\n            <Button key={tone} tone={tone} variant={variant} loading={loading}>\n              {tone} 저장\n            </Button>\n          ))}\n        </div>\n      ))}\n      <div className=\"flex flex-wrap gap-2\">\n        <Button size=\"xs\" loading={loading}>아주 작게</Button>\n        <Button size=\"sm\" loading={loading}>작게</Button>\n        <Button size=\"lg\" loading={loading}>크게</Button>\n        <Button size=\"icon\" loading={loading} aria-label=\"즐겨찾기\">★</Button>\n        <Button asChild loading={loading}><a href=\"#button\">링크 버튼</a></Button>\n        <Button disabled loading={loading}>비활성 버튼</Button>\n      </div>\n    </div>\n  )\n}\nexport default Pattern\n",
+        "example": "import { useState } from \"react\"\nimport { Button } from \"@/components/ui/button\"\nimport type { IenTone, IenVariant } from \"@/lib/ien-theme\"\n\nconst tones: IenTone[] = [\n  \"neutral\",\n  \"brand\",\n  \"success\",\n  \"warning\",\n  \"danger\",\n  \"info\",\n]\nconst variants: IenVariant[] = [\"fill\", \"weak\", \"line\", \"ghost\"]\n\nexport function Pattern() {\n  const [loading, setLoading] = useState(true)\n\n  return (\n    <div className=\"flex flex-col gap-3\">\n      <div className=\"flex flex-wrap gap-2\"><Button size=\"sm\">Small</Button><Button size=\"md\">Medium</Button><Button>Large</Button></div>\n      <div className=\"flex flex-wrap gap-2\">{variants.map((variant) => <Button key={variant} variant={variant} disabled>{variant} 비활성</Button>)}</div>\n      {variants.map((variant) => (\n        <div key={variant} className=\"flex flex-wrap gap-2\">\n          {tones.map((tone) => (\n            <Button key={tone} tone={tone} variant={variant}>\n              {tone}\n            </Button>\n          ))}\n        </div>\n      ))}\n      <Button tone=\"brand\" useGradient={false}>\n        단색 채움\n      </Button>\n      <Button variant=\"line\" onClick={() => setLoading((value) => !value)}>\n        {loading ? \"로딩 해제\" : \"로딩 시작\"}\n      </Button>\n      {variants.map((variant) => (\n        <div key={`loading-${variant}`} className=\"flex flex-wrap gap-2\">\n          {tones.map((tone) => (\n            <Button key={tone} tone={tone} variant={variant} loading={loading}>\n              {tone} 저장\n            </Button>\n          ))}\n        </div>\n      ))}\n      <div className=\"flex flex-wrap gap-2\">\n        <Button size=\"xs\" loading={loading}>아주 작게</Button>\n        <Button size=\"sm\" loading={loading}>작게</Button>\n        <Button size=\"lg\" loading={loading}>크게</Button>\n        <Button size=\"icon\" loading={loading} aria-label=\"즐겨찾기\">★</Button>\n        <Button asChild loading={loading}><a href=\"#button\">링크 버튼</a></Button>\n        <Button disabled loading={loading}>비활성 버튼</Button>\n      </div>\n    </div>\n  )\n}\nexport default Pattern\n",
         "ienDesign": true
       }
     },
@@ -383,7 +388,9 @@
       ],
       "meta": {
         "category": "콘텐츠",
-        "cmpIds": [],
+        "cmpIds": [
+          "card"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
@@ -710,7 +717,9 @@
       ],
       "meta": {
         "category": "액션·선택",
-        "cmpIds": [],
+        "cmpIds": [
+          "checkbox"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
@@ -1017,7 +1026,9 @@
       ],
       "meta": {
         "category": "액션·선택",
-        "cmpIds": [],
+        "cmpIds": [
+          "menu"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
@@ -1334,7 +1345,9 @@
       ],
       "meta": {
         "category": "액션·선택",
-        "cmpIds": [],
+        "cmpIds": [
+          "menu"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
@@ -1478,7 +1491,9 @@
       ],
       "meta": {
         "category": "피드백",
-        "cmpIds": [],
+        "cmpIds": [
+          "empty"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
@@ -2496,27 +2511,28 @@
       "title": "Input",
       "description": "REUI input 컴포넌트입니다.",
       "dependencies": [
-        "cn@^0.4.0"
+        "cn@^0.4.0",
+        "@tabler/icons-react@^3.49.0"
       ],
       "registryDependencies": [
         "@ienlab/ien-theme",
-        "@ienlab/field"
+        "@ienlab/field",
+        "@ienlab/ien-text-field",
+        "@ienlab/button"
       ],
       "files": [
         {
           "path": "ui/input.tsx",
           "type": "registry:ui",
           "target": "@ui/input.tsx"
-        },
-        {
-          "path": "lib/ien-text-field.tsx",
-          "type": "registry:lib",
-          "target": "@lib/ien-text-field.tsx"
         }
       ],
       "meta": {
         "category": "입력",
-        "cmpIds": [],
+        "cmpIds": [
+          "text-field",
+          "search-field"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
@@ -2526,7 +2542,7 @@
           "Input"
         ],
         "preview": "previews/input.tsx",
-        "example": "import { Input } from \"@/components/ui/input\"\n\nexport function Pattern() {\n  return (\n    <div className=\"mx-auto flex w-full max-w-sm flex-col gap-6\">\n      <Input label=\"이름\" labelOption=\"sustain\" placeholder=\"최대 20자까지 입력하세요\" lengthLimit={{ mode: \"block\", maxLength: 20 }} supportingText=\"라벨을 항상 표시하고 초과 입력을 차단합니다.\" />\n      <Input label=\"길이 초과 오류 표시\" labelOption=\"appear\" placeholder=\"포커스하면 라벨이 나타납니다\" lengthLimit={{ mode: \"error\", maxLength: 10 }} supportingText=\"10자를 초과해도 입력할 수 있으며 오류로 표시합니다.\" />\n    </div>\n  )\n}\nexport default Pattern;\n",
+        "example": "import { Input } from \"@/components/ui/input\"\nimport { Button } from \"@/components/ui/button\"\n\nexport function Pattern() {\n  return (\n    <div className=\"mx-auto flex w-full max-w-sm flex-col gap-6\">\n      <form className=\"space-y-2\">\n        <Input aria-label=\"입력 포맷\" defaultValue=\"123456\" format={{ transform: (value) => value.replace(/(.{3})(?=.)/g, \"$1-\"), reset: (value) => value.replaceAll(\"-\", \"\") }} />\n        <Button type=\"reset\" variant=\"weak\" size=\"sm\">초기값 복원</Button>\n      </form>\n      <Input type=\"search\" label=\"검색\" labelOption=\"sustain\" clearable defaultValue=\"검색어\" />\n      <Input type=\"password\" label=\"비밀번호\" labelOption=\"sustain\" defaultValue=\"secret\" />\n      <Input variant=\"big\" aria-label=\"금액\" placeholder=\"0원\" />\n      <Input variant=\"hero\" aria-label=\"헤드라인\" placeholder=\"제목 입력\" />\n      <Input label=\"이름\" labelOption=\"sustain\" placeholder=\"최대 20자까지 입력하세요\" lengthLimit={{ mode: \"block\", maxLength: 20 }} supportingText=\"라벨을 항상 표시하고 초과 입력을 차단합니다.\" />\n      <Input label=\"길이 초과 오류 표시\" labelOption=\"appear\" placeholder=\"포커스하면 라벨이 나타납니다\" lengthLimit={{ mode: \"error\", maxLength: 10 }} supportingText=\"10자를 초과해도 입력할 수 있으며 오류로 표시합니다.\" />\n    </div>\n  )\n}\nexport default Pattern;\n",
         "ienDesign": true
       }
     },
@@ -2688,7 +2704,9 @@
       ],
       "meta": {
         "category": "입력",
-        "cmpIds": [],
+        "cmpIds": [
+          "numeric-spinner"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
@@ -2809,7 +2827,9 @@
       ],
       "meta": {
         "category": "액션·선택",
-        "cmpIds": [],
+        "cmpIds": [
+          "radio-button"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
@@ -3194,7 +3214,9 @@
       "meta": {
         "category": "피드백",
         "cmpIds": [
-          "progress-indicator"
+          "progress-indicator",
+          "progress-bar",
+          "loader"
         ],
         "upstream": {
           "repository": "https://github.com/floor/material",
@@ -3202,10 +3224,12 @@
           "style": "Material 3 Expressive"
         },
         "exports": [
-          "ProgressIndicator"
+          "ProgressIndicator",
+          "ProgressBar",
+          "Loader"
         ],
         "preview": "previews/progress-indicator.tsx",
-        "example": "import { ProgressIndicator } from \"@/components/ui/progress-indicator\"\n\nexport function Pattern() {\n  return (\n    <div className=\"flex w-full max-w-sm flex-col gap-6\">\n      <div className=\"flex items-center justify-center gap-6\">\n        <ProgressIndicator aria-label=\"원형 불확정 진행\" />\n        <ProgressIndicator shape=\"wavy\" aria-label=\"물결형 불확정 진행\" />\n        <ProgressIndicator shape=\"wavy\" progress={0.65} aria-label=\"65% 진행\" />\n      </div>\n      <ProgressIndicator variant=\"linear\" aria-label=\"선형 불확정 진행\" />\n      <ProgressIndicator variant=\"linear\" shape=\"wavy\" progress={0.65} aria-label=\"물결형 65% 진행\" />\n    </div>\n  )\n}\nexport default Pattern\n",
+        "example": "import { ProgressIndicator, ProgressBar, Loader } from \"@/components/ui/progress-indicator\"\n\nexport function Pattern() {\n  return (\n    <div className=\"flex w-full max-w-sm flex-col gap-6\">\n      <div className=\"flex items-center justify-center gap-6\">\n        <ProgressIndicator aria-label=\"원형 불확정 진행\" />\n        <ProgressIndicator shape=\"wavy\" aria-label=\"물결형 불확정 진행\" />\n        <ProgressIndicator shape=\"wavy\" progress={0.65} aria-label=\"65% 진행\" />\n      </div>\n      <ProgressIndicator variant=\"linear\" aria-label=\"선형 불확정 진행\" />\n      <ProgressIndicator variant=\"linear\" shape=\"wavy\" progress={0.65} aria-label=\"물결형 65% 진행\" />\n    </div>\n  )\n}\nexport default Pattern\n",
         "ienDesign": true
       }
     },
@@ -3268,7 +3292,10 @@
       ],
       "meta": {
         "category": "피드백",
-        "cmpIds": [],
+        "cmpIds": [
+          "stepper",
+          "progress-stepper"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
@@ -3318,7 +3345,9 @@
       ],
       "meta": {
         "category": "액션·선택",
-        "cmpIds": [],
+        "cmpIds": [
+          "switch"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
@@ -3355,7 +3384,9 @@
       ],
       "meta": {
         "category": "액션·선택",
-        "cmpIds": [],
+        "cmpIds": [
+          "tab"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
@@ -3383,23 +3414,21 @@
       ],
       "registryDependencies": [
         "@ienlab/ien-theme",
-        "@ienlab/field"
+        "@ienlab/field",
+        "@ienlab/ien-text-field"
       ],
       "files": [
         {
           "path": "ui/textarea.tsx",
           "type": "registry:ui",
           "target": "@ui/textarea.tsx"
-        },
-        {
-          "path": "lib/ien-text-field.tsx",
-          "type": "registry:lib",
-          "target": "@lib/ien-text-field.tsx"
         }
       ],
       "meta": {
         "category": "입력",
-        "cmpIds": [],
+        "cmpIds": [
+          "text-area"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
@@ -3431,14 +3460,16 @@
       ],
       "meta": {
         "category": "입력",
-        "cmpIds": [],
+        "cmpIds": [
+          "wheel-picker"
+        ],
         "exports": [
           "DatePickerProps",
           "DatePicker"
         ],
         "preview": "previews/date-picker.tsx",
         "ienDesign": true,
-        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { useIenLanguage } from \"@/lib/ien-theme-context\"\nimport { DatePicker } from \"@/components/reui/date-picker\"\nimport { Card } from \"@/components/ui/card\"\n\nexport function Pattern() {\n  const language = useIenLanguage(\"ko\")\n  const [value, setValue] = useState<string | null>(\"2024-02-29\")\n  return (\n    <div className=\"flex flex-col items-center gap-3\">\n      <Card contentPadding=\"none\" className=\"w-fit\">\n        <DatePicker inline value={value} onValueChange={setValue} aria-label={language === \"ko\" ? \"날짜 선택\" : \"Select date\"} />\n      </Card>\n      <p role=\"status\" className=\"text-muted-foreground text-sm\">{value ?? (language === \"ko\" ? \"날짜를 선택하세요\" : \"Select a date\")}</p>\n    </div>\n  )\n}\nexport default Pattern\n"
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { useIenLanguage } from \"@/lib/ien-theme-context\"\nimport { DatePicker } from \"@/components/reui/date-picker\"\nimport { Card } from \"@/components/ui/card\"\n\nexport function Pattern() {\n  const language = useIenLanguage(\"ko\")\n  const [value, setValue] = useState<string | null>(\"2024-02-29\")\n  return (\n    <div className=\"flex flex-col items-center gap-3\">\n      <Card contentPadding=\"none\" className=\"w-fit\">\n        <DatePicker inline value={value} onValueChange={setValue} aria-label={language === \"ko\" ? \"날짜 선택\" : \"Select date\"} />\n      </Card>\n      <DatePicker value={value} onValueChange={setValue} requireConfirm name=\"date\" aria-label=\"확인 후 반영할 날짜\" />\n      <p role=\"status\" className=\"text-muted-foreground text-sm\">{value ?? (language === \"ko\" ? \"날짜를 선택하세요\" : \"Select a date\")}</p>\n    </div>\n  )\n}\nexport default Pattern\n"
       }
     },
     {
@@ -3459,7 +3490,9 @@
       ],
       "meta": {
         "category": "입력",
-        "cmpIds": [],
+        "cmpIds": [
+          "wheel-picker"
+        ],
         "exports": [
           "DurationPickerProps",
           "DurationPicker"
@@ -3494,7 +3527,9 @@
       ],
       "meta": {
         "category": "입력",
-        "cmpIds": [],
+        "cmpIds": [
+          "wheel-picker"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
@@ -3612,7 +3647,9 @@
       ],
       "meta": {
         "category": "피드백",
-        "cmpIds": [],
+        "cmpIds": [
+          "tooltip"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
@@ -4019,30 +4056,30 @@
           "ien-icon-md": "1.25rem",
           "ien-icon-lg": "1.5rem",
           "ien-icon-xl": "2rem",
-          "ien-font-size-display": "1.5rem",
-          "ien-line-height-display": "2rem",
+          "ien-font-size-display": "1.875rem",
+          "ien-line-height-display": "2.375rem",
           "ien-font-weight-display": "700",
-          "ien-font-size-title1": "1.25rem",
-          "ien-line-height-title1": "1.75rem",
-          "ien-font-weight-title1": "600",
-          "ien-font-size-title2": "1.125rem",
+          "ien-font-size-title1": "1.5rem",
+          "ien-line-height-title1": "2rem",
+          "ien-font-weight-title1": "700",
+          "ien-font-size-title2": "1.25rem",
           "ien-line-height-title2": "1.75rem",
           "ien-font-weight-title2": "600",
-          "ien-font-size-title3": "1rem",
-          "ien-line-height-title3": "1.5rem",
+          "ien-font-size-title3": "1.125rem",
+          "ien-line-height-title3": "1.625rem",
           "ien-font-weight-title3": "600",
-          "ien-font-size-body1": "0.875rem",
-          "ien-line-height-body1": "1.25rem",
+          "ien-font-size-body1": "1rem",
+          "ien-line-height-body1": "1.5rem",
           "ien-font-weight-body1": "400",
-          "ien-font-size-body2": "0.875rem",
-          "ien-line-height-body2": "1.25rem",
+          "ien-font-size-body2": "0.9375rem",
+          "ien-line-height-body2": "1.375rem",
           "ien-font-weight-body2": "400",
           "ien-font-size-label1": "0.875rem",
           "ien-line-height-label1": "1.25rem",
-          "ien-font-weight-label1": "500",
-          "ien-font-size-label2": "0.75rem",
-          "ien-line-height-label2": "1rem",
-          "ien-font-weight-label2": "500",
+          "ien-font-weight-label1": "600",
+          "ien-font-size-label2": "0.8125rem",
+          "ien-line-height-label2": "1.125rem",
+          "ien-font-weight-label2": "600",
           "ien-font-size-caption": "0.75rem",
           "ien-line-height-caption": "1rem",
           "ien-font-weight-caption": "400",
@@ -4113,7 +4150,8 @@
           "ien-button-gradient-fill-end": "36%",
           "ien-button-gradient-weak-start": "6%",
           "ien-button-press-duration": "300ms",
-          "ien-button-font-weight": "500",
+          "ien-button-font-weight": "600",
+          "ien-button-height-md": "2.75rem",
           "ien-button-press-easing": "linear(0.000000, 0.058179, 0.182107, 0.323559, 0.458502, 0.576531, 0.674595, 0.753345, 0.815073, 0.862591, 0.898660, 0.925734, 0.945869, 0.960731, 0.971630, 0.979578, 0.985347, 0.989517, 0.992520, 0.994675, 0.996218, 0.997318, 0.998102, 0.998659, 0.999054, 0.999334, 0.999531, 0.999671, 0.999769, 0.999838, 1)",
           "ien-motion-spring-duration": "800ms",
           "ien-motion-spring-medium-bouncy": "linear(0.000000, 0.018669, 0.069413, 0.144584, 0.237037, 0.340300, 0.448681, 0.557338, 0.662293, 0.760425, 0.849426, 0.927734, 0.994459, 1.049288, 1.092398, 1.124355, 1.146025, 1.158491, 1.162971, 1.160750, 1.153123, 1.141346, 1.126596, 1.109946, 1.092341, 1.074591, 1.057363, 1.041185, 1.026452, 1.013433, 1.002289, 0.993083, 0.985795, 0.980342, 0.976587, 0.974359, 0.973461, 0.973685, 0.974820, 0.976658, 0.979007, 0.981688, 0.984545, 0.987443, 0.990269, 0.992934, 0.995372, 0.997535, 0.999395, 1.000939, 1.002170, 1.003099, 1.003748, 1.004144, 1.004318, 1.004305, 1.004138, 1.003853, 1.003479, 1.003048, 1.002585, 1.002112, 1.001649, 1.001210, 1.000807, 1.000448, 1.000137, 0.999879, 0.999671, 0.999513, 0.999401, 0.999331, 0.999298, 0.999296, 0.999320, 0.999365, 0.999424, 0.999493, 0.999568, 0.999645, 1)",
@@ -4491,6 +4529,21 @@
           },
           ".ien-pull-to-refresh-dot": {
             "animation": "ien-pull-to-refresh-dot 900ms linear infinite"
+          },
+          ":where([data-slot=\"button\"])[data-ien-disabled=\"true\"]": {
+            "color": "var(--ien-text-disabled)",
+            "background-image": "none",
+            "border-color": "transparent",
+            "background-color": "var(--ien-surface-variant)"
+          },
+          ":where([data-slot=\"button\"])[data-ien-disabled=\"true\"]:is([data-variant=\"line\"], [data-variant=\"ghost\"])": {
+            "background-color": "transparent"
+          },
+          ":where([data-slot=\"button\"])[data-ien-disabled=\"true\"][data-variant=\"line\"]": {
+            "border-color": "var(--ien-border)"
+          },
+          ":where([data-slot=\"button\"]):not([aria-disabled=\"true\"]):active": {
+            "box-shadow": "inset 0 0 0 100vmax rgb(0 0 0 / 8%)"
           }
         },
         "@media (prefers-reduced-motion: reduce)": {
@@ -4553,7 +4606,8 @@
       ],
       "registryDependencies": [
         "@ienlab/ien-theme",
-        "@ienlab/button"
+        "@ienlab/button",
+        "@ienlab/radio-group"
       ],
       "files": [
         {
@@ -4564,7 +4618,9 @@
       ],
       "meta": {
         "category": "피드백",
-        "cmpIds": [],
+        "cmpIds": [
+          "bottom-sheet"
+        ],
         "exports": [
           "Sheet",
           "SheetTrigger",
@@ -4573,11 +4629,12 @@
           "SheetHeader",
           "SheetFooter",
           "SheetTitle",
-          "SheetDescription"
+          "SheetDescription",
+          "SheetSelectionList"
         ],
         "ienDesign": true,
         "preview": "previews/sheet.tsx",
-        "example": "import { Button } from \"@/components/ui/button\"\nimport {\n  Sheet,\n  SheetTrigger,\n  SheetContent,\n  SheetHeader,\n  SheetTitle,\n  SheetDescription,\n} from \"@/components/ui/sheet\"\n\nexport function Pattern() {\n  return (\n    <Sheet>\n      <SheetTrigger asChild>\n        <Button variant=\"line\">패널 열기</Button>\n      </SheetTrigger>\n      <SheetContent>\n        <SheetHeader>\n          <SheetTitle>패널 제목</SheetTitle>\n          <SheetDescription>추가 정보와 작업을 표시하는 패널입니다.</SheetDescription>\n        </SheetHeader>\n      </SheetContent>\n    </Sheet>\n  )\n}\nexport default Pattern\n"
+        "example": "import { Button } from \"@/components/ui/button\"\nimport {\n  Sheet,\n  SheetTrigger,\n  SheetContent,\n  SheetHeader,\n  SheetTitle,\n  SheetDescription,\n  SheetSelectionList,\n} from \"@/components/ui/sheet\"\n\nexport function Pattern() {\n  return (\n    <Sheet>\n      <SheetTrigger asChild>\n        <Button variant=\"line\">패널 열기</Button>\n      </SheetTrigger>\n      <SheetContent side=\"bottom\">\n        <SheetHeader>\n          <SheetTitle>패널 제목</SheetTitle>\n          <SheetDescription>추가 정보와 작업을 표시하는 패널입니다.</SheetDescription>\n        </SheetHeader>\n        <SheetSelectionList aria-label=\"정렬 방식\" defaultValue=\"recent\" items={[{ value: \"recent\", label: \"최신순\" }, { value: \"name\", label: \"이름순\" }, { value: \"blocked\", label: \"선택 불가\", disabled: true }]} />\n      </SheetContent>\n    </Sheet>\n  )\n}\nexport default Pattern\n"
       }
     },
     {
@@ -4708,6 +4765,513 @@
         "example": "\"use client\"\n\nimport { useEffect, useRef, useState } from \"react\"\nimport { PullToRefresh } from \"@/components/ui/pull-to-refresh\"\n\nexport function Pattern() {\n  const [isRefreshing, setIsRefreshing] = useState(false)\n  const [revision, setRevision] = useState(0)\n  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)\n  useEffect(() => () => clearTimeout(timer.current), [])\n  const refresh = () => {\n    setIsRefreshing(true)\n    // 프리뷰에서만 요청 시간을 재현합니다. 실제 사용 시 데이터 요청의 finally에서 종료합니다.\n    timer.current = setTimeout(() => {\n      setRevision((value) => value + 1)\n      setIsRefreshing(false)\n    }, 1400)\n  }\n  return (\n    <div className=\"w-full max-w-md space-y-3\">\n      <p className=\"text-sm text-muted-foreground\">목록 맨 위에서 아래로 당기거나 위로 더 스크롤해 보세요. 마우스 드래그 또는 목록에 포커스한 뒤 Alt+R로도 갱신할 수 있습니다.</p>\n      <p className=\"text-sm text-muted-foreground\" aria-live=\"polite\">갱신 횟수: {revision}</p>\n      <PullToRefresh isRefreshing={isRefreshing} onRefresh={refresh} className=\"h-80 rounded-2xl border border-(--ien-border) bg-(--ien-surface)\" aria-label=\"최근 활동 목록\">\n        <ul className=\"divide-y divide-(--ien-border) px-4\">\n          {Array.from({ length: 12 }, (_, index) => (\n            <li key={index} className=\"flex min-h-19 items-center gap-3 py-4\">\n              <span className=\"flex size-11 shrink-0 items-center justify-center rounded-xl bg-(--ien-brand-weak) text-(--ien-brand)\" aria-hidden=\"true\">{index + 1}</span>\n              <div className=\"min-w-0\">\n                <p className=\"text-base font-semibold\">최근 활동 {index + 1}</p>\n                <p className=\"text-sm text-muted-foreground\">{revision === 0 ? \"기존 항목을 유지하며 새로고침합니다.\" : `${revision}번째 갱신 내용입니다.`}</p>\n              </div>\n            </li>\n          ))}\n        </ul>\n      </PullToRefresh>\n    </div>\n  )\n}\n\nexport default Pattern\n",
         "ienDesign": true
       }
+    },
+    {
+      "name": "slider",
+      "type": "registry:ui",
+      "title": "Slider",
+      "description": "CMP의 36px 트랙과 4×44px 손잡이를 사용하는 단일·범위 슬라이더입니다.",
+      "dependencies": [
+        "radix-ui@^1.6.7",
+        "cn@^0.4.0"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme"
+      ],
+      "files": [
+        {
+          "path": "ui/slider.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/slider.tsx"
+        }
+      ],
+      "meta": {
+        "category": "입력",
+        "cmpIds": [
+          "slider"
+        ],
+        "exports": [
+          "Slider",
+          "RangeSlider",
+          "SliderProps",
+          "RangeSliderProps"
+        ],
+        "preview": "previews/slider.tsx",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { Slider, RangeSlider } from \"@/components/ui/slider\"\n\nexport function Pattern() {\n  const [amount, setAmount] = useState([40])\n  return <div className=\"flex w-full max-w-lg flex-col gap-4\"><><Slider label=\"음량\" value={amount} onValueChange={setAmount} valueLabel={amount[0]} aria-label=\"음량\" /><RangeSlider label=\"가격 범위\" defaultValue={[20, 80]} /><Slider label=\"사용 불가\" defaultValue={[60]} disabled /></></div>\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
+      "name": "toggle-button",
+      "type": "registry:ui",
+      "title": "ToggleButton",
+      "description": "버튼 규격과 선택 상태를 공유하는 텍스트·아이콘 토글입니다.",
+      "dependencies": [
+        "radix-ui@^1.6.7"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/button"
+      ],
+      "files": [
+        {
+          "path": "ui/toggle-button.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/toggle-button.tsx"
+        }
+      ],
+      "meta": {
+        "category": "액션·선택",
+        "cmpIds": [
+          "button",
+          "icon-button"
+        ],
+        "exports": [
+          "ToggleButton",
+          "IconToggleButton",
+          "ToggleButtonProps"
+        ],
+        "preview": "previews/toggle-button.tsx",
+        "example": "\"use client\"\n\nimport { ToggleButton, IconToggleButton } from \"@/components/ui/toggle-button\"\n\nexport function Pattern() {\n  return <div className=\"flex w-full max-w-lg flex-col gap-4\"><><ToggleButton>즐겨찾기</ToggleButton><ToggleButton defaultPressed>선택됨</ToggleButton><IconToggleButton aria-label=\"즐겨찾기\">★</IconToggleButton><ToggleButton disabled>사용 불가</ToggleButton></></div>\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
+      "name": "split-button",
+      "type": "registry:ui",
+      "title": "SplitButton",
+      "description": "split-button의 CMP 대응 컴포넌트입니다.",
+      "dependencies": [
+        "@tabler/icons-react@^3.49.0"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/button",
+        "@ienlab/button-group",
+        "@ienlab/dropdown-menu"
+      ],
+      "files": [
+        {
+          "path": "ui/split-button.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/split-button.tsx"
+        }
+      ],
+      "meta": {
+        "category": "액션·선택",
+        "cmpIds": [
+          "split-button"
+        ],
+        "exports": [
+          "SplitButton",
+          "SplitButtonProps"
+        ],
+        "preview": "previews/split-button.tsx",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { SplitButton } from \"@/components/ui/split-button\"\nimport { Button } from \"@/components/ui/button\"\nimport { DropdownMenuItem } from \"@/components/ui/dropdown-menu\"\n\nexport function Pattern() {\n  const [message, setMessage] = useState(\"\")\n  return <div className=\"flex w-full max-w-lg flex-col gap-4\"><SplitButton menu={<><DropdownMenuItem>다른 이름으로 저장</DropdownMenuItem><DropdownMenuItem>내보내기</DropdownMenuItem></>} onClick={() => setMessage(\"저장했습니다.\")}>저장</SplitButton><p aria-live=\"polite\" className=\"text-sm text-muted-foreground\">{message}</p></div>\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
+      "name": "toast",
+      "type": "registry:ui",
+      "title": "Toast",
+      "description": "일시적인 알림과 실행 취소·재시도 작업을 제공합니다.",
+      "dependencies": [
+        "sonner@^2.0.7"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme"
+      ],
+      "files": [
+        {
+          "path": "ui/toast.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/toast.tsx"
+        }
+      ],
+      "meta": {
+        "category": "피드백",
+        "cmpIds": [
+          "toast",
+          "snackbar"
+        ],
+        "exports": [
+          "Toaster",
+          "toast",
+          "snackbar"
+        ],
+        "preview": "previews/toast.tsx",
+        "example": "\"use client\"\n\nimport { Toaster, toast, snackbar } from \"@/components/ui/toast\"\nimport { Button } from \"@/components/ui/button\"\n\nexport function Pattern() {\n  return <div className=\"flex w-full max-w-lg flex-col gap-4\"><><Toaster /><Button onClick={() => toast.success(\"저장했습니다.\")}>성공 알림</Button><Button variant=\"weak\" onClick={() => snackbar(\"항목을 보관했습니다.\", { label: \"실행 취소\", onClick: () => toast(\"실행을 취소했습니다.\") })}>작업 알림</Button></></div>\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
+      "name": "list-row",
+      "type": "registry:ui",
+      "title": "ListRow",
+      "description": "list-row의 CMP 대응 컴포넌트입니다.",
+      "dependencies": [
+        "radix-ui@^1.6.7",
+        "cn@^0.4.0"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme"
+      ],
+      "files": [
+        {
+          "path": "ui/list-row.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/list-row.tsx"
+        }
+      ],
+      "meta": {
+        "category": "콘텐츠",
+        "cmpIds": [
+          "list-row",
+          "list-header",
+          "list-footer",
+          "board-row",
+          "table-row"
+        ],
+        "exports": [
+          "ListRow",
+          "ListHeader",
+          "ListFooter",
+          "BoardRow",
+          "TableRow",
+          "ListRowProps"
+        ],
+        "preview": "previews/list-row.tsx",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { ListRow, ListHeader, ListFooter, BoardRow, TableRow } from \"@/components/ui/list-row\"\nimport { Button } from \"@/components/ui/button\"\nimport { Switch } from \"@/components/ui/switch\"\n\nexport function Pattern() {\n  const [message, setMessage] = useState(\"\")\n  return <div className=\"flex w-full max-w-lg flex-col gap-4\"><><div className=\"w-full\"><ListHeader>계정</ListHeader><ListRow title=\"프로필\" description=\"프로필 정보를 관리합니다.\" leading=\"●\" trailing=\"›\" border=\"indented\" onClick={() => setMessage(\"프로필 선택\")} /><ListRow title=\"알림\" trailing={<Switch aria-label=\"알림 허용\" />} /><ListRow title=\"사용 불가\" disabled onClick={() => {}} /><BoardRow title=\"공지사항\" description=\"서비스 이용 안내\" metadata=\"오늘\" /><ListFooter>계정 정보는 안전하게 보관됩니다.</ListFooter></div><table className=\"w-full\"><tbody><TableRow><th>상태</th><td>정상</td></TableRow></tbody></table></><p aria-live=\"polite\" className=\"text-sm text-muted-foreground\">{message}</p></div>\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
+      "name": "section",
+      "type": "registry:ui",
+      "title": "Section",
+      "description": "section의 CMP 대응 컴포넌트입니다.",
+      "dependencies": [
+        "cn@^0.4.0"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/list-row"
+      ],
+      "files": [
+        {
+          "path": "ui/section.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/section.tsx"
+        }
+      ],
+      "meta": {
+        "category": "레이아웃",
+        "cmpIds": [
+          "ien-section"
+        ],
+        "exports": [
+          "Section",
+          "SectionProps"
+        ],
+        "preview": "previews/section.tsx",
+        "example": "\"use client\"\n\nimport { Section } from \"@/components/ui/section\"\nimport { Button } from \"@/components/ui/button\"\nimport { ListRow } from \"@/components/ui/list-row\"\nimport { Switch } from \"@/components/ui/switch\"\n\nexport function Pattern() {\n  return <div className=\"flex w-full max-w-lg flex-col gap-4\"><Section title=\"설정\" description=\"서비스 이용 환경을 변경합니다.\" footer=\"변경 사항은 즉시 반영됩니다.\"><ListRow title=\"알림\" trailing={<Switch aria-label=\"알림\" />} border=\"indented\" /><ListRow title=\"화면 설정\" description=\"라이트·다크 모드를 설정합니다.\" /></Section></div>\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
+      "name": "agreement",
+      "type": "registry:ui",
+      "title": "Agreement",
+      "description": "agreement의 CMP 대응 컴포넌트입니다.",
+      "dependencies": [
+        "cn@^0.4.0"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/checkbox"
+      ],
+      "files": [
+        {
+          "path": "ui/agreement.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/agreement.tsx"
+        }
+      ],
+      "meta": {
+        "category": "콘텐츠",
+        "cmpIds": [
+          "agreement"
+        ],
+        "exports": [
+          "Agreement",
+          "AgreementItem",
+          "AgreementProps"
+        ],
+        "preview": "previews/agreement.tsx",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { Agreement } from \"@/components/ui/agreement\"\n\nexport function Pattern() {\n  const [message, setMessage] = useState(\"\")\n  return <div className=\"flex w-full max-w-lg flex-col gap-4\"><Agreement items={[{ value: \"terms\", label: \"서비스 이용약관\", required: true, description: \"서비스 이용에 필요한 약관입니다.\" }, { value: \"privacy\", label: \"개인정보 처리\", required: true }, { value: \"marketing\", label: \"혜택 알림 수신\", description: \"선택 동의는 언제든 철회할 수 있습니다.\" }]} onValueChange={(value) => setMessage(value.join(\", \"))} /><p aria-live=\"polite\" className=\"text-sm text-muted-foreground\">{message}</p></div>\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
+      "name": "action-bar",
+      "type": "registry:ui",
+      "title": "ActionBar",
+      "description": "action-bar의 CMP 대응 컴포넌트입니다.",
+      "dependencies": [
+        "radix-ui@^1.6.7",
+        "cn@^0.4.0",
+        "@tabler/icons-react@^3.49.0"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/button"
+      ],
+      "files": [
+        {
+          "path": "ui/action-bar.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/action-bar.tsx"
+        }
+      ],
+      "meta": {
+        "category": "액션·선택",
+        "cmpIds": [
+          "action-bar"
+        ],
+        "exports": [
+          "ActionBar",
+          "ActionBarButton",
+          "ActionBarProps"
+        ],
+        "preview": "previews/action-bar.tsx",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { ActionBar, ActionBarButton } from \"@/components/ui/action-bar\"\nimport { Button } from \"@/components/ui/button\"\n\nexport function Pattern() {\n  const [message, setMessage] = useState(\"\")\n  const [open, setOpen] = useState(true)\n  return <div className=\"flex w-full max-w-lg flex-col gap-4\"><><Button variant=\"weak\" onClick={() => setOpen(true)}>선택 작업 열기</Button><ActionBar open={open} onOpenChange={setOpen} selection=\"2개 선택\"><ActionBarButton size=\"sm\" variant=\"weak\" onClick={() => setMessage(\"보관했습니다.\")}>보관</ActionBarButton><ActionBarButton size=\"sm\" tone=\"danger\" variant=\"ghost\" onClick={() => setOpen(false)}>선택 해제</ActionBarButton></ActionBar></><p aria-live=\"polite\" className=\"text-sm text-muted-foreground\">{message}</p></div>\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
+      "name": "result",
+      "type": "registry:ui",
+      "title": "Result",
+      "description": "result의 CMP 대응 컴포넌트입니다.",
+      "dependencies": [
+        "@tabler/icons-react@^3.49.0",
+        "cn@^0.4.0"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/empty",
+        "@ienlab/asset-frame"
+      ],
+      "files": [
+        {
+          "path": "ui/result.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/result.tsx"
+        }
+      ],
+      "meta": {
+        "category": "피드백",
+        "cmpIds": [
+          "result"
+        ],
+        "exports": [
+          "Result",
+          "ResultProps"
+        ],
+        "preview": "previews/result.tsx",
+        "example": "\"use client\"\n\nimport { Result } from \"@/components/ui/result\"\nimport { Button } from \"@/components/ui/button\"\n\nexport function Pattern() {\n  return <div className=\"flex w-full max-w-lg flex-col gap-4\"><><Result title=\"저장했습니다\" description=\"변경 사항이 반영되었습니다.\" tone=\"success\" primaryAction={<Button>확인</Button>} /><Result title=\"불러오지 못했습니다\" tone=\"failure\" primaryAction={<Button variant=\"weak\">다시 시도</Button>} /></></div>\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
+      "name": "split-input",
+      "type": "registry:ui",
+      "title": "SplitInput",
+      "description": "split-input의 CMP 대응 컴포넌트입니다.",
+      "dependencies": [
+        "cn@^0.4.0"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/input"
+      ],
+      "files": [
+        {
+          "path": "ui/split-input.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/split-input.tsx"
+        }
+      ],
+      "meta": {
+        "category": "입력",
+        "cmpIds": [
+          "split-text-field"
+        ],
+        "exports": [
+          "SplitInput",
+          "SplitInputProps"
+        ],
+        "preview": "previews/split-input.tsx",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { SplitInput } from \"@/components/ui/split-input\"\n\nexport function Pattern() {\n  const [message, setMessage] = useState(\"\")\n  return <div className=\"flex w-full max-w-lg flex-col gap-4\"><SplitInput lengths={[3, 4, 4]} labels={[\"전화번호 앞자리\", \"전화번호 가운데 자리\", \"전화번호 끝자리\"]} onValueChange={(values) => setMessage(values.join(\"-\"))} /><p aria-live=\"polite\" className=\"text-sm text-muted-foreground\">{message}</p></div>\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
+      "name": "text-content",
+      "type": "registry:ui",
+      "title": "TextContent",
+      "description": "text-content의 CMP 대응 컴포넌트입니다.",
+      "dependencies": [
+        "cn@^0.4.0"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/typography"
+      ],
+      "files": [
+        {
+          "path": "ui/text-content.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/text-content.tsx"
+        }
+      ],
+      "meta": {
+        "category": "콘텐츠",
+        "cmpIds": [
+          "paragraph",
+          "post",
+          "bubble",
+          "highlight"
+        ],
+        "exports": [
+          "HighlightText",
+          "Paragraph",
+          "Post",
+          "Bubble",
+          "HighlightTextProps",
+          "ParagraphProps",
+          "PostProps"
+        ],
+        "preview": "previews/text-content.tsx",
+        "example": "\"use client\"\n\nimport { HighlightText, Paragraph, Post, Bubble } from \"@/components/ui/text-content\"\nimport { Button } from \"@/components/ui/button\"\n\nexport function Pattern() {\n  return <div className=\"flex w-full max-w-lg flex-col gap-4\"><><Paragraph title=\"문단 제목\" body=\"중요한 내용을 강조해 안내합니다.\" emphasis={[\"중요한 내용\"]} footer=\"보조 설명입니다.\" bold /><Post title=\"새로운 소식\" author=\"아이엔랩\" description=\"포스트의 본문과 미디어를 함께 구성합니다.\" metadata=\"오늘\" action={<Button variant=\"ghost\">자세히 보기</Button>} /><Bubble tone=\"brand\">안녕하세요.</Bubble><HighlightText text=\"일치하는 문자열을 안전하게 강조합니다.\" highlights={[\"문자열\"]} /></></div>\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
+      "name": "asset-frame",
+      "type": "registry:ui",
+      "title": "AssetFrame",
+      "description": "asset-frame의 CMP 대응 컴포넌트입니다.",
+      "dependencies": [],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/icon-tile"
+      ],
+      "files": [
+        {
+          "path": "ui/asset-frame.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/asset-frame.tsx"
+        }
+      ],
+      "meta": {
+        "category": "콘텐츠",
+        "cmpIds": [
+          "asset"
+        ],
+        "exports": [
+          "AssetFrame",
+          "AssetFrameProps"
+        ],
+        "preview": "previews/asset-frame.tsx",
+        "example": "\"use client\"\n\nimport { AssetFrame } from \"@/components/ui/asset-frame\"\n\nexport function Pattern() {\n  return <div className=\"flex w-full max-w-lg flex-col gap-4\"><><AssetFrame size=\"small\">★</AssetFrame><AssetFrame tone=\"brand\">★</AssetFrame><AssetFrame size=\"large\" shape=\"circle\" tone=\"success\">✓</AssetFrame><AssetFrame size=\"extra-large\" bordered>IEN</AssetFrame></></div>\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
+      "name": "wheel-picker",
+      "type": "registry:ui",
+      "title": "WheelPicker",
+      "description": "wheel-picker의 CMP 대응 컴포넌트입니다.",
+      "dependencies": [],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/ien-wheel-picker"
+      ],
+      "files": [
+        {
+          "path": "ui/wheel-picker.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/wheel-picker.tsx"
+        }
+      ],
+      "meta": {
+        "category": "입력",
+        "cmpIds": [
+          "wheel-picker"
+        ],
+        "exports": [
+          "WheelPicker",
+          "WheelPickerProps"
+        ],
+        "preview": "previews/wheel-picker.tsx",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { WheelPicker } from \"@/components/ui/wheel-picker\"\n\nexport function Pattern() {\n  const [message, setMessage] = useState(\"\")\n  return <div className=\"flex w-full max-w-lg flex-col gap-4\"><WheelPicker label=\"우선순위\" options={[{value:\"low\", label:\"낮음\"}, {value:\"normal\", label:\"보통\"}, {value:\"high\", label:\"높음\"}, {value:\"blocked\", label:\"선택 불가\", disabled:true}]} defaultValue=\"normal\" onValueChange={(value) => setMessage(String(value))} /><p aria-live=\"polite\" className=\"text-sm text-muted-foreground\">{message}</p></div>\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
+      "name": "auth-form",
+      "type": "registry:ui",
+      "title": "AuthForm",
+      "description": "auth-form의 CMP 대응 컴포넌트입니다.",
+      "dependencies": [
+        "cn@^0.4.0"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/input",
+        "@ienlab/button",
+        "@ienlab/typography"
+      ],
+      "files": [
+        {
+          "path": "ui/auth-form.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/auth-form.tsx"
+        }
+      ],
+      "meta": {
+        "category": "입력",
+        "cmpIds": [],
+        "exports": [
+          "AuthForm",
+          "AuthFormProps"
+        ],
+        "preview": "previews/auth-form.tsx",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { AuthForm } from \"@/components/ui/auth-form\"\n\nexport function Pattern() {\n  const [message, setMessage] = useState(\"\")\n  return <div className=\"flex w-full max-w-lg flex-col gap-4\"><AuthForm title=\"계정 확인\" description=\"입력 UI 예시이며 실제 인증 요청은 하지 않습니다.\" submitLabel=\"계속\" onSubmit={() => setMessage(\"입력값 검증을 통과했습니다.\")} /><p aria-live=\"polite\" className=\"text-sm text-muted-foreground\">{message}</p></div>\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
+      "name": "ien-text-field",
+      "type": "registry:lib",
+      "title": "공통 입력 상태",
+      "description": "입력창과 여러 줄 입력이 공유하는 상태·레이블·도움말입니다.",
+      "dependencies": [
+        "cn@^0.4.0"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/field"
+      ],
+      "files": [
+        {
+          "path": "lib/ien-text-field.tsx",
+          "type": "registry:lib",
+          "target": "@lib/ien-text-field.tsx"
+        }
+      ]
     }
   ]
 }

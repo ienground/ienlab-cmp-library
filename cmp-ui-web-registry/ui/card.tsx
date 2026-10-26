@@ -175,7 +175,7 @@ function CardTitle({
       data-ien=""
       data-ien-tone={ienTone}
       data-ien-gradient={ienUseGradient}
-      className={cn("text-base leading-snug font-medium group-data-[size=sm]/card:text-sm font-sans", className)}
+      className={cn("text-[length:var(--ien-font-size-title2)] leading-(--ien-line-height-title2) font-semibold group-data-[size=sm]/card:text-[length:var(--ien-font-size-title3)]", className)}
       {...props}
     />
   )
@@ -194,7 +194,7 @@ function CardDescription({
       data-ien=""
       data-ien-tone={ienTone}
       data-ien-gradient={ienUseGradient}
-      className={cn("text-inherit text-sm opacity-75", className)}
+      className={cn("text-inherit text-[length:var(--ien-font-size-body2)] leading-(--ien-line-height-body2) opacity-75", className)}
       {...props}
     />
   )
