@@ -11,6 +11,21 @@ test("CMP 대응 컴포넌트의 공개 계약", async (context) => {
   const load = (file) => server.ssrLoadModule(`${repository}/cmp-ui-web-registry/${file}`);
   const render = (Component, props) => renderToStaticMarkup(React.createElement(Component, props));
   try {
+    await context.test("분할 버튼은 CMP의 간격·크기·펼침 모서리와 로딩 차단을 유지한다", async () => {
+      const { SplitButton } = await load("ui/split-button.tsx");
+      const html = render(SplitButton, { children: "저장", menu: null });
+      assert.match(html, /data-slot="split-button"/);
+      assert.match(html, /gap-ien-xxxs/);
+      assert.match(html, /height:52px/);
+      assert.match(html, /border-start-end-radius:var\(--ien-radius-xs\)/);
+      assert.match(render(SplitButton, { children: "저장", menu: null, size: "sm" }), /height:36px/);
+      assert.match(render(SplitButton, { children: "저장", menu: null, size: "md" }), /height:44px/);
+      const expanded = render(SplitButton, { children: "저장", menu: null, open: true });
+      assert.match(expanded, /border-start-start-radius:26px/);
+      assert.match(expanded, /rotate-180/);
+      const loading = render(SplitButton, { children: "저장", menu: null, loading: true });
+      assert.equal((loading.match(/ disabled=""/g) ?? []).length, 2);
+    });
     await context.test("토스트 코너가 CMP 2.1.4의 실제 베지어·원호 좌표와 일치한다", async () => {
       const { createIenContinuousRoundedRectanglePath } = await load("lib/ien-continuous-corners.ts");
       // capsule-desktop 2.1.4의 G2Continuity에서 추출한 우측 상단 코너 좌표입니다.
