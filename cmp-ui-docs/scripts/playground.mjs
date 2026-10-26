@@ -31,6 +31,9 @@ const singleExamples = {
   tabs:
     'import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"\n\nexport function Pattern() {\n  return (\n    <Tabs defaultValue="summary" size="large" fluid={false} ariaLabel="주문 정보 탭">\n      <TabsList>\n        <TabsTrigger value="summary">요약</TabsTrigger>\n        <TabsTrigger value="detail" badge={-1}>상세</TabsTrigger>\n        <TabsTrigger value="history" badge={120}>내역</TabsTrigger>\n      </TabsList>\n      <TabsContent value="summary">주문 요약을 확인합니다.</TabsContent>\n      <TabsContent value="detail">상세 정보를 확인합니다.</TabsContent>\n      <TabsContent value="history">이전 내역을 확인합니다.</TabsContent>\n    </Tabs>\n  )\n}\nexport default Pattern\n',
 
+  avatar:
+    'import { Avatar, AvatarFallback } from "@/components/ui/avatar"\n\nexport function Pattern() {\n  return <Avatar radius="full"><AvatarFallback>IEN</AvatarFallback></Avatar>\n}\nexport default Pattern\n',
+
   card:
     'import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"\n\nexport function Pattern() {\n  return <Card variant="filled" tone="brand" toneVariant="weak" contentPadding={{ top: "md", bottom: "md", start: "md", end: "md" }} shape={{ radius: "lg" }}><CardHeader><CardTitle>프로젝트 카드</CardTitle><CardDescription>CMP Card의 표현과 색상을 조절합니다.</CardDescription></CardHeader><CardContent>카드의 여백과 모서리, 색상, tonal elevation을 변경해 보세요.</CardContent></Card>\n}\nexport default Pattern\n',
 
@@ -71,6 +74,11 @@ function literal(node) {
   if (["StringLiteral", "NumericLiteral", "BooleanLiteral"].includes(node.type))
     return node.value;
   if (node.type === "NullLiteral") return null;
+  if (node.type === "TSAsExpression" || node.type === "TSSatisfiesExpression") return literal(node.expression);
+  if (node.type === "ArrayExpression") {
+    const values = node.elements.map(literal);
+    return values.every((value) => value !== undefined) ? values : undefined;
+  }
   if (node.type === "ObjectExpression") {
     const entries = [];
     for (const property of node.properties) {
@@ -95,7 +103,12 @@ const common = () => [
   { name: "className", type: "string", kind: "text", optional: true },
   { name: "aria-label", type: "string", kind: "text", optional: true },
   { name: "aria-invalid", type: "boolean", kind: "boolean", optional: true },
-  { name: "style", type: "CSSProperties", kind: "json", optional: true },
+  { name: "style", type: "CSSProperties", kind: "object", optional: true, fields: [
+    ...["width", "height", "minWidth", "maxWidth", "minHeight", "maxHeight", "padding", "margin", "gap", "borderRadius", "fontSize"].map((name) => ({ name, kind: "text", type: "string", optional: true, description: "단위와 함께 입력하세요. 예: 16px, 100%, 2rem" })),
+    ...["color", "backgroundColor", "borderColor"].map((name) => ({ name, kind: "text", type: "string", optional: true, description: "색상 이름 또는 색상 코드를 입력하세요. 예: #3366ff" })),
+    { name: "display", kind: "select", type: "string", optional: true, options: ["block", "flex", "grid", "inline-flex", "none"] },
+    { name: "opacity", kind: "number", type: "number", optional: true, description: "0은 투명, 1은 불투명입니다." },
+  ] },
 ];
 const native = (tag) => {
   const props =
@@ -205,13 +218,17 @@ export function createPlaygroundCatalog(items, previews) {
     if (!source) return undefined;
     const ast = parseSource(source);
     const definitions = new Map();
+    const types = new Map();
     const imports = new Map();
     for (const statement of ast.program.body) {
       const node =
         statement.type === "ExportNamedDeclaration"
           ? statement.declaration
           : statement;
-      if (node?.id?.name) definitions.set(node.id.name, node);
+      if (node?.id?.name) {
+        definitions.set(node.id.name, node);
+        if (["TSTypeAliasDeclaration", "TSInterfaceDeclaration"].includes(node.type)) types.set(node.id.name, node);
+      }
       if (node?.type === "VariableDeclaration")
         for (const entry of node.declarations)
           if (entry.init) definitions.set(entry.id.name, entry.init);
@@ -236,7 +253,7 @@ export function createPlaygroundCatalog(items, previews) {
           const name = specifier.exported.name;
           if (statement.source)
             imports.set(name, {
-              file: declarationFile(statement.source.value, file),
+              file: aliases[statement.source.value] ?? declarationFile(statement.source.value, file),
               name: specifier.local.name,
             });
           else if (definitions.has(specifier.local.name))
@@ -245,12 +262,13 @@ export function createPlaygroundCatalog(items, previews) {
             imports.set(name, imports.get(specifier.local.name));
         }
       }
-    const result = { source, definitions, imports };
+    const result = { source, definitions, types, imports };
     modules.set(file, result);
     return result;
   }
-  function reference(file, name) {
+  function reference(file, name, typeOnly = false) {
     const own = module(file);
+    if (typeOnly && own?.types.has(name)) return { file, node: own.types.get(name) };
     if (own?.definitions.has(name))
       return { file, node: own.definitions.get(name) };
     if (name.includes(".")) {
@@ -283,14 +301,14 @@ export function createPlaygroundCatalog(items, previews) {
         if (node) return { file: target, node };
       }
       if (imported?.name === "*" && imported.file)
-        return reference(imported.file, name.split(".").slice(1).join("."));
+        return reference(imported.file, name.split(".").slice(1).join("."), typeOnly);
     }
     const imported = own?.imports.get(name);
-    if (imported?.file) return reference(imported.file, imported.name);
+    if (imported?.file) return reference(imported.file, imported.name, typeOnly);
     return undefined;
   }
   function describe(node, file, seen = new Set()) {
-    if (!node || seen.size > 5) return { kind: "json", type: "unknown" };
+    if (!node || seen.size > 16) return { kind: "reference", type: "unknown" };
     const type = module(file)?.source.slice(node.start, node.end) ?? "unknown";
     if (node.type === "TSParenthesizedType")
       return describe(node.typeAnnotation, file, seen);
@@ -302,8 +320,46 @@ export function createPlaygroundCatalog(items, previews) {
       return { kind: "select", options: [literal(node.literal)], type };
     if (["TSInterfaceDeclaration", "TSTypeLiteral"].includes(node.type)) {
       const fields = properties(node, file, seen);
-      if (fields.length && fields.every((field) => ["text", "number", "boolean", "select", "object"].includes(field.kind)))
+      if (fields.length)
         return { kind: "object", type, fields };
+    }
+    if (node.type === "TSArrayType")
+      return { kind: "array", type, item: { name: "항목", optional: false, ...describe(node.elementType, file, seen) } };
+    if (node.type === "TSTupleType")
+      return { kind: "object", type, tuple: true, fields: node.elementTypes.map((part, index) => ({
+        name: String(index), label: part.type === "TSNamedTupleMember" ? part.label.name : `${index + 1}번째 값`,
+        optional: Boolean(part.optional), ...describe(part.type === "TSNamedTupleMember" ? part.elementType : part, file, seen),
+      })) };
+    if (node.type === "TSMappedType") {
+      const parameter = node.typeParameter ?? node.key;
+      const source = node.constraint ?? parameter?.constraint;
+      if (source?.type === "TSTypeOperator" && source.operator === "keyof") {
+        const fields = properties(source.typeAnnotation, file, seen);
+        const substitute = (value, key) => {
+          if (!value || typeof value !== "object") return value;
+          if (value.type === "TSTypeReference" && nameOf(value.typeName) === parameter.name)
+            return { type: "TSLiteralType", literal: { type: "StringLiteral", value: key } };
+          return Array.isArray(value) ? value.map((entry) => substitute(entry, key)) : Object.fromEntries(Object.entries(value).map(([name, entry]) => [name, substitute(entry, key)]));
+        };
+        if (fields.length) return { kind: "object", type, fields: fields.map((field) => ({ name: field.name, optional: Boolean(node.optional), ...describe(substitute(node.typeAnnotation, field.name), file, seen) })) };
+      }
+    }
+    if (node.type === "TSIndexedAccessType") {
+      const keys = describe(node.indexType, file, seen).options;
+      const fields = properties(node.objectType, file, seen);
+      if (keys?.length === 1) {
+        const field = fields.find((entry) => entry.name === keys[0]);
+        if (field) {
+          const { name: _name, optional: _optional, ...description } = field;
+          return { ...description, type };
+        }
+      }
+    }
+    if (node.type === "TSIntersectionType") {
+      const fields = properties(node, file, seen);
+      if (fields.length) return { kind: "object", type, fields };
+      const primitive = node.types.map((part) => describe(part, file, seen)).find((part) => ["text", "number"].includes(part.kind));
+      if (primitive) return { ...primitive, type };
     }
     if (node.type === "TSUnionType") {
       const members = node.types
@@ -312,6 +368,9 @@ export function createPlaygroundCatalog(items, previews) {
             !["TSUndefinedKeyword", "TSNullKeyword"].includes(part.type),
         )
         .map((part) => describe(part, file, seen));
+      const editable = members.filter((part) => !["callback", "slot", "reference"].includes(part.kind));
+      if (editable.length && editable.length !== members.length)
+        return editable.length === 1 ? { ...editable[0], type } : { kind: "union", type, variants: editable.map((part) => ({ name: "값", optional: false, ...part })) };
       if (members.length && members.every((part) => part.kind === "select"))
         return {
           kind: "select",
@@ -365,12 +424,33 @@ export function createPlaygroundCatalog(items, previews) {
         members.every((part) => part.kind === members[0]?.kind)
       )
         return { ...members[0], type };
+      if (editable.length) return { kind: "union", type, variants: editable.map((part) => ({ name: "값", optional: false, ...part })) };
     }
     if (node.type === "TSTypeReference") {
       const name = nameOf(node.typeName);
+      const args = (node.typeParameters ?? node.typeArguments)?.params ?? [];
+      if (["Array", "ReadonlyArray"].includes(name))
+        return { kind: "array", type, item: { name: "항목", optional: false, ...describe(args[0], file, seen) } };
+      if (["Partial", "Required", "Pick", "Omit"].includes(name)) {
+        const described = describe(args[0], file, seen);
+        const fields = properties(node, file, seen);
+        if (fields.length) return { kind: "object", type, fields };
+        if (described.kind === "object") return { ...described, type, fields: described.fields.map((field) => ({ ...field, optional: name === "Partial" || field.optional })) };
+        if (described.kind === "record") return { ...described, type };
+      }
+      if (name === "Record") {
+        const item = { name: "값", optional: false, ...describe(args[1], file, seen) };
+        const keys = describe(args[0], file, seen).options;
+        return keys ? { kind: "object", type, fields: keys.map((key) => ({ ...item, name: String(key), optional: true })) }
+          : { kind: "record", type, item };
+      }
+      if (name === "React.CSSProperties" || name === "CSSProperties") {
+        const { name: _name, optional: _optional, ...description } = common().find((prop) => prop.name === "style");
+        return { ...description, type };
+      }
       const key = `${file}#${name}`;
       if (!seen.has(key)) {
-        const found = reference(file, name);
+        const found = reference(file, name, true);
         if (found && ["TSTypeAliasDeclaration", "TSInterfaceDeclaration"].includes(found.node.type))
           return {
             ...describe(
@@ -386,7 +466,7 @@ export function createPlaygroundCatalog(items, previews) {
       if (/RefObject|Ref$/.test(name)) return { kind: "reference", type };
       if (name === "Date") return { kind: "date", type };
     }
-    return { kind: "json", type };
+    return { kind: "reference", type };
   }
   function properties(node, file, seen = new Set()) {
     if (!node) return [];
@@ -422,6 +502,7 @@ export function createPlaygroundCatalog(items, previews) {
         ...own,
       ];
     }
+    if (node.type === "TSIndexedAccessType") return describe(node, file, seen).fields ?? [];
     if (node.type === "TSTypeAliasDeclaration")
       return properties(node.typeAnnotation, file, seen);
     if (node.type === "TSTypeReference") {
@@ -501,7 +582,7 @@ export function createPlaygroundCatalog(items, previews) {
       if (/HTMLAttributes|HTMLProps/.test(name)) return native(name);
       const key = `${file}#${name}`;
       if (!seen.has(key)) {
-        const found = reference(file, name);
+        const found = reference(file, name, true);
         if (found)
           return properties(found.node, found.file, new Set([...seen, key]));
       }
@@ -598,7 +679,7 @@ export function createPlaygroundCatalog(items, previews) {
                     ? "number"
                     : typeof defaultValue === "string"
                       ? "text"
-                      : "json",
+                      : "reference",
               optional: true,
             });
           if (defaultValue !== undefined)
@@ -624,7 +705,12 @@ export function createPlaygroundCatalog(items, previews) {
           const list = source.match(/skeletonListRowTextsTypes = \[([\s\S]*?)\] as const/);
           prop.options = [...(list?.[1].matchAll(/"([^"\n]+)"/g) ?? [])].map((entry) => entry[1]);
         }
-        if (prop.name === "multiple" && prop.kind === "json")
+        if (binding.name === "Combobox" && ["value", "defaultValue"].includes(prop.name) && prop.kind === "reference")
+          Object.assign(prop, { kind: "union", variants: [
+            { name: "값", optional: false, kind: "text", type: "string" },
+            { name: "값", optional: false, kind: "array", type: "string[]", item: { name: "항목", optional: false, kind: "text", type: "string" } },
+          ] });
+        if (prop.name === "multiple" && prop.kind === "reference")
           prop.kind = "boolean";
         if (prop.name === "useGradient" && prop.defaultValue === undefined)
           prop.defaultValue = true;
@@ -633,7 +719,7 @@ export function createPlaygroundCatalog(items, previews) {
           side: ["top", "right", "bottom", "left"],
           align: ["start", "center", "end"],
         }[prop.name];
-        if (commonChoices && (prop.kind === "text" || prop.kind === "json")) {
+        if (commonChoices && ["text", "reference"].includes(prop.kind)) {
           prop.kind = "select";
           prop.options = commonChoices;
         }
@@ -659,7 +745,7 @@ export function createPlaygroundCatalog(items, previews) {
         if (/^on[A-Z]/.test(prop.name) && prop.kind !== "slot") prop.kind = "callback";
         if (["children", "render", "asChild"].includes(prop.name))
           prop.kind = "slot";
-        if (prop.name === "ref") prop.kind = "reference";
+        if (["ref", "calendar", "gantt", "table", "tree", "apiRef", "actionsRef"].includes(prop.name)) prop.kind = "reference";
         if (binding.name === "Skeleton" && ["height", "width", "radius"].includes(prop.name)) {
           prop.kind = "number";
           if (prop.name === "radius") prop.defaultValue = 8;
@@ -667,6 +753,26 @@ export function createPlaygroundCatalog(items, previews) {
         if (binding.name === "Skeleton" && prop.name === "custom") prop.kind = "slot";
         if (prop.name === "items" && /TabItem\[\]/.test(prop.type)) prop.kind = "slot";
         if (binding.name === "Switch" && ["trackContent", "onTrackContent", "offTrackContent", "thumbContent"].includes(prop.name)) prop.kind = "icon";
+      }
+      for (const prop of props.values()) {
+        if (prop.kind !== "reference") continue;
+        if (prop.name === "style") Object.assign(prop, common().find((entry) => entry.name === "style"));
+        if (prop.type.includes("Intl.NumberFormatOptions")) Object.assign(prop, { kind: "object", fields: [
+          { name: "style", kind: "select", type: "string", optional: true, options: ["decimal", "currency", "percent", "unit"] },
+          { name: "currency", kind: "text", type: "string", optional: true, description: "통화 코드를 입력하세요. 예: KRW, USD, EUR" },
+          { name: "unit", kind: "text", type: "string", optional: true, description: "단위 이름을 입력하세요. 예: meter, kilometer, liter" },
+          ...["minimumFractionDigits", "maximumFractionDigits", "minimumIntegerDigits"].map((name) => ({ name, kind: "number", type: "number", optional: true })),
+          { name: "useGrouping", kind: "boolean", type: "boolean", optional: true },
+          { name: "notation", kind: "select", type: "string", optional: true, options: ["standard", "scientific", "engineering", "compact"] },
+        ] });
+        if (prop.type.includes("Intl.LocalesArgument")) Object.assign(prop, { kind: "text", description: "언어 코드를 입력하세요. 예: ko-KR, en-US, ja-JP" });
+        if (["disabled", "required", "loop", "checked", "submitOnItemClick"].includes(prop.name)) prop.kind = "boolean";
+        if (["tabIndex", "sideOffset", "alignOffset"].includes(prop.name)) prop.kind = "number";
+        if (["role", "name", "form", "aria-roledescription"].includes(prop.name)) prop.kind = "text";
+        if (["initialFocus", "finalFocus"].includes(prop.name)) prop.kind = "boolean";
+        if (prop.name === "dir") Object.assign(prop, { kind: "select", options: ["ltr", "rtl"] });
+        if (["value", "defaultValue", "loadKey"].includes(prop.name) && /^(?:any|unknown|T|Value)$/.test(prop.type)) prop.kind = "text";
+        if (["value", "defaultValue"].includes(prop.name) && /AriaCombobox.*(?:inputValue|defaultInputValue)/.test(prop.type)) prop.kind = "text";
       }
       const textChildren =
         node.children.length > 0 &&

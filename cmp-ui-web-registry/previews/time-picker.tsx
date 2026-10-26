@@ -9,24 +9,22 @@ import {
 import { Card } from "@/components/ui/card"
 
 export function Pattern() {
-  /* `HH:mm` in 24-hour time, or `null` once Clear empties it. Preselected
-     so each column opens centered on its selected row. */
   const [value, setValue] = useState<string | null>("14:30")
 
   return (
     <div className="flex flex-col items-center gap-3">
-      {/* `py-0` lets the panel sit flush, so it reads like the popover. */}
-      <Card className="w-fit py-0">
+      <Card contentPadding="none" className="w-fit">
         <TimePicker
+          locale="ko"
           value={value}
           onValueChange={setValue}
-          aria-label="Meeting time"
+          aria-label="회의 시간"
         >
           <TimePickerPanel />
         </TimePicker>
       </Card>
       <p role="status" className="text-muted-foreground text-sm">
-        {value ? `Meeting at ${value}` : "No meeting time set"}
+        {value ? `회의 시간: ${value}` : "시간을 선택하세요"}
       </p>
     </div>
   )

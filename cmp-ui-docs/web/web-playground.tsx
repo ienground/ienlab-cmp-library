@@ -15,7 +15,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "../../cmp-ui-web-registry/ui/switch";
-import { Textarea } from "../../cmp-ui-web-registry/ui/textarea";
 import { CodeExample } from "./RegistryCodeExample";
 import type {
   PlaygroundDefinition,
@@ -98,9 +97,11 @@ export function playgroundComponent<C extends ElementType>(
 function codeValue(value: unknown): string {
   const icon = iconSelection(value);
   if (icon !== undefined) return icon === "none" ? "null" : `<${icon} />`;
-  return value instanceof Date
-    ? `new Date(${JSON.stringify(value.toISOString())})`
-    : JSON.stringify(value);
+  if (value instanceof Date) return `new Date(${JSON.stringify(value.toISOString())})`;
+  if (Array.isArray(value)) return `[${value.map(codeValue).join(", ")}]`;
+  if (value && typeof value === "object")
+    return `{ ${Object.entries(value).map(([name, entry]) => `${JSON.stringify(name)}: ${codeValue(entry)}`).join(", ")} }`;
+  return JSON.stringify(value);
 }
 export function playgroundExample(
   source: string,
@@ -170,6 +171,34 @@ function eventValue(value: unknown): unknown {
   return String(value);
 }
 
+function initialValue(prop: PlaygroundProp): unknown {
+  if (prop.defaultValue !== undefined) return prop.defaultValue;
+  if (prop.kind === "select") return prop.options?.[0];
+  if (prop.kind === "boolean") return false;
+  if (prop.kind === "number") return 0;
+  if (prop.kind === "date") return new Date(new Date().setHours(0, 0, 0, 0));
+  if (prop.kind === "array") return [];
+  if (prop.kind === "record") return {};
+  if (prop.kind === "union" && prop.variants?.[0]) return initialValue(prop.variants[0]);
+  if (prop.kind === "object") {
+    const fields = (prop.fields ?? []).filter((field) => !field.optional && !["slot", "reference", "callback"].includes(field.kind));
+    const object = Object.fromEntries(fields.map((field) => [field.name, initialValue(field)]));
+    return prop.tuple ? (prop.fields ?? []).map((field) => object[field.name]) : object;
+  }
+  return "";
+}
+function matchesValue(prop: PlaygroundProp, value: unknown): boolean {
+  if (prop.kind === "select") return prop.options?.includes(value as string | number | boolean | null) ?? false;
+  if (prop.kind === "array") return Array.isArray(value);
+  if (prop.kind === "date") return value instanceof Date;
+  if (prop.kind === "object" || prop.kind === "record") return value !== null && typeof value === "object" && !Array.isArray(value) && !(value instanceof Date);
+  return typeof value === (prop.kind === "text" ? "string" : prop.kind);
+}
+const valueKindLabels: Partial<Record<PlaygroundProp["kind"], string>> = {
+  text: "문자 입력", number: "숫자 입력", boolean: "켜기·끄기", date: "날짜 선택",
+  object: "세부 항목 설정", array: "목록 편집", record: "이름별 값 설정", select: "선택지에서 고르기",
+};
+
 export function WebPlayground({
   definition,
   source,
@@ -187,8 +216,6 @@ export function WebPlayground({
   const [viewport, setViewport] = useState("desktop");
   const [revision, setRevision] = useState(0);
   const [eventLog, setEventLog] = useState<string[]>([]);
-  const [jsonDrafts, setJsonDrafts] = useState<Record<string, string>>({});
-  const [jsonErrors, setJsonErrors] = useState<Record<string, string>>({});
   const target =
     definition.targets.find((entry) => entry.key === targetKey) ??
     definition.targets[0];
@@ -242,19 +269,10 @@ export function WebPlayground({
       for (const conflict of conflicts) delete next[conflict];
       return { ...previous, [target.key]: next };
     });
-    if (conflicts.length)
-      setJsonDrafts((previous) => {
-        const next = { ...previous };
-        for (const conflict of conflicts)
-          delete next[`${target.key}.${conflict}`];
-        return next;
-      });
   }
   function reset(name?: string) {
     if (!name) {
       setValues({});
-      setJsonDrafts({});
-      setJsonErrors({});
       setEventLog([]);
       setRevision((value) => value + 1);
       return;
@@ -265,18 +283,8 @@ export function WebPlayground({
       delete next[name];
       return { ...previous, [target.key]: next };
     });
-    const key = `${target.key}.${name}`;
-    setJsonDrafts((previous) => {
-      const next = { ...previous };
-      delete next[key];
-      return next;
-    });
-    setJsonErrors((previous) => {
-      const next = { ...previous };
-      delete next[key];
-      return next;
-    });
   }
+
   function control(
     prop: PlaygroundProp,
     value: unknown,
@@ -285,10 +293,10 @@ export function WebPlayground({
     path = prop.name,
   ): ReactNode {
     const id = `playground-${target.name}-${path}`;
-    const key = `${target.key}.${path}`;
+
     if (prop.kind === "icon")
       return (
-        <select id={id} className="playground-select"
+        <select id={id} aria-label={path} className="playground-select"
           value={iconSelection(value) ?? "default"}
           onChange={(event) => event.target.value === "default" ? clear() : change({ playgroundIcon: event.target.value })}>
           <option value="default">예시 기본값</option>
@@ -296,54 +304,102 @@ export function WebPlayground({
           {Object.entries(iconLabels).map(([name, label]) => <option key={name} value={name}>{label}</option>)}
         </select>
       );
+    if (["reference", "slot", "callback"].includes(prop.kind))
+      return <p className="playground-prop-type">이 항목은 예시 코드에서 구성합니다. <code>{prop.type}</code></p>;
+    if (prop.kind === "union") {
+      const variants = prop.variants ?? [];
+      const selected = Math.max(0, variants.findIndex((variant) => matchesValue(variant, value ?? prop.defaultValue)));
+      const variant = variants[selected];
+      return <div className="flex min-w-0 flex-col gap-3">
+        <select id={id} className="playground-select" aria-label={`${path} 입력 방식`}
+          value={selected} onChange={(event) => change(initialValue(variants[Number(event.target.value)]))}>
+          {variants.map((entry, index) => <option key={index} value={index}>{valueKindLabels[entry.kind] ?? entry.type}{entry.kind === "select" ? ` (${entry.options?.join(", ")})` : ""}</option>)}
+        </select>
+        {variant && control({ ...variant, name: prop.name, optional: prop.optional }, value ?? prop.defaultValue, change, clear, `${path}.value`)}
+      </div>;
+    }
+    if ((prop.kind === "array" || prop.kind === "record") && prop.item && ["reference", "callback", "slot"].includes(prop.item.kind))
+      return <p className="playground-prop-type">이 목록의 항목은 예시 코드에서 구성합니다. <code>{prop.item.type}</code></p>;
+    if (prop.kind === "array" && prop.item) {
+      const item = prop.item;
+      const initial = value ?? prop.defaultValue;
+      const list = Array.isArray(initial) ? initial : [];
+      return <fieldset id={id} className="flex min-w-0 flex-col gap-3 rounded-lg border border-border p-3" aria-label={path}>
+        <p className="playground-prop-type">항목을 추가한 뒤 각 값을 입력하세요. ({list.length}개)</p>
+        {list.map((entry, index) => <div key={index} className="flex min-w-0 flex-col gap-1.5">
+          <div className="playground-control-heading">
+            <label htmlFor={`playground-${target.name}-${path}.${index}`}>{index + 1}번째 항목</label>
+            <Button variant="ghost" size="xs" aria-label={`${path} ${index + 1}번째 항목 삭제`} onClick={() => change(list.filter((_, position) => position !== index))}>삭제</Button>
+          </div>
+          {control(item, entry, (next) => change(list.map((previous, position) => position === index ? next : previous)), () => change(list.map((previous, position) => position === index ? initialValue(item) : previous)), `${path}.${index}`)}
+        </div>)}
+        <Button variant="line" size="sm" onClick={() => change([...list, initialValue(item)])}>항목 추가</Button>
+        {value === undefined && <Button variant="ghost" size="xs" onClick={() => change([])}>빈 목록 적용</Button>}
+      </fieldset>;
+    }
+    if (prop.kind === "record" && prop.item) {
+      const item = prop.item;
+      const initial = value ?? prop.defaultValue;
+      const object: Record<string, unknown> = initial && typeof initial === "object" && !Array.isArray(initial) ? Object.fromEntries(Object.entries(initial)) : {};
+      return <fieldset id={id} className="flex min-w-0 flex-col gap-3 rounded-lg border border-border p-3" aria-label={path}>
+        <p className="playground-prop-type">각 항목의 이름과 값을 설정하세요. 이름은 중복될 수 없습니다.</p>
+        {Object.entries(object).map(([name, entry], index) => <div key={index} className="flex min-w-0 flex-col gap-1.5">
+          <Input aria-label={`${path} ${index + 1}번째 이름`} value={name} onChange={(event) => {
+            const next = event.target.value;
+            if (next !== name && !Object.hasOwn(object, next)) change(Object.fromEntries(Object.entries(object).map(([key, previous]) => [key === name ? next : key, previous])));
+          }} />
+          {control(item, entry, (next) => change({ ...object, [name]: next }), () => change({ ...object, [name]: initialValue(item) }), `${path}.${index}.value`)}
+          <Button variant="ghost" size="xs" aria-label={`${path} ${name} 삭제`} onClick={() => change(Object.fromEntries(Object.entries(object).filter(([key]) => key !== name)))}>삭제</Button>
+        </div>)}
+        <Button variant="line" size="sm" onClick={() => {
+          let index = Object.keys(object).length + 1;
+          while (Object.hasOwn(object, `item${index}`)) index++;
+          change({ ...object, [`item${index}`]: initialValue(item) });
+        }}>항목 추가</Button>
+      </fieldset>;
+    }
     if (prop.kind === "object") {
       const initial = value ?? prop.defaultValue;
-      const object = initial && typeof initial === "object" && !Array.isArray(initial)
-        ? initial as Record<string, unknown>
-        : {};
+      const object: Record<string, unknown> = initial && typeof initial === "object"
+        ? Object.fromEntries(Object.entries(initial)) : {};
       const fields = prop.fields ?? [];
       const visible = fields.filter((field) => !field.condition || field.condition.options.includes(
         object[field.condition.field] as string | number | boolean | null ??
         fields.find((entry) => entry.name === field.condition?.field)?.options?.[0] ?? null
       ));
-      return (
-        <fieldset id={id} className="flex min-w-0 flex-col gap-3 rounded-lg border border-border p-3" aria-label={path}>
-          {visible.map((field) => {
-            const fieldPath = `${path}.${field.name}`;
-            const fieldId = `playground-${target.name}-${fieldPath}`;
-            const updateField = (nextValue: unknown) => {
-              const next = { ...object, [field.name]: nextValue };
-              for (const entry of fields) {
-                if (entry.condition && !entry.condition.options.includes(next[entry.condition.field] as string | number | boolean | null)) {
-                  delete next[entry.name];
-                } else if (!entry.optional && next[entry.name] === undefined) {
-                  next[entry.name] = entry.defaultValue ?? (entry.kind === "select" ? entry.options?.[0] : entry.kind === "number" ? 0 : entry.kind === "boolean" ? false : "");
-                }
-              }
-              change(next);
-            };
-            const nested = field.kind === "boolean" && field.optional
-              ? { ...field, kind: "select" as const, options: [true, false] }
-              : field;
-            return (
-              <div key={field.name} className="flex min-w-0 flex-col gap-1.5">
-                <label htmlFor={fieldId}>{field.name}</label>
-                {control(nested, object[field.name] ?? (field.optional ? undefined : field.defaultValue ??
-                  (field.kind === "select" ? field.options?.[0] : field.kind === "number" ? 0 : "")), updateField, () => {
-                  const next = { ...object };
-                  delete next[field.name];
-                  change(next);
-                }, fieldPath)}
-              </div>
-            );
-          })}
-        </fieldset>
-      );
+      const applyObject = (next: Record<string, unknown>) => change(prop.tuple ? fields.map((field) => next[field.name]) : next);
+      const updateField = (field: PlaygroundProp, nextValue: unknown) => {
+        const next = { ...object, [field.name]: nextValue };
+        for (const entry of fields) {
+          if (entry.condition && !entry.condition.options.includes(next[entry.condition.field] as string | number | boolean | null)) delete next[entry.name];
+          else if (!entry.optional && next[entry.name] === undefined && !["callback", "slot", "reference"].includes(entry.kind)) next[entry.name] = initialValue(entry);
+        }
+        applyObject(next);
+      };
+      return <fieldset id={id} className="flex min-w-0 flex-col gap-3 rounded-lg border border-border p-3" aria-label={path}>
+        <p className="playground-prop-type">각 항목을 설정하세요. 선택 항목은 사용 여부를 켜서 입력할 수 있습니다.</p>
+        {visible.map((field) => {
+          const fieldPath = `${path}.${field.name}`;
+          const fieldId = `playground-${target.name}-${fieldPath}`;
+          const supported = !["callback", "slot", "reference"].includes(field.kind);
+          const enabled = object[field.name] !== undefined || !field.optional;
+          const remove = () => { const next = { ...object }; delete next[field.name]; applyObject(next); };
+          return <div key={field.name} className="flex min-w-0 flex-col gap-1.5">
+            <div className="playground-control-heading">
+              <label htmlFor={field.optional && supported ? `${fieldId}-enabled` : fieldId}>{field.label ?? field.name}{!field.optional && <span>필수</span>}</label>
+              {field.optional && supported && <Switch id={`${fieldId}-enabled`} aria-label={`${fieldPath} 사용`} checked={enabled} onCheckedChange={(checked) => checked ? updateField(field, initialValue(field)) : remove()} />}
+            </div>
+            {field.description && <p className="playground-prop-type">{field.description}</p>}
+            {(enabled || !supported) && control(field, object[field.name] ?? initialValue(field), (next) => updateField(field, next), remove, fieldPath)}
+          </div>;
+        })}
+      </fieldset>;
     }
     if (prop.kind === "boolean")
       return (
         <Switch
           id={id}
+          aria-label={path}
           checked={Boolean(value ?? prop.defaultValue ?? false)}
           onCheckedChange={(checked) => change(checked)}
         />
@@ -352,6 +408,7 @@ export function WebPlayground({
       return (
         <select
           id={id}
+          aria-label={path}
           className="playground-select"
           value={
             value === undefined
@@ -377,46 +434,10 @@ export function WebPlayground({
           ))}
         </select>
       );
-    if (prop.kind === "json")
-      return (
-        <div className="playground-json">
-          <Textarea
-            id={id}
-            spellCheck={false}
-            rows={3}
-            placeholder="JSON 값을 입력하세요"
-            value={
-              jsonDrafts[key] ??
-              (value === undefined ? "" : JSON.stringify(value, null, 2))
-            }
-            aria-invalid={Boolean(jsonErrors[key])}
-            aria-describedby={jsonErrors[key] ? `${id}-error` : undefined}
-            onChange={(event) => {
-              const draft = event.target.value;
-              setJsonDrafts((previous) => ({ ...previous, [key]: draft }));
-              try {
-                const parsed: unknown = JSON.parse(draft);
-                change(parsed);
-                setJsonErrors((previous) => ({ ...previous, [key]: "" }));
-              } catch {
-                setJsonErrors((previous) => ({
-                  ...previous,
-                  [key]:
-                    "유효한 JSON을 입력하세요. 마지막으로 적용한 값이 유지됩니다.",
-                }));
-              }
-            }}
-          />
-          {jsonErrors[key] && (
-            <p id={`${id}-error`} role="alert">
-              {jsonErrors[key]}
-            </p>
-          )}
-        </div>
-      );
     return (
       <Input
         id={id}
+        aria-label={path}
         type={
           prop.kind === "number"
             ? "number"
@@ -537,8 +558,7 @@ export function WebPlayground({
                   {prop.name}
                   {!prop.optional && <span>필수</span>}
                 </label>
-                {Object.hasOwn(current, prop.name) ||
-                Object.hasOwn(jsonDrafts, `${target.key}.${prop.name}`) ? (
+                {Object.hasOwn(current, prop.name) ? (
                   <Button
                     variant="ghost"
                     size="xs"
@@ -552,6 +572,7 @@ export function WebPlayground({
                 )}
               </div>
               <code className="playground-prop-type">{prop.type}</code>
+              {prop.description && <p className="playground-prop-type">{prop.description}</p>}
               {control(prop, current[prop.name])}
             </div>
           ))}

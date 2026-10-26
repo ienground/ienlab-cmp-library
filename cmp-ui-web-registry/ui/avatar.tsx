@@ -11,9 +11,12 @@ function Avatar({
   useGradient: ienUseGradient,
   className,
   size = "default",
+  radius = "full",
+  style,
   ...props
 }: React.ComponentProps<typeof AvatarPrimitive.Root> & {
   size?: "default" | "sm" | "lg"
+  radius?: "none" | "xs" | "sm" | "default" | "md" | "lg" | "xl" | "full"
 } & IenToneProps) {
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   return (
@@ -24,10 +27,16 @@ function Avatar({
         data-ien-tone={ienTheme.tone}
         data-ien-gradient={ienTheme.useGradient}
         data-size={size}
+        data-radius={radius}
         className={cn(
-        "size-8 rounded-full after:rounded-full data-[size=lg]:size-10 data-[size=sm]:size-6 group/avatar relative flex shrink-0 select-none after:absolute after:inset-0 after:border after:border-border after:mix-blend-darken dark:after:mix-blend-lighten",
+        "size-8 rounded-(--ien-avatar-radius) after:rounded-[inherit] after:[corner-shape:inherit] data-[size=lg]:size-10 data-[size=sm]:size-6 group/avatar relative flex shrink-0 select-none after:pointer-events-none after:absolute after:inset-0 after:border after:border-border after:mix-blend-darken dark:after:mix-blend-lighten",
         className
       )}
+        style={{
+          "--ien-avatar-radius": `var(--ien-radius-${radius})`,
+          "--ien-control-corner-shape": radius === "full" ? "round" : "squircle",
+          ...style,
+        } as React.CSSProperties}
         {...props}
       />
     </IenThemeContext.Provider>
@@ -48,7 +57,7 @@ function AvatarImage({
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       className={cn(
-        "rounded-full aspect-square size-full object-cover",
+        "rounded-[inherit] [corner-shape:inherit] aspect-square size-full object-cover",
         className
       )}
       {...props}
@@ -70,7 +79,7 @@ function AvatarFallback({
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       className={cn(
-        "bg-muted text-muted-foreground rounded-full flex size-full items-center justify-center text-sm group-data-[size=sm]/avatar:text-xs",
+        "bg-muted text-muted-foreground rounded-[inherit] [corner-shape:inherit] flex size-full items-center justify-center text-sm group-data-[size=sm]/avatar:text-xs",
         className
       )}
       {...props}
@@ -93,7 +102,7 @@ function AvatarBadge({
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       className={cn(
-        "bg-primary text-primary-foreground ring-background absolute right-0 bottom-0 z-10 inline-flex items-center justify-center rounded-full bg-blend-color ring-2 select-none",
+        "bg-primary text-primary-foreground ring-background absolute right-0 bottom-0 z-10 inline-flex items-center justify-center rounded-full [--ien-control-corner-shape:round] [corner-shape:round] bg-blend-color ring-2 select-none",
         "group-data-[size=sm]/avatar:size-2 group-data-[size=sm]/avatar:[&>svg]:hidden",
         "group-data-[size=default]/avatar:size-2.5 group-data-[size=default]/avatar:[&>svg]:size-2",
         "group-data-[size=lg]/avatar:size-3 group-data-[size=lg]/avatar:[&>svg]:size-2",
@@ -140,7 +149,7 @@ function AvatarGroupCount({
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       className={cn(
-        "bg-muted text-muted-foreground size-8 rounded-full text-sm group-has-data-[size=lg]/avatar-group:size-10 group-has-data-[size=sm]/avatar-group:size-6 [&>svg]:size-4 group-has-data-[size=lg]/avatar-group:[&>svg]:size-5 group-has-data-[size=sm]/avatar-group:[&>svg]:size-3 relative flex shrink-0 items-center justify-center ring-2 ring-background",
+        "bg-muted text-muted-foreground size-8 rounded-full [--ien-control-corner-shape:round] [corner-shape:round] text-sm group-has-data-[size=lg]/avatar-group:size-10 group-has-data-[size=sm]/avatar-group:size-6 [&>svg]:size-4 group-has-data-[size=lg]/avatar-group:[&>svg]:size-5 group-has-data-[size=sm]/avatar-group:[&>svg]:size-3 relative flex shrink-0 items-center justify-center ring-2 ring-background",
         "",
         className
       )}

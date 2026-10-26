@@ -22,15 +22,17 @@ export interface WebRegistryItem extends CatalogItem {
   playground: PlaygroundDefinition;
 }
 function playgroundKind(kind: string): PlaygroundProp["kind"] {
-  if (kind === "select" || kind === "boolean" || kind === "number" || kind === "text" || kind === "json" || kind === "object" || kind === "date" || kind === "callback" || kind === "slot" || kind === "icon" || kind === "reference") return kind;
+  if (kind === "select" || kind === "boolean" || kind === "number" || kind === "text" || kind === "array" || kind === "union" || kind === "record" || kind === "object" || kind === "date" || kind === "callback" || kind === "slot" || kind === "icon" || kind === "reference") return kind;
   throw new Error(`지원하지 않는 Playground 속성 종류입니다: ${kind}`);
 }
-type GeneratedPlaygroundProp = Omit<PlaygroundProp, "kind" | "fields"> & {
+type GeneratedPlaygroundProp = Omit<PlaygroundProp, "kind" | "fields" | "item" | "variants"> & {
   kind: string;
   fields?: GeneratedPlaygroundProp[];
+  item?: GeneratedPlaygroundProp;
+  variants?: GeneratedPlaygroundProp[];
 };
 function playgroundProp(prop: GeneratedPlaygroundProp): PlaygroundProp {
-  return { ...prop, kind: playgroundKind(prop.kind), fields: prop.fields?.map(playgroundProp) };
+  return { ...prop, kind: playgroundKind(prop.kind), fields: prop.fields?.map(playgroundProp), item: prop.item ? playgroundProp(prop.item) : undefined, variants: prop.variants?.map(playgroundProp) };
 }
 export const webCatalog: WebRegistryItem[] = generated.map((item) => ({
   ...item,

@@ -169,7 +169,7 @@
           "AvatarBadge"
         ],
         "preview": "previews/avatar.tsx",
-        "example": "import {\n  Avatar,\n  AvatarFallback,\n  AvatarImage,\n} from \"@/components/ui/avatar\"\n\nexport function Pattern() {\n  return (\n    <Avatar>\n      <AvatarImage\n        src=\"https://images.unsplash.com/photo-1584308972272-9e4e7685e80f?w=96&h=96&dpr=2&q=80\"\n        alt=\"Michael Rodriguez\"\n      />\n      <AvatarFallback>MR</AvatarFallback>\n    </Avatar>\n  )\n}\nexport default Pattern;\n",
+        "example": "import {\n  Avatar,\n  AvatarFallback,\n  AvatarImage,\n} from \"@/components/ui/avatar\"\n\nexport function Pattern() {\n  return (\n    <div className=\"flex items-center gap-4\">\n      <Avatar>\n        <AvatarImage\n          src=\"https://images.unsplash.com/photo-1584308972272-9e4e7685e80f?w=96&h=96&dpr=2&q=80\"\n          alt=\"Michael Rodriguez\"\n        />\n        <AvatarFallback>MR</AvatarFallback>\n      </Avatar>\n      <Avatar radius=\"sm\"><AvatarFallback>SM</AvatarFallback></Avatar>\n      <Avatar radius=\"xs\"><AvatarFallback>XS</AvatarFallback></Avatar>\n      <Avatar radius=\"none\"><AvatarFallback>각</AvatarFallback></Avatar>\n    </div>\n  )\n}\nexport default Pattern;\n",
         "ienDesign": true
       }
     },
@@ -3376,10 +3376,66 @@
       }
     },
     {
+      "name": "date-picker",
+      "type": "registry:ui",
+      "title": "Date Picker",
+      "description": "CMP 연·월·일 휠 선택기입니다. 한국어·영어, 연도 범위와 선택 가능한 날짜를 지원합니다.",
+      "registryDependencies": [
+        "@ienlab/ien-wheel-picker",
+        "@ienlab/ien-theme"
+      ],
+      "files": [
+        {
+          "path": "reui/date-picker.tsx",
+          "type": "registry:ui",
+          "target": "@components/reui/date-picker.tsx"
+        }
+      ],
+      "meta": {
+        "category": "REUI",
+        "cmpIds": [],
+        "exports": [
+          "DatePickerProps",
+          "DatePicker"
+        ],
+        "preview": "previews/date-picker.tsx",
+        "ienDesign": true,
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { DatePicker } from \"@/components/reui/date-picker\"\nimport { Card } from \"@/components/ui/card\"\n\nexport function Pattern() {\n  const [value, setValue] = useState<string | null>(\"2024-02-29\")\n  return (\n    <div className=\"flex flex-col items-center gap-3\">\n      <Card contentPadding=\"none\" className=\"w-fit\">\n        <DatePicker locale=\"ko\" inline value={value} onValueChange={setValue} aria-label=\"날짜 선택\" />\n      </Card>\n      <p role=\"status\" className=\"text-muted-foreground text-sm\">{value ?? \"날짜를 선택하세요\"}</p>\n    </div>\n  )\n}\nexport default Pattern\n"
+      }
+    },
+    {
+      "name": "duration-picker",
+      "type": "registry:ui",
+      "title": "Duration Picker",
+      "description": "CMP 기간 휠 선택기입니다. 한국어·영어와 24시간 이상의 기간을 지원합니다.",
+      "registryDependencies": [
+        "@ienlab/ien-wheel-picker",
+        "@ienlab/ien-theme"
+      ],
+      "files": [
+        {
+          "path": "reui/duration-picker.tsx",
+          "type": "registry:ui",
+          "target": "@components/reui/duration-picker.tsx"
+        }
+      ],
+      "meta": {
+        "category": "REUI",
+        "cmpIds": [],
+        "exports": [
+          "DurationPickerProps",
+          "DurationPicker"
+        ],
+        "preview": "previews/duration-picker.tsx",
+        "ienDesign": true,
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { DurationPicker } from \"@/components/reui/duration-picker\"\nimport { Card } from \"@/components/ui/card\"\n\nexport function Pattern() {\n  const [value, setValue] = useState<number | null>(5400)\n  return (\n    <div className=\"flex flex-col items-center gap-3\">\n      <Card contentPadding=\"none\" className=\"w-fit\">\n        <DurationPicker locale=\"ko\" inline maxHours={48} value={value} onValueChange={setValue} aria-label=\"기간 선택\" />\n      </Card>\n      <p role=\"status\" className=\"text-muted-foreground text-sm\">{value === null ? \"기간을 선택하세요\" : `${value}초`}</p>\n    </div>\n  )\n}\nexport default Pattern\n"
+      }
+    },
+    {
       "name": "time-picker",
       "type": "registry:ui",
       "title": "Time Picker",
-      "description": "REUI time-picker 컴포넌트입니다.",
+      "description": "CMP 시각 휠 선택기입니다. 한국어·영어, 시·분·초와 오전·오후를 지원합니다.",
       "dependencies": [
         "cn@^0.4.0"
       ],
@@ -3388,7 +3444,8 @@
         "@ienlab/ien-theme",
         "@ienlab/input-group",
         "@ienlab/popover",
-        "@ienlab/reui-icons"
+        "@ienlab/reui-icons",
+        "@ienlab/ien-wheel-picker"
       ],
       "files": [
         {
@@ -3419,6 +3476,7 @@
           "TimePickerI18nConfig",
           "TimePickerI18nOverrides",
           "DEFAULT_TIME_PICKER_I18N",
+          "TIME_PICKER_I18N_KO",
           "mergeTimePickerI18n",
           "parseTimeValue",
           "formatTimeValue",
@@ -3449,7 +3507,7 @@
           "TimePickerConfirm"
         ],
         "preview": "previews/time-picker.tsx",
-        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport {\n  TimePicker,\n  TimePickerPanel,\n} from \"@/components/reui/time-picker\"\n\nimport { Card } from \"@/components/ui/card\"\n\nexport function Pattern() {\n  /* `HH:mm` in 24-hour time, or `null` once Clear empties it. Preselected\n     so each column opens centered on its selected row. */\n  const [value, setValue] = useState<string | null>(\"14:30\")\n\n  return (\n    <div className=\"flex flex-col items-center gap-3\">\n      {/* `py-0` lets the panel sit flush, so it reads like the popover. */}\n      <Card className=\"w-fit py-0\">\n        <TimePicker\n          value={value}\n          onValueChange={setValue}\n          aria-label=\"Meeting time\"\n        >\n          <TimePickerPanel />\n        </TimePicker>\n      </Card>\n      <p role=\"status\" className=\"text-muted-foreground text-sm\">\n        {value ? `Meeting at ${value}` : \"No meeting time set\"}\n      </p>\n    </div>\n  )\n}\nexport default Pattern;\n",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport {\n  TimePicker,\n  TimePickerPanel,\n} from \"@/components/reui/time-picker\"\n\nimport { Card } from \"@/components/ui/card\"\n\nexport function Pattern() {\n  const [value, setValue] = useState<string | null>(\"14:30\")\n\n  return (\n    <div className=\"flex flex-col items-center gap-3\">\n      <Card contentPadding=\"none\" className=\"w-fit\">\n        <TimePicker\n          locale=\"ko\"\n          value={value}\n          onValueChange={setValue}\n          aria-label=\"회의 시간\"\n        >\n          <TimePickerPanel />\n        </TimePicker>\n      </Card>\n      <p role=\"status\" className=\"text-muted-foreground text-sm\">\n        {value ? `회의 시간: ${value}` : \"시간을 선택하세요\"}\n      </p>\n    </div>\n  )\n}\nexport default Pattern;\n",
         "ienDesign": true
       }
     },
@@ -4486,6 +4544,27 @@
         "ienDesign": true,
         "example": "import { Typography } from \"@/components/ui/typography\"\n\nexport function Pattern() {\n  return (\n    <div className=\"space-y-4\">\n      <Typography variant=\"display\" asChild><h1>페이지 제목</h1></Typography>\n      <Typography variant=\"title1\" asChild><h2>섹션 제목</h2></Typography>\n      <Typography variant=\"title2\" asChild><h3>소제목</h3></Typography>\n      <Typography variant=\"title3\" asChild><h4>세부 제목</h4></Typography>\n      <Typography>본문 내용입니다.</Typography>\n      <Typography variant=\"caption\">보조 설명입니다.</Typography>\n    </div>\n  )\n}\nexport default Pattern\n"
       }
+    },
+    {
+      "name": "ien-wheel-picker",
+      "type": "registry:lib",
+      "title": "CMP 공통 휠",
+      "description": "날짜·시각·기간 선택기의 공통 휠, 다국어 문구와 패널입니다.",
+      "dependencies": [
+        "cn@^0.4.0"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/button",
+        "@ienlab/popover"
+      ],
+      "files": [
+        {
+          "path": "lib/ien-wheel-picker.tsx",
+          "type": "registry:lib",
+          "target": "@lib/ien-wheel-picker.tsx"
+        }
+      ]
     }
   ]
 }

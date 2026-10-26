@@ -6,7 +6,9 @@ export interface PlaygroundProp {
     | "boolean"
     | "number"
     | "text"
-    | "json"
+    | "array"
+    | "union"
+    | "record"
     | "object"
     | "date"
     | "callback"
@@ -17,6 +19,11 @@ export interface PlaygroundProp {
   options?: (string | number | boolean | null)[];
   defaultValue?: unknown;
   fields?: PlaygroundProp[];
+  item?: PlaygroundProp;
+  variants?: PlaygroundProp[];
+  tuple?: boolean;
+  label?: string;
+  description?: string;
   condition?: { field: string; options: (string | number | boolean | null)[] };
 }
 export interface PlaygroundTarget {

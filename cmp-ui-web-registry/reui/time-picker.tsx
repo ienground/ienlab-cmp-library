@@ -1,15 +1,15 @@
 "use client"
 import type { IenToneProps } from "@/lib/ien-theme"
+import { IenWheelColumn, type PickerLocale } from "@/lib/ien-wheel-picker"
 import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
 
 // Title: Time Picker
-// Description: Shadcn time picker with scrollable hour, minute, second and AM/PM columns, a typable input, steps, bounds and localized labels.
+// Description: CMP 휠 디자인을 적용한 시·분·초·오전/오후 선택기입니다. 직접 입력, 간격, 범위, 다국어 레이블을 지원합니다.
 import {
   createContext,
   useContext,
   useEffect,
   useId,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -89,6 +89,8 @@ export type TimePickerFormatContext = {
 export type TimePickerFunctions = {
   /** Option text in the columns. In 12-hour time the hour arrives as 1 to 12. */
   formatSegment: (value: number, unit: TimePickerUnit) => string
+  /** 숫자 형식과 별도로 휠의 단위와 어순을 지정합니다. */
+  formatWheelSegment?: (value: string, unit: TimePickerUnit, labels: TimePickerLabels) => string
   /** The value as the trigger and the input show it. */
   formatValue: (
     time: TimePickerTime,
@@ -124,6 +126,7 @@ export const DEFAULT_TIME_PICKER_I18N: TimePickerI18nConfig = {
   },
   functions: {
     formatSegment: (value) => String(value).padStart(2, "0"),
+    formatWheelSegment: (value, unit, labels) => `${labels[unit]} ${value}`,
     formatValue: (time, context) => {
       const { hourCycle, granularity, periodPosition, labels } = context
       const hour = hourCycle === 12 ? time.hour % 12 || 12 : time.hour
@@ -140,17 +143,30 @@ export const DEFAULT_TIME_PICKER_I18N: TimePickerI18nConfig = {
   },
 }
 
+/** CMP 한국어 리소스와 동일한 시각·단위·버튼 문구입니다. */
+export const TIME_PICKER_I18N_KO: TimePickerI18nConfig = {
+  labels: {
+    placeholder: "시간 선택", hour: "시", minute: "분", second: "초", period: "오전/오후",
+    am: "오전", pm: "오후", now: "현재 시간", clear: "초기화", confirm: "확인",
+    panelLabel: "시간 선택", openPicker: "시간 선택기 열기",
+  },
+  functions: {
+    ...DEFAULT_TIME_PICKER_I18N.functions,
+    formatWheelSegment: (value, unit, labels) => `${value}${labels[unit]}`,
+  },
+}
+
 /** Merges per section, so an override can carry one key without restating the rest. */
 export function mergeTimePickerI18n(
-  overrides?: TimePickerI18nOverrides
+  overrides?: TimePickerI18nOverrides,
+  locale: PickerLocale = "en"
 ): TimePickerI18nConfig {
-  if (!overrides?.labels && !overrides?.functions) {
-    return DEFAULT_TIME_PICKER_I18N
-  }
+  const base = locale === "ko" ? TIME_PICKER_I18N_KO : DEFAULT_TIME_PICKER_I18N
+  if (!overrides?.labels && !overrides?.functions) return base
   return {
-    labels: { ...DEFAULT_TIME_PICKER_I18N.labels, ...overrides.labels },
+    labels: { ...base.labels, ...overrides.labels },
     functions: {
-      ...DEFAULT_TIME_PICKER_I18N.functions,
+      ...base.functions,
       ...overrides.functions,
     },
   }
@@ -567,6 +583,8 @@ export type TimePickerProps = {
   open?: boolean
   defaultOpen?: boolean
   onOpenChange?: (open: boolean) => void
+  /** 한국어 또는 영어 문구·단위 형식을 선택합니다. 기본값은 ko입니다. */
+  locale?: PickerLocale
   hourCycle?: TimePickerHourCycle
   granularity?: TimePickerGranularity
   periodPosition?: TimePickerPeriodPosition
@@ -613,9 +631,10 @@ export function TimePicker({
   open: openProp,
   defaultOpen = false,
   onOpenChange,
+  locale = "ko",
   hourCycle = 24,
   granularity = "minute",
-  periodPosition = "end",
+  periodPosition = "start",
   hourStep,
   minuteStep,
   secondStep,
@@ -665,7 +684,7 @@ export function TimePicker({
 
   const raw = (value !== undefined ? value : uncontrolled) || null
   const time = parseTimeValue(raw)
-  const i18n = useMemo(() => mergeTimePickerI18n(i18nProp), [i18nProp])
+  const i18n = useMemo(() => mergeTimePickerI18n(i18nProp, locale), [i18nProp, locale])
   const grid = useMemo<TimeGrid>(
     () => ({
       hours: stepValues(hourStep, 24),
@@ -1216,7 +1235,7 @@ export function TimePickerPanel({
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       data-disabled={context.disabled ? "" : undefined}
-      className={cn("flex w-fit flex-col", className)}
+      className={cn("flex w-fit min-w-60 flex-col", className)}
       {...props}
     >
       {children === undefined ? (
@@ -1256,7 +1275,7 @@ export function TimePickerColumns({
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
-      className={cn("flex divide-x", className)}
+      className={cn("flex gap-(--ien-spacing-xxs) p-(--ien-spacing-xs)", className)}
       {...props}
       ref={(node) => {
         context.registerColumns(node)
@@ -1284,43 +1303,6 @@ export function TimePickerColumns({
 const LIST_SELECTOR =
   '[data-slot="time-picker-column-list"]:not([aria-disabled="true"])'
 
-/* Row height and list padding copy the shadcn Select item and Select group
-   per style, as custom properties so a list is exactly N rows tall. Lyra's
-   group has no padding; it gets 4px here so the focus ring never clips. */
-const COLUMN_CLASS =
-  "group/time-picker-column flex min-w-16 flex-1 flex-col [--time-picker-option-height:calc(var(--spacing)*7)] [--time-picker-list-padding:calc(var(--spacing)*1)]"
-
-/* The shadcn Select label, centered, with a little more room on top so the
-   header clears the surface edge. It gains contrast while its list has
-   keyboard focus, which says which column the arrows move. */
-const LABEL_CLASS =
-  "text-muted-foreground text-center text-xs whitespace-nowrap transition-colors select-none group-has-focus-visible/time-picker-column:text-foreground px-1.5 pt-2 pb-1"
-
-/* Five rows unless an ancestor sets `--time-picker-rows`; keep it odd so the
-   selection can sit in the middle. The fade masks only an end with rows
-   scrolled past it, so the first and last rows are never dimmed at rest;
-   `--time-picker-fade-size` sets its depth. */
-const LIST_CLASS =
-  "group/time-picker-list relative flex h-[calc(var(--time-picker-option-height)*var(--time-picker-rows,5)+var(--spacing)*(var(--time-picker-rows,5)-1)+var(--time-picker-list-padding)*2)] flex-col gap-1 overflow-y-auto overscroll-contain px-2 py-(--time-picker-list-padding) outline-none [scrollbar-width:none] data-empty:focus-visible:outline-solid data-empty:focus-visible:outline-2 data-empty:focus-visible:-outline-offset-2 data-empty:focus-visible:outline-ring data-fade:[mask-image:linear-gradient(to_bottom,transparent,#000_var(--time-picker-fade-start,0px),#000_calc(100%-var(--time-picker-fade-end,0px)),transparent)] data-overflow-start:[--time-picker-fade-start:var(--time-picker-fade-size,var(--time-picker-option-height))] data-overflow-end:[--time-picker-fade-end:var(--time-picker-fade-size,var(--time-picker-option-height))] [&::-webkit-scrollbar]:hidden"
-
-/* Radius and type follow the shadcn Select item, and the keyboard ring
-   follows the shadcn Button's focus ring in each style; the list's padding
-   leaves room for it. The filled pill for the value is this primitive's own:
-   a select marks its choice with a check. */
-const OPTION_CLASS =
-  "flex h-(--time-picker-option-height) shrink-0 cursor-default items-center justify-center tabular-nums transition-[color,background-color,box-shadow] duration-100 select-none not-aria-selected:hover:bg-accent not-aria-selected:hover:text-accent-foreground aria-selected:bg-primary aria-selected:font-medium aria-selected:text-primary-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--ien-state-disabled-alpha) forced-colors:aria-selected:bg-[Highlight] forced-colors:aria-selected:text-[HighlightText] forced-colors:group-focus-visible/time-picker-list:data-highlighted:outline-solid forced-colors:group-focus-visible/time-picker-list:data-highlighted:outline-2 group-focus-visible/time-picker-list:data-highlighted:ring-3 ring-ring/50 rounded-md text-sm"
-
-/* Marks which ends of a list have rows scrolled out of view, for the fade.
-   Written to the DOM directly: it changes every scroll frame and nothing
-   renders from it. */
-function syncOverflow(list: HTMLElement) {
-  list.toggleAttribute("data-overflow-start", list.scrollTop > 1)
-  list.toggleAttribute(
-    "data-overflow-end",
-    list.scrollTop + list.clientHeight < list.scrollHeight - 1
-  )
-}
-
 type TimePickerOption = {
   value: number | TimePickerPeriod
   label: string
@@ -1331,7 +1313,7 @@ type TimePickerOption = {
 
 export type TimePickerColumnProps = (Omit<ComponentProps<"div">, "children"> & {
   type: TimePickerColumnType
-  /** Header text. Defaults to the label for the type. */
+  /** 열의 접근성 이름입니다. 생략하면 단위별 레이블을 사용합니다. */
   label?: ReactNode
 }) &
   IenToneProps
@@ -1351,10 +1333,7 @@ export function TimePickerColumn({
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useTimePickerContext("TimePickerColumn")
   const { display, grid, hourCycle, i18n, firstEnabled } = context
-  const baseId = useId()
-  const listRef = useRef<HTMLDivElement>(null)
   const typeahead = useRef({ text: "", at: 0 })
-
   const listPeriod: TimePickerPeriod = display
     ? periodOf(display.hour)
     : firstEnabled
@@ -1390,6 +1369,9 @@ export function TimePickerColumn({
       : display[type]
     : undefined
   const selectedIndex = options.findIndex((option) => option.value === current)
+  const displayedCurrent = type === "hour" && hourCycle === 12 && typeof current === "number"
+    ? current % 12 || 12
+    : current
   const enabled = options.flatMap((option, index) =>
     option.disabled ? [] : [index]
   )
@@ -1397,39 +1379,13 @@ export function TimePickerColumn({
     options,
     enabled,
     selectedIndex,
-    current,
+    displayedCurrent,
     firstEnabled && !display ? columnValueOf(firstEnabled, type) : undefined
   )
   const highlighted =
     highlightIndex === -1 ? undefined : options[highlightIndex]
-  const optionId = (option: TimePickerOption) => `${baseId}-${option.value}`
-  const highlightedId = highlighted ? optionId(highlighted) : undefined
   const interactive = !context.disabled
   const editable = interactive && !context.readOnly
-
-  /* Centers the highlighted row, instantly, whenever it changes, and again
-     when the list resizes: rows take their height from the style, which can
-     settle after mount. `offsetTop` ignores the popup's zoom-in transform;
-     `scrollIntoView` would not, and would scroll the page too. */
-  useLayoutEffect(() => {
-    const list = listRef.current
-    if (!list) return
-    const center = () => {
-      const option = highlightedId
-        ? list.ownerDocument.getElementById(highlightedId)
-        : null
-      if (option) {
-        list.scrollTop =
-          option.offsetTop - (list.clientHeight - option.offsetHeight) / 2
-      }
-      syncOverflow(list)
-    }
-    center()
-    if (typeof ResizeObserver === "undefined") return
-    const observer = new ResizeObserver(center)
-    observer.observe(list)
-    return () => observer.disconnect()
-  }, [highlightedId])
 
   const hidden =
     (type === "period" && hourCycle !== 12) ||
@@ -1475,10 +1431,9 @@ export function TimePickerColumn({
     let position = selectedIndex
     if (position === -1) {
       const above =
-        typeof current === "number"
+        typeof displayedCurrent === "number"
           ? options.findIndex(
-              (option) =>
-                typeof option.value === "number" && option.value > current
+              (option) => option.typed !== null && option.typed > displayedCurrent
             )
           : -1
       position =
@@ -1580,66 +1535,25 @@ export function TimePickerColumn({
     if (index !== -1) move(index)
   }
 
-  const headerId = `${baseId}-label`
-
   return (
-    <div
-      data-slot="time-picker-column"
-      data-ien=""
-      data-ien-tone={ienTheme.tone}
-      data-ien-gradient={ienTheme.useGradient}
+    <IenWheelColumn
+      slotPrefix="time-picker"
       data-type={type}
-      className={cn(COLUMN_CLASS, className)}
+      tone={ienTheme.tone}
+      useGradient={ienTheme.useGradient}
+      className={className}
+      options={options}
+      selectedIndex={selectedIndex}
+      highlightedIndex={highlightIndex}
+      onSelectIndex={(index) => pick(options[index])}
+      onListKeyDown={onKeyDown}
+      label={label ?? i18n.labels[type]}
+      describedBy={`${context.id}-current`}
+      disabled={context.disabled}
+      readOnly={context.readOnly}
+      fade={context.fade}
       {...props}
-    >
-      <div
-        id={headerId}
-        data-slot="time-picker-column-label"
-        data-ien-typography="label1"
-        data-ien=""
-        data-ien-tone={ienTheme.tone}
-        data-ien-gradient={ienTheme.useGradient}
-        className={LABEL_CLASS}
-      >
-        {label ?? i18n.labels[type]}
-      </div>
-      <div
-        ref={listRef}
-        role="listbox"
-        aria-labelledby={headerId}
-        aria-describedby={`${context.id}-current`}
-        aria-activedescendant={highlightedId}
-        aria-disabled={context.disabled || undefined}
-        aria-readonly={context.readOnly || undefined}
-        tabIndex={interactive ? 0 : -1}
-        data-slot="time-picker-column-list"
-        data-ien=""
-        data-ien-tone={ienTheme.tone}
-        data-ien-gradient={ienTheme.useGradient}
-        data-empty={highlighted ? undefined : ""}
-        data-fade={context.fade ? "" : undefined}
-        onKeyDown={interactive ? onKeyDown : undefined}
-        onScroll={(event) => syncOverflow(event.currentTarget)}
-        className={LIST_CLASS}
-      >
-        {options.map((option, index) => (
-          <div
-            key={option.value}
-            id={optionId(option)}
-            role="option"
-            aria-selected={index === selectedIndex}
-            aria-disabled={option.disabled || undefined}
-            data-highlighted={index === highlightIndex ? "" : undefined}
-            data-slot="time-picker-option"
-            data-ien-typography="label1"
-            onClick={editable ? () => pick(option) : undefined}
-            className={OPTION_CLASS}
-          >
-            {option.label}
-          </div>
-        ))}
-      </div>
-    </div>
+    />
   )
 }
 
@@ -1655,7 +1569,11 @@ function columnOptions(
   period: TimePickerPeriod,
   i18n: TimePickerI18nConfig
 ): TimePickerOption[] {
-  const { formatSegment } = i18n.functions
+  const { formatSegment, formatWheelSegment } = i18n.functions
+  const formatWheel = (value: number, unit: TimePickerUnit) => {
+    const segment = formatSegment(value, unit)
+    return formatWheelSegment?.(segment, unit, i18n.labels) ?? segment
+  }
   if (type === "period") {
     return (["am", "pm"] as const).map((value, index) => ({
       value,
@@ -1665,23 +1583,24 @@ function columnOptions(
     }))
   }
   if (type === "hour") {
-    return grid.hours.flatMap((hour, index) => {
+    const hours = grid.hours.flatMap((hour, index) => {
       if (hourCycle === 12 && periodOf(hour) !== period) return []
       const shown = hourCycle === 12 ? hour % 12 || 12 : hour
       return [
         {
           value: hour,
-          label: formatSegment(shown, "hour"),
+          label: formatWheel(shown, "hour"),
           typed: shown,
           disabled: !flags[index],
         },
       ]
     })
+    return hourCycle === 12 ? hours.sort((a, b) => a.typed - b.typed) : hours
   }
   const values = type === "minute" ? grid.minutes : grid.seconds
   return values.map((value, index) => ({
     value,
-    label: formatSegment(value, type),
+    label: formatWheel(value, type),
     typed: value,
     disabled: !flags[index],
   }))
@@ -1701,8 +1620,8 @@ function highlightFor(
   if (selectedIndex !== -1) return selectedIndex
   if (typeof current === "number") {
     const below = findLast(enabled, (index) => {
-      const value = options[index].value
-      return typeof value === "number" && value < current
+      const value = options[index].typed
+      return value !== null && value < current
     })
     return below ?? enabled[0] ?? -1
   }
@@ -1724,7 +1643,7 @@ function findLast<T>(items: T[], test: (item: T) => boolean) {
 
 /* Padding keeps the buttons clear of the popover's corner radius per style. */
 const FOOTER_CLASS =
-  "flex items-center justify-between gap-2 border-t p-1.5"
+  "flex items-center justify-between gap-(--ien-spacing-xs) p-(--ien-spacing-xs)"
 
 export type TimePickerFooterProps = ComponentProps<"div"> & IenToneProps
 
@@ -1766,7 +1685,8 @@ export type TimePickerActionProps = ComponentProps<typeof Button> & IenToneProps
 
 /** Sets the current time, floored to the steps and moved inside the bounds. */
 export function TimePickerNow({
-  variant = "ghost",
+  tone = "brand",
+  variant = "weak",
   size = "sm",
   onClick,
   children,
@@ -1780,6 +1700,7 @@ export function TimePickerNow({
       size={size}
       disabled={context.disabled || context.readOnly}
       data-slot="time-picker-now"
+      tone={tone}
       onClick={(event) => {
         onClick?.(event)
         if (!event.defaultPrevented) pickNow(context)
@@ -1793,9 +1714,9 @@ export function TimePickerNow({
 
 /** Empties the value, then hands focus to the first column. */
 export function TimePickerClear({
-  tone: ienTone,
+  tone: ienTone = "neutral",
   useGradient: ienUseGradient,
-  variant = "ghost",
+  variant = "weak",
   size = "sm",
   className,
   onClick,
@@ -1814,7 +1735,8 @@ export function TimePickerClear({
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
-      className={cn("text-muted-foreground", className)}
+      tone={ienTheme.tone}
+      className={className}
       onClick={(event) => {
         onClick?.(event)
         if (event.defaultPrevented) return
@@ -1833,6 +1755,7 @@ export function TimePickerClear({
 
 /** Commits a pending draft and closes the popover. */
 export function TimePickerConfirm({
+  tone = "brand",
   variant,
   size = "sm",
   onClick,
@@ -1843,10 +1766,11 @@ export function TimePickerConfirm({
   return (
     <Button
       type="button"
-      variant={variant ?? (context.requireConfirm ? "fill" : "weak")}
+      variant={variant ?? "fill"}
       size={size}
       disabled={context.disabled}
       data-slot="time-picker-confirm"
+      tone={tone}
       onClick={(event) => {
         onClick?.(event)
         if (!event.defaultPrevented) context.confirm()
