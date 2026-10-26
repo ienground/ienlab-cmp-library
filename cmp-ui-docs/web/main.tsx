@@ -926,16 +926,16 @@ function SidebarContents({
       {!isColorSchemePage && (
         <>
           <div className="search-box">
-            <Search aria-hidden="true" className="search-icon" />
             <Input
               aria-label="컴포넌트 또는 API 검색"
               className="search-input"
+              leading={<Search aria-hidden="true" className="search-icon" />}
               onChange={(event) => onQueryChange(event.target.value)}
               placeholder="컴포넌트·API 검색"
               type="search"
+              trailing={<kbd>/</kbd>}
               value={query}
             />
-            <kbd>/</kbd>
           </div>
 
           <ScrollArea className="component-navigation">

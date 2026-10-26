@@ -108,9 +108,9 @@ export function WebRegistryDocs({
             {tab === "preview" ? "LIVE WEB COMPONENT" : tab === "playground" ? "COMPONENT PLAYGROUND" : "SHADCN REGISTRY"}
           </p>
           <Typography variant="title1" asChild><h2>{item.name}</h2></Typography>
-          <p>{item.description}</p>
         </div>
       </div>
+      <p className="panel-description">{item.description}</p>
       {tab === "playground" && Preview ? (
         <WebPlayground definition={item.playground} source={item.playground.example} Preview={Preview} renderPreview={(preview, resetKey) => (
           <IenLanguageProvider language={language}>

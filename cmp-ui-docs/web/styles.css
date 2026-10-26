@@ -308,10 +308,15 @@ body {
   gap: var(--docs-spacing-9);
   height: 40px;
   margin: 0 0 var(--ien-spacing-xl);
-  padding: 0 var(--ien-spacing-sm);
+  padding: 0;
   background: var(--surface-subtle);
   border: var(--ien-stroke-thin) solid var(--border);
   border-radius: var(--docs-radius-9);
+}
+
+.search-box > div {
+  min-width: 0;
+  height: 100%;
 }
 
 .search-icon {
@@ -325,7 +330,7 @@ body {
   width: 100%;
   min-width: 0;
   height: 100%;
-  padding: 0;
+  padding: 0 40px;
   color: var(--text-primary);
   font-size: var(--ien-font-size-caption);
   background: transparent;
@@ -391,6 +396,7 @@ body {
 
 .component-link {
   width: 100%;
+  height: auto;
   min-height: 52px;
   flex-direction: column;
   align-items: flex-start;
@@ -416,13 +422,21 @@ body {
   background: var(--brand-soft);
 }
 
-.component-link > span {
+.component-link > [data-slot="button-content"] {
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.component-link > [data-slot="button-content"] > span {
+  max-width: 100%;
   min-width: 0;
   overflow: hidden;
   font-size: var(--ien-font-size-label2);
   line-height: var(--docs-line-height-compact);
-  white-space: normal;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .component-link code {
@@ -630,6 +644,18 @@ body {
   color: var(--text-secondary);
   font-size: var(--ien-font-size-caption);
   line-height: var(--docs-line-height-description);
+}
+
+.web-component-docs > :is(.web-code-example, .web-docs-disclosure, section) {
+  margin-top: var(--ien-spacing-xl);
+}
+
+.web-component-docs > section > :is(p, ul, .web-docs-disclosure) {
+  margin-top: var(--ien-spacing-sm);
+}
+
+.web-component-docs > .web-docs-disclosure + p {
+  margin-top: var(--ien-spacing-sm);
 }
 
 .preview-frame-wrap {
