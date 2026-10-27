@@ -6,10 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
-import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
-import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,7 +34,9 @@ import zone.ien.utils.example.ui.screens.scrollingbubble.ScrollingBubbleScreen
 import zone.ien.utils.example.ui.screens.permission.PermissionScreen
 import zone.ien.utils.navigation.BaseNavDisplay
 import zone.ien.utils.navigation.getConfig
+import zone.ien.utils.navigation.ienPaneAnimation
 import zone.ien.utils.navigation.navigateBack
+import zone.ien.utils.navigation.rememberIenListDetailSceneStrategy
 import zone.ien.utils.navigation.result.rememberResultStore
 import zone.ien.utils.ui.foundation.IenTheme
 
@@ -70,12 +69,9 @@ fun RootNavigationGraph(
     onIconStyleChange: (IconStyle) -> Unit,
 ) {
     val resultStore = rememberResultStore()
-    val listDetailStrategy = rememberListDetailSceneStrategy<RootRoute>(
-        directive = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
-            currentWindowAdaptiveInfoV2(),
-        ),
-    )
+    val listDetailStrategy = rememberIenListDetailSceneStrategy<RootRoute>()
     val isListDetailLayout = listDetailStrategy.directive.maxHorizontalPartitions > 1
+    val paneAnimation = ienPaneAnimation()
 
     BaseNavDisplay(
         backStack = backStack,
@@ -145,7 +141,7 @@ fun RootNavigationGraph(
                             )
                         }
                     },
-                ) + ListDetailSceneStrategy.preferredPaneSize(width = 0.4f),
+                ) + ListDetailSceneStrategy.preferredPaneSize(width = 0.4f) + paneAnimation,
             ) {
                 DesignSystemScreen(
                     navigateBack = {
@@ -169,7 +165,7 @@ fun RootNavigationGraph(
                 )
             }
             entry<RootRoute.DesignSystemComponent>(
-                metadata = ListDetailSceneStrategy.detailPane(),
+                metadata = ListDetailSceneStrategy.detailPane() + paneAnimation,
             ) { route ->
                 DesignSystemScreen(
                     navigateBack = { backStack.navigateBack() },

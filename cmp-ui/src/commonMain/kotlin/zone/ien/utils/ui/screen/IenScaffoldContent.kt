@@ -25,7 +25,9 @@ import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -69,7 +71,7 @@ val LocalIenScaffoldScrollState = staticCompositionLocalOf<ScrollState?> { null 
  * [ScrollState], [LazyListState], [LazyGridState]는 스크롤 거리로 진행도를 계산하고,
  * 그 외 상태는 각 방향의 스크롤 가능 여부에 따라 블러를 표시합니다.
  * @property scrollFadeDistance 스크롤 시작/끝 근처에서 블러가 나타나고 사라지는 거리
- * @property topHeight 상단 블러 영역의 높이
+ * @property topHeight 상단 블러의 기본 높이. Duo의 상단 바 배치에서는 높아진 탑바에 맞춰 확장합니다.
  * @property bottomHeight 하단 블러 영역의 높이
  * @property radius 블러 강도 반경
  * @property color 배경 색상 (null인 경우 컨테이너 색상 사용)
@@ -87,6 +89,16 @@ data class IenScaffoldContentEdge(
     val bottomHeight: Dp = 64.dp,
     val radius: Dp = 18.dp,
     val color: Color? = null,
+)
+
+private const val TopBlurSolidFraction = 0.42f
+
+internal fun resolveTopBlurHeight(
+    topHeight: Dp,
+    topBarHeight: Dp,
+): Dp = if (topHeight <= 0.dp) 0.dp else maxOf(
+    topHeight,
+    topBarHeight + topHeight * (1f - TopBlurSolidFraction),
 )
 
 internal fun resolveBottomBlurHeight(
@@ -134,6 +146,7 @@ fun IenScaffold(
         null
     }
     val isSideBar = placement != null && placement.sideWidth > 0.dp
+    val extendTopBlur = devicePlacement?.sideWidth == 0.dp
     var topBarHidden by remember(isSideBar) { mutableStateOf(false) }
     val scrollConnection = remember(isSideBar) {
         object : NestedScrollConnection {
@@ -205,7 +218,11 @@ fun IenScaffold(
                     topProgress = effectiveTopProgress,
                     topBarVisibility = topBarVisibility,
                     bottomProgress = effectiveBottomProgress,
-                    topHeight = effectiveContentEdge.topHeight,
+                    topHeight = resolveTopBlurHeight(
+                        topHeight = effectiveContentEdge.topHeight,
+                        topBarHeight = if (extendTopBlur) contentPadding.calculateTopPadding() else 0.dp,
+                    ),
+                    topFadeHeight = effectiveContentEdge.topHeight,
                     bottomHeight = resolveBottomBlurHeight(
                         bottomHeight = effectiveContentEdge.bottomHeight,
                         bottomBarHeight = if (isSideBar) 0.dp else bottomBarHeight,
@@ -215,6 +232,10 @@ fun IenScaffold(
                 )
             }
         }
+    }
+    val currentScaffoldContent by rememberUpdatedState(scaffoldContent)
+    val retainedScaffoldContent = remember {
+        movableContentOf<PaddingValues> { padding -> currentScaffoldContent(padding) }
     }
     CompositionLocalProvider(LocalIenBarPlacement provides placement) {
         if (isSideBar) {
@@ -230,7 +251,7 @@ fun IenScaffold(
                 containerColor = containerColor,
                 contentColor = contentColor,
                 contentWindowInsets = contentWindowInsets,
-                content = scaffoldContent,
+                content = retainedScaffoldContent,
             )
         } else {
             Scaffold(
@@ -252,7 +273,7 @@ fun IenScaffold(
                 containerColor = containerColor,
                 contentColor = contentColor,
                 contentWindowInsets = contentWindowInsets,
-                content = scaffoldContent,
+                content = retainedScaffoldContent,
             )
         }
     }
@@ -376,17 +397,23 @@ private fun IenScaffoldEdgeBlur(
     topBarVisibility: Float,
     bottomProgress: Float,
     topHeight: Dp,
+    topFadeHeight: Dp,
     bottomHeight: Dp,
     radius: Dp,
     color: Color,
 ) {
+    val animatedTopHeight by animateDpAsState(
+        targetValue = topHeight,
+        animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing),
+        label = "top_bar_blur_height",
+    )
     Box(modifier = modifier) {
         if (showTop && topProgress > 0f) {
             Box(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .fillMaxWidth()
-                    .height(topHeight)
+                    .height(animatedTopHeight)
                     .graphicsLayer {
                         translationY = -size.height * (1f - topBarVisibility)
                         alpha = topBarVisibility
@@ -402,13 +429,16 @@ private fun IenScaffoldEdgeBlur(
                                 uniform shader content;
 
                                 uniform float2 size;
+                                uniform float fadeHeight;
+                                uniform float solidFraction;
                                 layout(color) uniform half4 tint;
                                 uniform float tintIntensity;
                                 uniform float edgeIntensity;
 
                                 half4 main(float2 coord) {
-                                    float progress = clamp(coord.y / size.y, 0.0, 1.0);
-                                    float edgeAlpha = (1.0 - smoothstep(0.42, 1.0, progress)) * edgeIntensity;
+                                    float fadeOffset = size.y - fadeHeight;
+                                    float progress = clamp((coord.y - fadeOffset) / fadeHeight, 0.0, 1.0);
+                                    float edgeAlpha = (1.0 - smoothstep(solidFraction, 1.0, progress)) * edgeIntensity;
                                     half4 blurred = content.eval(coord) * edgeAlpha;
                                     half4 tintLayer = tint * edgeAlpha;
                                     return mix(blurred, tintLayer, tintIntensity);
@@ -417,6 +447,8 @@ private fun IenScaffoldEdgeBlur(
                                 "content",
                             ) {
                                 setFloatUniform("size", size.width, size.height)
+                                setFloatUniform("fadeHeight", topFadeHeight.toPx().coerceAtLeast(1f))
+                                setFloatUniform("solidFraction", TopBlurSolidFraction)
                                 setColorUniform("tint", color.copy(alpha = 0.42f))
                                 setFloatUniform("tintIntensity", 0.24f)
                                 setFloatUniform("edgeIntensity", topProgress)

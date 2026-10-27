@@ -38,6 +38,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
 import androidx.compose.material3.adaptive.navigation3.LocalListDetailSceneScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -1432,7 +1434,11 @@ fun DesignSystemScreen(
         var query by rememberSaveable { mutableStateOf("") }
         var selectedCategory by rememberSaveable { mutableStateOf("전체") }
         val selectedComponent = DesignSystemComponents.firstOrNull { it.id == componentId }
-        val isSplitLayout = LocalListDetailSceneScope.current != null
+        val paneTarget = LocalListDetailSceneScope.current
+            ?.scaffoldTransitionScope?.scaffoldStateTransition?.targetState
+        val isSplitLayout = paneTarget != null &&
+            paneTarget[ListDetailPaneScaffoldRole.List] != PaneAdaptedValue.Hidden &&
+            paneTarget[ListDetailPaneScaffoldRole.Detail] != PaneAdaptedValue.Hidden
         val isListPane = selectedComponent == null && isSplitLayout
         val showBackButton = selectedComponent == null || !isSplitLayout
 

@@ -60,6 +60,26 @@ class IenScaffoldTest {
     }
 
     @Test
+    fun topBlurKeepsConfiguredHeightForCompactTopBar() {
+        assertEquals(168.dp, resolveTopBlurHeight(168.dp, 64.dp))
+    }
+
+    @Test
+    fun topBlurExtendsPastTallTopBarWithoutShorteningFade() {
+        assertEquals(257.44f, resolveTopBlurHeight(168.dp, 160.dp).value, 0.001f)
+    }
+
+    @Test
+    fun topBlurKeepsConfiguredHeightWithoutTopBar() {
+        assertEquals(168.dp, resolveTopBlurHeight(168.dp, 0.dp))
+    }
+
+    @Test
+    fun zeroTopBlurHeightStaysDisabledWithTallTopBar() {
+        assertEquals(0.dp, resolveTopBlurHeight(0.dp, 160.dp))
+    }
+
+    @Test
     fun bottomBlurHeightIncludesBottomBarHeight() {
         assertEquals(
             160.dp,
