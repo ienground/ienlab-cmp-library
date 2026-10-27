@@ -72,6 +72,7 @@ import zone.ien.hig.CupertinoTopAppBarColors
 import zone.ien.hig.CupertinoTopAppBarDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.FabPosition
+import zone.ien.hig.LocalCupertinoRightSystemArea
 import zone.ien.hig.adaptive.Adaptation
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
@@ -92,6 +93,8 @@ import zone.ien.utils.ui.screen.LocalIsScrollTint
 import zone.ien.utils.ui.screen.LocalTopBarMode
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.screen.isIenSideBarLayout
+import zone.ien.utils.ui.screen.isIenSideBarAvailable
+import zone.ien.utils.ui.screen.LocalIenSideBarEnabled
 import zone.ien.utils.ui.screen.IenTopAppBar
 import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
@@ -157,7 +160,14 @@ fun AdaptiveScaffold(
             }
         },
         cupertino = {
-            CompositionLocalProvider(LocalBackdrop provides backdrop) {
+            val ownsRightSystemArea = LocalCupertinoRightSystemArea.current && LocalIenSideBarEnabled.current
+            val isSideBar = ownsRightSystemArea &&
+                (LocalAdaptiveSideBarLayout.current || isIenSideBarAvailable)
+            CompositionLocalProvider(
+                LocalBackdrop provides backdrop,
+                LocalCupertinoRightSystemArea provides ownsRightSystemArea,
+                LocalAdaptiveSideBarLayout provides isSideBar,
+            ) {
                 CupertinoScaffold(
                     modifier = modifier,
                     topBar = topBar,
@@ -407,43 +417,64 @@ fun AdaptiveTopAppBarScaffold(
             }
         },
         cupertino = {
-            CompositionLocalProvider(LocalBackdrop provides it.backdrop) {
+            val ownsRightSystemArea = LocalCupertinoRightSystemArea.current && LocalIenSideBarEnabled.current
+            val isSideBar = ownsRightSystemArea &&
+                (LocalAdaptiveSideBarLayout.current || isIenSideBarAvailable)
+
+            @Composable
+            fun TopBar() {
+                CupertinoTopAppBar(
+                    title = title,
+                    subtitle = subtitle,
+                    modifier = topBarModifier,
+                    navigationIcon = { navigationIcon?.invoke() },
+                    actions = {
+                        if (isSideBar) {
+                            actions?.invoke(this)
+                        } else {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    IenTheme.spacing.xxs + IenTheme.spacing.xxxs,
+                                ),
+                                verticalAlignment = Alignment.CenterVertically,
+                                content = {
+                                    actions?.invoke(this)
+                                    Spacer(modifier = Modifier.width(cupertinoActionsEndSpacing(actions != null)))
+                                },
+                                modifier = Modifier
+                                    .animateContentSizeWithoutClipping()
+                                    .heightIn(min = 48.dp)
+                            )
+                        }
+                    },
+                    windowInsets = it.topBarWindowInsets,
+                    isCenterAligned = it.isCenterAligned,
+                    isBackgroundAdaptive = it.isBackgroundAdaptive,
+                    isBackgroundGradient = it.isBackgroundGradient,
+                    backdrop = it.backdrop,
+                    colors = it.colors
+                )
+            }
+
+            CompositionLocalProvider(
+                LocalBackdrop provides it.backdrop,
+                LocalCupertinoRightSystemArea provides ownsRightSystemArea,
+                LocalAdaptiveSideBarLayout provides isSideBar,
+            ) {
                 CupertinoScaffold(
                     modifier = modifier,
-                    topBar = {
+                    topBar = topBar@{
+                        if (isSideBar) {
+                            if (showTopBar) TopBar()
+                            return@topBar
+                        }
                         Box {
                             AnimatedVisibility(
                                 visible = showTopBar,
                                 enter = expandVertically(spring(1.2f)) + fadeIn(spring(1.2f)),
                                 exit = shrinkVertically(spring(1.2f)) + fadeOut(spring(1.2f))
                             ) {
-                                CupertinoTopAppBar(
-                                    title = title,
-                                    subtitle = subtitle,
-                                    modifier = topBarModifier,
-                                    navigationIcon = { navigationIcon?.invoke() },
-                                    actions = {
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(
-                                                IenTheme.spacing.xxs + IenTheme.spacing.xxxs,
-                                            ),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            content = {
-                                                actions?.invoke(this)
-                                                Spacer(modifier = Modifier.width(cupertinoActionsEndSpacing(actions != null)))
-                                            },
-                                            modifier = Modifier
-                                                .animateContentSizeWithoutClipping()
-                                                .heightIn(min = 48.dp)
-                                        )
-                                    },
-                                    windowInsets = it.topBarWindowInsets,
-                                    isCenterAligned = it.isCenterAligned,
-                                    isBackgroundAdaptive = it.isBackgroundAdaptive,
-                                    isBackgroundGradient = it.isBackgroundGradient,
-                                    backdrop = it.backdrop,
-                                    colors = it.colors
-                                )
+                                TopBar()
                             }
                             AnimatedVisibility(
                                 visible = !showTopBar,
@@ -634,7 +665,8 @@ fun AdaptiveTopAppBarScaffold(
         },
         cupertino = {
             scaffold {
-                Spacer(modifier = Modifier.width(IenTheme.spacing.xs))
+                val isSideBar = LocalAdaptiveSideBarLayout.current
+                if (!isSideBar) Spacer(modifier = Modifier.width(IenTheme.spacing.xs))
 
                 @Composable
                 fun liquidButton(
@@ -686,11 +718,11 @@ fun AdaptiveTopAppBarScaffold(
                         closeDropdown = { menuExpanded = false },
                         onToggleOverflow = { menuExpanded = !menuExpanded },
                         isNative = it.isDropdownNative,
-                        maxVisibleItems = 3,
+                        maxVisibleItems = if (isSideBar) 0 else 3,
                     ) { content ->
                         liquidButton(
                             onClick = {},
-                            isIconButton = actions.count { it.visible } == 1 && actions.first { it.visible }.let { it is ActionMenuItem.IconMenuItem && it.icon != null },
+                            isIconButton = isSideBar || (actions.count { it.visible } == 1 && actions.first { it.visible }.let { it is ActionMenuItem.IconMenuItem && it.icon != null }),
                             backdrop = it.backdrop,
                             isBackgroundAdaptive = it.isBackgroundAdaptive,
                             modifier = Modifier.graphicsLayer {

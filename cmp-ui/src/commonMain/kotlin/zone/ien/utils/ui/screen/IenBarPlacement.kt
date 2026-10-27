@@ -3,6 +3,7 @@ package zone.ien.utils.ui.screen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.foundation.background
@@ -46,6 +47,14 @@ val isIenSideBarLayout: Boolean
     @Composable
     @ReadOnlyComposable
     get() = LocalIenBarPlacement.current?.sideWidth?.let { it > 0.dp } == true
+
+/** 현재 영역에서 기기의 오른쪽 시스템 예약 영역에 맞춘 세로 바 배치를 사용할 수 있는지 나타냅니다. */
+val isIenSideBarAvailable: Boolean
+    @Composable
+    get() {
+        val placement by rememberIenBarPlacement()
+        return LocalIenSideBarEnabled.current && placement?.sideWidth?.let { it > 0.dp } == true
+    }
 
 @Composable
 internal expect fun rememberIenBarPlacement(): State<IenBarPlacement?>
