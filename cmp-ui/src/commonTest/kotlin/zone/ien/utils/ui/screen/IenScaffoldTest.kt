@@ -4,8 +4,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class IenScaffoldTest {
+    @Test
+    fun sideBarSnackbarStaysAboveFloatingButton() {
+        val layoutHeight = 800
+        val bottomInset = 24
+        val fabHeight = 56
+        val floatingGap = 16
+        val snackbarHeight = 48
+        val snackbarOffset = ienSideBarSnackbarOffset(bottomInset, fabHeight, floatingGap)
+        val snackbarTop = layoutHeight - snackbarOffset - snackbarHeight
+        val fabTop = layoutHeight - bottomInset - floatingGap - fabHeight
+
+        assertTrue(snackbarTop + snackbarHeight <= fabTop)
+        assertEquals(96, snackbarOffset)
+    }
+
+    @Test
+    fun sideBarSnackbarKeepsBottomInsetWithoutFloatingButton() {
+        assertEquals(24, ienSideBarSnackbarOffset(bottomInset = 24, fabHeight = 0, floatingGap = 16))
+    }
+
     @Test
     fun sideBarReservesRightInsetOnce() {
         val padding = ienSideBarContentPadding(0.dp, 0.dp, 80.dp, 24.dp, 72.dp, 80.dp)

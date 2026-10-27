@@ -64,6 +64,12 @@ internal fun ienSideBarContentPadding(
     bottom = bottom,
 )
 
+internal fun ienSideBarSnackbarOffset(
+    bottomInset: Int,
+    fabHeight: Int,
+    floatingGap: Int,
+): Int = bottomInset + if (fabHeight > 0) fabHeight + floatingGap else 0
+
 @Composable
 internal fun IenSideBarScaffold(
     modifier: Modifier,
@@ -135,6 +141,9 @@ internal fun IenSideBarScaffold(
             val fab = subcompose("floating", floating).map { it.measure(overlayConstraints) }
             val bottomInset = contentWindowInsets.getBottom(this)
             val floatingGap = 16.dp.roundToPx()
+            val fabHeight = fab.filter { it.width > 0 && it.height > 0 }
+                .maxOfOrNull { it.height } ?: 0
+            val snackbarOffset = ienSideBarSnackbarOffset(bottomInset, fabHeight, floatingGap)
             layout(width, height) {
                 body.forEach { it.place(0, 0) }
                 top.forEach { (isSide, bar) ->
@@ -167,7 +176,7 @@ internal fun IenSideBarScaffold(
                     it.place(x.coerceAtLeast(0), (height - bottomInset - floatingGap - it.height).coerceAtLeast(0))
                 }
                 snackbar.forEach {
-                    it.place((width - right - it.width) / 2, (height - bottomInset - it.height).coerceAtLeast(0))
+                    it.place((width - right - it.width) / 2, (height - snackbarOffset - it.height).coerceAtLeast(0))
                 }
             }
         }

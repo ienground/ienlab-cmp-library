@@ -1,6 +1,7 @@
 package zone.ien.utils.example.ui.navigation
 
 import zone.ien.utils.icon.IconStyle
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -131,7 +132,10 @@ fun RootNavigationGraph(
                 metadata = ListDetailSceneStrategy.listPane(
                     detailPlaceholder = {
                         Box(
-                            modifier = Modifier.fillMaxSize().padding(IenTheme.spacing.lg),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(IenTheme.colors.background)
+                                .padding(IenTheme.spacing.lg),
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
