@@ -12,6 +12,7 @@ export interface ProjectPreset {
   meta: Record<string, unknown>;
 }
 export interface ProjectEdits {
+  iconLibrary?: string;
   title?: string;
   description?: string;
   cssVars?: Partial<ProjectVariables>;
@@ -100,6 +101,7 @@ export function resolveProject(
 ): ProjectPreset {
   const project: ProjectPreset = {
     ...base,
+    config: { ...base.config, ...(edits?.iconLibrary ? { iconLibrary: edits.iconLibrary } : {}) },
     title: edits?.title ?? base.title,
     description: edits?.description ?? base.description,
     cssVars: {
@@ -243,6 +245,8 @@ export function parseProjectState(
     if (!names.has(name)) continue;
     if (!record(entry)) throw new Error("프로젝트 편집값이 올바르지 않습니다.");
     const patch: ProjectEdits = {};
+    if (typeof entry.iconLibrary === "string" && entry.iconLibrary.trim())
+      patch.iconLibrary = entry.iconLibrary;
     if (typeof entry.title === "string" && entry.title.trim())
       patch.title = entry.title;
     if (typeof entry.description === "string")

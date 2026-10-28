@@ -1,6 +1,5 @@
 import { Typography } from "@/components/ui/typography";
 import { useCallback, useEffect, useState } from "react";
-import type { CSSProperties } from "react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,6 +8,8 @@ import { Badge } from "@/components/reui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   colorDescriptions,
+  colorSchemesFromVariables,
+  colorSchemeVariables,
   colorRoles,
   contrastRatio,
   defaultColorSchemes,
@@ -23,18 +24,14 @@ import {
 import type { ColorMode, ColorSchemes, IconStyle } from "./color-scheme";
 import { copyTextToClipboard } from "./clipboard";
 import { projectDefaults, useWebProject } from "./web-project-context";
+import { projectRegistryItem } from "./project-presets";
 import { CodeBlock } from "../../cmp-ui-web-registry/reui/code-block/code-block";
 
 export const colorSchemeSections = [
-  { id: "cmp", label: "CMP 컬러 스킴" },
-  { id: "web", label: "웹 컬러 스킴" },
-];
-
-const cmpColorSchemeSections = [
   { id: "color-seeds", label: "기준 색상" },
   { id: "color-roles", label: "색상 역할" },
   { id: "color-contrast", label: "상태 색상과 대비" },
-  { id: "color-code", label: "Kotlin 테마 코드" },
+  { id: "color-code", label: "테마 코드" },
 ];
 
 const kotlinKeywords = new Set([
@@ -157,18 +154,19 @@ function ColorInput({
 }
 
 export function ColorSchemeBuilder({
-  view = "cmp",
   themeMode,
   iconStyle,
   onIconStyleChange,
   onApply,
+  onApplyWeb,
 }: {
-  view?: string;
   themeMode: ColorMode;
   iconStyle: IconStyle;
   onIconStyleChange: (style: IconStyle) => void;
   onApply: (schemes: ColorSchemes, mode: ColorMode) => void;
+  onApplyWeb: (mode: ColorMode) => void;
 }) {
+  const { project, projects, select, edit } = useWebProject();
   const [seeds, setSeeds] = useState(defaultColorSeeds);
   const [schemes, setSchemes] = useState(defaultColorSchemes);
   const [appName, setAppName] = useState("Lovehero");
@@ -188,6 +186,30 @@ export function ColorSchemeBuilder({
     });
   }, []);
   const code = generateKotlinTheme(schemes, appName, iconStyle);
+  const variables = colorSchemeVariables(schemes);
+  const projectWithColors = {
+    ...project,
+    config: { ...project.config, iconLibrary: "tabler" },
+    cssVars: {
+      ...project.cssVars,
+      light: { ...project.cssVars.light, ...variables.light },
+      dark: { ...project.cssVars.dark, ...variables.dark },
+    },
+  };
+  const webCode = JSON.stringify(projectRegistryItem(projectWithColors), null, 2);
+  function loadProjectColors() {
+    if (project.config.iconLibrary === "tabler") onIconStyleChange("tabler");
+    const light = { ...projectDefaults.theme, ...projectDefaults.light, ...project.cssVars.theme, ...project.cssVars.light };
+    const dark = { ...light, ...projectDefaults.dark, ...project.cssVars.dark };
+    const next = colorSchemesFromVariables({ light, dark });
+    setSchemes(next);
+    const nextSeeds = defaultColorSeeds();
+    for (const { base } of semanticGroups) nextSeeds[base] = next.light[base];
+    setSeeds(nextSeeds);
+    setInvalidFields(new Set());
+    setResetRevision((previous) => previous + 1);
+    setMessage(`${project.title}의 색상을 불러왔습니다.`);
+  }
   const appIdentifier = toKotlinIdentifier(appName);
   const scheme = schemes[mode];
   const invalid = invalidFields.size > 0;
@@ -211,9 +233,7 @@ export function ColorSchemeBuilder({
     setMessage(`${appIdentifier}Theme.kt를 다운로드했습니다.`);
   }
   return (
-    <div>
-      <div hidden={view !== "cmp"}>
-      <div className="color-builder">
+    <div className="color-builder">
       <div className="panel-heading">
         <div>
           <p className="panel-kicker">THEME BUILDER</p>
@@ -223,9 +243,22 @@ export function ColorSchemeBuilder({
       </div>
       <p className="panel-description">
         기준색을 선택하면 라이트·다크 상태 색상을 자동 생성합니다. 세부 색상을
-        조정한 뒤 {appIdentifier}Theme.kt를 프로젝트에 추가하고 {appIdentifier}Theme으로
-        화면을 감싸세요.
+        조정한 뒤 같은 팔레트를 CMP 미리보기 또는 선택한 웹 프로젝트에 적용하세요.
       </p>
+      <Card className="color-builder-card">
+        <Typography variant="title2" asChild><h3>웹 프로젝트</h3></Typography>
+        <p className="color-hint">웹 적용 대상입니다. 기존 프로젝트 색상으로 편집을 시작하려면 불러오기를 선택하세요.</p>
+        <label className="playground-target">
+          프로젝트
+          <select className="playground-select" aria-label="컬러 스킴 프로젝트" value={project.name} onChange={(event) => select(event.target.value)}>
+            {projects.map((entry) => <option key={entry.name} value={entry.name}>{entry.title} · {entry.name}</option>)}
+          </select>
+        </label>
+        <div className="color-actions">
+          <Button variant="line" onClick={loadProjectColors}>프로젝트 색상 불러오기</Button>
+          <Button asChild variant="line"><Link to="/projects">프로젝트 설정</Link></Button>
+        </div>
+      </Card>
       <Card className="color-builder-card app-name-card">
         <div>
           <label htmlFor="color-scheme-app-name">앱 이름</label>
@@ -246,7 +279,7 @@ export function ColorSchemeBuilder({
       <Card className="color-builder-card">
         <Typography variant="title2" asChild><h3>아이콘 스타일</h3></Typography>
         <p className="color-hint">
-          선택한 스타일을 컴포넌트 미리보기와 생성한 Kotlin 테마에 적용합니다.
+          Tabler는 CMP와 웹 프로젝트에 적용됩니다. Material 스타일은 CMP 미리보기와 Kotlin 테마에 적용되며, 웹 컴포넌트는 Tabler를 사용합니다.
         </p>
         <Tabs
           value={iconStyle}
@@ -266,7 +299,7 @@ export function ColorSchemeBuilder({
           </TabsList>
         </Tabs>
       </Card>
-      <Card id={cmpColorSchemeSections[0].id} className="color-builder-card">
+      <Card id={colorSchemeSections[0].id} className="color-builder-card">
         <Typography variant="title2" asChild><h3>기준 색상</h3></Typography>
         <div className="color-seeds">
           {semanticGroups.map((group) => (
@@ -304,7 +337,7 @@ export function ColorSchemeBuilder({
         </Button>
       </Card>
       <Tabs
-        id={cmpColorSchemeSections[1].id}
+        id={colorSchemeSections[1].id}
         value={mode}
         onValueChange={(value) => {
           if (value === "light" || value === "dark") setMode(value);
@@ -355,7 +388,7 @@ export function ColorSchemeBuilder({
           </TabsContent>
         ))}
       </Tabs>
-      <Card id={cmpColorSchemeSections[2].id} className="color-builder-card">
+      <Card id={colorSchemeSections[2].id} className="color-builder-card">
         <Typography variant="title2" asChild><h3>상태 색상과 대비</h3></Typography>
         <div
           className="color-swatches"
@@ -407,11 +440,15 @@ export function ColorSchemeBuilder({
             );
           })}
         </div>
-        <Button disabled={invalid} onClick={() => onApply(schemes, mode)}>
-          Compose 미리보기에 적용
-        </Button>
+        <div className="color-actions">
+          <Button disabled={invalid} onClick={() => onApply(schemes, mode)}>CMP 미리보기에 적용</Button>
+          <Button disabled={invalid} onClick={() => {
+            edit({ iconLibrary: projectWithColors.config.iconLibrary, cssVars: projectWithColors.cssVars });
+            onApplyWeb(mode);
+          }}>웹 프로젝트에 적용</Button>
+        </div>
       </Card>
-      <Card id={cmpColorSchemeSections[3].id} className="color-builder-card">
+      <Card id={colorSchemeSections[3].id} className="color-builder-card">
         <div className="color-code-heading">
           <Typography variant="title2" asChild><h3>Kotlin 테마 코드</h3></Typography>
           <div className="color-actions">
@@ -441,101 +478,17 @@ export function ColorSchemeBuilder({
           defaultWrap
         />
       </Card>
-      </div>
-      </div>
-      <div hidden={view !== "web"}>
-        <WebColorScheme themeMode={themeMode} />
-      </div>
+      <Card className="color-builder-card">
+        <div className="color-code-heading">
+          <Typography variant="title2" asChild><h3>웹 프로젝트 JSON</h3></Typography>
+          <Button variant="line" disabled={invalid} onClick={async () => {
+            const copied = await copyTextToClipboard(webCode);
+            setMessage(copied ? "웹 프로젝트 JSON을 복사했습니다." : "복사하지 못했습니다. 코드를 선택해 복사하세요.");
+          }}>JSON 복사</Button>
+        </div>
+        <p className="color-hint">위 팔레트를 CSS 변수로 변환합니다. 기존 프로젝트의 버튼 모양·간격·글꼴 설정은 유지합니다.</p>
+        <CodeBlock className="color-code" code={webCode} language="json" label={`${project.name}.json`} variant="ghost" defaultWrap />
+      </Card>
     </div>
-  );
-}
-
-function WebColorScheme({ themeMode }: { themeMode: ColorMode }) {
-  const { project, projects, select } = useWebProject();
-  const [mode, setMode] = useState<ColorMode>(themeMode);
-  const values = {
-    ...projectDefaults.theme,
-    ...projectDefaults.light,
-    ...project.cssVars.theme,
-    ...project.cssVars.light,
-    ...(mode === "dark" ? projectDefaults.dark : {}),
-    ...(mode === "dark" ? project.cssVars.dark : {}),
-  };
-  const style = Object.fromEntries(
-    Object.entries(values).map(([name, value]) => [`--${name}`, value]),
-  ) as CSSProperties;
-  const groups = [
-    {
-      title: "CMP 색상 토큰",
-      names: colorRoles.map(
-        (role) => `ien-${role.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}`,
-      ),
-    },
-    {
-      title: "웹 색상 변수",
-      names: Object.keys(projectDefaults.light).filter(
-        (name) => !name.startsWith("ien-"),
-      ),
-    },
-  ];
-  return (
-    <Card id="web-color-scheme" className="color-builder-card">
-      <div className="color-code-heading">
-        <Typography variant="title2" asChild><h3>웹 컬러 스킴</h3></Typography>
-        <Button asChild variant="line" size="sm">
-          <Link to="/projects">프로젝트 색상 편집</Link>
-        </Button>
-      </div>
-      <p className="color-hint">
-        선택한 웹 프로젝트에 실제 적용되는 CMP 토큰과 웹 색상 변수의 연결을 확인합니다.
-      </p>
-      <label className="playground-target">
-        웹 프로젝트
-        <select
-          className="playground-select"
-          aria-label="웹 컬러 스킴 프로젝트"
-          value={project.name}
-          onChange={(event) => select(event.target.value)}
-        >
-          {projects.map((entry) => (
-            <option key={entry.name} value={entry.name}>
-              {entry.title} · {entry.name}
-            </option>
-          ))}
-        </select>
-      </label>
-      <Tabs
-        value={mode}
-        onValueChange={(value) => {
-          if (value === "light" || value === "dark") setMode(value);
-        }}
-      >
-        <TabsList aria-label="웹 컬러 스킴 모드">
-          <TabsTrigger value="light">라이트</TabsTrigger>
-          <TabsTrigger value="dark">다크</TabsTrigger>
-        </TabsList>
-      </Tabs>
-      <div className={mode} style={style}>
-        {groups.map((group) => (
-          <section key={group.title} className="space-y-4 mb-6">
-            <Typography variant="title3" asChild><h4>{group.title}</h4></Typography>
-            <div className="color-roles">
-              {group.names.map((name) => (
-                <div key={name} className="min-w-0">
-                  <div
-                    className="color-swatch h-12 border border-input"
-                    style={{ background: `var(--${name})` }}
-                    role="img"
-                    aria-label={`${name} 색상`}
-                  />
-                  <code className="block break-all text-sm">--{name}</code>
-                  <code className="color-hint break-all">{values[name]}</code>
-                </div>
-              ))}
-            </div>
-          </section>
-        ))}
-      </div>
-    </Card>
   );
 }

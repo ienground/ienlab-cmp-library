@@ -1,0 +1,51 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "ienlab-microsite",
+  "type": "registry:base",
+  "title": "ienlab-microsite",
+  "description": "아이엔랩 Microsite + 콘솔",
+  "config": {
+    "style": "radix-nova",
+    "tailwind": {
+      "baseColor": "neutral",
+      "cssVariables": true
+    },
+    "iconLibrary": "tabler",
+    "aliases": {
+      "components": "@/components",
+      "utils": "@/lib/utils",
+      "ui": "@/components/ui",
+      "lib": "@/lib",
+      "hooks": "@/hooks"
+    },
+    "registries": {
+      "@ienlab": "https://cmp.ien.zone/r/{name}.json"
+    }
+  },
+  "registryDependencies": [
+    "@ienlab/ien-theme"
+  ],
+  "cssVars": {
+    "theme": {
+      "ien-button-shape": "capsule"
+    },
+    "light": {
+      "ien-radius-none": "0rem",
+      "ien-radius-xs": "0.25rem",
+      "ien-radius-sm": "0.5rem",
+      "ien-radius-default": "0.75rem",
+      "ien-radius-md": "0.75rem",
+      "ien-radius-lg": "1rem",
+      "ien-radius-xl": "1.5rem",
+      "ien-radius-full": "62.4375rem",
+      "ien-brand": "#7C4DFF",
+      "ien-on-brand": "#FFFFFF"
+    },
+    "dark": {
+      "ien-brand": "#7C4DFF",
+      "ien-on-brand": "#FFFFFF"
+    }
+  },
+  "meta": {},
+  "css": {}
+}

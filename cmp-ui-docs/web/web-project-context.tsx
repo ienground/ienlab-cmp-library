@@ -121,7 +121,8 @@ export function WebProjectProvider({ children }: { children: ReactNode }) {
   }
   const dirty = Boolean(
     edits &&
-      ((edits.title !== undefined && edits.title !== base.title) ||
+      ((edits.iconLibrary !== undefined && edits.iconLibrary !== base.config.iconLibrary) ||
+        (edits.title !== undefined && edits.title !== base.title) ||
         (edits.description !== undefined &&
           edits.description !== base.description) ||
         Object.values(edits.cssVars ?? {}).some(

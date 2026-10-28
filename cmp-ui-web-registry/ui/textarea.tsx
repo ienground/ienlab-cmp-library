@@ -50,7 +50,7 @@ function Textarea({
   const { inputId, inputRef, currentValue, invalid, descriptionIds } = field
   const minimumLines = Math.max(1, Math.trunc(minLines ?? rows ?? 4))
   const maximumLines = Math.max(minimumLines, Math.trunc(maxLines))
-  const blockPadding = variant === "hero" ? 40 : variant === "big" ? 32 : 28
+  const blockPadding = variant === "hero" ? 40 : variant === "big" ? 32 : 8
   const textarea = (
     <textarea
       ref={(node) => {
@@ -91,7 +91,7 @@ function Textarea({
       data-ien-gradient={ienUseGradient}
       {...props}
       className={cn(
-        "border-input dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 disabled:bg-input/50 dark:disabled:bg-input/80 rounded-lg border bg-transparent px-3.5 py-3.5 text-[length:var(--ien-font-size-body1)] leading-(--ien-line-height-body1) transition-colors focus-visible:ring-3 aria-invalid:ring-3 flex field-sizing-content resize-none overflow-y-auto w-full outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-(--ien-state-disabled-alpha)",
+        "border-input dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 disabled:bg-input/50 dark:disabled:bg-input/80 rounded-lg border bg-transparent px-2.5 py-1 text-[length:var(--ien-font-size-label1)] leading-(--ien-line-height-label1) font-normal transition-colors focus-visible:ring-3 aria-invalid:ring-3 flex field-sizing-content resize-none overflow-y-auto w-full outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-(--ien-state-disabled-alpha)",
         variant === "underline"
           ? "rounded-none border-x-0 border-t-0 bg-transparent px-0 dark:bg-transparent"
           : variant === "plain"

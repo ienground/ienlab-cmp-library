@@ -257,7 +257,11 @@ function start() {
             bottom +
             (Number.parseFloat(style.paddingTop) || 0) +
             (Number.parseFloat(style.paddingBottom) || 0));
-      const isCapsule = element.dataset.ienShape === "capsule";
+      const isCapsule = element.dataset.ienShape === "capsule" || (
+        element.dataset.slot === "button" &&
+        element.dataset.display !== "full" &&
+        style.getPropertyValue("--ien-button-shape").trim() === "capsule"
+      );
       const useCmpProfile = style.getPropertyValue("--ien-control-corner-profile").trim() === "cmp";
       const radii = [
         style.borderTopLeftRadius,
@@ -279,6 +283,20 @@ function start() {
           ),
         );
       });
+      const group = element.parentElement;
+      const groupedCapsule = isCapsule && group?.dataset.slot === "button-group" &&
+        Boolean(element.previousElementSibling || element.nextElementSibling);
+      if (groupedCapsule) {
+        const vertical = group.dataset.orientation === "vertical";
+        if (element.previousElementSibling) {
+          radii[0] = 0;
+          radii[vertical ? 1 : 3] = 0;
+        }
+        if (element.nextElementSibling) {
+          radii[2] = 0;
+          radii[vertical ? 3 : 1] = 0;
+        }
+      }
       const smoothingValue = Number.parseFloat(
         style.getPropertyValue("--ien-control-corner-smoothing"),
       );
@@ -331,9 +349,9 @@ function start() {
         bottomRight: { radius: bottomRight, smoothing, preserveSmoothing: true },
         bottomLeft: { radius: bottomLeft, smoothing, preserveSmoothing: true },
       };
-      const outer = isCapsule
+      const outer = isCapsule && !groupedCapsule
         ? capsulePath(width, height)
-        : useCmpProfile
+        : useCmpProfile || isCapsule
           ? createIenContinuousRoundedRectanglePath(width, height, [topLeft, topRight, bottomRight, bottomLeft])
           : generatePath(width, height, options);
       const uniform =

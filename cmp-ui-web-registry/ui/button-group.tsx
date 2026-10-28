@@ -11,9 +11,9 @@ const buttonGroupVariants = cva(
     variants: {
       orientation: {
         horizontal:
-          "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-r-lg! [&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none",
+          "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-r-lg! [&>*:not(:first-child)]:rounded-l-none [&>:not([data-slot=button-group]):not([data-slot=button-group-separator])+*:not([data-slot=button-group]):not([data-slot=button-group-separator])]:-ml-px [&>*:not(:last-child)]:rounded-r-none",
         vertical:
-          "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-b-lg! flex-col [&>*:not(:first-child)]:rounded-t-none [&>*:not(:first-child)]:border-t-0 [&>*:not(:last-child)]:rounded-b-none",
+          "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-b-lg! flex-col [&>*:not(:first-child)]:rounded-t-none [&>:not([data-slot=button-group]):not([data-slot=button-group-separator])+*:not([data-slot=button-group]):not([data-slot=button-group-separator])]:-mt-px [&>*:not(:last-child)]:rounded-b-none",
       },
     },
     defaultVariants: {
@@ -26,7 +26,7 @@ function ButtonGroup({
   tone: ienTone,
   useGradient: ienUseGradient,
   className,
-  orientation,
+  orientation = "horizontal",
   ...props
 }: React.ComponentProps<"div"> &
   VariantProps<typeof buttonGroupVariants> &

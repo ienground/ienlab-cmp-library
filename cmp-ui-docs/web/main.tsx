@@ -336,7 +336,7 @@ function ComponentPage({
   function selectColorSection(id: string) {
     setActiveColorSection(id);
     setMobileNavigationOpen(false);
-    window.scrollTo({ top: 0, behavior: "instant" });
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   const filteredCatalog = useMemo(() => {
@@ -608,7 +608,7 @@ function ComponentPage({
                   {isProjectsPage
                     ? "프로젝트별 디자인 토큰과 레지스트리 프리셋을 관리합니다."
                     : isColorSchemePage
-                    ? "CMP 색상 생성과 웹 프로젝트의 컬러 스킴을 확인합니다."
+                    ? "같은 팔레트를 편집하고 CMP와 웹 프로젝트에 적용합니다."
                     : activeComponent.description}
                 </p>
               </div>
@@ -753,10 +753,13 @@ function ComponentPage({
               aria-label="컬러 스킴 생성기"
             >
               <ColorSchemeBuilder
-                view={activeColorSection}
                 themeMode={resolvedTheme}
                 iconStyle={iconStyle}
                 onIconStyleChange={setIconStyle}
+                onApplyWeb={(mode) => {
+                  onThemeModeChange(mode);
+                  navigate("/web/button/preview");
+                }}
                 onApply={(schemes, mode) => {
                   setCustomColorSchemes({
                     light: { ...schemes.light },
