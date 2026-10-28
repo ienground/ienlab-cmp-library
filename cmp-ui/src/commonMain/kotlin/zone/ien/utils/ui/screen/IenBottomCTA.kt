@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
@@ -41,6 +42,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
@@ -58,6 +60,8 @@ import zone.ien.utils.ui.interactive.buttonHeight
 import zone.ien.utils.ui.interactive.buttonPadding
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import com.kyant.capsule.ContinuousRoundedRectangle
+import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.cupertinoScaffoldBottomBar
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenButtonState
@@ -197,6 +201,7 @@ internal fun IenBottomCTAButtonContent(
 /**
  * 화면 하단에 고정되거나 스크롤 시 사라지는 등의 동작을 지원하는 기본 단일 CTA(Call To Action) 버튼 컴포저블입니다.
  * Duo의 오른쪽 바에서는 아이콘 아래에 텍스트를 세로로 쌓은 pill 형태의 버튼을 사용합니다.
+ * 액세서리가 있으면 넓은 하단 영역을 유지하고 버튼만 오른쪽 시스템 영역에 정렬합니다.
  *
  * @param text 버튼 텍스트
  * @param onClick 버튼 클릭 이벤트 콜백
@@ -244,6 +249,7 @@ fun IenBottomCTA(
 ) {
     IenBottomCTAContainer(
         modifier = modifier,
+        background = background,
         hasSafeAreaPadding = hasSafeAreaPadding,
         hasPaddingBottom = hasPaddingBottom,
         fixed = fixed,
@@ -424,6 +430,7 @@ fun IenDoubleBottomCTA(
 
     IenBottomCTAContainer(
         modifier = modifier,
+        background = background,
         hasSafeAreaPadding = hasSafeAreaPadding,
         hasPaddingBottom = hasPaddingBottom,
         fixed = fixed,
@@ -665,9 +672,11 @@ internal fun ienBottomCTASideBounds(
     return IntRect(left, top, left + barWidth, bottom)
 }
 
+@OptIn(ExperimentalCupertinoApi::class)
 @Composable
 private fun IenBottomCTAContainer(
     modifier: Modifier,
+    background: IenBottomCTABackground,
     hasSafeAreaPadding: Boolean,
     hasPaddingBottom: Boolean,
     fixed: Boolean,
@@ -682,11 +691,13 @@ private fun IenBottomCTAContainer(
     bottomAccessory: (@Composable () -> Unit)?,
     content: @Composable () -> Unit,
 ) {
+    val inheritedPlacement = LocalIenBarPlacement.current
     val placement = if (LocalIenSideBarEnabled.current) {
-        (LocalIenBarPlacement.current ?: rememberIenBarPlacement().value)
+        (inheritedPlacement ?: rememberIenBarPlacement().value)
             ?.takeIf { it.sideWidth > IenTheme.spacing.none }
     } else null
     val isSideBar = placement != null
+    val hasWideAccessories = isSideBar && (topAccessory != null || bottomAccessory != null)
     var delayedVisible by remember(showAfterDelay) { mutableStateOf(showAfterDelay == null) }
     LaunchedEffect(show, showAfterDelay) {
         if (show && showAfterDelay != null) {
@@ -716,6 +727,7 @@ private fun IenBottomCTAContainer(
         else IenTheme.spacing.none
     val defaultBottom = IenTheme.spacing.lg
     val safeBottom = when {
+        hasWideAccessories && placement != null && !fixed && inheritedPlacement == null -> placement.controlsBottom
         isSideBar -> IenTheme.spacing.none
         !hasPaddingBottom -> IenTheme.spacing.none
         hasSafeAreaPadding -> if (navigationBottom > defaultBottom) navigationBottom else defaultBottom
@@ -728,6 +740,7 @@ private fun IenBottomCTAContainer(
         CompositionLocalProvider(LocalIenBarPlacement provides placement) {
             Box(
                 modifier = modifier
+                    .then(if (isSideBar && !fixed && !hasWideAccessories) Modifier.cupertinoScaffoldBottomBar() else Modifier)
                     .then(if (fixed && placement != null) Modifier.layout { measurable, constraints ->
                         if (constraints.hasBoundedWidth && constraints.hasBoundedHeight) {
                             val bounds = ienBottomCTASideBounds(
@@ -739,16 +752,23 @@ private fun IenBottomCTAContainer(
                                 centerFromRight = placement.centerFromRight.roundToPx(),
                                 keyboardBottom = keyboardBottom.roundToPx(),
                             )
-                            val child = measurable.measure(Constraints(maxWidth = bounds.width, maxHeight = bounds.height))
+                            val child = measurable.measure(Constraints(
+                                maxWidth = if (hasWideAccessories) constraints.maxWidth else bounds.width,
+                                maxHeight = bounds.height,
+                            ))
                             layout(constraints.maxWidth, constraints.maxHeight) {
-                                child.place(bounds.left + (bounds.width - child.width) / 2, bounds.bottom - child.height)
+                                val left = if (hasWideAccessories) 0 else bounds.left + (bounds.width - child.width) / 2
+                                child.place(left, bounds.bottom - child.height)
                             }
                         } else {
                             val child = measurable.measure(constraints)
                             layout(child.width, child.height) { child.place(0, 0) }
                         }
                     } else Modifier)
-                    .then(if (placement != null) Modifier.width(placement.sideWidth) else Modifier.fillMaxWidth())
+                    .then(if (placement != null && !hasWideAccessories) Modifier.width(placement.sideWidth) else Modifier.fillMaxWidth())
+                    .then(if (hasWideAccessories && background == IenBottomCTABackground.Default) {
+                        Modifier.background(IenTheme.colors.background)
+                    } else Modifier)
                     .graphicsLayer {
                         this.alpha = alpha
                         scaleX = scale
@@ -759,17 +779,28 @@ private fun IenBottomCTAContainer(
             ) {
                 Column(
                     modifier = Modifier
-                        .then(if (isSideBar) Modifier.width(48.dp + IenTheme.spacing.xxs * 2) else Modifier)
+                        .then(if (isSideBar && !hasWideAccessories) Modifier.width(48.dp + IenTheme.spacing.xxs * 2) else Modifier.fillMaxWidth())
                         .padding(
-                            start = if (isSideBar) IenTheme.spacing.xxs else IenTheme.spacing.md,
+                            start = if (isSideBar && !hasWideAccessories) IenTheme.spacing.xxs else IenTheme.spacing.md,
                             top = if (isSideBar) IenTheme.spacing.xxs else IenTheme.spacing.md,
-                            end = if (isSideBar) IenTheme.spacing.xxs else IenTheme.spacing.md,
-                            bottom = if (isSideBar) IenTheme.spacing.xxs else bottomPadding,
+                            end = if (isSideBar && !hasWideAccessories) IenTheme.spacing.xxs else IenTheme.spacing.md,
+                            bottom = if (isSideBar) safeBottom + IenTheme.spacing.xxs else bottomPadding,
                         ),
                     verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
                 ) {
                     topAccessory?.invoke()
-                    content()
+                    if (hasWideAccessories && placement != null) {
+                        Box(Modifier.fillMaxWidth(), contentAlignment = AbsoluteAlignment.CenterRight) {
+                            Box(Modifier
+                                .width(48.dp)
+                                .absoluteOffset(x = IenTheme.spacing.md + 24.dp - placement.centerFromRight),
+                            ) {
+                                content()
+                            }
+                        }
+                    } else {
+                        content()
+                    }
                     bottomAccessory?.invoke()
                 }
             }

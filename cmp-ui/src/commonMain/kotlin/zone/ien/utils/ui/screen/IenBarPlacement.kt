@@ -66,11 +66,12 @@ internal fun ienSideBarContentPadding(
     bottom: Dp,
     topBarHeight: Dp,
     sideBarWidth: Dp,
+    bottomBarHeight: Dp = 0.dp,
 ): PaddingValues = PaddingValues.Absolute(
     left = left,
     top = maxOf(top, topBarHeight),
     right = maxOf(right, sideBarWidth),
-    bottom = bottom,
+    bottom = maxOf(bottom, bottomBarHeight),
 )
 
 internal fun ienSideBarSnackbarOffset(
@@ -125,11 +126,12 @@ internal fun IenSideBarScaffold(
                 }
             }.map {
                 it.measure(Constraints(
-                    maxWidth = sideWidth,
+                    maxWidth = width,
                     maxHeight = (controlsHeight - sideTopHeight - if (sideTopHeight > 0) gap else 0).coerceAtLeast(0),
                 ))
             }
             val bottomHeight = bottom.maxOfOrNull { it.height } ?: 0
+            val wideBottomHeight = bottom.filter { it.width > sideWidth }.maxOfOrNull { it.height } ?: 0
             val topHeight = top.filterNot { it.first }.maxOfOrNull { it.second.height } ?: 0
             val hasBars = topHeight > 0 || top.any { it.first } || bottomHeight > 0
             val right = maxOf(
@@ -143,12 +145,13 @@ internal fun IenSideBarScaffold(
                 bottom = contentWindowInsets.getBottom(this).toDp(),
                 topBarHeight = topHeight.toDp(),
                 sideBarWidth = if (hasBars) sideWidth.toDp() else 0.dp,
+                bottomBarHeight = if (wideBottomHeight > 0) wideBottomHeight.toDp() + placement.controlsBottom else 0.dp,
             )
             val body = subcompose("content") { content(padding) }.map { it.measure(loose) }
             val overlayConstraints = Constraints(maxWidth = width - right, maxHeight = height)
             val snackbar = subcompose("snackbar", snackbarHost).map { it.measure(overlayConstraints) }
             val fab = subcompose("floating", floating).map { it.measure(overlayConstraints) }
-            val bottomInset = contentWindowInsets.getBottom(this)
+            val bottomInset = padding.calculateBottomPadding().roundToPx()
             val floatingGap = 16.dp.roundToPx()
             val fabHeight = fab.filter { it.width > 0 && it.height > 0 }
                 .maxOfOrNull { it.height } ?: 0

@@ -268,7 +268,8 @@ fun IenNavigationBar2(
     visible: Boolean = true,
     content: @Composable RowScope.() -> Unit,
 ) {
-    val isSideBar = LocalIenBarPlacement.current?.sideWidth?.let { it > 0.dp } == true
+    val sideBarWidth = LocalIenBarPlacement.current?.sideWidth ?: 0.dp
+    val isSideBar = sideBarWidth > 0.dp
     val navBarPadding = windowInsets.asPaddingValues()
     val layoutDirection = LocalLayoutDirection.current
 
@@ -298,7 +299,7 @@ fun IenNavigationBar2(
             ),
             targetOffsetY = { it },
         ),
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.then(if (isSideBar) Modifier.width(sideBarWidth) else Modifier.fillMaxWidth()),
     ) {
         Box(
             modifier = Modifier
@@ -359,7 +360,8 @@ private fun IenNavigationBarImpl(
     visible: Boolean,
     content: @Composable RowScope.() -> Unit,
 ) {
-    val isSideBar = LocalIenBarPlacement.current?.sideWidth?.let { it > 0.dp } == true
+    val sideBarWidth = LocalIenBarPlacement.current?.sideWidth ?: 0.dp
+    val isSideBar = sideBarWidth > 0.dp
     val navBarPadding = windowInsets.asPaddingValues()
     val layoutDirection = LocalLayoutDirection.current
     val itemBounds = remember { mutableStateMapOf<Int, NavigationBarItemBounds>() }
@@ -413,7 +415,7 @@ private fun IenNavigationBarImpl(
                 ),
                 targetOffsetY = { it },
             ),
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier.then(if (isSideBar) Modifier.width(sideBarWidth) else Modifier.fillMaxWidth())
         ) {
             Box(
                 modifier = Modifier

@@ -3,6 +3,7 @@ package zone.ien.utils.example.ui.screens.bottomcta
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,12 +21,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.utils.adaptive.component.AdaptiveBackButton
+import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
+import zone.ien.utils.adaptive.screen.AdaptiveScaffold
+import zone.ien.utils.adaptive.screen.AdaptiveTopAppBar
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.interactive.IenSegmentedControl
 import zone.ien.utils.ui.interactive.IenSegmentedControlItem
 import zone.ien.utils.ui.interactive.IenSwitch
@@ -40,12 +49,17 @@ import zone.ien.utils.ui.screen.IenFixedDoubleBottomCTA
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.screen.IenTopBar
 import zone.ien.utils.ui.screen.isIenSideBarLayout
+import zone.ien.utils.ui.screen.isIenSideBarAvailable
+import zone.ien.utils.ui.screen.TopBarMode
 
 @Composable
 fun BottomCTATestScreen(
     modifier: Modifier = Modifier,
     navigateBack: () -> Unit,
 ) {
+    var renderer by rememberSaveable { mutableStateOf("adaptive") }
+    var accessory by rememberSaveable { mutableStateOf(false) }
+    var acknowledged by rememberSaveable { mutableStateOf(false) }
     var type by rememberSaveable { mutableStateOf("single") }
     var placement by rememberSaveable { mutableStateOf("scaffold") }
     var loading by rememberSaveable { mutableStateOf(false) }
@@ -54,7 +68,16 @@ fun BottomCTATestScreen(
     var rtl by rememberSaveable { mutableStateOf(false) }
     var text by rememberSaveable { mutableStateOf("") }
     var result by rememberSaveable { mutableStateOf("아직 누른 버튼이 없습니다.") }
-    val state = IenButtonState(enabled = enabled, loading = loading)
+    val state = IenButtonState(enabled = enabled && (!accessory || acknowledged), loading = loading)
+    val topAccessory: (@Composable () -> Unit)? = if (accessory) {
+        {
+            IenCircleCheckbox(
+                checked = acknowledged,
+                onCheckedChange = { acknowledged = it },
+                label = "안내 내용을 확인했으며 이 작업을 진행하는 데 동의합니다.",
+            )
+        }
+    } else null
     val icon: (@Composable () -> Unit)? = if (showIcon) {
         { IenIcon(icon = IconData.Vector(SystemIcons.Check), contentDescription = null) }
     } else null
@@ -63,18 +86,14 @@ fun BottomCTATestScreen(
 
     IenTheme {
         CompositionLocalProvider(LocalLayoutDirection provides if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr) {
-            IenScaffold(
+            BottomCTATestScaffold(
                 modifier = modifier,
-                topBar = {
-                    IenTopBar(
-                        title = "BottomCTA 테스트",
-                        navigationIcon = { IenCloseButton(onClick = navigateBack) },
-                    )
-                },
+                renderer = renderer,
+                navigateBack = navigateBack,
                 bottomBar = if (placement == "scaffold") {
                     {
                         if (type == "single") {
-                            IenBottomCTA(text = "확인", onClick = primaryClick, state = state, icon = icon)
+                            IenBottomCTA(text = "확인", onClick = primaryClick, state = state, icon = icon, topAccessory = topAccessory)
                         } else {
                             IenDoubleBottomCTA(
                                 primaryText = "확인",
@@ -85,6 +104,7 @@ fun BottomCTATestScreen(
                                 secondaryState = state,
                                 primaryIcon = icon,
                                 primaryButtonWeight = 2f,
+                                topAccessory = topAccessory,
                             )
                         }
                     }
@@ -99,10 +119,20 @@ fun BottomCTATestScreen(
                         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
                     ) {
                         Text(
-                            if (isIenSideBarLayout) "현재 배치: Duo 오른쪽 세로 CTA" else "현재 배치: 일반 하단 CTA",
+                            if (isIenSideBarAvailable) "현재 배치: Duo 오른쪽 세로 CTA" else "현재 배치: 일반 하단 CTA",
                             style = IenTheme.typography.title3,
                         )
                         Text("Duo를 접고 펼쳐 배치 전환과 시스템 표시기·카메라 영역의 겹침을 확인하세요.")
+                        IenSegmentedControl(
+                            items = listOf(
+                                IenSegmentedControlItem("adaptive", "Adaptive 상단 바"),
+                                IenSegmentedControlItem("plain", "Adaptive 기본"),
+                                IenSegmentedControlItem("ien", "IenScaffold"),
+                            ),
+                            value = renderer,
+                            onChange = { renderer = it },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
                         IenSegmentedControl(
                             items = listOf(
                                 IenSegmentedControlItem("single", "단일 CTA"),
@@ -137,6 +167,10 @@ fun BottomCTATestScreen(
                             Text("RTL 배치", Modifier.weight(1f))
                             IenSwitch(checked = rtl, onCheckedChange = { rtl = it })
                         }
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Text("동의 액세서리 표시", Modifier.weight(1f))
+                            IenSwitch(checked = accessory, onCheckedChange = { accessory = it })
+                        }
                         IenTextField(
                             value = text,
                             onValueChange = { text = it },
@@ -156,9 +190,11 @@ fun BottomCTATestScreen(
                                 state = state,
                                 icon = icon,
                                 fixedAboveKeyboard = true,
+                                topAccessory = topAccessory,
                             )
                         } else {
                             IenFixedDoubleBottomCTA(
+                                topAccessory = topAccessory,
                                 leftButtonWeight = 1f,
                                 rightButtonWeight = 2f,
                                 leftButton = {
@@ -177,5 +213,51 @@ fun BottomCTATestScreen(
                 }
             }
         }
+    }
+}
+
+
+@OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
+@Composable
+private fun BottomCTATestScaffold(
+    modifier: Modifier,
+    renderer: String,
+    navigateBack: () -> Unit,
+    bottomBar: (@Composable () -> Unit)?,
+    content: @Composable (PaddingValues) -> Unit,
+) {
+    if (renderer == "adaptive") {
+        AdaptiveTopAppBarScaffold(
+            modifier = modifier,
+            title = { Text("BottomCTA 테스트") },
+            navigationIcon = { AdaptiveBackButton(onClick = navigateBack) },
+            topBarMode = TopBarMode.Static,
+            backdrop = rememberDefaultBackdrop(),
+            bottomBar = bottomBar,
+        ) { padding, _ -> content(padding) }
+    } else if (renderer == "plain") {
+        AdaptiveScaffold(
+            modifier = modifier,
+            topBar = {
+                AdaptiveTopAppBar(
+                    title = { Text("BottomCTA 테스트") },
+                    navigationIcon = { AdaptiveBackButton(onClick = navigateBack) },
+                )
+            },
+            bottomBar = bottomBar,
+            content = content,
+        )
+    } else {
+        IenScaffold(
+            modifier = modifier,
+            topBar = {
+                IenTopBar(
+                    title = "BottomCTA 테스트",
+                    navigationIcon = { IenCloseButton(onClick = navigateBack) },
+                )
+            },
+            bottomBar = bottomBar,
+            content = content,
+        )
     }
 }

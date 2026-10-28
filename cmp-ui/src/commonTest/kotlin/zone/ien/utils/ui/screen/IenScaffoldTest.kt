@@ -8,6 +8,23 @@ import kotlin.test.assertTrue
 
 class IenScaffoldTest {
     @Test
+    fun wideBottomCTAReservesAccessoryAreaBelowContent() {
+        val padding = ienSideBarContentPadding(
+            0.dp, 0.dp, 72.dp, 24.dp, 48.dp, 72.dp, bottomBarHeight = 180.dp,
+        )
+        assertEquals(180.dp, padding.calculateBottomPadding())
+        assertEquals(72.dp, padding.calculateRightPadding(LayoutDirection.Ltr))
+    }
+
+    @Test
+    fun bottomReservationKeepsLargerSystemInset() {
+        val padding = ienSideBarContentPadding(
+            0.dp, 0.dp, 72.dp, 200.dp, 48.dp, 72.dp, bottomBarHeight = 180.dp,
+        )
+        assertEquals(200.dp, padding.calculateBottomPadding())
+    }
+
+    @Test
     fun sideBarSnackbarStaysAboveFloatingButton() {
         val layoutHeight = 800
         val bottomInset = 24
