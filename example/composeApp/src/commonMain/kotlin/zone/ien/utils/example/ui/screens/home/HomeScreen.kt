@@ -107,6 +107,7 @@ private val menuItems = listOf(
     HomeMenuItem("Auth Form", RootRoute.AuthForm, Color(0xFF3182F6)),
     HomeMenuItem("Scrolling Bubble", RootRoute.ScrollingBubble, Color(0xFF3949AB)),
     HomeMenuItem("Permission Screen", RootRoute.Permission, Color(0xFF00897B)),
+    HomeMenuItem("BottomCTA 테스트", RootRoute.BottomCTATest, Color(0xFF3182F6)),
 )
 
 @Suppress("FrequentlyChangingValue")

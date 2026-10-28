@@ -51,6 +51,7 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.screen.LocalBackdrop
+import zone.ien.utils.adaptive.screen.LocalAdaptiveSideBarLayout
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.LocalBackButtonIcon
 import zone.ien.utils.icon.LocalButtonProviderDefault
@@ -1265,8 +1266,11 @@ fun AdaptiveBackButton(
             },
             cupertino = {
                 CupertinoLiquidIconButton(
-                    modifier = modifier
-                        .padding(horizontal = IenTheme.spacing.md)
+                    modifier = (if (LocalAdaptiveSideBarLayout.current) {
+                        modifier
+                    } else {
+                        modifier.padding(horizontal = IenTheme.spacing.md)
+                    })
                         .graphicsLayer {
                             this.alpha = alpha
                             this.compositingStrategy = CompositingStrategy.ModulateAlpha

@@ -33,6 +33,7 @@ import zone.ien.utils.example.ui.screens.auth.FirebaseAuthScreen
 import zone.ien.utils.example.ui.screens.auth.AuthFormScreen
 import zone.ien.utils.example.ui.screens.scrollingbubble.ScrollingBubbleScreen
 import zone.ien.utils.example.ui.screens.permission.PermissionScreen
+import zone.ien.utils.example.ui.screens.bottomcta.BottomCTATestScreen
 import zone.ien.utils.navigation.BaseNavDisplay
 import zone.ien.utils.navigation.getConfig
 import zone.ien.utils.navigation.ienPaneAnimation
@@ -59,6 +60,7 @@ sealed interface RootRoute: NavKey {
     @Serializable data object AuthForm: RootRoute
     @Serializable data object ScrollingBubble: RootRoute
     @Serializable data object Permission: RootRoute
+    @Serializable data object BottomCTATest: RootRoute
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -201,6 +203,9 @@ fun RootNavigationGraph(
                 PermissionScreen(
                     navigateBack = { backStack.navigateBack() },
                 )
+            }
+            entry<RootRoute.BottomCTATest> {
+                BottomCTATestScreen(navigateBack = { backStack.navigateBack() })
             }
         }
     )
