@@ -16,6 +16,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.material3.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -68,6 +70,7 @@ import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.view.IenTooltipBox
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 
@@ -109,6 +112,26 @@ private enum class CtaIconAreaState {
     None,
     Icon,
     Spinner,
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun IenBottomCTAButtonTooltip(
+    text: String,
+    modifier: Modifier = Modifier,
+    content: @Composable (Modifier) -> Unit,
+) {
+    if (isIenSideBarLayout && text.isNotBlank()) {
+        IenTooltipBox(
+            modifier = modifier,
+            label = text,
+            positioning = TooltipAnchorPosition.Left,
+        ) {
+            content(Modifier)
+        }
+    } else {
+        content(modifier)
+    }
 }
 
 @Composable
@@ -204,7 +227,7 @@ internal fun IenBottomCTAButtonContent(
 
 /**
  * 화면 하단에 고정되거나 스크롤 시 사라지는 등의 동작을 지원하는 기본 단일 CTA(Call To Action) 버튼 컴포저블입니다.
- * Duo의 오른쪽 바에서는 원형 아이콘 버튼을 사용하며, 텍스트는 접근성 이름으로 제공합니다.
+ * Duo의 오른쪽 바에서는 원형 아이콘 버튼을 사용하며, 텍스트는 접근성 이름과 길게 누를 때 표시하는 툴팁으로 제공합니다.
  * 액세서리가 있으면 넓은 하단 영역을 유지하고 버튼만 오른쪽 시스템 영역에 정렬합니다.
  *
  * @param text 버튼 텍스트
@@ -267,28 +290,30 @@ fun IenBottomCTA(
         topAccessory = topAccessory,
         bottomAccessory = bottomAccessory,
     ) {
-        IenButtonContainer(
-            onClick = onClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = if (isIenSideBarLayout) 48.dp else IenButtonSize.Large.buttonHeight())
-                .then(if (isIenSideBarLayout) Modifier.semantics { contentDescription = text } else Modifier),
-            variant = variant,
-            tone = tone,
-            state = state,
-            shape = ContinuousRoundedRectangle(if (isIenSideBarLayout) IenTheme.radius.full else IenTheme.radius.default),
-            contentPadding = if (isIenSideBarLayout) PaddingValues(
-                horizontal = IenTheme.spacing.xxs,
-                vertical = IenTheme.spacing.xxs,
-            ) else IenButtonSize.Large.buttonPadding(),
-            colors = IenButtonDefault.colors(variant = variant, tone = tone),
-            scalePressed = 0.975f,
-        ) {
-            IenBottomCTAButtonContent(
-                text = text,
-                loading = state.loading,
-                icon = icon,
-            )
+        IenBottomCTAButtonTooltip(text = text, modifier = Modifier.fillMaxWidth()) { buttonModifier ->
+            IenButtonContainer(
+                onClick = onClick,
+                modifier = buttonModifier
+                    .fillMaxWidth()
+                    .heightIn(min = if (isIenSideBarLayout) 48.dp else IenButtonSize.Large.buttonHeight())
+                    .then(if (isIenSideBarLayout) Modifier.semantics { contentDescription = text } else Modifier),
+                variant = variant,
+                tone = tone,
+                state = state,
+                shape = ContinuousRoundedRectangle(if (isIenSideBarLayout) IenTheme.radius.full else IenTheme.radius.default),
+                contentPadding = if (isIenSideBarLayout) PaddingValues(
+                    horizontal = IenTheme.spacing.xxs,
+                    vertical = IenTheme.spacing.xxs,
+                ) else IenButtonSize.Large.buttonPadding(),
+                colors = IenButtonDefault.colors(variant = variant, tone = tone),
+                scalePressed = 0.975f,
+            ) {
+                IenBottomCTAButtonContent(
+                    text = text,
+                    loading = state.loading,
+                    icon = icon,
+                )
+            }
         }
     }
 }
@@ -519,29 +544,30 @@ fun RowScope.IenBottomCTAButton(
     variant: IenButtonVariant = IenButtonVariant.Fill,
     tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
-    IenButtonContainer(
-        onClick = onClick,
-        modifier = modifier
-            .weight(1f)
-            .fillMaxWidth()
-            .heightIn(min = if (isIenSideBarLayout) LocalIenSideBarCTAHeight.current else IenButtonSize.Large.buttonHeight())
-            .then(if (isIenSideBarLayout) Modifier.semantics { contentDescription = text } else Modifier),
-        variant = variant,
-        tone = tone,
-        state = state,
-        shape = ContinuousRoundedRectangle(if (isIenSideBarLayout) IenTheme.radius.full else IenTheme.radius.default),
-        contentPadding = if (isIenSideBarLayout) PaddingValues(
-            horizontal = IenTheme.spacing.xxs,
-            vertical = IenTheme.spacing.xxs,
-        ) else IenButtonSize.Large.buttonPadding(),
-        colors = IenButtonDefault.colors(variant = variant, tone = tone),
-        scalePressed = 0.975f,
-    ) {
-        IenBottomCTAButtonContent(
-            text = text,
-            loading = state.loading,
-            icon = icon,
-        )
+    IenBottomCTAButtonTooltip(text = text, modifier = modifier.weight(1f)) { buttonModifier ->
+        IenButtonContainer(
+            onClick = onClick,
+            modifier = buttonModifier
+                .fillMaxWidth()
+                .heightIn(min = if (isIenSideBarLayout) LocalIenSideBarCTAHeight.current else IenButtonSize.Large.buttonHeight())
+                .then(if (isIenSideBarLayout) Modifier.semantics { contentDescription = text } else Modifier),
+            variant = variant,
+            tone = tone,
+            state = state,
+            shape = ContinuousRoundedRectangle(if (isIenSideBarLayout) IenTheme.radius.full else IenTheme.radius.default),
+            contentPadding = if (isIenSideBarLayout) PaddingValues(
+                horizontal = IenTheme.spacing.xxs,
+                vertical = IenTheme.spacing.xxs,
+            ) else IenButtonSize.Large.buttonPadding(),
+            colors = IenButtonDefault.colors(variant = variant, tone = tone),
+            scalePressed = 0.975f,
+        ) {
+            IenBottomCTAButtonContent(
+                text = text,
+                loading = state.loading,
+                icon = icon,
+            )
+        }
     }
 }
 
