@@ -11,7 +11,7 @@ android {
     namespace = "zone.ien.utils.example"
     compileSdk {
         version = release(libs.versions.android.compileSdk.get().toInt()) {
-            minorApiLevel = 1
+            minorApiLevel = libs.versions.android.compileSdkMinor.get().toInt()
         }
     }
 

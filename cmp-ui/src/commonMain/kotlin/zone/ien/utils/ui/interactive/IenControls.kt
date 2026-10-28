@@ -42,9 +42,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.RangeSlider
-import androidx.compose.material3.RangeSliderState
 import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderState
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -169,10 +167,10 @@ fun IenSlider(
         if (label != null) {
             Text(label, modifier = Modifier.weight(0.8f), style = IenTheme.typography.body2)
         }
-        val sliderState = remember(steps, valueRange) { SliderState(value, steps, valueRange) }
-        sliderState.value = value.coerceIn(valueRange)
         Slider(
-            state = sliderState,
+            value = value.coerceIn(valueRange),
+            valueRange = valueRange,
+            steps = steps,
             onValueChange = onValueChange,
             modifier = Modifier
                 .weight(1.4f)
@@ -212,7 +210,10 @@ fun IenSlider(
             },
             track = { sliderState ->
                 IenSliderTrack(
-                    fraction = sliderState.coercedValueAsFraction,
+                    fraction = ienRangeSliderFraction(
+                        value = sliderState.value,
+                        valueRange = valueRange,
+                    ),
                     tickFractions = remember(steps) { ienSliderTickFractions(steps) },
                     enabled = enabled,
                 )
@@ -285,13 +286,10 @@ fun IenRangeSlider(
         if (label != null) {
             Text(label, modifier = Modifier.weight(0.8f), style = IenTheme.typography.body2)
         }
-        val sliderState = remember(steps, valueRange) {
-            RangeSliderState(value.start, value.endInclusive, steps, valueRange)
-        }
-        sliderState.startValue = value.start.coerceIn(valueRange)
-        sliderState.endValue = value.endInclusive.coerceIn(valueRange)
         RangeSlider(
-            state = sliderState,
+            value = value.start.coerceIn(valueRange)..value.endInclusive.coerceIn(valueRange),
+            valueRange = valueRange,
+            steps = steps,
             onValueChange = onValueChange,
             modifier = Modifier
                 .weight(1.4f)
@@ -313,8 +311,8 @@ fun IenRangeSlider(
                 )
                 .offset { IntOffset(x = shakeOffset.value.roundToInt(), y = 0) },
             enabled = enabled,
-            startThumbInteractionSource = startInteractionSource,
-            endThumbInteractionSource = endInteractionSource,
+            startInteractionSource = startInteractionSource,
+            endInteractionSource = endInteractionSource,
             colors = SliderDefaults.colors(
                 thumbColor = Color.Transparent,
                 disabledThumbColor = Color.Transparent,
@@ -338,12 +336,12 @@ fun IenRangeSlider(
             track = { rangeSliderState ->
                 IenRangeSliderTrack(
                     startFraction = ienRangeSliderFraction(
-                        value = rangeSliderState.startValue,
-                        valueRange = rangeSliderState.trackRange,
+                        value = rangeSliderState.activeRangeStart,
+                        valueRange = valueRange,
                     ),
                     endFraction = ienRangeSliderFraction(
-                        value = rangeSliderState.endValue,
-                        valueRange = rangeSliderState.trackRange,
+                        value = rangeSliderState.activeRangeEnd,
+                        valueRange = valueRange,
                     ),
                     tickFractions = remember(steps) { ienSliderTickFractions(steps) },
                     enabled = enabled,
