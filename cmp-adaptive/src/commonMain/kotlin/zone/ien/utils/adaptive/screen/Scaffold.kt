@@ -166,6 +166,7 @@ fun AdaptiveScaffold(
             CompositionLocalProvider(
                 LocalBackdrop provides backdrop,
                 LocalCupertinoRightSystemArea provides ownsRightSystemArea,
+                LocalIenSideBarEnabled provides ownsRightSystemArea,
                 LocalAdaptiveSideBarLayout provides isSideBar,
             ) {
                 CupertinoScaffold(
@@ -459,6 +460,7 @@ fun AdaptiveTopAppBarScaffold(
             CompositionLocalProvider(
                 LocalBackdrop provides it.backdrop,
                 LocalCupertinoRightSystemArea provides ownsRightSystemArea,
+                LocalIenSideBarEnabled provides ownsRightSystemArea,
                 LocalAdaptiveSideBarLayout provides isSideBar,
             ) {
                 CupertinoScaffold(

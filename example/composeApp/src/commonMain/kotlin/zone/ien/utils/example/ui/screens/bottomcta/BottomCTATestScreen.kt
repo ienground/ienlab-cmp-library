@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.utils.utils.copy
+import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.adaptive.screen.AdaptiveScaffold
@@ -90,6 +92,7 @@ fun BottomCTATestScreen(
                 modifier = modifier,
                 renderer = renderer,
                 navigateBack = navigateBack,
+                onTopBarAction = { result = it },
                 bottomBar = if (placement == "scaffold") {
                     {
                         if (type == "single") {
@@ -133,6 +136,13 @@ fun BottomCTATestScreen(
                             onChange = { renderer = it },
                             modifier = Modifier.fillMaxWidth(),
                         )
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Text("Scaffold 중첩", Modifier.weight(1f))
+                            IenSwitch(
+                                checked = renderer == "nested",
+                                onCheckedChange = { renderer = if (it) "nested" else "adaptive" },
+                            )
+                        }
                         IenSegmentedControl(
                             items = listOf(
                                 IenSegmentedControlItem("single", "단일 CTA"),
@@ -223,14 +233,45 @@ private fun BottomCTATestScaffold(
     modifier: Modifier,
     renderer: String,
     navigateBack: () -> Unit,
+    onTopBarAction: (String) -> Unit,
     bottomBar: (@Composable () -> Unit)?,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    if (renderer == "adaptive") {
+    val actions = listOf(
+        ActionMenuItem.IconMenuItem.ShownIfRoom(
+            title = "테스트 액션",
+            icon = IconData.Vector(SystemIcons.Check),
+            onClick = { onTopBarAction("상단바 액션을 눌렀습니다.") },
+        ),
+    )
+    val primaryAction = ActionMenuItem.IconMenuItem.AlwaysShown(
+        title = "저장",
+        icon = IconData.Vector(SystemIcons.Check),
+        onClick = { onTopBarAction("상단바 저장 버튼을 눌렀습니다.") },
+    )
+    if (renderer == "nested") {
+        AdaptiveScaffold(modifier = modifier, bottomBar = bottomBar) { outerPadding ->
+            AdaptiveTopAppBarScaffold(
+                modifier = Modifier.fillMaxSize(),
+                title = { Text("중첩 Scaffold 테스트") },
+                navigationIcon = { AdaptiveBackButton(onClick = navigateBack) },
+                actions = actions,
+                primaryAction = primaryAction,
+                topBarMode = TopBarMode.Static,
+            ) { innerPadding, _ ->
+                content(innerPadding.copy(bottom = maxOf(
+                    innerPadding.calculateBottomPadding(),
+                    outerPadding.calculateBottomPadding(),
+                )))
+            }
+        }
+    } else if (renderer == "adaptive") {
         AdaptiveTopAppBarScaffold(
             modifier = modifier,
             title = { Text("BottomCTA 테스트") },
             navigationIcon = { AdaptiveBackButton(onClick = navigateBack) },
+            actions = actions,
+            primaryAction = primaryAction,
             topBarMode = TopBarMode.Static,
             backdrop = rememberDefaultBackdrop(),
             bottomBar = bottomBar,

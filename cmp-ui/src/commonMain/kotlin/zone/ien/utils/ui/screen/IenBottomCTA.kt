@@ -41,13 +41,14 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
@@ -66,6 +67,14 @@ import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.icon.IconData
+import zone.ien.utils.icon.SystemIcons
+
+private val LocalIenSideBarCTAHeight = staticCompositionLocalOf { 48.dp }
+
+internal fun ienSideBarCTAHeight(weight: Float, minimumWeight: Float) =
+    48.dp * (weight / minimumWeight)
 
 /**
  * 화면 하단 고정 CTA 버튼 영역의 배경 처리 스타일을 정의하는 열거형 클래스입니다.
@@ -109,19 +118,14 @@ internal fun IenBottomCTAButtonContent(
     icon: (@Composable () -> Unit)?,
 ) {
     if (isIenSideBarLayout) {
-        IenProvideTextStyle(IenTheme.typography.body2, LocalContentColor.current) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
-            ) {
-                if (loading || icon != null) {
-                    Box(Modifier.size(IenTheme.icon.md), contentAlignment = Alignment.Center) {
-                        if (loading) IenLoaderPrimitive(color = LocalContentColor.current)
-                        else icon?.invoke()
-                    }
-                }
-                Text(text, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
+        Box(
+            modifier = Modifier.size(IenTheme.icon.lg),
+            contentAlignment = Alignment.Center,
+            propagateMinConstraints = true,
+        ) {
+            if (loading) IenLoaderPrimitive(color = LocalContentColor.current)
+            else if (icon != null) icon()
+            else IenIcon(icon = IconData.Vector(SystemIcons.Check))
         }
         return
     }
@@ -200,7 +204,7 @@ internal fun IenBottomCTAButtonContent(
 
 /**
  * 화면 하단에 고정되거나 스크롤 시 사라지는 등의 동작을 지원하는 기본 단일 CTA(Call To Action) 버튼 컴포저블입니다.
- * Duo의 오른쪽 바에서는 아이콘 아래에 텍스트를 세로로 쌓은 pill 형태의 버튼을 사용합니다.
+ * Duo의 오른쪽 바에서는 원형 아이콘 버튼을 사용하며, 텍스트는 접근성 이름으로 제공합니다.
  * 액세서리가 있으면 넓은 하단 영역을 유지하고 버튼만 오른쪽 시스템 영역에 정렬합니다.
  *
  * @param text 버튼 텍스트
@@ -267,14 +271,15 @@ fun IenBottomCTA(
             onClick = onClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = IenButtonSize.Large.buttonHeight()),
+                .heightIn(min = if (isIenSideBarLayout) 48.dp else IenButtonSize.Large.buttonHeight())
+                .then(if (isIenSideBarLayout) Modifier.semantics { contentDescription = text } else Modifier),
             variant = variant,
             tone = tone,
             state = state,
             shape = ContinuousRoundedRectangle(if (isIenSideBarLayout) IenTheme.radius.full else IenTheme.radius.default),
             contentPadding = if (isIenSideBarLayout) PaddingValues(
                 horizontal = IenTheme.spacing.xxs,
-                vertical = IenTheme.spacing.xs,
+                vertical = IenTheme.spacing.xxs,
             ) else IenButtonSize.Large.buttonPadding(),
             colors = IenButtonDefault.colors(variant = variant, tone = tone),
             scalePressed = 0.975f,
@@ -359,7 +364,9 @@ fun IenDoubleBottomCTA(
                 variant = if (isIenSideBarLayout) IenButtonVariant.Line else IenButtonVariant.Weak,
                 tone = IenSemanticTone.Neutral,
                 state = secondaryState,
-                icon = secondaryIcon,
+                icon = secondaryIcon ?: if (isIenSideBarLayout) ({
+                    IenIcon(icon = IconData.Vector(SystemIcons.Close))
+                }) else null,
             )
         },
         rightButton = {
@@ -376,7 +383,7 @@ fun IenDoubleBottomCTA(
 /**
  * 커스텀 좌/우 버튼 슬롯을 받아 화면 하단에 듀얼 CTA 버튼 영역을 구성하는 컴포저블입니다.
  *
- * Duo의 오른쪽 바에서는 버튼을 세로로 쌓고, 일반 하단 바에서는 너비 비율을 적용합니다.
+ * Duo에서는 작은 버튼을 원형으로 배치하고 높이에 비율을 적용하며, 일반 하단 바에서는 너비 비율을 적용합니다.
  * 한쪽 슬롯이 null이면 남은 버튼 영역이 비율과 관계없이 전체 너비를 차지합니다.
  * 두 슬롯이 모두 null이면 버튼 영역을 표시하지 않습니다.
  *
@@ -445,9 +452,22 @@ fun IenDoubleBottomCTA(
         bottomAccessory = bottomAccessory,
     ) {
         if (isIenSideBarLayout) {
+            val minimumWeight = if (hasBothButtons) minOf(leftButtonWeight, rightButtonWeight) else 1f
             Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs)) {
-                if (leftButton != null) Row(Modifier.fillMaxWidth(), content = leftButton)
-                if (rightButton != null) Row(Modifier.fillMaxWidth(), content = rightButton)
+                if (leftButton != null) {
+                    CompositionLocalProvider(LocalIenSideBarCTAHeight provides ienSideBarCTAHeight(
+                        if (hasBothButtons) leftButtonWeight else 1f, minimumWeight,
+                    )) {
+                        Row(Modifier.fillMaxWidth(), content = leftButton)
+                    }
+                }
+                if (rightButton != null) {
+                    CompositionLocalProvider(LocalIenSideBarCTAHeight provides ienSideBarCTAHeight(
+                        if (hasBothButtons) rightButtonWeight else 1f, minimumWeight,
+                    )) {
+                        Row(Modifier.fillMaxWidth(), content = rightButton)
+                    }
+                }
             }
         } else {
             Row(
@@ -504,14 +524,15 @@ fun RowScope.IenBottomCTAButton(
         modifier = modifier
             .weight(1f)
             .fillMaxWidth()
-            .heightIn(min = IenButtonSize.Large.buttonHeight()),
+            .heightIn(min = if (isIenSideBarLayout) LocalIenSideBarCTAHeight.current else IenButtonSize.Large.buttonHeight())
+            .then(if (isIenSideBarLayout) Modifier.semantics { contentDescription = text } else Modifier),
         variant = variant,
         tone = tone,
         state = state,
         shape = ContinuousRoundedRectangle(if (isIenSideBarLayout) IenTheme.radius.full else IenTheme.radius.default),
         contentPadding = if (isIenSideBarLayout) PaddingValues(
             horizontal = IenTheme.spacing.xxs,
-            vertical = IenTheme.spacing.xs,
+            vertical = IenTheme.spacing.xxs,
         ) else IenButtonSize.Large.buttonPadding(),
         colors = IenButtonDefault.colors(variant = variant, tone = tone),
         scalePressed = 0.975f,

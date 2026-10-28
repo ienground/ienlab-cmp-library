@@ -18,6 +18,7 @@ import zone.ien.inputactions.InputActionsHost
 import zone.ien.utils.adaptive.screen.AdaptiveScaffold
 import zone.ien.utils.adaptive.screen.LocalAdaptiveSideBarLayout
 import zone.ien.utils.ui.screen.isIenSideBarAvailable
+import zone.ien.utils.ui.screen.LocalIenSideBarEnabled
 import zone.ien.utils.ui.feedback.IenToastProvider
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.dragToKeyboardClose
@@ -42,6 +43,7 @@ fun RootWrapper(
     val isKeyboardVisible by keyboardAsState()
     val backdrop = rememberDefaultBackdrop()
     val ownsRightSystemArea = LocalCupertinoRightSystemArea.current
+    val sideBarEnabled = LocalIenSideBarEnabled.current
     val isSideBar = ownsRightSystemArea && isIenSideBarAvailable
 
     IenToastProvider(modifier = modifier) {
@@ -52,6 +54,7 @@ fun RootWrapper(
                 ) {
                     CompositionLocalProvider(
                         LocalCupertinoRightSystemArea provides ownsRightSystemArea,
+                        LocalIenSideBarEnabled provides sideBarEnabled,
                         LocalAdaptiveSideBarLayout provides isSideBar,
                     ) {
                         Box(

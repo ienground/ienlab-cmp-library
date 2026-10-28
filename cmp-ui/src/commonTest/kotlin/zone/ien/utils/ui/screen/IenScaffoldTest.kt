@@ -8,6 +8,19 @@ import kotlin.test.assertTrue
 
 class IenScaffoldTest {
     @Test
+    fun duoCTASmallestButtonIsCircularAndLargerButtonUsesHeightRatio() {
+        assertEquals(48.dp, ienSideBarCTAHeight(1f, 1f))
+        assertEquals(96.dp, ienSideBarCTAHeight(2f, 1f))
+        assertEquals(72.dp, ienSideBarCTAHeight(3f, 2f))
+    }
+
+    @Test
+    fun duoCTAEqualWeightsKeepBothButtonsCircular() {
+        assertEquals(48.dp, ienSideBarCTAHeight(2f, 2f))
+        assertEquals(48.dp, ienSideBarCTAHeight(0.5f, 0.5f))
+    }
+
+    @Test
     fun wideBottomCTAReservesAccessoryAreaBelowContent() {
         val padding = ienSideBarContentPadding(
             0.dp, 0.dp, 72.dp, 24.dp, 48.dp, 72.dp, bottomBarHeight = 180.dp,
