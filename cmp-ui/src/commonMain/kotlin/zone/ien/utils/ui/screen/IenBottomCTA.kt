@@ -831,7 +831,9 @@ private fun IenBottomCTAContainer(
                             start = if (isSideBar && !hasWideAccessories) IenTheme.spacing.xxs else IenTheme.spacing.md,
                             top = if (isSideBar) IenTheme.spacing.xxs else IenTheme.spacing.md,
                             end = if (isSideBar && !hasWideAccessories) IenTheme.spacing.xxs else IenTheme.spacing.md,
-                            bottom = if (isSideBar) safeBottom + IenTheme.spacing.xxs else bottomPadding,
+                            bottom = if (isSideBar) {
+                                (if (fixed) safeBottom else bottomPadding) + IenTheme.spacing.xxs
+                            } else bottomPadding,
                         ),
                     verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
                 ) {
