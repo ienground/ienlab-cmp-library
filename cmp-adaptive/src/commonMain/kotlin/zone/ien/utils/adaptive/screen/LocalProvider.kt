@@ -13,6 +13,8 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
  */
 val LocalBackdrop: ProvidableCompositionLocal<LayerBackdrop?> = staticCompositionLocalOf { null }
 
+internal val LocalAdaptiveSideBarLayout = staticCompositionLocalOf { false }
+
 /**
  * 현재 상단바 어댑테이션 설정을 제공하는 CompositionLocal
  *

@@ -10,7 +10,11 @@ plugins {
 kotlin {
     android {
         namespace = "zone.ien.utils.ui"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        compileSdk {
+            version = release(libs.versions.android.compileSdk.get().toInt()) {
+                minorApiLevel = libs.versions.android.compileSdkMinor.get().toInt()
+            }
+        }
         minSdk = libs.versions.android.minSdk.get().toInt()
         androidResources {
             enable = true
@@ -25,8 +29,11 @@ kotlin {
             instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
     }
-    iosArm64()
-    iosSimulatorArm64()
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
+        target.compilations.getByName("main").cinterops.create("ienBarPlacement") {
+            definitionFile.set(project.file("src/nativeInterop/cinterop/ienBarPlacement.def"))
+        }
+    }
     wasmJs {
         browser()
     }

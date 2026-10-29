@@ -168,7 +168,9 @@ fun IenSlider(
             Text(label, modifier = Modifier.weight(0.8f), style = IenTheme.typography.body2)
         }
         Slider(
-            value = value.coerceIn(valueRange.start, valueRange.endInclusive),
+            value = value.coerceIn(valueRange),
+            valueRange = valueRange,
+            steps = steps,
             onValueChange = onValueChange,
             modifier = Modifier
                 .weight(1.4f)
@@ -189,8 +191,6 @@ fun IenSlider(
                     },
                 )
                 .offset { IntOffset(x = shakeOffset.value.roundToInt(), y = 0) },
-            valueRange = valueRange,
-            steps = steps,
             onValueChangeFinished = onValueChangeFinished,
             enabled = enabled,
             interactionSource = sliderInteractionSource,
@@ -210,7 +210,10 @@ fun IenSlider(
             },
             track = { sliderState ->
                 IenSliderTrack(
-                    fraction = sliderState.coercedValueAsFraction,
+                    fraction = ienRangeSliderFraction(
+                        value = sliderState.value,
+                        valueRange = valueRange,
+                    ),
                     tickFractions = remember(steps) { ienSliderTickFractions(steps) },
                     enabled = enabled,
                 )
@@ -285,6 +288,8 @@ fun IenRangeSlider(
         }
         RangeSlider(
             value = value.start.coerceIn(valueRange)..value.endInclusive.coerceIn(valueRange),
+            valueRange = valueRange,
+            steps = steps,
             onValueChange = onValueChange,
             modifier = Modifier
                 .weight(1.4f)
@@ -305,8 +310,6 @@ fun IenRangeSlider(
                     },
                 )
                 .offset { IntOffset(x = shakeOffset.value.roundToInt(), y = 0) },
-            valueRange = valueRange,
-            steps = steps,
             enabled = enabled,
             startInteractionSource = startInteractionSource,
             endInteractionSource = endInteractionSource,
@@ -334,11 +337,11 @@ fun IenRangeSlider(
                 IenRangeSliderTrack(
                     startFraction = ienRangeSliderFraction(
                         value = rangeSliderState.activeRangeStart,
-                        valueRange = rangeSliderState.valueRange,
+                        valueRange = valueRange,
                     ),
                     endFraction = ienRangeSliderFraction(
                         value = rangeSliderState.activeRangeEnd,
-                        valueRange = rangeSliderState.valueRange,
+                        valueRange = valueRange,
                     ),
                     tickFractions = remember(steps) { ienSliderTickFractions(steps) },
                     enabled = enabled,

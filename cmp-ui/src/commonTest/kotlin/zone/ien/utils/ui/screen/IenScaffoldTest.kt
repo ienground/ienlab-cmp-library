@@ -1,10 +1,84 @@
 package zone.ien.utils.ui.screen
 
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.LayoutDirection
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class IenScaffoldTest {
+    @Test
+    fun duoCTASmallestButtonIsCircularAndLargerButtonUsesHeightRatio() {
+        assertEquals(48.dp, ienSideBarCTAHeight(1f, 1f))
+        assertEquals(96.dp, ienSideBarCTAHeight(2f, 1f))
+        assertEquals(72.dp, ienSideBarCTAHeight(3f, 2f))
+    }
+
+    @Test
+    fun duoCTAEqualWeightsKeepBothButtonsCircular() {
+        assertEquals(48.dp, ienSideBarCTAHeight(2f, 2f))
+        assertEquals(48.dp, ienSideBarCTAHeight(0.5f, 0.5f))
+    }
+
+    @Test
+    fun wideBottomCTAReservesAccessoryAreaBelowContent() {
+        val padding = ienSideBarContentPadding(
+            0.dp, 0.dp, 72.dp, 24.dp, 48.dp, 72.dp, bottomBarHeight = 180.dp,
+        )
+        assertEquals(180.dp, padding.calculateBottomPadding())
+        assertEquals(72.dp, padding.calculateRightPadding(LayoutDirection.Ltr))
+    }
+
+    @Test
+    fun bottomReservationKeepsLargerSystemInset() {
+        val padding = ienSideBarContentPadding(
+            0.dp, 0.dp, 72.dp, 200.dp, 48.dp, 72.dp, bottomBarHeight = 180.dp,
+        )
+        assertEquals(200.dp, padding.calculateBottomPadding())
+    }
+
+    @Test
+    fun sideBarSnackbarStaysAboveFloatingButton() {
+        val layoutHeight = 800
+        val bottomInset = 24
+        val fabHeight = 56
+        val floatingGap = 16
+        val snackbarHeight = 48
+        val snackbarOffset = ienSideBarSnackbarOffset(bottomInset, fabHeight, floatingGap)
+        val snackbarTop = layoutHeight - snackbarOffset - snackbarHeight
+        val fabTop = layoutHeight - bottomInset - floatingGap - fabHeight
+
+        assertTrue(snackbarTop + snackbarHeight <= fabTop)
+        assertEquals(96, snackbarOffset)
+    }
+
+    @Test
+    fun sideBarSnackbarKeepsBottomInsetWithoutFloatingButton() {
+        assertEquals(24, ienSideBarSnackbarOffset(bottomInset = 24, fabHeight = 0, floatingGap = 16))
+    }
+
+    @Test
+    fun sideBarReservesRightInsetOnce() {
+        val padding = ienSideBarContentPadding(0.dp, 0.dp, 80.dp, 24.dp, 72.dp, 80.dp)
+        assertEquals(80.dp, padding.calculateRightPadding(LayoutDirection.Ltr))
+        assertEquals(72.dp, padding.calculateTopPadding())
+        assertEquals(24.dp, padding.calculateBottomPadding())
+    }
+
+    @Test
+    fun sideBarStaysOnPhysicalRightInRtl() {
+        val padding = ienSideBarContentPadding(4.dp, 20.dp, 0.dp, 0.dp, 0.dp, 80.dp)
+        assertEquals(80.dp, padding.calculateRightPadding(LayoutDirection.Rtl))
+        assertEquals(4.dp, padding.calculateLeftPadding(LayoutDirection.Rtl))
+        assertEquals(20.dp, padding.calculateTopPadding())
+    }
+
+    @Test
+    fun emptyOuterScaffoldDoesNotReserveAnotherSideBar() {
+        val padding = ienSideBarContentPadding(0.dp, 0.dp, 0.dp, 0.dp, 0.dp, 0.dp)
+        assertEquals(0.dp, padding.calculateRightPadding(LayoutDirection.Ltr))
+    }
+
     @Test
     fun topBlurRemainsHiddenAtScrollStart() {
         assertEquals(0f, resolveLazyTopEdgeProgress(false, null, 48f))
@@ -34,6 +108,26 @@ class IenScaffoldTest {
     @Test
     fun defaultBottomBlurHeightIsCompact() {
         assertEquals(64.dp, IenScaffoldContentEdge().bottomHeight)
+    }
+
+    @Test
+    fun topBlurKeepsConfiguredHeightForCompactTopBar() {
+        assertEquals(168.dp, resolveTopBlurHeight(168.dp, 64.dp))
+    }
+
+    @Test
+    fun topBlurExtendsPastTallTopBarWithoutShorteningFade() {
+        assertEquals(257.44f, resolveTopBlurHeight(168.dp, 160.dp).value, 0.001f)
+    }
+
+    @Test
+    fun topBlurKeepsConfiguredHeightWithoutTopBar() {
+        assertEquals(168.dp, resolveTopBlurHeight(168.dp, 0.dp))
+    }
+
+    @Test
+    fun zeroTopBlurHeightStaysDisabledWithTallTopBar() {
+        assertEquals(0.dp, resolveTopBlurHeight(0.dp, 160.dp))
     }
 
     @Test
