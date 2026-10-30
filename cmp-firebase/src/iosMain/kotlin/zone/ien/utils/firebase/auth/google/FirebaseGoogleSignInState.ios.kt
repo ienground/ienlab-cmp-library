@@ -145,6 +145,7 @@ private suspend fun signInWithGoogleIos(
             }
             return@getCredentialWithUIDelegate
         }
+        if (!continuation.isActive) return@getCredentialWithUIDelegate
 
         val iosAuth = FIRAuth.auth()
         val currentUser = iosAuth.currentUser()

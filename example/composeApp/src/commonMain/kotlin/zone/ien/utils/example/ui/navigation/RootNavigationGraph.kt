@@ -1,7 +1,15 @@
 package zone.ien.utils.example.ui.navigation
 
 import zone.ien.utils.icon.IconStyle
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -25,10 +33,14 @@ import zone.ien.utils.example.ui.screens.auth.FirebaseAuthScreen
 import zone.ien.utils.example.ui.screens.auth.AuthFormScreen
 import zone.ien.utils.example.ui.screens.scrollingbubble.ScrollingBubbleScreen
 import zone.ien.utils.example.ui.screens.permission.PermissionScreen
+import zone.ien.utils.example.ui.screens.bottomcta.BottomCTATestScreen
 import zone.ien.utils.navigation.BaseNavDisplay
 import zone.ien.utils.navigation.getConfig
+import zone.ien.utils.navigation.ienPaneAnimation
 import zone.ien.utils.navigation.navigateBack
+import zone.ien.utils.navigation.rememberIenListDetailSceneStrategy
 import zone.ien.utils.navigation.result.rememberResultStore
+import zone.ien.utils.ui.foundation.IenTheme
 
 @Serializable
 sealed interface RootRoute: NavKey {
@@ -48,8 +60,10 @@ sealed interface RootRoute: NavKey {
     @Serializable data object AuthForm: RootRoute
     @Serializable data object ScrollingBubble: RootRoute
     @Serializable data object Permission: RootRoute
+    @Serializable data object BottomCTATest: RootRoute
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun RootNavigationGraph(
     modifier: Modifier = Modifier,
@@ -58,10 +72,14 @@ fun RootNavigationGraph(
     onIconStyleChange: (IconStyle) -> Unit,
 ) {
     val resultStore = rememberResultStore()
+    val listDetailStrategy = rememberIenListDetailSceneStrategy<RootRoute>()
+    val isListDetailLayout = listDetailStrategy.directive.maxHorizontalPartitions > 1
+    val paneAnimation = ienPaneAnimation()
 
     BaseNavDisplay(
         backStack = backStack,
         modifier = modifier,
+        sceneStrategies = listOf(listDetailStrategy),
         entryProvider = entryProvider {
             entry<RootRoute.Home> {
                 HomeScreen(
@@ -112,16 +130,49 @@ fun RootNavigationGraph(
                     navigateBack = { backStack.navigateBack() }
                 )
             }
-            entry<RootRoute.DesignSystem> {
+            entry<RootRoute.DesignSystem>(
+                metadata = ListDetailSceneStrategy.listPane(
+                    detailPlaceholder = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(IenTheme.colors.background)
+                                .padding(IenTheme.spacing.lg),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "목록에서 컴포넌트를 선택하세요.",
+                                style = IenTheme.typography.body1,
+                                color = IenTheme.colors.textSecondary,
+                            )
+                        }
+                    },
+                ) + ListDetailSceneStrategy.preferredPaneSize(width = 0.4f) + paneAnimation,
+            ) {
                 DesignSystemScreen(
-                    navigateBack = { backStack.navigateBack() },
+                    navigateBack = {
+                        while (backStack.lastOrNull() is RootRoute.DesignSystemComponent) {
+                            backStack.navigateBack()
+                        }
+                        backStack.navigateBack()
+                    },
                     navigateToColor = { backStack.add(RootRoute.ColorTokens) },
                     navigateToComponent = {
-                        backStack.add(RootRoute.DesignSystemComponent(it))
+                        val route = RootRoute.DesignSystemComponent(it)
+                        if (backStack.lastOrNull() != route) {
+                            if (isListDetailLayout) {
+                                while (backStack.lastOrNull() is RootRoute.DesignSystemComponent) {
+                                    backStack.navigateBack()
+                                }
+                            }
+                            backStack.add(route)
+                        }
                     },
                 )
             }
-            entry<RootRoute.DesignSystemComponent> { route ->
+            entry<RootRoute.DesignSystemComponent>(
+                metadata = ListDetailSceneStrategy.detailPane() + paneAnimation,
+            ) { route ->
                 DesignSystemScreen(
                     navigateBack = { backStack.navigateBack() },
                     navigateToColor = { backStack.add(RootRoute.ColorTokens) },
@@ -152,6 +203,9 @@ fun RootNavigationGraph(
                 PermissionScreen(
                     navigateBack = { backStack.navigateBack() },
                 )
+            }
+            entry<RootRoute.BottomCTATest> {
+                BottomCTATestScreen(navigateBack = { backStack.navigateBack() })
             }
         }
     )

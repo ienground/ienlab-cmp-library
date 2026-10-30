@@ -1,12 +1,24 @@
 package zone.ien.utils.adaptive.component
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import zone.ien.hig.adaptive.AdaptiveCheckbox as HigAdaptiveCheckbox
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenCircleCheckbox
 import zone.ien.utils.ui.interactive.IenDotCheckbox
 import zone.ien.utils.ui.interactive.IenLineCheckbox
@@ -36,11 +48,12 @@ fun AdaptiveCheckbox(
             )
         },
         cupertino = {
-            HigAdaptiveCheckbox(
+            CupertinoCheckboxWithLabel(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 modifier = modifier,
                 enabled = enabled,
+                label = label,
             )
         },
     )
@@ -71,11 +84,12 @@ fun AdaptiveDotCheckbox(
             )
         },
         cupertino = {
-            HigAdaptiveCheckbox(
+            CupertinoCheckboxWithLabel(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 modifier = modifier,
                 enabled = enabled,
+                label = label,
             )
         },
     )
@@ -106,12 +120,64 @@ fun AdaptiveLineCheckbox(
             )
         },
         cupertino = {
-            HigAdaptiveCheckbox(
+            CupertinoCheckboxWithLabel(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 modifier = modifier,
                 enabled = enabled,
+                label = label,
             )
         },
     )
+}
+
+@Composable
+private fun CupertinoCheckboxWithLabel(
+    checked: Boolean,
+    onCheckedChange: ((Boolean) -> Unit)?,
+    modifier: Modifier,
+    enabled: Boolean,
+    label: String?,
+) {
+    if (label == null) {
+        HigAdaptiveCheckbox(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            modifier = modifier,
+            enabled = enabled,
+        )
+    } else {
+        val labelledModifier = if (onCheckedChange != null) {
+            Modifier.toggleable(
+                value = checked,
+                enabled = enabled,
+                role = Role.Checkbox,
+                onValueChange = onCheckedChange,
+            )
+        } else {
+            Modifier.semantics(mergeDescendants = true) {
+                role = Role.Checkbox
+                toggleableState = ToggleableState(checked)
+                if (!enabled) disabled()
+            }
+        }
+
+        Row(
+            modifier = modifier.then(labelledModifier),
+            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            HigAdaptiveCheckbox(
+                checked = checked,
+                onCheckedChange = null,
+                modifier = Modifier,
+                enabled = enabled,
+            )
+            Text(
+                text = label,
+                style = IenTheme.typography.body2,
+                color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
+            )
+        }
+    }
 }

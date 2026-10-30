@@ -10,8 +10,10 @@ import zone.ien.firebase.storage.File
  * @return 변환된 File 객체 또는 null (변환 실패 시)
  */
 actual fun PlatformFile.toFile(): File? {
-    val file = androidFile
-    return if (file is AndroidFile.UriWrapper) File(file.uri) else null
+    return when (val file = androidFile) {
+        is AndroidFile.UriWrapper -> File(file.uri)
+        is AndroidFile.FileWrapper -> File(Uri.fromFile(file.file))
+    }
 }
 
 /**

@@ -21,6 +21,11 @@ export function collectRegistry(
   repository: string,
   ancestors?: string[],
 ): Promise<RegistrySourceItem[]>;
+export function buildRegistry(
+  manifestPath: string,
+  repository: string,
+  outputDirectory: string,
+): Promise<void>;
 export function validateRegistry(items: RegistrySourceItem[]): void;
 export function registryModuleAliases(
   items: RegistrySourceItem[],

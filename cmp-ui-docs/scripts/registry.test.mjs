@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  buildRegistry,
   collectRegistry,
   validateRegistry,
   createWebCatalog,
@@ -126,6 +127,129 @@ async function fixture(run) {
     await rm(directory, { recursive: true, force: true });
   }
 }
+
+test("포함 레지스트리를 기존 shadcn 정적 형식으로 생성하고 파일 내용을 포함한다", async () => {
+  await fixture(async (directory) => {
+    const output = path.join(directory, "output");
+    const source = "export function Example() { return null }";
+    await mkdir(path.join(directory, "parts"));
+    await writeFile(
+      path.join(directory, "registry.json"),
+      JSON.stringify({
+        $schema: "https://ui.shadcn.com/schema/registry.json",
+        name: "example",
+        homepage: "https://example.com",
+        include: ["parts/items.json"],
+      }),
+    );
+    await writeFile(
+      path.join(directory, "parts/items.json"),
+      JSON.stringify({
+        items: [
+          {
+            name: "example",
+            title: "Example",
+            type: "registry:ui",
+            files: [
+              {
+                path: "example.tsx",
+                type: "registry:ui",
+                target: "@ui/example.tsx",
+              },
+            ],
+          },
+          {
+            name: "tokens",
+            title: "Tokens",
+            type: "registry:theme",
+          },
+        ],
+      }),
+    );
+    await writeFile(path.join(directory, "parts/example.tsx"), source);
+
+    await buildRegistry(
+      path.join(directory, "registry.json"),
+      directory,
+      output,
+    );
+
+    assert.deepEqual(JSON.parse(await readFile(path.join(output, "registry.json"))), {
+      $schema: "https://ui.shadcn.com/schema/registry.json",
+      name: "example",
+      homepage: "https://example.com",
+      items: [
+        {
+          name: "example",
+          title: "Example",
+          type: "registry:ui",
+          files: [
+            {
+              path: "parts/example.tsx",
+              type: "registry:ui",
+              target: "@ui/example.tsx",
+            },
+          ],
+        },
+        {
+          name: "tokens",
+          title: "Tokens",
+          type: "registry:theme",
+        },
+      ],
+    });
+    assert.deepEqual(JSON.parse(await readFile(path.join(output, "example.json"))), {
+      $schema: "https://ui.shadcn.com/schema/registry-item.json",
+      name: "example",
+      title: "Example",
+      type: "registry:ui",
+      files: [
+        {
+          path: "parts/example.tsx",
+          type: "registry:ui",
+          target: "@ui/example.tsx",
+          content: source,
+        },
+      ],
+    });
+    assert.deepEqual(JSON.parse(await readFile(path.join(output, "tokens.json"))), {
+      $schema: "https://ui.shadcn.com/schema/registry-item.json",
+      name: "tokens",
+      title: "Tokens",
+      type: "registry:theme",
+    });
+  });
+});
+
+test("잘못된 항목 이름은 출력 경로 탈출이나 인덱스 덮어쓰기 전에 거부한다", async () => {
+  for (const name of ["../escape", "registry", "Registry"]) {
+    await fixture(async (directory) => {
+      const output = path.join(directory, "output");
+      await writeFile(
+        path.join(directory, "registry.json"),
+        JSON.stringify({
+          items: [
+            { name: "safe-item", type: "registry:ui" },
+            { name, type: "registry:ui" },
+          ],
+        }),
+      );
+
+      await assert.rejects(
+        buildRegistry(path.join(directory, "registry.json"), directory, output),
+      );
+      await assert.rejects(readFile(path.join(output, "registry.json")), {
+        code: "ENOENT",
+      });
+      await assert.rejects(readFile(path.join(output, "safe-item.json")), {
+        code: "ENOENT",
+      });
+      await assert.rejects(readFile(path.join(directory, "escape.json")), {
+        code: "ENOENT",
+      });
+    });
+  }
+});
 
 test("레지스트리 include를 재귀적으로 읽고 원본 기준 파일 경로를 보존한다", async () => {
   await fixture(async (directory) => {

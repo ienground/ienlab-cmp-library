@@ -8,8 +8,15 @@ plugins {
 kotlin {
     android {
         namespace = "zone.ien.utils.filekit.core"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        compileSdk {
+            version = release(libs.versions.android.compileSdk.get().toInt()) {
+                minorApiLevel = libs.versions.android.compileSdkMinor.get().toInt()
+            }
+        }
         minSdk = libs.versions.android.minSdk.get().toInt()
+
+        withHostTestBuilder {
+        }
     }
     iosArm64()
     iosSimulatorArm64()
@@ -17,6 +24,11 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(libs.bundles.filekit)
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlin.coroutine)
         }
     }
 }

@@ -138,6 +138,7 @@ fun IenTooltipBox(
  * @param modifier 적용할 Modifier
  * @param label 표시할 텍스트
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IenTooltipText(
     modifier: Modifier = Modifier,

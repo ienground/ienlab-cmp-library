@@ -16,12 +16,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -34,9 +36,14 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
+import androidx.compose.material3.adaptive.navigation3.LocalListDetailSceneScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -46,6 +53,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
@@ -311,6 +319,7 @@ import zone.ien.utils.ui.screen.IenFixedBottomCTA
 import zone.ien.utils.ui.screen.IenFixedDoubleBottomCTA
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
+import zone.ien.utils.ui.screen.LocalIenSideBarEnabled
 import zone.ien.utils.ui.screen.IenTooltip
 import zone.ien.utils.ui.screen.IenTooltipClipToEnd
 import zone.ien.utils.ui.screen.IenTooltipMessageAlign
@@ -355,6 +364,7 @@ private data class DesignSystemComponent(
 )
 
 private val DesignSystemComponents = listOf(
+    DesignSystemComponent("prefs-picker", "Prefs Picker", "입력", "설정 항목에서 날짜·시각·기간을 선택하고 확인·취소 동작을 체험합니다."),
     DesignSystemComponent("wheel-picker", "WheelPicker", "입력", "날짜·정확한 시각·시간/분/초 기간을 휠로 선택합니다."),
     DesignSystemComponent("animated-layout", "AnimatedLayout", "레이아웃", "목록 항목이 추가되거나 제거될 때 크기와 표시 상태를 전환합니다."),
     DesignSystemComponent("animated-content", "AnimatedContent", "레이아웃", "상태가 바뀔 때 콘텐츠 전환 애니메이션을 확인합니다."),
@@ -512,6 +522,14 @@ private val ComponentPlaygroundControls = mapOf(
         toggleControl("enabled", "당김 허용", true),
         numberControl("threshold", "갱신 기준 거리", 56, 36, 96),
         numberControl("topPadding", "콘텐츠 상단 여백", 0, 0, 160),
+    ),
+    "prefs-picker" to listOf(
+        disabledControl(),
+        toggleControl("is24Hour", "24시간제", true),
+        toggleControl("showHours", "기간 시 표시", true),
+        toggleControl("showMinutes", "기간 분 표시", true),
+        toggleControl("showSeconds", "기간 초 표시", true),
+        numberControl("maxHours", "기간 최대 시간", 48, 0, 9999),
     ),
     "wheel-picker" to listOf(
         choiceControl("type", "종류", listOf("Date", "Time", "Duration")),
@@ -1385,6 +1403,7 @@ internal fun DesignSystemPlayground(
     }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Preview
 @Composable
 fun DesignSystemScreen(
@@ -1399,62 +1418,80 @@ fun DesignSystemScreen(
         val toastState = LocalIenToastState.current
         val coroutineScope = rememberCoroutineScope()
         val scrollState = rememberScrollState()
-        var query by remember { mutableStateOf("") }
-        var selectedCategory by remember { mutableStateOf("전체") }
+        var query by rememberSaveable { mutableStateOf("") }
+        var selectedCategory by rememberSaveable { mutableStateOf("전체") }
         val selectedComponent = DesignSystemComponents.firstOrNull { it.id == componentId }
+        val paneTarget = LocalListDetailSceneScope.current
+            ?.scaffoldTransitionScope?.scaffoldStateTransition?.targetState
+        val isSplitLayout = paneTarget != null &&
+            paneTarget[ListDetailPaneScaffoldRole.List] != PaneAdaptedValue.Hidden &&
+            paneTarget[ListDetailPaneScaffoldRole.Detail] != PaneAdaptedValue.Hidden
+        val isListPane = selectedComponent == null && isSplitLayout
+        val showBackButton = selectedComponent == null || !isSplitLayout
 
-        IenScaffold(
-            modifier = modifier,
-            contentEdge = IenScaffoldContentEdge(scrollableState = scrollState),
-            topBar = {
-                IenTopBar(
-                    title = selectedComponent?.name ?: "Ien CMP UI",
-                    subtitle = if (selectedComponent == null) {
-                        "토큰 기반 모바일 디자인 시스템"
-                    } else {
-                        selectedComponent.category
-                    },
-                    navigationIcon = {
-                        IenTextButton(onClick = navigateBack) {
-                            Text(if (selectedComponent == null) "닫기" else "목록")
-                        }
-                    },
-                    actions = {
-                        IenTextButton(onClick = navigateToColor) {
-                            Text("컬러 스킴")
-                        }
-                    },
-                )
-            },
-            snackbarHost = {
-                IenSnackbarHost(hostState = snackbarHostState)
-            },
-        ) { contentPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(contentPadding)
-                    .padding(horizontal = IenTheme.spacing.md),
-            ) {
-                Spacer(Modifier.height(IenTheme.spacing.md))
-                if (selectedComponent == null) {
-                    DesignSystemCatalog(
-                        query = query,
-                        onQueryChange = { query = it },
-                        selectedCategory = selectedCategory,
-                        onCategoryChange = { selectedCategory = it },
-                        onComponentClick = navigateToComponent,
-                    )
+        CompositionLocalProvider(
+            LocalIenSideBarEnabled provides (LocalIenSideBarEnabled.current && !isListPane),
+        ) {
+            IenScaffold(
+                modifier = modifier,
+                contentWindowInsets = if (isListPane) {
+                    ScaffoldDefaults.contentWindowInsets.only(WindowInsetsSides.Left + WindowInsetsSides.Vertical)
                 } else {
-                    DesignSystemComponentDetail(
-                        component = selectedComponent,
-                        snackbarHostState = snackbarHostState,
-                        toastState = toastState,
-                        coroutineScope = coroutineScope,
+                    ScaffoldDefaults.contentWindowInsets
+                },
+                contentEdge = IenScaffoldContentEdge(scrollableState = scrollState),
+                topBar = {
+                    IenTopBar(
+                        title = selectedComponent?.name ?: if (isListPane) "Ien UI" else "Ien CMP UI",
+                        subtitle = when {
+                            selectedComponent != null -> selectedComponent.category
+                            isListPane -> null
+                            else -> "토큰 기반 모바일 디자인 시스템"
+                        },
+                        navigationIcon = if (showBackButton) {
+                            {
+                                IenTextButton(onClick = navigateBack) {
+                                    Text(if (selectedComponent == null) "닫기" else "목록")
+                                }
+                            }
+                        } else null,
+                        actions = {
+                            IenTextButton(onClick = navigateToColor) {
+                                Text("컬러 스킴")
+                            }
+                        },
                     )
+                },
+                snackbarHost = {
+                    IenSnackbarHost(hostState = snackbarHostState)
+                },
+            ) { contentPadding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                        .padding(contentPadding)
+                        .padding(horizontal = IenTheme.spacing.md),
+                ) {
+                    Spacer(Modifier.height(IenTheme.spacing.md))
+                    if (selectedComponent == null) {
+                        DesignSystemCatalog(
+                            query = query,
+                            onQueryChange = { query = it },
+                            selectedCategory = selectedCategory,
+                            onCategoryChange = { selectedCategory = it },
+                            onComponentClick = navigateToComponent,
+                        )
+                    } else {
+                        DesignSystemComponentDetail(
+                            component = selectedComponent,
+                            snackbarHostState = snackbarHostState,
+                            toastState = toastState,
+                            coroutineScope = coroutineScope,
+                        )
+                    }
+                    Spacer(Modifier.height(IenTheme.spacing.lg))
                 }
-                Spacer(Modifier.height(IenTheme.spacing.lg))
             }
         }
     }
@@ -1603,6 +1640,7 @@ internal fun DesignSystemComponentPreview(
     controlValues: Map<String, String>,
 ) {
     when (componentId) {
+        "prefs-picker" -> PrefsPickerSection(controlValues)
         "wheel-picker" -> WheelPickerSection(controlValues)
         "animated-layout" -> AnimatedLayoutSection(controlValues)
         "animated-content" -> AnimatedContentSection(controlValues)
@@ -7056,5 +7094,13 @@ fun ActionBarSection(controls: Map<String, String> = emptyMap()) {
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun PrefsPickerSection(controls: Map<String, String> = emptyMap()) {
+    ComponentSection(title = "Prefs Picker") {
+        PrefsPickerContent(controls)
     }
 }

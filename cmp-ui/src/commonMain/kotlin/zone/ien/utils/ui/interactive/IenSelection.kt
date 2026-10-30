@@ -55,6 +55,10 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -802,6 +806,7 @@ fun IenCircleCheckbox(
         modifier = modifier
             .defaultMinSize(minHeight = IenTheme.state.minimumTouchTarget)
             .instantPress(enabled) { isPressed = it }
+            .checkboxSemantics(isChecked = isChecked, enabled = enabled)
             .clickable(
                 enabled = true,
                 interactionSource = interactionSource,
@@ -947,6 +952,7 @@ fun IenDotCheckbox(
         modifier = modifier
             .defaultMinSize(minHeight = IenTheme.state.minimumTouchTarget)
             .instantPress(enabled) { isPressed = it }
+            .checkboxSemantics(isChecked = isChecked, enabled = enabled)
             .clickable(
                 enabled = true,
                 interactionSource = interactionSource,
@@ -1073,6 +1079,7 @@ fun IenLineCheckbox(
         modifier = modifier
             .defaultMinSize(minHeight = IenTheme.state.minimumTouchTarget)
             .instantPress(enabled) { isPressed = it }
+            .checkboxSemantics(isChecked = isChecked, enabled = enabled)
             .clickable(
                 enabled = true,
                 interactionSource = interactionSource,
@@ -1104,3 +1111,9 @@ fun IenLineCheckbox(
         }
     }
 }
+
+private fun Modifier.checkboxSemantics(isChecked: Boolean, enabled: Boolean): Modifier =
+    semantics {
+        toggleableState = ToggleableState(isChecked)
+        if (!enabled) disabled()
+    }

@@ -13,6 +13,10 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -47,6 +51,7 @@ import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.screen.LocalIenTopBarFloatingSlotHiddenRequester
+import zone.ien.utils.ui.screen.LocalIenBarPlacement
 import zone.ien.utils.ui.view.IenTooltipBox
 import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 import zone.ien.utils.ui.primitives.IenIcon
@@ -240,11 +245,10 @@ fun IenActionsMenu(
 
     @Composable
     fun ActionsRow() {
-        Row(
+        IenActionsLayout(
             modifier = Modifier
                 .clipToBounds()
                 .animateContentSize(animationSpec = tween(durationMillis = 110, easing = IenTheme.motion.standardEasing)),
-            verticalAlignment = Alignment.CenterVertically,
         ) {
             menuItems.alwaysShownItems.forEach { item ->
                 ActionItem(item)
@@ -278,12 +282,11 @@ fun IenActionsMenu(
         }
     }
 
-    Row(
+    IenActionsLayout(
         modifier = Modifier
             .wrapContentSize(align = Alignment.TopEnd)
             .graphicsLayer { clip = false }
             .animateContentSizeWithoutClipping(),
-        verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(contentAlignment = Alignment.TopEnd) {
             Box(
@@ -308,6 +311,20 @@ fun IenActionsMenu(
             }
         }
         trailingAction?.let { ActionItem(it) }
+    }
+}
+
+@Composable
+private fun IenActionsLayout(modifier: Modifier, content: @Composable RowScope.() -> Unit) {
+    if (LocalIenBarPlacement.current?.sideWidth?.let { it > 0.dp } == true) {
+        FlowRow(
+            modifier = modifier.width(48.dp),
+            maxItemsInEachRow = 1,
+            horizontalArrangement = Arrangement.Center,
+            content = content,
+        )
+    } else {
+        Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically, content = content)
     }
 }
 

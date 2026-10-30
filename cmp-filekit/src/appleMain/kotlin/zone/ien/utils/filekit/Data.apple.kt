@@ -10,6 +10,8 @@ import zone.ien.firebase.storage.Data
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 actual suspend fun ByteArray.toStorageData(): Data {
+    if (isEmpty()) return Data(NSData())
+
     usePinned { pinned ->
         val data = NSData.create(
             bytes = pinned.addressOf(0),
