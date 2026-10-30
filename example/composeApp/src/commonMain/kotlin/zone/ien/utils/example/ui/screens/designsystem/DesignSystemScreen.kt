@@ -18,8 +18,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -105,15 +108,16 @@ import zone.ien.utils.ui.dialog.IenUpdateAlertDialog
 import zone.ien.utils.ui.feedback.IenBottomSheet
 import zone.ien.utils.ui.feedback.IenBottomSheetOption
 import zone.ien.utils.ui.feedback.IenBottomSheetSelect
-import zone.ien.utils.ui.feedback.IenCircularProgressIndicator
 import zone.ien.utils.ui.feedback.IenCircularWavyProgressIndicator
 import zone.ien.utils.ui.feedback.IenDialog
 import zone.ien.utils.ui.feedback.IenDialogAction
-import zone.ien.utils.ui.feedback.IenLinearProgressIndicator
 import zone.ien.utils.ui.feedback.IenLoader
 import zone.ien.utils.ui.feedback.IenLoaderSize
 import zone.ien.utils.ui.feedback.IenLoadingIndicator
 import zone.ien.utils.ui.feedback.IenProgressBar
+import zone.ien.utils.ui.feedback.IenProgressIndicator
+import zone.ien.utils.ui.feedback.IenProgressIndicatorShape
+import zone.ien.utils.ui.feedback.IenProgressIndicatorVariant
 import zone.ien.utils.ui.feedback.IenPullToRefreshBox
 import zone.ien.utils.ui.feedback.IenProgressBarSize
 import zone.ien.utils.ui.feedback.IenProgressStep
@@ -256,6 +260,8 @@ import zone.ien.utils.ui.list.IenSwipeBoxItem
 import zone.ien.utils.ui.list.IenTableRow
 import zone.ien.utils.ui.list.IenTableRowAlign
 import zone.ien.utils.ui.menu.IenMenu
+import zone.ien.utils.ui.menu.IenDropdownMenu
+import zone.ien.utils.ui.menu.IenDropdownMenuItem
 import zone.ien.utils.ui.menu.IenMenuItem
 import zone.ien.utils.ui.menu.IenModal
 import zone.ien.utils.ui.primitives.IenAssetFrame
@@ -634,9 +640,10 @@ private val ComponentPlaygroundControls = mapOf(
         choiceControl("indicator", "표시기", listOf("Circular", "Loading", "Wavy")),
     ),
     "progress-indicator" to listOf(
-        choiceControl("variant", "형태", listOf("Circular", "Wavy", "Linear")),
-        toggleControl("determinate", "물결 진행률 지정", false),
-        numberControl("progress", "물결 진행률 (%)", 64, 0, 100),
+        choiceControl("variant", "형태", IenProgressIndicatorVariant.entries.map { it.name }),
+        choiceControl("shape", "진행선 모양", IenProgressIndicatorShape.entries.map { it.name }),
+        toggleControl("determinate", "진행률 지정", false),
+        numberControl("progress", "진행률 (%)", 64, 0, 100),
     ),
     "menu" to listOf(
         toggleControl("visible", "메뉴 표시", false),
@@ -824,6 +831,7 @@ private val AdditionalComponentPlaygroundControls = mapOf(
     "button" to listOf(
         choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
         textControl("text", "버튼 레이블", "속성 적용 미리보기"),
+        choiceControl("icon", "아이콘", listOf("None", "Check", "Add", "Edit", "Close"), "None"),
         numberControl("contentPadding", "안쪽 여백", 16, 0, 32),
         numberControl("verticalContentPadding", "상하 안쪽 여백", 8, 0, 32),
     ),
@@ -831,7 +839,10 @@ private val AdditionalComponentPlaygroundControls = mapOf(
         choiceControl("shape", "모양", listOf("Rounded", "Capsule"), "Rounded"),
         numberControl("contentPadding", "안쪽 여백", 16, 0, 32),
     ),
-    "chip" to listOf(textControl("text", "레이블", "Assist")),
+    "chip" to listOf(
+        textControl("text", "레이블", "Assist"),
+        choiceControl("selectedIcon", "선택 아이콘", listOf("Check", "Add", "Edit", "None"), "Check"),
+    ),
     "fab" to listOf(
         choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
         textControl("text", "버튼 레이블", "작성하기"),
@@ -875,7 +886,7 @@ private val AdditionalComponentPlaygroundControls = mapOf(
     ),
     "progress-indicator" to listOf(
         numberControl("strokeWidth", "선 두께", 4, 1, 12),
-        numberControl("waveAmplitude", "물결 진폭 (%)", 100, 0, 200),
+        numberControl("waveAmplitude", "물결 진폭 (%)", 100, 0, 100),
         numberControl("gapSize", "진행 간격", 4, 0, 16),
         numberControl("wavelength", "물결 길이", 40, 8, 100),
         choiceControl("tone", "강조 색상", IenSemanticTone.entries.map { it.name }, "Brand"),
@@ -1183,28 +1194,19 @@ internal fun DesignSystemPlayground(
         IenCard(
             modifier = Modifier.fillMaxWidth(),
             variant = IenCardVariant.Outlined,
-            contentPadding = PaddingValues(IenTheme.spacing.md),
+            contentPadding = PaddingValues(0.dp),
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
-                Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                    Text("미리보기", style = IenTheme.typography.title3)
-                    Text(
-                        "샘플 앱과 웹 문서에서 같은 속성 조정 예제를 사용합니다.",
-                        style = IenTheme.typography.body2,
-                        color = IenTheme.colors.textSecondary,
-                    )
-                    if (showPreviewViewportControls) {
-                        FlowRow(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End,
-                            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-                        ) {
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val sideBySide = maxWidth >= 720.dp
+                val preview: @Composable (Modifier) -> Unit = { modifier ->
+                    Column(
+                        modifier = modifier.background(IenTheme.colors.background),
+                    ) {
+                        if (showPreviewViewportControls) {
                             IenSegmentedControl(
+                                modifier = Modifier.fillMaxWidth().padding(IenTheme.spacing.md),
                                 items = PreviewViewport.entries.map { viewport ->
-                                    IenSegmentedControlItem(
-                                        value = viewport,
-                                        label = viewport.label,
-                                    )
+                                    IenSegmentedControlItem(value = viewport, label = viewport.label)
                                 },
                                 value = previewViewport,
                                 onChange = { viewport ->
@@ -1214,126 +1216,97 @@ internal fun DesignSystemPlayground(
                                 alignment = IenSegmentedControlAlignment.Fluid,
                             )
                         }
-                    }
-                }
-                IenDivider.Horizontal()
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.TopCenter,
-                ) {
-                    Box(
-                        modifier = if (showPreviewViewportControls) {
-                            Modifier.widthIn(max = previewViewport.maxWidth).fillMaxWidth()
-                        } else {
-                            Modifier.fillMaxWidth()
-                        },
-                    ) {
-                        CompositionLocalProvider(
-                            LocalComponentSectionChrome provides false,
-                            LocalComponentVariantShowcase provides true,
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .then(if (sideBySide) Modifier.weight(1f) else Modifier)
+                                .heightIn(min = 240.dp, max = if (sideBySide) 560.dp else 280.dp)
+                                .verticalScroll(rememberScrollState())
+                                .padding(IenTheme.spacing.xl),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            DesignSystemComponentPreview(
-                                componentId = componentId,
-                                snackbarHostState = snackbarHostState,
-                                toastState = toastState,
-                                coroutineScope = coroutineScope,
-                                controlValues = previewValues,
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .widthIn(max = previewViewport.maxWidth)
+                                    .fillMaxWidth(),
+                            ) {
+                                CompositionLocalProvider(
+                                    LocalComponentSectionChrome provides false,
+                                    LocalComponentVariantShowcase provides true,
+                                ) {
+                                    DesignSystemComponentPreview(
+                                        componentId = componentId,
+                                        snackbarHostState = snackbarHostState,
+                                        toastState = toastState,
+                                        coroutineScope = coroutineScope,
+                                        controlValues = previewValues,
+                                    )
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
-
-        IenCard(
-            modifier = Modifier.fillMaxWidth(),
-            variant = IenCardVariant.Outlined,
-            contentPadding = PaddingValues(IenTheme.spacing.md),
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                val controlPanel: @Composable (Modifier) -> Unit = { modifier ->
                     Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                        modifier = modifier
+                            .heightIn(max = if (sideBySide) 560.dp else 320.dp)
+                            .verticalScroll(rememberScrollState())
+                            .padding(IenTheme.spacing.md),
+                        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
                     ) {
-                        Text("속성 조정", style = IenTheme.typography.title3)
-                        Text(
-                            "값을 바꾸면 미리보기에 바로 반영됩니다.",
-                            style = IenTheme.typography.body2,
-                            color = IenTheme.colors.textSecondary,
-                        )
-                    }
-                    IenTextButton(
-                        onClick = {
-                            controls.forEach { control ->
-                                values[control.key] = control.defaultValue
-                            }
-                        },
-                    ) {
-                        Text("초기화")
-                    }
-                }
-                BoxWithConstraints {
-                    val columns = if (maxWidth >= 720.dp) 2 else 1
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        maxItemsInEachRow = columns,
-                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
-                        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
-                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("컨트롤", style = IenTheme.typography.title3, modifier = Modifier.weight(1f))
+                            IenTextButton(
+                                onClick = {
+                                    controls.forEach { control -> values[control.key] = control.defaultValue }
+                                },
+                            ) { Text("초기화") }
+                        }
                         controls.forEach { control ->
-                            Column(
-                                modifier = Modifier.weight(1f),
-                                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
                             ) {
+                                Text(
+                                    control.label,
+                                    style = IenTheme.typography.label1,
+                                    color = IenTheme.colors.textSecondary,
+                                    modifier = Modifier.weight(1f),
+                                )
                                 if (control.isToggle) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(
-                                            control.label,
-                                            style = IenTheme.typography.label1,
-                                            color = IenTheme.colors.textSecondary,
-                                            modifier = Modifier.weight(1f),
-                                        )
-                                        IenSwitch(
-                                            checked = values.booleanValue(
-                                                control.key,
-                                                control.defaultValue.toBooleanStrict(),
-                                            ),
-                                            onCheckedChange = { checked ->
-                                                values[control.key] = checked.toString()
-                                            },
-                                        )
-                                    }
-                                } else if (control.choices.isNotEmpty()) {
-                                    Text(
-                                        control.label,
-                                        style = IenTheme.typography.label1,
-                                        color = IenTheme.colors.textSecondary,
+                                    IenSwitch(
+                                        checked = values.booleanValue(control.key, control.defaultValue.toBooleanStrict()),
+                                        onCheckedChange = { checked -> values[control.key] = checked.toString() },
                                     )
-                                    FlowRow(
-                                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-                                        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-                                    ) {
-                                        control.choices.forEach { choice ->
-                                            IenFilterChip(
-                                                selected = values[control.key] == choice.value,
-                                                onSelectedChange = { selected ->
-                                                    if (selected) values[control.key] = choice.value
-                                                },
-                                            ) {
-                                                Text(choice.label)
+                                } else if (control.choices.isNotEmpty()) {
+                                    var expanded by remember(componentId, control.key) { mutableStateOf(false) }
+                                    Box(Modifier.width(148.dp)) {
+                                        IenButton(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            onClick = { expanded = true },
+                                            size = IenButtonSize.Small,
+                                            variant = IenButtonVariant.Weak,
+                                        ) {
+                                            Text(control.choices.firstOrNull { it.value == values[control.key] }?.label ?: control.defaultValue)
+                                        }
+                                        IenDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                                            control.choices.forEach { choice ->
+                                                IenDropdownMenuItem(
+                                                    text = { Text(choice.label) },
+                                                    onClick = {
+                                                        values[control.key] = choice.value
+                                                        expanded = false
+                                                    },
+                                                )
                                             }
                                         }
                                     }
                                 } else {
-                                    val minimum = control.minValue ?: Int.MIN_VALUE
-                                    val maximum = control.maxValue ?: Int.MAX_VALUE
                                     IenTextField(
                                         value = values[control.key] ?: control.defaultValue,
                                         onValueChange = { value -> values[control.key] = value },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .keyboardDismissAction(),
+                                        modifier = Modifier.width(148.dp).keyboardDismissAction(),
                                         label = control.label,
                                         keyboardOptions = KeyboardOptions(
                                             keyboardType = when {
@@ -1342,11 +1315,25 @@ internal fun DesignSystemPlayground(
                                                 else -> KeyboardType.Number
                                             },
                                         ),
-                                        supportingText = if (control.isTextInput) null else "범위: $minimum–$maximum",
+                                        supportingText = if (control.isTextInput) null else
+                                            "범위: ${control.minValue ?: Int.MIN_VALUE}–${control.maxValue ?: Int.MAX_VALUE}",
                                     )
                                 }
                             }
                         }
+                    }
+                }
+                if (sideBySide) {
+                    Row(Modifier.fillMaxWidth().height(560.dp)) {
+                        preview(Modifier.weight(1f).fillMaxHeight())
+                        Box(Modifier.width(1.dp).fillMaxHeight().background(IenTheme.colors.border))
+                        controlPanel(Modifier.width(288.dp).fillMaxHeight())
+                    }
+                } else {
+                    Column(Modifier.fillMaxWidth()) {
+                        preview(Modifier.fillMaxWidth())
+                        IenDivider.Horizontal()
+                        controlPanel(Modifier.fillMaxWidth())
                     }
                 }
             }
@@ -2396,6 +2383,16 @@ fun ButtonSection(controls: Map<String, String> = emptyMap()) {
                 },
                 display = display,
             ) {
+                val icon = when (controls.enumValue("icon", "None")) {
+                    "Check" -> SystemIcons.Check
+                    "Add" -> SystemIcons.Add
+                    "Edit" -> SystemIcons.Edit
+                    "Close" -> SystemIcons.Close
+                    else -> null
+                }
+                if (icon != null) {
+                    IenIcon(icon = IconData.Vector(icon), contentDescription = null)
+                }
                 Text(controls.textValue("text", "속성 적용 미리보기"))
             }
             if (!LocalComponentVariantShowcase.current) {
@@ -2600,6 +2597,12 @@ fun ChipSection(controls: Map<String, String> = emptyMap()) {
         var selected by remember(controls["selected"]) {
             mutableStateOf(controls.booleanValue("selected", false))
         }
+        val selectedIcon: (@Composable () -> Unit)? = when (controls.enumValue("selectedIcon", "Check")) {
+            "None" -> null
+            "Add" -> { { IenIcon(IconData.Vector(SystemIcons.Add), contentDescription = null) } }
+            "Edit" -> { { IenIcon(IconData.Vector(SystemIcons.Edit), contentDescription = null) } }
+            else -> { { IenChipDefault.SelectedIcon() } }
+        }
         ComponentSection(title = "Chip") {
             when (variant) {
                 "ElevatedAssist" -> IenElevatedAssistChip(
@@ -2617,15 +2620,12 @@ fun ChipSection(controls: Map<String, String> = emptyMap()) {
                     colors = IenChipDefault.colors(
                         tone = if (selected) IenSemanticTone.Success else IenSemanticTone.Brand,
                     ),
-                    leadingIcon = if (selected) {
-                        { IenIcon(IconData.Vector(SystemIcons.Check), contentDescription = null) }
-                    } else {
-                        null
-                    },
+                    selectedIcon = selectedIcon,
                 ) { Text("Filter") }
                 "ElevatedFilter" -> IenElevatedFilterChip(
                     selected = selected,
                     onSelectedChange = { selected = it },
+                    selectedIcon = selectedIcon,
                     state = IenChipState(enabled = !disabled),
                 ) { Text("Elevated Filter") }
                 "Input" -> IenInputChip(
@@ -3127,32 +3127,21 @@ fun LoadingIndicatorSection(controls: Map<String, String> = emptyMap()) {
 fun ProgressIndicatorSection(controls: Map<String, String> = emptyMap()) {
     val progress = controls.intValue("progress", 64).coerceIn(0, 100) / 100f
     IenTheme {
-        val color = playgroundToneColor(controls.enumValue("tone", "Brand"))
         ComponentSection(title = "ProgressIndicator") {
-            when (controls.enumValue("variant", "Circular")) {
-                "Wavy" -> if (controls.booleanValue("determinate", false)) {
-                    IenCircularWavyProgressIndicator(
-                        progress = { progress },
-                        color = color,
-                        gapSize = controls.intValue("gapSize", IenTheme.spacing.xxs.value.toInt()).coerceIn(0, 16).dp,
-                        wavelength = controls.intValue("wavelength", 40).coerceIn(8, 100).dp,
-                        amplitude = { controls.intValue("waveAmplitude", 100).coerceIn(0, 200) / 100f },
-                    )
-                } else {
-                    IenCircularWavyProgressIndicator(
-                        color = color,
-                        gapSize = controls.intValue("gapSize", IenTheme.spacing.xxs.value.toInt()).coerceIn(0, 16).dp,
-                        wavelength = controls.intValue("wavelength", 40).coerceIn(8, 100).dp,
-                        amplitude = controls.intValue("waveAmplitude", 100).coerceIn(0, 200) / 100f,
-                    )
-                }
-                "Linear" -> IenLinearProgressIndicator(color = color)
-                else -> IenCircularProgressIndicator(
-                    color = color,
-                    strokeWidth = controls.intValue("strokeWidth", 4).coerceIn(1, 12).dp,
-                    gapSize = controls.intValue("gapSize", IenTheme.spacing.xxs.value.toInt()).coerceIn(0, 16).dp,
-                )
-            }
+            IenProgressIndicator(
+                variant = IenProgressIndicatorVariant.entries.firstOrNull {
+                    it.name == controls.enumValue("variant", "Circular")
+                } ?: IenProgressIndicatorVariant.Circular,
+                shape = IenProgressIndicatorShape.entries.firstOrNull {
+                    it.name == controls.enumValue("shape", "Flat")
+                } ?: IenProgressIndicatorShape.Flat,
+                tone = controls.toneValue("tone", IenSemanticTone.Brand),
+                progress = if (controls.booleanValue("determinate", false)) ({ progress }) else null,
+                strokeWidth = controls.intValue("strokeWidth", 4).coerceIn(1, 12).dp,
+                gapSize = controls.intValue("gapSize", IenTheme.spacing.xxs.value.toInt()).coerceIn(0, 16).dp,
+                wavelength = controls.intValue("wavelength", 40).coerceIn(8, 100).dp,
+                amplitude = controls.intValue("waveAmplitude", 100).coerceIn(0, 100) / 100f,
+            )
         }
     }
 }

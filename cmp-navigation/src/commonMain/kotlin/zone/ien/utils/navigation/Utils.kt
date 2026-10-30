@@ -9,15 +9,16 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 
 /**
- * 백스택의 마지막 요소를 제거하고 반환합니다.
+ * 이전 화면이 있으면 백스택의 마지막 요소를 제거하고 반환합니다.
  *
- * @return 제거된 요소
- * @throws IllegalStateException 백스택이 비어 있는 경우
+ * 마지막 요소는 루트 화면으로 유지합니다.
+ *
+ * @return 제거된 요소. 백스택의 요소가 1개 이하이면 null
  */
-fun <T : NavKey> NavBackStack<T>.navigateBack(): T {
+fun <T : NavKey> NavBackStack<T>.navigateBack(): T? {
     return Snapshot.withMutableSnapshot {
-        check(isNotEmpty()) {
-            "비어 있는 백스택에서는 뒤로 이동할 수 없습니다."
+        if (size <= 1) {
+            return@withMutableSnapshot null
         }
         removeAt(lastIndex)
     }

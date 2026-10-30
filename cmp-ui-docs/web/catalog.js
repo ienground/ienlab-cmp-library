@@ -94,7 +94,7 @@ export const catalog = [
   component("paragraph", "Paragraph", "콘텐츠", "본문과 보조 문장을 표현하는 문단입니다.", ["IenParagraph"], "content/IenTextContent.kt"),
   component("post", "Post", "콘텐츠", "작성자·날짜·본문으로 구성된 게시물 카드입니다.", ["IenPost"], "content/IenTextContent.kt"),
   component("progress-bar", "ProgressBar", "피드백", "진행률과 두께에 따른 진행 표시를 비교합니다.", ["IenProgressBar"], "feedback/IenProgressComponents.kt"),
-  component("progress-indicator", "ProgressIndicator", "피드백", "원형·물결·선형 진행 표시기를 비교합니다.", ["IenCircularProgressIndicator", "IenCircularWavyProgressIndicator", "IenLinearProgressIndicator"], "feedback/IenProgress.kt"),
+  component("progress-indicator", "ProgressIndicator", "피드백", "원형·물결·선형 진행 표시기를 비교합니다.", ["IenProgressIndicator", "IenProgressIndicatorVariant", "IenProgressIndicatorShape", "IenCircularProgressIndicator", "IenCircularWavyProgressIndicator", "IenLinearProgressIndicator"], "feedback/IenProgress.kt"),
   component("progress-stepper", "ProgressStepper", "피드백", "단계별 진행 상태와 레이아웃 변형을 표시합니다.", ["IenProgressStepper", "IenProgressStep"], "feedback/IenProgressComponents.kt"),
   component("rating", "Rating", "입력", "편집 가능, 읽기 전용, 비활성 별점을 비교합니다.", ["IenRating"], "interactive/IenInputExtras.kt"),
   component("empty", "IenEmpty", "피드백", "표시할 데이터가 없을 때 안내와 후속 동작을 표시합니다.", ["IenEmpty", "IenEmptyIconScope"], "view/Empty.kt"),

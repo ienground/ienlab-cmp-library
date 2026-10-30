@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { catalog } from "../web/catalog.js";
@@ -283,6 +283,10 @@ const typographyFields = Array.from(defaultTokenBlock("IenTypography").matchAll(
 if (typographyFields.length !== Object.keys(typography).length || typographyFields.some((name) => !typography[name])) {
   throw new Error("IenTypography 필드와 추출한 기본 스타일이 다릅니다.");
 }
+const webTypography = webTokens.typography;
+if (!webTypography || typographyFields.some((name) => !webTypography[name]) || Object.keys(webTypography).length !== typographyFields.length) {
+  throw new Error("웹 타이포그래피 단계가 IenTypography와 다릅니다.");
+}
 const motionBlock = defaultTokenBlock("IenMotion");
 const motion = Object.fromEntries(Array.from(motionBlock.matchAll(/val (\w+Millis): Int = (\d+)/g), (match) => [match[1], Number(match[2])]));
 const easing = motionBlock.match(/CubicBezierEasing\(([^)]+)\)/)?.[1];
@@ -296,6 +300,10 @@ const state = Object.fromEntries(Array.from(stateBlock.matchAll(/val (\w+): (?:F
 if (Object.keys(state).length !== Array.from(stateBlock.matchAll(/val \w+:/g)).length) {
   throw new Error("IenStateTokens 기본값을 읽지 못했습니다.");
 }
+webTokens.docs.meta = {
+  light: extractColorTokens("Light").background,
+  dark: extractColorTokens("Dark").background,
+};
 const designTokens = {
   spacing: dimensionTokens("IenSpacing"),
   radius: dimensionTokens("IenRadius"),
@@ -313,12 +321,18 @@ for (const group of ["spacing", "radius", "stroke", "elevation", "icon"]) {
   for (const [name, value] of Object.entries(designTokens[group])) {
     const variable = `ien-${group}-${kebabCase(name)}`;
     variables[variable] = rem(value);
+    if (group === "elevation") {
+      variables[`${variable}-tint`] = `${value > 0 ? Math.min(100, 4.5 * Math.log(value + 1) + 2) : 0}%`;
+    }
     if (group === "spacing" || group === "radius") {
       tailwindTheme[`${group}-ien-${name}`] = `var(--${variable})`;
     }
   }
 }
-for (const [name, style] of Object.entries(typography)) {
+for (const [name, style] of Object.entries(webTypography)) {
+  if (![style.fontSize, style.lineHeight, style.fontWeight].every((value) => Number.isFinite(value) && value > 0)) {
+    throw new Error(`웹 타이포그래피 ${name} 값이 올바르지 않습니다.`);
+  }
   variables[`ien-font-size-${name}`] = rem(style.fontSize);
   variables[`ien-line-height-${name}`] = rem(style.lineHeight);
   variables[`ien-font-weight-${name}`] = String(style.fontWeight);
@@ -350,6 +364,27 @@ variables["ien-button-press-easing"] = `linear(${Array.from({ length: spring.sam
   const frequency = Math.sqrt(spring.stiffness);
   return (1 - (1 + frequency * time) * Math.exp(-frequency * time)).toFixed(6);
 }).join(", ")})`;
+const springDuration = Number.parseFloat(webTokens.motion["spring-duration"]);
+for (const [name, value] of Object.entries(webTokens.motion)) {
+  if (typeof value === "string") {
+    variables[`ien-motion-${name}`] = value;
+    continue;
+  }
+  const duration = value.durationMillis ?? springDuration;
+  if (value.dampingRatio <= 0 || value.dampingRatio > 1 || value.stiffness <= 0 || value.sampleCount < 2 || !Number.isFinite(duration) || duration <= 0) {
+    throw new Error(`웹 스프링 ${name} 설정이 올바르지 않습니다.`);
+  }
+  const frequency = Math.sqrt(value.stiffness);
+  const damped = frequency * Math.sqrt(1 - value.dampingRatio ** 2);
+  variables[`ien-motion-${name}`] = `linear(${Array.from({ length: value.sampleCount }, (_, index) => {
+    if (index === value.sampleCount - 1) return 1;
+    const time = index / (value.sampleCount - 1) * duration / 1000;
+    const response = value.dampingRatio === 1
+      ? 1 - (1 + frequency * time) * Math.exp(-frequency * time)
+      : 1 - Math.exp(-value.dampingRatio * frequency * time) * (Math.cos(damped * time) + value.dampingRatio * frequency / damped * Math.sin(damped * time));
+    return response.toFixed(6);
+  }).join(", ")})`;
+}
 const semanticAliases = {
   "ien-neutral": "var(--ien-text-primary)",
   "ien-on-neutral": "var(--ien-surface-raised)",
@@ -359,26 +394,57 @@ function colorVariables(mode) {
   return {
     ...Object.fromEntries(Object.entries(extractColorTokens(mode)).map(([name, value]) => [`ien-${kebabCase(name)}`, value])),
     ...semanticAliases,
+    ...Object.fromEntries(Object.entries(webTokens.docs.syntax).filter(([name]) => name.startsWith(`${mode.toLowerCase()}-`)).map(([name, value]) => [`ien-syntax-${name.slice(mode.length + 1)}`, value])),
   };
+}
+for (const name of Object.keys(webTokens.docs.syntax).filter((name) => name.startsWith("light-"))) {
+  tailwindTheme[`color-ien-syntax-${name.slice(6)}`] = `var(--ien-syntax-${name.slice(6)})`;
 }
 for (const name of colorRoles) tailwindTheme[`color-ien-${kebabCase(name)}`] = `var(--ien-${kebabCase(name)})`;
 for (const name of Object.keys(webTokens.font)) tailwindTheme[`font-ien-${name}`] = `var(--ien-font-${name})`;
 const tokenCssVars = { theme: tailwindTheme, light: { ...variables, ...colorVariables("Light") }, dark: colorVariables("Dark") };
-const registryPath = path.join(repositoryDirectory, "cmp-ui-web-registry/registry.json");
-const registry = JSON.parse(await readFile(registryPath, "utf8"));
-const button = registry.items.find((item) => item.name === "button");
-if (!button) throw new Error("Button 레지스트리를 찾을 수 없습니다.");
-delete button.cssVars;
-button.registryDependencies = ["@ienlab/tokens"];
-const tokensItem = {
-  name: "tokens",
-  type: "registry:theme",
-  title: "IEN 디자인 토큰",
-  description: "CMP의 색상·spacing·radius·typography·stroke·elevation·icon·motion·state와 웹 컴포넌트 토큰입니다.",
-  cssVars: tokenCssVars,
+// 소비 프로젝트에도 문서 프리뷰와 동일한 CMP 토큰을 설치합니다.
+const registryManifestPath = path.join(repositoryDirectory, "cmp-ui-web-registry/registry.json");
+const registryManifest = JSON.parse(await readFile(registryManifestPath, "utf8"));
+const ienThemeItem = registryManifest.items.find((item) => item.name === "ien-theme");
+if (!ienThemeItem) throw new Error("IEN 공통 테마 항목이 없습니다.");
+const themeAliases = {
+  background: "background", foreground: "text-primary", card: "surface-raised", "card-foreground": "text-primary",
+  popover: "surface-raised", "popover-foreground": "text-primary", primary: "brand", "primary-foreground": "on-brand",
+  secondary: "surface-weak", "secondary-foreground": "text-primary", muted: "surface-weak", "muted-foreground": "text-secondary",
+  accent: "brand-weak", "accent-foreground": "on-brand-weak", destructive: "danger", "destructive-foreground": "on-danger",
+  success: "success", "success-foreground": "on-success", warning: "warning", "warning-foreground": "on-warning",
+  info: "info", "info-foreground": "on-info", invert: "text-primary", "invert-foreground": "surface",
+  border: "border", input: "border", ring: "brand",
+  sidebar: "surface", "sidebar-foreground": "text-primary", "sidebar-primary": "brand",
+  "sidebar-primary-foreground": "on-brand", "sidebar-accent": "brand-weak",
+  "sidebar-accent-foreground": "on-brand-weak", "sidebar-border": "border", "sidebar-ring": "brand",
 };
-registry.items = [...registry.items.filter((item) => item.name !== "tokens"), tokensItem];
-await writeFile(registryPath, JSON.stringify(registry, null, 2) + "\n");
+const aliases = Object.fromEntries(Object.entries(themeAliases).map(([name, role]) => [name, `var(--ien-${role})`]));
+ienThemeItem.cssVars = {
+  theme: {
+    ...tailwindTheme,
+    ...Object.fromEntries(Object.keys(themeAliases).map((name) => [`color-${name}`, `var(--${name})`])),
+    ...Object.fromEntries(["sm", "md", "lg", "xl", "2xl", "3xl", "4xl"].map((name) => [`radius-${name}`, `var(--ien-control-radius-${name})`])),
+    "font-sans": "var(--ien-font-sans)",
+  },
+  light: { ...tokenCssVars.light, ...aliases },
+  dark: { ...tokenCssVars.dark, ...aliases },
+};
+ienThemeItem.css = webTokens.components;
+// REUI 원본의 보조 팔레트가 CMP의 의미적 색상을 덮어쓰지 않게 합니다.
+for (const item of registryManifest.items) {
+  if (item.name === "ien-theme") continue;
+  if (item.meta?.preview) {
+    item.meta.example = await readFile(path.join(repositoryDirectory, "cmp-ui-web-registry", item.meta.preview), "utf8");
+  }
+  for (const mode of ["light", "dark"]) {
+    for (const name of Object.keys(item.cssVars?.[mode] ?? {})) {
+      if (name in aliases) item.cssVars[mode][name] = aliases[name];
+    }
+  }
+}
+await writeFile(registryManifestPath, JSON.stringify(registryManifest, null, 2) + "\n");
 await writeFile(path.join(projectDirectory, "web/generated-design-tokens.json"), JSON.stringify(designTokens, null, 2) + "\n");
 function declarations(tokens) {
   return Object.entries(tokens).map(([name, value]) => `  --${name}: ${value};`).join("\n");
@@ -393,14 +459,81 @@ await writeFile(
   `/* CMP IenTheme와 웹 tokens.json에서 자동 생성합니다. */\n:root {\n${declarations({ ...tokenCssVars.light, ...docsVariables, ...docsColorVariables("light") })}\n}\n\n.dark {\n${declarations({ ...tokenCssVars.dark, ...docsColorVariables("dark") })}\n}\n\n@theme inline {\n${declarations(tailwindTheme)}\n}\n`,
 );
 
-const { collectRegistry, validateRegistry, createWebCatalog, registryModuleAliases } = await import("./registry.mjs");
+const { collectRegistry, validateRegistry, createWebCatalog, registryModuleAliases, sourceApi } = await import("./registry.mjs");
+const { registryItemSchema } = await import("@shadcn/registry/schema");
+const { parseProject, projectRegistryItem } = await import("../web/project-presets.ts");
+const projectsDirectory = path.join(repositoryDirectory, "cmp-ui-web-registry/projects");
+const projectItems = await Promise.all(
+  (await readdir(projectsDirectory))
+    .filter((file) => file.endsWith(".json") && file !== "registry.json")
+    .sort()
+    .map(async (file) => {
+      const source = JSON.parse(await readFile(path.join(projectsDirectory, file), "utf8"));
+      const item = registryItemSchema.parse(projectRegistryItem(parseProject(source)));
+      if (file !== `${item.name}.json`) throw new Error(`${file}: 파일명은 ${item.name}.json이어야 합니다.`);
+      return item;
+    }),
+);
+if (!projectItems.length) throw new Error("프로젝트 프리셋이 없습니다.");
+projectItems.sort((a, b) => (a.meta?.order ?? Infinity) - (b.meta?.order ?? Infinity) || a.name.localeCompare(b.name));
+await writeFile(path.join(projectsDirectory, "registry.json"), JSON.stringify({ "$schema": "https://ui.shadcn.com/schema/registry.json", items: projectItems }, null, 2) + "\n");
 const allItems = await collectRegistry(path.join(repositoryDirectory, "registry.json"), repositoryDirectory);
 validateRegistry(allItems);
-await writeFile(path.join(projectDirectory, "web/generated-web-catalog.json"), JSON.stringify(createWebCatalog(allItems, catalog, repositoryDirectory), null, 2) + "\n");
+await writeFile(path.join(projectDirectory, "web/generated-project-presets.json"), JSON.stringify({ projects: projectItems, defaults: ienThemeItem.cssVars, names: allItems.map((item) => item.name) }, null, 2) + "\n");
+const { createPlaygroundCatalog } = await import("./playground.mjs");
+const playgroundPreviews = Object.fromEntries(await Promise.all(allItems.filter((item) => item.meta?.preview).map(async (item) => [item.name, await readFile(path.resolve(path.dirname(item.manifestPath), item.meta.preview), "utf8")])));
+const playgrounds = createPlaygroundCatalog(allItems, playgroundPreviews);
+const registryVariables = { theme: {}, light: {}, dark: {} };
+for (const item of allItems) {
+  if (item.type === "registry:base") continue;
+  for (const mode of Object.keys(registryVariables)) Object.assign(registryVariables[mode], item.cssVars?.[mode]);
+}
+const tokenCssFile = path.join(projectDirectory, "web/generated-design-tokens.css");
+await writeFile(tokenCssFile, (await readFile(tokenCssFile, "utf8")) + `\n:root {\n${declarations(registryVariables.light)}\n}\n.dark {\n${declarations(registryVariables.dark)}\n}\n@theme inline {\n${declarations(registryVariables.theme)}\n}\n`);
+await writeFile(path.join(projectDirectory, "web/generated-web-catalog.json"), JSON.stringify(createWebCatalog(allItems, catalog, repositoryDirectory).map((item) => ({ ...item, playground: playgrounds[item.id] })), null, 2) + "\n");
 const modulePaths = Object.fromEntries(Object.entries(registryModuleAliases(allItems)).map(([name, source]) => [name, [path.relative(projectDirectory, source)]]));
+const packageImports = new Set();
+for (const item of allItems) {
+  const sources = item.files.map((file) => file.content);
+  if (item.meta?.preview) sources.push(await readFile(path.resolve(path.dirname(item.manifestPath), item.meta.preview), "utf8"));
+  for (const source of sources) {
+    for (const name of sourceApi(source, item.name).imports) if (!name.startsWith(".") && !name.startsWith("@/")) packageImports.add(name);
+    for (const match of source.matchAll(/import\(["']([^"']+)["']\)/g)) if (!match[1].startsWith(".")) packageImports.add(match[1]);
+  }
+}
+const packagePaths = {};
+function typeExport(value) {
+  if (typeof value === "string") return value;
+  if (!value || typeof value !== "object") return undefined;
+  return typeExport(value.types) ?? typeExport(value.import) ?? typeExport(value.default) ?? typeExport(value.require);
+}
+for (const name of packageImports) {
+  const packageName = name.startsWith("@") ? name.split("/").slice(0, 2).join("/") : name.split("/")[0];
+  const packageDirectory = path.join(projectDirectory, "node_modules", packageName);
+  const metadata = JSON.parse(await readFile(path.join(packageDirectory, "package.json"), "utf8"));
+  const subpath = name === packageName ? "." : `.${name.slice(packageName.length)}`;
+  let entry = subpath === "." ? metadata.types ?? metadata.typings ?? typeExport(metadata.exports?.["."] ?? metadata.exports) ?? metadata.main : typeExport(metadata.exports?.[subpath]);
+  if (!entry) for (const [pattern, value] of Object.entries(metadata.exports ?? {})) {
+    if (!pattern.includes("*")) continue;
+    const [prefix, suffix] = pattern.split("*");
+    if (subpath.startsWith(prefix) && subpath.endsWith(suffix)) {
+      entry = typeExport(value)?.replaceAll("*", subpath.slice(prefix.length, suffix.length ? -suffix.length : undefined));
+      break;
+    }
+  }
+  if (!entry) throw new Error(`레지스트리 패키지의 타입 경로가 없습니다: ${name}`);
+  const declaration = entry.replace(/\.mjs$/, ".d.mts").replace(/\.cjs$/, ".d.cts").replace(/(?<!\.d)\.js$/, ".d.ts");
+  if (declaration !== entry) {
+    try { await access(path.resolve(packageDirectory, declaration)); entry = declaration; }
+    catch (error) { if (error.code !== "ENOENT") throw error; }
+  }
+  packagePaths[name] = [`./${path.relative(projectDirectory, path.resolve(packageDirectory, entry))}`];
+}
 await writeFile(path.join(projectDirectory, "tsconfig.registry.json"), JSON.stringify({ compilerOptions: { paths: {
   ...modulePaths,
+  ...packagePaths,
   "@/*": ["./web/*"],
+  "cn/config": ["./node_modules/cn/dist/config.d.ts"],
   "react": ["./node_modules/@types/react"],
   "react/*": ["./node_modules/@types/react/*"],
   "react-dom": ["./node_modules/@types/react-dom"],
