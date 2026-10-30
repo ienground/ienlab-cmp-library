@@ -24,9 +24,7 @@ jobs:
         include:
           - target: iosSimulatorArm64Test
             os: macos-latest
-          - target: jvmTest
-            os: ubuntu-latest
-          - target: linuxX64Test
+          - target: ":cmp-ui-docs:compileKotlinWasmJs"
             os: ubuntu-latest
           - target: testAndroidHostTest
             os: ubuntu-latest

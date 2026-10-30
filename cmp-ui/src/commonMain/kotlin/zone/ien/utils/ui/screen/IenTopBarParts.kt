@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -28,6 +29,10 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
@@ -50,12 +55,15 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
@@ -244,8 +252,16 @@ fun IenTopBar(
     containerColor: Color = Color.Transparent,
     floatingSlots: Boolean = true,
 ) {
+    val placement = LocalIenBarPlacement.current?.takeIf { it.sideWidth > 0.dp }
     val insetPadding = windowInsets.asPaddingValues()
-    val topPadding = insetPadding.calculateTopPadding()
+    val topPadding = maxOf(insetPadding.calculateTopPadding(), placement?.titleTopInset ?: 0.dp)
+    val layoutDirection = LocalLayoutDirection.current
+    val titlePadding = if (placement != null) PaddingValues(
+        start = contentPadding.calculateStartPadding(layoutDirection) + if (layoutDirection == LayoutDirection.Rtl) placement.sideWidth else 0.dp,
+        end = contentPadding.calculateEndPadding(layoutDirection) + if (layoutDirection == LayoutDirection.Ltr) placement.sideWidth else 0.dp,
+        top = contentPadding.calculateTopPadding(),
+        bottom = contentPadding.calculateBottomPadding(),
+    ) else contentPadding
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -256,9 +272,9 @@ fun IenTopBar(
             IenCenterAlignedTopBarContent(
                 title = title,
                 subtitle = subtitle,
-                navigationIcon = navigationIcon,
-                actions = actions,
-                contentPadding = contentPadding,
+                navigationIcon = navigationIcon.takeIf { placement == null },
+                actions = actions.takeIf { placement == null },
+                contentPadding = titlePadding,
                 topPadding = topPadding,
                 contentHeight = contentHeight,
                 floatingSlots = floatingSlots,
@@ -267,9 +283,9 @@ fun IenTopBar(
             IenStartAlignedTopBarContent(
                 title = title,
                 subtitle = subtitle,
-                navigationIcon = navigationIcon,
-                actions = actions,
-                contentPadding = contentPadding,
+                navigationIcon = navigationIcon.takeIf { placement == null },
+                actions = actions.takeIf { placement == null },
+                contentPadding = titlePadding,
                 topPadding = topPadding,
                 contentHeight = contentHeight,
                 floatingSlots = floatingSlots,
@@ -277,6 +293,41 @@ fun IenTopBar(
         }
         if (showDivider) {
             IenDivider.Horizontal()
+        }
+    }
+    if (placement != null && (navigationIcon != null || actions != null)) {
+        val sideBarGap = IenTheme.spacing.xs
+        SubcomposeLayout(
+            modifier = Modifier
+                .layoutId(IenSideTopBar)
+                .width(placement.sideWidth)
+                .verticalScroll(rememberScrollState())
+                .padding(vertical = maxOf(sideBarGap, IenTheme.elevation.floating * 2)),
+        ) { constraints ->
+            val navigationSize = 48.dp.roundToPx()
+            val navigation = subcompose("navigation") {
+                navigationIcon?.let { IenTopBarNavigationIconSlot(it) }
+            }.map {
+                it.measure(Constraints(maxWidth = constraints.maxWidth, maxHeight = navigationSize))
+            }
+            val navigationHeight = if (navigation.any { it.width > 0 && it.height > 0 }) navigationSize else 0
+            val actionPlaceables = subcompose("actions") {
+                actions?.let {
+                    IenTopBarFloatingSlot(enabled = floatingSlots) {
+                        IenTopBarActionsRow(it)
+                    }
+                }
+            }.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
+            val actionsHeight = actionPlaceables.maxOfOrNull { it.height } ?: 0
+            val gap = if (navigationHeight > 0 && actionsHeight > 0) sideBarGap.roundToPx() else 0
+            layout(constraints.maxWidth, navigationHeight + gap + actionsHeight) {
+                navigation.forEach {
+                    it.place((constraints.maxWidth - it.width) / 2, (navigationHeight - it.height) / 2)
+                }
+                actionPlaceables.forEach {
+                    it.place((constraints.maxWidth - it.width) / 2, navigationHeight + gap)
+                }
+            }
         }
     }
 }
@@ -428,6 +479,19 @@ private fun IenTopBarTitleColumn(
 
 @Composable
 private fun IenTopBarActionsRow(actions: @Composable RowScope.() -> Unit) {
+    if (LocalIenBarPlacement.current?.sideWidth?.let { it > 0.dp } == true) {
+        CompositionLocalProvider(LocalContentColor provides IenTheme.colors.textPrimary) {
+            FlowRow(
+                modifier = Modifier.width(48.dp),
+                maxItemsInEachRow = 1,
+                horizontalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
+            ) {
+                actions()
+            }
+        }
+        return
+    }
     Row(
         modifier = Modifier
             .clipToBounds()

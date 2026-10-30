@@ -52,7 +52,7 @@
     <string name="decrease">Decrease</string>
     <string name="increase">Increase</string>
     <string name="number_spinner">Number spinner</string>
-    <string name="current_value">Current value: %1$d</string>
+    <string name="current_value">Current value: %1$s</string>
     <string name="current_rating_status">Current rating</string>
     <string name="rate_stars">Rate with stars</string>
     <string name="rating_score">%1$d stars</string>

@@ -9,12 +9,16 @@ actual fun UpdateAlertDialog(
     modifier: Modifier,
     visible: Boolean,
     appName: String,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    title: String,
+    message: String,
 ) {
     IenUpdateAlertDialog(
         modifier = modifier,
         visible = visible,
         appName = appName,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
+        title = title,
+        message = message,
     )
 }

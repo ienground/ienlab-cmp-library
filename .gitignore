@@ -6,6 +6,8 @@ build
 node_modules
 cmp-ui-docs/web/generated-api-docs.json
 cmp-ui-docs/web/generated-color-scheme.json
+cmp-ui-docs/web/generated-design-tokens.json
+cmp-ui-docs/web/generated-design-tokens.css
 captures
 .externalNativeBuild
 .cxx
@@ -23,3 +25,6 @@ example/iosApp/iosApp/GoogleService-Info.plist
 example/iosApp/KotlinMultiplatformLinkedPackage/
 example/iosApp/iosApp.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
 cmp-ui/MIGRATION.md
+cmp-ui-docs/web/generated-web-catalog.json
+cmp-ui-docs/tsconfig.registry.json
+cmp-ui-docs/web/generated-web-sources.json

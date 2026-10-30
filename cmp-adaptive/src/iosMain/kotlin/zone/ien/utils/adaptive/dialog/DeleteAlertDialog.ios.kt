@@ -2,10 +2,6 @@ package zone.ien.utils.adaptive.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import zone.ien.utils.cmp_ui.generated.resources.Res
-import zone.ien.utils.cmp_ui.generated.resources.delete_dialog_content
-import zone.ien.utils.cmp_ui.generated.resources.delete_dialog_title
-import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.ui.dialog.IenDialogButtonLayout
 
 /**
@@ -25,14 +21,16 @@ actual fun DeleteAlertDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     enabledConfirm: Boolean,
-    buttonLayout: IenDialogButtonLayout
+    buttonLayout: IenDialogButtonLayout,
+    title: String,
+    message: String,
 ) {
     AlertDialog(
         modifier = modifier,
         visible = visible,
         icon = null,
-        title = stringResource(Res.string.delete_dialog_title),
-        message = stringResource(Res.string.delete_dialog_content),
+        title = title,
+        message = message,
         onDismiss = onDismiss,
         styleConfirm = UIAlertActionStyle.Destructive,
         onConfirm = onConfirm,

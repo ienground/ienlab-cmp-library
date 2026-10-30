@@ -18,19 +18,23 @@ import zone.ien.utils.ui.primitives.IenIcon
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
  * @param onDismiss 다이얼로그를 닫기 위한 콜백 함수
+ * @param title 다이얼로그 제목
+ * @param message 다이얼로그 내용
  */
 @Composable
 fun IenNetworkAlertDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     onDismiss: (() -> Unit)?,
+    title: String = stringResource(Res.string.network_dialog_title),
+    message: String = stringResource(Res.string.network_dialog_content),
 ) {
     IenAlertDialog(
         modifier = modifier,
         visible = visible,
         icon = { IenIcon(icon = IconData.Vector(SystemIcons.CloudOff), contentDescription = null) },
-        title = stringResource(Res.string.network_dialog_title),
-        message = stringResource(Res.string.network_dialog_content),
+        title = title,
+        message = message,
         textDismiss = stringResource(Res.string.close),
         onDismiss = onDismiss,
     )

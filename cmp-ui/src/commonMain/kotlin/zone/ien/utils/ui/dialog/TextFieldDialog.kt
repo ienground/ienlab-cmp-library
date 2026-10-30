@@ -141,10 +141,12 @@ fun IenTextFieldDialog(
         }
     }
 
-    val fieldsValid by derivedStateOf {
-        textFields.all { (key, field) ->
-            val text = textStates[key] ?: ""
-            field.valid(text)
+    val fieldsValid by remember(textStates, textFields) {
+        derivedStateOf {
+            textFields.all { (key, field) ->
+                val text = textStates[key] ?: ""
+                field.valid(text)
+            }
         }
     }
     val isConfirmEnabled = enabledConfirm && fieldsValid

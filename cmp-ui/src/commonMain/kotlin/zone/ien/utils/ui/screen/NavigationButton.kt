@@ -2,7 +2,9 @@ package zone.ien.utils.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -25,6 +27,7 @@ import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenIconButton
+import zone.ien.utils.ui.interactive.buttonHeight
 import zone.ien.utils.ui.view.IenTooltipBox
 import zone.ien.utils.ui.primitives.IenIcon
 
@@ -49,11 +52,14 @@ fun IenBackButton(
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
+    val buttonSize = IenButtonSize.Medium.buttonHeight() + IenTheme.spacing.xxs * 2
     IenTooltipBox(
         label = stringResource(Res.string.back)
     ) {
         Box(
             modifier = modifier
+                .sizeIn(maxWidth = buttonSize, maxHeight = buttonSize)
+                .aspectRatio(1f, matchHeightConstraintsFirst = true)
                 .shadow(elevation = IenTheme.elevation.floating, shape = CircleShape, clip = false)
                 .background(IenTheme.colors.surface.copy(alpha = 0.92f), CircleShape)
                 .clip(CircleShape)

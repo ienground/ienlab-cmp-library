@@ -10,7 +10,11 @@ plugins {
 kotlin {
     android {
         namespace = "zone.ien.utils.common"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        compileSdk {
+            version = release(libs.versions.android.compileSdk.get().toInt()) {
+                minorApiLevel = libs.versions.android.compileSdkMinor.get().toInt()
+            }
+        }
         minSdk = libs.versions.android.minSdk.get().toInt()
         androidResources {
             enable = true
@@ -33,6 +37,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            api(libs.compose.ui)
+            implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
             implementation(libs.hig.icons)
         }

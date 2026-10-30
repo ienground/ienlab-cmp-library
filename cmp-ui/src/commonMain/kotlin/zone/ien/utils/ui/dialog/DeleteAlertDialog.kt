@@ -19,6 +19,8 @@ import zone.ien.utils.ui.primitives.IenIcon
  * @param onConfirm 삭제 확인 시 호출되는 콜백 함수
  * @param enabledConfirm 확인 버튼의 활성화 여부
  * @param buttonLayout 확인/취소 버튼의 배치 방향
+ * @param title 다이얼로그 제목
+ * @param message 다이얼로그 내용
  */
 @Composable
 fun IenDeleteAlertDialog(
@@ -28,13 +30,15 @@ fun IenDeleteAlertDialog(
     onConfirm: () -> Unit,
     enabledConfirm: Boolean = true,
     buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Horizontal,
+    title: String = stringResource(Res.string.delete_dialog_title),
+    message: String = stringResource(Res.string.delete_dialog_content),
 ) {
     IenAlertDialog(
         modifier = modifier,
         visible = visible,
         icon = { IenIcon(icon = IconData.Vector(SystemIcons.Delete), contentDescription = null) },
-        title = stringResource(Res.string.delete_dialog_title),
-        message = stringResource(Res.string.delete_dialog_content),
+        title = title,
+        message = message,
         onDismiss = onDismiss,
         onConfirm = onConfirm,
         enabledConfirm = enabledConfirm,

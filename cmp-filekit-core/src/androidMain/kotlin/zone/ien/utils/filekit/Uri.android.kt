@@ -1,5 +1,6 @@
 package zone.ien.utils.filekit
 
+import android.net.Uri
 import io.github.vinceglb.filekit.AndroidFile
 import io.github.vinceglb.filekit.PlatformFile
 
@@ -8,6 +9,8 @@ import io.github.vinceglb.filekit.PlatformFile
  * @return 파일의 URI 문자열
  */
 actual fun PlatformFile.getUri(): String {
-    val file = androidFile
-    return if (file is AndroidFile.UriWrapper) file.uri.toString() else ""
+    return when (val file = androidFile) {
+        is AndroidFile.UriWrapper -> file.uri.toString()
+        is AndroidFile.FileWrapper -> Uri.fromFile(file.file).toString()
+    }
 }

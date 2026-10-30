@@ -122,6 +122,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * @param enabled 활성화 여부. false일 경우 값이 변경되지 않으며 클릭 시 흔들림 효과가 발생합니다.
  * @param label 슬라이더 좌측에 표시될 이름 또는 라벨 텍스트.
  * @param valueLabel 슬라이더 우측에 표시될 현재 값 관련 텍스트.
+ * @param onValueChangeFinished 값 변경이 완료되었을 때 호출되는 콜백 함수.
  */
 @Composable
 fun IenSlider(
@@ -133,6 +134,7 @@ fun IenSlider(
     enabled: Boolean = true,
     label: String? = null,
     valueLabel: String? = null,
+    onValueChangeFinished: (() -> Unit)? = null,
 ) {
     val sliderInteractionSource = remember { MutableInteractionSource() }
     val density = LocalDensity.current
@@ -166,7 +168,9 @@ fun IenSlider(
             Text(label, modifier = Modifier.weight(0.8f), style = IenTheme.typography.body2)
         }
         Slider(
-            value = value.coerceIn(valueRange.start, valueRange.endInclusive),
+            value = value.coerceIn(valueRange),
+            valueRange = valueRange,
+            steps = steps,
             onValueChange = onValueChange,
             modifier = Modifier
                 .weight(1.4f)
@@ -187,8 +191,7 @@ fun IenSlider(
                     },
                 )
                 .offset { IntOffset(x = shakeOffset.value.roundToInt(), y = 0) },
-            valueRange = valueRange,
-            steps = steps,
+            onValueChangeFinished = onValueChangeFinished,
             enabled = enabled,
             interactionSource = sliderInteractionSource,
             colors = SliderDefaults.colors(
@@ -207,7 +210,10 @@ fun IenSlider(
             },
             track = { sliderState ->
                 IenSliderTrack(
-                    fraction = sliderState.coercedValueAsFraction,
+                    fraction = ienRangeSliderFraction(
+                        value = sliderState.value,
+                        valueRange = valueRange,
+                    ),
                     tickFractions = remember(steps) { ienSliderTickFractions(steps) },
                     enabled = enabled,
                 )
@@ -282,6 +288,8 @@ fun IenRangeSlider(
         }
         RangeSlider(
             value = value.start.coerceIn(valueRange)..value.endInclusive.coerceIn(valueRange),
+            valueRange = valueRange,
+            steps = steps,
             onValueChange = onValueChange,
             modifier = Modifier
                 .weight(1.4f)
@@ -302,8 +310,6 @@ fun IenRangeSlider(
                     },
                 )
                 .offset { IntOffset(x = shakeOffset.value.roundToInt(), y = 0) },
-            valueRange = valueRange,
-            steps = steps,
             enabled = enabled,
             startInteractionSource = startInteractionSource,
             endInteractionSource = endInteractionSource,
@@ -331,11 +337,11 @@ fun IenRangeSlider(
                 IenRangeSliderTrack(
                     startFraction = ienRangeSliderFraction(
                         value = rangeSliderState.activeRangeStart,
-                        valueRange = rangeSliderState.valueRange,
+                        valueRange = valueRange,
                     ),
                     endFraction = ienRangeSliderFraction(
                         value = rangeSliderState.activeRangeEnd,
-                        valueRange = rangeSliderState.valueRange,
+                        valueRange = valueRange,
                     ),
                     tickFractions = remember(steps) { ienSliderTickFractions(steps) },
                     enabled = enabled,

@@ -122,7 +122,13 @@ fun KDate.minusMonth(month: Int): KDate = plusMonth(-month)
  */
 fun KDate.plusYear(year: Int): KDate {
     val newYear = this.year + year
-    return copy(year = newYear)
+    val daysInMonth = when (month) {
+        2 -> if (KGregorianCalendar.isLeapYear(newYear)) 29 else 28
+        4, 6, 9, 11 -> 30
+        else -> 31
+    }
+
+    return copy(year = newYear, day = minOf(day, daysInMonth))
 }
 
 /**

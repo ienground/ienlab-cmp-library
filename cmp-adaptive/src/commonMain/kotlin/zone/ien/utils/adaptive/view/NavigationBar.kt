@@ -24,6 +24,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +46,7 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.currentTheme
 import zone.ien.utils.adaptive.screen.LocalBackdrop
+import zone.ien.utils.adaptive.screen.LocalAdaptiveSideBarLayout
 import zone.ien.utils.adaptive.theme.ienCupertinoNavigationBarColors
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.ui.foundation.IenSemanticTone
@@ -78,16 +80,19 @@ internal data class NavigationBarState(
 internal val LocalNavigationBarState = compositionLocalOf<NavigationBarState?> { null }
 private val LocalNavigationBarAlwaysShowLabel = compositionLocalOf { true }
 
+internal fun shouldUseNativeNavigationBar(isNative: Boolean, hasBadges: Boolean, isSideBar: Boolean): Boolean =
+    isNative && !hasBadges && !isSideBar
+
 /**
  * 적응형 네비게이션 바 컴포저블
  * 
  * Material 및 Cupertino 플랫폼에 따라 다르게 동작하는 네비게이션 바를 제공합니다.
  * 
  * @param modifier 네비게이션 바에 적용할 수정자
- * @param selectedTabIndex 현재 선택된 탭 인덱스를 반환하는 함수
+ * @param selectedTabIndex 현재 선택된 탭 인덱스
  * @param onTabSelected 탭이 선택되었을 때 호출되는 콜백
  * @param adaptation 플랫폼별 적응형 설정을 위한 블록. Material에서는 `type`으로 `IenNavigationBarType.Type1` 또는 `Type2`를 지정할 수 있습니다.
- * @param isNative 네이티브 방식 사용 여부 (기본값: true). 배지가 있는 항목은 배지를 표시하는 컴포저블 방식을 사용합니다.
+ * @param isNative 네이티브 방식 사용 여부 (기본값: true). 배지가 있거나 Duo의 세로 바 배치에서는 컴포저블 방식을 사용합니다.
  * @param items 네비게이션 바에 표시할 아이템 목록
  * @param visible 네비게이션 바 표시 여부
  */
@@ -95,45 +100,25 @@ private val LocalNavigationBarAlwaysShowLabel = compositionLocalOf { true }
 @Composable
 fun AdaptiveNavigationBar(
     modifier: Modifier = Modifier,
-    selectedTabIndex: () -> Int,
+    selectedTabIndex: Int,
     onTabSelected: (index: Int) -> Unit,
     adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, IenNavigationBarAdaptation>.() -> Unit = {},
     isNative: Boolean = true,
     items: List<NavigationBarItem>,
     visible: Boolean = true,
 ) {
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn(
-            animationSpec = tween(
-                durationMillis = IenTheme.motion.fastMillis,
-                easing = IenTheme.motion.standardEasing,
-            )
-        ) + slideInVertically(
-            animationSpec = tween(
-                durationMillis = IenTheme.motion.normalMillis,
-                easing = IenTheme.motion.standardEasing,
-            ),
-            initialOffsetY = { it },
-        ),
-        exit = fadeOut(
-            animationSpec = tween(
-                durationMillis = IenTheme.motion.fastMillis,
-                easing = IenTheme.motion.standardEasing,
-            )
-        ) + slideOutVertically(
-            animationSpec = tween(
-                durationMillis = IenTheme.motion.normalMillis,
-                easing = IenTheme.motion.standardEasing,
-            ),
-            targetOffsetY = { it },
-        ),
-        modifier = modifier,
-    ) {
-        if (isNative && items.none { it.badge != 0 }) {
+    val selectedTabIndexState = rememberUpdatedState(selectedTabIndex)
+    val currentSelectedTabIndex: () -> Int = remember {
+        { selectedTabIndexState.value }
+    }
+
+    val isSideBar = currentTheme == Theme.Cupertino && LocalAdaptiveSideBarLayout.current
+    val barModifier = if (isSideBar) modifier else Modifier
+    val navigationBar: @Composable () -> Unit = {
+        if (shouldUseNativeNavigationBar(isNative, items.any { it.badge != 0 }, isSideBar)) {
             AdaptiveNavigationBarNative(
-                modifier = Modifier,
-                selectedTabIndex = selectedTabIndex,
+                modifier = barModifier,
+                selectedTabIndex = currentSelectedTabIndex,
                 onTabSelected = onTabSelected,
                 adaptation = adaptation,
                 directions = items.map { it.direction },
@@ -156,14 +141,14 @@ fun AdaptiveNavigationBar(
             )
         } else {
             AdaptiveNavigationBar(
-                modifier = Modifier,
-                selectedTabIndex = selectedTabIndex,
+                modifier = barModifier,
+                selectedTabIndex = currentSelectedTabIndex,
                 onTabSelected = onTabSelected,
                 tabsCount = items.size,
                 adaptation = adaptation,
             ) {
                 items.forEachIndexed { index, item ->
-                    val selected = selectedTabIndex() == index
+                    val selected = currentSelectedTabIndex() == index
 
                     AdaptiveNavigationBarItem(
                         index = index,
@@ -181,6 +166,81 @@ fun AdaptiveNavigationBar(
             }
         }
     }
+    if (isSideBar) {
+        if (visible) navigationBar()
+    } else {
+        AnimatedVisibility(
+            visible = visible,
+            enter = fadeIn(
+                animationSpec = tween(
+                    durationMillis = IenTheme.motion.fastMillis,
+                    easing = IenTheme.motion.standardEasing,
+                )
+            ) + slideInVertically(
+                animationSpec = tween(
+                    durationMillis = IenTheme.motion.normalMillis,
+                    easing = IenTheme.motion.standardEasing,
+                ),
+                initialOffsetY = { it },
+            ),
+            exit = fadeOut(
+                animationSpec = tween(
+                    durationMillis = IenTheme.motion.fastMillis,
+                    easing = IenTheme.motion.standardEasing,
+                )
+            ) + slideOutVertically(
+                animationSpec = tween(
+                    durationMillis = IenTheme.motion.normalMillis,
+                    easing = IenTheme.motion.standardEasing,
+                ),
+                targetOffsetY = { it },
+            ),
+            modifier = modifier,
+        ) {
+            navigationBar()
+        }
+    }
+}
+
+/**
+ * 적응형 네비게이션 바 컴포저블입니다.
+ *
+ * 선택 인덱스는 값으로 전달하는 오버로드를 사용하세요.
+ *
+ * @param modifier 네비게이션 바에 적용할 수정자
+ * @param selectedTabIndex 현재 선택된 탭 인덱스를 반환하는 함수
+ * @param onTabSelected 탭이 선택되었을 때 호출되는 콜백
+ * @param adaptation 플랫폼별 적응형 설정을 위한 블록
+ * @param isNative 네이티브 방식 사용 여부
+ * @param items 네비게이션 바에 표시할 아이템 목록
+ * @param visible 네비게이션 바 표시 여부
+ */
+@Deprecated(
+    message = "선택된 탭 인덱스 값을 전달하세요.",
+    replaceWith = ReplaceWith(
+        "AdaptiveNavigationBar(modifier, selectedTabIndex(), onTabSelected, adaptation, isNative, items, visible)"
+    ),
+)
+@OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
+@Composable
+fun AdaptiveNavigationBar(
+    modifier: Modifier = Modifier,
+    selectedTabIndex: () -> Int,
+    onTabSelected: (index: Int) -> Unit,
+    adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, IenNavigationBarAdaptation>.() -> Unit = {},
+    isNative: Boolean = true,
+    items: List<NavigationBarItem>,
+    visible: Boolean = true,
+) {
+    AdaptiveNavigationBar(
+        modifier = modifier,
+        selectedTabIndex = selectedTabIndex(),
+        onTabSelected = onTabSelected,
+        adaptation = adaptation,
+        isNative = isNative,
+        items = items,
+        visible = visible,
+    )
 }
 
 @OptIn(ExperimentalCupertinoApi::class)

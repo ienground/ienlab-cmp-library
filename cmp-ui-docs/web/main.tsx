@@ -32,21 +32,23 @@ import {
   useNavigate,
   useParams,
 } from "react-router";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "./components/ui/badge";
+import { Button } from "./components/ui/button";
+import { Card } from "./components/ui/card";
+import { Input } from "./components/ui/input";
+import { ScrollArea } from "./components/ui/scroll-area";
 import {
   Sheet,
   SheetClose,
   SheetContent,
   SheetTitle,
-} from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from "./components/ui/sheet";
+import { Skeleton } from "./components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 import { catalog, categories } from "./catalog.js";
+import { webCatalog } from "./web-registry";
 import apiDocs from "./generated-api-docs.json";
+import designTokens from "./generated-design-tokens.json";
 import ienlabLogo from "./assets/ienlab-logo.png";
 import {
   ColorSchemeBuilder,
@@ -59,6 +61,17 @@ import "./styles.css";
 
 const SkeletonComposer = lazy(() =>
   import("./SkeletonComposer").then(({ SkeletonComposer: component }) => ({
+    default: component,
+  })),
+);
+
+const WebRegistryDocs = lazy(() =>
+  import("./WebRegistryDocs").then(({ WebRegistryDocs: component }) => ({
+    default: component,
+  })),
+);
+const WebComponentDocs = lazy(() =>
+  import("./WebComponentDocs").then(({ WebComponentDocs: component }) => ({
     default: component,
   })),
 );
@@ -80,7 +93,7 @@ interface ApiDocumentationEntry {
   parameters: ApiParameterDocumentation[];
 }
 
-type PreviewTab = "preview" | "composer" | "api";
+type PreviewTab = "preview" | "composer" | "api" | "registry";
 type ThemeMode = "light" | "dark" | "system";
 type ResolvedTheme = Exclude<ThemeMode, "system">;
 
@@ -93,8 +106,8 @@ const typedApiDocs = apiDocs as Record<string, ApiDocumentationEntry[]>;
 const themeStorageKey = "ienlab-cmp-ui-docs-theme";
 const themeExpiryHours = 3;
 const minimumPreviewHeight = window.matchMedia("(max-width: 780px)").matches
-  ? 460
-  : 530;
+  ? Number.parseFloat(designTokens.web.docs.layout["preview-height-mobile"])
+  : Number.parseFloat(designTokens.web.docs.layout["preview-height"]);
 
 function isThemeMode(value: unknown): value is ThemeMode {
   return value === "light" || value === "dark" || value === "system";
@@ -168,7 +181,7 @@ function App() {
     root.style.colorScheme = resolvedTheme;
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", resolvedTheme === "dark" ? "#0a0a0a" : "#ffffff");
+      ?.setAttribute("content", designTokens.web.docs.meta[resolvedTheme]);
   }, [resolvedTheme]);
 
   return (
@@ -237,6 +250,7 @@ function ComponentPage({
   const { section, componentId: requestedComponentId, page } = useParams();
   const navigate = useNavigate();
   const isColorSchemePage = useLocation().pathname === "/color-scheme";
+  const isWebPage = section === "web";
   const [headerScrolled, setHeaderScrolled] = useState(false);
   const [activeColorSection, setActiveColorSection] = useState(
     colorSchemeSections[0].id,
@@ -252,12 +266,12 @@ function ComponentPage({
     useState<ColorSchemes | null>(null);
   const activeComponent = useMemo(
     () =>
-      catalog.find(
+      (isWebPage ? webCatalog : catalog).find(
         (item) =>
           item.id ===
           (isColorSchemePage ? lastComponentId : requestedComponentId),
       ),
-    [requestedComponentId, isColorSchemePage, lastComponentId],
+    [requestedComponentId, isColorSchemePage, lastComponentId, isWebPage],
   );
   useEffect(() => {
     const updateHeader = () => setHeaderScrolled(window.scrollY > 24);
@@ -337,16 +351,18 @@ function ComponentPage({
   }
 
   const filteredCatalog = useMemo(() => {
+    const availableCatalog = isWebPage ? webCatalog : catalog;
     const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) return catalog;
+    if (!normalizedQuery) return availableCatalog;
 
-    return catalog.filter((item) => {
+    return availableCatalog.filter((item) => {
       const documentation = typedApiDocs[item.id] ?? [];
       const searchableText = [
         item.name,
         item.category,
         item.description,
         ...item.api,
+        ...(isWebPage ? ["React", "Next.js", "shadcn/ui", `@ienlab/${item.id}`] : []),
         ...documentation.flatMap((api) => [
           api.name,
           api.signature,
@@ -361,7 +377,7 @@ function ComponentPage({
         .toLowerCase();
       return searchableText.includes(normalizedQuery);
     });
-  }, [query]);
+  }, [query, isWebPage]);
   useEffect(() => {
     function focusSearch(event: KeyboardEvent) {
       const target = event.target;
@@ -404,18 +420,20 @@ function ComponentPage({
   if (
     !activeComponent ||
     (!isColorSchemePage &&
-      (section !== "components" ||
-        (page !== "preview" &&
-          page !== "api" &&
-          !(page === "composer" && activeComponent.id === "skeleton"))))
+      (isWebPage
+        ? page !== "preview" && page !== "registry"
+        : section !== "components" ||
+          (page !== "preview" &&
+            page !== "api" &&
+            !(page === "composer" && activeComponent.id === "skeleton"))))
   ) {
     return (
-      <Navigate replace to={`/components/${defaultComponentId}/preview`} />
+      <Navigate replace to={isWebPage ? "/web/button/preview" : `/components/${defaultComponentId}/preview`} />
     );
   }
 
   const activeTab: PreviewTab =
-    page === "api" ? "api" : page === "composer" ? "composer" : "preview";
+    page === "registry" ? "registry" : page === "api" ? "api" : page === "composer" ? "composer" : "preview";
   const composeUrl =
     import.meta.env.BASE_URL +
     "compose/index.html?component=" +
@@ -453,13 +471,18 @@ function ComponentPage({
           <Button
             asChild
             variant="ghost"
-            aria-current={!isColorSchemePage ? "page" : undefined}
+            aria-current={!isColorSchemePage && !isWebPage ? "page" : undefined}
           >
             <Link
-              to={`/components/${activeComponent.id}/preview`}
+              to={`/components/${isWebPage ? webCatalog.find((item) => item.id === activeComponent.id)?.cmpId || lastComponentId : activeComponent.id}/preview`}
               onClick={selectComponent}
             >
               컴포넌트
+            </Link>
+          </Button>
+          <Button asChild variant="ghost" aria-current={isWebPage ? "page" : undefined}>
+            <Link to="/web/button/preview" onClick={selectComponent}>
+              웹 컴포넌트
             </Link>
           </Button>
           <Button
@@ -535,6 +558,7 @@ function ComponentPage({
         }
       >
         <Sidebar
+          isWebPage={isWebPage}
           isColorSchemePage={isColorSchemePage}
           activeColorSection={activeColorSection}
           onColorSectionSelect={selectColorSection}
@@ -553,7 +577,7 @@ function ComponentPage({
             <div className="page-heading">
               <div className="page-heading-copy">
                 <p className="eyebrow">
-                  {isColorSchemePage ? "THEME BUILDER" : "COMPONENT LIBRARY"}
+                  {isColorSchemePage ? "THEME BUILDER" : isWebPage ? "WEB COMPONENT REGISTRY" : "COMPONENT LIBRARY"}
                 </p>
                 <h1>
                   {isColorSchemePage ? "ColorScheme" : activeComponent.name}
@@ -566,7 +590,7 @@ function ComponentPage({
               </div>
               {!isColorSchemePage && (
                 <Badge className="component-count" variant="secondary">
-                  {catalog.length} components
+                  {`${isWebPage ? webCatalog.length : catalog.length} components`}
                 </Badge>
               )}
             </div>
@@ -578,100 +602,119 @@ function ComponentPage({
                 onValueChange={(value) => {
                   if (
                     value === "preview" ||
-                    value === "api" ||
-                    (value === "composer" && activeComponent.id === "skeleton")
+                    (isWebPage
+                      ? value === "registry"
+                      : value === "api" || (value === "composer" && activeComponent.id === "skeleton"))
                   ) {
-                    navigate(`/components/${activeComponent.id}/${value}`);
+                    navigate(`/${isWebPage ? "web" : "components"}/${activeComponent.id}/${value}`);
                   }
                 }}
                 value={activeTab}
               >
                 <TabsList className="view-tabs">
                   <TabsTrigger className="view-tab" value="preview">
-                    Preview
+                    {isWebPage ? "웹 프리뷰" : "Preview"}
                   </TabsTrigger>
-                  {activeComponent.id === "skeleton" && (
+                  {!isWebPage && activeComponent.id === "skeleton" && (
                     <TabsTrigger className="view-tab" value="composer">
                       조합기
                     </TabsTrigger>
                   )}
-                  <TabsTrigger className="view-tab" value="api">
-                    API 참고
+                  <TabsTrigger className="view-tab" value={isWebPage ? "registry" : "api"}>
+                    {isWebPage ? "레지스트리 · 설치" : "API 참고"}
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent
-                  className="content-panel"
-                  value="preview"
-                >
-                  <div className="panel-heading">
-                    <div>
-                      <p className="panel-kicker">LIVE COMPONENT</p>
-                      <h2>Compose 미리보기</h2>
-                    </div>
-                    <Badge className="runtime-badge" variant="outline">
-                      <span className="status-dot" /> Kotlin · Wasm
-                    </Badge>
-                  </div>
-                  <p className="panel-description">
-                    실제 Compose Multiplatform 컴포넌트입니다. 미리보기 안에서
-                    상태와 동작을 확인할 수 있습니다.
-                  </p>
-                  {customColorSchemes && (
-                    <Button
-                      className="preview-reset"
-                      variant="outline"
-                      onClick={() => setCustomColorSchemes(null)}
-                    >
-                      기본 색상 복원
-                    </Button>
-                  )}
-                  <div className="preview-frame-wrap">
-                    {!previewLoaded ? (
-                      <div
-                        aria-live="polite"
-                        className="preview-loading"
-                        role="status"
-                      >
-                        <Skeleton aria-hidden="true" className="loading-mark" />
-                        <span>Compose 미리보기 불러오는 중</span>
-                      </div>
-                    ) : null}
-                    <iframe
-                      key={composeUrl}
-                      ref={previewFrameRef}
-                      aria-label={activeComponent.name + " Compose 미리보기"}
-                      className={previewLoaded ? "compose-frame loaded" : "compose-frame"}
-                      onLoad={() => setPreviewLoaded(true)}
-                      src={composeUrl}
-                      style={{ height: `${previewHeight}px` }}
-                      title={activeComponent.name + " Compose 미리보기"}
-                    />
-                  </div>
-                </TabsContent>
-
-                {activeComponent.id === "skeleton" && (
-                  <TabsContent
-                    className="content-panel"
-                    forceMount
-                    value="composer"
-                  >
-                    <Suspense
-                      fallback={
-                        <p className="skeleton-composer-loading" role="status">
-                          스켈레톤 조합기를 불러오는 중입니다.
-                        </p>
-                      }
-                    >
-                      <SkeletonComposer />
+                {isWebPage ? (
+                  <TabsContent value={activeTab}>
+                    <Suspense fallback={<p role="status">웹 컴포넌트를 불러오는 중입니다.</p>}>
+                      {activeComponent.id === "button" ? (
+                        <WebComponentDocs tab={activeTab === "registry" ? "registry" : "preview"} />
+                      ) : (
+                        <WebRegistryDocs
+                          key={activeComponent.id}
+                          componentId={activeComponent.id}
+                          tab={activeTab === "registry" ? "registry" : "preview"}
+                        />
+                      )}
                     </Suspense>
                   </TabsContent>
-                )}
+                ) : (
+                  <>
+                    <TabsContent
+                      className="content-panel"
+                      value="preview"
+                    >
+                      <div className="panel-heading">
+                        <div>
+                          <p className="panel-kicker">LIVE COMPONENT</p>
+                          <h2>Compose 미리보기</h2>
+                        </div>
+                        <Badge className="runtime-badge" variant="outline">
+                          <span className="status-dot" /> Kotlin · Wasm
+                        </Badge>
+                      </div>
+                      <p className="panel-description">
+                        실제 Compose Multiplatform 컴포넌트입니다. 미리보기 안에서
+                        상태와 동작을 확인할 수 있습니다.
+                      </p>
+                      {customColorSchemes && (
+                        <Button
+                          className="preview-reset"
+                          variant="outline"
+                          onClick={() => setCustomColorSchemes(null)}
+                        >
+                          기본 색상 복원
+                        </Button>
+                      )}
+                      <div className="preview-frame-wrap">
+                        {!previewLoaded ? (
+                          <div
+                            aria-live="polite"
+                            className="preview-loading"
+                            role="status"
+                          >
+                            <Skeleton aria-hidden="true" className="loading-mark" />
+                            <span>Compose 미리보기 불러오는 중</span>
+                          </div>
+                        ) : null}
+                        <iframe
+                          key={composeUrl}
+                          ref={previewFrameRef}
+                          aria-label={activeComponent.name + " Compose 미리보기"}
+                          className={previewLoaded ? "compose-frame loaded" : "compose-frame"}
+                          onLoad={() => setPreviewLoaded(true)}
+                          src={composeUrl}
+                          style={{ height: `${previewHeight}px` }}
+                          title={activeComponent.name + " Compose 미리보기"}
+                        />
+                      </div>
+                    </TabsContent>
 
-                <TabsContent className="content-panel" forceMount value="api">
-                  <ApiSidebar component={activeComponent} />
-                  <ApiDocumentation component={activeComponent} />
-                </TabsContent>
+                    {activeComponent.id === "skeleton" && (
+                      <TabsContent
+                        className="content-panel"
+                        forceMount
+                        value="composer"
+                      >
+                        <Suspense
+                          fallback={
+                            <p className="skeleton-composer-loading" role="status">
+                              스켈레톤 조합기를 불러오는 중입니다.
+                            </p>
+                          }
+                        >
+                          <SkeletonComposer />
+                        </Suspense>
+                      </TabsContent>
+                    )}
+
+                    <TabsContent className="content-panel" forceMount value="api">
+                      <ApiSidebar component={activeComponent} />
+                      <ApiDocumentation component={activeComponent} />
+                    </TabsContent>
+                  </>
+                )}
               </Tabs>
             )}
             <section
@@ -701,6 +744,7 @@ function ComponentPage({
 }
 
 function Sidebar({
+  isWebPage,
   isColorSchemePage,
   activeColorSection,
   onColorSectionSelect,
@@ -713,6 +757,7 @@ function Sidebar({
   onSelect,
   query,
 }: {
+  isWebPage: boolean;
   isColorSchemePage: boolean;
   activeColorSection: string;
   onColorSectionSelect: (id: string) => void;
@@ -725,7 +770,10 @@ function Sidebar({
   onSelect: () => void;
   query: string;
 }) {
-  const visibleCategories = categories
+  const navigationCategories = isWebPage
+    ? [...new Set(webCatalog.map((item) => item.category))]
+    : categories;
+  const visibleCategories = navigationCategories
     .map((category) => ({
       category,
       items: filteredCatalog.filter((item) => item.category === category),
@@ -736,6 +784,7 @@ function Sidebar({
     <>
       <aside className="sidebar desktop-sidebar">
         <SidebarContents
+          isWebPage={isWebPage}
           isColorSchemePage={isColorSchemePage}
           activeColorSection={activeColorSection}
           onColorSectionSelect={onColorSectionSelect}
@@ -774,6 +823,7 @@ function Sidebar({
             </SheetClose>
           </div>
           <SidebarContents
+            isWebPage={isWebPage}
             isColorSchemePage={isColorSchemePage}
             activeColorSection={activeColorSection}
             onColorSectionSelect={onColorSectionSelect}
@@ -792,6 +842,7 @@ function Sidebar({
 }
 
 function SidebarContents({
+  isWebPage,
   isColorSchemePage,
   activeColorSection,
   onColorSectionSelect,
@@ -803,6 +854,7 @@ function SidebarContents({
   query,
   visibleCategories,
 }: {
+  isWebPage: boolean;
   isColorSchemePage: boolean;
   activeColorSection: string;
   onColorSectionSelect: (id: string) => void;
@@ -818,7 +870,7 @@ function SidebarContents({
     <div className="sidebar-content">
       <div className="sidebar-heading">
         <p className="toc-title">
-          (00) {isColorSchemePage ? "컬러 스킴" : "컴포넌트"}
+          (00) {isColorSchemePage ? "컬러 스킴" : isWebPage ? "웹 컴포넌트" : "컴포넌트"}
         </p>
         {!isColorSchemePage && (
           <Badge variant="secondary">{filteredCatalog.length}</Badge>
@@ -889,10 +941,10 @@ function SidebarContents({
                         >
                           <Link
                             onClick={onSelect}
-                            to={`/components/${item.id}/${activePage}`}
+                            to={`/${isWebPage ? "web" : "components"}/${item.id}/${activePage}`}
                           >
                             <span>{item.name}</span>
-                            <code>{item.api[0]}</code>
+                            <code>{isWebPage ? `@ienlab/${item.id}` : item.api[0]}</code>
                           </Link>
                         </Button>
                       );

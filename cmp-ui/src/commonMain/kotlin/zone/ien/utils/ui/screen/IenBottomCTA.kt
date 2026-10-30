@@ -16,6 +16,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.material3.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -26,21 +28,32 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
@@ -50,10 +63,21 @@ import zone.ien.utils.ui.interactive.buttonHeight
 import zone.ien.utils.ui.interactive.buttonPadding
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import com.kyant.capsule.ContinuousRoundedRectangle
+import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.cupertinoScaffoldBottomBar
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.view.IenTooltipBox
+import zone.ien.utils.icon.IconData
+import zone.ien.utils.icon.SystemIcons
+
+private val LocalIenSideBarCTAHeight = staticCompositionLocalOf { 48.dp }
+
+internal fun ienSideBarCTAHeight(weight: Float, minimumWeight: Float) =
+    48.dp * (weight / minimumWeight)
 
 /**
  * 화면 하단 고정 CTA 버튼 영역의 배경 처리 스타일을 정의하는 열거형 클래스입니다.
@@ -90,12 +114,44 @@ private enum class CtaIconAreaState {
     Spinner,
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun IenBottomCTAButtonTooltip(
+    text: String,
+    modifier: Modifier = Modifier,
+    content: @Composable (Modifier) -> Unit,
+) {
+    if (isIenSideBarLayout && text.isNotBlank()) {
+        IenTooltipBox(
+            modifier = modifier,
+            label = text,
+            positioning = TooltipAnchorPosition.Left,
+        ) {
+            content(Modifier)
+        }
+    } else {
+        content(modifier)
+    }
+}
+
 @Composable
 internal fun IenBottomCTAButtonContent(
     text: String,
     loading: Boolean,
     icon: (@Composable () -> Unit)?,
 ) {
+    if (isIenSideBarLayout) {
+        Box(
+            modifier = Modifier.size(IenTheme.icon.lg),
+            contentAlignment = Alignment.Center,
+            propagateMinConstraints = true,
+        ) {
+            if (loading) IenLoaderPrimitive(color = LocalContentColor.current)
+            else if (icon != null) icon()
+            else IenIcon(icon = IconData.Vector(SystemIcons.Check))
+        }
+        return
+    }
     val fastMillis = IenTheme.motion.fastMillis
     val standardEasing = IenTheme.motion.standardEasing
 
@@ -171,6 +227,8 @@ internal fun IenBottomCTAButtonContent(
 
 /**
  * 화면 하단에 고정되거나 스크롤 시 사라지는 등의 동작을 지원하는 기본 단일 CTA(Call To Action) 버튼 컴포저블입니다.
+ * Duo의 오른쪽 바에서는 원형 아이콘 버튼을 사용하며, 텍스트는 접근성 이름과 길게 누를 때 표시하는 툴팁으로 제공합니다.
+ * 액세서리가 있으면 넓은 하단 영역을 유지하고 버튼만 오른쪽 시스템 영역에 정렬합니다.
  *
  * @param text 버튼 텍스트
  * @param onClick 버튼 클릭 이벤트 콜백
@@ -218,6 +276,7 @@ fun IenBottomCTA(
 ) {
     IenBottomCTAContainer(
         modifier = modifier,
+        background = background,
         hasSafeAreaPadding = hasSafeAreaPadding,
         hasPaddingBottom = hasPaddingBottom,
         fixed = fixed,
@@ -231,24 +290,30 @@ fun IenBottomCTA(
         topAccessory = topAccessory,
         bottomAccessory = bottomAccessory,
     ) {
-        IenButtonContainer(
-            onClick = onClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = IenButtonSize.Large.buttonHeight()),
-            variant = variant,
-            tone = tone,
-            state = state,
-            shape = ContinuousRoundedRectangle(IenTheme.radius.default),
-            contentPadding = IenButtonSize.Large.buttonPadding(),
-            colors = IenButtonDefault.colors(variant = variant, tone = tone),
-            scalePressed = 0.975f,
-        ) {
-            IenBottomCTAButtonContent(
-                text = text,
-                loading = state.loading,
-                icon = icon,
-            )
+        IenBottomCTAButtonTooltip(text = text, modifier = Modifier.fillMaxWidth()) { buttonModifier ->
+            IenButtonContainer(
+                onClick = onClick,
+                modifier = buttonModifier
+                    .fillMaxWidth()
+                    .heightIn(min = if (isIenSideBarLayout) 48.dp else IenButtonSize.Large.buttonHeight())
+                    .then(if (isIenSideBarLayout) Modifier.semantics { contentDescription = text } else Modifier),
+                variant = variant,
+                tone = tone,
+                state = state,
+                shape = ContinuousRoundedRectangle(if (isIenSideBarLayout) IenTheme.radius.full else IenTheme.radius.default),
+                contentPadding = if (isIenSideBarLayout) PaddingValues(
+                    horizontal = IenTheme.spacing.xxs,
+                    vertical = IenTheme.spacing.xxs,
+                ) else IenButtonSize.Large.buttonPadding(),
+                colors = IenButtonDefault.colors(variant = variant, tone = tone),
+                scalePressed = 0.975f,
+            ) {
+                IenBottomCTAButtonContent(
+                    text = text,
+                    loading = state.loading,
+                    icon = icon,
+                )
+            }
         }
     }
 }
@@ -321,10 +386,12 @@ fun IenDoubleBottomCTA(
             IenBottomCTAButton(
                 text = secondaryText,
                 onClick = onSecondaryClick,
-                variant = IenButtonVariant.Weak,
+                variant = if (isIenSideBarLayout) IenButtonVariant.Line else IenButtonVariant.Weak,
                 tone = IenSemanticTone.Neutral,
                 state = secondaryState,
-                icon = secondaryIcon,
+                icon = secondaryIcon ?: if (isIenSideBarLayout) ({
+                    IenIcon(icon = IconData.Vector(SystemIcons.Close))
+                }) else null,
             )
         },
         rightButton = {
@@ -341,6 +408,7 @@ fun IenDoubleBottomCTA(
 /**
  * 커스텀 좌/우 버튼 슬롯을 받아 화면 하단에 듀얼 CTA 버튼 영역을 구성하는 컴포저블입니다.
  *
+ * Duo에서는 작은 버튼을 원형으로 배치하고 높이에 비율을 적용하며, 일반 하단 바에서는 너비 비율을 적용합니다.
  * 한쪽 슬롯이 null이면 남은 버튼 영역이 비율과 관계없이 전체 너비를 차지합니다.
  * 두 슬롯이 모두 null이면 버튼 영역을 표시하지 않습니다.
  *
@@ -394,6 +462,7 @@ fun IenDoubleBottomCTA(
 
     IenBottomCTAContainer(
         modifier = modifier,
+        background = background,
         hasSafeAreaPadding = hasSafeAreaPadding,
         hasPaddingBottom = hasPaddingBottom,
         fixed = fixed,
@@ -407,27 +476,47 @@ fun IenDoubleBottomCTA(
         topAccessory = topAccessory,
         bottomAccessory = bottomAccessory,
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (leftButton != null) {
-                Row(
-                    modifier = Modifier.weight(if (hasBothButtons) leftButtonWeight else 1f).fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    leftButton()
+        if (isIenSideBarLayout) {
+            val minimumWeight = if (hasBothButtons) minOf(leftButtonWeight, rightButtonWeight) else 1f
+            Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs)) {
+                if (leftButton != null) {
+                    CompositionLocalProvider(LocalIenSideBarCTAHeight provides ienSideBarCTAHeight(
+                        if (hasBothButtons) leftButtonWeight else 1f, minimumWeight,
+                    )) {
+                        Row(Modifier.fillMaxWidth(), content = leftButton)
+                    }
+                }
+                if (rightButton != null) {
+                    CompositionLocalProvider(LocalIenSideBarCTAHeight provides ienSideBarCTAHeight(
+                        if (hasBothButtons) rightButtonWeight else 1f, minimumWeight,
+                    )) {
+                        Row(Modifier.fillMaxWidth(), content = rightButton)
+                    }
                 }
             }
-            if (rightButton != null) {
-                Row(
-                    modifier = Modifier.weight(if (hasBothButtons) rightButtonWeight else 1f).fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    rightButton()
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (leftButton != null) {
+                    Row(
+                        modifier = Modifier.weight(if (hasBothButtons) leftButtonWeight else 1f).fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        leftButton()
+                    }
+                }
+                if (rightButton != null) {
+                    Row(
+                        modifier = Modifier.weight(if (hasBothButtons) rightButtonWeight else 1f).fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        rightButton()
+                    }
                 }
             }
         }
@@ -455,30 +544,36 @@ fun RowScope.IenBottomCTAButton(
     variant: IenButtonVariant = IenButtonVariant.Fill,
     tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
-    IenButtonContainer(
-        onClick = onClick,
-        modifier = modifier
-            .weight(1f)
-            .fillMaxWidth()
-            .heightIn(min = IenButtonSize.Large.buttonHeight()),
-        variant = variant,
-        tone = tone,
-        state = state,
-        shape = ContinuousRoundedRectangle(IenTheme.radius.default),
-        contentPadding = IenButtonSize.Large.buttonPadding(),
-        colors = IenButtonDefault.colors(variant = variant, tone = tone),
-        scalePressed = 0.975f,
-    ) {
-        IenBottomCTAButtonContent(
-            text = text,
-            loading = state.loading,
-            icon = icon,
-        )
+    IenBottomCTAButtonTooltip(text = text, modifier = modifier.weight(1f)) { buttonModifier ->
+        IenButtonContainer(
+            onClick = onClick,
+            modifier = buttonModifier
+                .fillMaxWidth()
+                .heightIn(min = if (isIenSideBarLayout) LocalIenSideBarCTAHeight.current else IenButtonSize.Large.buttonHeight())
+                .then(if (isIenSideBarLayout) Modifier.semantics { contentDescription = text } else Modifier),
+            variant = variant,
+            tone = tone,
+            state = state,
+            shape = ContinuousRoundedRectangle(if (isIenSideBarLayout) IenTheme.radius.full else IenTheme.radius.default),
+            contentPadding = if (isIenSideBarLayout) PaddingValues(
+                horizontal = IenTheme.spacing.xxs,
+                vertical = IenTheme.spacing.xxs,
+            ) else IenButtonSize.Large.buttonPadding(),
+            colors = IenButtonDefault.colors(variant = variant, tone = tone),
+            scalePressed = 0.975f,
+        ) {
+            IenBottomCTAButtonContent(
+                text = text,
+                loading = state.loading,
+                icon = icon,
+            )
+        }
     }
 }
 
 /**
- * [BoxScope] 내에서 화면 맨 하단에 상시 고정되는 단일 CTA 버튼 컴포저블입니다.
+ * [BoxScope] 하단에 고정하며, Duo에서는 오른쪽 시스템 예약 영역에 맞춰 배치하는 단일 CTA입니다.
+ * Duo의 시스템 좌표를 적용할 수 있도록 부모 Box는 화면 전체 영역을 사용해야 합니다.
  *
  * @param text 버튼 텍스트
  * @param onClick 클릭 이벤트 콜백
@@ -547,7 +642,8 @@ fun BoxScope.IenFixedBottomCTA(
 }
 
 /**
- * [BoxScope] 내에서 화면 맨 하단에 상시 고정되는 듀얼 CTA 버튼 컴포저블입니다.
+ * [BoxScope] 하단에 고정하며, Duo에서는 오른쪽 시스템 예약 영역에 맞춰 배치하는 듀얼 CTA입니다.
+ * Duo의 시스템 좌표를 적용할 수 있도록 부모 Box는 화면 전체 영역을 사용해야 합니다.
  *
  * 한쪽 슬롯이 null이면 남은 버튼 영역이 비율과 관계없이 전체 너비를 차지합니다.
  * 두 슬롯이 모두 null이면 버튼 영역을 표시하지 않습니다.
@@ -607,9 +703,27 @@ fun BoxScope.IenFixedDoubleBottomCTA(
     )
 }
 
+internal fun ienBottomCTASideBounds(
+    width: Int,
+    height: Int,
+    sideWidth: Int,
+    controlsTop: Int,
+    controlsBottom: Int,
+    centerFromRight: Int,
+    keyboardBottom: Int,
+): IntRect {
+    val barWidth = sideWidth.coerceIn(0, width)
+    val left = (width - centerFromRight - barWidth / 2).coerceIn(0, width - barWidth)
+    val top = controlsTop.coerceIn(0, height)
+    val bottom = (height - maxOf(controlsBottom, keyboardBottom)).coerceIn(top, height)
+    return IntRect(left, top, left + barWidth, bottom)
+}
+
+@OptIn(ExperimentalCupertinoApi::class)
 @Composable
 private fun IenBottomCTAContainer(
     modifier: Modifier,
+    background: IenBottomCTABackground,
     hasSafeAreaPadding: Boolean,
     hasPaddingBottom: Boolean,
     fixed: Boolean,
@@ -624,6 +738,13 @@ private fun IenBottomCTAContainer(
     bottomAccessory: (@Composable () -> Unit)?,
     content: @Composable () -> Unit,
 ) {
+    val inheritedPlacement = LocalIenBarPlacement.current
+    val placement = if (LocalIenSideBarEnabled.current) {
+        (inheritedPlacement ?: rememberIenBarPlacement().value)
+            ?.takeIf { it.sideWidth > IenTheme.spacing.none }
+    } else null
+    val isSideBar = placement != null
+    val hasWideAccessories = isSideBar && (topAccessory != null || bottomAccessory != null)
     var delayedVisible by remember(showAfterDelay) { mutableStateOf(showAfterDelay == null) }
     LaunchedEffect(show, showAfterDelay) {
         if (show && showAfterDelay != null) {
@@ -653,6 +774,8 @@ private fun IenBottomCTAContainer(
         else IenTheme.spacing.none
     val defaultBottom = IenTheme.spacing.lg
     val safeBottom = when {
+        hasWideAccessories && placement != null && !fixed && inheritedPlacement == null -> placement.controlsBottom
+        isSideBar -> IenTheme.spacing.none
         !hasPaddingBottom -> IenTheme.spacing.none
         hasSafeAreaPadding -> if (navigationBottom > defaultBottom) navigationBottom else defaultBottom
         else -> defaultBottom
@@ -661,28 +784,74 @@ private fun IenBottomCTAContainer(
     val shouldCompose = visible || takeSpace
 
     if (shouldCompose) {
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .graphicsLayer {
-                    this.alpha = alpha
-                    scaleX = scale
-                    scaleY = scale
-                    translationY = translation
-                },
-        ) {
-            Column(
-                modifier = Modifier.padding(
-                    start = IenTheme.spacing.md,
-                    top = IenTheme.spacing.md,
-                    end = IenTheme.spacing.md,
-                    bottom = bottomPadding,
-                ),
-                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+        CompositionLocalProvider(LocalIenBarPlacement provides placement) {
+            Box(
+                modifier = modifier
+                    .then(if (isSideBar && !fixed && !hasWideAccessories) Modifier.cupertinoScaffoldBottomBar() else Modifier)
+                    .then(if (fixed && placement != null) Modifier.layout { measurable, constraints ->
+                        if (constraints.hasBoundedWidth && constraints.hasBoundedHeight) {
+                            val bounds = ienBottomCTASideBounds(
+                                width = constraints.maxWidth,
+                                height = constraints.maxHeight,
+                                sideWidth = placement.sideWidth.roundToPx(),
+                                controlsTop = placement.controlsTop.roundToPx(),
+                                controlsBottom = placement.controlsBottom.roundToPx(),
+                                centerFromRight = placement.centerFromRight.roundToPx(),
+                                keyboardBottom = keyboardBottom.roundToPx(),
+                            )
+                            val child = measurable.measure(Constraints(
+                                maxWidth = if (hasWideAccessories) constraints.maxWidth else bounds.width,
+                                maxHeight = bounds.height,
+                            ))
+                            layout(constraints.maxWidth, constraints.maxHeight) {
+                                val left = if (hasWideAccessories) 0 else bounds.left + (bounds.width - child.width) / 2
+                                child.place(left, bounds.bottom - child.height)
+                            }
+                        } else {
+                            val child = measurable.measure(constraints)
+                            layout(child.width, child.height) { child.place(0, 0) }
+                        }
+                    } else Modifier)
+                    .then(if (placement != null && !hasWideAccessories) Modifier.width(placement.sideWidth) else Modifier.fillMaxWidth())
+                    .then(if (hasWideAccessories && background == IenBottomCTABackground.Default) {
+                        Modifier.background(IenTheme.colors.background)
+                    } else Modifier)
+                    .graphicsLayer {
+                        this.alpha = alpha
+                        scaleX = scale
+                        scaleY = scale
+                        if (isSideBar) translationX = translation else translationY = translation
+                    },
+                contentAlignment = if (isSideBar) Alignment.TopCenter else Alignment.TopStart,
             ) {
-                topAccessory?.invoke()
-                content()
-                bottomAccessory?.invoke()
+                Column(
+                    modifier = Modifier
+                        .then(if (isSideBar && !hasWideAccessories) Modifier.width(48.dp + IenTheme.spacing.xxs * 2) else Modifier.fillMaxWidth())
+                        .padding(
+                            start = if (isSideBar && !hasWideAccessories) IenTheme.spacing.xxs else IenTheme.spacing.md,
+                            top = if (isSideBar) IenTheme.spacing.xxs else IenTheme.spacing.md,
+                            end = if (isSideBar && !hasWideAccessories) IenTheme.spacing.xxs else IenTheme.spacing.md,
+                            bottom = if (isSideBar) {
+                                (if (fixed) safeBottom else bottomPadding) + IenTheme.spacing.xxs
+                            } else bottomPadding,
+                        ),
+                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                ) {
+                    topAccessory?.invoke()
+                    if (hasWideAccessories && placement != null) {
+                        Box(Modifier.fillMaxWidth(), contentAlignment = AbsoluteAlignment.CenterRight) {
+                            Box(Modifier
+                                .width(48.dp)
+                                .absoluteOffset(x = IenTheme.spacing.md + 24.dp - placement.centerFromRight),
+                            ) {
+                                content()
+                            }
+                        }
+                    } else {
+                        content()
+                    }
+                    bottomAccessory?.invoke()
+                }
             }
         }
     }

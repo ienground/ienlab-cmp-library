@@ -8,12 +8,12 @@ import androidx.compose.runtime.DisposableEffect
 actual fun ProtectScreenshotWrapper(
     content: @Composable () -> Unit,
 ) {
-    val activity = LocalActivity.current
+    val window = LocalActivity.current?.window
 
-    DisposableEffect(Unit) {
-        activity?.window?.let { SecureWindowManager.acquire(it) }
+    DisposableEffect(window) {
+        window?.let { SecureWindowManager.acquire(it) }
         onDispose {
-            activity?.window?.let { SecureWindowManager.release(it) }
+            window?.let { SecureWindowManager.release(it) }
         }
     }
 
