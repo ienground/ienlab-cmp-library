@@ -24,6 +24,25 @@ test("CMP 대응 컴포넌트의 공개 계약", async (context) => {
       assert.match(render(SwipeBox, props), /inert=""/);
       assert.match(render(SwipeBox, { ...props, open: "end" }), /aria-expanded="true"/);
     });
+    await context.test("드래그가 크기를 제어하는 버튼은 자동 크기 애니메이션을 실행하지 않는다", async () => {
+      const { useIenAnimatedSize } = await load("lib/ien-animated-size.ts");
+      let bind;
+      const forwardedRef = { current: null };
+      function Probe() {
+        bind = useIenAnimatedSize(forwardedRef, false);
+        return null;
+      }
+      render(Probe, {});
+      const element = {};
+      // 브라우저 크기 측정과 ResizeObserver 없이 ref 연결만 수행해야 합니다.
+      const cleanup = bind(element);
+      assert.equal(forwardedRef.current, element);
+      cleanup();
+      assert.equal(forwardedRef.current, null);
+      const { SwipeBox } = await load("ui/swipe-box.tsx");
+      const html = render(SwipeBox, { open: "end", endActions: [{ id: "delete", label: "삭제", onClick() {} }] });
+      assert.match(html, /transition-property:background-color,color,box-shadow/);
+    });
     await context.test("다이얼로그와 목적별 프리셋은 닫힌 상태에서 본문을 노출하지 않는다", async () => {
       const { Dialog, DialogContent, DialogTitle } = await load("ui/dialog.tsx");
       assert.doesNotMatch(render(Dialog, { open: false, children: React.createElement(DialogContent, {}, React.createElement(DialogTitle, {}, "비공개 제목")) }), /비공개 제목/);

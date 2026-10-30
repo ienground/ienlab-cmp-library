@@ -1,6 +1,6 @@
 "use client"
 import type { IenToneProps } from "@/lib/ien-theme"
-import { IenThemeContext, useIenTheme } from "@/lib/ien-theme-context"
+import { IenThemeContext, useIenTheme, useIenLanguage } from "@/lib/ien-theme-context"
 
 import type { ReactNode } from "react"
 import { createContext, useContext, useId } from "react"
@@ -10,7 +10,6 @@ import { cva } from "class-variance-authority"
 
 import { cn } from "cn"
 import { Label } from "@/components/ui/label"
-import { IconPlaceholder } from "@/lib/reui-icons"
 
 const NumberFieldContext = createContext<{
   fieldId: string
@@ -18,7 +17,7 @@ const NumberFieldContext = createContext<{
 } | null>(null)
 
 const numberFieldGroupVariants = cva(
-  "relative flex w-fit items-center rounded-lg bg-muted px-(--ien-spacing-xxs) text-foreground data-disabled:pointer-events-none data-disabled:opacity-(--ien-state-disabled-alpha)",
+  "relative flex w-fit items-center rounded-ien-default bg-(--ien-surface-variant) px-(--ien-spacing-xxs) text-(--ien-text-primary) [--ien-control-corner-profile:cmp] transition-transform has-[button:active:not(:disabled)]:scale-[0.97] motion-reduce:transition-none data-disabled:pointer-events-none",
   {
     variants: {
       size: {
@@ -38,17 +37,17 @@ const numberFieldGroupVariants = cva(
 )
 
 const numberFieldButtonVariants = cva(
-  "relative flex h-full shrink-0 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-background/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 data-disabled:pointer-events-none data-disabled:text-(--ien-text-disabled) pointer-coarse:after:absolute pointer-coarse:after:size-full pointer-coarse:after:min-h-11 pointer-coarse:after:min-w-11",
+  "relative flex h-full shrink-0 cursor-pointer items-center justify-center rounded-ien-default text-(--ien-text-secondary) font-semibold transition-[color,transform] hover:text-(--ien-text-primary) active:scale-95 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 data-disabled:pointer-events-none data-disabled:text-(--ien-text-disabled) pointer-coarse:after:absolute pointer-coarse:after:size-full pointer-coarse:after:min-h-11 pointer-coarse:after:min-w-11",
   {
     variants: {
       size: {
-        tiny: "w-7.5 [&_svg]:size-3.5",
-        small: "w-8.5 [&_svg]:size-4",
-        medium: "w-10 [&_svg]:size-4",
-        large: "w-12 [&_svg]:size-5",
-        sm: "w-8.5 [&_svg]:size-4",
-        default: "w-10 [&_svg]:size-4",
-        lg: "w-12 [&_svg]:size-5",
+        tiny: "w-7.5 text-[length:var(--ien-font-size-label1)] leading-(--ien-line-height-label1) [&_svg]:size-3.5",
+        small: "w-8.5 text-[length:var(--ien-font-size-title3)] leading-(--ien-line-height-title3) [&_svg]:size-4",
+        medium: "w-10 text-[length:var(--ien-font-size-title3)] leading-(--ien-line-height-title3) [&_svg]:size-4",
+        large: "w-12 text-[length:var(--ien-font-size-title2)] leading-(--ien-line-height-title2) [&_svg]:size-5",
+        sm: "w-8.5 text-[length:var(--ien-font-size-title3)] leading-(--ien-line-height-title3) [&_svg]:size-4",
+        default: "w-10 text-[length:var(--ien-font-size-title3)] leading-(--ien-line-height-title3) [&_svg]:size-4",
+        lg: "w-12 text-[length:var(--ien-font-size-title2)] leading-(--ien-line-height-title2) [&_svg]:size-5",
       },
     },
     defaultVariants: {
@@ -58,17 +57,17 @@ const numberFieldButtonVariants = cva(
 )
 
 const numberFieldInputVariants = cva(
-  "relative z-10 min-w-0 rounded-lg border border-transparent bg-background px-2 text-center font-medium text-foreground tabular-nums shadow-md outline-none transition-colors cursor-text select-text placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 disabled:cursor-not-allowed",
+  "relative z-10 min-w-0 rounded-ien-default border border-transparent bg-(--ien-surface) px-2 text-center font-semibold text-(--ien-text-primary) tabular-nums [--ien-control-corner-profile:cmp] shadow-[0_calc(var(--ien-spinner-elevation)/2)_var(--ien-spinner-elevation)_rgb(0_0_0/20%)] data-disabled:text-(--ien-text-disabled) outline-none transition-colors cursor-text select-text placeholder:text-muted-foreground aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 disabled:cursor-not-allowed",
   {
     variants: {
       size: {
-        tiny: "h-7 w-10 text-xs",
-        small: "h-8 w-11.5 text-sm",
-        medium: "h-9.5 w-14 text-base",
-        large: "h-11.5 w-17 text-lg",
-        sm: "h-8 w-11.5 text-sm",
-        default: "h-9.5 w-14 text-base",
-        lg: "h-11.5 w-17 text-lg",
+        tiny: "h-7 w-10 text-[length:var(--ien-font-size-label2)] leading-(--ien-line-height-label2) [--ien-spinner-elevation:3px]",
+        small: "h-8 w-11.5 text-[length:var(--ien-font-size-label1)] leading-(--ien-line-height-label1) [--ien-spinner-elevation:var(--ien-elevation-raised)]",
+        medium: "h-9.5 w-14 text-[length:var(--ien-font-size-title3)] leading-(--ien-line-height-title3) [--ien-spinner-elevation:5px]",
+        large: "h-11.5 w-17 text-[length:var(--ien-font-size-title2)] leading-(--ien-line-height-title2) [--ien-spinner-elevation:6px]",
+        sm: "h-8 w-11.5 text-[length:var(--ien-font-size-label1)] leading-(--ien-line-height-label1) [--ien-spinner-elevation:var(--ien-elevation-raised)]",
+        default: "h-9.5 w-14 text-[length:var(--ien-font-size-title3)] leading-(--ien-line-height-title3) [--ien-spinner-elevation:5px]",
+        lg: "h-11.5 w-17 text-[length:var(--ien-font-size-title2)] leading-(--ien-line-height-title2) [--ien-spinner-elevation:6px]",
       },
     },
     defaultVariants: {
@@ -151,6 +150,7 @@ function NumberFieldDecrement({
   Partial<VariantProps<typeof numberFieldButtonVariants>> & {
     children?: React.ReactNode
   } & IenToneProps) {
+  const language = useIenLanguage("ko")
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useContext(NumberFieldContext)
   if (!context) {
@@ -164,24 +164,16 @@ function NumberFieldDecrement({
     <NumberFieldPrimitive.Decrement
       className={cn(
         numberFieldButtonVariants({ size }),
-        "rounded-s-lg",
         className
       )}
+      aria-label={language === "ko" ? "줄이기" : "Decrease"}
       data-slot="number-field-decrement"
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       {...props}
     >
-      {children ?? (
-        <IconPlaceholder
-          lucide="MinusIcon"
-          tabler="IconMinus"
-          hugeicons="MinusSignIcon"
-          phosphor="MinusIcon"
-          remixicon="RiSubtractLine"
-        />
-      )}
+      {children ?? "-"}
     </NumberFieldPrimitive.Decrement>
   )
 }
@@ -197,6 +189,7 @@ function NumberFieldIncrement({
   Partial<VariantProps<typeof numberFieldButtonVariants>> & {
     children?: ReactNode
   } & IenToneProps) {
+  const language = useIenLanguage("ko")
   const ienTheme = useIenTheme({ tone: ienTone, useGradient: ienUseGradient })
   const context = useContext(NumberFieldContext)
   if (!context) {
@@ -210,24 +203,16 @@ function NumberFieldIncrement({
     <NumberFieldPrimitive.Increment
       className={cn(
         numberFieldButtonVariants({ size }),
-        "rounded-e-lg",
         className
       )}
+      aria-label={language === "ko" ? "늘리기" : "Increase"}
       data-slot="number-field-increment"
       data-ien=""
       data-ien-tone={ienTheme.tone}
       data-ien-gradient={ienTheme.useGradient}
       {...props}
     >
-      {children ?? (
-        <IconPlaceholder
-          lucide="PlusIcon"
-          tabler="IconPlus"
-          hugeicons="PlusSignIcon"
-          phosphor="PlusIcon"
-          remixicon="RiAddLine"
-        />
-      )}
+      {children ?? "+"}
     </NumberFieldPrimitive.Increment>
   )
 }

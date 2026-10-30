@@ -2,6 +2,7 @@
 
 import { ProgressIndicator } from "@/components/ui/progress-indicator"
 import { IenContinuousCorners } from "@/lib/ien-theme-context"
+import { useIenAnimatedSize } from "@/lib/ien-animated-size"
 import { resolveIenTone, type IenToneProps } from "@/lib/ien-theme"
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -48,10 +49,12 @@ function Button({
   display = "inline",
   shape = "rounded",
   loading = false,
+  animateSize = true,
   disabled,
   children,
   onClickCapture,
   onKeyDownCapture,
+  ref,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
@@ -60,8 +63,11 @@ function Button({
     shape?: "rounded" | "capsule"
     /** 아이콘이 있으면 아이콘만, 없으면 콘텐츠를 로더로 전환하고 입력을 막습니다. */
     loading?: boolean
+    /** 드래그 등에서 크기를 직접 제어할 때 자동 크기 애니메이션을 끕니다. */
+    animateSize?: boolean
   } & IenToneProps) {
   const Comp = asChild ? Slot.Root : "button"
+  const animatedSizeRef = useIenAnimatedSize(ref, animateSize)
   const blocked = disabled || loading
   const spinnerRef = React.useRef<HTMLSpanElement>(null)
   const [showSpinner, setShowSpinner] = React.useState(loading)
@@ -137,6 +143,7 @@ function Button({
       <IenContinuousCorners />
       <Comp
         {...props}
+        ref={animatedSizeRef}
         data-slot="button"
         data-ien-typography="label1"
         data-ien=""

@@ -103,7 +103,12 @@ function capsulePath(width: number, height: number): string {
 
 const selector =
   '[data-ien], [data-slot], [class*="rounded"], .topbar, .search-box, .web-docs-disclosure, .project-preview-panel, .project-preview-components, .project-typography fieldset';
-let active: { users: number; stop: () => void } | undefined;
+let active: { users: number; stop: () => void; refresh: () => void } | undefined;
+
+/** 크기 애니메이션이 시작된 프레임의 실제 크기로 연속 코너를 동기화합니다. */
+export function refreshIenContinuousCorners(): void {
+  active?.refresh();
+}
 
 /** 현재 문서의 연속 곡률을 적용하고 마지막 사용자가 해제하면 관찰을 종료합니다. */
 export function observeIenContinuousCorners(): () => void {
@@ -115,7 +120,7 @@ export function observeIenContinuousCorners(): () => void {
     )
   )
     return () => {};
-  if (!active) active = { users: 0, stop: start() };
+  if (!active) active = { users: 0, ...start() };
   const current = active;
   current.users++;
   let released = false;
@@ -166,7 +171,7 @@ function start() {
   function schedule() {
     if (!frame) frame = requestAnimationFrame(draw);
   }
-  const sizes = new ResizeObserver(schedule);
+  const sizes = new ResizeObserver(draw);
   function collect(root: ParentNode) {
     const candidates = [...root.querySelectorAll<HTMLElement>(selector)];
     if (root instanceof HTMLElement && root.matches(selector))
@@ -208,6 +213,7 @@ function start() {
     }
   }
   function draw() {
+    cancelAnimationFrame(frame);
     frame = 0;
     const updates: (() => void)[] = [];
     for (const [element, entry] of elements) {
@@ -487,7 +493,7 @@ function start() {
   document.addEventListener("focusout", schedule, true);
   document.addEventListener("pointerover", schedule, true);
   document.addEventListener("pointerout", schedule, true);
-  return () => {
+  function stop() {
     changes.disconnect();
     sizes.disconnect();
     cancelAnimationFrame(frame);
@@ -503,5 +509,6 @@ function start() {
     for (const [element, entry] of elements) restore(element, entry);
     elements.clear();
     transitions.clear();
-  };
+  }
+  return { refresh: draw, stop };
 }

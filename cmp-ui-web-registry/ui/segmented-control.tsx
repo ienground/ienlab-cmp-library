@@ -56,18 +56,22 @@ function SegmentedControl({
     return () => observer.disconnect()
   }, [selectedValue, items, size, alignment])
 
-  React.useEffect(() => {
+  const revealItem = React.useCallback((item: HTMLElement) => {
     if (alignment !== "fluid") return
     const track = trackRef.current
-    const selected = track?.querySelector<HTMLElement>('[data-state="checked"]')
     const viewport = track?.parentElement
-    if (!track || !selected || !viewport) return
-    const left = selected.offsetLeft
-    const right = left + selected.offsetWidth
+    if (!track || !viewport) return
+    const left = item.offsetLeft
+    const right = left + item.offsetWidth
     const padding = parseFloat(getComputedStyle(track).paddingLeft)
     if (left < viewport.scrollLeft + padding) viewport.scrollLeft = Math.max(0, left - padding)
     else if (right > viewport.scrollLeft + viewport.clientWidth - padding) viewport.scrollLeft = right - viewport.clientWidth + padding
-  }, [selectedValue, alignment, bounds?.left, bounds?.width])
+  }, [alignment])
+
+  React.useLayoutEffect(() => {
+    const selected = trackRef.current?.querySelector<HTMLElement>('[data-slot="segmented-control-item"][data-state="checked"]')
+    if (selected) revealItem(selected)
+  }, [selectedValue, revealItem, bounds?.left, bounds?.width])
 
   return (
     <>
@@ -92,7 +96,7 @@ function SegmentedControl({
         data-ien-gradient={theme.useGradient}
         className={cn(
           "max-w-full rounded-full bg-(--ien-segmented-container) bg-clip-border data-disabled:opacity-(--ien-state-disabled-alpha)",
-          alignment === "fixed" ? "w-full overflow-hidden" : "w-fit overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+          alignment === "fixed" ? "w-full overflow-hidden" : "w-fit scroll-px-(--ien-spacing-xxs) overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
           className,
         )}
         style={style}
@@ -114,6 +118,7 @@ function SegmentedControl({
             return <RadioGroup.Item
               key={item.value}
               value={item.value}
+              onFocus={(event) => revealItem(event.currentTarget)}
               disabled={blocked || item.enabled === false}
               data-slot="segmented-control-item"
               data-ien-shape="capsule"

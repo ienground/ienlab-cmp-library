@@ -6,6 +6,7 @@ import { cn } from "cn"
 import type { IenToneProps } from "@/lib/ien-theme"
 import { IenContinuousCorners, useIenLanguage, useIenTheme } from "@/lib/ien-theme-context"
 import { ProgressIndicator } from "@/components/ui/progress-indicator"
+import { useIenAnimatedSize } from "@/lib/ien-animated-size"
 
 export type ChipKind = "assist" | "filter" | "input" | "suggestion"
 
@@ -33,6 +34,7 @@ function Chip({
   className, style, children, onClick, ...props
 }: ChipProps) {
   const theme = useIenTheme({ tone, useGradient })
+  const animatedSizeRef = useIenAnimatedSize<HTMLSpanElement>()
   const language = useIenLanguage("ko")
   const labelId = React.useId()
   const removeId = React.useId()
@@ -46,6 +48,7 @@ function Chip({
     <>
       <IenContinuousCorners />
       <span
+        ref={animatedSizeRef}
         data-slot="chip"
         data-kind={kind}
         data-state={isSelected ? "selected" : "unselected"}
