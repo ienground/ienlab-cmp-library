@@ -74,6 +74,26 @@ function PullToRefresh({
     [userContentRef],
   );
   const busy = refreshing ?? internalRefreshing;
+  React.useEffect(() => {
+    const element = contentRef.current;
+    if (!element) return;
+    const handleTouchMove = (event: TouchEvent) => {
+      if (busy || event.defaultPrevented || startY.current === null) return;
+      if (event.touches.length !== 1) {
+        startY.current = null;
+        setPullDistance(0);
+        return;
+      }
+      if (event.touches[0].clientY <= startY.current) {
+        startY.current = null;
+        setPullDistance(0);
+        return;
+      }
+      if (event.cancelable) event.preventDefault();
+    };
+    element.addEventListener("touchmove", handleTouchMove, { passive: false });
+    return () => element.removeEventListener("touchmove", handleTouchMove);
+  }, [busy]);
   const finish = React.useCallback(async () => {
     if (busy) return;
     setRefreshError(undefined);

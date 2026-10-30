@@ -159,7 +159,7 @@ function WheelPicker<T extends string | number>({
         if (!event.defaultPrevented) dragStart.current = null;
       }}
       className={cn(
-        "relative grid w-full touch-pan-y select-none overflow-hidden rounded-ien-default border border-ien-border bg-ien-surface text-ien-text-primary outline-none focus-visible:ring-2 focus-visible:ring-ien-brand",
+        "relative grid w-full touch-none select-none overflow-hidden rounded-ien-default border border-ien-border bg-ien-surface text-ien-text-primary outline-none focus-visible:ring-2 focus-visible:ring-ien-brand",
         disabled && "cursor-not-allowed opacity-50",
         className,
       )}
