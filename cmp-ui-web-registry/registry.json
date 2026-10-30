@@ -4850,7 +4850,8 @@
       "title": "SplitButton",
       "description": "split-button의 CMP 대응 컴포넌트입니다.",
       "dependencies": [
-        "@tabler/icons-react@^3.49.0"
+        "@tabler/icons-react@^3.49.0",
+        "cn"
       ],
       "registryDependencies": [
         "@ienlab/ien-theme",

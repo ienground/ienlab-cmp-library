@@ -11,13 +11,15 @@ test("CMP 대응 컴포넌트의 공개 계약", async (context) => {
   const load = (file) => server.ssrLoadModule(`${repository}/cmp-ui-web-registry/${file}`);
   const render = (Component, props) => renderToStaticMarkup(React.createElement(Component, props));
   try {
-    await context.test("분할 버튼은 CMP의 간격·크기·펼침 모서리와 로딩 차단을 유지한다", async () => {
+    await context.test("분할 버튼은 독립된 두 버튼의 간격·모서리·펼침 상태와 로딩 차단을 유지한다", async () => {
       const { SplitButton } = await load("ui/split-button.tsx");
       const html = render(SplitButton, { children: "저장", menu: null });
       assert.match(html, /data-slot="split-button"/);
       assert.match(html, /gap-ien-xxxs/);
+      assert.equal((html.match(/data-slot="button"/g) ?? []).length, 2);
+      assert.doesNotMatch(html, /pointer-events-none absolute inset-y-1\/4/);
       assert.match(html, /height:52px/);
-      assert.match(html, /border-start-end-radius:var\(--ien-radius-xs\)/);
+      assert.match(html, /border-start-end-radius:var\(--ien-radius-sm\)/);
       assert.match(render(SplitButton, { children: "저장", menu: null, size: "sm" }), /height:36px/);
       assert.match(render(SplitButton, { children: "저장", menu: null, size: "md" }), /height:44px/);
       const expanded = render(SplitButton, { children: "저장", menu: null, open: true });
