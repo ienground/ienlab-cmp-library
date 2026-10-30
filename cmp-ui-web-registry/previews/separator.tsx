@@ -1,4 +1,4 @@
-import { Separator } from "@/components/ui/separator"
+import { Separator, Border } from "@/components/ui/separator"
 
 export function Pattern() {
   return (
@@ -10,6 +10,8 @@ export function Pattern() {
         </div>
       </div>
       <Separator />
+      <Border variant="padding24" />
+      <Border variant="height" height={16} />
       <div className="text-muted-foreground">
         A set of beautifully designed components that you can customize, extend,
         and build on.

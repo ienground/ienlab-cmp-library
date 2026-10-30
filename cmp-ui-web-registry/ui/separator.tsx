@@ -34,4 +34,21 @@ function Separator({
   )
 }
 
-export { Separator }
+export type BorderProps = React.ComponentProps<typeof Separator> & {
+  variant?: "full" | "padding24" | "height"
+  height?: number
+  thickness?: number
+  color?: string
+}
+
+function Border({ variant = "full", height = 16, thickness = 1, color, style, ...props }: BorderProps) {
+  return <Separator {...props} orientation="horizontal" data-slot="border"
+    style={{
+      height: variant === "height" ? height : thickness,
+      ...(variant === "padding24" ? { width: "auto", marginInline: "var(--ien-spacing-xl)" } : {}),
+      backgroundColor: color ?? (variant === "height" ? "var(--ien-surface-weak)" : "var(--ien-border)"),
+      ...style,
+    }} />
+}
+
+export { Separator, Border }

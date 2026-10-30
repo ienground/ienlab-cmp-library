@@ -11,6 +11,30 @@ test("CMP 대응 컴포넌트의 공개 계약", async (context) => {
   const load = (file) => server.ssrLoadModule(`${repository}/cmp-ui-web-registry/${file}`);
   const render = (Component, props) => renderToStaticMarkup(React.createElement(Component, props));
   try {
+    await context.test("웹 확장 컴포넌트는 구분선과 안내 영역, 스와이프 대체 조작을 제공한다", async () => {
+      const { Border } = await load("ui/separator.tsx");
+      assert.match(render(Border, { variant: "padding24" }), /margin-inline:var\(--ien-spacing-xl\)/);
+      assert.match(render(Border, { variant: "height", height: 24 }), /height:24px/);
+      const { BottomInfo } = await load("ui/bottom-info.tsx");
+      assert.match(render(BottomInfo, { children: "안내" }), /linear-gradient/);
+      assert.doesNotMatch(render(BottomInfo, { gradient: "none" }), /linear-gradient/);
+      const { SwipeBox } = await load("ui/swipe-box.tsx");
+      const props = { children: "메일", endActions: [{ id: "delete", label: "삭제", onClick() {} }] };
+      assert.match(render(SwipeBox, props), /aria-expanded="false"/);
+      assert.match(render(SwipeBox, props), /inert=""/);
+      assert.match(render(SwipeBox, { ...props, open: "end" }), /aria-expanded="true"/);
+    });
+    await context.test("다이얼로그와 목적별 프리셋은 닫힌 상태에서 본문을 노출하지 않는다", async () => {
+      const { Dialog, DialogContent, DialogTitle } = await load("ui/dialog.tsx");
+      assert.doesNotMatch(render(Dialog, { open: false, children: React.createElement(DialogContent, {}, React.createElement(DialogTitle, {}, "비공개 제목")) }), /비공개 제목/);
+      const { AlertDialog, ConfirmDialog } = await load("ui/alert-dialog.tsx");
+      for (const Component of [AlertDialog, ConfirmDialog]) assert.doesNotMatch(render(Component, { open: false, title: "확인 제목", onConfirm() {} }), /확인 제목/);
+      const presets = await load("ui/dialog-presets.tsx");
+      for (const name of ["SaveAlertDialog", "DeleteAlertDialog", "UpdateAlertDialog", "NetworkAlertDialog", "ProgressDialog", "DatePickerDialog", "TimePickerDialog", "TextFieldDialog"]) {
+        assert.equal(typeof presets[name], "function", name);
+        assert.doesNotMatch(render(presets[name], { open: false, title: "확인 제목", onConfirm() {}, onSave() {}, onUnsave() {} }), /확인 제목/);
+      }
+    });
     await context.test("분할 버튼은 독립된 두 버튼의 간격·모서리·펼침 상태와 로딩 차단을 유지한다", async () => {
       const { SplitButton } = await load("ui/split-button.tsx");
       const html = render(SplitButton, { children: "저장", menu: null });

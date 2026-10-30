@@ -3031,17 +3031,20 @@
       ],
       "meta": {
         "category": "레이아웃",
-        "cmpIds": [],
+        "cmpIds": [
+          "border"
+        ],
         "upstream": {
           "repository": "https://github.com/keenthemes/reui",
           "revision": "067aa0dc7f8bbfec1cd76fc5ad31f842be5f569a",
           "style": "radix-nova"
         },
         "exports": [
-          "Separator"
+          "Separator",
+          "Border"
         ],
         "preview": "previews/separator.tsx",
-        "example": "import { Separator } from \"@/components/ui/separator\"\n\nexport function Pattern() {\n  return (\n    <div className=\"mx-auto flex w-full max-w-xs flex-col gap-2 text-sm\">\n      <div className=\"flex flex-col gap-1\">\n        <div className=\"text-sm leading-none font-medium\">Design System</div>\n        <div className=\"text-muted-foreground text-xs\">\n          The Foundation for your UI.\n        </div>\n      </div>\n      <Separator />\n      <div className=\"text-muted-foreground\">\n        A set of beautifully designed components that you can customize, extend,\n        and build on.\n      </div>\n    </div>\n  )\n}\nexport default Pattern;\n",
+        "example": "import { Separator, Border } from \"@/components/ui/separator\"\n\nexport function Pattern() {\n  return (\n    <div className=\"mx-auto flex w-full max-w-xs flex-col gap-2 text-sm\">\n      <div className=\"flex flex-col gap-1\">\n        <div className=\"text-sm leading-none font-medium\">Design System</div>\n        <div className=\"text-muted-foreground text-xs\">\n          The Foundation for your UI.\n        </div>\n      </div>\n      <Separator />\n      <Border variant=\"padding24\" />\n      <Border variant=\"height\" height={16} />\n      <div className=\"text-muted-foreground\">\n        A set of beautifully designed components that you can customize, extend,\n        and build on.\n      </div>\n    </div>\n  )\n}\nexport default Pattern;\n",
         "ienDesign": true
       }
     },
@@ -5283,6 +5286,202 @@
           "target": "@lib/ien-text-field.tsx"
         }
       ]
+    },
+    {
+      "name": "bottom-info",
+      "type": "registry:ui",
+      "title": "BottomInfo",
+      "description": "하단 안내와 선택적 그라데이션을 표시합니다.",
+      "dependencies": [
+        "cn"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme"
+      ],
+      "files": [
+        {
+          "path": "ui/bottom-info.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/bottom-info.tsx"
+        }
+      ],
+      "meta": {
+        "category": "레이아웃",
+        "cmpIds": [
+          "bottom-info"
+        ],
+        "exports": [
+          "BottomInfo"
+        ],
+        "preview": "previews/bottom-info.tsx",
+        "example": "import { BottomInfo } from \"@/components/ui/bottom-info\"\n\nexport function Pattern() {\n  return <div className=\"w-full max-w-lg space-y-ien-lg\">\n    <BottomInfo>입력한 내용은 확인 후 저장됩니다.</BottomInfo>\n    <BottomInfo gradient=\"none\">그라데이션 없이 안내를 표시할 수 있습니다.</BottomInfo>\n  </div>\n}\nexport default Pattern\n",
+        "ienDesign": true,
+        "limitations": []
+      }
+    },
+    {
+      "name": "swipe-box",
+      "type": "registry:ui",
+      "title": "SwipeBox",
+      "description": "스와이프 또는 작업 버튼으로 행의 보조 액션을 표시합니다.",
+      "dependencies": [
+        "cn"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/button"
+      ],
+      "files": [
+        {
+          "path": "ui/swipe-box.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/swipe-box.tsx"
+        }
+      ],
+      "meta": {
+        "category": "액션·선택",
+        "cmpIds": [
+          "swipe-box"
+        ],
+        "exports": [
+          "SwipeBox"
+        ],
+        "preview": "previews/swipe-box.tsx",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { SwipeBox } from \"@/components/ui/swipe-box\"\nimport { ListRow } from \"@/components/ui/list-row\"\n\nexport function Pattern() {\n  const [message, setMessage] = useState(\"\")\n  return <div className=\"w-full max-w-lg space-y-ien-md\">\n    <p className=\"text-sm text-muted-foreground\">행을 좌우로 밀거나 작업 버튼을 누르세요.</p>\n    <SwipeBox startActions={[{ id: \"read\", label: \"읽음\", onClick: () => setMessage(\"읽음으로 표시했습니다.\") }]} endActions={[{ id: \"archive\", label: \"보관\", onClick: () => setMessage(\"보관했습니다.\") }, { id: \"delete\", label: \"삭제\", tone: \"danger\", onClick: () => setMessage(\"삭제했습니다.\") }]}>\n      <ListRow title=\"새 메시지\" description=\"일정 확인 부탁드립니다.\" />\n    </SwipeBox>\n    <SwipeBox disabled endActions={[{ id: \"delete\", label: \"삭제\", tone: \"danger\", onClick: () => setMessage(\"삭제했습니다.\") }]}><ListRow title=\"비활성화된 행\" /></SwipeBox>\n    <p aria-live=\"polite\" className=\"text-sm text-muted-foreground\">{message}</p>\n  </div>\n}\nexport default Pattern\n",
+        "ienDesign": true,
+        "limitations": [
+          "전체 스와이프로 액션을 자동 실행하거나 플랫폼 햅틱을 제공하지 않습니다. 각 행의 열림 상태는 open/onOpenChange로 함께 관리할 수 있습니다."
+        ]
+      }
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "Dialog",
+      "description": "포커스 관리와 키보드 조작을 지원하는 일반 다이얼로그입니다.",
+      "dependencies": [
+        "cn",
+        "radix-ui",
+        "@tabler/icons-react"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/button"
+      ],
+      "files": [
+        {
+          "path": "ui/dialog.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/dialog.tsx"
+        }
+      ],
+      "meta": {
+        "category": "피드백",
+        "cmpIds": [
+          "dialog",
+          "modal"
+        ],
+        "exports": [
+          "Dialog",
+          "DialogTrigger",
+          "DialogClose",
+          "DialogContent",
+          "DialogHeader",
+          "DialogFooter",
+          "DialogTitle",
+          "DialogDescription"
+        ],
+        "preview": "previews/dialog.tsx",
+        "example": "\"use client\"\n\nimport { Dialog, DialogTrigger, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from \"@/components/ui/dialog\"\nimport { Button } from \"@/components/ui/button\"\n\nexport function Pattern() {\n  return <Dialog><DialogTrigger asChild><Button>일반 다이얼로그</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle>작업 안내</DialogTitle><DialogDescription>관련 내용과 원하는 콘텐츠를 함께 표시합니다.</DialogDescription></DialogHeader><p>Tab으로 이동하고 Escape로 닫을 수 있습니다.</p><DialogFooter><DialogClose asChild><Button>닫기</Button></DialogClose></DialogFooter></DialogContent></Dialog>\n}\nexport default Pattern\n",
+        "ienDesign": true,
+        "limitations": []
+      }
+    },
+    {
+      "name": "alert-dialog",
+      "type": "registry:ui",
+      "title": "AlertDialog",
+      "description": "알림과 확인·취소 동작을 제공하는 다이얼로그입니다.",
+      "dependencies": [],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/button",
+        "@ienlab/dialog"
+      ],
+      "files": [
+        {
+          "path": "ui/alert-dialog.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/alert-dialog.tsx"
+        }
+      ],
+      "meta": {
+        "category": "피드백",
+        "cmpIds": [
+          "alert-dialog"
+        ],
+        "exports": [
+          "AlertDialog",
+          "ConfirmDialog"
+        ],
+        "preview": "previews/alert-dialog.tsx",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { AlertDialog, ConfirmDialog } from \"@/components/ui/alert-dialog\"\nimport { Button } from \"@/components/ui/button\"\n\nexport function Pattern() {\n  const [active, setActive] = useState<\"alert\" | \"confirm\" | null>(null)\n  const [message, setMessage] = useState(\"\")\n  return <div className=\"flex flex-wrap gap-ien-sm\">\n    <Button onClick={() => setActive(\"alert\")}>알림</Button><Button variant=\"weak\" onClick={() => setActive(\"confirm\")}>확인·취소</Button>\n    <AlertDialog open={active === \"alert\"} onOpenChange={(open) => { if (!open) setActive(null) }} title=\"저장 완료\" message=\"변경 사항을 저장했습니다.\" />\n    <ConfirmDialog open={active === \"confirm\"} onOpenChange={(open) => { if (!open) setActive(null) }} title=\"변경 사항 적용\" message=\"선택한 설정을 적용할까요?\" onConfirm={() => setMessage(\"적용했습니다.\")} />\n    <p aria-live=\"polite\" className=\"w-full text-sm text-muted-foreground\">{message}</p>\n  </div>\n}\nexport default Pattern\n",
+        "ienDesign": true,
+        "limitations": []
+      }
+    },
+    {
+      "name": "dialog-presets",
+      "type": "registry:ui",
+      "title": "Dialog Presets",
+      "description": "저장·삭제·업데이트·네트워크·진행·날짜·시각·텍스트 입력 다이얼로그입니다.",
+      "dependencies": [
+        "@tabler/icons-react"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/dialog",
+        "@ienlab/alert-dialog",
+        "@ienlab/button",
+        "@ienlab/input",
+        "@ienlab/progress-indicator",
+        "@ienlab/date-picker",
+        "@ienlab/time-picker"
+      ],
+      "files": [
+        {
+          "path": "ui/dialog-presets.tsx",
+          "type": "registry:ui",
+          "target": "@components/ui/dialog-presets.tsx"
+        }
+      ],
+      "meta": {
+        "category": "피드백",
+        "cmpIds": [
+          "save-alert-dialog",
+          "delete-alert-dialog",
+          "update-alert-dialog",
+          "network-alert-dialog",
+          "progress-dialog",
+          "date-picker-dialog",
+          "time-picker-dialog",
+          "text-field-dialog"
+        ],
+        "exports": [
+          "SaveAlertDialog",
+          "DeleteAlertDialog",
+          "UpdateAlertDialog",
+          "NetworkAlertDialog",
+          "ProgressDialog",
+          "DatePickerDialog",
+          "TimePickerDialog",
+          "TextFieldDialog"
+        ],
+        "preview": "previews/dialog-presets.tsx",
+        "example": "\"use client\"\n\nimport { useState } from \"react\"\nimport { SaveAlertDialog, DeleteAlertDialog, UpdateAlertDialog, NetworkAlertDialog, ProgressDialog, TextFieldDialog, DatePickerDialog, TimePickerDialog } from \"@/components/ui/dialog-presets\"\nimport { Button } from \"@/components/ui/button\"\n\nexport function Pattern() {\n  const [active, setActive] = useState<string | null>(null)\n  const [message, setMessage] = useState(\"\")\n  const close = (open: boolean) => { if (!open) setActive(null) }\n  return <div className=\"flex max-w-lg flex-wrap gap-ien-sm\">\n    {[\"저장\", \"삭제\", \"업데이트\", \"네트워크\", \"진행\", \"날짜\", \"시각\", \"텍스트 입력\"].map((name) => <Button key={name} variant=\"weak\" onClick={() => setActive(name)}>{name}</Button>)}\n    <SaveAlertDialog open={active === \"저장\"} onOpenChange={close} onSave={() => setMessage(\"저장했습니다.\")} onUnsave={() => setMessage(\"저장하지 않고 닫았습니다.\")} />\n    <DeleteAlertDialog open={active === \"삭제\"} onOpenChange={close} onConfirm={() => setMessage(\"삭제했습니다.\")} />\n    <UpdateAlertDialog open={active === \"업데이트\"} onOpenChange={close} appName=\"IENLAB\" />\n    <NetworkAlertDialog open={active === \"네트워크\"} onOpenChange={close} onRetry={() => setMessage(\"다시 시도합니다.\")} />\n    <ProgressDialog open={active === \"진행\"} onOpenChange={close} title=\"파일 처리 중\" progress={0.4} onCancel={() => setMessage(\"취소했습니다.\")} />\n    <DatePickerDialog open={active === \"날짜\"} onOpenChange={close} value=\"2026-10-30\" onConfirm={setMessage} />\n    <TimePickerDialog open={active === \"시각\"} onOpenChange={close} value=\"09:30\" onConfirm={setMessage} />\n    <TextFieldDialog open={active === \"텍스트 입력\"} onOpenChange={close} title=\"이름 변경\" fields={[{ name: \"name\", label: \"이름\", initialValue: \"홍길동\", required: true, validate: (value) => value.trim().length < 2 ? \"두 글자 이상 입력해주세요.\" : undefined }]} onConfirm={(values) => setMessage(values.name)} />\n    <p aria-live=\"polite\" className=\"w-full text-sm text-muted-foreground\">{message}</p>\n  </div>\n}\nexport default Pattern\n",
+        "ienDesign": true,
+        "limitations": []
+      }
     }
   ]
 }
