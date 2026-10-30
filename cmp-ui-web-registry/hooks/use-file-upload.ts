@@ -172,16 +172,17 @@ export const useFileUpload = (
     (newFiles: FileList | File[]) => {
       if (!newFiles || newFiles.length === 0) return
 
-      const newFilesArray = Array.from(newFiles)
+      const newFilesArray = Array.from(newFiles).filter(
+        (file) => !multiple || !state.files.some(
+          (existingFile) =>
+            existingFile.file.name === file.name &&
+            existingFile.file.size === file.size
+        )
+      )
       const errors: string[] = []
 
       // Clear existing errors when new files are uploaded
       setState((prev) => ({ ...prev, errors: [] }))
-
-      // In single file mode, clear existing files first
-      if (!multiple) {
-        clearFiles()
-      }
 
       // Check if adding these files would exceed maxFiles (only in multiple mode)
       if (
@@ -198,20 +199,6 @@ export const useFileUpload = (
       const validFiles: FileWithPreview[] = []
 
       for (const file of newFilesArray) {
-        // Only check for duplicates if multiple files are allowed
-        if (multiple) {
-          const isDuplicate = state.files.some(
-            (existingFile) =>
-              existingFile.file.name === file.name &&
-              existingFile.file.size === file.size
-          )
-
-          // Skip duplicate files silently
-          if (isDuplicate) {
-            return
-          }
-        }
-
         // Check file size
         if (file.size > maxSize) {
           errors.push(
@@ -240,6 +227,13 @@ export const useFileUpload = (
         onFilesAdded?.(validFiles)
 
         setState((prev) => {
+          if (!multiple) {
+            for (const file of prev.files) {
+              if (file.preview && file.file instanceof File) {
+                URL.revokeObjectURL(file.preview)
+              }
+            }
+          }
           const newFiles = !multiple
             ? validFiles
             : [...prev.files, ...validFiles]
@@ -271,7 +265,6 @@ export const useFileUpload = (
       validateFile,
       createPreview,
       generateUniqueId,
-      clearFiles,
       onFilesChange,
       onFilesAdded,
     ]

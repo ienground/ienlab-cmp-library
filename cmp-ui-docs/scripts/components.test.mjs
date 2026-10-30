@@ -11,6 +11,52 @@ test("CMP 대응 컴포넌트의 공개 계약", async (context) => {
   const load = (file) => server.ssrLoadModule(`${repository}/cmp-ui-web-registry/${file}`);
   const render = (Component, props) => renderToStaticMarkup(React.createElement(Component, props));
   try {
+    const { useFileUpload } = await load("hooks/use-file-upload.ts");
+    function uploadSequence(options, batches) {
+      let result;
+      const changes = [];
+      function Probe() {
+        const [state, actions] = useFileUpload({ ...options, onFilesChange: (files) => changes.push(files) });
+        const step = React.useRef(0);
+        result = state;
+        if (step.current < batches.length) actions.addFiles(batches[step.current++]);
+        return null;
+      }
+      render(Probe, {});
+      return { state: result, changes };
+    }
+    await context.test("거부된 교체 파일은 기존 선택과 미리보기를 유지한다", async () => {
+      for (const invalid of [new File(["too large"], "large.png", { type: "image/png" }), new File(["x"], "wrong.txt", { type: "text/plain" })]) {
+        const current = new File(["ok"], "current.png", { type: "image/png" });
+        const { state, changes } = uploadSequence({ maxSize: 4, accept: "image/*" }, [[current], [invalid]]);
+        assert.deepEqual(state.files.map((entry) => entry.file.name), ["current.png"]);
+        assert.equal(state.errors.length, 1);
+        assert.equal(changes.length, 1);
+        assert.equal(await (await fetch(state.files[0].preview)).text(), "ok");
+        URL.revokeObjectURL(state.files[0].preview);
+      }
+    });
+    await context.test("유효한 교체 파일은 중간 빈 선택 없이 반영하고 이전 미리보기를 해제한다", async () => {
+      const current = new File(["old"], "current.png", { type: "image/png" });
+      const next = new File(["new"], "next.png", { type: "image/png" });
+      const { state, changes } = uploadSequence({}, [[current], [next]]);
+      assert.deepEqual(changes.map((files) => files.map((entry) => entry.file.name)), [["current.png"], ["next.png"]]);
+      await assert.rejects(fetch(changes[0][0].preview));
+      assert.equal(await (await fetch(state.files[0].preview)).text(), "new");
+      URL.revokeObjectURL(state.files[0].preview);
+    });
+    await context.test("중복 파일의 순서와 무관하게 새 파일을 추가한다", () => {
+      for (const [duplicateFirst, maxFiles] of [[false, Infinity], [true, Infinity], [false, 2], [true, 2]]) {
+        const existing = new File(["a"], "existing.txt");
+        const fresh = new File(["b"], "new.txt");
+        const batch = duplicateFirst ? [existing, fresh] : [fresh, existing];
+        const { state, changes } = uploadSequence({ multiple: true, maxFiles }, [[existing], batch]);
+        assert.deepEqual(state.files.map((entry) => entry.file.name), ["existing.txt", "new.txt"]);
+        assert.equal(changes.length, 2);
+        assert.deepEqual(state.errors, []);
+        for (const entry of state.files) URL.revokeObjectURL(entry.preview);
+      }
+    });
     await context.test("웹 확장 컴포넌트는 구분선과 안내 영역, 스와이프 대체 조작을 제공한다", async () => {
       const { Border } = await load("ui/separator.tsx");
       assert.match(render(Border, { variant: "padding24" }), /margin-inline:var\(--ien-spacing-xl\)/);
