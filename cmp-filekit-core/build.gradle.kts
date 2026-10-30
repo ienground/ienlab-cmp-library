@@ -14,6 +14,9 @@ kotlin {
             }
         }
         minSdk = libs.versions.android.minSdk.get().toInt()
+
+        withHostTestBuilder {
+        }
     }
     iosArm64()
     iosSimulatorArm64()
@@ -21,6 +24,11 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(libs.bundles.filekit)
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlin.coroutine)
         }
     }
 }

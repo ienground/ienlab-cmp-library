@@ -73,6 +73,10 @@ kotlin {
         iosMain.dependencies {
             implementation(projects.cmpUtils)
         }
+
+        iosTest.dependencies {
+            implementation(libs.compose.ui.test)
+        }
     }
 }
 

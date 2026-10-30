@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "cn";
+import { normalizeSplitTextFieldChange } from "./split-text-field-logic";
 
 export type SplitTextFieldProps = Omit<
   React.ComponentProps<"div">,
@@ -63,10 +64,14 @@ function SplitTextField({
           disabled={disabled}
           aria-label={`${label}, ${index + 1}번째 문자`}
           onChange={(event) => {
-            const chars = Array.from(current.padEnd(length, ""));
-            const inserted = event.currentTarget.value.slice(-1);
-            chars[index] = inserted;
-            update(chars.join(""), inserted ? index + 1 : index);
+            const change = normalizeSplitTextFieldChange({
+              current,
+              input: event.currentTarget.value,
+              index,
+              length,
+              type,
+            });
+            update(change.value, change.focusIndex);
           }}
           onKeyDown={(event) => {
             if (event.key === "Backspace" && !current[index] && index > 0) {
@@ -88,7 +93,15 @@ function SplitTextField({
           onPaste={(event) => {
             event.preventDefault();
             const pasted = event.clipboardData.getData("text");
-            update(pasted, Math.min(index + pasted.length, length - 1));
+            const change = normalizeSplitTextFieldChange({
+              current,
+              input: pasted,
+              index,
+              length,
+              type,
+              replaceWholeValue: true,
+            });
+            update(change.value, change.focusIndex);
           }}
           className="size-[var(--ien-state-minimum-touch-target)] rounded-ien-default text-center font-mono text-ien-title2"
         />

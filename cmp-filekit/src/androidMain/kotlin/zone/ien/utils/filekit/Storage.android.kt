@@ -10,5 +10,5 @@ import zone.ien.firebase.storage.StorageReference
  * @param metadata 파일 메타데이터 (옵션)
  */
 actual suspend fun StorageReference.uploadFile(file: PlatformFile, metadata: FirebaseStorageMetadata?) {
-    file.toFile()?.let { putFile(it, metadata) }
+    putFile(checkNotNull(file.toFile()) { "PlatformFile을 Storage File로 변환할 수 없습니다." }, metadata)
 }

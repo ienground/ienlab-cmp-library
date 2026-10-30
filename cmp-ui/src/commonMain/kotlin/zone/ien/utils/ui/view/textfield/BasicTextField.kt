@@ -244,7 +244,7 @@ fun PlaceholderBasicSecureTextField(
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Inside(),
     label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,

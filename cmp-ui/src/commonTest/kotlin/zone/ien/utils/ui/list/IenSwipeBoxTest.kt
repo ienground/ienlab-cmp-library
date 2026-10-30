@@ -1,6 +1,7 @@
 package zone.ien.utils.ui.list
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -16,6 +17,41 @@ import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 
 class IenSwipeBoxTest {
+    @Test
+    fun swipeTargetsRespectPositionAndVelocityThresholds() {
+        val anchors = DraggableAnchors {
+            IenSwipeBoxStates.EndVisible at -100f
+            IenSwipeBoxStates.Resting at 0f
+            IenSwipeBoxStates.StartVisible at 100f
+        }
+        data class Case(
+            val offset: Float,
+            val velocity: Float,
+            val velocityThreshold: Float,
+            val positionRatio: Float,
+            val expected: IenSwipeBoxStates,
+        )
+        val cases = listOf(
+            Case(30f, 50f, Float.POSITIVE_INFINITY, 1f, IenSwipeBoxStates.Resting),
+            Case(30f, 50f, Float.POSITIVE_INFINITY, 0.25f, IenSwipeBoxStates.StartVisible),
+            Case(30f, 150f, 100f, 1f, IenSwipeBoxStates.StartVisible),
+            Case(30f, -150f, 100f, 1f, IenSwipeBoxStates.Resting),
+            Case(-30f, -50f, Float.POSITIVE_INFINITY, 1f, IenSwipeBoxStates.Resting),
+            Case(-30f, -50f, Float.POSITIVE_INFINITY, 0.25f, IenSwipeBoxStates.EndVisible),
+            Case(-30f, -150f, 100f, 1f, IenSwipeBoxStates.EndVisible),
+            Case(60f, 0f, Float.POSITIVE_INFINITY, 1f, IenSwipeBoxStates.StartVisible),
+        )
+        cases.forEach { case ->
+            assertEquals(
+                case.expected,
+                swipeBoxTargetValue(anchors, case.offset, case.velocity, case.velocityThreshold) {
+                    distance -> distance * case.positionRatio
+                },
+                case.toString(),
+            )
+        }
+    }
+
     @Test
     fun `기본 크기는 compose hig SwipeBox 토큰을 따른다`() {
         assertEquals(52f, IenSwipeBoxDefaults.actionItemSize.value)

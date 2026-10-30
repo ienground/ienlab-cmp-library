@@ -33,6 +33,9 @@ kotlin {
         androidResources {
             enable = true
         }
+
+        withHostTestBuilder {
+        }
     }
     
     listOf(

@@ -16,15 +16,22 @@ import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.DragScope
+import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.animateTo
+import androidx.compose.foundation.gestures.animateToWithDecay
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,6 +53,8 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.compositionLocalOf
@@ -70,10 +79,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.kyant.capsule.ContinuousCapsule
@@ -92,6 +103,7 @@ import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenLoaderPrimitive
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -187,12 +199,76 @@ class IenSwipeBoxActionsBuilder {
 @Composable
 fun IenSwipeBox(
     modifier: Modifier = Modifier,
-    state: AnchoredDraggableState<IenSwipeBoxStates> = rememberIenSwipeBoxState(),
+    state: IenSwipeBoxState = rememberIenSwipeBoxState(),
     itemWidth: Dp = IenSwipeBoxDefaults.actionItemWidth,
     height: Dp = Dp.Unspecified,
     startToEndFullSwipeEnabled: Boolean = IenSwipeBoxDefaults.allowFullSwipe,
     endToStartFullSwipeEnabled: Boolean = IenSwipeBoxDefaults.allowFullSwipe,
     expansionHapticEnabled: Boolean = IenSwipeBoxDefaults.expansionHapticEnabled,
+    actionItemBuilder: IenSwipeBoxActionsBuilder.() -> Unit,
+    content: @Composable BoxScope.() -> Unit,
+) {
+    val reverseDirection = LocalLayoutDirection.current == LayoutDirection.Rtl
+    IenSwipeBoxContent(
+        modifier = modifier,
+        state = state.anchoredDraggableState,
+        dragModifier = Modifier.draggable(
+            state = state.dragState,
+            orientation = Orientation.Horizontal,
+            reverseDirection = reverseDirection,
+            startDragImmediately = state.isAnimationRunning,
+            onDragStopped = { velocity -> state.settle(velocity) },
+        ),
+        restoreAnimationSpec = state.animationSpec,
+        itemWidth = itemWidth,
+        height = height,
+        startToEndFullSwipeEnabled = startToEndFullSwipeEnabled,
+        endToStartFullSwipeEnabled = endToStartFullSwipeEnabled,
+        expansionHapticEnabled = expansionHapticEnabled,
+        actionItemBuilder = actionItemBuilder,
+        content = content,
+    )
+}
+
+/** 직접 생성한 Compose 앵커 상태를 사용하는 기존 호출을 지원합니다. */
+@Composable
+fun IenSwipeBox(
+    modifier: Modifier = Modifier,
+    state: AnchoredDraggableState<IenSwipeBoxStates>,
+    itemWidth: Dp = IenSwipeBoxDefaults.actionItemWidth,
+    height: Dp = Dp.Unspecified,
+    startToEndFullSwipeEnabled: Boolean = IenSwipeBoxDefaults.allowFullSwipe,
+    endToStartFullSwipeEnabled: Boolean = IenSwipeBoxDefaults.allowFullSwipe,
+    expansionHapticEnabled: Boolean = IenSwipeBoxDefaults.expansionHapticEnabled,
+    actionItemBuilder: IenSwipeBoxActionsBuilder.() -> Unit,
+    content: @Composable BoxScope.() -> Unit,
+) {
+    IenSwipeBoxContent(
+        modifier = modifier,
+        state = state,
+        dragModifier = Modifier.anchoredDraggable(state, Orientation.Horizontal),
+        restoreAnimationSpec = null,
+        itemWidth = itemWidth,
+        height = height,
+        startToEndFullSwipeEnabled = startToEndFullSwipeEnabled,
+        endToStartFullSwipeEnabled = endToStartFullSwipeEnabled,
+        expansionHapticEnabled = expansionHapticEnabled,
+        actionItemBuilder = actionItemBuilder,
+        content = content,
+    )
+}
+
+@Composable
+private fun IenSwipeBoxContent(
+    modifier: Modifier,
+    state: AnchoredDraggableState<IenSwipeBoxStates>,
+    dragModifier: Modifier,
+    restoreAnimationSpec: AnimationSpec<Float>?,
+    itemWidth: Dp,
+    height: Dp,
+    startToEndFullSwipeEnabled: Boolean,
+    endToStartFullSwipeEnabled: Boolean,
+    expansionHapticEnabled: Boolean,
     actionItemBuilder: IenSwipeBoxActionsBuilder.() -> Unit,
     content: @Composable BoxScope.() -> Unit,
 ) {
@@ -215,7 +291,7 @@ fun IenSwipeBox(
     )
 
     val hapticFeedback = rememberIenSwipeBoxHapticFeedback()
-    var anchorsInitialized by remember { mutableStateOf(false) }
+    var anchorsInitialized by remember(state) { mutableStateOf(false) }
     val actionRowOuterPadding = IenSwipeBoxDefaults.actionItemHorizontalPadding * 2
     val startExpansionThresholdPx = with(density) {
         (itemWidth * startActionsSize + actionRowOuterPadding).toPx()
@@ -256,17 +332,21 @@ fun IenSwipeBox(
         fullExpansionStart = startToEndFullSwipeEnabled,
         isEndActionItemSupplied = isEndActionItemSupplied,
         fullExpansionEnd = endToStartFullSwipeEnabled,
+        restoreAnimationSpec = restoreAnimationSpec,
         startFullExpansionOnClick = startFullSwipeAction,
         endFullExpansionOnClick = endFullSwipeAction,
     )
 
-    CompositionLocalProvider(LocalIenSwipeBoxState provides state) {
+    CompositionLocalProvider(
+        LocalIenSwipeBoxState provides state,
+        LocalIenSwipeBoxRestoreAnimationSpec provides restoreAnimationSpec,
+    ) {
         Box(
             modifier = modifier.onGloballyPositioned { coordinates ->
                 parentWidth = coordinates.size.width
             },
         ) {
-            val offset by remember {
+            val offset by remember(state) {
                 derivedStateOf {
                     if (anchorsInitialized) state.offset else 0f
                 }
@@ -396,10 +476,7 @@ fun IenSwipeBox(
                     .offset { IntOffset(offset.roundToInt(), 0) }
                     .then(
                         if (anchorsInitialized) {
-                            Modifier.anchoredDraggable(
-                                state = state,
-                                orientation = Orientation.Horizontal,
-                            )
+                            dragModifier
                         } else {
                             Modifier
                         },
@@ -540,6 +617,7 @@ private fun RowScope.IenSwipeBoxItemImpl(
     showLabelOnExpansion: Boolean,
 ) {
     val swipeBoxState = LocalIenSwipeBoxState.current
+    val restoreAnimationSpec = LocalIenSwipeBoxRestoreAnimationSpec.current
     val actionPosition = LocalIenSwipeActionPosition.current
     val isFullSwipeActionItem = LocalIenSwipeBoxItemFullSwipe.current
     val itemWidth = LocalIenSwipeBoxItemWidth.current
@@ -606,7 +684,7 @@ private fun RowScope.IenSwipeBoxItemImpl(
                 currentOnClick()
                 if (restoreOnClick) {
                     coroutineScope.launch {
-                        swipeBoxState.animateTo(IenSwipeBoxStates.Resting)
+                        animateSwipeBoxToRest(swipeBoxState, restoreAnimationSpec)
                     }
                 }
             },
@@ -748,7 +826,106 @@ internal fun shouldRenderSwipeBoxLabel(
     showLabelOnExpansion: Boolean,
 ): Boolean = isExpanding && showLabelOnExpansion
 
-/** `IenSwipeBox` 상태를 생성하고 스크롤 중 열린 액션을 닫습니다. */
+/**
+ * 앵커 상태와 사용자 지정 플링·복원 애니메이션을 함께 소유합니다.
+ *
+ * Compose 앵커 API에 직접 접근할 때는 [anchoredDraggableState]를 사용합니다.
+ */
+@Stable
+class IenSwipeBoxState internal constructor(
+    initialValue: IenSwipeBoxStates,
+    private val positionalThreshold: (Float) -> Float,
+    private val velocityThreshold: Float,
+    internal val animationSpec: SpringSpec<Float>,
+    private val decayAnimationSpec: DecayAnimationSpec<Float>,
+) {
+    /** Compose의 앵커 갱신·관찰 API와 연동할 때 사용하는 상태입니다. */
+    val anchoredDraggableState = AnchoredDraggableState(initialValue)
+
+    /** 현재 통과한 앵커입니다. */
+    val currentValue: IenSwipeBoxStates get() = anchoredDraggableState.currentValue
+
+    /** 마지막으로 정착한 앵커입니다. */
+    val settledValue: IenSwipeBoxStates get() = anchoredDraggableState.settledValue
+
+    /** 현재 드래그 또는 애니메이션의 목표 앵커입니다. */
+    val targetValue: IenSwipeBoxStates get() = anchoredDraggableState.targetValue
+
+    /** 초기 배치 전에는 NaN인 수평 이동량입니다. */
+    val offset: Float get() = anchoredDraggableState.offset
+
+    /** 프로그램 애니메이션이나 플링 정착이 진행 중인지 나타냅니다. */
+    val isAnimationRunning: Boolean get() = anchoredDraggableState.isAnimationRunning
+
+    internal val dragState = object : DraggableState {
+        override suspend fun drag(dragPriority: MutatePriority, block: suspend DragScope.() -> Unit) {
+            anchoredDraggableState.anchoredDrag(dragPriority) { anchors ->
+                val anchoredScope = this
+                block(object : DragScope {
+                    override fun dragBy(pixels: Float) {
+                        anchoredScope.dragTo(
+                            (anchoredDraggableState.requireOffset() + pixels)
+                                .coerceIn(anchors.minPosition(), anchors.maxPosition()),
+                        )
+                    }
+                })
+            }
+        }
+
+        override fun dispatchRawDelta(delta: Float) {
+            anchoredDraggableState.dispatchRawDelta(delta)
+        }
+    }
+
+    /** 생성 시 지정한 스프링으로 목표 앵커까지 이동합니다. */
+    suspend fun animateTo(targetValue: IenSwipeBoxStates) {
+        anchoredDraggableState.animateTo(targetValue, animationSpec)
+    }
+
+    /** 애니메이션 없이 목표 앵커로 이동합니다. */
+    suspend fun snapTo(targetValue: IenSwipeBoxStates) {
+        anchoredDraggableState.snapTo(targetValue)
+    }
+
+    internal suspend fun settle(velocity: Float) {
+        val target = swipeBoxTargetValue(
+            anchors = anchoredDraggableState.anchors,
+            offset = anchoredDraggableState.requireOffset(),
+            velocity = velocity,
+            velocityThreshold = velocityThreshold,
+            positionalThreshold = positionalThreshold,
+        ) ?: return
+        anchoredDraggableState.animateToWithDecay(target, velocity, animationSpec, decayAnimationSpec)
+    }
+}
+
+internal fun swipeBoxTargetValue(
+    anchors: DraggableAnchors<IenSwipeBoxStates>,
+    offset: Float,
+    velocity: Float,
+    velocityThreshold: Float,
+    positionalThreshold: (Float) -> Float,
+): IenSwipeBoxStates? {
+    if (velocity == 0f) return anchors.closestAnchor(offset)
+    val forwards = velocity > 0f
+    if (abs(velocity) >= abs(velocityThreshold)) {
+        return anchors.closestAnchor(offset, forwards)
+    }
+    val left = anchors.closestAnchor(offset, false) ?: return null
+    val right = anchors.closestAnchor(offset, true) ?: return null
+    val leftPosition = anchors.positionOf(left)
+    val rightPosition = anchors.positionOf(right)
+    val distanceFromStart = abs(offset - if (forwards) leftPosition else rightPosition)
+    val crossedThreshold = distanceFromStart >= abs(positionalThreshold(abs(rightPosition - leftPosition)))
+    return if (forwards == crossedThreshold) right else left
+}
+
+/**
+ * `IenSwipeBox`의 상태와 플링 설정을 생성하고 스크롤·다른 행의 열림에 따라 닫습니다.
+ *
+ * 설정은 [key]가 바뀔 때 다시 생성됩니다. 반환 타입은 전용 [IenSwipeBoxState]이며,
+ * 기존의 명시적인 `AnchoredDraggableState` 참조는 [IenSwipeBoxState.anchoredDraggableState]로 접근합니다.
+ */
 @Composable
 fun rememberIenSwipeBoxState(
     key: Any? = null,
@@ -757,27 +934,16 @@ fun rememberIenSwipeBoxState(
     velocityThreshold: Float = IenSwipeBoxDefaults.velocityThreshold,
     animationSpec: SpringSpec<Float> = IenSwipeBoxDefaults.animationSpec,
     scrollableState: ScrollableState? = null,
-    openSwipeBoxState: MutableState<AnchoredDraggableState<IenSwipeBoxStates>?> = mutableStateOf(null),
+    openSwipeBoxState: MutableState<IenSwipeBoxState?> = remember { mutableStateOf(null) },
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-): AnchoredDraggableState<IenSwipeBoxStates> {
+): IenSwipeBoxState {
     val density = LocalDensity.current
-    val anchoredDraggableState = remember(key) {
-        AnchoredDraggableState(
-            initialValue = initialValue,
-            snapAnimationSpec = animationSpec,
-            decayAnimationSpec = splineBasedDecay(density),
-            positionalThreshold = positionalThreshold,
-            velocityThreshold = { velocityThreshold },
-        )
+    val state = remember(key) {
+        IenSwipeBoxState(initialValue, positionalThreshold, velocityThreshold, animationSpec, splineBasedDecay(density))
     }
-
-    ScrollEffect(scrollableState = scrollableState, swipeBoxState = anchoredDraggableState)
-    ObserverGlobalSwipeBoxListenerEffect(
-        state = anchoredDraggableState,
-        openSwipeBoxState = openSwipeBoxState,
-        coroutineScope = coroutineScope,
-    )
-    return anchoredDraggableState
+    ScrollEffect(scrollableState = scrollableState, swipeBoxState = state)
+    ObserverGlobalSwipeBoxListenerEffect(state = state, openSwipeBoxState = openSwipeBoxState, coroutineScope = coroutineScope)
+    return state
 }
 
 private enum class IenSwipeActionPosition {
@@ -790,6 +956,7 @@ private val LocalIenSwipeBoxItemWidth = compositionLocalOf { 0.dp }
 private val LocalIenSwipeBoxItemRevealScale = compositionLocalOf { 1f }
 private val LocalIenSwipeBoxItemLabelVisible = compositionLocalOf { false }
 private val LocalIenSwipeActionPosition = compositionLocalOf { IenSwipeActionPosition.Start }
+private val LocalIenSwipeBoxRestoreAnimationSpec = compositionLocalOf<AnimationSpec<Float>?> { null }
 private val LocalIenSwipeBoxState =
     compositionLocalOf<AnchoredDraggableState<IenSwipeBoxStates>> {
         error("No IenSwipeBoxState provided")
@@ -815,6 +982,7 @@ private fun AnchorsEffect(
     val startSwipeOffset = with(density) { totalStartActionItemWidth.toPx() }
     val endSwipeOffset = with(density) { totalEndActionItemWidth.toPx() }
     LaunchedEffect(
+        swipeBoxState,
         parentWidth,
         totalStartActionItemWidth,
         totalEndActionItemWidth,
@@ -894,9 +1062,9 @@ private fun HapticFeedbackEffect(
 @Composable
 private fun ScrollEffect(
     scrollableState: ScrollableState?,
-    swipeBoxState: AnchoredDraggableState<IenSwipeBoxStates>,
+    swipeBoxState: IenSwipeBoxState,
 ) {
-    LaunchedEffect(scrollableState) {
+    LaunchedEffect(scrollableState, swipeBoxState) {
         snapshotFlow { scrollableState?.isScrollInProgress }
             .collect { isScrolling ->
                 if (isScrolling == true && swipeBoxState.currentValue != IenSwipeBoxStates.Resting) {
@@ -913,20 +1081,21 @@ private fun DismissFullyExpandedEffect(
     fullExpansionStart: Boolean,
     isEndActionItemSupplied: Boolean,
     fullExpansionEnd: Boolean,
+    restoreAnimationSpec: AnimationSpec<Float>?,
     startFullExpansionOnClick: (() -> Unit)? = null,
     endFullExpansionOnClick: (() -> Unit)? = null,
 ) {
-    LaunchedEffect(swipeBoxState.settledValue) {
+    LaunchedEffect(swipeBoxState, swipeBoxState.settledValue) {
         if (fullExpansionStart && isStartActionItemSupplied &&
             swipeBoxState.settledValue == IenSwipeBoxStates.StartFullyExpanded
         ) {
-            dismissAndAnimate(swipeBoxState)
+            dismissAndAnimate(swipeBoxState, restoreAnimationSpec)
             startFullExpansionOnClick?.invoke()
         }
         if (fullExpansionEnd && isEndActionItemSupplied &&
             swipeBoxState.settledValue == IenSwipeBoxStates.EndFullyExpanded
         ) {
-            dismissAndAnimate(swipeBoxState)
+            dismissAndAnimate(swipeBoxState, restoreAnimationSpec)
             endFullExpansionOnClick?.invoke()
         }
     }
@@ -934,15 +1103,25 @@ private fun DismissFullyExpandedEffect(
 
 @Composable
 private fun ObserverGlobalSwipeBoxListenerEffect(
-    state: AnchoredDraggableState<IenSwipeBoxStates>,
-    openSwipeBoxState: MutableState<AnchoredDraggableState<IenSwipeBoxStates>?> = mutableStateOf(null),
+    state: IenSwipeBoxState,
+    openSwipeBoxState: MutableState<IenSwipeBoxState?>,
     coroutineScope: CoroutineScope,
 ) {
-    LaunchedEffect(state.currentValue) {
+    DisposableEffect(state, openSwipeBoxState) {
+        onDispose {
+            if (openSwipeBoxState.value == state) openSwipeBoxState.value = null
+        }
+    }
+    LaunchedEffect(state, openSwipeBoxState, coroutineScope, state.currentValue) {
         if (state.currentValue != IenSwipeBoxStates.Resting) {
             val currentlyOpenState = openSwipeBoxState.value
             if (currentlyOpenState != null && currentlyOpenState != state) {
-                coroutineScope.launch { dismissAndAnimate(currentlyOpenState) }
+                coroutineScope.launch {
+                    dismissAndAnimate(
+                        currentlyOpenState.anchoredDraggableState,
+                        currentlyOpenState.animationSpec,
+                    )
+                }
             }
             openSwipeBoxState.value = state
         } else if (openSwipeBoxState.value == state) {
@@ -953,9 +1132,18 @@ private fun ObserverGlobalSwipeBoxListenerEffect(
 
 private suspend fun dismissAndAnimate(
     swipeBoxState: AnchoredDraggableState<IenSwipeBoxStates>,
+    animationSpec: AnimationSpec<Float>?,
 ) {
     delay(10.milliseconds)
-    swipeBoxState.animateTo(IenSwipeBoxStates.Resting)
+    animateSwipeBoxToRest(swipeBoxState, animationSpec)
+}
+
+private suspend fun animateSwipeBoxToRest(
+    state: AnchoredDraggableState<IenSwipeBoxStates>,
+    animationSpec: AnimationSpec<Float>?,
+) {
+    if (animationSpec == null) state.animateTo(IenSwipeBoxStates.Resting)
+    else state.animateTo(IenSwipeBoxStates.Resting, animationSpec)
 }
 
 @Composable

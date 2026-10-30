@@ -31,7 +31,7 @@ actual object Dlog {
      * @param message 로그 메시지
      */
     actual fun e(tag: String, message: String) {
-        NSLog("[${tag}]\t\uD83D\uDD34\t${message}")
+        if (isDebug) NSLog("[${tag}]\t\uD83D\uDD34\t${message}")
     }
 
     /**
@@ -41,7 +41,7 @@ actual object Dlog {
      * @param message 로그 메시지
      */
     actual fun w(tag: String, message: String) {
-        NSLog("[${tag}]\t\uD83D\uDFE1\t${message}")
+        if (isDebug) NSLog("[${tag}]\t\uD83D\uDFE1\t${message}")
     }
 
     /**
@@ -51,7 +51,7 @@ actual object Dlog {
      * @param message 로그 메시지
      */
     actual fun i(tag: String, message: String) {
-        NSLog("[${tag}]\t\uD83D\uDFE2\t${message}")
+        if (isDebug) NSLog("[${tag}]\t\uD83D\uDFE2\t${message}")
     }
 
     /**
@@ -61,7 +61,7 @@ actual object Dlog {
      * @param message 로그 메시지
      */
     actual fun d(tag: String, message: String) {
-        NSLog("[${tag}]\t\uD83D\uDD35\t${message}")
+        if (isDebug) NSLog("[${tag}]\t\uD83D\uDD35\t${message}")
     }
 
     /**
@@ -71,6 +71,6 @@ actual object Dlog {
      * @param message 로그 메시지
      */
     actual fun v(tag: String, message: String) {
-        NSLog("[${tag}]\t⚪\uFE0F\t${message}")
+        if (isDebug) NSLog("[${tag}]\t⚪\uFE0F\t${message}")
     }
 }

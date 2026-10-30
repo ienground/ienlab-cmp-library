@@ -79,11 +79,11 @@ fun HigActionMenu(
                         )
                     ) {
                         AnimatedContent(
-                            targetState = item.icon,
+                            targetState = icon,
                             label = "menu_icon"
-                        ) {
+                        ) { targetIcon ->
                             IenIcon(
-                                icon = icon,
+                                icon = targetIcon,
                                 contentDescription = item.title,
                                 modifier = Modifier
                                     .size(IenTheme.icon.lg)

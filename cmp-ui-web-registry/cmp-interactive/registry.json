@@ -613,6 +613,11 @@
           "path": "numeric-spinner.tsx",
           "type": "registry:ui",
           "target": "@ui/numeric-spinner.tsx"
+        },
+        {
+          "path": "numeric-spinner-logic.ts",
+          "type": "registry:ui",
+          "target": "@ui/numeric-spinner-logic.ts"
         }
       ],
       "registryDependencies": [
@@ -1746,6 +1751,11 @@
           "path": "split-text-field.tsx",
           "type": "registry:ui",
           "target": "@ui/split-text-field.tsx"
+        },
+        {
+          "path": "split-text-field-logic.ts",
+          "type": "registry:ui",
+          "target": "@ui/split-text-field-logic.ts"
         }
       ],
       "registryDependencies": [

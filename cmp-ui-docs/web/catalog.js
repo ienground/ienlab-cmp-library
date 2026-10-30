@@ -24,6 +24,7 @@ function component(
 
   return {
     id,
+    webSupported: true,
     name,
     category,
     description,
@@ -38,6 +39,7 @@ function component(
 export const catalog = [
   {
     ...component("prefs-picker", "Prefs Picker", "입력", "설정 항목에서 날짜·시각·기간을 선택합니다. 웹 미리보기 값은 화면 안에서만 유지됩니다.", ["DatePickerPref", "TimePickerPref", "DurationPickerPref"], "", "cmp-pref", "zone.ien.utils.pref.item"),
+    webSupported: false,
     source: "cmp-pref/src/commonMain/kotlin/zone/ien/utils/pref/item/DatePickerPref.kt",
   },
   component("action-bar", "Action Bar", "액션·선택", "선택 항목의 동작을 위·아래 가장자리와 가로 정렬에 따라 슬라이드하여 표시합니다.", ["IenActionBar", "IenActionBarSide", "IenActionBarDefaults"], "interactive/IenActionBar.kt"),

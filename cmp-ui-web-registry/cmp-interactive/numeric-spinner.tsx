@@ -5,6 +5,7 @@ import { Minus, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "cn";
+import { stepNumericValue } from "./numeric-spinner-logic";
 
 export type NumericSpinnerProps = Omit<
   React.ComponentProps<"div">,
@@ -91,7 +92,7 @@ function NumericSpinner({
         size="icon-sm"
         aria-label={`${label} 감소`}
         disabled={disabled || current <= min}
-        onClick={() => update(current - step)}
+        onClick={() => update(stepNumericValue(current, step, -1, min, max))}
       >
         <Minus aria-hidden="true" />
       </Button>
@@ -132,7 +133,7 @@ function NumericSpinner({
         size="icon-sm"
         aria-label={`${label} 증가`}
         disabled={disabled || current >= max}
-        onClick={() => update(current + step)}
+        onClick={() => update(stepNumericValue(current, step, 1, min, max))}
       >
         <Plus aria-hidden="true" />
       </Button>

@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Instant
 import zone.ien.utils.icon.IconData
@@ -104,7 +105,7 @@ fun IenPlaygroundScreen(
             .toLocalDateTime(TimeZone.UTC)
             .date
             .let { date ->
-                "${date.year}-${date.monthNumber.toString().padStart(2, '0')}-${date.day.toString().padStart(2, '0')}"
+                "${date.year}-${date.month.number.toString().padStart(2, '0')}-${date.day.toString().padStart(2, '0')}"
             }
     } ?: "날짜를 선택하세요"
     val selectedTimeLabel = "${selectedTimeHour.toString().padStart(2, '0')}:${selectedTimeMinute.toString().padStart(2, '0')}"

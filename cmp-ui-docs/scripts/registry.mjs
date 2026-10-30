@@ -1,6 +1,9 @@
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { parse } from "@babel/parser";
+
+const registryItemSchema = "https://ui.shadcn.com/schema/registry-item.json";
 
 function assertInside(file, repository) {
   const relative = path.relative(repository, file);
@@ -36,7 +39,11 @@ export async function collectRegistry(
         content: await readFile(absolutePath, "utf8"),
       });
     }
-    items.push({ ...item, files, manifestPath: absolute });
+    const collected = { ...item, files, manifestPath: absolute };
+    Object.defineProperty(collected, "hasFiles", {
+      value: Object.hasOwn(item, "files"),
+    });
+    items.push(collected);
   }
   for (const included of manifest.include ?? []) {
     items.push(
@@ -47,6 +54,74 @@ export async function collectRegistry(
     );
   }
   return items;
+}
+
+function registryItem(item, includeFileContent, repository) {
+  const { manifestPath, files, ...definition } = item;
+  if (!item.hasFiles) delete definition.files;
+  if (item.hasFiles) {
+    definition.files = files.map(({ absolutePath, content, ...file }) => {
+      const registryFile = {
+        ...file,
+        path: path.relative(repository, absolutePath).split(path.sep).join("/"),
+      };
+      return includeFileContent ? { ...registryFile, content } : registryFile;
+    });
+  }
+  return definition;
+}
+
+function registryItemOutputPaths(items, outputDirectory) {
+  const outputRoot = path.resolve(outputDirectory);
+  const paths = new Set([path.join(outputRoot, "registry.json").toLowerCase()]);
+  return items.map(({ name }) => {
+    if (typeof name !== "string" || name.length === 0)
+      throw new Error(`레지스트리 항목 이름이 비어 있습니다: ${name}`);
+
+    const outputPath = path.resolve(outputRoot, `${name}.json`);
+    assertInside(outputPath, outputRoot);
+    if (path.dirname(outputPath) !== outputRoot || /[\\/\0]/.test(name))
+      throw new Error(`레지스트리 항목 이름에 경로 구분자를 사용할 수 없습니다: ${name}`);
+
+    const normalizedPath = outputPath.toLowerCase();
+    if (paths.has(normalizedPath))
+      throw new Error(`예약되었거나 중복된 레지스트리 출력 경로입니다: ${name}`);
+    paths.add(normalizedPath);
+    return outputPath;
+  });
+}
+
+export async function buildRegistry(manifestPath, repository, outputDirectory) {
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  const items = await collectRegistry(manifestPath, repository);
+  validateRegistry(items);
+  const outputRoot = path.resolve(outputDirectory);
+  const itemOutputPaths = registryItemOutputPaths(items, outputRoot);
+  await mkdir(outputRoot, { recursive: true });
+
+  const registry = {
+    ...manifest,
+    items: items.map((item) => registryItem(item, false, repository)),
+  };
+  delete registry.include;
+  await writeFile(
+    path.join(outputRoot, "registry.json"),
+    `${JSON.stringify(registry, null, 2)}\n`,
+  );
+
+  for (const [index, item] of items.entries()) {
+    await writeFile(
+      itemOutputPaths[index],
+      `${JSON.stringify(
+        {
+          $schema: registryItemSchema,
+          ...registryItem(item, true, repository),
+        },
+        null,
+        2,
+      )}\n`,
+    );
+  }
 }
 
 export function validateRegistry(items) {
@@ -256,4 +331,17 @@ export function createWebCatalog(items, cmpCatalog, repository) {
       };
     })
     .sort((left, right) => left.name.localeCompare(right.name));
+}
+
+if (
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
+  const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
+  const repository = path.resolve(scriptDirectory, "../../");
+  await buildRegistry(
+    path.join(repository, "registry.json"),
+    repository,
+    path.join(repository, "cmp-ui-docs/build/site/r"),
+  );
 }
