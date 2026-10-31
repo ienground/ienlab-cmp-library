@@ -615,6 +615,11 @@
     "wheel-picker",
     "auth-form",
     "ien-text-field",
+    "bottom-info",
+    "swipe-box",
+    "dialog",
+    "alert-dialog",
+    "dialog-presets",
     "ienlab",
     "ienlab-microsite"
   ]

@@ -1,3 +1,4 @@
+import { Typography } from "@/components/ui/typography";
 import {
   Fragment,
   StrictMode,
@@ -9,19 +10,19 @@ import {
   useState,
 } from "react";
 import { createRoot } from "react-dom/client";
-import { RiGithubFill } from "@remixicon/react";
 import type { CatalogItem } from "./catalog.js";
 import {
-  ArrowUpRight,
-  Command,
-  Info,
-  Menu,
-  Monitor,
-  Moon,
-  Search,
-  Sun,
-  X,
-} from "lucide-react";
+  IconArrowUpRight as ArrowUpRight,
+  IconBrandGithub,
+  IconCommand as Command,
+  IconInfoCircle as Info,
+  IconMenu2 as Menu,
+  IconDeviceDesktop as Monitor,
+  IconMoon as Moon,
+  IconSearch as Search,
+  IconSun as Sun,
+  IconX as X,
+} from "@tabler/icons-react";
 import {
   BrowserRouter,
   Link,
@@ -32,19 +33,19 @@ import {
   useNavigate,
   useParams,
 } from "react-router";
-import { Badge } from "./components/ui/badge";
-import { Button } from "./components/ui/button";
-import { Card } from "./components/ui/card";
-import { Input } from "./components/ui/input";
-import { ScrollArea } from "./components/ui/scroll-area";
+import { Badge } from "@/components/reui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetClose,
   SheetContent,
   SheetTitle,
-} from "./components/ui/sheet";
-import { Skeleton } from "./components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
+} from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { catalog, categories } from "./catalog.js";
 import { webCatalog } from "./web-registry";
 import apiDocs from "./generated-api-docs.json";
@@ -58,6 +59,8 @@ import {
 import { composeColorQuery } from "./color-scheme";
 import type { ColorSchemes, IconStyle } from "./color-scheme";
 import "./styles.css";
+import { WebProjectProvider } from "./web-project-context";
+import type { IenLanguage } from "../../cmp-ui-web-registry/lib/ien-theme";
 
 const SkeletonComposer = lazy(() =>
   import("./SkeletonComposer").then(({ SkeletonComposer: component }) => ({
@@ -70,8 +73,8 @@ const WebRegistryDocs = lazy(() =>
     default: component,
   })),
 );
-const WebComponentDocs = lazy(() =>
-  import("./WebComponentDocs").then(({ WebComponentDocs: component }) => ({
+const WebProjects = lazy(() =>
+  import("./WebProjects").then(({ WebProjects: component }) => ({
     default: component,
   })),
 );
@@ -93,7 +96,7 @@ interface ApiDocumentationEntry {
   parameters: ApiParameterDocumentation[];
 }
 
-type PreviewTab = "preview" | "composer" | "api" | "registry";
+type PreviewTab = "preview" | "playground" | "composer" | "api" | "registry";
 type ThemeMode = "light" | "dark" | "system";
 type ResolvedTheme = Exclude<ThemeMode, "system">;
 
@@ -148,6 +151,7 @@ function getInitialThemeMode(): ThemeMode {
 
 function App() {
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialThemeMode);
+  const [webLanguage, setWebLanguage] = useState<IenLanguage>("ko");
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() =>
     window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light",
   );
@@ -186,37 +190,41 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<InitialRedirect />} path="/" />
-        <Route
-          element={
-            <ComponentPage
-              onThemeModeChange={changeThemeMode}
-              resolvedTheme={resolvedTheme}
-              themeMode={themeMode}
-            />
-          }
-          path="/:section/:componentId?/:page?"
-        />
-        <Route
-          element={
-            <Navigate
-              replace
-              to={`/components/${defaultComponentId}/preview`}
-            />
-          }
-          path="/components"
-        />
-        <Route
-          element={
-            <Navigate
-              replace
-              to={`/components/${defaultComponentId}/preview`}
-            />
-          }
-          path="*"
-        />
-      </Routes>
+      <WebProjectProvider>
+        <Routes>
+          <Route element={<InitialRedirect />} path="/" />
+          <Route
+            element={
+              <ComponentPage
+                onThemeModeChange={changeThemeMode}
+                onWebLanguageChange={setWebLanguage}
+                resolvedTheme={resolvedTheme}
+                themeMode={themeMode}
+                webLanguage={webLanguage}
+              />
+            }
+            path="/:section/:componentId?/:page?"
+          />
+          <Route
+            element={
+              <Navigate
+                replace
+                to={`/components/${defaultComponentId}/preview`}
+              />
+            }
+            path="/components"
+          />
+          <Route
+            element={
+              <Navigate
+                replace
+                to={`/components/${defaultComponentId}/preview`}
+              />
+            }
+            path="*"
+          />
+        </Routes>
+      </WebProjectProvider>
     </BrowserRouter>
   );
 }
@@ -240,18 +248,24 @@ function InitialRedirect() {
 
 function ComponentPage({
   onThemeModeChange,
+  onWebLanguageChange,
   resolvedTheme,
   themeMode,
+  webLanguage,
 }: {
   onThemeModeChange: (themeMode: ThemeMode) => void;
+  onWebLanguageChange: (language: IenLanguage) => void;
   resolvedTheme: ResolvedTheme;
   themeMode: ThemeMode;
+  webLanguage: IenLanguage;
 }) {
   const { section, componentId: requestedComponentId, page } = useParams();
   const navigate = useNavigate();
-  const isColorSchemePage = useLocation().pathname === "/color-scheme";
+  const pathname = useLocation().pathname;
+  const isColorSchemePage = pathname === "/color-scheme";
+  const isProjectsPage = pathname === "/projects";
+  const isSettingsPage = isColorSchemePage || isProjectsPage;
   const isWebPage = section === "web";
-  const [headerScrolled, setHeaderScrolled] = useState(false);
   const [activeColorSection, setActiveColorSection] = useState(
     colorSchemeSections[0].id,
   );
@@ -269,17 +283,10 @@ function ComponentPage({
       (isWebPage ? webCatalog : catalog).find(
         (item) =>
           item.id ===
-          (isColorSchemePage ? lastComponentId : requestedComponentId),
+          (isSettingsPage ? lastComponentId : requestedComponentId),
       ),
-    [requestedComponentId, isColorSchemePage, lastComponentId, isWebPage],
+    [requestedComponentId, isSettingsPage, lastComponentId, isWebPage],
   );
-  useEffect(() => {
-    const updateHeader = () => setHeaderScrolled(window.scrollY > 24);
-    updateHeader();
-    window.addEventListener("scroll", updateHeader, { passive: true });
-    return () => window.removeEventListener("scroll", updateHeader);
-  }, []);
-
   useEffect(() => {
     let pendingPreviewHeight: number | null = null;
     let heightUpdateTimeout: number | undefined;
@@ -319,35 +326,17 @@ function ComponentPage({
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
-  }, [requestedComponentId, isColorSchemePage]);
+  }, [requestedComponentId, isSettingsPage, pathname]);
 
   useEffect(() => {
     if (!isColorSchemePage) return;
     setActiveColorSection(colorSchemeSections[0].id);
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) setActiveColorSection(entry.target.id);
-        }
-      },
-      { rootMargin: "-20% 0px -60% 0px", threshold: 0 },
-    );
-    for (const section of colorSchemeSections) {
-      const element = document.getElementById(section.id);
-      if (element) observer.observe(element);
-    }
-    return () => observer.disconnect();
   }, [isColorSchemePage]);
 
   function selectColorSection(id: string) {
     setActiveColorSection(id);
     setMobileNavigationOpen(false);
-    document.getElementById(id)?.scrollIntoView({
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-        ? "instant"
-        : "smooth",
-      block: "start",
-    });
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   const filteredCatalog = useMemo(() => {
@@ -419,9 +408,9 @@ function ComponentPage({
 
   if (
     !activeComponent ||
-    (!isColorSchemePage &&
+    (!isSettingsPage &&
       (isWebPage
-        ? page !== "preview" && page !== "registry"
+        ? page !== "preview" && page !== "playground" && page !== "registry" && !(page === "composer" && activeComponent.id === "skeleton")
         : section !== "components" ||
           (page !== "preview" &&
             page !== "api" &&
@@ -433,7 +422,7 @@ function ComponentPage({
   }
 
   const activeTab: PreviewTab =
-    page === "registry" ? "registry" : page === "api" ? "api" : page === "composer" ? "composer" : "preview";
+    page === "playground" ? "playground" : page === "registry" ? "registry" : page === "api" ? "api" : page === "composer" ? "composer" : "preview";
   const composeUrl =
     import.meta.env.BASE_URL +
     "compose/index.html?component=" +
@@ -466,12 +455,12 @@ function ComponentPage({
 
   return (
     <>
-      <header className={headerScrolled ? "topbar header-floating" : "topbar"}>
+      <header className="topbar">
         <nav className="header-navigation" aria-label="데모 페이지">
           <Button
             asChild
             variant="ghost"
-            aria-current={!isColorSchemePage && !isWebPage ? "page" : undefined}
+            aria-current={!isSettingsPage && !isWebPage ? "page" : undefined}
           >
             <Link
               to={`/components/${isWebPage ? webCatalog.find((item) => item.id === activeComponent.id)?.cmpId || lastComponentId : activeComponent.id}/preview`}
@@ -494,6 +483,15 @@ function ComponentPage({
               컬러 스킴
             </Link>
           </Button>
+          <Button
+            asChild
+            variant="ghost"
+            aria-current={isProjectsPage ? "page" : undefined}
+          >
+            <Link to="/projects" onClick={selectComponent}>
+              프로젝트 설정
+            </Link>
+          </Button>
         </nav>
         <Link
           className="header-brand"
@@ -503,13 +501,13 @@ function ComponentPage({
           <img alt="" src={ienlabLogo} width={32} height={32} />
           <span className="header-brand-label">
             <span className="header-brand-name">cmp-library</span>
-            <Badge className="header-version" variant="secondary">
+            <Badge className="header-version" variant="weak">
               v{libraryVersion}
             </Badge>
           </span>
         </Link>
         <div className="topbar-actions">
-          <Button
+          {!isProjectsPage && <Button
             aria-expanded={mobileNavigationOpen}
             aria-label="탐색 메뉴 열기"
             className="mobile-menu-button rounded-xl border"
@@ -518,14 +516,14 @@ function ComponentPage({
             variant="ghost"
           >
             <Menu aria-hidden="true" />
-          </Button>
+          </Button>}
 
           <Button
             aria-label={`${nextThemeModeLabel}로 전환`}
             onClick={() => onThemeModeChange(nextThemeMode)}
             size="icon-sm"
             title={themeModeLabel}
-            variant="outline"
+            variant="line"
           >
             {themeMode === "light" ? (
               <Sun aria-hidden="true" />
@@ -535,6 +533,30 @@ function ComponentPage({
               <Monitor aria-hidden="true" />
             )}
           </Button>
+          {(isWebPage || isProjectsPage) && (
+            <div className="flex items-center gap-0.5" role="group" aria-label="프리뷰 언어 / Preview language">
+              <Button
+                aria-label="한국어"
+                aria-pressed={webLanguage === "ko"}
+                onClick={() => onWebLanguageChange("ko")}
+                size="sm"
+                title="한국어"
+                variant={webLanguage === "ko" ? "line" : "ghost"}
+              >
+                KO
+              </Button>
+              <Button
+                aria-label="English"
+                aria-pressed={webLanguage === "en"}
+                onClick={() => onWebLanguageChange("en")}
+                size="sm"
+                title="English"
+                variant={webLanguage === "en" ? "line" : "ghost"}
+              >
+                EN
+              </Button>
+            </div>
+          )}
           <Button
             asChild
             className="github-link"
@@ -547,17 +569,17 @@ function ComponentPage({
               target="_blank"
               aria-label="GitHub 저장소"
             >
-              <RiGithubFill aria-hidden="true" />
+              <IconBrandGithub aria-hidden="true" />
             </a>
           </Button>
         </div>
       </header>
       <div
         className={
-          isColorSchemePage ? "app-shell color-scheme-page" : "app-shell"
+          isProjectsPage ? "app-shell projects-page" : isColorSchemePage ? "app-shell color-scheme-page" : "app-shell"
         }
       >
-        <Sidebar
+        {!isProjectsPage && <Sidebar
           isWebPage={isWebPage}
           isColorSchemePage={isColorSchemePage}
           activeColorSection={activeColorSection}
@@ -570,40 +592,50 @@ function ComponentPage({
           onQueryChange={setQuery}
           onSelect={selectComponent}
           query={query}
-        />
+        />}
 
         <div className="main-column">
-          <main className="main-content">
+          <Typography variant="body1" asChild><main className="main-content">
             <div className="page-heading">
               <div className="page-heading-copy">
                 <p className="eyebrow">
-                  {isColorSchemePage ? "THEME BUILDER" : isWebPage ? "WEB COMPONENT REGISTRY" : "COMPONENT LIBRARY"}
+                  {isProjectsPage ? "PROJECT SETTINGS" : isColorSchemePage ? "THEME BUILDER" : isWebPage ? "WEB COMPONENT REGISTRY" : "COMPONENT LIBRARY"}
                 </p>
-                <h1>
-                  {isColorSchemePage ? "ColorScheme" : activeComponent.name}
-                </h1>
+                <Typography variant="display" asChild><h1>
+                  {isProjectsPage ? "프로젝트 설정" : isColorSchemePage ? "ColorScheme" : activeComponent.name}
+                </h1></Typography>
                 <p className="component-description">
-                  {isColorSchemePage
-                    ? "IENLAB 테마의 색상을 만들고 Kotlin 코드로 내보냅니다."
+                  {isProjectsPage
+                    ? "프로젝트별 디자인 토큰과 레지스트리 프리셋을 관리합니다."
+                    : isColorSchemePage
+                    ? "같은 팔레트를 편집하고 CMP와 웹 프로젝트에 적용합니다."
                     : activeComponent.description}
                 </p>
               </div>
-              {!isColorSchemePage && (
-                <Badge className="component-count" variant="secondary">
+              {!isSettingsPage && (
+                <Badge className="component-count" variant="weak">
                   {`${isWebPage ? webCatalog.length : catalog.length} components`}
                 </Badge>
               )}
             </div>
 
-            {!isColorSchemePage && (
+            {isProjectsPage && (
+              <Suspense fallback={<p role="status">프로젝트 설정을 불러오는 중입니다.</p>}>
+                <WebProjects language={webLanguage} theme={resolvedTheme} onThemeChange={onThemeModeChange} />
+              </Suspense>
+            )}
+            {!isSettingsPage && (
               <Tabs
                 aria-label="콘텐츠 보기 방식"
                 className="view-tabs-root"
+                size="small"
+                fluid
+                itemGap={0}
                 onValueChange={(value) => {
                   if (
                     value === "preview" ||
                     (isWebPage
-                      ? value === "registry"
+                      ? value === "registry" || value === "playground" || (value === "composer" && activeComponent.id === "skeleton")
                       : value === "api" || (value === "composer" && activeComponent.id === "skeleton"))
                   ) {
                     navigate(`/${isWebPage ? "web" : "components"}/${activeComponent.id}/${value}`);
@@ -615,7 +647,8 @@ function ComponentPage({
                   <TabsTrigger className="view-tab" value="preview">
                     {isWebPage ? "웹 프리뷰" : "Preview"}
                   </TabsTrigger>
-                  {!isWebPage && activeComponent.id === "skeleton" && (
+                  {isWebPage && <TabsTrigger className="view-tab" value="playground">Playground</TabsTrigger>}
+                  {activeComponent.id === "skeleton" && (
                     <TabsTrigger className="view-tab" value="composer">
                       조합기
                     </TabsTrigger>
@@ -628,15 +661,12 @@ function ComponentPage({
                 {isWebPage ? (
                   <TabsContent value={activeTab}>
                     <Suspense fallback={<p role="status">웹 컴포넌트를 불러오는 중입니다.</p>}>
-                      {activeComponent.id === "button" ? (
-                        <WebComponentDocs tab={activeTab === "registry" ? "registry" : "preview"} />
-                      ) : (
-                        <WebRegistryDocs
-                          key={activeComponent.id}
-                          componentId={activeComponent.id}
-                          tab={activeTab === "registry" ? "registry" : "preview"}
-                        />
-                      )}
+                      {activeTab === "composer" ? <SkeletonComposer language="tsx" /> : <WebRegistryDocs
+                        key={activeComponent.id}
+                        componentId={activeComponent.id}
+                        language={webLanguage}
+                        tab={activeTab === "registry" ? "registry" : activeTab === "playground" ? "playground" : "preview"}
+                      />}
                     </Suspense>
                   </TabsContent>
                 ) : (
@@ -648,9 +678,9 @@ function ComponentPage({
                       <div className="panel-heading">
                         <div>
                           <p className="panel-kicker">LIVE COMPONENT</p>
-                          <h2>Compose 미리보기</h2>
+                          <Typography variant="title1" asChild><h2>Compose 미리보기</h2></Typography>
                         </div>
-                        <Badge className="runtime-badge" variant="outline">
+                        <Badge className="runtime-badge" variant="line">
                           <span className="status-dot" /> Kotlin · Wasm
                         </Badge>
                       </div>
@@ -661,7 +691,7 @@ function ComponentPage({
                       {customColorSchemes && (
                         <Button
                           className="preview-reset"
-                          variant="outline"
+                          variant="line"
                           onClick={() => setCustomColorSchemes(null)}
                         >
                           기본 색상 복원
@@ -726,6 +756,10 @@ function ComponentPage({
                 themeMode={resolvedTheme}
                 iconStyle={iconStyle}
                 onIconStyleChange={setIconStyle}
+                onApplyWeb={(mode) => {
+                  onThemeModeChange(mode);
+                  navigate("/web/button/preview");
+                }}
                 onApply={(schemes, mode) => {
                   setCustomColorSchemes({
                     light: { ...schemes.light },
@@ -736,7 +770,7 @@ function ComponentPage({
                 }}
               />
             </section>
-          </main>
+          </main></Typography>
         </div>
       </div>
     </>
@@ -770,10 +804,7 @@ function Sidebar({
   onSelect: () => void;
   query: string;
 }) {
-  const navigationCategories = isWebPage
-    ? [...new Set(webCatalog.map((item) => item.category))]
-    : categories;
-  const visibleCategories = navigationCategories
+  const visibleCategories = categories
     .map((category) => ({
       category,
       items: filteredCatalog.filter((item) => item.category === category),
@@ -870,10 +901,10 @@ function SidebarContents({
     <div className="sidebar-content">
       <div className="sidebar-heading">
         <p className="toc-title">
-          (00) {isColorSchemePage ? "컬러 스킴" : isWebPage ? "웹 컴포넌트" : "컴포넌트"}
+          {isColorSchemePage ? "컬러 스킴" : isWebPage ? "(00) 웹 컴포넌트" : "(00) 컴포넌트"}
         </p>
         {!isColorSchemePage && (
-          <Badge variant="secondary">{filteredCatalog.length}</Badge>
+          <Badge variant="weak">{filteredCatalog.length}</Badge>
         )}
       </div>
       {isColorSchemePage && (
@@ -884,11 +915,11 @@ function SidebarContents({
               className="toc-link"
               variant="ghost"
               aria-current={
-                activeColorSection === section.id ? "location" : undefined
+                activeColorSection === section.id ? "page" : undefined
               }
               onClick={() => onColorSectionSelect(section.id)}
             >
-              <span>({String(index + 1).padStart(2, "0")})</span>
+              <span>({String(index).padStart(2, "0")})</span>
               {section.label}
             </Button>
           ))}
@@ -898,16 +929,16 @@ function SidebarContents({
       {!isColorSchemePage && (
         <>
           <div className="search-box">
-            <Search aria-hidden="true" className="search-icon" />
             <Input
               aria-label="컴포넌트 또는 API 검색"
               className="search-input"
+              leading={<Search aria-hidden="true" className="search-icon" />}
               onChange={(event) => onQueryChange(event.target.value)}
               placeholder="컴포넌트·API 검색"
               type="search"
+              trailing={<kbd>/</kbd>}
               value={query}
             />
-            <kbd>/</kbd>
           </div>
 
           <ScrollArea className="component-navigation">
@@ -920,9 +951,9 @@ function SidebarContents({
               ) : (
                 visibleCategories.map((group, index) => (
                   <div className="navigation-group" key={group.category}>
-                    <h2>
+                    <Typography variant="title1" asChild><h2>
                       ({String(index + 1).padStart(2, "0")}) {group.category}
-                    </h2>
+                    </h2></Typography>
                     {group.items.map((item) => {
                       const isActive = activeComponentId === item.id;
 
@@ -937,7 +968,7 @@ function SidebarContents({
                           }
                           key={item.id}
                           size="sm"
-                          variant={isActive ? "secondary" : "ghost"}
+                          variant={isActive ? "weak" : "ghost"}
                         >
                           <Link
                             onClick={onSelect}
@@ -975,7 +1006,7 @@ function ApiSidebar({ component }: { component: CatalogItem }) {
     <aside className="api-sidebar">
       <div className="api-sidebar-heading">
         <Command aria-hidden="true" className="api-heading-icon" />
-        <h2>API 참고</h2>
+        <Typography variant="title1" asChild><h2>API 참고</h2></Typography>
       </div>
       <p className="api-sidebar-description">
         미리보기 컴포넌트와 연결된 공개 API입니다.
@@ -991,7 +1022,7 @@ function ApiSidebar({ component }: { component: CatalogItem }) {
       <div className="api-name-list">
         <p>API</p>
         {component.api.map((name) => (
-          <Badge key={name} variant="outline">
+          <Badge key={name} variant="line">
             {name}
           </Badge>
         ))}
@@ -1028,7 +1059,7 @@ function ApiDocumentation({ component }: { component: CatalogItem }) {
   return (
     <div className="api-documentation">
       <p className="panel-kicker">API REFERENCE</p>
-      <h2>{component.name} API</h2>
+      <Typography variant="title1" asChild><h2>{component.name} API</h2></Typography>
       <p className="panel-description">{component.description}</p>
       <Card className="api-detail-card">
         <span className="api-detail-label">PACKAGE</span>
@@ -1038,7 +1069,7 @@ function ApiDocumentation({ component }: { component: CatalogItem }) {
         <span className="api-detail-label">PUBLIC API</span>
         <div className="api-detail-names">
           {component.api.map((name) => (
-            <Badge key={name} variant="outline">
+            <Badge key={name} variant="line">
               {name}
             </Badge>
           ))}
@@ -1046,7 +1077,7 @@ function ApiDocumentation({ component }: { component: CatalogItem }) {
       </Card>
       {documentation.map((api, index) => (
         <Card className="api-reference-card" key={`${api.name}-${index}`}>
-          <h3>{api.name}</h3>
+          <Typography variant="title2" asChild><h3>{api.name}</h3></Typography>
           {api.signature ? (
             <pre className="api-signature">
               <code>{highlightKotlin(api.signature)}</code>
@@ -1077,7 +1108,7 @@ function ApiDocumentation({ component }: { component: CatalogItem }) {
             {apiSourceLabel} <ArrowUpRight aria-hidden="true" />
           </a>
         </Button>
-        <Button asChild size="sm" variant="secondary">
+        <Button asChild size="sm" variant="weak">
           <a href={sampleSource} rel="noreferrer" target="_blank">
             샘플 사용 코드 <ArrowUpRight aria-hidden="true" />
           </a>

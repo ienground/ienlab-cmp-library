@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { parseProject, parseProjectState, resolveProject, projectRegistryItem } from "./project-presets.ts";
 import {
   colorRoles,
+  colorSchemesFromVariables,
+  colorSchemeVariables,
   colorToArgb,
   composeColorQuery,
   contrastRatio,
@@ -157,4 +160,35 @@ test("아이콘 스타일이 생성한 Kotlin 테마에 적용된다", () => {
     assert.ok(code.includes(`LocalIconStyle provides ${kotlinStyle}`));
     assert.ok(code.includes("CompositionLocalProvider"));
   }
+});
+
+test("공통 팔레트는 라이트·다크·투명도를 유지해 웹 토큰과 왕복한다", () => {
+  const schemes = defaultColorSchemes();
+  schemes.light.brand = "#123456";
+  schemes.dark.brand = "#ABCDEF";
+  schemes.dark.overlay = "#12345678";
+  const variables = colorSchemeVariables(schemes);
+  assert.equal(variables.light["ien-brand"], "#123456");
+  assert.equal(variables.dark["ien-brand"], "#ABCDEF");
+  assert.equal(variables.dark["ien-overlay"], "#12345678");
+  assert.deepEqual(colorSchemesFromVariables(variables), schemes);
+});
+
+test("웹 프로젝트 색상을 불러올 때 없는 역할은 CMP 기본값을 사용한다", () => {
+  const schemes = colorSchemesFromVariables({ light: { "ien-brand": "#7C4DFF" }, dark: {} });
+  assert.equal(schemes.light.brand, "#7C4DFF");
+  assert.equal(schemes.dark.brand, defaultColorSchemes().dark.brand);
+  assert.equal(schemes.light.textPrimary, defaultColorSchemes().light.textPrimary);
+});
+
+
+test("웹 아이콘 설정은 저장·재로딩·JSON 내보내기 후에도 유지된다", async () => {
+  const base = parseProject(JSON.parse(await readFile(new URL("../../cmp-ui-web-registry/projects/ienlab-microsite.json", import.meta.url), "utf8")));
+  base.config = { ...base.config, iconLibrary: "lucide" };
+  const stored = parseProjectState({ version: 1, selected: base.name, local: [], edits: { [base.name]: { iconLibrary: "tabler" } } }, [base], new Set());
+  const resolved = resolveProject(base, stored.edits[base.name]);
+  assert.equal(resolved.config.iconLibrary, "tabler");
+  assert.equal(projectRegistryItem(resolved).config.iconLibrary, "tabler");
+  assert.deepEqual(resolved.config.aliases, base.config.aliases);
+  assert.deepEqual(resolved.cssVars, base.cssVars);
 });

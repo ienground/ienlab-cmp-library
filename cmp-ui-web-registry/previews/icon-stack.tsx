@@ -1,0 +1,21 @@
+import { IconStack } from "@/components/reui/icon-stack"
+
+import { IconPlaceholder } from "@/lib/reui-icons"
+
+export function Pattern() {
+  return (
+    <div className="flex items-center justify-center">
+      <IconStack aria-hidden="true">
+        <IconPlaceholder
+          lucide="LayersIcon"
+          tabler="IconStack2"
+          hugeicons="Layers01Icon"
+          phosphor="StackIcon"
+          remixicon="RiStackLine"
+          className="size-4"
+        />
+      </IconStack>
+    </div>
+  )
+}
+export default Pattern;

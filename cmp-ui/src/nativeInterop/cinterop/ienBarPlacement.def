@@ -3,6 +3,10 @@ package = zone.ien.utils.ui.uikit
 ---
 #import <UIKit/UIKit.h>
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < 270100
+#error "ienBarPlacement 빌드에는 iOS 27.1 이상의 SDK가 필요합니다."
+#endif
+
 static inline CGRect IENStatusRegion(UIView *view) {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 270100
     if (@available(iOS 27.1, *)) {

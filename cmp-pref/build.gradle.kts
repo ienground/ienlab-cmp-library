@@ -64,5 +64,9 @@ kotlin {
 
         iosMain.dependencies {
         }
+
+        iosTest.dependencies {
+            implementation(libs.compose.ui.test)
+        }
     }
 }

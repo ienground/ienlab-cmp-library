@@ -29,7 +29,7 @@ enum class PrefsScreenType {
     /** 화면, 그룹, 항목을 현재 플랫폼에 맞게 적응시킵니다. */
     Adaptive,
 
-    /** 화면과 일반 항목은 IEN을 사용하고 스위치 항목만 Adaptive로 표시합니다. */
+    /** 화면과 모든 항목의 행은 IEN을 사용하고 스위치 컨트롤만 Adaptive로 표시합니다. */
     HalfAdaptive,
 }
 

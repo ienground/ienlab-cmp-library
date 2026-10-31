@@ -61,6 +61,28 @@ export function defaultColorSchemes(): ColorSchemes {
   return { light: { ...defaults.light }, dark: { ...defaults.dark } };
 }
 
+function colorRoleVariable(role: ColorRole): string {
+  return `ien-${role.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}`;
+}
+
+export function colorSchemeVariables(schemes: ColorSchemes): Record<ColorMode, Record<string, string>> {
+  const variables = (mode: ColorMode) => Object.fromEntries(
+    colorRoles.map((role) => [colorRoleVariable(role), schemes[mode][role]]),
+  );
+  return { light: variables("light"), dark: variables("dark") };
+}
+
+export function colorSchemesFromVariables(variables: Record<ColorMode, Record<string, string>>): ColorSchemes {
+  const schemes = defaultColorSchemes();
+  for (const mode of ["light", "dark"] as const) {
+    for (const role of colorRoles) {
+      const value = variables[mode][colorRoleVariable(role)];
+      if (value && isHexColor(value)) schemes[mode][role] = value.toUpperCase();
+    }
+  }
+  return schemes;
+}
+
 export function defaultColorSeeds(): ColorSeeds {
   return Object.fromEntries(
     semanticGroups.map(({ base }) => [base, defaults.light[base]]),

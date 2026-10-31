@@ -1,6 +1,7 @@
 package zone.ien.utils.ui.interactive
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -69,7 +70,11 @@ fun IenSplitButton(
 ) {
     val fillWidth = display != IenButtonDisplay.Inline
     val outerRadius = if (display == IenButtonDisplay.Full) IenTheme.radius.none else size.buttonHeight() / 2
-    val innerRadius = IenTheme.radius.xs
+    val innerRadius = if (size == IenButtonSize.Large) IenTheme.radius.sm else IenTheme.radius.xs
+    val trailingInnerRadius by animateDpAsState(
+        targetValue = if (expanded) outerRadius else innerRadius,
+        label = "splitButtonTrailingRadius",
+    )
 
     Row(
         modifier = modifier
@@ -108,8 +113,8 @@ fun IenSplitButton(
             tone = tone,
             state = IenButtonState(enabled = state.enabled && !state.loading),
             shape = ContinuousRoundedRectangle(
-                topStart = if (expanded) outerRadius else innerRadius,
-                bottomStart = if (expanded) outerRadius else innerRadius,
+                topStart = trailingInnerRadius,
+                bottomStart = trailingInnerRadius,
                 topEnd = outerRadius,
                 bottomEnd = outerRadius,
             ),

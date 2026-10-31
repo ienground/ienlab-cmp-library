@@ -1,0 +1,36 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "ienlab",
+  "type": "registry:base",
+  "title": "IENLAB",
+  "description": "기존 IEN 웹 컴포넌트의 반경과 글자 크기를 유지하는 기본 프로젝트입니다.",
+  "config": {
+    "style": "radix-nova",
+    "iconLibrary": "lucide",
+    "tailwind": { "baseColor": "neutral", "cssVariables": true },
+    "aliases": {
+      "components": "@/components",
+      "ui": "@/components/ui",
+      "utils": "@/lib/utils",
+      "lib": "@/lib",
+      "hooks": "@/hooks"
+    },
+    "registries": { "@ienlab": "https://cmp.ien.zone/r/{name}.json" }
+  },
+  "registryDependencies": ["@ienlab/ien-theme"],
+  "cssVars": {
+    "theme": {},
+    "light": {
+      "ien-radius-none": "0rem",
+      "ien-radius-xs": "0.25rem",
+      "ien-radius-sm": "0.5rem",
+      "ien-radius-default": "0.75rem",
+      "ien-radius-md": "0.75rem",
+      "ien-radius-lg": "1rem",
+      "ien-radius-xl": "1.5rem",
+      "ien-radius-full": "62.4375rem"
+    },
+    "dark": {}
+  },
+  "meta": { "order": 0 }
+}

@@ -4,6 +4,7 @@ import { defineConfig, type UserConfig } from "vite";
 import { fileURLToPath } from "node:url";
 import { readFileSync } from "node:fs";
 import { collectRegistry, registryModuleAliases } from "./scripts/registry.mjs";
+import { instrumentPlayground } from "./scripts/playground.mjs";
 
 const runtimeDependencies = Object.keys(
   JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8"))
@@ -21,13 +22,33 @@ if (!libraryVersion) throw new Error("라이브러리 버전을 찾을 수 없�
 
 export default defineConfig(async ({ command }) => {
   const repository = fileURLToPath(new URL("../", import.meta.url));
-  const aliases = registryModuleAliases(
-    await collectRegistry(`${repository}/registry.json`, repository),
-  );
+  const registryItems = await collectRegistry(`${repository}/registry.json`, repository);
+  const aliases = registryModuleAliases(registryItems);
+  const registryManifests = new Set([
+    fileURLToPath(new URL("../registry.json", import.meta.url)),
+    ...registryItems.map((item) => item.manifestPath),
+  ]);
   return {
     root: "web",
     base: "/",
-    plugins: [react(), tailwindcss()],
+    plugins: [{
+      name: "registry-alias-reload",
+      configureServer(server) {
+        server.watcher.add([...registryManifests]);
+        const reload = (file: string) => {
+          if (registryManifests.has(file)) void server.restart();
+        };
+        server.watcher.on("change", reload);
+        server.httpServer?.once("close", () => server.watcher.off("change", reload));
+      },
+    }, {
+      name: "web-component-playground",
+      enforce: "pre",
+      transform(source, id) {
+        if (!id.replaceAll("\\", "/").includes("/cmp-ui-web-registry/previews/") || !id.endsWith(".tsx")) return;
+        return { code: instrumentPlayground(source, fileURLToPath(new URL("./web/web-playground.tsx", import.meta.url)), id.split("/").at(-1)?.replace(/\.tsx$/, "")), map: null };
+      },
+    }, react(), tailwindcss()],
     define: {
       "import.meta.env.VITE_LIBRARY_VERSION": JSON.stringify(libraryVersion),
     },

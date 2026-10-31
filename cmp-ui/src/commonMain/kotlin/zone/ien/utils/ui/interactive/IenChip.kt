@@ -45,6 +45,9 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousCapsule
+import zone.ien.utils.icon.IconData
+import zone.ien.utils.icon.SystemIcons
+import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenSpacing
 import zone.ien.utils.ui.foundation.IenTheme
@@ -85,6 +88,16 @@ data class IenChipColors(
 
 /** IEN Chip의 기본 색상과 크기 값을 제공합니다. */
 object IenChipDefault {
+    /** 선택형 Chip의 기본 체크 아이콘입니다. */
+    @Composable
+    fun SelectedIcon() {
+        IenIcon(
+            icon = IconData.Vector(SystemIcons.Check),
+            contentDescription = null,
+            modifier = Modifier.size(IenTheme.icon.sm),
+        )
+    }
+
     /** Chip의 상태별 색상과 그라데이션을 생성합니다. */
     @Composable
     fun colors(
@@ -184,7 +197,11 @@ fun IenElevatedAssistChip(
     label = label,
 )
 
-/** 선택 상태를 통해 필터 조건을 표현하는 Filter Chip입니다. */
+/**
+ * 선택 상태를 통해 필터 조건을 표현하는 Filter Chip입니다.
+ *
+ * @param selectedIcon 선택 시 leading 영역을 대체하는 아이콘입니다. 기본값은 체크이며 null이면 숨깁니다.
+ */
 @Composable
 fun IenFilterChip(
     selected: Boolean,
@@ -196,6 +213,7 @@ fun IenFilterChip(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
+    selectedIcon: (@Composable () -> Unit)? = { IenChipDefault.SelectedIcon() },
     label: @Composable () -> Unit,
 ) = IenSelectableChip(
     selected = selected,
@@ -206,12 +224,16 @@ fun IenFilterChip(
     colors = colors,
     elevated = false,
     interactionSource = interactionSource,
-    leading = leadingIcon,
+    leading = if (selected) selectedIcon else leadingIcon,
     trailing = trailingIcon,
     label = label,
 )
 
-/** 그림자 깊이를 갖는 Filter Chip입니다. */
+/**
+ * 그림자 깊이를 갖는 Filter Chip입니다.
+ *
+ * @param selectedIcon 선택 시 leading 영역을 대체하는 아이콘입니다. 기본값은 체크이며 null이면 숨깁니다.
+ */
 @Composable
 fun IenElevatedFilterChip(
     selected: Boolean,
@@ -223,6 +245,7 @@ fun IenElevatedFilterChip(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
+    selectedIcon: (@Composable () -> Unit)? = { IenChipDefault.SelectedIcon() },
     label: @Composable () -> Unit,
 ) = IenSelectableChip(
     selected = selected,
@@ -233,12 +256,14 @@ fun IenElevatedFilterChip(
     colors = colors,
     elevated = true,
     interactionSource = interactionSource,
-    leading = leadingIcon,
+    leading = if (selected) selectedIcon else leadingIcon,
     trailing = trailingIcon,
     label = label,
 )
 
-/** 사용자 입력이나 선택된 항목을 표현하는 Input Chip입니다. */
+/**
+ * 사용자 입력이나 선택된 항목을 표현하는 Input Chip입니다.
+ */
 @Composable
 fun IenInputChip(
     selected: Boolean,

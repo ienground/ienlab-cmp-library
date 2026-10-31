@@ -9,15 +9,116 @@ import {
   collectRegistry,
   validateRegistry,
   createWebCatalog,
+  sourceApi,
 } from "./registry.mjs";
 import { catalog } from "../web/catalog.js";
+import { resolveIenTone } from "../../cmp-ui-web-registry/lib/ien-theme.ts";
+import { createPlaygroundCatalog, instrumentPlayground } from "./playground.mjs";
 
 const repository = fileURLToPath(new URL("../../", import.meta.url));
-const officialComponents =
-  `accordion alert alert-dialog aspect-ratio attachment avatar badge breadcrumb bubble button button-group calendar card carousel chart checkbox code-block collapsible combobox command context-menu data-table date-picker dialog direction drawer dropdown-menu empty field hover-card input input-group input-otp item kbd label marker menubar message message-scroller native-select navigation-menu pagination popover progress questionnaire radio-group resizable scroll-area select separator sheet sidebar skeleton slider spinner switch table tabs textarea toast toggle toggle-group tooltip trace typography form sonner`.split(
-    " ",
-  );
 
+test("CMP 매핑이 웹 선택기와 토글의 고유 이름을 덮어쓰지 않는다", async () => {
+  const items = await collectRegistry(path.join(repository, "registry.json"), repository);
+  const web = createWebCatalog(items, catalog, repository);
+  for (const name of ["date-picker", "duration-picker", "time-picker", "toggle-button"]) {
+    assert.equal(web.find((item) => item.id === name).name, items.find((item) => item.name === name).title);
+  }
+});
+
+test("단독 Button이 연속 코너를 초기화하고 ghost variant는 테두리를 표시하지 않는다", async () => {
+  const source = await readFile(path.join(repository, "cmp-ui-web-registry/ui/button.tsx"), "utf8");
+  assert.match(source, /<IenContinuousCorners \/>/);
+  assert.match(source, /bg-clip-border/);
+  assert.doesNotMatch(source, /bg-clip-padding/);
+  const context = await readFile(path.join(repository, "cmp-ui-web-registry/lib/ien-theme-context.tsx"), "utf8");
+  assert.match(context, /export function IenContinuousCorners\(\) \{\s*useEffect\(\(\) => observeIenContinuousCorners\(\), \[\]\)/);
+  const tokens = JSON.parse(await readFile(path.join(repository, "cmp-ui-web-registry/tokens.json"), "utf8"));
+  assert.equal(tokens.components["@layer components"][".ien-clear"]["border-color"], "transparent");
+  const items = await collectRegistry(path.join(repository, "registry.json"), repository);
+  const theme = items.find((item) => item.name === "ien-theme");
+  assert.ok(theme.dependencies.includes("@lisse/core@0.7.3"));
+  assert.ok(theme.files.some((file) => file.path.endsWith("ien-continuous-corners.ts")));
+});
+
+test("모든 웹 컴포넌트의 Playground와 실제 variant·상속 속성을 추출한다", async () => {
+  const items = await collectRegistry(path.join(repository, "registry.json"), repository);
+  const previews = Object.fromEntries(await Promise.all(items.filter((item) => item.meta?.preview).map(async (item) => [item.name, await readFile(path.resolve(path.dirname(item.manifestPath), item.meta.preview), "utf8")])));
+  const definitions = createPlaygroundCatalog(items, previews);
+  assert.equal(Object.keys(definitions).length, items.filter((item) => item.type === "registry:ui").length);
+  const button = definitions.button.targets[0];
+  assert.equal(button.name, "Button");
+  assert.deepEqual(button.props.find((prop) => prop.name === "tone").options, ["neutral", "brand", "success", "warning", "danger", "info"]);
+  assert.deepEqual(button.props.find((prop) => prop.name === "variant").options, ["fill", "weak", "line", "ghost"]);
+  assert.equal(button.props.find((prop) => prop.name === "disabled").kind, "boolean");
+  assert.equal(button.props.find((prop) => prop.name === "useGradient").defaultValue, true);
+  assert.equal(definitions["number-field"].targets[0].props.find((prop) => prop.name === "min").kind, "number");
+  assert.equal(definitions.cascader.targets[0].props.find((prop) => prop.name === "multiple").kind, "boolean");
+  assert.equal(definitions["data-grid"].targets[0].props.find((prop) => prop.name === "table").kind, "reference");
+  for (const definition of Object.values(definitions)) {
+    assert.ok(definition.targets.length);
+    assert.ok(definition.edits.every((edit) => definition.targets.some((target) => target.key === edit.key)), "코드 조정 대상이 누락되었습니다.");
+    for (const target of definition.targets) for (const prop of target.props) {
+      if (prop.kind === "select") assert.ok(prop.options.length, `${target.name}.${prop.name}`);
+    }
+  }
+});
+
+test("Chip의 설치 경로와 CMP 매핑, 네 가지 유형과 아이콘 컨트롤을 제공한다", async () => {
+  const items = await collectRegistry(path.join(repository, "registry.json"), repository);
+  const item = items.find((entry) => entry.name === "chip");
+  assert.ok(item);
+  assert.deepEqual(item.meta.cmpIds, ["chip"]);
+  assert.ok(item.registryDependencies.includes("@ienlab/progress-indicator"));
+  const web = createWebCatalog(items, catalog, repository).find((entry) => entry.id === "chip");
+  assert.equal(web.packageName, "@/components/ui/chip");
+  assert.equal(web.cmpId, "chip");
+  const previews = Object.fromEntries(await Promise.all(items.filter((entry) => entry.meta?.preview).map(async (entry) => [entry.name, await readFile(path.resolve(path.dirname(entry.manifestPath), entry.meta.preview), "utf8")])));
+  const target = createPlaygroundCatalog(items, previews).chip.targets[0];
+  assert.deepEqual(target.props.find((prop) => prop.name === "kind").options, ["assist", "filter", "input", "suggestion"]);
+  for (const name of ["leadingIcon", "selectedIcon", "trailingIcon", "avatar"]) assert.equal(target.props.find((prop) => prop.name === name).kind, "icon");
+  assert.deepEqual(target.props.find((prop) => prop.name === "selectedIcon").defaultValue, { playgroundIcon: "CheckIcon" });
+  for (const name of ["loading", "disabled", "selected", "elevated"]) assert.equal(target.props.find((prop) => prop.name === name).kind, "boolean");
+});
+
+test("문서 프리뷰의 실제 JSX 컴포넌트만 Playground에 연결한다", () => {
+  const source = 'import { Button as Action, buttonVariants, type ButtonProps } from "@/components/ui/button"; export default function Example(){return <Action>실행</Action>}';
+  const result = instrumentPlayground(source, "/web/playground.tsx");
+  assert.match(result, /Button as __playground_Action/);
+  assert.match(result, /const Action = __playgroundComponent/);
+  assert.doesNotMatch(result, /__playground_buttonVariants|__playground_ButtonProps/);
+  assert.deepEqual(sourceApi(result, "playground.tsx").names, []);
+});
+
+test("기존 variant를 CMP tone으로 해석하고 명시한 tone을 우선한다", () => {
+  assert.equal(resolveIenTone(undefined, "destructive"), "danger");
+  assert.equal(resolveIenTone(undefined, "success-light"), "success");
+  assert.equal(resolveIenTone(undefined, "warning-outline"), "warning");
+  assert.equal(resolveIenTone(undefined, "secondary"), "neutral");
+  assert.equal(resolveIenTone("info", "destructive"), "info");
+  assert.equal(resolveIenTone(undefined, "default"), undefined);
+});
+
+test("모든 UI 설치에 CMP 테마와 라이트·다크 색상, 그라데이션을 포함한다", async () => {
+  const items = await collectRegistry(path.join(repository, "registry.json"), repository);
+  const theme = items.find((item) => item.name === "ien-theme");
+  assert.ok(theme);
+  for (const item of items.filter((item) => item.type === "registry:ui")) {
+    assert.ok(item.registryDependencies.includes("@ienlab/ien-theme"), item.name);
+  }
+  for (const tone of ["neutral", "brand", "success", "warning", "danger", "info"]) {
+    assert.ok(theme.cssVars.light[`ien-${tone}`], tone);
+    assert.ok(theme.cssVars.dark[`ien-${tone}`], tone);
+    assert.ok(theme.css["@layer components"][`:where([data-ien-tone="${tone}"])`], tone);
+  }
+  assert.match(theme.css["@layer components"][".ien-fill"]["background-image"], /18%.*36%/);
+  assert.equal(theme.css["@layer components"][':where([data-ien-gradient="false"])']["--ien-gradient"], "none");
+  for (const [name, rule] of Object.entries(theme.css["@layer components"])) {
+    if (name.includes("data-ien-typography")) {
+      assert.equal(rule["font-size"], undefined, name);
+      assert.equal(rule["line-height"], undefined, name);
+    }
+  }
+});
 async function fixture(run) {
   const directory = await mkdtemp(path.join(tmpdir(), "ien-registry-test-"));
   try {
@@ -237,124 +338,63 @@ test("포함 파일이 저장소 밖으로 벗어나지 않게 한다", async ()
   });
 });
 
-test("공식 shadcn 목록과 웹 대응 CMP 항목이 구현을 갖는다", async () => {
-  const items = await collectRegistry(
-    path.join(repository, "registry.json"),
-    repository,
-  );
+test("REUI 기본 컴포넌트와 필수 의존성을 하나의 레지스트리로 제공한다", async () => {
+  const items = await collectRegistry(path.join(repository, "registry.json"), repository);
   validateRegistry(items);
-  const names = new Set(items.map((item) => item.name));
-  assert.deepEqual(
-    officialComponents.filter((name) => !names.has(name)),
-    [],
+  const expected = "alert autocomplete badge cascader code-block color-picker data-grid date-selector emoji-picker event-calendar file-type filters frame gantt icon-stack icon-tile kanban number-field phone-input rating scrollspy signature-pad sortable stepper time-picker timeline tree".split(" ");
+  const components = items.filter((item) =>
+    item.meta?.upstream?.repository === "https://github.com/keenthemes/reui" &&
+    item.files.some((file) => file.path.startsWith("reui/")),
   );
-  const covered = new Set(
-    items.flatMap(
-      (item) => item.meta?.cmpIds ?? (item.name === "button" ? ["button"] : []),
-    ),
-  );
-  assert.ok(catalog.every((item) => typeof item.webSupported === "boolean"));
-  assert.deepEqual(
-    catalog
-      .filter((item) => item.webSupported && !covered.has(item.id))
-      .map((item) => item.id),
-    [],
-  );
-  for (const item of items.filter(
-    (item) => item.type === "registry:ui" && item.name !== "button",
-  )) {
-    assert.ok(item.meta?.example, `${item.name} 사용 예시가 없습니다.`);
-    assert.ok(item.meta?.preview, `${item.name} 실제 프리뷰가 없습니다.`);
-    assert.ok(
-      (
-        await readFile(
-          path.resolve(path.dirname(item.manifestPath), item.meta.preview),
-          "utf8",
-        )
-      ).includes("export default"),
-      `${item.name} 기본 프리뷰가 없습니다.`,
-    );
+  assert.deepEqual(components.map((item) => item.name).sort(), expected.sort());
+  assert.ok(items.some((item) => item.name === "button"));
+  assert.ok(items.some((item) => item.name === "use-mobile"));
+  assert.ok(items.every((item) => item.name !== "tokens"));
+  for (const item of components) {
+    assert.match(item.meta.upstream.revision, /^[a-f0-9]{40}$/);
+    assert.equal(item.meta.upstream.style, "radix-nova");
+    assert.ok(item.meta.exports.every((name) => typeof name === "string"));
   }
 });
 
-test("문서 카탈로그가 실제 소스·CMP 비교·설치 명령을 제공한다", async () => {
-  const items = await collectRegistry(
-    path.join(repository, "registry.json"),
-    repository,
-  );
+test("모든 공개 웹 컴포넌트의 프리뷰와 CMP 매핑·설치 경로를 연결한다", async () => {
+  const items = await collectRegistry(path.join(repository, "registry.json"), repository);
   const web = createWebCatalog(items, catalog, repository);
-  const button = web.find((item) => item.id === "button");
-  assert.ok(button);
-  assert.equal(button.installCommand, "npx shadcn@latest add @ienlab/button");
-  assert.equal(button.cmpId, "button");
-  assert.match(button.source, /ien-button\.tsx$/);
-  assert.ok(web.every((item) => item.api.length > 0));
+  assert.equal(web.length, items.filter((item) => item.type === "registry:ui").length);
+  for (const item of web) {
+    assert.ok(item.preview, `${item.id}: 프리뷰 누락`);
+    assert.ok(item.example, `${item.id}: 사용 예시 누락`);
+    assert.ok(item.api.length > 0, `${item.id}: 공개 API 누락`);
+    assert.equal(item.cmpId, catalog.find((component) => component.id === item.cmpIds[0])?.id ?? "");
+    assert.equal(item.installCommand, `npx shadcn@latest add @ienlab/${item.id}`);
+    assert.match(await readFile(path.join(repository, item.preview), "utf8"), /export default/);
+  }
+  assert.equal(web.find((item) => item.id === "alert").packageName, "@/components/reui/alert");
+  assert.equal(web.find((item) => item.id === "button").packageName, "@/components/ui/button");
 });
 
-test("설치되는 모든 소스가 외부 패키지와 내부 컴포넌트 의존성을 선언한다", async () => {
-  const items = await collectRegistry(
-    path.join(repository, "registry.json"),
-    repository,
-  );
+test("설치되는 소스가 내부 파일과 외부 패키지 의존성을 빠짐없이 선언한다", async () => {
+  const items = await collectRegistry(path.join(repository, "registry.json"), repository);
   const { registryModuleAliases } = await import("./registry.mjs");
   const aliases = registryModuleAliases(items);
-  const owners = new Map(
-    items.flatMap((item) =>
-      item.files.map((file) => [file.absolutePath, item.name]),
-    ),
-  );
+  const owners = new Map(items.flatMap((item) => item.files.map((file) => [file.absolutePath, item.name])));
   const problems = [];
-  for (const item of items)
-    for (const file of item.files) {
-      for (const match of file.content.matchAll(
-        /(?:from\s+|import\s*)["']([^"']+)["']/g,
-      )) {
-        const name = match[1];
-        if (name.startsWith(".")) continue;
-        if (name.startsWith("@/")) {
-          const owner = owners.get(aliases[name]);
-          if (!owner) problems.push(`${item.name}: ${name} 설치 대상 없음`);
-          else if (
-            owner !== item.name &&
-            !item.registryDependencies?.includes(`@ienlab/${owner}`)
-          )
-            problems.push(`${item.name}: @ienlab/${owner} 의존성 누락`);
-        } else {
-          const dependency = name.startsWith("@")
-            ? name.split("/").slice(0, 2).join("/")
-            : name.split("/")[0];
-          if (
-            !["react", "react-dom"].includes(dependency) &&
-            !item.dependencies?.some(
-              (entry) =>
-                entry === dependency || entry.startsWith(`${dependency}@`),
-            )
-          )
-            problems.push(`${item.name}: ${dependency} 패키지 누락`);
-        }
+  for (const item of items) for (const file of item.files) {
+    assert.doesNotMatch(file.content, /@\/app\/|@\/registry\/|@\/lib\/ien-utils|@ienlab\/tokens/, file.path);
+    assert.doesNotMatch(file.path, /^(?:cmp-content|cmp-interactive|shadcn|registry)\//);
+    for (const name of sourceApi(file.content, file.absolutePath).imports) {
+      if (name.startsWith(".")) continue;
+      if (name.startsWith("@/")) {
+        const owner = owners.get(aliases[name]);
+        if (!owner) problems.push(`${item.name}: ${name} 설치 대상 없음`);
+        else if (owner !== item.name && !item.registryDependencies?.includes(`@ienlab/${owner}`)) problems.push(`${item.name}: @ienlab/${owner} 의존성 누락`);
+      } else {
+        const dependency = name.startsWith("@") ? name.split("/").slice(0, 2).join("/") : name.split("/")[0];
+        if (!["react", "react-dom"].includes(dependency) && !item.dependencies?.some((entry) => entry === dependency || entry.startsWith(`${dependency}@`))) problems.push(`${item.name}: ${dependency} 패키지 누락`);
       }
     }
-  assert.deepEqual(problems, []);
-
-  for (const component of [
-    {
-      name: "numeric-spinner",
-      helper: "numeric-spinner-logic.ts",
-      target: "@ui/numeric-spinner-logic.ts",
-    },
-    {
-      name: "split-text-field",
-      helper: "split-text-field-logic.ts",
-      target: "@ui/split-text-field-logic.ts",
-    },
-  ]) {
-    const item = items.find((candidate) => candidate.name === component.name);
-    assert.ok(
-      item.files.some(
-        (file) =>
-          file.path === component.helper && file.target === component.target,
-      ),
-      `${component.name}: 내부 로직 파일 설치 대상이 없습니다.`,
-    );
   }
+  assert.deepEqual(problems, []);
+  const calendar = items.find((item) => item.name === "calendar");
+  assert.ok(calendar.dependencies.some((entry) => entry.startsWith("react-day-picker@^9.")));
 });

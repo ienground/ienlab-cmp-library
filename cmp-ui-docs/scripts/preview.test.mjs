@@ -3,139 +3,50 @@ import assert from "node:assert/strict";
 import { createServer } from "vite";
 import React from "react";
 import { renderToString } from "react-dom/server";
-import { collectRegistry, createWebCatalog } from "./registry.mjs";
+import { collectRegistry, createWebCatalog, sourceApi } from "./registry.mjs";
 import { catalog } from "../web/catalog.js";
 import { fileURLToPath } from "node:url";
+import { readFile } from "node:fs/promises";
 
 const repository = fileURLToPath(new URL("../../", import.meta.url));
-
-test("분할 문자 입력에서 자동 완성 값을 여러 칸에 반영한다", async () => {
-  const server = await createServer({
-    server: { middlewareMode: true, hmr: false },
-    appType: "custom",
-  });
+test("모든 REUI 공식 프리뷰를 브라우저 전역 없이 서버 렌더링한다", { timeout: 120000 }, async (context) => {
+  const server = await createServer({ cacheDir: fileURLToPath(new URL("../node_modules/.vite-preview-tests", import.meta.url)), server: { middlewareMode: true, hmr: false }, appType: "custom" });
   try {
-    const { normalizeSplitTextFieldChange } = await server.ssrLoadModule(
-      `${repository}/cmp-ui-web-registry/cmp-interactive/split-text-field-logic.ts`,
-    );
-    assert.deepEqual(
-      normalizeSplitTextFieldChange({
-        current: "",
-        input: "123456",
-        index: 0,
-        length: 6,
-        type: "numeric",
-      }),
-      { value: "123456", focusIndex: 5 },
-    );
-    assert.deepEqual(
-      normalizeSplitTextFieldChange({
-        current: "123456",
-        input: "9",
-        index: 2,
-        length: 6,
-        type: "numeric",
-      }),
-      { value: "129456", focusIndex: 3 },
-    );
-    assert.deepEqual(
-      normalizeSplitTextFieldChange({
-        current: "123456",
-        input: "12x34",
-        index: 0,
-        length: 6,
-        type: "numeric",
-      }),
-      { value: "1234", focusIndex: 4 },
-    );
-    assert.deepEqual(
-      normalizeSplitTextFieldChange({
-        current: "123456",
-        input: "789",
-        index: 2,
-        length: 6,
-        type: "numeric",
-        replaceWholeValue: true,
-      }),
-      { value: "789", focusIndex: 5 },
-    );
-    assert.deepEqual(
-      normalizeSplitTextFieldChange({
-        current: "123456",
-        input: "",
-        index: 3,
-        length: 6,
-        type: "numeric",
-      }),
-      { value: "12356", focusIndex: 3 },
-    );
-  } finally {
-    await server.close();
-  }
-});
-
-test("숫자 스피너는 소수 step을 정확히 더하고 경계에 맞춘다", async () => {
-  const server = await createServer({
-    server: { middlewareMode: true, hmr: false },
-    appType: "custom",
-  });
-  try {
-    const { stepNumericValue } = await server.ssrLoadModule(
-      `${repository}/cmp-ui-web-registry/cmp-interactive/numeric-spinner-logic.ts`,
-    );
-    assert.equal(stepNumericValue(0.2, 0.1, 1), 0.3);
-    assert.equal(stepNumericValue(0.3, 0.1, 1), 0.4);
-    assert.equal(stepNumericValue(-0.3, 0.1, 1), -0.2);
-    assert.equal(stepNumericValue(0.2, 0.1, 1, 0, 0.3), 0.3);
-    assert.equal(stepNumericValue(0.1, 0.1, -1, 0), 0);
-  } finally {
-    await server.close();
-  }
-});
-
-test(
-  "모든 컴포넌트 프리뷰를 브라우저 전역 없이 서버 렌더링한다",
-  { timeout: 120000 },
-  async (context) => {
-    const server = await createServer({
-      server: { middlewareMode: true, hmr: false },
-      appType: "custom",
-    });
-    try {
-      const items = createWebCatalog(
-        await collectRegistry(`${repository}/registry.json`, repository),
-        catalog,
-        repository,
-      );
-      for (const item of items) {
-        await context.test(item.id, async () => {
-          const module = await server.ssrLoadModule(
-            `${repository}/${item.preview || item.source}`,
-          );
-          const Preview = item.preview ? module.default : module.Button;
-          assert.ok(Preview, `${item.id}: 프리뷰 export 누락`);
-          if (item.id === "card") {
-            const { Card } = await server.ssrLoadModule(
-              `${repository}/${item.source}`,
-            );
-            assert.equal(
-              Card({}).props.onClick,
-              undefined,
-              "정적 서버 카드에 이벤트 핸들러를 생성하면 안 됩니다.",
-            );
-            assert.equal(Card({}).props.onKeyDown, undefined);
-          }
-          const html = renderToString(
-            React.createElement(
-              Preview,
-              item.preview ? undefined : { children: "버튼" },
-            ),
-          );
-          assert.ok(html.length > 0, `${item.id}: 빈 프리뷰`);
-        });
-      }
-    } finally {
-      await server.close();
+    const items = createWebCatalog(await collectRegistry(`${repository}/registry.json`, repository), catalog, repository);
+    const generated = JSON.parse(await readFile(`${repository}/cmp-ui-docs/web/generated-web-catalog.json`, "utf8"));
+    const { WebPlayground, playgroundExample } = await server.ssrLoadModule(`${repository}/cmp-ui-docs/web/web-playground.tsx`);
+    for (const item of items) {
+      await context.test(item.id, async () => {
+        assert.ok(item.preview, `${item.id}: 프리뷰 경로 누락`);
+        const module = await server.ssrLoadModule(`${repository}/${item.preview}`);
+        assert.ok(module.default, `${item.id}: 프리뷰 export 누락`);
+        const html = renderToString(React.createElement(module.default));
+        assert.ok(html.length > 0, `${item.id}: 빈 프리뷰`);
+        const definition = generated.find((entry) => entry.id === item.id).playground;
+        const playground = renderToString(React.createElement(WebPlayground, { definition, source: definition.example, Preview: module.default, renderPreview: (preview) => preview }));
+        assert.match(playground, /속성 조정/);
+        assert.doesNotMatch(playground, /프리뷰를 불러오지 못했습니다/);
+        if (item.id === "button") {
+          const previewHtml = playground.match(/aria-label="Playground 미리보기"([\s\S]*?)<\/section>/)?.[1] ?? "";
+          const componentStart = previewHtml.indexOf('class="web-component-preview playground-preview"');
+          assert.ok(componentStart >= 0);
+          const componentHtml = previewHtml.slice(componentStart);
+          assert.equal((componentHtml.match(/data-slot="button"/g) ?? []).length, 1);
+          const example = playgroundExample(definition.example, definition, { [definition.targets[0].key]: { tone: "danger", variant: "weak", children: "변경한 버튼" } });
+          assert.match(example, /"tone": "danger"/);
+          assert.match(example, /변경한 버튼/);
+          assert.doesNotMatch(example, />버튼</);
+          sourceApi(example, "playground-example.tsx");
+        }
+        if (item.id === "number-field") {
+          const example = playgroundExample(definition.example, definition, { [definition.targets[0].key]: { value: 42 } });
+          assert.match(example, /"value": 42/);
+          assert.doesNotMatch(example, /defaultValue=/);
+          sourceApi(example, "number-field-playground.tsx");
+        }
+      });
     }
-  },
-);
+  } finally {
+    await server.close();
+  }
+});

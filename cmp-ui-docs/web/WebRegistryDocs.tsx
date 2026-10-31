@@ -1,3 +1,4 @@
+import { Typography } from "@/components/ui/typography";
 import {
   Component,
   lazy,
@@ -8,6 +9,10 @@ import {
 import { Link } from "react-router";
 import { CodeExample } from "./RegistryCodeExample";
 import { webCatalog } from "./web-registry";
+import { WebPlayground } from "./web-playground";
+import { useWebProject } from "./web-project-context";
+import type { IenLanguage } from "../../cmp-ui-web-registry/lib/ien-theme";
+import { IenLanguageProvider } from "../../cmp-ui-web-registry/lib/ien-theme-context";
 
 const previewModules = import.meta.glob<{ default: ComponentType }>(
   "../../cmp-ui-web-registry/**/previews/*.tsx",
@@ -46,12 +51,15 @@ function sourceComponent(path: string) {
   return sourceCache.get(path)!;
 }
 class PreviewBoundary extends Component<
-  { children: ReactNode },
+  { children: ReactNode; resetKey?: unknown },
   { error: string }
 > {
   state = { error: "" };
   static getDerivedStateFromError(error: Error) {
     return { error: error.message };
+  }
+  componentDidUpdate(previous: { resetKey?: unknown }) {
+    if (this.state.error && previous.resetKey !== this.props.resetKey) this.setState({ error: "" });
   }
   render() {
     return this.state.error ? (
@@ -61,13 +69,29 @@ class PreviewBoundary extends Component<
     );
   }
 }
+export function WebComponentPreview({ componentId, language, resetKey }: { componentId: string; language: IenLanguage; resetKey?: unknown }) {
+  const item = webCatalog.find((entry) => entry.id === componentId);
+  const Preview = item && previews[item.preview];
+  return (
+    <PreviewBoundary key={componentId} resetKey={resetKey}>
+      <IenLanguageProvider language={language}>
+        <Suspense fallback={<p role="status">프리뷰를 불러오는 중입니다.</p>}>
+          {Preview ? <Preview /> : <p role="alert">연결된 프리뷰가 없습니다.</p>}
+        </Suspense>
+      </IenLanguageProvider>
+    </PreviewBoundary>
+  );
+}
 export function WebRegistryDocs({
   componentId,
+  language,
   tab,
 }: {
   componentId: string;
-  tab: "preview" | "registry";
+  language: IenLanguage;
+  tab: "preview" | "playground" | "registry";
 }) {
+  const { project, published, dirty } = useWebProject();
   const item = webCatalog.find((entry) => entry.id === componentId);
   if (!item) return <p role="alert">컴포넌트를 찾을 수 없습니다.</p>;
   const Preview = previews[item.preview];
@@ -81,29 +105,25 @@ export function WebRegistryDocs({
       <div className="panel-heading">
         <div>
           <p className="panel-kicker">
-            {tab === "preview" ? "LIVE WEB COMPONENT" : "SHADCN REGISTRY"}
+            {tab === "preview" ? "LIVE WEB COMPONENT" : tab === "playground" ? "COMPONENT PLAYGROUND" : "SHADCN REGISTRY"}
           </p>
-          <h2>{item.name}</h2>
-          <p>{item.description}</p>
+          <Typography variant="title1" asChild><h2>{item.name}</h2></Typography>
         </div>
       </div>
-      {tab === "preview" ? (
+      <p className="panel-description">{item.description}</p>
+      {tab === "playground" && Preview ? (
+        <WebPlayground definition={item.playground} source={item.playground.example} Preview={Preview} renderPreview={(preview, resetKey) => (
+          <IenLanguageProvider language={language}>
+            <PreviewBoundary resetKey={resetKey}><Suspense fallback={<p role="status">프리뷰를 불러오는 중입니다.</p>}>{preview}</Suspense></PreviewBoundary>
+          </IenLanguageProvider>
+        )} />
+      ) : tab === "preview" ? (
         <>
           <div className="web-component-preview min-h-48 overflow-auto rounded-ien-lg border border-ien-border p-ien-xl">
-            <PreviewBoundary key={item.id}>
-              <Suspense
-                fallback={<p role="status">프리뷰를 불러오는 중입니다.</p>}
-              >
-                {Preview ? (
-                  <Preview />
-                ) : (
-                  <p role="alert">연결된 프리뷰가 없습니다.</p>
-                )}
-              </Suspense>
-            </PreviewBoundary>
+            <WebComponentPreview componentId={item.id} language={language} />
           </div>
           <CodeExample label="사용 예시" code={item.example} />
-          <details>
+          <details className="web-docs-disclosure">
             <summary>프리뷰 전체 코드 · React / Next.js</summary>
             <Suspense
               fallback={<p role="status">예시 코드를 불러오는 중입니다.</p>}
@@ -126,22 +146,19 @@ export function WebRegistryDocs({
             }
           />
           <CodeExample label="컴포넌트 설치" code={item.installCommand} />
+          {published && !dirty && <CodeExample label={`${project.title} 프로젝트 적용`} code={`npx shadcn@latest add @ienlab/${project.name}`} />}
           <p>
-            React · Next.js 프로젝트에 shadcn/ui를 초기화한 뒤 설치합니다. IEN
-            토큰과 아래 내부 의존성은 CLI가 함께 설치합니다.
+            React · Next.js 프로젝트에 shadcn/ui를 초기화한 뒤 설치합니다.
+            REUI 원본 컴포넌트와 아래 내부 의존성은 CLI가 함께 설치합니다.
           </p>
           <ul>
             {item.dependencies.map((name) => (
               <li key={name}>
-                <Link
-                  to={
-                    name === "@ienlab/tokens"
-                      ? "/web/button/registry"
-                      : `/web/${name.replace("@ienlab/", "")}/registry`
-                  }
-                >
-                  {name}
-                </Link>
+                {webCatalog.some((entry) => entry.id === name.replace("@ienlab/", "")) ? (
+                  <Link to={`/web/${name.replace("@ienlab/", "")}/registry`}>{name}</Link>
+                ) : (
+                  <code>{name}</code>
+                )}
               </li>
             ))}
           </ul>
@@ -151,7 +168,7 @@ export function WebRegistryDocs({
           <Suspense fallback={<p role="status">소스를 불러오는 중입니다.</p>}>
             {Source && <Source />}
           </Suspense>
-          <details>
+          <details className="web-docs-disclosure">
             <summary>레지스트리 JSON</summary>
             <CodeExample
               label="레지스트리 정의"
@@ -161,7 +178,7 @@ export function WebRegistryDocs({
         </>
       )}
       <section aria-label="접근성">
-        <h3>접근성</h3>
+        <Typography variant="title2" asChild><h3>접근성</h3></Typography>
         <p>
           입력에는 연결된 label을, 아이콘만 있는 버튼에는 aria-label을
           지정하세요. 오버레이의 제목과 설명을 유지하고 Tab·방향키·Escape로
@@ -170,10 +187,10 @@ export function WebRegistryDocs({
         </p>
       </section>
       <section aria-label="공개 API">
-        <h3>공개 API</h3>
+        <Typography variant="title2" asChild><h3>공개 API</h3></Typography>
         <p className="break-words text-sm">{item.api.join(", ")}</p>
         {item.apiEntries.map((entry) => (
-          <details key={entry.name}>
+          <details className="web-docs-disclosure" key={entry.name}>
             <summary>{entry.name}</summary>
             <pre className="api-signature" tabIndex={0}>
               <code>{entry.signature}</code>
@@ -205,7 +222,7 @@ export function WebRegistryDocs({
       </section>
       {item.cmpIds.length > 0 && (
         <section>
-          <h3>CMP 대응 컴포넌트</h3>
+          <Typography variant="title2" asChild><h3>CMP 대응 컴포넌트</h3></Typography>
           <ul>
             {item.cmpIds.map((id) => (
               <li key={id}>
@@ -223,7 +240,7 @@ export function WebRegistryDocs({
       )}
       {item.limitations.length > 0 && (
         <section>
-          <h3>플랫폼 차이</h3>
+          <Typography variant="title2" asChild><h3>플랫폼 차이</h3></Typography>
           <ul>
             {item.limitations.map((note) => (
               <li key={note}>{note}</li>
