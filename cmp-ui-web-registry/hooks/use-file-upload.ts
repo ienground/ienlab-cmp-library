@@ -146,8 +146,7 @@ export const useFileUpload = (
       for (const file of prev.files) {
         if (
           file.preview &&
-          file.file instanceof File &&
-          file.file.type.startsWith("image/")
+          file.file instanceof File
         ) {
           URL.revokeObjectURL(file.preview)
         }
@@ -221,6 +220,10 @@ export const useFileUpload = (
         }
       }
 
+      if (errors.length > 0) {
+        onError?.(errors)
+      }
+
       // Only update state if we have valid files to add
       if (validFiles.length > 0) {
         // Call the onFilesAdded callback with the newly added valid files
@@ -245,7 +248,6 @@ export const useFileUpload = (
           }
         })
       } else if (errors.length > 0) {
-        onError?.(errors)
         setState((prev) => ({
           ...prev,
           errors,
@@ -267,6 +269,7 @@ export const useFileUpload = (
       generateUniqueId,
       onFilesChange,
       onFilesAdded,
+      onError,
     ]
   )
 
@@ -277,8 +280,7 @@ export const useFileUpload = (
         if (
           fileToRemove &&
           fileToRemove.preview &&
-          fileToRemove.file instanceof File &&
-          fileToRemove.file.type.startsWith("image/")
+          fileToRemove.file instanceof File
         ) {
           URL.revokeObjectURL(fileToRemove.preview)
         }

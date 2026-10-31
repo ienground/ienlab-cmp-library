@@ -57,6 +57,48 @@ test("CMP 대응 컴포넌트의 공개 계약", async (context) => {
         for (const entry of state.files) URL.revokeObjectURL(entry.preview);
       }
     });
+    await context.test("혼합 배치는 유효 파일을 유지하고 거부된 파일의 오류를 한 번 알린다", () => {
+      for (const invalid of [new File(["too large"], "large.png", { type: "image/png" }), new File(["x"], "wrong.txt", { type: "text/plain" })]) {
+        const errors = [];
+        const valid = new File(["ok"], "valid.png", { type: "image/png" });
+        const { state } = uploadSequence({ multiple: true, maxSize: 4, accept: "image/*", onError: (value) => errors.push(value) }, [[valid, invalid]]);
+        try {
+          assert.deepEqual(state.files.map((entry) => entry.file.name), ["valid.png"]);
+          assert.equal(state.errors.length, 1);
+          assert.deepEqual(errors, [state.errors]);
+        } finally {
+          for (const entry of state.files) URL.revokeObjectURL(entry.preview);
+        }
+      }
+    });
+    for (const operation of ["clearFiles", "removeFile"]) {
+      await context.test(`${operation}는 비이미지 Blob URL을 해제하고 외부 메타데이터 URL은 유지한다`, async () => {
+        const externalUrl = URL.createObjectURL(new Blob(["external"]));
+        let result;
+        let preview;
+        function Probe() {
+          const [state, actions] = useFileUpload({ multiple: true, initialFiles: [{ id: "external", name: "external.pdf", type: "application/pdf", size: 8, url: externalUrl }] });
+          const step = React.useRef(0);
+          result = state;
+          if (step.current++ === 0) actions.addFiles([new File(["pdf data"], "report.pdf", { type: "application/pdf" })]);
+          else if (step.current === 2) {
+            preview = state.files[1].preview;
+            if (operation === "clearFiles") actions.clearFiles();
+            else for (const entry of state.files) actions.removeFile(entry.id);
+          }
+          return null;
+        }
+        try {
+          render(Probe, {});
+          assert.deepEqual(result.files, []);
+          await assert.rejects(fetch(preview));
+          assert.equal(await (await fetch(externalUrl)).text(), "external");
+        } finally {
+          if (preview) URL.revokeObjectURL(preview);
+          URL.revokeObjectURL(externalUrl);
+        }
+      });
+    }
     await context.test("웹 확장 컴포넌트는 구분선과 안내 영역, 스와이프 대체 조작을 제공한다", async () => {
       const { Border } = await load("ui/separator.tsx");
       assert.match(render(Border, { variant: "padding24" }), /margin-inline:var\(--ien-spacing-xl\)/);
