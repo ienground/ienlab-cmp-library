@@ -225,15 +225,6 @@ fun IenListRow(
                 },
             ),
     ) {
-        if (border == IenListRowBorder.Indented) {
-            Box(
-                modifier = Modifier
-                    .padding(start = horizontalPadding.value + IenTheme.spacing.lg)
-                    .fillMaxWidth()
-                    .height(IenTheme.stroke.hairline)
-                    .background(IenTheme.colors.border),
-            )
-        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -279,6 +270,15 @@ fun IenListRow(
                     }
                 }
             }
+        }
+        if (border == IenListRowBorder.Indented) {
+            Box(
+                modifier = Modifier
+                    .padding(start = horizontalPadding.value + IenTheme.spacing.lg)
+                    .fillMaxWidth()
+                    .height(IenTheme.stroke.hairline)
+                    .background(IenTheme.colors.border),
+            )
         }
     }
 }
