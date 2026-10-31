@@ -5,10 +5,16 @@ on:
 jobs:
   publish:
     name: Release build and publish
-    runs-on: macOS-latest
+    runs-on: xcode-27
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+      - name: Xcode 27.1 설정
+        run: |
+          sudo xcode-select --switch /Applications/Xcode_27.1.app/Contents/Developer
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+          xcrun --sdk iphonesimulator --show-sdk-version
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
