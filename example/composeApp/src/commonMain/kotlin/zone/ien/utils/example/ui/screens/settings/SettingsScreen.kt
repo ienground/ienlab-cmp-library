@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.settings
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -40,8 +41,9 @@ import zone.ien.utils.pref.item.DropdownPref
 import zone.ien.utils.pref.item.SwitchPref
 import zone.ien.utils.pref.item.TextFieldPref
 import zone.ien.utils.pref.item.TextPref
-import zone.ien.utils.ui.interactive.IenSwitch
+import zone.ien.utils.ui.interactive.IenTextButton
 import zone.ien.utils.ui.interactive.IenTextField
+import zone.ien.utils.ui.menu.IenMenu
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.utils.sendEmail
@@ -56,7 +58,8 @@ fun SettingsScreen(
     val backdrop = rememberDefaultBackdrop()
     val dataStore: DataStore<Preferences> = koinInject(named(DEFAULT_DATASTORE))
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
-    var useAdaptivePrefs by remember { mutableStateOf(true) }
+    var prefsType by remember { mutableStateOf(PrefsScreenType.Adaptive) }
+    var prefsTypeExpanded by remember { mutableStateOf(false) }
     var textFieldValue by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
 
@@ -69,11 +72,27 @@ fun SettingsScreen(
                 scrollableState = scrollState,
             ),
             actions = {
-                Text("Adaptive")
-                IenSwitch(
-                    checked = useAdaptivePrefs,
-                    onCheckedChange = { useAdaptivePrefs = it },
-                )
+                Box {
+                    IenTextButton(onClick = { prefsTypeExpanded = true }) {
+                        Text(prefsType.name)
+                        IenIcon(icon = IconData.Vector(SystemIcons.ArrowDropDown))
+                    }
+                    IenMenu.PopupDropdown(
+                        expanded = prefsTypeExpanded,
+                        onDismissRequest = { prefsTypeExpanded = false },
+                    ) {
+                        PrefsScreenType.entries.forEach { type ->
+                            IenMenu.DropdownCheckItem(
+                                text = type.name,
+                                checked = prefsType == type,
+                                onCheckedChange = {
+                                    prefsType = type
+                                    prefsTypeExpanded = false
+                                },
+                            )
+                        }
+                    }
+                }
                 AdaptiveSwitch(
                     checked = isMaterialTheme,
                     onCheckedChange = { isMaterialTheme = it },
@@ -83,7 +102,7 @@ fun SettingsScreen(
         ) { pv, title ->
             PrefsScreen(
                 dataStore = dataStore,
-                type = if (useAdaptivePrefs) PrefsScreenType.Adaptive else PrefsScreenType.IEN,
+                type = prefsType,
                 title = title,
                 scrollState = scrollState,
                 backdrop = backdrop,

@@ -1,5 +1,6 @@
 package zone.ien.utils.pref.item
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,15 +13,19 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.launch
 import zone.ien.hig.adaptive.AdaptationScope
+import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.section.SectionScope
+import zone.ien.utils.adaptive.component.AdaptiveSwitch
 import zone.ien.utils.adaptive.section.AdaptiveSectionSwitchItem
 import zone.ien.utils.adaptive.section.HigSectionItemAdaptation
 import zone.ien.utils.adaptive.section.IenSectionItemAdaptation
+import zone.ien.utils.pref.LocalPrefsAdaptive
 import zone.ien.utils.pref.LocalPrefsDataStore
 import zone.ien.utils.pref.LocalPrefsSwitchAdaptive
 import zone.ien.utils.ui.section.IenSectionColors
 import zone.ien.utils.ui.section.IenSectionLinkDefault
+import zone.ien.utils.ui.section.item
 import zone.ien.utils.ui.section.switch
 
 /**
@@ -115,22 +120,49 @@ fun SectionScope.SwitchPref(
         }
     }
 
-    if (!LocalPrefsSwitchAdaptive.current) {
-        switch(
-            modifier = modifier,
-            leadingContent = leadingContent,
-            checked = checked,
-            onCheckedChange = { edit(it) },
-            enabled = enabled,
-            supportingContent = if (checked) summaryOn?.let { { Text(it) } } else summaryOff?.let { { Text(it) } },
-            colors = colors,
-            thumbContent = thumbContent,
-            interactionSource = interactionSource,
-            trackContent = trackContent,
-            onTrackContent = onTrackContent,
-            offTrackContent = offTrackContent,
-            title = { Text(title) },
-        )
+    if (!LocalPrefsAdaptive.current || !LocalPrefsSwitchAdaptive.current) {
+        val ienSwitchItem: @Composable () -> Unit = {
+            switch(
+                modifier = modifier,
+                leadingContent = leadingContent,
+                checked = checked,
+                onCheckedChange = { edit(it) },
+                enabled = enabled,
+                supportingContent = if (checked) summaryOn?.let { { Text(it) } } else summaryOff?.let { { Text(it) } },
+                colors = colors,
+                thumbContent = thumbContent,
+                interactionSource = interactionSource,
+                trackContent = trackContent,
+                onTrackContent = onTrackContent,
+                offTrackContent = offTrackContent,
+                title = { Text(title) },
+            )
+        }
+        if (!LocalPrefsSwitchAdaptive.current) {
+            ienSwitchItem()
+        } else {
+            AdaptiveWidget(
+                material = { ienSwitchItem() },
+                cupertino = {
+                    item(
+                        modifier = modifier.clickable(enabled = enabled) { edit(!checked) },
+                        leadingContent = leadingContent,
+                        enabled = enabled,
+                        supportingContent = if (checked) summaryOn?.let { { Text(it) } } else summaryOff?.let { { Text(it) } },
+                        colors = colors,
+                        trailingContent = {
+                            AdaptiveSwitch(
+                                checked = checked,
+                                onCheckedChange = { edit(it) },
+                                enabled = enabled,
+                                interactionSource = interactionSource,
+                            )
+                        },
+                        title = { Text(title) },
+                    )
+                },
+            )
+        }
         return
     }
     AdaptiveSectionSwitchItem(
