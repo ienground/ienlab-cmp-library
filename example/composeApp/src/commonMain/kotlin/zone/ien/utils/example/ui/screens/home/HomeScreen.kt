@@ -233,6 +233,15 @@ fun HomeScreen(
                     icon = IconData.Vector(Android)
                 ),
             ),
+            primaryAction = ActionMenuItem.IconMenuItem.AlwaysShown(
+                title = "저장",
+                icon = IconData.Vector(SystemIcons.Check),
+                onClick = {
+                    coroutineScope.launch {
+                        snackbarState.showSnackbar("주요 액션: 저장을 눌렀습니다.")
+                    }
+                },
+            ),
             navigationIcon = {
                 AdaptiveDropdownBox(
                     expanded = childExpanded,

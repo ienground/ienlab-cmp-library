@@ -24,6 +24,7 @@ import zone.ien.utils.ui.screen.IenTopBarTitleAlignment
  * @param isScrollTint 스크롤 tint 여부
  * @param isCenterAligned 중앙 정렬 여부
  * @param mode 상단 바 표시 방식
+ * @param primaryAction 일반 액션 컨테이너와 분리해 표시할 주요 액션
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +38,7 @@ fun IenTopAppBar(
     isScrollTint: Boolean = LocalIsScrollTint.current,
     isCenterAligned: Boolean = false,
     mode: TopBarMode = TopBarMode.Static,
+    primaryAction: (@Composable RowScope.() -> Unit)? = null,
 ) {
     IenTopBar(
         title = title,
@@ -44,6 +46,7 @@ fun IenTopAppBar(
         modifier = modifier,
         navigationIcon = navigationIcon,
         actions = actions,
+        primaryAction = primaryAction,
         windowInsets = windowInsets,
         titleAlignment = if (isCenterAligned) IenTopBarTitleAlignment.Center else IenTopBarTitleAlignment.Start,
         contentPadding = when (mode) {
