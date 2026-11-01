@@ -780,7 +780,7 @@ fun AdaptiveTopAppBarScaffold(
                         closeDropdown = { menuExpanded = false },
                         onToggleOverflow = { menuExpanded = !menuExpanded },
                         isNative = it.isDropdownNative,
-                        maxVisibleItems = if (isSideBar) 0 else 3,
+                        maxVisibleItems = 3,
                     ) { content ->
                         liquidButton(
                             onClick = {},
