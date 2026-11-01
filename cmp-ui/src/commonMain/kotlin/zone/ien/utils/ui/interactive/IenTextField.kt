@@ -401,7 +401,10 @@ fun IenTextField(
                         if (fillsBoxSingleLine || !hasFieldAdornment) {
                             Modifier
                         } else {
-                            Modifier.padding(horizontal = IenTheme.spacing.xs)
+                            Modifier.padding(
+                                start = if (hasLeadingFieldContent) IenTheme.spacing.xs else IenTheme.spacing.none,
+                                end = if (hasTrailingFieldContent) IenTheme.spacing.xs else IenTheme.spacing.none,
+                            )
                         },
                     ),
                 enabled = state.enabled && (!state.readOnly || readOnlyTextSelectionEnabled),
@@ -445,25 +448,20 @@ fun IenTextField(
                         }
 
                         if (fillsBoxSingleLine) {
-                            val horizontalAdornmentPadding = if (hasFieldAdornment) {
-                                IenTheme.spacing.xs
-                            } else {
-                                IenTheme.spacing.none
-                            }
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(
                                         start = if (hasLeadingFieldContent) {
-                                            startAdornmentInset + horizontalAdornmentPadding
+                                            startAdornmentInset + IenTheme.spacing.xs
                                         } else {
-                                            fieldHorizontalPadding + horizontalAdornmentPadding
+                                            fieldHorizontalPadding
                                         },
                                         top = paddingTop ?: fieldVerticalPadding,
                                         end = if (hasTrailingFieldContent) {
-                                            endAdornmentInset + horizontalAdornmentPadding
+                                            endAdornmentInset + IenTheme.spacing.xs
                                         } else {
-                                            fieldHorizontalPadding + horizontalAdornmentPadding
+                                            fieldHorizontalPadding
                                         },
                                         bottom = paddingBottom ?: fieldVerticalPadding,
                                     ),
@@ -999,19 +997,27 @@ private fun IenTextFieldClearButton(
     modifier: Modifier = Modifier,
 ) {
     val contentDescription = stringResource(Res.string.clear_input)
-    Box(
+    IenIconButton(
+        onClick = onClick,
         modifier = modifier
             .size(28.dp)
-            .clickable(role = Role.Button, onClick = onClick)
-            .semantics { this.contentDescription = contentDescription }
-            .background(color = Color(0xFFE5E8EB), shape = CircleShape),
-        contentAlignment = Alignment.Center,
+            .semantics { this.contentDescription = contentDescription },
+        size = IenButtonSize.Small,
+        variant = IenButtonVariant.Weak,
+        tone = IenSemanticTone.Neutral,
+        shape = CircleShape,
+        colors = IenButtonDefault.colors(
+            variant = IenButtonVariant.Weak,
+            tone = IenSemanticTone.Neutral,
+            container = IenTheme.colors.border,
+            content = IenTheme.colors.textTertiary,
+            useGradient = false,
+        ),
     ) {
         IenIcon(
             icon = IconData.Vector(SystemIcons.Close),
             contentDescription = null,
             modifier = Modifier.size(IenTheme.icon.sm),
-            tint = Color(0xFF8B95A1),
         )
     }
 }
