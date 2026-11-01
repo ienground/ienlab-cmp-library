@@ -176,6 +176,7 @@ import zone.ien.utils.ui.interactive.IenFabSize
 import zone.ien.utils.ui.interactive.IenFilterChip
 import zone.ien.utils.ui.interactive.IenFullSecureKeyboard
 import zone.ien.utils.ui.interactive.IenFullSecureKeypad
+import zone.ien.utils.ui.interactive.IenIconBadge
 import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.interactive.IenIconToggleButton
 import zone.ien.utils.ui.interactive.IenInputChip
@@ -2075,6 +2076,13 @@ fun BadgeSection(controls: Map<String, String> = emptyMap()) {
         ComponentSection(title = "Badge") {
             Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
                 IenBadge(controls.textValue("text", "미리보기"), size = size, variant = variant, tone = tone)
+                IenIconBadge(
+                    icon = IconData.Vector(SystemIcons.Check),
+                    size = size,
+                    variant = variant,
+                    tone = tone,
+                    contentDescription = "완료",
+                )
             }
         }
     }

@@ -5,6 +5,7 @@
 package zone.ien.utils.ui.list
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
@@ -80,6 +81,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -166,8 +168,20 @@ class IenSwipeBoxActionsBuilder {
         key: Any? = null,
         onClick: (() -> Unit)? = null,
         content: @Composable RowScope.() -> Unit,
+    ) = start(key, onClick, dismissOnFullSwipe = false, content = content)
+
+    /**
+     * 시작 방향 액션을 추가합니다.
+     * @param dismissOnFullSwipe 첫 번째 액션의 전체 스와이프 시 화면 밖으로 이동한 뒤
+     * [onClick]을 실행합니다. 콜백에서 항목을 제거하며, 스와이프 위치는 복원하지 않습니다.
+     */
+    fun start(
+        key: Any? = null,
+        onClick: (() -> Unit)? = null,
+        dismissOnFullSwipe: Boolean,
+        content: @Composable RowScope.() -> Unit,
     ) {
-        startActions.add(SwipeAction(key, onClick, content))
+        startActions.add(SwipeAction(key, onClick, dismissOnFullSwipe, content))
     }
 
     /** 끝 방향 액션을 추가합니다. */
@@ -175,16 +189,37 @@ class IenSwipeBoxActionsBuilder {
         key: Any? = null,
         onClick: (() -> Unit)? = null,
         content: @Composable RowScope.() -> Unit,
+    ) = end(key, onClick, dismissOnFullSwipe = false, content = content)
+
+    /**
+     * 끝 방향 액션을 추가합니다.
+     * @param dismissOnFullSwipe 마지막 액션의 전체 스와이프 시 화면 밖으로 이동한 뒤
+     * [onClick]을 실행합니다. 콜백에서 항목을 제거하며, 스와이프 위치는 복원하지 않습니다.
+     */
+    fun end(
+        key: Any? = null,
+        onClick: (() -> Unit)? = null,
+        dismissOnFullSwipe: Boolean,
+        content: @Composable RowScope.() -> Unit,
     ) {
-        endActions.add(SwipeAction(key, onClick, content))
+        endActions.add(SwipeAction(key, onClick, dismissOnFullSwipe, content))
     }
 
     /** 하나의 스와이프 액션 정의입니다. */
     class SwipeAction(
         val key: Any? = null,
         val onClick: (() -> Unit)? = null,
+        /** 전체 스와이프 후 화면 밖으로 이동하고 복원하지 않을지 여부입니다. */
+        val dismissOnFullSwipe: Boolean,
         val content: @Composable RowScope.() -> Unit,
-    )
+    ) {
+        /** 기존 액션 생성 호출을 지원합니다. */
+        constructor(
+            key: Any? = null,
+            onClick: (() -> Unit)? = null,
+            content: @Composable RowScope.() -> Unit,
+        ) : this(key, onClick, false, content)
+    }
 }
 
 /**
@@ -280,8 +315,11 @@ private fun IenSwipeBoxContent(
     val isStartActionItemSupplied = startActionsSize != 0
     val isEndActionItemSupplied = endActionsSize != 0
     val hasActions = isStartActionItemSupplied || isEndActionItemSupplied
-    val startFullSwipeAction = actionItems.startActions.firstOrNull()?.onClick
-    val endFullSwipeAction = actionItems.endActions.lastOrNull()?.onClick
+    val startFullSwipeAction = actionItems.startActions.firstOrNull()
+    val endFullSwipeAction = actionItems.endActions.lastOrNull()
+    val dismissOffset = remember(state) { Animatable(0f) }
+    val dismissDistance = maxOf(LocalWindowInfo.current.containerSize.width, parentWidth).toFloat()
+    val dismissAnimationSpec = ienSwipeAnimationSpec<Float>()
     var contentHeightPx by remember { mutableIntStateOf(0) }
     val contentHeight = with(density) { contentHeightPx.toDp() }
     val actionHeight = resolveSwipeBoxHeight(
@@ -333,8 +371,14 @@ private fun IenSwipeBoxContent(
         isEndActionItemSupplied = isEndActionItemSupplied,
         fullExpansionEnd = endToStartFullSwipeEnabled,
         restoreAnimationSpec = restoreAnimationSpec,
-        startFullExpansionOnClick = startFullSwipeAction,
-        endFullExpansionOnClick = endFullSwipeAction,
+        startFullExpansionAction = startFullSwipeAction,
+        endFullExpansionAction = endFullSwipeAction,
+        onDismiss = { towardsStart ->
+            dismissOffset.animateTo(
+                targetValue = if (towardsStart) dismissDistance else -dismissDistance,
+                animationSpec = dismissAnimationSpec,
+            )
+        },
     )
 
     CompositionLocalProvider(
@@ -342,9 +386,11 @@ private fun IenSwipeBoxContent(
         LocalIenSwipeBoxRestoreAnimationSpec provides restoreAnimationSpec,
     ) {
         Box(
-            modifier = modifier.onGloballyPositioned { coordinates ->
-                parentWidth = coordinates.size.width
-            },
+            modifier = modifier
+                .offset { IntOffset(dismissOffset.value.roundToInt(), 0) }
+                .onGloballyPositioned { coordinates ->
+                    parentWidth = coordinates.size.width
+                },
         ) {
             val offset by remember(state) {
                 derivedStateOf {
@@ -475,7 +521,7 @@ private fun IenSwipeBoxContent(
                 modifier = Modifier
                     .offset { IntOffset(offset.roundToInt(), 0) }
                     .then(
-                        if (anchorsInitialized) {
+                        if (anchorsInitialized && dismissOffset.value == 0f) {
                             dragModifier
                         } else {
                             Modifier
@@ -1082,21 +1128,34 @@ private fun DismissFullyExpandedEffect(
     isEndActionItemSupplied: Boolean,
     fullExpansionEnd: Boolean,
     restoreAnimationSpec: AnimationSpec<Float>?,
-    startFullExpansionOnClick: (() -> Unit)? = null,
-    endFullExpansionOnClick: (() -> Unit)? = null,
+    startFullExpansionAction: IenSwipeBoxActionsBuilder.SwipeAction?,
+    endFullExpansionAction: IenSwipeBoxActionsBuilder.SwipeAction?,
+    onDismiss: suspend (towardsStart: Boolean) -> Unit,
 ) {
-    LaunchedEffect(swipeBoxState, swipeBoxState.settledValue) {
-        if (fullExpansionStart && isStartActionItemSupplied &&
-            swipeBoxState.settledValue == IenSwipeBoxStates.StartFullyExpanded
-        ) {
-            dismissAndAnimate(swipeBoxState, restoreAnimationSpec)
-            startFullExpansionOnClick?.invoke()
-        }
-        if (fullExpansionEnd && isEndActionItemSupplied &&
-            swipeBoxState.settledValue == IenSwipeBoxStates.EndFullyExpanded
-        ) {
-            dismissAndAnimate(swipeBoxState, restoreAnimationSpec)
-            endFullExpansionOnClick?.invoke()
+    val currentStartAction by rememberUpdatedState(startFullExpansionAction)
+    val currentEndAction by rememberUpdatedState(endFullExpansionAction)
+    val currentOnDismiss by rememberUpdatedState(onDismiss)
+    LaunchedEffect(
+        swipeBoxState,
+        fullExpansionStart,
+        fullExpansionEnd,
+        isStartActionItemSupplied,
+        isEndActionItemSupplied,
+    ) {
+        snapshotFlow { swipeBoxState.settledValue }.collect { settledValue ->
+            val action = when {
+                fullExpansionStart && isStartActionItemSupplied &&
+                    settledValue == IenSwipeBoxStates.StartFullyExpanded -> currentStartAction
+                fullExpansionEnd && isEndActionItemSupplied &&
+                    settledValue == IenSwipeBoxStates.EndFullyExpanded -> currentEndAction
+                else -> return@collect
+            }
+            if (action?.dismissOnFullSwipe == true) {
+                currentOnDismiss(settledValue == IenSwipeBoxStates.StartFullyExpanded)
+            } else {
+                dismissAndAnimate(swipeBoxState, restoreAnimationSpec)
+            }
+            action?.onClick?.invoke()
         }
     }
 }
