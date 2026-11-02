@@ -213,7 +213,7 @@ private fun IenTextFieldLengthLimit.blocks(value: String): Boolean {
  * @param readOnlyTextSelectionEnabled 읽기 전용 상태에서 텍스트 선택을 허용할지 여부.
  * @param interactionSource 필드의 인터랙션 이벤트를 전달할 [MutableInteractionSource].
  * @param minLines 최소 높이를 보장할 행 수.
- * @param maxLines 최대 행 수.
+ * @param maxLines 입력 영역과 라벨의 최대 행 수. singleLine이 true이면 1행으로 제한됩니다.
  * @param onFocus 필드가 포커스를 받았을 때 호출할 선택적 콜백 함수.
  * @param onBlur 필드가 포커스를 잃었을 때 호출할 선택적 콜백 함수.
  */
@@ -488,6 +488,7 @@ fun IenTextField(
             IenTextFieldLabel(
                 label = label,
                 required = required,
+                maxLines = if (singleLine) 1 else maxLines,
                 modifier = Modifier.graphicsLayer { alpha = labelAlpha },
             )
             Spacer(Modifier.height(IenTheme.spacing.xxs))
@@ -888,6 +889,7 @@ fun IenTextFieldButton(
 private fun IenTextFieldLabel(
     label: String,
     required: Boolean,
+    maxLines: Int,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -899,6 +901,7 @@ private fun IenTextFieldLabel(
             text = label,
             style = IenTheme.typography.label2,
             color = IenTheme.colors.textSecondary,
+            maxLines = maxLines,
         )
         if (required) {
             Text(
