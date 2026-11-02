@@ -74,6 +74,7 @@ import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.foundation.LocalIenDarkTheme
 import zone.ien.utils.ui.foundation.resolveThemeColor
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.primitives.drawIenBorder
@@ -576,6 +577,30 @@ fun IenRadioButton(
     size: Dp = 24.dp,
     label: String? = null,
 ) {
+    IenRadioButton(
+        selected = selected,
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        size = size,
+        labelContent = label?.let { value -> { Text(text = value) } },
+    )
+}
+
+/**
+ * 컨트롤의 라벨을 컴포저블로 구성하며 기존 배치와 동작을 유지합니다.
+ *
+ * @param labelContent 라벨 슬롯. null이면 라벨 영역을 생략합니다. 기존 문자열 호출과 구분하기 위해 명시적으로 전달합니다.
+ */
+@Composable
+fun IenRadioButton(
+    selected: Boolean,
+    onClick: (() -> Unit)?,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    size: Dp = 24.dp,
+    labelContent: (@Composable () -> Unit)?,
+) {
     val interactionSource = remember { MutableInteractionSource() }
     var pressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
@@ -654,12 +679,13 @@ fun IenRadioButton(
                     ),
             )
         }
-        if (label != null) {
-            Text(
-                text = label,
+        if (labelContent != null) {
+            IenProvideTextStyle(
                 style = IenTheme.typography.body2,
                 color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
-            )
+            ) {
+                labelContent()
+            }
         }
     }
 }
@@ -734,6 +760,32 @@ fun IenCircleCheckbox(
     enabled: Boolean = true,
     size: Dp = 24.dp,
     label: String? = null,
+) {
+    IenCircleCheckbox(
+        modifier = modifier,
+        checked = checked,
+        defaultChecked = defaultChecked,
+        onCheckedChange = onCheckedChange,
+        enabled = enabled,
+        size = size,
+        labelContent = label?.let { value -> { Text(text = value) } },
+    )
+}
+
+/**
+ * 컨트롤의 라벨을 컴포저블로 구성하며 기존 배치와 동작을 유지합니다.
+ *
+ * @param labelContent 라벨 슬롯. null이면 라벨 영역을 생략합니다. 기존 문자열 호출과 구분하기 위해 명시적으로 전달합니다.
+ */
+@Composable
+fun IenCircleCheckbox(
+    modifier: Modifier = Modifier,
+    checked: Boolean? = null,
+    defaultChecked: Boolean? = null,
+    onCheckedChange: ((Boolean) -> Unit)? = null,
+    enabled: Boolean = true,
+    size: Dp = 24.dp,
+    labelContent: (@Composable () -> Unit)?,
 ) {
     val alpha = if (enabled) 1f else IenTheme.state.disabledAlpha
     val brandColor = IenTheme.colors.brand
@@ -850,12 +902,13 @@ fun IenCircleCheckbox(
                 modifier = Modifier.size(size * 0.65f)
             )
         }
-        if (label != null) {
-            Text(
-                text = label,
+        if (labelContent != null) {
+            IenProvideTextStyle(
                 style = IenTheme.typography.body2,
                 color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
-            )
+            ) {
+                labelContent()
+            }
         }
     }
 }
@@ -880,6 +933,32 @@ fun IenDotCheckbox(
     enabled: Boolean = true,
     size: Dp = 8.dp,
     label: String? = null,
+) {
+    IenDotCheckbox(
+        modifier = modifier,
+        checked = checked,
+        defaultChecked = defaultChecked,
+        onCheckedChange = onCheckedChange,
+        enabled = enabled,
+        size = size,
+        labelContent = label?.let { value -> { Text(text = value) } },
+    )
+}
+
+/**
+ * 컨트롤의 라벨을 컴포저블로 구성하며 기존 배치와 동작을 유지합니다.
+ *
+ * @param labelContent 라벨 슬롯. null이면 라벨 영역을 생략합니다. 기존 문자열 호출과 구분하기 위해 명시적으로 전달합니다.
+ */
+@Composable
+fun IenDotCheckbox(
+    modifier: Modifier = Modifier,
+    checked: Boolean? = null,
+    defaultChecked: Boolean? = null,
+    onCheckedChange: ((Boolean) -> Unit)? = null,
+    enabled: Boolean = true,
+    size: Dp = 8.dp,
+    labelContent: (@Composable () -> Unit)?,
 ) {
     val alpha = if (enabled) 1f else IenTheme.state.disabledAlpha
     val brandColor = IenTheme.colors.brand
@@ -988,12 +1067,13 @@ fun IenDotCheckbox(
                     shape = androidx.compose.foundation.shape.CircleShape
                 ),
         )
-        if (label != null) {
-            Text(
-                text = label,
+        if (labelContent != null) {
+            IenProvideTextStyle(
                 style = IenTheme.typography.body2,
                 color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
-            )
+            ) {
+                labelContent()
+            }
         }
     }
 }
@@ -1018,6 +1098,32 @@ fun IenLineCheckbox(
     enabled: Boolean = true,
     size: Dp = 24.dp,
     label: String? = null,
+) {
+    IenLineCheckbox(
+        modifier = modifier,
+        checked = checked,
+        defaultChecked = defaultChecked,
+        onCheckedChange = onCheckedChange,
+        enabled = enabled,
+        size = size,
+        labelContent = label?.let { value -> { Text(text = value) } },
+    )
+}
+
+/**
+ * 컨트롤의 라벨을 컴포저블로 구성하며 기존 배치와 동작을 유지합니다.
+ *
+ * @param labelContent 라벨 슬롯. null이면 라벨 영역을 생략합니다. 기존 문자열 호출과 구분하기 위해 명시적으로 전달합니다.
+ */
+@Composable
+fun IenLineCheckbox(
+    modifier: Modifier = Modifier,
+    checked: Boolean? = null,
+    defaultChecked: Boolean? = null,
+    onCheckedChange: ((Boolean) -> Unit)? = null,
+    enabled: Boolean = true,
+    size: Dp = 24.dp,
+    labelContent: (@Composable () -> Unit)?,
 ) {
     val alpha = if (enabled) 1f else IenTheme.state.disabledAlpha
     val activeColor = IenTheme.colors.brand
@@ -1102,12 +1208,13 @@ fun IenLineCheckbox(
                 .alpha(alpha)
                 .size(size)
         )
-        if (label != null) {
-            Text(
-                text = label,
+        if (labelContent != null) {
+            IenProvideTextStyle(
                 style = IenTheme.typography.body2,
                 color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
-            )
+            ) {
+                labelContent()
+            }
         }
     }
 }

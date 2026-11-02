@@ -63,6 +63,30 @@ fun IenBadge(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     leadingIcon: (@Composable () -> Unit)? = null,
 ) {
+    IenBadge(
+        text = { Text(text = text) },
+        modifier = modifier,
+        size = size,
+        variant = variant,
+        tone = tone,
+        leadingIcon = leadingIcon,
+    )
+}
+
+/**
+ * 배지의 텍스트 영역을 컴포저블로 구성합니다.
+ *
+ * @param text 배지 콘텐츠 슬롯. 크기와 톤에 맞는 기본 스타일을 제공합니다.
+ */
+@Composable
+fun IenBadge(
+    text: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    size: IenBadgeSize = IenBadgeSize.Medium,
+    variant: IenBadgeVariant = IenBadgeVariant.Weak,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
+    leadingIcon: (@Composable () -> Unit)? = null,
+) {
     IenBadgeContainer(modifier = modifier, variant = variant, tone = tone) {
         IenProvideTextStyle(size.textStyle(), LocalContentColor.current) {
             Row(
@@ -71,7 +95,7 @@ fun IenBadge(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 leadingIcon?.invoke()
-                Text(text = text, style = size.textStyle(), color = LocalContentColor.current)
+                text()
             }
         }
     }

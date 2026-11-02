@@ -12,7 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
+import androidx.compose.foundation.layout.Box
 
 /**
  * 제목, 본문, 강조 텍스트, 푸터를 포함할 수 있는 문단 UI 컴포넌트입니다.
@@ -35,25 +37,44 @@ fun IenParagraph(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     bold: Boolean = false,
 ) {
+    IenParagraph(
+        title = title?.let { value -> { Text(text = value) } },
+        body = {
+            if (emphasis.any(String::isNotEmpty)) {
+                IenHighlightText(text = body, highlights = emphasis, tone = tone, bold = bold)
+            } else {
+                Text(text = body)
+            }
+        },
+        modifier = modifier,
+        footer = footer?.let { value -> { Text(text = value) } },
+    )
+}
+
+/** 문단의 제목, 본문, 푸터를 컴포저블로 구성합니다. 강조 표시는 본문 슬롯에서 직접 지정합니다. */
+@Composable
+fun IenParagraph(
+    title: (@Composable () -> Unit)? = null,
+    body: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    footer: (@Composable () -> Unit)? = null,
+) {
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
     ) {
         if (title != null) {
-            Text(title, style = IenTheme.typography.title3)
+            IenProvideTextStyle(style = IenTheme.typography.title3) { title() }
         }
-        if (emphasis.any(String::isNotEmpty)) {
-            IenHighlightText(
-                text = body,
-                highlights = emphasis,
-                tone = tone,
-                bold = bold,
-            )
-        } else {
-            Text(body, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
-        }
+        IenProvideTextStyle(
+            style = IenTheme.typography.body2,
+            color = IenTheme.colors.textSecondary,
+        ) { body() }
         if (footer != null) {
-            Text(footer, style = IenTheme.typography.caption, color = IenTheme.colors.textTertiary)
+            IenProvideTextStyle(
+                style = IenTheme.typography.caption,
+                color = IenTheme.colors.textTertiary,
+            ) { footer() }
         }
     }
 }
@@ -79,6 +100,40 @@ fun IenPost(
     metadata: (@Composable RowScope.() -> Unit)? = null,
     action: (@Composable () -> Unit)? = null,
 ) {
+    IenPost(
+        title = {
+            Text(
+                text = title,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
+        modifier = modifier,
+        author = author?.let { value -> { Text(text = value) } },
+        description = description?.let { value -> { Text(text = value) } },
+        media = media,
+        metadata = metadata,
+        action = action,
+    )
+}
+
+/**
+ * 포스트의 제목, 작성자, 설명을 컴포저블로 구성합니다.
+ *
+ * @param title 포스트 제목 슬롯
+ * @param author 작성자 슬롯. null이면 작성자 영역을 생략합니다.
+ * @param description 설명 슬롯. null이면 설명 영역을 생략합니다.
+ */
+@Composable
+fun IenPost(
+    title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    author: (@Composable () -> Unit)? = null,
+    description: (@Composable () -> Unit)? = null,
+    media: (@Composable () -> Unit)? = null,
+    metadata: (@Composable RowScope.() -> Unit)? = null,
+    action: (@Composable () -> Unit)? = null,
+) {
     IenSurface(
         modifier = modifier.fillMaxWidth(),
         color = IenTheme.colors.surface,
@@ -93,19 +148,30 @@ fun IenPost(
                     horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
                 ) {
                     if (author != null) {
-                        Text(
-                            text = author,
-                            modifier = Modifier.weight(1f),
-                            style = IenTheme.typography.caption,
-                            color = IenTheme.colors.textTertiary,
-                        )
+                        Box(modifier = Modifier.weight(1f)) {
+                            IenProvideTextStyle(
+                                style = IenTheme.typography.caption,
+                                color = IenTheme.colors.textTertiary,
+                            ) {
+                                author()
+                            }
+                        }
                     }
                     metadata?.invoke(this)
                 }
             }
-            Text(title, style = IenTheme.typography.title3, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            IenProvideTextStyle(
+                style = IenTheme.typography.title3,
+            ) {
+                title()
+            }
             if (description != null) {
-                Text(description, style = IenTheme.typography.body2, color = IenTheme.colors.textSecondary)
+                IenProvideTextStyle(
+                    style = IenTheme.typography.body2,
+                    color = IenTheme.colors.textSecondary,
+                ) {
+                    description()
+                }
             }
             media?.invoke()
             action?.invoke()

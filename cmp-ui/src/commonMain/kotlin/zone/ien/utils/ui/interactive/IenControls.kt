@@ -101,6 +101,7 @@ import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.icon.tabler.TablerIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenIcon
 import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.utils.shakeOnDisabledClick
@@ -136,6 +137,37 @@ fun IenSlider(
     valueLabel: String? = null,
     onValueChangeFinished: (() -> Unit)? = null,
 ) {
+    IenSlider(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        valueRange = valueRange,
+        steps = steps,
+        enabled = enabled,
+        labelContent = label?.let { value -> { Text(text = value) } },
+        valueLabel = valueLabel?.let { value -> { Text(text = value) } },
+        onValueChangeFinished = onValueChangeFinished,
+    )
+}
+
+/**
+ * 컨트롤의 라벨을 컴포저블로 구성하며 기존 배치와 동작을 유지합니다.
+ *
+ * @param labelContent 라벨 슬롯. null이면 라벨 영역을 생략합니다. 기존 문자열 호출과 구분하기 위해 명시적으로 전달합니다.
+ * @param valueLabel 현재 값 표시 슬롯. null이면 값 표시 영역을 생략합니다.
+ */
+@Composable
+fun IenSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    steps: Int = 0,
+    enabled: Boolean = true,
+    labelContent: (@Composable () -> Unit)?,
+    valueLabel: (@Composable () -> Unit)? = null,
+    onValueChangeFinished: (() -> Unit)? = null,
+) {
     val sliderInteractionSource = remember { MutableInteractionSource() }
     val density = LocalDensity.current
     val shakeOffset = remember { Animatable(0f) }
@@ -164,8 +196,14 @@ fun IenSlider(
         horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (label != null) {
-            Text(label, modifier = Modifier.weight(0.8f), style = IenTheme.typography.body2)
+        if (labelContent != null) {
+            Box(modifier = Modifier.weight(0.8f)) {
+            IenProvideTextStyle(
+                style = IenTheme.typography.body2,
+            ) {
+                labelContent()
+            }
+            }
         }
         Slider(
             value = value.coerceIn(valueRange),
@@ -220,13 +258,14 @@ fun IenSlider(
             },
         )
         if (valueLabel != null) {
-            Text(
-                text = valueLabel,
-                modifier = Modifier.widthIn(min = IenSliderValueLabelMinWidth),
-                style = IenTheme.typography.label2,
+            Box(modifier = Modifier.widthIn(min = IenSliderValueLabelMinWidth)) {
+            IenProvideTextStyle(
+                style = IenTheme.typography.label2.copy(textAlign = TextAlign.End),
                 color = IenTheme.colors.textSecondary,
-                textAlign = TextAlign.End,
-            )
+            ) {
+                valueLabel()
+            }
+            }
         }
     }
 }
@@ -253,6 +292,35 @@ fun IenRangeSlider(
     enabled: Boolean = true,
     label: String? = null,
     valueLabel: String? = null,
+) {
+    IenRangeSlider(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        valueRange = valueRange,
+        steps = steps,
+        enabled = enabled,
+        labelContent = label?.let { value -> { Text(text = value) } },
+        valueLabel = valueLabel?.let { value -> { Text(text = value) } },
+    )
+}
+
+/**
+ * 컨트롤의 라벨을 컴포저블로 구성하며 기존 배치와 동작을 유지합니다.
+ *
+ * @param labelContent 라벨 슬롯. null이면 라벨 영역을 생략합니다. 기존 문자열 호출과 구분하기 위해 명시적으로 전달합니다.
+ * @param valueLabel 현재 값 표시 슬롯. null이면 값 표시 영역을 생략합니다.
+ */
+@Composable
+fun IenRangeSlider(
+    value: ClosedFloatingPointRange<Float>,
+    onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
+    modifier: Modifier = Modifier,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    steps: Int = 0,
+    enabled: Boolean = true,
+    labelContent: (@Composable () -> Unit)?,
+    valueLabel: (@Composable () -> Unit)? = null,
 ) {
     val startInteractionSource = remember { MutableInteractionSource() }
     val endInteractionSource = remember { MutableInteractionSource() }
@@ -283,8 +351,14 @@ fun IenRangeSlider(
         horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (label != null) {
-            Text(label, modifier = Modifier.weight(0.8f), style = IenTheme.typography.body2)
+        if (labelContent != null) {
+            Box(modifier = Modifier.weight(0.8f)) {
+            IenProvideTextStyle(
+                style = IenTheme.typography.body2,
+            ) {
+                labelContent()
+            }
+            }
         }
         RangeSlider(
             value = value.start.coerceIn(valueRange)..value.endInclusive.coerceIn(valueRange),
@@ -349,13 +423,14 @@ fun IenRangeSlider(
             },
         )
         if (valueLabel != null) {
-            Text(
-                text = valueLabel,
-                modifier = Modifier.widthIn(min = IenSliderValueLabelMinWidth),
-                style = IenTheme.typography.label2,
+            Box(modifier = Modifier.widthIn(min = IenSliderValueLabelMinWidth)) {
+            IenProvideTextStyle(
+                style = IenTheme.typography.label2.copy(textAlign = TextAlign.End),
                 color = IenTheme.colors.textSecondary,
-                textAlign = TextAlign.End,
-            )
+            ) {
+                valueLabel()
+            }
+            }
         }
     }
 }
@@ -653,13 +728,43 @@ fun IenStepper(
     enabled: Boolean = true,
     label: String? = null,
 ) {
+    IenStepper(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        range = range,
+        enabled = enabled,
+        labelContent = label?.let { value -> { Text(text = value) } },
+    )
+}
+
+/**
+ * 컨트롤의 라벨을 컴포저블로 구성하며 기존 배치와 동작을 유지합니다.
+ *
+ * @param labelContent 라벨 슬롯. null이면 라벨 영역을 생략합니다. 기존 문자열 호출과 구분하기 위해 명시적으로 전달합니다.
+ */
+@Composable
+fun IenStepper(
+    value: Int,
+    onValueChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    range: IenStepperRange = IenStepperRange(),
+    enabled: Boolean = true,
+    labelContent: (@Composable () -> Unit)?,
+) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (label != null) {
-            Text(label, modifier = Modifier.weight(1f), style = IenTheme.typography.body2)
+        if (labelContent != null) {
+            Box(modifier = Modifier.weight(1f)) {
+                IenProvideTextStyle(
+                    style = IenTheme.typography.body2,
+                ) {
+                    labelContent()
+                }
+            }
         }
         StepperAction(
             text = "-",
@@ -878,6 +983,27 @@ fun IenStepperTexts(
     modifier: Modifier = Modifier,
     description: String? = null,
 ) {
+    IenStepperTexts(
+        type = type,
+        title = { Text(text = title) },
+        modifier = modifier,
+        description = description?.let { value -> { Text(text = value) } },
+    )
+}
+
+/**
+ * 단계의 제목과 설명을 컴포저블로 구성합니다.
+ *
+ * @param title 제목 슬롯
+ * @param description 설명 슬롯. null이면 설명 영역을 생략합니다.
+ */
+@Composable
+fun IenStepperTexts(
+    type: IenStepperTextsType,
+    title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    description: (@Composable () -> Unit)? = null,
+) {
     val titleStyle = when (type) {
         IenStepperTextsType.A -> IenTheme.typography.label1
         IenStepperTextsType.B -> IenTheme.typography.title3
@@ -894,17 +1020,19 @@ fun IenStepperTexts(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxxs + IenTheme.spacing.xxxs / 2f),
     ) {
-        Text(
-            text = title,
+        IenProvideTextStyle(
             style = titleStyle,
             color = IenTheme.colors.textPrimary,
-        )
+        ) {
+            title()
+        }
         if (description != null) {
-            Text(
-                text = description,
+            IenProvideTextStyle(
                 style = descriptionStyle,
                 color = IenTheme.colors.textSecondary,
-            )
+            ) {
+                description()
+            }
         }
     }
 }
@@ -1077,13 +1205,35 @@ fun IenStepperRightButton(
     size: IenButtonSize = IenButtonSize.Small,
     variant: IenButtonVariant = IenButtonVariant.Weak,
 ) {
+    IenStepperRightButton(
+        text = { Text(text = text) },
+        onClick = onClick,
+        modifier = modifier,
+        size = size,
+        variant = variant,
+    )
+}
+
+/**
+ * 단계 우측 버튼의 내용을 컴포저블로 구성합니다.
+ *
+ * @param text 버튼 콘텐츠 슬롯
+ */
+@Composable
+fun IenStepperRightButton(
+    text: @Composable () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    size: IenButtonSize = IenButtonSize.Small,
+    variant: IenButtonVariant = IenButtonVariant.Weak,
+) {
     IenButton(
         onClick = onClick,
         modifier = modifier,
         size = size,
         variant = variant,
     ) {
-        Text(text)
+        text()
     }
 }
 
