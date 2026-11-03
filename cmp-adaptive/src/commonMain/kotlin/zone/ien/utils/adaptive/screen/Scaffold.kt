@@ -765,8 +765,12 @@ fun AdaptiveTopAppBarScaffold(
                             colors = colors,
                             backdrop = backdrop,
                             isBackgroundAdaptive = isBackgroundAdaptive,
-                            contentPadding = PaddingValues(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm - IenTheme.spacing.xxxs),
-                            modifier = modifier.widthIn(min = 48.dp, max = 360.dp),
+                            contentPadding = if (isSideBar) {
+                                PaddingValues(IenTheme.spacing.xs)
+                            } else {
+                                PaddingValues(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm - IenTheme.spacing.xxxs)
+                            },
+                            modifier = modifier.widthIn(min = 48.dp, max = if (isSideBar) 48.dp else 360.dp),
                         ) {
                             content()
                         }
@@ -784,17 +788,27 @@ fun AdaptiveTopAppBarScaffold(
                     ) { content ->
                         liquidButton(
                             onClick = {},
-                            isIconButton = isSideBar || (visibleActions.size == 1 && visibleActions.first().let { it is ActionMenuItem.IconMenuItem && it.icon != null }),
+                            isIconButton = visibleActions.size == 1 && visibleActions.first().let { it is ActionMenuItem.IconMenuItem && it.icon != null },
                             backdrop = it.backdrop,
                             isBackgroundAdaptive = it.isBackgroundAdaptive,
                         ) {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xl),
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .animateContentSizeWithoutClipping()
-                            ) {
-                                content()
+                            if (isSideBar) {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xl),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.animateContentSizeWithoutClipping(),
+                                ) {
+                                    content()
+                                }
+                            } else {
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xl),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .animateContentSizeWithoutClipping()
+                                ) {
+                                    content()
+                                }
                             }
                         }
                     }
