@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
@@ -31,7 +33,45 @@ import zone.ien.taptargetcmp.LocalTapTargetScope
 import zone.ien.taptargetcmp.TapTargetCoordinator
 import zone.ien.taptargetcmp.TapTargetStyle
 import zone.ien.taptargetcmp.TextDefinition
-import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.foundation.LocalIenDarkTheme
+import zone.ien.utils.ui.foundation.LocalIenTokens
+
+/**
+ * 튜토리얼 대상에 공통으로 적용할 색상과 글자 서식입니다.
+ *
+ * @property titleTextStyle 제목의 글자 크기 등을 포함한 서식입니다.
+ * @property descriptionTextStyle 설명의 글자 크기 등을 포함한 서식입니다.
+ * @property titleColor 제목 색상입니다.
+ * @property descriptionColor 설명 색상입니다.
+ * @property tapTargetStyle 강조 영역의 배경색과 강조색, 배경 불투명도입니다.
+ */
+@Immutable
+data class IenTutorialStyle(
+    val titleTextStyle: TextStyle,
+    val descriptionTextStyle: TextStyle,
+    val titleColor: Color,
+    val descriptionColor: Color,
+    val tapTargetStyle: TapTargetStyle,
+)
+
+/**
+ * 하위 튜토리얼 대상이 공유할 서식입니다. 지정하지 않으면 현재 IenTheme의 색상과 글자 서식을 따릅니다.
+ * 앱 상위의 [CompositionLocalProvider]에서 제공하여 전체 튜토리얼에 같은 서식을 적용할 수 있습니다.
+ */
+val LocalIenTutorialStyle = compositionLocalWithComputedDefaultOf {
+    val tokens = LocalIenTokens.currentValue
+    val colors = if (LocalIenDarkTheme.currentValue) tokens.darkColors else tokens.lightColors
+    IenTutorialStyle(
+        titleTextStyle = tokens.typography.title2,
+        descriptionTextStyle = tokens.typography.body1,
+        titleColor = colors.onBrandWeak,
+        descriptionColor = colors.onBrandWeak,
+        tapTargetStyle = TapTargetStyle(
+            backgroundColor = colors.brandWeak,
+            tapTargetHighlightColor = colors.onBrandWeak,
+        ),
+    )
+}
 
 private data class TutorialTargetState(
     val step: Any? = null,
@@ -121,11 +161,7 @@ fun <T : Any> IenTutorialHost(
 /**
  * 현재 단계의 위젯을 표시 영역으로 스크롤하고 강조 항목을 누르면 다음 안내로 이동합니다.
  *
- * @param titleTextStyle 제목 서식입니다. 기본값은 [IenTheme.typography]의 title2입니다.
- * @param descriptionTextStyle 설명 서식입니다. 기본값은 [IenTheme.typography]의 body1입니다.
- * @param titleColor 제목 색상입니다. 기본값은 [IenTheme.colors]의 onBrandWeak입니다.
- * @param descriptionColor 설명 색상입니다. 기본값은 [IenTheme.colors]의 onBrandWeak입니다.
- * @param tapTargetStyle 강조 서식입니다. 기본값은 현재 테마의 brandWeak 배경과 onBrandWeak 강조색입니다.
+ * @param style 색상과 글자 서식입니다. 기본값은 [LocalIenTutorialStyle]로 공유한 서식입니다.
  */
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
@@ -134,14 +170,7 @@ fun Modifier.ienTutorialTarget(
     title: String,
     description: String,
     enabled: Boolean = true,
-    titleTextStyle: TextStyle = IenTheme.typography.title2,
-    descriptionTextStyle: TextStyle = IenTheme.typography.body1,
-    titleColor: Color = IenTheme.colors.onBrandWeak,
-    descriptionColor: Color = IenTheme.colors.onBrandWeak,
-    tapTargetStyle: TapTargetStyle = TapTargetStyle(
-        backgroundColor = IenTheme.colors.brandWeak,
-        tapTargetHighlightColor = IenTheme.colors.onBrandWeak,
-    ),
+    style: IenTutorialStyle = LocalIenTutorialStyle.current,
 ): Modifier = composed {
     val target = LocalTutorialTarget.current
     val scope = LocalTapTargetScope.current
@@ -164,18 +193,18 @@ fun Modifier.ienTutorialTarget(
             .tapTarget(
                 title = TextDefinition(
                     text = title,
-                    textStyle = titleTextStyle,
-                    color = titleColor,
+                    textStyle = style.titleTextStyle,
+                    color = style.titleColor,
                 ),
                 description = TextDefinition(
                     text = description,
-                    textStyle = descriptionTextStyle,
-                    color = descriptionColor,
+                    textStyle = style.descriptionTextStyle,
+                    color = style.descriptionColor,
                 ),
                 precedence = 0,
                 onTargetClick = target.onNext,
                 onTargetCancel = target.onNext,
-                tapTargetStyle = tapTargetStyle,
+                tapTargetStyle = style.tapTargetStyle,
                 bringIntoViewEnabled = false,
                 bringIntoViewRequester = requester,
             )
