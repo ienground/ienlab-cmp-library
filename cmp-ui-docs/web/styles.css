@@ -1497,8 +1497,6 @@ body {
   justify-content: space-between;
 }
 .color-code {
-  max-height: 440px;
-  overflow: auto;
   font-size: var(--ien-font-size-caption);
 }
 .kotlin-keyword {
