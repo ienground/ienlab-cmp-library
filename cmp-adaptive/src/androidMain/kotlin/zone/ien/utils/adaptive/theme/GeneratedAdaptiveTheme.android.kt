@@ -6,6 +6,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import org.jetbrains.compose.resources.PreviewContextConfigurationEffect
 
 @Composable
 actual fun dynamicM3ColorScheme(
@@ -32,4 +33,9 @@ actual fun dynamicCupertinoColorScheme(
 ): zone.ien.hig.theme.ColorScheme {
     return if (darkTheme) zone.ien.hig.theme.darkColorScheme(accent = darkScheme.primary)
     else zone.ien.hig.theme.lightColorScheme(accent = lightScheme.primary)
+}
+
+@Composable
+internal actual fun ConfigurePreviewResources() {
+    PreviewContextConfigurationEffect()
 }

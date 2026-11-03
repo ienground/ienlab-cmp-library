@@ -24,6 +24,7 @@ import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.toneColor
 import zone.ien.utils.ui.interactive.toneWeakColor
+import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.primitives.IenSurface
 
 /**
@@ -58,8 +59,33 @@ fun IenBubble(
         vertical = IenTheme.spacing.sm - IenTheme.spacing.xxxs,
     ),
 ) {
+    IenBubble(
+        text = { Text(text = text) },
+        modifier = modifier,
+        tone = tone,
+        tail = tail,
+        contentPadding = contentPadding,
+    )
+}
+
+/**
+ * 의미적 톤과 꼬리를 갖는 말풍선의 내용을 컴포저블로 구성합니다.
+ *
+ * @param text 말풍선 콘텐츠 슬롯. 패딩과 기본 본문 스타일을 제공합니다.
+ */
+@Composable
+fun IenBubble(
+    text: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    tone: IenSemanticTone = IenSemanticTone.Neutral,
+    tail: IenBubbleTail = IenBubbleTail.None,
+    contentPadding: PaddingValues = PaddingValues(
+        horizontal = IenTheme.spacing.sm + IenTheme.spacing.xxxs,
+        vertical = IenTheme.spacing.sm - IenTheme.spacing.xxxs,
+    ),
+) {
     val container = if (tone == IenSemanticTone.Neutral) IenTheme.colors.surfaceWeak else toneWeakColor(tone)
-    val content = if (tone == IenSemanticTone.Neutral) IenTheme.colors.textPrimary else toneColor(tone)
+    val contentColor = if (tone == IenSemanticTone.Neutral) IenTheme.colors.textPrimary else toneColor(tone)
 
     Row(
         modifier = modifier,
@@ -71,15 +97,17 @@ fun IenBubble(
         }
         IenSurface(
             color = container,
-            contentColor = content,
+            contentColor = contentColor,
             shape = ContinuousRoundedRectangle(IenTheme.radius.lg),
         ) {
-            Text(
-                text = text,
-                modifier = Modifier.padding(contentPadding),
-                style = IenTheme.typography.body2,
-                color = LocalContentColor.current,
-            )
+            Box(modifier = Modifier.padding(contentPadding)) {
+                IenProvideTextStyle(
+                    style = IenTheme.typography.body2,
+                    color = LocalContentColor.current,
+                ) {
+                    text()
+                }
+            }
         }
         if (tail == IenBubbleTail.End) {
             BubbleTail(color = container)

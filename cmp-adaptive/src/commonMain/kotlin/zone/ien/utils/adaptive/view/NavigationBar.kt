@@ -6,13 +6,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.NavigationBarDefaults
@@ -27,9 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import zone.ien.hig.CupertinoNavigationBar
@@ -49,11 +43,8 @@ import zone.ien.utils.adaptive.screen.LocalBackdrop
 import zone.ien.utils.adaptive.screen.LocalAdaptiveSideBarLayout
 import zone.ien.utils.adaptive.theme.ienCupertinoNavigationBarColors
 import zone.ien.utils.icon.IconData
-import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
-import zone.ien.utils.ui.interactive.IenBadge
-import zone.ien.utils.ui.interactive.IenBadgeSize
-import zone.ien.utils.ui.interactive.IenBadgeVariant
+import zone.ien.utils.ui.interactive.IenIndicator
 import zone.ien.utils.ui.view.IenNavigationBar
 import zone.ien.utils.ui.view.IenNavigationBarColors
 import zone.ien.utils.ui.view.IenNavigationBarDefaults
@@ -459,23 +450,7 @@ private fun NavigationBarItemIcon(
         icon()
     } else {
         BadgedBox(
-            badge = {
-                if (badge < 0) {
-                    Box(
-                        modifier = Modifier
-                            .size(5.dp)
-                            .clip(CircleShape)
-                            .background(IenTheme.colors.danger),
-                    )
-                } else {
-                    IenBadge(
-                        text = if (badge > 99) "99+" else badge.toString(),
-                        size = IenBadgeSize.Small,
-                        variant = IenBadgeVariant.Fill,
-                        tone = IenSemanticTone.Danger,
-                    )
-                }
-            },
+            badge = { IenIndicator(count = badge) },
             content = { icon() },
         )
     }

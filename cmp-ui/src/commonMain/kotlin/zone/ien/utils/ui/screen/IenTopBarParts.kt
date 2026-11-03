@@ -68,6 +68,8 @@ import androidx.compose.ui.unit.dp
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenButton
+import zone.ien.utils.ui.interactive.toneColor
+import zone.ien.utils.ui.utils.animateContentSizeWithoutClipping
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenButtonDisplay
@@ -85,6 +87,8 @@ import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.style.LineBreak
+
+internal val LocalIenTopBarFloatingSlotTone = staticCompositionLocalOf { IenSemanticTone.Neutral }
 
 internal val LocalIenTopBarFloatingSlotHiddenRequester = staticCompositionLocalOf<((Boolean) -> Unit)?> { null }
 /**
@@ -168,6 +172,7 @@ data class IenTopSubtitleBadge(
  * @param contentHeight 상단 바의 높이 (기본값 64.dp)
  * @param containerColor 상단 바 배경 색상
  * @param floatingSlots 플로팅 스타일 적용 여부
+ * @param primaryAction 일반 액션 컨테이너와 분리해 표시할 주요 액션
  */
 @Composable
 fun IenTopBar(
@@ -186,6 +191,7 @@ fun IenTopBar(
     contentHeight: Dp = 64.dp,
     containerColor: Color = Color.Transparent,
     floatingSlots: Boolean = true,
+    primaryAction: (@Composable RowScope.() -> Unit)? = null,
 ) {
     IenTopBar(
         title = {
@@ -215,6 +221,7 @@ fun IenTopBar(
         contentHeight = contentHeight,
         containerColor = containerColor,
         floatingSlots = floatingSlots,
+        primaryAction = primaryAction,
     )
 }
 
@@ -233,6 +240,7 @@ fun IenTopBar(
  * @param contentHeight 상단 바의 높이 (기본값 64.dp)
  * @param containerColor 상단 바 배경 색상
  * @param floatingSlots 플로팅 스타일 적용 여부
+ * @param primaryAction 일반 액션 컨테이너와 분리해 표시할 주요 액션
  */
 @Composable
 fun IenTopBar(
@@ -251,7 +259,23 @@ fun IenTopBar(
     contentHeight: Dp = 64.dp,
     containerColor: Color = Color.Transparent,
     floatingSlots: Boolean = true,
+    primaryAction: (@Composable RowScope.() -> Unit)? = null,
 ) {
+    val groupedActions: (@Composable RowScope.() -> Unit)? =
+        if (actions != null || primaryAction != null) {
+            {
+                actions?.let {
+                    IenTopBarFloatingSlot(enabled = floatingSlots) {
+                        IenTopBarActionsRow(it)
+                    }
+                }
+                primaryAction?.let {
+                    IenTopBarFloatingSlot(enabled = floatingSlots, tone = IenSemanticTone.Brand) {
+                        IenTopBarActionsRow(it)
+                    }
+                }
+            }
+        } else null
     val placement = LocalIenBarPlacement.current?.takeIf { it.sideWidth > 0.dp }
     val insetPadding = windowInsets.asPaddingValues()
     val topPadding = maxOf(insetPadding.calculateTopPadding(), placement?.titleTopInset ?: 0.dp)
@@ -273,29 +297,27 @@ fun IenTopBar(
                 title = title,
                 subtitle = subtitle,
                 navigationIcon = navigationIcon.takeIf { placement == null },
-                actions = actions.takeIf { placement == null },
+                actions = groupedActions.takeIf { placement == null },
                 contentPadding = titlePadding,
                 topPadding = topPadding,
                 contentHeight = contentHeight,
-                floatingSlots = floatingSlots,
             )
         } else {
             IenStartAlignedTopBarContent(
                 title = title,
                 subtitle = subtitle,
                 navigationIcon = navigationIcon.takeIf { placement == null },
-                actions = actions.takeIf { placement == null },
+                actions = groupedActions.takeIf { placement == null },
                 contentPadding = titlePadding,
                 topPadding = topPadding,
                 contentHeight = contentHeight,
-                floatingSlots = floatingSlots,
             )
         }
         if (showDivider) {
             IenDivider.Horizontal()
         }
     }
-    if (placement != null && (navigationIcon != null || actions != null)) {
+    if (placement != null && (navigationIcon != null || groupedActions != null)) {
         val sideBarGap = IenTheme.spacing.xs
         SubcomposeLayout(
             modifier = Modifier
@@ -312,11 +334,7 @@ fun IenTopBar(
             }
             val navigationHeight = if (navigation.any { it.width > 0 && it.height > 0 }) navigationSize else 0
             val actionPlaceables = subcompose("actions") {
-                actions?.let {
-                    IenTopBarFloatingSlot(enabled = floatingSlots) {
-                        IenTopBarActionsRow(it)
-                    }
-                }
+                groupedActions?.let { IenTopBarActionsRow(it, spacing = IenTheme.spacing.sm, clipContent = false) }
             }.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
             val actionsHeight = actionPlaceables.maxOfOrNull { it.height } ?: 0
             val gap = if (navigationHeight > 0 && actionsHeight > 0) sideBarGap.roundToPx() else 0
@@ -341,7 +359,6 @@ private fun IenStartAlignedTopBarContent(
     contentPadding: PaddingValues,
     topPadding: Dp,
     contentHeight: Dp,
-    floatingSlots: Boolean,
 ) {
     Row(
         modifier = Modifier
@@ -364,9 +381,7 @@ private fun IenStartAlignedTopBarContent(
             modifier = Modifier.weight(1f),
         )
         if (actions != null) {
-            IenTopBarFloatingSlot(enabled = floatingSlots) {
-                IenTopBarActionsRow(actions)
-            }
+            IenTopBarActionsRow(actions, spacing = IenTheme.spacing.sm, clipContent = false)
         }
     }
 }
@@ -380,7 +395,6 @@ private fun IenCenterAlignedTopBarContent(
     contentPadding: PaddingValues,
     topPadding: Dp,
     contentHeight: Dp,
-    floatingSlots: Boolean,
 ) {
     val sideSpacing = IenTheme.spacing.sm
 
@@ -401,9 +415,7 @@ private fun IenCenterAlignedTopBarContent(
         }.orEmpty()
         val actionsPlaceables = actions?.let {
             subcompose("actions") {
-                IenTopBarFloatingSlot(enabled = floatingSlots) {
-                    IenTopBarActionsRow(it)
-                }
+                IenTopBarActionsRow(it, spacing = IenTheme.spacing.sm, clipContent = false)
             }.map { measurable -> measurable.measure(looseConstraints) }
         }.orEmpty()
 
@@ -478,14 +490,18 @@ private fun IenTopBarTitleColumn(
 }
 
 @Composable
-private fun IenTopBarActionsRow(actions: @Composable RowScope.() -> Unit) {
+private fun IenTopBarActionsRow(
+    actions: @Composable RowScope.() -> Unit,
+    spacing: Dp = IenTheme.spacing.xxs,
+    clipContent: Boolean = true,
+) {
     if (LocalIenBarPlacement.current?.sideWidth?.let { it > 0.dp } == true) {
         CompositionLocalProvider(LocalContentColor provides IenTheme.colors.textPrimary) {
             FlowRow(
                 modifier = Modifier.width(48.dp),
                 maxItemsInEachRow = 1,
                 horizontalArrangement = Arrangement.Center,
-                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
+                verticalArrangement = Arrangement.spacedBy(spacing),
             ) {
                 actions()
             }
@@ -494,9 +510,15 @@ private fun IenTopBarActionsRow(actions: @Composable RowScope.() -> Unit) {
     }
     Row(
         modifier = Modifier
-            .clipToBounds()
-            .animateContentSize(animationSpec = tween(durationMillis = 110, easing = IenTheme.motion.standardEasing)),
-        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs),
+            .then(if (clipContent) Modifier.clipToBounds() else Modifier)
+            .then(
+                if (clipContent) {
+                    Modifier.animateContentSize(animationSpec = tween(durationMillis = 110, easing = IenTheme.motion.standardEasing))
+                } else {
+                    Modifier.animateContentSizeWithoutClipping(animationSpec = tween(durationMillis = 110, easing = IenTheme.motion.standardEasing))
+                },
+            ),
+        horizontalArrangement = Arrangement.spacedBy(spacing),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         CompositionLocalProvider(LocalContentColor provides IenTheme.colors.textPrimary) {
@@ -519,6 +541,7 @@ private fun IenTopBarNavigationIconSlot(content: @Composable () -> Unit) {
 @Composable
 private fun IenTopBarFloatingSlot(
     enabled: Boolean,
+    tone: IenSemanticTone = IenSemanticTone.Neutral,
     content: @Composable () -> Unit,
 ) {
     if (!enabled) {
@@ -569,7 +592,10 @@ private fun IenTopBarFloatingSlot(
                     clip = false
                 }
                 .shadow(elevation = IenTheme.elevation.floating, shape = CircleShape, clip = false)
-                .background(IenTheme.colors.surface.copy(alpha = 0.92f), CircleShape),
+                .background(
+                    if (tone == IenSemanticTone.Neutral) IenTheme.colors.surface.copy(alpha = 0.92f) else toneColor(tone),
+                    CircleShape,
+                ),
             contentAlignment = Alignment.Center,
         ) {
             if (pressedOverlayAlpha > 0f) {
@@ -588,6 +614,7 @@ private fun IenTopBarFloatingSlot(
             contentAlignment = Alignment.Center,
         ) {
             CompositionLocalProvider(
+                LocalIenTopBarFloatingSlotTone provides tone,
                 LocalIenButtonPressedReporter provides pressedReporter,
                 LocalIenButtonScalePressedOverride provides 1f,
                 LocalIenTopBarFloatingSlotHiddenRequester provides { hiddenRequested = it },

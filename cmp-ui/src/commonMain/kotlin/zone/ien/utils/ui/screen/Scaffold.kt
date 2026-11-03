@@ -175,7 +175,7 @@ fun IenTopAppBarScaffold(
                         isOpen = menuExpanded,
                         closeDropdown = { menuExpanded = false },
                         onToggleOverflow = { menuExpanded = !menuExpanded },
-                        maxVisibleItems = 5
+                        maxVisibleItems = 3
                     )
                 }
             }

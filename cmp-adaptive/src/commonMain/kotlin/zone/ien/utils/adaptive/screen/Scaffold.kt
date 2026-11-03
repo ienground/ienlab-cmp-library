@@ -288,6 +288,50 @@ fun AdaptiveTopAppBarScaffold(
     backdrop: LayerBackdrop,
     content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
 ) {
+    AdaptiveTopAppBarScaffoldWithPrimaryAction(
+        modifier = modifier,
+        topBarModifier = topBarModifier,
+        title = title,
+        subtitle = subtitle,
+        showTopBar = showTopBar,
+        navigationIcon = navigationIcon,
+        actions = actions,
+        bottomBar = bottomBar,
+        snackbarHost = snackbarHost,
+        floatingActionButton = floatingActionButton,
+        fabPosition = fabPosition,
+        higFabPosition = higFabPosition,
+        contentEdge = contentEdge,
+        topBarMode = topBarMode,
+        adaptation = adaptation,
+        backdrop = backdrop,
+        primaryAction = null,
+        content = content,
+    )
+}
+
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class, ExperimentalMaterial3Api::class)
+@Composable
+private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
+    modifier: Modifier = Modifier,
+    topBarModifier: Modifier = Modifier,
+    title: @Composable () -> Unit = {},
+    subtitle: @Composable (() -> Unit)? = null,
+    showTopBar: Boolean = true,
+    navigationIcon: (@Composable () -> Unit)? = null,
+    actions: (@Composable (RowScope.() -> Unit))? = null,
+    bottomBar: (@Composable () -> Unit)? = null,
+    snackbarHost: @Composable () -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
+    fabPosition: FabPosition = FabPosition.Center,
+    higFabPosition: FabPosition = fabPosition,
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
+    topBarMode: TopBarMode = LocalTopBarMode.current,
+    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {},
+    backdrop: LayerBackdrop,
+    primaryAction: (@Composable RowScope.() -> Unit)? = null,
+    content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
+) {
     val localAdaptation = LocalTopBarScaffoldAdaptation.current
     val effectiveAdaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {
         localAdaptation()
@@ -346,6 +390,7 @@ fun AdaptiveTopAppBarScaffold(
                     },
                     navigationIcon = navigationIcon,
                     actions = actions,
+                    primaryAction = primaryAction,
                     windowInsets = materialAdaptation.topBarWindowInsets,
                     isCenterAligned = materialAdaptation.isCenterAligned,
                     isScrollTint = materialAdaptation.isScrollTint,
@@ -432,6 +477,7 @@ fun AdaptiveTopAppBarScaffold(
                     actions = {
                         if (isSideBar) {
                             actions?.invoke(this)
+                            primaryAction?.invoke(this)
                         } else {
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(
@@ -440,6 +486,7 @@ fun AdaptiveTopAppBarScaffold(
                                 verticalAlignment = Alignment.CenterVertically,
                                 content = {
                                     actions?.invoke(this)
+                                    primaryAction?.invoke(this)
                                     Spacer(modifier = Modifier.width(cupertinoActionsEndSpacing(actions != null)))
                                 },
                                 modifier = Modifier
@@ -624,9 +671,14 @@ fun AdaptiveTopAppBarScaffold(
         localAdaptation()
         adaptation()
     }
-    var menuExpanded by remember { mutableStateOf(false) }
-    val scaffold: @Composable ((@Composable (RowScope.() -> Unit))?) -> Unit = { actions ->
-        AdaptiveTopAppBarScaffold(
+    val visibleActions = actions.filter { it.visible }
+    var menuExpanded by remember(visibleActions.isNotEmpty()) { mutableStateOf(false) }
+    @Composable
+    fun scaffold(
+        primaryActionContent: (@Composable RowScope.() -> Unit)? = null,
+        actions: (@Composable RowScope.() -> Unit)?,
+    ) {
+        AdaptiveTopAppBarScaffoldWithPrimaryAction(
             modifier = modifier,
             topBarModifier = topBarModifier,
             title = title,
@@ -634,6 +686,7 @@ fun AdaptiveTopAppBarScaffold(
             showTopBar = showTopBar,
             navigationIcon = navigationIcon,
             actions = actions,
+            primaryAction = primaryActionContent,
             bottomBar = bottomBar,
             snackbarHost = snackbarHost,
             floatingActionButton = floatingActionButton,
@@ -651,19 +704,32 @@ fun AdaptiveTopAppBarScaffold(
         adaptationScope = effectiveAdaptation,
         material = {
             val actionContent: (@Composable (RowScope.() -> Unit))? =
-                if (actions.isNotEmpty() || primaryAction != null) {
+                if (visibleActions.isNotEmpty()) {
                     {
                         IenActionsMenu(
-                            items = actions,
+                            items = visibleActions,
                             isOpen = menuExpanded,
                             closeDropdown = { menuExpanded = false },
                             onToggleOverflow = { menuExpanded = !menuExpanded },
                             maxVisibleItems = 3,
-                            trailingAction = primaryAction,
                         )
                     }
                 } else null
-            scaffold(actionContent)
+            scaffold(
+                actions = actionContent,
+                primaryActionContent = primaryAction?.takeIf { it.visible }?.let { action ->
+                    {
+                        IenActionsMenu(
+                            items = emptyList(),
+                            isOpen = false,
+                            closeDropdown = {},
+                            onToggleOverflow = {},
+                            maxVisibleItems = 0,
+                            trailingAction = action,
+                        )
+                    }
+                },
+            )
         },
         cupertino = {
             scaffold {
@@ -699,45 +765,50 @@ fun AdaptiveTopAppBarScaffold(
                             colors = colors,
                             backdrop = backdrop,
                             isBackgroundAdaptive = isBackgroundAdaptive,
-                            contentPadding = PaddingValues(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm - IenTheme.spacing.xxxs),
-                            modifier = modifier.widthIn(min = 48.dp, max = 360.dp),
+                            contentPadding = if (isSideBar) {
+                                PaddingValues(IenTheme.spacing.xs)
+                            } else {
+                                PaddingValues(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.sm - IenTheme.spacing.xxxs)
+                            },
+                            modifier = modifier.widthIn(min = 48.dp, max = if (isSideBar) 48.dp else 360.dp),
                         ) {
                             content()
                         }
                     }
                 }
 
-                val alpha by animateFloatAsState(
-                    targetValue = if (actions.any { it.visible }) 1f else 0f,
-                    animationSpec = spring(1.2f)
-                )
-                val isVisible by remember { derivedStateOf { alpha > 0f } }
-
-                if (isVisible) {
+                if (visibleActions.isNotEmpty()) {
                     HigActionsMenu(
-                        items = actions,
+                        items = visibleActions,
                         isOpen = menuExpanded,
                         closeDropdown = { menuExpanded = false },
                         onToggleOverflow = { menuExpanded = !menuExpanded },
                         isNative = it.isDropdownNative,
-                        maxVisibleItems = if (isSideBar) 0 else 3,
+                        maxVisibleItems = 3,
                     ) { content ->
                         liquidButton(
                             onClick = {},
-                            isIconButton = isSideBar || (actions.count { it.visible } == 1 && actions.first { it.visible }.let { it is ActionMenuItem.IconMenuItem && it.icon != null }),
+                            isIconButton = visibleActions.size == 1 && visibleActions.first().let { it is ActionMenuItem.IconMenuItem && it.icon != null },
                             backdrop = it.backdrop,
                             isBackgroundAdaptive = it.isBackgroundAdaptive,
-                            modifier = Modifier.graphicsLayer {
-                                this.alpha = alpha
-                            }
                         ) {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xl),
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .animateContentSizeWithoutClipping()
-                            ) {
-                                content()
+                            if (isSideBar) {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xl),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.animateContentSizeWithoutClipping(),
+                                ) {
+                                    content()
+                                }
+                            } else {
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xl),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .animateContentSizeWithoutClipping()
+                                ) {
+                                    content()
+                                }
                             }
                         }
                     }

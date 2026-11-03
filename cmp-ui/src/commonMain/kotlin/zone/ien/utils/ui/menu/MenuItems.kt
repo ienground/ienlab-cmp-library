@@ -45,6 +45,8 @@ import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenBadge
 import zone.ien.utils.ui.interactive.IenBadgeSize
 import zone.ien.utils.ui.interactive.IenBadgeVariant
+import zone.ien.utils.ui.interactive.IenButtonDefault
+import zone.ien.utils.ui.screen.LocalIenTopBarFloatingSlotTone
 import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
@@ -92,7 +94,7 @@ fun IenActionsMenu(
  * @param closeDropdown 드롭다운을 닫는 콜백 함수
  * @param onToggleOverflow 드롭다운 토글 콜백 함수
  * @param maxVisibleItems 최대 표시 가능한 항목 수
- * @param trailingAction 메뉴 트리거 다음에 고정 표시할 아이콘 액션
+ * @param trailingAction 메뉴 트리거 다음에 Brand 색상으로 고정 표시할 주요 액션. 아이콘이 없으면 제목을 표시합니다.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -169,7 +171,16 @@ fun IenActionsMenu(
     }
 
     @Composable
-    fun ActionItem(item: ActionMenuItem.IconMenuItem) {
+    fun ActionItem(
+        item: ActionMenuItem.IconMenuItem,
+        tone: IenSemanticTone = IenSemanticTone.Neutral,
+        variant: IenButtonVariant = IenButtonVariant.Ghost,
+    ) {
+        val onBrandContainer = LocalIenTopBarFloatingSlotTone.current == IenSemanticTone.Brand
+        val buttonVariant = if (onBrandContainer) IenButtonVariant.Ghost else variant
+        val buttonColors = IenButtonDefault.colors(variant = buttonVariant, tone = tone).let {
+            if (onBrandContainer) it.copy(content = IenTheme.colors.onBrand) else it
+        }
         val alpha by animateFloatAsState(
             targetValue = if (item.enabled) 1f else 0.25f,
             animationSpec = actionFadeAnimation,
@@ -210,8 +221,9 @@ fun IenActionsMenu(
                                 height = LocalMenuIconButtonSize.current.second,
                             ),
                             size = IenButtonSize.Medium,
-                            variant = IenButtonVariant.Ghost,
-                            tone = IenSemanticTone.Neutral,
+                            variant = buttonVariant,
+                            tone = tone,
+                            colors = buttonColors,
                             state = IenButtonState(enabled = item.enabled),
                         ) {
                             AnimatedContent(
@@ -234,10 +246,10 @@ fun IenActionsMenu(
             } ?: run {
                 IenTextButton(
                     onClick = item.onClick,
-                    tone = IenSemanticTone.Neutral,
+                    tone = tone,
                     state = IenButtonState(enabled = item.enabled),
                 ) {
-                    Text(item.title)
+                    Text(item.title, color = if (onBrandContainer) IenTheme.colors.onBrand else androidx.compose.ui.graphics.Color.Unspecified)
                 }
             }
         }
@@ -310,7 +322,7 @@ fun IenActionsMenu(
                 )
             }
         }
-        trailingAction?.let { ActionItem(it) }
+        trailingAction?.let { ActionItem(it, tone = IenSemanticTone.Brand, variant = IenButtonVariant.Fill) }
     }
 }
 

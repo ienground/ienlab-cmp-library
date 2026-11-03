@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.key
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableIntStateOf
@@ -13,6 +16,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
@@ -25,10 +31,122 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertSame
+import kotlin.test.assertTrue
 import kotlinx.coroutines.test.TestResult
 import zone.ien.utils.ui.foundation.IenTheme
 
 class IenSwipeBoxGestureTest {
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun destructiveFullSwipeCompletesWhenStateIsClosedDuringExit(): TestResult = runComposeUiTest {
+        var actionCount = 0
+        var settledValue = { IenSwipeBoxStates.Resting }
+        setContent {
+            IenTheme {
+                val state = rememberIenSwipeBoxState()
+                settledValue = { state.settledValue }
+                LaunchedEffect(state) {
+                    snapshotFlow { state.settledValue }.collect {
+                        if (it == IenSwipeBoxStates.StartFullyExpanded) {
+                            withFrameNanos { }
+                            state.snapTo(IenSwipeBoxStates.Resting)
+                        }
+                    }
+                }
+                IenSwipeBox(
+                    modifier = Modifier.width(300.dp).testTag("삭제 도중 닫기"),
+                    state = state,
+                    expansionHapticEnabled = false,
+                    actionItemBuilder = {
+                        start(onClick = { actionCount++ }, dismissOnFullSwipe = true) { Text("삭제") }
+                    },
+                ) {
+                    Box(Modifier.fillMaxWidth().height(72.dp)) { Text("항목") }
+                }
+            }
+        }
+        onNodeWithTag("삭제 도중 닫기").performTouchInput {
+            swipe(Offset(width * 0.05f, centerY), Offset(width * 0.95f, centerY), durationMillis = 300)
+        }
+        runOnIdle {
+            assertEquals(1, actionCount)
+            assertEquals(IenSwipeBoxStates.Resting, settledValue())
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun destructiveFullSwipeLeavesWindowBeforeCallingAction(): TestResult = runComposeUiTest {
+        val actionCounts = mutableMapOf<String, Int>()
+        val positions = mutableMapOf<String, Float>()
+        val widths = mutableMapOf<String, Int>()
+        val settledValues = mutableMapOf<String, () -> IenSwipeBoxStates>()
+        var windowWidth = 0
+        setContent {
+            windowWidth = LocalWindowInfo.current.containerSize.width
+            IenTheme {
+                Column {
+                    for (direction in listOf(LayoutDirection.Ltr, LayoutDirection.Rtl)) {
+                        CompositionLocalProvider(LocalLayoutDirection provides direction) {
+                            for (start in listOf(true, false)) {
+                                val name = "$direction-$start"
+                                val state = rememberIenSwipeBoxState()
+                                settledValues[name] = { state.settledValue }
+                                IenSwipeBox(
+                                    modifier = Modifier.width(300.dp).testTag(name),
+                                    state = state,
+                                    expansionHapticEnabled = false,
+                                    actionItemBuilder = {
+                                        val onDelete = {
+                                            actionCounts[name] = (actionCounts[name] ?: 0) + 1
+                                            val x = positions.getValue(name)
+                                            assertTrue(
+                                                x >= windowWidth || x + widths.getValue(name) <= 0f,
+                                                "삭제 콜백 전에 화면 밖으로 이동해야 합니다: $name, x=$x",
+                                            )
+                                        }
+                                        if (start) {
+                                            start(onClick = onDelete, dismissOnFullSwipe = true) { Text("삭제") }
+                                        } else {
+                                            end(onClick = onDelete, dismissOnFullSwipe = true) { Text("삭제") }
+                                        }
+                                    },
+                                ) {
+                                    Box(
+                                        Modifier.fillMaxWidth().height(72.dp)
+                                            .onGloballyPositioned {
+                                                positions[name] = it.positionInWindow().x
+                                                widths[name] = it.size.width
+                                            },
+                                    ) { Text("항목") }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for (direction in listOf(LayoutDirection.Ltr, LayoutDirection.Rtl)) {
+            for (start in listOf(true, false)) {
+                val name = "$direction-$start"
+                onNodeWithTag(name).performTouchInput {
+                    val right = start == (direction == LayoutDirection.Ltr)
+                    val from = if (right) width * 0.05f else width * 0.95f
+                    val to = if (right) width * 0.95f else width * 0.05f
+                    swipe(Offset(from, centerY), Offset(to, centerY), durationMillis = 300)
+                }
+                runOnIdle {
+                    assertEquals(1, actionCounts[name], name)
+                    assertEquals(
+                        if (start) IenSwipeBoxStates.StartFullyExpanded else IenSwipeBoxStates.EndFullyExpanded,
+                        settledValues.getValue(name)(),
+                        name,
+                    )
+                }
+            }
+        }
+    }
+
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun changingKeyReleasesOpenStateAndInitializesNewAnchors(): TestResult = runComposeUiTest {

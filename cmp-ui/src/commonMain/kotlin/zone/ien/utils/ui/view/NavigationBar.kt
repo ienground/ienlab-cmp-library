@@ -40,7 +40,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
@@ -60,7 +59,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -78,9 +76,7 @@ import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
-import zone.ien.utils.ui.interactive.IenBadge
-import zone.ien.utils.ui.interactive.IenBadgeSize
-import zone.ien.utils.ui.interactive.IenBadgeVariant
+import zone.ien.utils.ui.interactive.IenIndicator
 import zone.ien.utils.ui.interactive.toneGradientBrush
 import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import zone.ien.utils.ui.primitives.IenIcon
@@ -802,8 +798,8 @@ private fun RowScope.IenNavigationBar2Item(
                     (if (selected) selectedIcon ?: icon else icon).invoke()
                 }
                 if (badge != 0) {
-                    IenNavigationBarBadge(
-                        badge = badge,
+                    IenIndicator(
+                        count = badge,
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .offset(
@@ -863,31 +859,8 @@ private fun IenNavigationBarItemIcon(
         icon()
     } else {
         BadgedBox(
-            badge = { IenNavigationBarBadge(badge) },
+            badge = { IenIndicator(badge) },
             content = { icon() },
-        )
-    }
-}
-
-@Composable
-private fun IenNavigationBarBadge(
-    badge: Int,
-    modifier: Modifier = Modifier,
-) {
-    if (badge < 0) {
-        Box(
-            modifier = modifier
-                .size(5.dp)
-                .clip(CircleShape)
-                .background(IenTheme.colors.danger),
-        )
-    } else {
-        IenBadge(
-            text = if (badge > 99) "99+" else badge.toString(),
-            modifier = modifier,
-            size = IenBadgeSize.Small,
-            variant = IenBadgeVariant.Fill,
-            tone = IenSemanticTone.Danger,
         )
     }
 }

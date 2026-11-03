@@ -213,7 +213,7 @@ private fun IenTextFieldLengthLimit.blocks(value: String): Boolean {
  * @param readOnlyTextSelectionEnabled 읽기 전용 상태에서 텍스트 선택을 허용할지 여부.
  * @param interactionSource 필드의 인터랙션 이벤트를 전달할 [MutableInteractionSource].
  * @param minLines 최소 높이를 보장할 행 수.
- * @param maxLines 최대 행 수.
+ * @param maxLines 입력 영역과 라벨의 최대 행 수. singleLine이 true이면 1행으로 제한됩니다.
  * @param onFocus 필드가 포커스를 받았을 때 호출할 선택적 콜백 함수.
  * @param onBlur 필드가 포커스를 잃었을 때 호출할 선택적 콜백 함수.
  */
@@ -401,7 +401,10 @@ fun IenTextField(
                         if (fillsBoxSingleLine || !hasFieldAdornment) {
                             Modifier
                         } else {
-                            Modifier.padding(horizontal = IenTheme.spacing.xs)
+                            Modifier.padding(
+                                start = if (hasLeadingFieldContent) IenTheme.spacing.xs else IenTheme.spacing.none,
+                                end = if (hasTrailingFieldContent) IenTheme.spacing.xs else IenTheme.spacing.none,
+                            )
                         },
                     ),
                 enabled = state.enabled && (!state.readOnly || readOnlyTextSelectionEnabled),
@@ -445,25 +448,20 @@ fun IenTextField(
                         }
 
                         if (fillsBoxSingleLine) {
-                            val horizontalAdornmentPadding = if (hasFieldAdornment) {
-                                IenTheme.spacing.xs
-                            } else {
-                                IenTheme.spacing.none
-                            }
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(
                                         start = if (hasLeadingFieldContent) {
-                                            startAdornmentInset + horizontalAdornmentPadding
+                                            startAdornmentInset + IenTheme.spacing.xs
                                         } else {
-                                            fieldHorizontalPadding + horizontalAdornmentPadding
+                                            fieldHorizontalPadding
                                         },
                                         top = paddingTop ?: fieldVerticalPadding,
                                         end = if (hasTrailingFieldContent) {
-                                            endAdornmentInset + horizontalAdornmentPadding
+                                            endAdornmentInset + IenTheme.spacing.xs
                                         } else {
-                                            fieldHorizontalPadding + horizontalAdornmentPadding
+                                            fieldHorizontalPadding
                                         },
                                         bottom = paddingBottom ?: fieldVerticalPadding,
                                     ),
@@ -490,6 +488,7 @@ fun IenTextField(
             IenTextFieldLabel(
                 label = label,
                 required = required,
+                maxLines = if (singleLine) 1 else maxLines,
                 modifier = Modifier.graphicsLayer { alpha = labelAlpha },
             )
             Spacer(Modifier.height(IenTheme.spacing.xxs))
@@ -890,6 +889,7 @@ fun IenTextFieldButton(
 private fun IenTextFieldLabel(
     label: String,
     required: Boolean,
+    maxLines: Int,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -901,6 +901,7 @@ private fun IenTextFieldLabel(
             text = label,
             style = IenTheme.typography.label2,
             color = IenTheme.colors.textSecondary,
+            maxLines = maxLines,
         )
         if (required) {
             Text(
@@ -999,19 +1000,27 @@ private fun IenTextFieldClearButton(
     modifier: Modifier = Modifier,
 ) {
     val contentDescription = stringResource(Res.string.clear_input)
-    Box(
+    IenIconButton(
+        onClick = onClick,
         modifier = modifier
             .size(28.dp)
-            .clickable(role = Role.Button, onClick = onClick)
-            .semantics { this.contentDescription = contentDescription }
-            .background(color = Color(0xFFE5E8EB), shape = CircleShape),
-        contentAlignment = Alignment.Center,
+            .semantics { this.contentDescription = contentDescription },
+        size = IenButtonSize.Small,
+        variant = IenButtonVariant.Weak,
+        tone = IenSemanticTone.Neutral,
+        shape = CircleShape,
+        colors = IenButtonDefault.colors(
+            variant = IenButtonVariant.Weak,
+            tone = IenSemanticTone.Neutral,
+            container = IenTheme.colors.border,
+            content = IenTheme.colors.textTertiary,
+            useGradient = false,
+        ),
     ) {
         IenIcon(
             icon = IconData.Vector(SystemIcons.Close),
             contentDescription = null,
             modifier = Modifier.size(IenTheme.icon.sm),
-            tint = Color(0xFF8B95A1),
         )
     }
 }

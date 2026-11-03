@@ -25,3 +25,6 @@ actual fun dynamicCupertinoColorScheme(
     return if (darkTheme) zone.ien.hig.theme.darkColorScheme(accent = darkScheme.primary)
     else zone.ien.hig.theme.lightColorScheme(accent = lightScheme.primary)
 }
+
+@Composable
+internal actual fun ConfigurePreviewResources() = Unit

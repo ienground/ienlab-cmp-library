@@ -23,6 +23,9 @@ import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.foundation.IenTokens
 import zone.ien.utils.ui.foundation.IenTypography
 
+@Composable
+internal expect fun ConfigurePreviewResources()
+
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun IenAdaptiveTheme(
@@ -33,6 +36,8 @@ fun IenAdaptiveTheme(
     vararg values: ProvidedValue<*>,
     content: @Composable () -> Unit,
 ) {
+    ConfigurePreviewResources()
+
     val lightScheme = tokens.lightColors.toIenMaterialColorScheme(darkTheme = false)
     val darkScheme = tokens.darkColors.toIenMaterialColorScheme(darkTheme = true)
     val materialColorScheme = dynamicM3ColorScheme(

@@ -28,8 +28,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -50,11 +54,13 @@ import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
 /**
  * 중앙 항목에 스냅되는 세로 휠 선택기. 선택 상태는 호출자가 소유하며 항목 변경 시 햅틱과 소리 피드백을 제공합니다.
+ * 중앙 선택 영역은 변형 없이 Brand 색으로 표시하고, 바깥 항목에는 원통형 회전 효과를 적용합니다.
  * JWheelPicker의 중앙 여백 및 원통형 회전 효과를 공통 Compose로 이식했습니다.
  * 원본: https://github.com/oOJohn6Oo/JWheelPicker (WTFPL)
  *
@@ -82,6 +88,8 @@ fun <T> IenWheelPicker(
     require(selectedIndex in items.indices) { "선택 인덱스가 항목 범위를 벗어났습니다." }
     require(visibleItemCount >= 3 && visibleItemCount % 2 == 1) { "표시할 행 수는 3 이상의 홀수여야 합니다." }
     val style = IenTheme.typography.title3
+    val brandColor = IenTheme.colors.brand
+    val selectedColorFilter = remember(brandColor) { ColorFilter.tint(brandColor) }
     val rowHeight = with(LocalDensity.current) {
         val textHeight = when {
             style.lineHeight != TextUnit.Unspecified -> style.lineHeight.toDp()
@@ -162,20 +170,43 @@ fun <T> IenWheelPicker(
             overscrollEffect = null,
         ) {
             items(items.size) { index ->
+                val curvedLayer = rememberGraphicsLayer()
+                val selectedLayer = rememberGraphicsLayer()
                 Box(
                     modifier = Modifier.fillMaxWidth().height(rowHeight)
-                        .graphicsLayer {
+                        .drawWithContent {
                             val layout = state.layoutInfo
-                            val item = layout.visibleItemsInfo.firstOrNull { it.index == index } ?: return@graphicsLayer
+                            val item = layout.visibleItemsInfo.firstOrNull { it.index == index }
+                            val viewportHeight = layout.viewportSize.height.toFloat()
+                            if (item == null || viewportHeight <= 0f) {
+                                drawContent()
+                                return@drawWithContent
+                            }
                             val center = (layout.viewportStartOffset + layout.viewportEndOffset) / 2f
-                            val position = item.offset + item.size / 2f
-                            val radius = layout.viewportSize.height / 2f
-                            if (radius <= 0f) return@graphicsLayer
-                            val offset = ((position - center) / radius).coerceIn(-1f, 1f)
-                            rotationX = -90f * offset
-                            scaleX = 1f - offset * offset * 0.37f
-                            alpha = 1f - abs(offset)
-                            translationY = (sin(offset * PI / 2) * (2 * radius / PI) * 1.24 - (position - center)).toFloat()
+                            val distance = item.offset + item.size / 2f - center
+                            val radius = (viewportHeight * 0.4f).coerceAtLeast(size.height)
+                            val angle = (distance / radius).coerceIn(-PI.toFloat() / 2f, PI.toFloat() / 2f)
+                            val perspectiveScale = 1f / (1f + (1f - cos(angle)) / 3f)
+                            curvedLayer.record { this@drawWithContent.drawContent() }
+                            curvedLayer.rotationX = angle * 180f / PI.toFloat()
+                            curvedLayer.scaleX = perspectiveScale
+                            curvedLayer.scaleY = perspectiveScale
+                            curvedLayer.cameraDistance = radius * 8f
+                            curvedLayer.alpha = 1f - (abs(distance) / (viewportHeight / 2f)).coerceIn(0f, 1f)
+                            curvedLayer.translationY = radius * sin(angle) - distance
+                            val selectionTop = size.height / 2f - item.size / 2f - distance
+                            val selectionBottom = selectionTop + item.size
+                            clipRect(top = -layout.viewportSize.height.toFloat(), bottom = selectionTop) {
+                                drawLayer(curvedLayer)
+                            }
+                            clipRect(top = selectionBottom, bottom = layout.viewportSize.height.toFloat()) {
+                                drawLayer(curvedLayer)
+                            }
+                            selectedLayer.colorFilter = selectedColorFilter
+                            selectedLayer.record { this@drawWithContent.drawContent() }
+                            clipRect(top = selectionTop, bottom = selectionBottom) {
+                                drawLayer(selectedLayer)
+                            }
                         }
                         .semantics { selected = index == centerIndex }
                         .clickable(
@@ -194,7 +225,7 @@ fun <T> IenWheelPicker(
                     Text(
                         text = itemLabel(items[index]),
                         style = style,
-                        color = if (index == centerIndex) IenTheme.colors.brand else IenTheme.colors.textSecondary,
+                        color = IenTheme.colors.textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )

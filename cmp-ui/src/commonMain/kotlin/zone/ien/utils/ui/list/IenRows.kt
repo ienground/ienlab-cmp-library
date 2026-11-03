@@ -225,15 +225,6 @@ fun IenListRow(
                 },
             ),
     ) {
-        if (border == IenListRowBorder.Indented) {
-            Box(
-                modifier = Modifier
-                    .padding(start = horizontalPadding.value + IenTheme.spacing.lg)
-                    .fillMaxWidth()
-                    .height(IenTheme.stroke.hairline)
-                    .background(IenTheme.colors.border),
-            )
-        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -279,6 +270,15 @@ fun IenListRow(
                     }
                 }
             }
+        }
+        if (border == IenListRowBorder.Indented) {
+            Box(
+                modifier = Modifier
+                    .padding(start = horizontalPadding.value + IenTheme.spacing.lg)
+                    .fillMaxWidth()
+                    .height(IenTheme.stroke.hairline)
+                    .background(IenTheme.colors.border),
+            )
         }
     }
 }
@@ -573,6 +573,36 @@ fun IenListRowAssetText(
     backgroundColor: Color = IenTheme.colors.surfaceWeak,
     contentColor: Color = IenTheme.colors.textPrimary,
 ) {
+    IenListRowAssetText(
+        text = {
+            Text(
+                text = text,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
+        modifier = modifier,
+        shape = shape,
+        size = size,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+    )
+}
+
+/**
+ * 리스트 어셋 프레임의 텍스트 영역을 컴포저블로 구성합니다.
+ *
+ * @param text 어셋 콘텐츠 슬롯. 줄 수 제한은 호출자가 지정합니다.
+ */
+@Composable
+fun IenListRowAssetText(
+    text: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    shape: IenListRowAssetShape = IenListRowAssetShape.Squircle,
+    size: IenListRowAssetSize = IenListRowAssetSize.Medium,
+    backgroundColor: Color = IenTheme.colors.surfaceWeak,
+    contentColor: Color = IenTheme.colors.textPrimary,
+) {
     Box(
         modifier = modifier
             .size(size.value)
@@ -580,13 +610,12 @@ fun IenListRowAssetText(
             .background(backgroundColor),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = text,
+        IenProvideTextStyle(
             style = IenTheme.typography.label2.copy(fontWeight = FontWeight.Bold),
             color = contentColor,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        ) {
+            text()
+        }
     }
 }
 
