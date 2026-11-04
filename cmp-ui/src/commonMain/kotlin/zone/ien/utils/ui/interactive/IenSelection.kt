@@ -94,6 +94,7 @@ import kotlin.math.roundToInt
  * @param trackContent 스위치 트랙 내부에 표시될 단일 콘텐츠. [onTrackContent], [offTrackContent]가 없을 때 양쪽 콘텐츠로 사용됩니다.
  * @param onTrackContent 켜짐 상태에서 썸의 왼쪽에 표시될 선택적 콘텐츠.
  * @param offTrackContent 꺼짐 상태에서 썸의 오른쪽에 표시될 선택적 콘텐츠.
+ * @param tone 선택 상태에 적용할 의미론적 색상 톤. 기본값은 [IenSemanticTone.Brand].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,12 +107,14 @@ fun IenSwitch(
     interactionSource: MutableInteractionSource? = null,
     trackContent: @Composable (() -> Unit)? = null,
     onTrackContent: @Composable (() -> Unit)? = null,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     offTrackContent: @Composable (() -> Unit)? = null,
 ) {
+    val activeColor = toneColor(tone)
     val checkedTrackColor = if (enabled) {
-        IenTheme.colors.brand
+        activeColor
     } else {
-        IenTheme.colors.brand.copy(alpha = IenTheme.state.disabledAlpha)
+        activeColor.copy(alpha = IenTheme.state.disabledAlpha)
     }
     val uncheckedTrackColor = if (enabled) {
         IenTheme.colors.borderStrong
@@ -567,6 +570,7 @@ private fun IenCheckMark(
  * @param enabled 활성화 여부. 비활성 항목을 누르면 흔들리며 선택 콜백은 호출하지 않습니다.
  * @param size 원형 표시의 크기.
  * @param label 원형 표시 옆에 표시할 라벨.
+ * @param tone 선택 상태에 적용할 의미론적 색상 톤. 기본값은 [IenSemanticTone.Brand].
  */
 @Composable
 fun IenRadioButton(
@@ -576,6 +580,7 @@ fun IenRadioButton(
     enabled: Boolean = true,
     size: Dp = 24.dp,
     label: String? = null,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     IenRadioButton(
         selected = selected,
@@ -583,6 +588,7 @@ fun IenRadioButton(
         modifier = modifier,
         enabled = enabled,
         size = size,
+        tone = tone,
         labelContent = label?.let { value -> { Text(text = value) } },
     )
 }
@@ -591,6 +597,7 @@ fun IenRadioButton(
  * 컨트롤의 라벨을 컴포저블로 구성하며 기존 배치와 동작을 유지합니다.
  *
  * @param labelContent 라벨 슬롯. null이면 라벨 영역을 생략합니다. 기존 문자열 호출과 구분하기 위해 명시적으로 전달합니다.
+ * @param tone 선택 상태에 적용할 의미론적 색상 톤. 기본값은 [IenSemanticTone.Brand].
  */
 @Composable
 fun IenRadioButton(
@@ -599,6 +606,7 @@ fun IenRadioButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     size: Dp = 24.dp,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     labelContent: (@Composable () -> Unit)?,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -612,7 +620,7 @@ fun IenRadioButton(
         label = "ienRadioButtonPressScale",
     )
     val borderColor by animateColorAsState(
-        targetValue = if (selected) IenTheme.colors.brand else IenTheme.colors.borderStrong,
+        targetValue = if (selected) toneColor(tone) else IenTheme.colors.borderStrong,
         animationSpec = tween(durationMillis = 200),
         label = "ienRadioButtonBorderColor",
     )
@@ -674,7 +682,7 @@ fun IenRadioButton(
                         alpha = dotScale
                     }
                     .background(
-                        brush = toneGradientBrush(IenSemanticTone.Brand),
+                        brush = toneGradientBrush(tone),
                         shape = androidx.compose.foundation.shape.CircleShape,
                     ),
             )
@@ -712,6 +720,7 @@ data class IenRadioGroupItem<T : Any>(
  * @param modifier 그룹에 적용할 [Modifier].
  * @param enabled 전체 그룹의 활성화 여부.
  * @param size 각 항목의 원형 표시 크기.
+ * @param tone 선택 상태에 적용할 의미론적 색상 톤. 기본값은 [IenSemanticTone.Brand].
  */
 @Composable
 fun <T : Any> IenRadioGroup(
@@ -721,6 +730,7 @@ fun <T : Any> IenRadioGroup(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     size: Dp = 24.dp,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     Column(
         modifier = modifier.selectableGroup(),
@@ -734,6 +744,7 @@ fun <T : Any> IenRadioGroup(
                     enabled = enabled && item.enabled,
                     size = size,
                     label = item.label,
+                    tone = tone,
                 )
             }
         }
@@ -750,6 +761,7 @@ fun <T : Any> IenRadioGroup(
  * @param enabled 활성화 여부. false일 경우 상호작용이 불가능하며 클릭 시 흔들림 애니메이션 효과가 발생합니다.
  * @param size 체크박스의 크기 규격. 기본값은 24.dp.
  * @param label 체크박스 옆에 표시될 설명 라벨 텍스트.
+ * @param tone 선택 상태에 적용할 의미론적 색상 톤. 기본값은 [IenSemanticTone.Brand].
  */
 @Composable
 fun IenCircleCheckbox(
@@ -760,6 +772,7 @@ fun IenCircleCheckbox(
     enabled: Boolean = true,
     size: Dp = 24.dp,
     label: String? = null,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     IenCircleCheckbox(
         modifier = modifier,
@@ -768,6 +781,7 @@ fun IenCircleCheckbox(
         onCheckedChange = onCheckedChange,
         enabled = enabled,
         size = size,
+        tone = tone,
         labelContent = label?.let { value -> { Text(text = value) } },
     )
 }
@@ -776,6 +790,7 @@ fun IenCircleCheckbox(
  * 컨트롤의 라벨을 컴포저블로 구성하며 기존 배치와 동작을 유지합니다.
  *
  * @param labelContent 라벨 슬롯. null이면 라벨 영역을 생략합니다. 기존 문자열 호출과 구분하기 위해 명시적으로 전달합니다.
+ * @param tone 선택 상태에 적용할 의미론적 색상 톤. 기본값은 [IenSemanticTone.Brand].
  */
 @Composable
 fun IenCircleCheckbox(
@@ -785,10 +800,11 @@ fun IenCircleCheckbox(
     onCheckedChange: ((Boolean) -> Unit)? = null,
     enabled: Boolean = true,
     size: Dp = 24.dp,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     labelContent: (@Composable () -> Unit)?,
 ) {
     val alpha = if (enabled) 1f else IenTheme.state.disabledAlpha
-    val brandColor = IenTheme.colors.brand
+    val activeColor = toneColor(tone)
     val borderColor = IenTheme.colors.borderStrong
 
     var localCheckedState by remember { mutableStateOf(defaultChecked ?: false) }
@@ -837,9 +853,9 @@ fun IenCircleCheckbox(
         }
     }
 
-    val targetBgColor = if (isChecked) brandColor else Color.Transparent
-    val targetBorderColor = if (isChecked) brandColor else borderColor
-    val targetCheckColor = if (isChecked) Color.White else borderColor
+    val targetBgColor = if (isChecked) activeColor else Color.Transparent
+    val targetBorderColor = if (isChecked) activeColor else borderColor
+    val targetCheckColor = if (isChecked) toneOnColor(tone) else borderColor
 
     val backgroundColor by animateColorAsState(
         targetValue = targetBgColor,
@@ -870,7 +886,7 @@ fun IenCircleCheckbox(
     ) {
         val checkboxBackgroundModifier = if (isChecked) {
             Modifier.background(
-                brush = toneGradientBrush(IenSemanticTone.Brand),
+                brush = toneGradientBrush(tone),
                 shape = androidx.compose.foundation.shape.CircleShape,
             )
         } else {
@@ -923,6 +939,7 @@ fun IenCircleCheckbox(
  * @param enabled 활성화 여부. false일 경우 상호작용이 불가능하며 클릭 시 흔들림 애니메이션 효과가 발생합니다.
  * @param size 체크 영역(점)의 크기 규격. 기본값은 8.dp.
  * @param label 체크박스 옆에 표시될 설명 라벨 텍스트.
+ * @param tone 선택 상태에 적용할 의미론적 색상 톤. 기본값은 [IenSemanticTone.Brand].
  */
 @Composable
 fun IenDotCheckbox(
@@ -933,6 +950,7 @@ fun IenDotCheckbox(
     enabled: Boolean = true,
     size: Dp = 8.dp,
     label: String? = null,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     IenDotCheckbox(
         modifier = modifier,
@@ -941,6 +959,7 @@ fun IenDotCheckbox(
         onCheckedChange = onCheckedChange,
         enabled = enabled,
         size = size,
+        tone = tone,
         labelContent = label?.let { value -> { Text(text = value) } },
     )
 }
@@ -949,6 +968,7 @@ fun IenDotCheckbox(
  * 컨트롤의 라벨을 컴포저블로 구성하며 기존 배치와 동작을 유지합니다.
  *
  * @param labelContent 라벨 슬롯. null이면 라벨 영역을 생략합니다. 기존 문자열 호출과 구분하기 위해 명시적으로 전달합니다.
+ * @param tone 선택 상태에 적용할 의미론적 색상 톤. 기본값은 [IenSemanticTone.Brand].
  */
 @Composable
 fun IenDotCheckbox(
@@ -958,10 +978,11 @@ fun IenDotCheckbox(
     onCheckedChange: ((Boolean) -> Unit)? = null,
     enabled: Boolean = true,
     size: Dp = 8.dp,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     labelContent: (@Composable () -> Unit)?,
 ) {
     val alpha = if (enabled) 1f else IenTheme.state.disabledAlpha
-    val brandColor = IenTheme.colors.brand
+    val activeColor = toneColor(tone)
     val borderColor = IenTheme.colors.borderStrong
 
     var localCheckedState by remember { mutableStateOf(defaultChecked ?: false) }
@@ -1010,9 +1031,9 @@ fun IenDotCheckbox(
         }
     }
 
-    val targetBgColor = if (isChecked) brandColor else Color.Transparent
-    val targetBorderColor = if (isChecked) brandColor else borderColor
-    val targetCheckColor = if (isChecked) Color.White else borderColor
+    val targetBgColor = if (isChecked) activeColor else Color.Transparent
+    val targetBorderColor = if (isChecked) activeColor else borderColor
+    val targetCheckColor = if (isChecked) toneOnColor(tone) else borderColor
 
     val backgroundColor by animateColorAsState(
         targetValue = targetBgColor,
@@ -1043,7 +1064,7 @@ fun IenDotCheckbox(
     ) {
         val dotBackgroundModifier = if (isChecked) {
             Modifier.background(
-                brush = toneGradientBrush(IenSemanticTone.Brand),
+                brush = toneGradientBrush(tone),
                 shape = androidx.compose.foundation.shape.CircleShape,
             )
         } else {
@@ -1088,6 +1109,7 @@ fun IenDotCheckbox(
  * @param enabled 활성화 여부. false일 경우 상호작용이 불가능하며 클릭 시 흔들림 애니메이션 효과가 발생합니다.
  * @param size 체크 아이콘의 크기 규격. 기본값은 24.dp.
  * @param label 체크박스 옆에 표시될 설명 라벨 텍스트.
+ * @param tone 선택 상태에 적용할 의미론적 색상 톤. 기본값은 [IenSemanticTone.Brand].
  */
 @Composable
 fun IenLineCheckbox(
@@ -1098,6 +1120,7 @@ fun IenLineCheckbox(
     enabled: Boolean = true,
     size: Dp = 24.dp,
     label: String? = null,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     IenLineCheckbox(
         modifier = modifier,
@@ -1106,6 +1129,7 @@ fun IenLineCheckbox(
         onCheckedChange = onCheckedChange,
         enabled = enabled,
         size = size,
+        tone = tone,
         labelContent = label?.let { value -> { Text(text = value) } },
     )
 }
@@ -1114,6 +1138,7 @@ fun IenLineCheckbox(
  * 컨트롤의 라벨을 컴포저블로 구성하며 기존 배치와 동작을 유지합니다.
  *
  * @param labelContent 라벨 슬롯. null이면 라벨 영역을 생략합니다. 기존 문자열 호출과 구분하기 위해 명시적으로 전달합니다.
+ * @param tone 선택 상태에 적용할 의미론적 색상 톤. 기본값은 [IenSemanticTone.Brand].
  */
 @Composable
 fun IenLineCheckbox(
@@ -1123,10 +1148,11 @@ fun IenLineCheckbox(
     onCheckedChange: ((Boolean) -> Unit)? = null,
     enabled: Boolean = true,
     size: Dp = 24.dp,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     labelContent: (@Composable () -> Unit)?,
 ) {
     val alpha = if (enabled) 1f else IenTheme.state.disabledAlpha
-    val activeColor = IenTheme.colors.brand
+    val activeColor = toneColor(tone)
     val inactiveColor = IenTheme.colors.borderStrong
 
     var localCheckedState by remember { mutableStateOf(defaultChecked ?: false) }
