@@ -2,6 +2,7 @@ package zone.ien.utils.adaptive.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
@@ -25,6 +26,7 @@ import zone.ien.utils.ui.utils.TextFieldDialogData
  * @param enabledConfirm 확인 버튼의 추가 활성화 조건
  * @param styleConfirm 확인 버튼 스타일
  * @param onConfirm 확인 버튼 클릭 시 실행할 함수 (전달된 텍스트 필드 값 맵)
+ * @param tone 강조 요소에 적용할 의미 색상 톤
  * @return 텍스트 필드 다이얼로그 컴포저블
  */
 @Composable
@@ -42,5 +44,6 @@ expect fun TextFieldDialog(
     styleConfirm: UIAlertActionStyle = UIAlertActionStyle.Default,
     enabledDismiss: Boolean = true,
     enabledConfirm: Boolean = true,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     onConfirm: (Map<String, String>) -> Unit,
 )

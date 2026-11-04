@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import androidx.compose.ui.uikit.LocalUIViewController
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.UIKit.NSLayoutConstraint
@@ -17,7 +18,7 @@ import platform.UIKit.UIAlertControllerStyleAlert
 import platform.UIKit.UIProgressView
 import platform.UIKit.UIProgressViewStyle
 import zone.ien.hig.toUIColor
-import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.toneColor
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
@@ -25,10 +26,11 @@ actual fun ProgressDialog(
     modifier: Modifier,
     visible: Boolean,
     isLoadingIndicator: Boolean,
-    isWavyIndicator: Boolean
+    isWavyIndicator: Boolean,
+    tone: IenSemanticTone,
 ) {
     val viewController = LocalUIViewController.current
-    val nativeTintColor = IenTheme.colors.brand.toUIColor()
+    val nativeTintColor = toneColor(tone).toUIColor()
 
     var alertRef by remember { mutableStateOf<UIAlertController?>(null) }
 
@@ -66,11 +68,12 @@ actual fun ProgressDialog(
     modifier: Modifier,
     visible: Boolean,
     progress: () -> Float,
-    isWavyIndicator: Boolean
+    isWavyIndicator: Boolean,
+    tone: IenSemanticTone,
 ) {
     val viewController = LocalUIViewController.current
     val currentProgress = progress()
-    val nativeTintColor = IenTheme.colors.brand.toUIColor()
+    val nativeTintColor = toneColor(tone).toUIColor()
 
     var alertRef by remember { mutableStateOf<UIAlertController?>(null) }
     var progressViewRef by remember { mutableStateOf<UIProgressView?>(null) }

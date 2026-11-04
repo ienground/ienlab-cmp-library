@@ -17,8 +17,11 @@ import com.sunnychung.lib.multiplatform.kdatetime.KZoneOffset
 import com.sunnychung.lib.multiplatform.kdatetime.serializer.KInstantAsLong
 import com.sunnychung.lib.multiplatform.kdatetime.toKZonedDateTime
 import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
+import zone.ien.utils.cmp_ui.generated.resources.date_picker_field_order
+import zone.ien.utils.cmp_ui.generated.resources.date_picker_months
 import zone.ien.utils.cmp_ui.generated.resources.date_picker_day
 import zone.ien.utils.cmp_ui.generated.resources.date_picker_month
 import zone.ien.utils.cmp_ui.generated.resources.date_picker_year
@@ -30,6 +33,7 @@ import zone.ien.utils.cmp_ui.generated.resources.time_picker_hour
 import zone.ien.utils.cmp_ui.generated.resources.time_picker_minute
 import zone.ien.utils.cmp_ui.generated.resources.time_picker_pm
 import zone.ien.utils.cmp_ui.generated.resources.time_picker_second
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import kotlin.math.abs
 
@@ -58,6 +62,7 @@ enum class IenDurationWheelField {
  * @param modifier 루트 레이아웃에 적용할 Modifier.
  * @param yearRange 선택 가능한 연도 범위 (1..9999).
  * @param enabled 선택 가능 여부.
+ * @param tone 선택 글자와 선택 영역 배경에 적용할 의미 색상 톤.
  * @param selectableDates 선택할 수 있는 연도와 날짜.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,6 +74,7 @@ fun IenDateWheelPicker(
     yearRange: IntRange = 1900..2100,
     enabled: Boolean = true,
     selectableDates: SelectableDates = DatePickerDefaults.AllDates,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     require(!yearRange.isEmpty() && yearRange.first >= 1 && yearRange.last <= 9999) { "연도 범위는 1..9999 안이어야 합니다." }
     require(value.year in yearRange) { "날짜가 선택 가능한 연도 범위를 벗어났습니다." }
@@ -107,40 +113,49 @@ fun IenDateWheelPicker(
             !hasSelectableDates || selectableDates.allows(KDate(wheelDate.year, wheelDate.month, day))
         }
     }
+    val fieldOrder = stringResource(Res.string.date_picker_field_order)
+    val monthNames = stringArrayResource(Res.array.date_picker_months)
     val yearLabel = stringResource(Res.string.date_picker_year, WHEEL_VALUE_PLACEHOLDER)
     val monthLabel = stringResource(Res.string.date_picker_month, WHEEL_VALUE_PLACEHOLDER)
     val dayLabel = stringResource(Res.string.date_picker_day, WHEEL_VALUE_PLACEHOLDER)
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs)) {
-        IenWheelPicker(
-            items = years,
-            selectedIndex = years.indexOf(wheelDate.year).coerceAtLeast(0),
-            onSelectedIndexChange = { index ->
-                selectableDates.nearestDateInYear(years[index], wheelDate.toDatePickerUtcMillis())
-                    ?.let(onValueChange)
-            },
-            modifier = Modifier.weight(1.4f),
-            enabled = enabled && hasSelectableDates,
-            itemLabel = { yearLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString()) },
-        )
-        IenWheelPicker(
-            items = months,
-            selectedIndex = months.indexOf(wheelDate.month).coerceAtLeast(0),
-            onSelectedIndexChange = { index ->
-                selectableDates.nearestDateInMonth(wheelDate.year, months[index], wheelDate.day)
-                    ?.let(onValueChange)
-            },
-            modifier = Modifier.weight(1f),
-            enabled = enabled && hasSelectableDates,
-            itemLabel = { monthLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString()) },
-        )
-        IenWheelPicker(
-            items = days,
-            selectedIndex = days.indexOf(wheelDate.day).coerceAtLeast(0),
-            onSelectedIndexChange = { onValueChange(KDate(wheelDate.year, wheelDate.month, days[it])) },
-            modifier = Modifier.weight(1f),
-            enabled = enabled && hasSelectableDates,
-            itemLabel = { dayLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString()) },
-        )
+        for (field in fieldOrder) {
+            when (field) {
+                'y' -> IenWheelPicker(
+                    tone = tone,
+                    items = years,
+                    selectedIndex = years.indexOf(wheelDate.year).coerceAtLeast(0),
+                    onSelectedIndexChange = { index ->
+                        selectableDates.nearestDateInYear(years[index], wheelDate.toDatePickerUtcMillis())
+                            ?.let(onValueChange)
+                    },
+                    modifier = Modifier.weight(1.4f),
+                    enabled = enabled && hasSelectableDates,
+                    itemLabel = { yearLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString()) },
+                )
+                'm' -> IenWheelPicker(
+                    tone = tone,
+                    items = months,
+                    selectedIndex = months.indexOf(wheelDate.month).coerceAtLeast(0),
+                    onSelectedIndexChange = { index ->
+                        selectableDates.nearestDateInMonth(wheelDate.year, months[index], wheelDate.day)
+                            ?.let(onValueChange)
+                    },
+                    modifier = Modifier.weight(if (fieldOrder.startsWith('m')) 1.4f else 1f),
+                    enabled = enabled && hasSelectableDates,
+                    itemLabel = { monthLabel.replace(WHEEL_VALUE_PLACEHOLDER, monthNames[it - 1]) },
+                )
+                'd' -> IenWheelPicker(
+                    tone = tone,
+                    items = days,
+                    selectedIndex = days.indexOf(wheelDate.day).coerceAtLeast(0),
+                    onSelectedIndexChange = { onValueChange(KDate(wheelDate.year, wheelDate.month, days[it])) },
+                    modifier = Modifier.weight(1f),
+                    enabled = enabled && hasSelectableDates,
+                    itemLabel = { dayLabel.replace(WHEEL_VALUE_PLACEHOLDER, it.toString()) },
+                )
+            }
+        }
     }
 }
 
@@ -154,6 +169,7 @@ fun IenDateWheelPicker(
  * @param showMinutes 분 휠 표시 여부.
  * @param showSeconds 초 휠 표시 여부.
  * @param enabled 선택 가능 여부.
+ * @param tone 선택 글자와 선택 영역 배경에 적용할 의미 색상 톤.
  */
 @Composable
 fun IenTimeWheelPicker(
@@ -165,6 +181,7 @@ fun IenTimeWheelPicker(
     showMinutes: Boolean = true,
     showSeconds: Boolean = true,
     enabled: Boolean = true,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     require(showHours || showMinutes || showSeconds) { "적어도 하나의 필드는 표시되어야 합니다." }
     val valueInMilliseconds = value.toMilliseconds()
@@ -183,6 +200,7 @@ fun IenTimeWheelPicker(
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs)) {
         if (showHours && !use24HourFormat) {
             IenWheelPicker(
+                tone = tone,
                 items = listOf(stringResource(Res.string.time_picker_am), stringResource(Res.string.time_picker_pm)),
                 selectedIndex = if (hour < 12) 0 else 1,
                 onSelectedIndexChange = { onValueChange(wheelPickerDuration(wheelPickerHour(displayedHour, it == 1), minute, second)) },
@@ -192,6 +210,7 @@ fun IenTimeWheelPicker(
         }
         if (showHours) {
             IenWheelPicker(
+                tone = tone,
                 items = hours,
                 selectedIndex = hours.indexOf(displayedHour),
                 onSelectedIndexChange = {
@@ -205,6 +224,7 @@ fun IenTimeWheelPicker(
         }
         if (showMinutes) {
             IenWheelPicker(
+                tone = tone,
                 items = sexagesimal,
                 selectedIndex = minute,
                 onSelectedIndexChange = { onValueChange(wheelPickerDuration(hour, it, second)) },
@@ -215,6 +235,7 @@ fun IenTimeWheelPicker(
         }
         if (showSeconds) {
             IenWheelPicker(
+                tone = tone,
                 items = sexagesimal,
                 selectedIndex = second,
                 onSelectedIndexChange = { onValueChange(wheelPickerDuration(hour, minute, it)) },
@@ -235,6 +256,7 @@ fun IenTimeWheelPicker(
  * @param modifier 루트 레이아웃에 적용할 Modifier.
  * @param use24HourFormat true이면 00..23시, false이면 오전·오후와 1..12시를 표시합니다.
  * @param enabled 선택 가능 여부.
+ * @param tone 선택 글자와 선택 영역 배경에 적용할 의미 색상 톤.
  */
 @Composable
 fun IenTimeWheelPicker(
@@ -244,6 +266,7 @@ fun IenTimeWheelPicker(
     modifier: Modifier = Modifier,
     use24HourFormat: Boolean = true,
     enabled: Boolean = true,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) = IenTimeWheelPicker(
     value = value,
     onValueChange = onValueChange,
@@ -253,6 +276,7 @@ fun IenTimeWheelPicker(
     showMinutes = IenTimeWheelField.Minute in fields,
     showSeconds = IenTimeWheelField.Second in fields,
     enabled = enabled,
+    tone = tone,
 )
 
 /**
@@ -265,6 +289,7 @@ fun IenTimeWheelPicker(
  * @param showSeconds 초 휠 표시 여부.
  * @param maxHours 선택 가능한 최대 시간 (0..9999). 분·초는 각각 0..59입니다.
  * @param enabled 선택 가능 여부.
+ * @param tone 선택 글자와 선택 영역 배경에 적용할 의미 색상 톤.
  */
 @Composable
 fun IenDurationWheelPicker(
@@ -276,6 +301,7 @@ fun IenDurationWheelPicker(
     showSeconds: Boolean = true,
     maxHours: Int = 23,
     enabled: Boolean = true,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     require(showHours || showMinutes || showSeconds) { "적어도 하나의 필드는 표시되어야 합니다." }
     if (showHours) {
@@ -306,6 +332,7 @@ fun IenDurationWheelPicker(
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxs)) {
         if (showHours) {
             IenWheelPicker(
+                tone = tone,
                 items = hours,
                 selectedIndex = hour.coerceIn(hours.indices),
                 onSelectedIndexChange = { onValueChange(wheelPickerDuration(hours[it], minute, second)) },
@@ -316,6 +343,7 @@ fun IenDurationWheelPicker(
         }
         if (showMinutes) {
             IenWheelPicker(
+                tone = tone,
                 items = sexagesimal,
                 selectedIndex = minute.coerceIn(sexagesimal.indices),
                 onSelectedIndexChange = { onValueChange(wheelPickerDuration(hour, it, second)) },
@@ -326,6 +354,7 @@ fun IenDurationWheelPicker(
         }
         if (showSeconds) {
             IenWheelPicker(
+                tone = tone,
                 items = sexagesimal,
                 selectedIndex = second.coerceIn(sexagesimal.indices),
                 onSelectedIndexChange = { onValueChange(wheelPickerDuration(hour, minute, it)) },
@@ -346,6 +375,7 @@ fun IenDurationWheelPicker(
  * @param modifier 루트 레이아웃에 적용할 Modifier.
  * @param maxHours 선택 가능한 최대 시간 (0..9999).
  * @param enabled 선택 가능 여부.
+ * @param tone 선택 글자와 선택 영역 배경에 적용할 의미 색상 톤.
  */
 @Composable
 fun IenDurationWheelPicker(
@@ -355,6 +385,7 @@ fun IenDurationWheelPicker(
     modifier: Modifier = Modifier,
     maxHours: Int = 23,
     enabled: Boolean = true,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) = IenDurationWheelPicker(
     value = value,
     onValueChange = onValueChange,
@@ -364,6 +395,7 @@ fun IenDurationWheelPicker(
     showSeconds = IenDurationWheelField.Second in fields,
     maxHours = maxHours,
     enabled = enabled,
+    tone = tone,
 )
 
 internal fun formatWheelPlural(value: Int, zero: String, one: String, other: String): String {

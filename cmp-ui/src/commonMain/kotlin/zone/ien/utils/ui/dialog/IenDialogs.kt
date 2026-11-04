@@ -166,6 +166,7 @@ fun IenAlertDialog(
  * @param modifier 다이얼로그 프레임에 적용할 Modifier
  * @param confirmText 확인 버튼에 표시될 텍스트
  * @param dismissText 취소 버튼에 표시될 텍스트
+ * @param tone 확인 버튼의 의미 색상 톤. destructive가 true이면 Danger를 우선 적용합니다.
  * @param destructive 확인 버튼의 동작이 파괴적인 작업(예: 삭제)인지 여부. true일 경우 Danger 톤 적용
  * @param closeOnDimmerClick 바깥 어두운 배경(Dimmer)을 클릭했을 때 다이얼로그를 닫을지 여부
  * @param closeOnBackEvent 뒤로가기 버튼을 눌렀을 때 다이얼로그를 닫을지 여부
@@ -193,6 +194,7 @@ fun IenConfirmDialog(
     buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Horizontal,
     enabledDismiss: Boolean = true,
     enabledConfirm: Boolean = true,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     IenConfirmDialog(
         visible = visible,
@@ -221,7 +223,7 @@ fun IenConfirmDialog(
             IenConfirmDialogConfirmButton(
                 text = confirmText,
                 onClick = onConfirmClick,
-                tone = if (destructive) IenSemanticTone.Danger else IenSemanticTone.Brand,
+                tone = if (destructive) IenSemanticTone.Danger else tone,
                 enabled = enabledConfirm,
             )
         },

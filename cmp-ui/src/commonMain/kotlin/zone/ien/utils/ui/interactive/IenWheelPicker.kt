@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import kotlin.math.PI
@@ -60,7 +61,7 @@ import kotlin.math.sin
 
 /**
  * 중앙 항목에 스냅되는 세로 휠 선택기. 선택 상태는 호출자가 소유하며 항목 변경 시 햅틱과 소리 피드백을 제공합니다.
- * 중앙 선택 영역은 변형 없이 Brand 색으로 표시하고, 바깥 항목에는 원통형 회전 효과를 적용합니다.
+ * 중앙 선택 영역은 변형 없이 지정한 톤으로 표시하고, 바깥 항목에는 원통형 회전 효과를 적용합니다.
  * JWheelPicker의 중앙 여백 및 원통형 회전 효과를 공통 Compose로 이식했습니다.
  * 원본: https://github.com/oOJohn6Oo/JWheelPicker (WTFPL)
  *
@@ -71,6 +72,7 @@ import kotlin.math.sin
  * @param enabled 스크롤 및 항목 선택 가능 여부.
  * @param visibleItemCount 표시할 행 수. 3 이상의 홀수여야 합니다.
  * @param enableHapticFeedback 스크롤 중 중앙 항목 변경 시 햅틱 사용 여부.
+ * @param tone 선택 글자와 선택 영역 배경에 적용할 의미 색상 톤.
  * @param itemLabel 각 항목에 표시할 텍스트.
  */
 @Composable
@@ -82,14 +84,15 @@ fun <T> IenWheelPicker(
     enabled: Boolean = true,
     visibleItemCount: Int = 5,
     enableHapticFeedback: Boolean = true,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     itemLabel: (T) -> String = { it.toString() },
 ) {
     require(items.isNotEmpty()) { "선택 항목은 비어 있을 수 없습니다." }
     require(selectedIndex in items.indices) { "선택 인덱스가 항목 범위를 벗어났습니다." }
     require(visibleItemCount >= 3 && visibleItemCount % 2 == 1) { "표시할 행 수는 3 이상의 홀수여야 합니다." }
     val style = IenTheme.typography.title3
-    val brandColor = IenTheme.colors.brand
-    val selectedColorFilter = remember(brandColor) { ColorFilter.tint(brandColor) }
+    val selectedColor = toneColor(tone)
+    val selectedColorFilter = remember(selectedColor) { ColorFilter.tint(selectedColor) }
     val rowHeight = with(LocalDensity.current) {
         val textHeight = when {
             style.lineHeight != TextUnit.Unspecified -> style.lineHeight.toDp()
@@ -159,7 +162,7 @@ fun <T> IenWheelPicker(
     ) {
         Box(
             Modifier.align(Alignment.Center).fillMaxWidth().height(rowHeight)
-                .background(IenTheme.colors.brand.copy(alpha = IenTheme.state.selectedAlpha), RoundedCornerShape(IenTheme.radius.sm)),
+                .background(selectedColor.copy(alpha = IenTheme.state.selectedAlpha), RoundedCornerShape(IenTheme.radius.sm)),
         )
         LazyColumn(
             modifier = Modifier.fillMaxWidth().height(maxHeight).nestedScroll(WheelParentScrollConsumer),

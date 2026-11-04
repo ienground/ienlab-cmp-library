@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.interactive.toneColor
 import zone.ien.utils.ui.primitives.drawIenBorder
 
 /**
@@ -30,6 +32,7 @@ import zone.ien.utils.ui.primitives.drawIenBorder
  * @param title 다이얼로그의 제목
  * @param content 다이얼로그의 내용을 나타내는 Composable
  * @param onCancel 다이얼로그를 닫기 위한 콜백 함수
+ * @param tone 아이콘에 적용할 의미 색상 톤
  * @param buttons 다이얼로그의 버튼을 나타내는 Composable
  */
 @Composable
@@ -39,6 +42,7 @@ fun BaseDialog(
     title: String?,
     content: @Composable (() -> Unit)?,
     onCancel: (() -> Unit)?,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     buttons: @Composable ((modifier: Modifier) -> Unit)?
 ) {
     val dialogShape = LocalDialogShape.current ?: LocalDialogProviderDefault.Shape
@@ -65,7 +69,7 @@ fun BaseDialog(
                     .padding(vertical = IenTheme.spacing.xl)
             ) {
                 icon?.let {
-                    CompositionLocalProvider(LocalContentColor provides IenTheme.colors.brand) {
+                    CompositionLocalProvider(LocalContentColor provides toneColor(tone)) {
                         Box(Modifier.padding(bottom = IenTheme.spacing.md).align(Alignment.CenterHorizontally)) {
                             icon()
                         }

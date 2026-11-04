@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCAction
@@ -45,7 +46,7 @@ import platform.UIKit.UIViewController
 import platform.UIKit.sheetPresentationController
 import platform.darwin.NSObject
 import zone.ien.hig.toUIColor
-import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.toneColor
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 @Composable
@@ -55,9 +56,10 @@ private fun BaseDateTimePickerDialog(
     title: String,
     datePicker: UIDatePicker,
     onDismiss: () -> Unit,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     onConfirm: (NSDate) -> Unit
 ) {
-    val nativeTintColor = IenTheme.colors.brand.toUIColor()
+    val nativeTintColor = toneColor(tone).toUIColor()
     val delegate = remember(visible) { object: NSObject(), UISheetPresentationControllerDelegateProtocol {
         override fun presentationControllerDidDismiss(presentationController: UIPresentationController) {
             onDismiss()
@@ -151,9 +153,11 @@ actual fun DatePickerDialog(
     selectableDates: SelectableDates,
     title: String,
     onDismiss: () -> Unit,
+    tone: IenSemanticTone,
     onConfirm: (Long) -> Unit
 ) {
     BaseDateTimePickerDialog(
+        tone = tone,
         modifier = modifier,
         visible = visible,
         title = title,
@@ -178,9 +182,11 @@ actual fun TimePickerDialog(
     is24Hour: Boolean,
     title: String,
     onDismiss: () -> Unit,
+    tone: IenSemanticTone,
     onConfirm: (Int, Int) -> Unit
 ) {
     BaseDateTimePickerDialog(
+        tone = tone,
         modifier = modifier,
         visible = visible,
         title = title,

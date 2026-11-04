@@ -946,7 +946,7 @@ private fun IenButtonColors.resolve(enabled: Boolean): IenButtonColors {
  * 의미론적 색상 톤에 대입되는 라이브러리 기본 테마 색상을 반환합니다.
  */
 @Composable
-internal fun toneColor(tone: IenSemanticTone): Color = when (tone) {
+fun toneColor(tone: IenSemanticTone): Color = when (tone) {
     IenSemanticTone.Neutral -> IenTheme.colors.textPrimary
     IenSemanticTone.Brand -> IenTheme.colors.brand
     IenSemanticTone.Success -> IenTheme.colors.success

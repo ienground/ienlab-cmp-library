@@ -2,6 +2,7 @@ package zone.ien.utils.adaptive.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.dialog.IenProgressDialog
 
 /**
@@ -18,9 +19,11 @@ actual fun ProgressDialog(
     modifier: Modifier,
     visible: Boolean,
     isLoadingIndicator: Boolean,
-    isWavyIndicator: Boolean
+    isWavyIndicator: Boolean,
+    tone: IenSemanticTone,
 ) {
     IenProgressDialog(
+        tone = tone,
         modifier = modifier,
         visible = visible,
         isLoadingIndicator = isLoadingIndicator,
@@ -42,9 +45,11 @@ actual fun ProgressDialog(
     modifier: Modifier,
     visible: Boolean,
     progress: () -> Float,
-    isWavyIndicator: Boolean
+    isWavyIndicator: Boolean,
+    tone: IenSemanticTone,
 ) {
     IenProgressDialog(
+        tone = tone,
         modifier = modifier,
         visible = visible,
         progress = progress,

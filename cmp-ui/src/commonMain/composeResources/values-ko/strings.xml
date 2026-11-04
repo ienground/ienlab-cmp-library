@@ -80,6 +80,21 @@
     <string name="clear_search">검색어 삭제</string>
 
     <!-- Date and time wheel picker -->
+    <string name="date_picker_field_order">ymd</string>
+    <string-array name="date_picker_months">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+    </string-array>
     <string name="date_picker_year">%1$s년</string>
     <string name="date_picker_month">%1$s월</string>
     <string name="date_picker_day">%1$s일</string>

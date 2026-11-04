@@ -2,6 +2,7 @@ package zone.ien.utils.adaptive.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.cancel
 import zone.ien.utils.cmp_ui.generated.resources.close
@@ -32,6 +33,7 @@ enum class UIAlertActionStyle {
  * @param styleDismiss 닫기 버튼 스타일
  * @param enabledDismiss 닫기 버튼 활성화 여부
  * @param onDismiss 닫기 버튼 클릭 시 실행할 함수
+ * @param tone 강조 요소에 적용할 의미 색상 톤
  * @return 단일 버튼 알림 다이얼로그 컴포저블
  */
 @Composable
@@ -44,6 +46,7 @@ expect fun AlertDialog(
     textDismiss: String = stringResource(Res.string.close),
     styleDismiss: UIAlertActionStyle = UIAlertActionStyle.Cancel,
     enabledDismiss: Boolean = true,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     onDismiss: (() -> Unit)?,
 )
 
@@ -64,6 +67,7 @@ expect fun AlertDialog(
  * @param enabledConfirm 확인 버튼 활성화 여부
  * @param buttonLayout 확인/취소 버튼의 배치 방향
  * @param enabledDismiss 취소 버튼 활성화 여부
+ * @param tone 강조 요소에 적용할 의미 색상 톤
  * @return 확인/취소 버튼 알림 다이얼로그 컴포저블
  */
 @Composable
@@ -82,6 +86,7 @@ expect fun AlertDialog(
     enabledConfirm: Boolean = true,
     buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Horizontal,
     enabledDismiss: Boolean = true,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 )
 
 /**
@@ -105,6 +110,7 @@ expect fun AlertDialog(
  * @param enabledPositive 긍정 버튼 활성화 여부
  * @param buttonLayout 긍정/부정/중립 버튼의 배치 방향
  * @param enabledNegative 부정 버튼 활성화 여부
+ * @param tone 강조 요소에 적용할 의미 색상 톤
  * @return 긍정/부정/중립 버튼 알림 다이얼로그 컴포저블
  */
 @Composable
@@ -127,4 +133,5 @@ expect fun AlertDialog(
     enabledPositive: Boolean = true,
     buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Vertical,
     enabledNegative: Boolean = true,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 )

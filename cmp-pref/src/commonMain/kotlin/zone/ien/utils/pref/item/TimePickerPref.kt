@@ -24,6 +24,7 @@ import zone.ien.utils.adaptive.section.IenSectionLinkAdaptation
 import zone.ien.utils.pref.LocalPrefsAdaptive
 import zone.ien.utils.pref.LocalPrefsDataStore
 import zone.ien.utils.ui.dialog.IenTimePickerDialog
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.section.IenSectionColors
 import zone.ien.utils.ui.section.IenSectionLinkDefault
 
@@ -46,6 +47,7 @@ import zone.ien.utils.ui.section.IenSectionLinkDefault
  * @param onClickLabel 클릭 동작의 접근성 레이블
  * @param indication 클릭 시 시각적 피드백
  * @param trailingContent 설정 항목 뒤에 표시할 콘텐츠
+ * @param tone 내부 다이얼로그의 강조 색상 톤
  * @param dialogModifier 다이얼로그에 적용할 Modifier
  * @param is24Hour 24시간 표시 여부. Adaptive iOS에서는 시스템 설정을 따릅니다.
  * @param showIcon 앞쪽 콘텐츠를 표시할지 여부
@@ -69,6 +71,7 @@ fun SectionScope.TimePickerPref(
     adaptation: AdaptationScope<HigSectionLinkAdaptation, IenSectionLinkAdaptation>.() -> Unit = {},
     dialogModifier: Modifier = Modifier,
     is24Hour: Boolean = false,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var showDialog by rememberSaveable(key.name) { mutableStateOf(false) }
@@ -99,6 +102,7 @@ fun SectionScope.TimePickerPref(
 
     PrefsTimePickerDialog(
         modifier = dialogModifier,
+        tone = tone,
         is24Hour = is24Hour,
         visible = showDialog,
         initialHour = value / 60,
@@ -136,6 +140,7 @@ fun SectionScope.TimePickerPref(
  * @param onClickLabel 클릭 동작의 접근성 레이블
  * @param indication 클릭 시 시각적 피드백
  * @param trailingContent 설정 항목 뒤에 표시할 콘텐츠
+ * @param tone 내부 다이얼로그의 강조 색상 톤
  * @param dialogModifier 다이얼로그에 적용할 Modifier
  * @param is24Hour 24시간 표시 여부. Adaptive iOS에서는 시스템 설정을 따릅니다.
  * @param showIcon 앞쪽 콘텐츠를 표시할지 여부
@@ -159,6 +164,7 @@ fun SectionScope.TimePickerPref(
     adaptation: AdaptationScope<HigSectionLinkAdaptation, IenSectionLinkAdaptation>.() -> Unit = {},
     dialogModifier: Modifier = Modifier,
     is24Hour: Boolean = false,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     val dataStore = LocalPrefsDataStore.current
     val prefs by remember(dataStore) { dataStore.data }.collectAsState(initial = null)
@@ -180,6 +186,7 @@ fun SectionScope.TimePickerPref(
         trailingContent = trailingContent,
         adaptation = adaptation,
         dialogModifier = dialogModifier,
+        tone = tone,
         is24Hour = is24Hour,
 
     )
@@ -195,15 +202,18 @@ private fun PrefsTimePickerDialog(
     is24Hour: Boolean,
     title: String,
     onDismiss: () -> Unit,
+    tone: IenSemanticTone,
     onConfirm: (Int, Int) -> Unit,
 ) {
     if (LocalPrefsAdaptive.current) {
         TimePickerDialog(
+            tone = tone,
             modifier = modifier, visible = visible, initialHour = initialHour, initialMinute = initialMinute,
             is24Hour = is24Hour, title = title, onDismiss = onDismiss, onConfirm = onConfirm,
         )
     } else {
         IenTimePickerDialog(
+            tone = tone,
             modifier = modifier, visible = visible, initialHour = initialHour, initialMinute = initialMinute,
             is24Hour = is24Hour, title = title, onDismiss = onDismiss, onConfirm = onConfirm,
         )
