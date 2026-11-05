@@ -2206,24 +2206,15 @@ fun BottomSheetSection(controls: Map<String, String> = emptyMap()) {
             disableDimmer = controls.booleanValue("disableDimmer", false),
             header = { Text("바텀시트", style = IenTheme.typography.title3) },
             cta = {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)
-                ) {
-                    IenButton(
-                        onClick = { sheetState.hide() },
-                        modifier = Modifier.weight(1f),
-                        variant = IenButtonVariant.Weak,
-                    ) {
-                        Text("닫기")
-                    }
-                    IenButton(
-                        onClick = { sheetState.hide() },
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Text("확인")
-                    }
-                }
+                IenDoubleBottomCTA(
+                    primaryText = "확인",
+                    onPrimaryClick = { sheetState.hide() },
+                    secondaryText = "닫기",
+                    onSecondaryClick = { sheetState.hide() },
+                    background = IenBottomCTABackground.None,
+                    hasSafeAreaPadding = false,
+                    hasPaddingBottom = false,
+                )
             },
         ) {
             Text(

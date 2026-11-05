@@ -237,16 +237,24 @@ fun IenScaffold(
     val retainedScaffoldContent = remember {
         movableContentOf<PaddingValues> { padding -> currentScaffoldContent(padding) }
     }
+    val currentTopBar by rememberUpdatedState(topBar)
+    val retainedTopBar = remember { movableContentOf { currentTopBar() } }
+    val currentBottomBar by rememberUpdatedState(bottomBar)
+    val retainedBottomBar = remember { movableContentOf { currentBottomBar?.invoke() } }
+    val currentSnackbarHost by rememberUpdatedState(snackbarHost)
+    val retainedSnackbarHost = remember { movableContentOf { currentSnackbarHost() } }
+    val currentFloating by rememberUpdatedState(floating)
+    val retainedFloating = remember { movableContentOf { currentFloating() } }
     CompositionLocalProvider(LocalIenBarPlacement provides placement) {
         if (isSideBar) {
             IenSideBarScaffold(
                 modifier = modifier,
                 placement = placement,
                 topBarVisibility = topBarVisibility,
-                topBar = topBar,
-                bottomBar = bottomBar,
-                snackbarHost = snackbarHost,
-                floating = floating,
+                topBar = retainedTopBar,
+                bottomBar = retainedBottomBar.takeIf { bottomBar != null },
+                snackbarHost = retainedSnackbarHost,
+                floating = retainedFloating,
                 floatingPosition = floatingActionButtonPosition,
                 containerColor = containerColor,
                 contentColor = contentColor,
@@ -260,15 +268,15 @@ fun IenScaffold(
                     Box(Modifier.graphicsLayer {
                         translationY = -size.height * (1f - topBarVisibility)
                         alpha = topBarVisibility
-                    }) { topBar() }
+                    }) { retainedTopBar() }
                 },
                 bottomBar = {
                     if (bottomBar != null) {
-                        Box(Modifier.onSizeChanged { bottomBarHeightPx = it.height }) { bottomBar() }
+                        Box(Modifier.onSizeChanged { bottomBarHeightPx = it.height }) { retainedBottomBar() }
                     }
                 },
-                snackbarHost = snackbarHost,
-                floatingActionButton = floating,
+                snackbarHost = retainedSnackbarHost,
+                floatingActionButton = retainedFloating,
                 floatingActionButtonPosition = floatingActionButtonPosition,
                 containerColor = containerColor,
                 contentColor = contentColor,

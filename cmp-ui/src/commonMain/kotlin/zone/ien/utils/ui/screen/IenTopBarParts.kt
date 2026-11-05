@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,7 +28,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -183,7 +185,7 @@ fun IenTopBar(
     actions: (@Composable RowScope.() -> Unit)? = null,
     titleAlignment: IenTopBarTitleAlignment = IenTopBarTitleAlignment.Start,
     showDivider: Boolean = false,
-    windowInsets: WindowInsets = WindowInsets.statusBars,
+    windowInsets: WindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
     contentPadding: PaddingValues = PaddingValues(
         horizontal = IenTheme.spacing.md,
         vertical = IenTheme.spacing.xxs + IenTheme.spacing.xxxs,
@@ -251,7 +253,7 @@ fun IenTopBar(
     actions: (@Composable RowScope.() -> Unit)? = null,
     titleAlignment: IenTopBarTitleAlignment = IenTopBarTitleAlignment.Start,
     showDivider: Boolean = false,
-    windowInsets: WindowInsets = WindowInsets.statusBars,
+    windowInsets: WindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
     contentPadding: PaddingValues = PaddingValues(
         horizontal = IenTheme.spacing.md,
         vertical = IenTheme.spacing.xxs + IenTheme.spacing.xxxs,
@@ -280,12 +282,18 @@ fun IenTopBar(
     val insetPadding = windowInsets.asPaddingValues()
     val topPadding = maxOf(insetPadding.calculateTopPadding(), placement?.titleTopInset ?: 0.dp)
     val layoutDirection = LocalLayoutDirection.current
-    val titlePadding = if (placement != null) PaddingValues(
-        start = contentPadding.calculateStartPadding(layoutDirection) + if (layoutDirection == LayoutDirection.Rtl) placement.sideWidth else 0.dp,
-        end = contentPadding.calculateEndPadding(layoutDirection) + if (layoutDirection == LayoutDirection.Ltr) placement.sideWidth else 0.dp,
+    val titlePadding = PaddingValues(
+        start = contentPadding.calculateStartPadding(layoutDirection) + maxOf(
+            insetPadding.calculateStartPadding(layoutDirection),
+            if (layoutDirection == LayoutDirection.Rtl) placement?.sideWidth ?: 0.dp else 0.dp,
+        ),
+        end = contentPadding.calculateEndPadding(layoutDirection) + maxOf(
+            insetPadding.calculateEndPadding(layoutDirection),
+            if (layoutDirection == LayoutDirection.Ltr) placement?.sideWidth ?: 0.dp else 0.dp,
+        ),
         top = contentPadding.calculateTopPadding(),
         bottom = contentPadding.calculateBottomPadding(),
-    ) else contentPadding
+    )
     Column(
         modifier = modifier
             .fillMaxWidth()

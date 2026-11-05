@@ -6,6 +6,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.uikit.LocalUIViewController
+import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
@@ -14,6 +15,7 @@ import platform.UIKit.UIViewAutoresizingFlexibleHeight
 import platform.UIKit.UIViewAutoresizingFlexibleWidth
 import zone.ien.utils.ui.uikit.IENStatusRegion
 import zone.ien.utils.ui.uikit.IENCameraRegion
+import zone.ien.utils.ui.uikit.IENDivisionRegion
 import zone.ien.utils.ui.uikit.IENObserveHinge
 import zone.ien.utils.ui.uikit.IENRemoveHingeObserver
 
@@ -43,10 +45,23 @@ internal actual fun rememberIenBarPlacement(): State<IenBarPlacement?> {
             }
 
             private fun updatePlacement() {
+                val divisionBounds = IENDivisionRegion(parent).useContents {
+                    if (size.width > 0.0 && size.height > 0.0) {
+                        DpRect(
+                            origin.x.dp,
+                            origin.y.dp,
+                            (origin.x + size.width).dp,
+                            (origin.y + size.height).dp,
+                        )
+                    } else null
+                }
                 placement.value = IENStatusRegion(parent).useContents {
                     val isSide = (hasHinge && parent.safeAreaInsets.useContents { right > 0.0 }) ||
                         (size.width > 0.0 && size.height > size.width)
-                    if (!isSide) return@useContents if (hasHinge) IenBarPlacement() else null
+                    if (!isSide) return@useContents if (hasHinge) IenBarPlacement(
+                        isHingeClosed = isHingeClosed,
+                        divisionBounds = divisionBounds,
+                    ) else null
                     val viewWidth = parent.bounds.useContents { size.width }
                     val viewHeight = parent.bounds.useContents { size.height }
                     val statusTop = origin.y
@@ -60,6 +75,8 @@ internal actual fun rememberIenBarPlacement(): State<IenBarPlacement?> {
                     val camera = IENCameraRegion(parent)
                     IenBarPlacement(
                         sideWidth = sideWidth.dp,
+                        isHingeClosed = isHingeClosed.takeIf { hasHinge },
+                        divisionBounds = divisionBounds,
                         controlsTop = (if (statusTop < viewHeight / 2) statusBottom + 8.0
                             else parent.safeAreaInsets.useContents { top } + 8.0).dp,
                         controlsBottom = (if (statusTop >= viewHeight / 2) viewHeight - statusTop + 8.0

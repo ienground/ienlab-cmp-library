@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -116,6 +117,7 @@ fun BottomCTATestScreen(
                 Box(Modifier.fillMaxSize()) {
                     Column(
                         modifier = Modifier.fillMaxSize()
+                            .imePadding()
                             .verticalScroll(rememberScrollState())
                             .padding(contentPadding)
                             .padding(IenTheme.spacing.md),
@@ -204,6 +206,7 @@ fun BottomCTATestScreen(
                             )
                         } else {
                             IenFixedDoubleBottomCTA(
+                                fixedAboveKeyboard = true,
                                 topAccessory = topAccessory,
                                 leftButtonWeight = 1f,
                                 rightButtonWeight = 2f,
