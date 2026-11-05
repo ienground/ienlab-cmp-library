@@ -56,14 +56,22 @@ internal actual fun rememberIenBarPlacement(): State<IenBarPlacement?> {
                     } else null
                 }
                 placement.value = IENStatusRegion(parent).useContents {
+                    val viewWidth = parent.bounds.useContents { size.width }
+                    val viewHeight = parent.bounds.useContents { size.height }
                     val isSide = (hasHinge && parent.safeAreaInsets.useContents { right > 0.0 }) ||
                         (size.width > 0.0 && size.height > size.width)
                     if (!isSide) return@useContents if (hasHinge) IenBarPlacement(
                         isHingeClosed = isHingeClosed,
                         divisionBounds = divisionBounds,
+                        topStatusBounds = if (size.width > 0.0 && size.height > 0.0 && origin.y < viewHeight / 2) {
+                            DpRect(
+                                origin.x.coerceIn(0.0, viewWidth).dp,
+                                origin.y.coerceAtLeast(0.0).dp,
+                                viewWidth.dp,
+                                (origin.y + size.height).coerceIn(0.0, viewHeight).dp,
+                            )
+                        } else null,
                     ) else null
-                    val viewWidth = parent.bounds.useContents { size.width }
-                    val viewHeight = parent.bounds.useContents { size.height }
                     val statusTop = origin.y
                     val statusBottom = origin.y + size.height
                     val controlsWidth = 72.0

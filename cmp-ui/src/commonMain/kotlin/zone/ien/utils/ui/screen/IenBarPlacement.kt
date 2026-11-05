@@ -35,6 +35,7 @@ internal data class IenBarPlacement(
     val titleTopInset: Dp = 0.dp,
     val isHingeClosed: Boolean? = null,
     val divisionBounds: DpRect? = null,
+    val topStatusBounds: DpRect? = null,
 )
 
 internal val LocalIenBarPlacement = compositionLocalOf<IenBarPlacement?> { null }

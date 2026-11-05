@@ -161,6 +161,7 @@ data class IenTopSubtitleBadge(
 
 /**
  * 문자열 형식의 타이틀을 사용하는 상단 앱 바 컴포저블입니다.
+ * Duo의 상단 시스템 표시 영역이 있으면 해당 영역 왼쪽에 같은 높이로 배치합니다.
  *
  * @param title 제목 텍스트
  * @param modifier 적용할 Modifier
@@ -229,6 +230,7 @@ fun IenTopBar(
 
 /**
  * 컴포저블 형식의 타이틀을 사용하는 상단 앱 바 컴포저블입니다.
+ * Duo의 상단 시스템 표시 영역이 있으면 해당 영역 왼쪽에 같은 높이로 배치합니다.
  *
  * @param title 제목 영역 컴포저블
  * @param modifier 적용할 Modifier
@@ -278,18 +280,24 @@ fun IenTopBar(
                 }
             }
         } else null
-    val placement = LocalIenBarPlacement.current?.takeIf { it.sideWidth > 0.dp }
+    val barPlacement = LocalIenBarPlacement.current
+    val placement = barPlacement?.takeIf { it.sideWidth > 0.dp }
+    val topStatusBounds = barPlacement?.topStatusBounds?.takeIf { placement == null }
     val insetPadding = windowInsets.asPaddingValues()
-    val topPadding = maxOf(insetPadding.calculateTopPadding(), placement?.titleTopInset ?: 0.dp)
+    val topPadding = topStatusBounds?.let {
+        ((it.top + it.bottom - contentHeight) / 2).coerceAtLeast(0.dp)
+    } ?: maxOf(insetPadding.calculateTopPadding(), placement?.titleTopInset ?: 0.dp)
+    val barHeight = maxOf(topPadding + contentHeight, topStatusBounds?.bottom ?: 0.dp)
+    val rightReservedWidth = placement?.sideWidth ?: topStatusBounds?.let { it.right - it.left } ?: 0.dp
     val layoutDirection = LocalLayoutDirection.current
     val titlePadding = PaddingValues(
         start = contentPadding.calculateStartPadding(layoutDirection) + maxOf(
             insetPadding.calculateStartPadding(layoutDirection),
-            if (layoutDirection == LayoutDirection.Rtl) placement?.sideWidth ?: 0.dp else 0.dp,
+            if (layoutDirection == LayoutDirection.Rtl) rightReservedWidth else 0.dp,
         ),
         end = contentPadding.calculateEndPadding(layoutDirection) + maxOf(
             insetPadding.calculateEndPadding(layoutDirection),
-            if (layoutDirection == LayoutDirection.Ltr) placement?.sideWidth ?: 0.dp else 0.dp,
+            if (layoutDirection == LayoutDirection.Ltr) rightReservedWidth else 0.dp,
         ),
         top = contentPadding.calculateTopPadding(),
         bottom = contentPadding.calculateBottomPadding(),
@@ -297,7 +305,7 @@ fun IenTopBar(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .requiredHeight(topPadding + contentHeight)
+            .requiredHeight(barHeight)
             .background(containerColor),
     ) {
         if (titleAlignment == IenTopBarTitleAlignment.Center) {
