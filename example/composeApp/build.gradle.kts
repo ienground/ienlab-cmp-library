@@ -84,9 +84,14 @@ kotlin {
            implementation(projects.cmpPref)
            implementation(projects.cmpFilekit)
            implementation(projects.cmpFirebase)
+            implementation(projects.cmpWebview)
        }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+        }
+
+        iosTest.dependencies {
+            implementation(libs.compose.ui.test)
         }
     }
 }

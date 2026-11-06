@@ -8,6 +8,7 @@ struct iOSApp: App {
     init() {
         FirebaseApp.configure()
         KoinInitializerKt.doInitKoin(additionalModules: [], appDeclaration: {_ in })
+        DeviceStressMonitor.startIfRequested()
     }
 
     var body: some Scene {

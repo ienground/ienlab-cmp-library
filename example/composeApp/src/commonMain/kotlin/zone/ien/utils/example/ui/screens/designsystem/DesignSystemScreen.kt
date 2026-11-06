@@ -349,14 +349,14 @@ import zone.ien.utils.ui.view.IenNavigationBarItem
 import zone.ien.utils.ui.view.IenNavigationBarItemDirection
 import zone.ien.utils.utils.checkDecimal
 
-private data class DesignSystemComponent(
+internal data class DesignSystemComponent(
     val id: String,
     val name: String,
     val category: String,
     val description: String,
 )
 
-private val DesignSystemComponents = listOf(
+internal val DesignSystemComponents = listOf(
     DesignSystemComponent("prefs-picker", "Prefs Picker", "입력", "설정 항목에서 날짜·시각·기간을 선택하고 확인·취소 동작을 체험합니다."),
     DesignSystemComponent("wheel-picker", "WheelPicker", "입력", "날짜·정확한 시각·시간/분/초 기간을 휠로 선택합니다."),
     DesignSystemComponent("animated-layout", "AnimatedLayout", "레이아웃", "목록 항목이 추가되거나 제거될 때 크기와 표시 상태를 전환합니다."),
@@ -425,12 +425,12 @@ private val DesignSystemComponents = listOf(
     DesignSystemComponent("primitives", "Primitives", "기초", "공통 표면과 아이콘 기본 요소입니다."),
 )
 
-private data class PlaygroundChoice(
+internal data class PlaygroundChoice(
     val label: String,
     val value: String = label,
 )
 
-private data class PlaygroundControl(
+internal data class PlaygroundControl(
     val key: String,
     val label: String,
     val defaultValue: String,
@@ -441,6 +441,25 @@ private data class PlaygroundControl(
     val maxValue: Int? = null,
     val allowDecimal: Boolean = false,
 )
+
+internal fun PlaygroundControl.stressAlternateValue(): String = when {
+    isToggle -> (!defaultValue.toBooleanStrict()).toString()
+    choices.isNotEmpty() -> choices
+        .firstOrNull { it.value != defaultValue }
+        ?.value
+        ?: defaultValue
+    minValue != null && maxValue != null -> {
+        val currentValue = defaultValue.toFloatOrNull()
+        val alternateValue = if (currentValue == maxValue.toFloat()) {
+            minValue.toFloat()
+        } else {
+            maxValue.toFloat()
+        }
+        if (allowDecimal) alternateValue.toString() else alternateValue.toInt().toString()
+    }
+    isTextInput -> "$defaultValue iOS"
+    else -> defaultValue
+}
 
 private fun toggleControl(
     key: String,
@@ -1085,7 +1104,7 @@ private val AdditionalComponentPlaygroundControls = mapOf(
     ),
 )
 
-private fun playgroundControls(componentId: String): List<PlaygroundControl> {
+internal fun playgroundControls(componentId: String): List<PlaygroundControl> {
     return ComponentPlaygroundControls[componentId].orEmpty() +
         AdditionalComponentPlaygroundControls[componentId].orEmpty()
 }

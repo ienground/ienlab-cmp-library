@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
@@ -175,12 +176,14 @@ fun IenScaffold(
     val scrollFadeDistancePx = with(LocalDensity.current) {
         effectiveContentEdge.scrollFadeDistance.toPx().coerceAtLeast(1f)
     }
-    val scrollTopProgress = effectiveContentEdge.scrollableState?.topEdgeProgress(scrollFadeDistancePx)
-        ?: 0f
-    val scrollBottomProgress = effectiveContentEdge.scrollableState?.bottomEdgeProgress(scrollFadeDistancePx)
-        ?: 0f
-    val effectiveTopProgress = effectiveContentEdge.topProgress.coerceIn(0f, 1f) * scrollTopProgress
-    val effectiveBottomProgress = effectiveContentEdge.bottomProgress.coerceIn(0f, 1f) * scrollBottomProgress
+    val effectiveTopProgress = {
+        effectiveContentEdge.topProgress.coerceIn(0f, 1f) *
+            (effectiveContentEdge.scrollableState?.topEdgeProgress(scrollFadeDistancePx) ?: 0f)
+    }
+    val effectiveBottomProgress = {
+        effectiveContentEdge.bottomProgress.coerceIn(0f, 1f) *
+            (effectiveContentEdge.scrollableState?.bottomEdgeProgress(scrollFadeDistancePx) ?: 0f)
+    }
     var bottomBarHeightPx by remember { mutableStateOf(0) }
     val targetBottomBarHeight = if (bottomBar == null) {
         0.dp
@@ -401,22 +404,24 @@ private fun IenScaffoldEdgeBlur(
     backdrop: LayerBackdrop,
     showTop: Boolean,
     showBottom: Boolean,
-    topProgress: Float,
+    topProgress: () -> Float,
     topBarVisibility: Float,
-    bottomProgress: Float,
+    bottomProgress: () -> Float,
     topHeight: Dp,
     topFadeHeight: Dp,
     bottomHeight: Dp,
     radius: Dp,
     color: Color,
 ) {
+    val hasTopProgress by remember(topProgress) { derivedStateOf { topProgress() > 0f } }
+    val hasBottomProgress by remember(bottomProgress) { derivedStateOf { bottomProgress() > 0f } }
     val animatedTopHeight by animateDpAsState(
         targetValue = topHeight,
         animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing),
         label = "top_bar_blur_height",
     )
     Box(modifier = modifier) {
-        if (showTop && topProgress > 0f) {
+        if (showTop && hasTopProgress) {
             Box(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
@@ -459,13 +464,13 @@ private fun IenScaffoldEdgeBlur(
                                 setFloatUniform("solidFraction", TopBlurSolidFraction)
                                 setColorUniform("tint", color.copy(alpha = 0.42f))
                                 setFloatUniform("tintIntensity", 0.24f)
-                                setFloatUniform("edgeIntensity", topProgress)
+                                setFloatUniform("edgeIntensity", topProgress())
                             }
                         },
                     ),
             )
         }
-        if (showBottom && bottomProgress > 0f) {
+        if (showBottom && hasBottomProgress) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -499,7 +504,7 @@ private fun IenScaffoldEdgeBlur(
                                 setFloatUniform("size", size.width, size.height)
                                 setColorUniform("tint", color.copy(alpha = 0.42f))
                                 setFloatUniform("tintIntensity", 0.24f)
-                                setFloatUniform("edgeIntensity", bottomProgress)
+                                setFloatUniform("edgeIntensity", bottomProgress())
                             }
                         },
                     ),
