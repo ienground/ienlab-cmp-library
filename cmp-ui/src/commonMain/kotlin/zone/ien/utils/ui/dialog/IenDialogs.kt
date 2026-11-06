@@ -16,13 +16,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.clickable
+import zone.ien.utils.ui.menu.IenModal
+import zone.ien.utils.ui.window.ienOverlayDialogProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.kyant.capsule.ContinuousRoundedRectangle
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
@@ -513,28 +515,30 @@ private fun IenDialogFrame(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     LaunchedEffect(visible) {
-        if (visible) {
-            onEntered?.invoke()
-        } else {
-            onExited?.invoke()
-        }
+        if (visible) onEntered?.invoke()
     }
-    if (!visible) return
-    Dialog(
-        onDismissRequest = {
-            if (closeOnDimmerClick || closeOnBackEvent) {
-                onClose()
-            }
-        },
-        properties = DialogProperties(
+    IenModal(
+        open = visible,
+        onOpenChange = { if (!it) onClose() },
+        onExited = onExited,
+        properties = ienOverlayDialogProperties(
             dismissOnBackPress = closeOnBackEvent,
-            dismissOnClickOutside = closeOnDimmerClick,
+            dismissOnClickOutside = false,
         ),
     ) {
+        IenModal.Overlay(onClick = if (closeOnDimmerClick) onClose else null)
         IenSurface(
             modifier = modifier
+                .align(Alignment.Center)
+                .padding(horizontal = IenTheme.spacing.xl)
+                .widthIn(max = 320.dp)
                 .fillMaxWidth()
-                .widthIn(max = 320.dp),
+                .clickable(
+                    indication = null,
+                    interactionSource = androidx.compose.runtime.remember {
+                        androidx.compose.foundation.interaction.MutableInteractionSource()
+                    },
+                ) {},
             color = IenTheme.colors.surfaceRaised,
             shape = ContinuousRoundedRectangle(IenTheme.radius.xl),
             tonalElevation = IenTheme.elevation.overlay,

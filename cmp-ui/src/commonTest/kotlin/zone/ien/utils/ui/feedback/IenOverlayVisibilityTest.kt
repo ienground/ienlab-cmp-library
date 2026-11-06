@@ -8,8 +8,19 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import zone.ien.utils.ui.window.shouldUseIenOverlayWindowBounds
+import zone.ien.utils.ui.window.isIenOverlayReady
 
 class IenOverlayVisibilityTest {
+    @Test
+    fun `회전 전 윈도우 크기나 첫 배치가 남아 있으면 오버레이 진입을 시작하지 않는다`() {
+        val portrait = IntSize(466, 678)
+        val landscape = IntSize(678, 466)
+        assertFalse(isIenOverlayReady(landscape, portrait, landscape))
+        assertFalse(isIenOverlayReady(landscape, landscape, IntSize.Zero))
+        assertFalse(isIenOverlayReady(landscape, landscape, portrait))
+        assertTrue(isIenOverlayReady(landscape, landscape, landscape))
+    }
+
     @Test
     fun `닫힘 전환 중인 오버레이는 종료 애니메이션을 위해 유지된다`() {
         assertTrue(shouldKeepIenOverlayMounted(visible = false, mounted = true))
@@ -61,16 +72,16 @@ class IenOverlayVisibilityTest {
     fun `Duo Medium은 디자인 원본의 하단 여백과 너비를 따른다`() {
         val density = Density(1f)
         assertEquals(IntRect(8, 314, 458, 670), ienDuoSheetBounds(IntSize(466, 678), false, 0f, density))
-        assertEquals(IntRect(8, 8, 670, 466), ienDuoSheetBounds(IntSize(678, 466), false, 0f, density))
+        assertEquals(IntRect(8, 37, 670, 458), ienDuoSheetBounds(IntSize(678, 466), false, 0f, density))
         assertEquals(IntRect(8, 587, 661, 943), ienDuoSheetBounds(IntSize(669, 951), true, 0f, density))
         assertEquals(IntRect(149, 305, 802, 661), ienDuoSheetBounds(IntSize(951, 669), true, 0f, density))
     }
 
     @Test
-    fun `Duo Full은 디자인 원본의 상단 여백부터 하단까지 펼쳐진다`() {
+    fun `Duo Full은 외부 화면의 상하 여백과 내부 화면의 상단 여백을 유지한다`() {
         val density = Density(1f)
-        assertEquals(IntRect(8, 8, 458, 678), ienDuoSheetBounds(IntSize(466, 678), false, 1f, density))
-        assertEquals(IntRect(8, 8, 670, 466), ienDuoSheetBounds(IntSize(678, 466), false, 1f, density))
+        assertEquals(IntRect(8, 54, 458, 670), ienDuoSheetBounds(IntSize(466, 678), false, 1f, density))
+        assertEquals(IntRect(8, 37, 670, 458), ienDuoSheetBounds(IntSize(678, 466), false, 1f, density))
         assertEquals(IntRect(8, 82, 661, 951), ienDuoSheetBounds(IntSize(669, 951), true, 1f, density))
         assertEquals(IntRect(149, 82, 802, 669), ienDuoSheetBounds(IntSize(951, 669), true, 1f, density))
     }

@@ -2,14 +2,11 @@ package zone.ien.utils.ui.feedback
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -34,6 +31,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,10 +39,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.contentDescription
@@ -81,6 +82,7 @@ import zone.ien.utils.ui.screen.rememberIenBarPlacement
 import zone.ien.utils.ui.window.disablePlatformDialogDim
 import zone.ien.utils.ui.window.ienOverlayDialogProperties
 import zone.ien.utils.ui.window.ienOverlayWindowSize
+import zone.ien.utils.ui.window.rememberIenOverlayWindowSize
 import kotlin.math.roundToInt
 
 /**
@@ -88,7 +90,7 @@ import kotlin.math.roundToInt
  *
  * - [Content]: 콘텐츠의 본래 높이만큼만 펼쳐집니다.
  * - [Medium]: 기본적으로 화면 높이의 50%를 사용하며, Duo에서는 356pt 높이로 하단에 배치합니다.
- * - [Full]: 기본적으로 화면 높이의 92%를 사용하며, Duo에서는 상단 여백을 제외하고 펼칩니다.
+ * - [Full]: 기본적으로 화면 높이의 92%를 사용하며, Duo 내부 화면에서는 상단 여백을 제외하고, 외부 화면에서는 하단 여백을 유지하며 최대 92%까지 펼칩니다.
  * Duo 외부 화면의 가로 방향에서는 [Medium]도 [Full] 높이를 사용합니다.
  */
 enum class IenSheetDetent { Content, Medium, Full }
@@ -124,11 +126,13 @@ internal fun ienDuoSheetBounds(
     val width = (available.width - horizontalInset * 2)
         .coerceAtMost(if (innerDisplay) 653.dp.roundToPx() else windowSize.width)
     val left = available.left + (available.width - width) / 2
-    val top = maxOf(available.top + edgeInset, if (innerDisplay) 82.dp.roundToPx() else edgeInset)
+    val fullTop = if (innerDisplay) 82.dp.roundToPx() else
+        available.top + (available.height * (1f - IenSheetFullHeightFraction)).roundToInt()
+    val top = maxOf(available.top + edgeInset, fullTop)
         .coerceAtMost(available.bottom)
     val compactLandscape = !innerDisplay && windowSize.width > windowSize.height
     val progress = if (compactLandscape && !contentSized) 1f else expansionProgress.coerceIn(0f, 1f)
-    val bottomInset = (edgeInset * (1f - progress)).roundToInt()
+    val bottomInset = (edgeInset * if (innerDisplay) (1f - progress) else 1f).roundToInt()
         .coerceAtMost(available.bottom - top)
     val bottom = available.bottom - bottomInset
     val maxHeight = bottom - top
@@ -313,7 +317,9 @@ private fun IenBottomSheetInternal(
     val coroutineScope = rememberCoroutineScope()
     val dragOffsetY = remember { Animatable(0f) }
     val expansionProgress = remember(state) { Animatable(state.detent.expansionProgress()) }
-    var mounted by remember { mutableStateOf(state.visible) }
+    val visibility = remember { MutableTransitionState(false) }
+    if (!state.visible) visibility.targetState = false
+    var wasVisible by remember { mutableStateOf(false) }
     val density = LocalDensity.current
     val thresholdPx = with(density) { 150.dp.toPx() }
     val sheetHorizontalInset = IenTheme.spacing.sm + IenTheme.spacing.xxxs
@@ -321,38 +327,30 @@ private fun IenBottomSheetInternal(
     val motion = IenTheme.motion
     val normalMillis = motion.normalMillis
     val standardEasing = motion.standardEasing
-    val overlayAlpha by animateFloatAsState(
-        targetValue = if (state.visible) 1f else 0f,
-        animationSpec = tween(motion.fastMillis),
-        label = "bottom_sheet_overlay_alpha",
-    )
-
-    LaunchedEffect(state.visible) {
-        if (state.visible) {
-            mounted = true
-            dragOffsetY.snapTo(0f)
-            expansionProgress.snapTo(state.detent.expansionProgress())
-        } else if (mounted) {
-            delay(normalMillis.toLong())
-            mounted = false
-        }
-    }
-
-    LaunchedEffect(state.detent) {
-        val targetProgress = state.detent.expansionProgress()
-        if (state.visible) {
-            expansionProgress.animateTo(
-                targetValue = targetProgress,
-                animationSpec = tween(normalMillis, easing = standardEasing),
-            )
-        } else {
-            expansionProgress.snapTo(targetProgress)
-        }
-    }
-
-    if (!shouldKeepIenOverlayMounted(state.visible, mounted)) return
+    val hostWindowSize by rememberIenOverlayWindowSize()
 
     val devicePlacement by rememberIenBarPlacement()
+
+    LaunchedEffect(state.visible, state.detent) {
+        val opening = state.visible && !wasVisible
+        wasVisible = state.visible
+        if (state.visible) {
+            if (opening) {
+                dragOffsetY.snapTo(0f)
+                expansionProgress.snapTo(state.detent.expansionProgress())
+            } else {
+                expansionProgress.animateTo(
+                    targetValue = state.detent.expansionProgress(),
+                    animationSpec = tween(normalMillis, easing = standardEasing),
+                )
+            }
+        }
+    }
+
+    if (!state.visible && !visibility.currentState && !visibility.targetState && visibility.isIdle) return
+
+    val displayedExpansionProgress = if (!visibility.currentState && state.visible)
+        state.detent.expansionProgress() else expansionProgress.value
     val placement = devicePlacement ?: LocalIenBarPlacement.current
     val isDuo = placement?.isHingeClosed != null
     val innerDisplay = placement?.isHingeClosed == false
@@ -367,7 +365,19 @@ private fun IenBottomSheetInternal(
         ),
     ) {
         disablePlatformDialogDim()
-        val windowSize = LocalWindowInfo.current.containerSize
+        val windowSize = hostWindowSize
+        var laidOut by remember { mutableStateOf(false) }
+        LaunchedEffect(state.visible, laidOut) {
+            if (state.visible && laidOut) {
+                withFrameNanos { }
+                visibility.targetState = true
+            }
+        }
+        val transition = rememberTransition(visibility, label = "bottom_sheet_visibility")
+        val overlayAlpha by transition.animateFloat(
+            transitionSpec = { tween(normalMillis, easing = standardEasing) },
+            label = "bottom_sheet_overlay_alpha",
+        ) { visible -> if (visible) 1f else 0f }
         val division = with(density) {
             placement?.divisionBounds?.let {
                 IntRect(it.left.roundToPx(), it.top.roundToPx(), it.right.roundToPx(), it.bottom.roundToPx())
@@ -377,7 +387,7 @@ private fun IenBottomSheetInternal(
             ienDuoSheetBounds(
                 windowSize = windowSize,
                 innerDisplay = innerDisplay,
-                expansionProgress = if (state.detent.isExpandable()) expansionProgress.value else 0f,
+                expansionProgress = if (state.detent.isExpandable()) displayedExpansionProgress else 0f,
                 density = density,
                 division = division,
                 contentSized = !state.detent.isExpandable(),
@@ -486,13 +496,16 @@ private fun IenBottomSheetInternal(
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .ienOverlayWindowSize(),
+                .ienOverlayWindowSize(windowSize)
+                .onGloballyPositioned { laidOut = true },
             contentAlignment = Alignment.BottomCenter,
         ) {
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .background(overlayColor.copy(alpha = overlayColor.alpha * overlayAlpha))
+                    .drawBehind {
+                        drawRect(overlayColor.copy(alpha = overlayColor.alpha * overlayAlpha))
+                    }
                     .clickable(
                         enabled = dismissOnScrimClick && state.visible,
                         indication = null,
@@ -519,27 +532,21 @@ private fun IenBottomSheetInternal(
                     }),
                 contentAlignment = Alignment.BottomCenter,
             ) {
-                AnimatedVisibility(
-                    visible = state.visible,
-                    enter = slideInVertically(
-                        initialOffsetY = { it },
-                        animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing)
-                    ) + fadeIn(tween(IenTheme.motion.fastMillis)),
-                    exit = slideOutVertically(
-                        targetOffsetY = { it },
-                        animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing)
-                    ) + fadeOut(tween(IenTheme.motion.fastMillis)),
+                Box(
                     modifier = Modifier
                         .then(if (!isDuo && sidePlacement == null) Modifier.widthIn(max = 520.dp) else Modifier)
                         .fillMaxWidth()
                         .offset { IntOffset(0, dragOffsetY.value.roundToInt()) }
+                        .graphicsLayer {
+                            translationY = (size.height + windowSize.height - sheetBounds.bottom) * (1f - overlayAlpha)
+                        }
                 ) {
                     IenSurface(
                         modifier = sheetBackdropModifier
                             .fillMaxWidth()
                             .layout { measurable, constraints ->
                                 val isExpandable = state.detent.isExpandable()
-                                val progress = if (isExpandable) expansionProgress.value else 1f
+                                val progress = if (isExpandable) displayedExpansionProgress else 1f
                                 val horizontalInset = if (isDuo) 0 else
                                     (sheetHorizontalInset.roundToPx() * (1f - progress))
                                         .roundToInt()
@@ -581,7 +588,7 @@ private fun IenBottomSheetInternal(
                             horizontalInset = if (isDuo) with(density) {
                                 (windowSize.width - sheetBounds.right).toDp()
                             } else if (state.detent.isExpandable())
-                                sheetHorizontalInset * (1f - expansionProgress.value) else 0.dp,
+                                sheetHorizontalInset * (1f - displayedExpansionProgress) else 0.dp,
                             cta = cta,
                         ) {
                             IenSheetBody(

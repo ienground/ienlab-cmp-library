@@ -16,14 +16,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -36,14 +34,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
-import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
-import androidx.compose.material3.adaptive.navigation3.LocalListDetailSceneScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -320,7 +313,6 @@ import zone.ien.utils.ui.screen.IenFixedBottomCTA
 import zone.ien.utils.ui.screen.IenFixedDoubleBottomCTA
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
-import zone.ien.utils.ui.screen.LocalIenSideBarEnabled
 import zone.ien.utils.ui.screen.IenTooltip
 import zone.ien.utils.ui.screen.IenTooltipClipToEnd
 import zone.ien.utils.ui.screen.IenTooltipMessageAlign
@@ -1198,7 +1190,6 @@ internal fun DesignSystemPlayground(
             contentPadding = PaddingValues(0.dp),
         ) {
             BoxWithConstraints(Modifier.fillMaxWidth()) {
-                val sideBySide = maxWidth >= 720.dp
                 val preview: @Composable (Modifier) -> Unit = { modifier ->
                     Column(
                         modifier = modifier.background(IenTheme.colors.background),
@@ -1220,8 +1211,7 @@ internal fun DesignSystemPlayground(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .then(if (sideBySide) Modifier.weight(1f) else Modifier)
-                                .heightIn(min = 240.dp, max = if (sideBySide) 560.dp else 280.dp)
+                                .heightIn(min = 240.dp, max = 280.dp)
                                 .verticalScroll(rememberScrollState())
                                 .padding(IenTheme.spacing.xl),
                             contentAlignment = Alignment.Center,
@@ -1250,7 +1240,7 @@ internal fun DesignSystemPlayground(
                 val controlPanel: @Composable (Modifier) -> Unit = { modifier ->
                     Column(
                         modifier = modifier
-                            .heightIn(max = if (sideBySide) 560.dp else 320.dp)
+                            .heightIn(max = 320.dp)
                             .verticalScroll(rememberScrollState())
                             .padding(IenTheme.spacing.md),
                         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
@@ -1324,18 +1314,10 @@ internal fun DesignSystemPlayground(
                         }
                     }
                 }
-                if (sideBySide) {
-                    Row(Modifier.fillMaxWidth().height(560.dp)) {
-                        preview(Modifier.weight(1f).fillMaxHeight())
-                        Box(Modifier.width(1.dp).fillMaxHeight().background(IenTheme.colors.border))
-                        controlPanel(Modifier.width(288.dp).fillMaxHeight())
-                    }
-                } else {
-                    Column(Modifier.fillMaxWidth()) {
-                        preview(Modifier.fillMaxWidth())
-                        IenDivider.Horizontal()
-                        controlPanel(Modifier.fillMaxWidth())
-                    }
+                Column(Modifier.fillMaxWidth()) {
+                    preview(Modifier.fillMaxWidth())
+                    IenDivider.Horizontal()
+                    controlPanel(Modifier.fillMaxWidth())
                 }
             }
         }
@@ -1404,7 +1386,6 @@ internal fun DesignSystemPlayground(
     }
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Preview
 @Composable
 fun DesignSystemScreen(
@@ -1422,77 +1403,54 @@ fun DesignSystemScreen(
         var query by rememberSaveable { mutableStateOf("") }
         var selectedCategory by rememberSaveable { mutableStateOf("전체") }
         val selectedComponent = DesignSystemComponents.firstOrNull { it.id == componentId }
-        val paneTarget = LocalListDetailSceneScope.current
-            ?.scaffoldTransitionScope?.scaffoldStateTransition?.targetState
-        val isSplitLayout = paneTarget != null &&
-            paneTarget[ListDetailPaneScaffoldRole.List] != PaneAdaptedValue.Hidden &&
-            paneTarget[ListDetailPaneScaffoldRole.Detail] != PaneAdaptedValue.Hidden
-        val isListPane = selectedComponent == null && isSplitLayout
-        val showBackButton = selectedComponent == null || !isSplitLayout
-
-        CompositionLocalProvider(
-            LocalIenSideBarEnabled provides (LocalIenSideBarEnabled.current && !isListPane),
-        ) {
-            IenScaffold(
-                modifier = modifier,
-                contentWindowInsets = if (isListPane) {
-                    ScaffoldDefaults.contentWindowInsets.only(WindowInsetsSides.Left + WindowInsetsSides.Vertical)
-                } else {
-                    ScaffoldDefaults.contentWindowInsets
-                },
-                contentEdge = IenScaffoldContentEdge(scrollableState = scrollState),
-                topBar = {
-                    IenTopBar(
-                        title = selectedComponent?.name ?: if (isListPane) "Ien UI" else "Ien CMP UI",
-                        subtitle = when {
-                            selectedComponent != null -> selectedComponent.category
-                            isListPane -> null
-                            else -> "토큰 기반 모바일 디자인 시스템"
-                        },
-                        navigationIcon = if (showBackButton) {
-                            {
-                                IenTextButton(onClick = navigateBack) {
-                                    Text(if (selectedComponent == null) "닫기" else "목록")
-                                }
-                            }
-                        } else null,
-                        actions = {
-                            IenTextButton(onClick = navigateToColor) {
-                                Text("컬러 스킴")
-                            }
-                        },
+        IenScaffold(
+            modifier = modifier,
+            contentEdge = IenScaffoldContentEdge(scrollableState = scrollState),
+            topBar = {
+                IenTopBar(
+                    title = selectedComponent?.name ?: "Ien CMP UI",
+                    subtitle = selectedComponent?.category ?: "토큰 기반 모바일 디자인 시스템",
+                    navigationIcon = {
+                        IenTextButton(onClick = navigateBack) {
+                            Text(text = if (selectedComponent == null) "닫기" else "목록")
+                        }
+                    },
+                    actions = {
+                        IenTextButton(onClick = navigateToColor) {
+                            Text("컬러 스킴")
+                        }
+                    },
+                )
+            },
+            snackbarHost = {
+                IenSnackbarHost(hostState = snackbarHostState)
+            },
+        ) { contentPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(contentPadding)
+                    .padding(horizontal = IenTheme.spacing.md),
+            ) {
+                Spacer(Modifier.height(IenTheme.spacing.md))
+                if (selectedComponent == null) {
+                    DesignSystemCatalog(
+                        query = query,
+                        onQueryChange = { query = it },
+                        selectedCategory = selectedCategory,
+                        onCategoryChange = { selectedCategory = it },
+                        onComponentClick = navigateToComponent,
                     )
-                },
-                snackbarHost = {
-                    IenSnackbarHost(hostState = snackbarHostState)
-                },
-            ) { contentPadding ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState)
-                        .padding(contentPadding)
-                        .padding(horizontal = IenTheme.spacing.md),
-                ) {
-                    Spacer(Modifier.height(IenTheme.spacing.md))
-                    if (selectedComponent == null) {
-                        DesignSystemCatalog(
-                            query = query,
-                            onQueryChange = { query = it },
-                            selectedCategory = selectedCategory,
-                            onCategoryChange = { selectedCategory = it },
-                            onComponentClick = navigateToComponent,
-                        )
-                    } else {
-                        DesignSystemComponentDetail(
-                            component = selectedComponent,
-                            snackbarHostState = snackbarHostState,
-                            toastState = toastState,
-                            coroutineScope = coroutineScope,
-                        )
-                    }
-                    Spacer(Modifier.height(IenTheme.spacing.lg))
+                } else {
+                    DesignSystemComponentDetail(
+                        component = selectedComponent,
+                        snackbarHostState = snackbarHostState,
+                        toastState = toastState,
+                        coroutineScope = coroutineScope,
+                    )
                 }
+                Spacer(Modifier.height(IenTheme.spacing.lg))
             }
         }
     }

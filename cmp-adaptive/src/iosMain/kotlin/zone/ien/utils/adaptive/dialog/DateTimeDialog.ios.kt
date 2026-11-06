@@ -3,11 +3,11 @@ package zone.ien.utils.adaptive.dialog
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.SelectableDates
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.uikit.LocalUIViewController
 import androidx.compose.ui.Modifier
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import kotlinx.cinterop.BetaInteropApi
@@ -26,7 +26,6 @@ import platform.Foundation.dateWithTimeIntervalSince1970
 import platform.Foundation.timeIntervalSince1970
 import platform.UIKit.NSDirectionalEdgeInsetsMake
 import platform.UIKit.NSLayoutConstraint
-import platform.UIKit.UIApplication
 import platform.UIKit.UIBarButtonItem
 import platform.UIKit.UIBarButtonItemStyle
 import platform.UIKit.UIColor
@@ -59,85 +58,89 @@ private fun BaseDateTimePickerDialog(
     tone: IenSemanticTone = IenSemanticTone.Brand,
     onConfirm: (NSDate) -> Unit
 ) {
+    val presenter = LocalUIViewController.current
+    val currentOnDismiss by rememberUpdatedState(onDismiss)
+    val currentOnConfirm by rememberUpdatedState(onConfirm)
     val nativeTintColor = toneColor(tone).toUIColor()
-    val delegate = remember(visible) { object: NSObject(), UISheetPresentationControllerDelegateProtocol {
+    if (!visible) return
+
+    val datePickerRef = remember(presenter) { datePicker }
+    val delegate = remember(presenter) { object: NSObject(), UISheetPresentationControllerDelegateProtocol {
         override fun presentationControllerDidDismiss(presentationController: UIPresentationController) {
-            onDismiss()
+            currentOnDismiss()
         }
     } }
-    var datePickerRef by remember(visible) { mutableStateOf<UIDatePicker?>(null) }
-    val buttonTarget = remember(visible) { object: NSObject() {
+    val buttonTarget = remember(presenter) { object: NSObject() {
         @ObjCAction
-        fun onBackClick() = onDismiss()
+        fun onBackClick() = currentOnDismiss()
 
         @ObjCAction
         fun onFinishClick() {
-            datePickerRef?.date?.let { onConfirm(it) }
+            currentOnConfirm(datePickerRef.date)
         }
     } }
 
-    LaunchedEffect(visible) {
-        if (visible) {
-            val viewController = UIViewController().apply {
-                view.tintColor = nativeTintColor
+    DisposableEffect(presenter) {
+        val viewController = UIViewController().apply {
+            view.tintColor = nativeTintColor
+        }
+        val navBar = UINavigationBar().apply {
+            tintColor = nativeTintColor
+        }
+        val navItem = UINavigationItem(title = title)
+
+        navItem.leftBarButtonItem = UIBarButtonItem(
+            image = UIImage.systemImageNamed("xmark"),
+            style = UIBarButtonItemStyle.UIBarButtonItemStylePlain,
+            target = buttonTarget,
+            action = NSSelectorFromString("onBackClick")
+        )
+
+        navItem.rightBarButtonItem = UIBarButtonItem(
+            image = UIImage.systemImageNamed("checkmark"),
+            style = UIBarButtonItemStyle.UIBarButtonItemStyleDone,
+            target = buttonTarget,
+            action = NSSelectorFromString("onFinishClick")
+        )
+
+        navBar.items = listOf(navItem)
+        navBar.translatesAutoresizingMaskIntoConstraints = false
+
+        viewController.view.addSubview(navBar)
+
+        NSLayoutConstraint.activateConstraints(listOf(
+            navBar.topAnchor.constraintEqualToAnchor(viewController.view.safeAreaLayoutGuide.topAnchor, 16.0),
+            navBar.leadingAnchor.constraintEqualToAnchor(viewController.view.leadingAnchor),
+            navBar.trailingAnchor.constraintEqualToAnchor(viewController.view.trailingAnchor),
+        ))
+
+        viewController.view.addSubview(datePickerRef)
+        datePickerRef.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activateConstraints(listOf(
+            datePickerRef.topAnchor.constraintEqualToAnchor(navBar.bottomAnchor),
+            datePickerRef.leadingAnchor.constraintEqualToAnchor(viewController.view.leadingAnchor, constant = 16.0),
+            datePickerRef.trailingAnchor.constraintEqualToAnchor(viewController.view.trailingAnchor, constant = -16.0),
+        ))
+
+        val sheet = viewController.sheetPresentationController
+        sheet?.detents = listOf(
+            UISheetPresentationControllerDetent.customDetentWithIdentifier(
+                identifier = "contentSize",
+                resolver = { _ -> 260.0 }
+            )
+        )
+
+        sheet?.prefersGrabberVisible = true
+        sheet?.prefersScrollingExpandsWhenScrolledToEdge = true
+        sheet?.delegate = delegate
+
+        presenter.presentViewController(viewController, true, null)
+        onDispose {
+            sheet?.delegate = null
+            if (presenter.presentedViewController == viewController) {
+                presenter.dismissViewControllerAnimated(true, null)
             }
-            val navBar = UINavigationBar().apply {
-                tintColor = nativeTintColor
-            }
-            val navItem = UINavigationItem(title = title)
-
-            navItem.leftBarButtonItem = UIBarButtonItem(
-                image = UIImage.systemImageNamed("xmark"),
-                style = UIBarButtonItemStyle.UIBarButtonItemStylePlain,
-                target = buttonTarget,
-                action = NSSelectorFromString("onBackClick")
-            )
-
-            navItem.rightBarButtonItem = UIBarButtonItem(
-                image = UIImage.systemImageNamed("checkmark"),
-                style = UIBarButtonItemStyle.UIBarButtonItemStyleDone,
-                target = buttonTarget,
-                action = NSSelectorFromString("onFinishClick")
-            )
-
-            navBar.items = listOf(navItem)
-            navBar.translatesAutoresizingMaskIntoConstraints = false
-
-            viewController.view.addSubview(navBar)
-
-            NSLayoutConstraint.activateConstraints(listOf(
-                navBar.topAnchor.constraintEqualToAnchor(viewController.view.safeAreaLayoutGuide.topAnchor, 16.0),
-                navBar.leadingAnchor.constraintEqualToAnchor(viewController.view.leadingAnchor),
-                navBar.trailingAnchor.constraintEqualToAnchor(viewController.view.trailingAnchor),
-            ))
-
-            datePickerRef = datePicker
-
-            viewController.view.addSubview(datePicker)
-            datePicker.translatesAutoresizingMaskIntoConstraints = false
-
-            NSLayoutConstraint.activateConstraints(listOf(
-                datePicker.topAnchor.constraintEqualToAnchor(navBar.bottomAnchor),
-                datePicker.leadingAnchor.constraintEqualToAnchor(viewController.view.leadingAnchor, constant = 16.0),
-                datePicker.trailingAnchor.constraintEqualToAnchor(viewController.view.trailingAnchor, constant = -16.0),
-            ))
-
-            val sheet = viewController.sheetPresentationController
-            sheet?.detents = listOf(
-                UISheetPresentationControllerDetent.customDetentWithIdentifier(
-                    identifier = "contentSize",
-                    resolver = { _ -> 260.0 }
-                )
-            )
-
-            sheet?.prefersGrabberVisible = true
-            sheet?.prefersScrollingExpandsWhenScrolledToEdge = true
-            sheet?.delegate = delegate
-
-            UIApplication.sharedApplication.keyWindow?.rootViewController?.presentViewController(viewController, true, null)
-        } else {
-            UIApplication.sharedApplication.keyWindow?.rootViewController?.dismissViewControllerAnimated(true, null)
-            datePickerRef = null
         }
     }
 }
