@@ -29,8 +29,11 @@ kotlin {
             instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
     }
-    iosArm64()
-    iosSimulatorArm64()
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
+        target.compilations.getByName("main").cinterops.create("ienOverlayAppearance") {
+            definitionFile.set(rootProject.file("cmp-ui/src/nativeInterop/cinterop/ienOverlayAppearance.def"))
+        }
+    }
     wasmJs {
         browser()
     }
@@ -60,6 +63,7 @@ kotlin {
 
         iosMain.dependencies {
             implementation(libs.kdatetime)
+            implementation(libs.hig)
         }
     }
 }

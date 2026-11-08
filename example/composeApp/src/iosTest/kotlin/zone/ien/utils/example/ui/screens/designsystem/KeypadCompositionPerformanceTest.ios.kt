@@ -49,7 +49,7 @@ import zone.ien.utils.ui.interactive.IenFullSecureKeyboard
 import zone.ien.utils.ui.interactive.IenKeyboardAction
 import zone.ien.utils.ui.interactive.IenSecureKeyboardState
 import zone.ien.utils.ui.interactive.IenTextField
-import zone.ien.utils.example.configureIosTextContextMenu
+import zone.ien.utils.initializeIenIos
 
 private const val KeypadCpuSamples = 7
 
@@ -61,7 +61,7 @@ class KeypadCompositionPerformanceTest {
         val clipboard = CountingClipboard()
         val value = mutableStateOf("ABCD")
         try {
-            configureIosTextContextMenu()
+            runOnUiThread { initializeIenIos() }
             setContent {
                 IenTheme {
                     CompositionLocalProvider(LocalClipboard provides clipboard) {

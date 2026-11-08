@@ -33,9 +33,6 @@ kotlin {
         target.compilations.getByName("main").cinterops.create("ienBarPlacement") {
             definitionFile.set(project.file("src/nativeInterop/cinterop/ienBarPlacement.def"))
         }
-        target.compilations.getByName("main").cinterops.create("ienOverlayAppearance") {
-            definitionFile.set(project.file("src/nativeInterop/cinterop/ienOverlayAppearance.def"))
-        }
         target.compilations.getByName("test").cinterops.create("ienOverlayAppearanceTest") {
             definitionFile.set(project.file("src/nativeInterop/cinterop/ienOverlayAppearanceTest.def"))
         }

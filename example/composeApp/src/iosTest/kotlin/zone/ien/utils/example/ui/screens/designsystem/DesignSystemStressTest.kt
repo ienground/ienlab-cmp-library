@@ -44,13 +44,13 @@ import platform.UIKit.UIViewController
 import zone.ien.utils.example.di.KoinKey.DEFAULT_DATASTORE
 import zone.ien.utils.pref.rememberPreviewSettingsDataStore
 import zone.ien.utils.ui.foundation.IenTheme
-import zone.ien.utils.example.configureIosTextContextMenu
+import zone.ien.utils.initializeIenIos
 
 class DesignSystemStressTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun allCatalogComponentsMountTransitionScrollAndDisposeRepeatedly(): TestResult = runComposeUiTest {
-        configureIosTextContextMenu()
+        runOnUiThread { initializeIenIos() }
         mainClock.autoAdvance = false
 
         val components = DesignSystemComponents

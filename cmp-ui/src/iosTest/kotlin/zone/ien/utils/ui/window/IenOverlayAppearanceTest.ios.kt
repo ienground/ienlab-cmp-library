@@ -1,5 +1,7 @@
 package zone.ien.utils.ui.window
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.scene.AppearanceCallbacks
 import androidx.compose.ui.scene.ComposeLayersViewControllerAppearanceFixture
 import androidx.compose.ui.scene.UnrelatedViewControllerAppearanceFixture
@@ -15,6 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import zone.ien.utils.initializeIenIos
 import zone.ien.utils.ui.appearance.test.IENOverlayAppearanceTestBeginCount
 import zone.ien.utils.ui.appearance.test.IENOverlayAppearanceTestCreateOwnedOverrideController
 import zone.ien.utils.ui.appearance.test.IENOverlayAppearanceTestInstallBeginCounter
@@ -25,11 +28,14 @@ import zone.ien.utils.ui.appearance.test.IENOverlayAppearanceTestRestoreBeginCou
 import zone.ien.utils.ui.appearance.test.IENOverlayAppearanceTestSimulateAutomaticCompletion
 import zone.ien.utils.ui.appearance.test.IENOverlayAppearanceTestSimulateAutomaticAppearance
 
-@OptIn(ExperimentalForeignApi::class, ExperimentalTestApi::class)
+@OptIn(ExperimentalForeignApi::class, ExperimentalTestApi::class, ExperimentalFoundationApi::class)
 class IenOverlayAppearanceTest {
     @Test
-    fun automaticAppearanceIsNotStartedAgainManually(): TestResult = runOnUIKitMain {
-        assertTrue(enableIenOverlayAppearanceFix())
+    fun initializationEnablesTextMenusAndGuardsAutomaticAppearance(): TestResult = runOnUIKitMain {
+        ComposeFoundationFlags.isNewContextMenuEnabled = false
+        initializeIenIos()
+        initializeIenIos()
+        assertTrue(ComposeFoundationFlags.isNewContextMenuEnabled)
         val controller = ComposeLayersViewControllerAppearanceFixture()
         assertTrue(IENOverlayAppearanceTestIsComposeLayersController(controller))
 
