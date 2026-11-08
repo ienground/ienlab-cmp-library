@@ -10,8 +10,16 @@ plugins {
 }
 
 val isReleaseVersion = !version.toString().endsWith("SNAPSHOT")
+val iosSimulatorUdid = providers.environmentVariable("CI_IOS_SIMULATOR_UDID").orNull
 
 subprojects {
+    if (iosSimulatorUdid != null) {
+        tasks.withType<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest>().configureEach {
+            device.set(iosSimulatorUdid)
+            standalone.set(false)
+        }
+    }
+
     plugins.withId("com.vanniktech.maven.publish") {
         configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
             publishToMavenCentral(automaticRelease = true)

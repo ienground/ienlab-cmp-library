@@ -104,3 +104,16 @@ static inline void IENDatePickerAllocationTestStop(void) {
         );
     }
 }
+
+static inline BOOL IENInvokeZeroArgumentBarButtonAction(UIBarButtonItem *button) {
+    if (button == nil) return NO;
+
+    id target = button.target;
+    SEL action = button.action;
+    if (target == nil || action == NULL || ![target respondsToSelector:action]) return NO;
+
+    IMP actionImpl = [target methodForSelector:action];
+    if (actionImpl == NULL) return NO;
+    ((void (*)(id, SEL))actionImpl)(target, action);
+    return YES;
+}

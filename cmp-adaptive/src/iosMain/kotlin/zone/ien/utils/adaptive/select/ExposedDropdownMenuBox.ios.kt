@@ -123,8 +123,18 @@ actual fun <T> ExposedDropdownMenuBox(
             pickerView.dataSource = pickerDelegate
             pickerView.delegate = pickerDelegate
             pickerView.reloadAllComponents()
-            val selectedIndex = itemsWithLabels.keys.indexOf(tempCurrentItem)
+            val selectedItem = tempCurrentItem?.takeIf { it in itemsWithLabels.keys }
+            tempCurrentItem = selectedItem
+            val selectedIndex = itemsWithLabels.keys.indexOf(selectedItem)
             if (selectedIndex >= 0) pickerView.selectRow(selectedIndex.toLong(), animated = false, inComponent = 0)
+        }
+    }
+    LaunchedEffect(currentItem, expanded) {
+        if (expanded) {
+            val selectedItem = currentItem?.takeIf { it in currentItemsWithLabels.keys }
+            tempCurrentItem = selectedItem
+            val selectedIndex = currentItemsWithLabels.keys.indexOf(selectedItem)
+            if (selectedIndex >= 0) pickerRef?.selectRow(selectedIndex.toLong(), animated = false, inComponent = 0)
         }
     }
 
@@ -291,6 +301,13 @@ actual fun <T> ExposedDropdownMenuBox(
     LaunchedEffect(itemsWithLabels) {
         pickerRef?.updateItemsWithLabels(itemsWithLabels)
     }
+    LaunchedEffect(currentItems, expanded) {
+        if (expanded) {
+            val selectedItems = currentItems.filter { it in currentItemsWithLabels.keys }
+            tempCurrentItems = selectedItems
+            pickerRef?.updateSelectedItems(selectedItems)
+        }
+    }
 
     DisposableEffect(presenter, expanded) {
         if (expanded) {
@@ -360,7 +377,16 @@ class ListPickerViewController<T>(
     internal fun updateItemsWithLabels(itemsWithLabels: Map<T, String>) {
         if (this.itemsWithLabels == itemsWithLabels) return
         this.itemsWithLabels = itemsWithLabels
+        tempCurrentItems.removeAll { it !in itemsWithLabels.keys }
         tableView.reloadData()
+        onSelectionChange(tempCurrentItems.toList())
+    }
+
+    internal fun updateSelectedItems(selectedItems: List<T>) {
+        tempCurrentItems.clear()
+        tempCurrentItems.addAll(selectedItems.filter { it in itemsWithLabels.keys })
+        tableView.reloadData()
+        onSelectionChange(tempCurrentItems.toList())
     }
 
     internal fun detachTableViewDelegates() {
@@ -434,10 +460,10 @@ class ListPickerViewController<T>(
     private fun updateSelection(key: T) {
         if (key !in tempCurrentItems) {
             tempCurrentItems.add(key)
-            onSelectionChange(tempCurrentItems)
+            onSelectionChange(tempCurrentItems.toList())
         } else {
             tempCurrentItems.remove(key)
-            onSelectionChange(tempCurrentItems)
+            onSelectionChange(tempCurrentItems.toList())
         }
     }
 }

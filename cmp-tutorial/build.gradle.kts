@@ -38,7 +38,7 @@ kotlin {
             implementation(libs.compose.preview)
             implementation(libs.compose.resources)
 
-            implementation(libs.taptarget)
+            api(libs.taptarget)
             implementation(projects.cmpUi)
         }
 

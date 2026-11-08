@@ -39,6 +39,38 @@ jobs:
         xcodebuild -version
         xcrun --sdk iphoneos --show-sdk-version
         xcrun --sdk iphonesimulator --show-sdk-version
+    - name: iOS 시뮬레이터 준비
+      if: matrix.target == 'iosSimulatorArm64Test' && runner.os == 'macOS'
+      timeout-minutes: 5
+      shell: bash
+      run: |
+        set -euo pipefail
+        simulator_json="$(xcrun simctl list devices available -j | jq -c '
+          [
+            .devices
+            | to_entries[]
+            | select(.key | contains(".iOS-"))
+            | .value[]
+            | select(.deviceTypeIdentifier | contains(".iPhone-"))
+            | select(.state == "Booted" or .state == "Shutdown")
+          ]
+          | sort_by(if .state == "Booted" then 0 else 1 end)
+          | .[0] // empty
+        ')"
+        if [[ -z "$simulator_json" ]]; then
+          echo "::error::사용 가능한 iOS iPhone 시뮬레이터(부팅 또는 종료 상태)를 찾지 못했습니다."
+          xcrun simctl list devices available
+          exit 1
+        fi
+        simulator_udid="$(jq -r '.udid' <<< "$simulator_json")"
+        simulator_state="$(jq -r '.state' <<< "$simulator_json")"
+        simulator_name="$(jq -r '.name' <<< "$simulator_json")"
+        echo "선택한 iPhone 시뮬레이터: $simulator_name ($simulator_udid, $simulator_state)"
+        if [[ "$simulator_state" == "Shutdown" ]]; then
+          xcrun simctl boot "$simulator_udid"
+        fi
+        xcrun simctl bootstatus "$simulator_udid" -b
+        echo "CI_IOS_SIMULATOR_UDID=$simulator_udid" >> "$GITHUB_ENV"
     - name: Validate Gradle Wrapper
       uses: gradle/actions/wrapper-validation@v4
     - uses: actions/cache@v4
