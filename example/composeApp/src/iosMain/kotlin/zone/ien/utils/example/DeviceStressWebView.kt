@@ -1,19 +1,77 @@
 package zone.ien.utils.example
 
 import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composer
+import androidx.compose.runtime.CompositionTracer
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.InternalComposeTracingApi
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import com.multiplatform.webview.web.rememberWebViewStateWithHTMLData
+import com.multiplatform.webview.web.WebView
+import com.multiplatform.webview.web.WebViewFactoryParam
+import com.multiplatform.webview.web.defaultWebViewFactory
+import kotlinx.coroutines.delay
+import platform.Foundation.NSNotificationCenter
+import platform.Foundation.NSProcessInfo
 import zone.ien.hig.adaptive.Theme
 import zone.ien.utils.adaptive.component.AdaptiveBackButton
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.webview.AdaptiveWebViewScaffold
 
+@OptIn(InternalComposeTracingApi::class)
 @Composable
-internal fun DeviceStressWebView() {
-    val html = remember { deviceStressHtml() }
+internal fun DeviceStressWebView(baseline: Boolean = false) {
+    val html = remember {
+        val start = NSProcessInfo.processInfo.systemUptime
+        deviceStressHtml().also { reportWebViewMeasurement("html", start) }
+    }
+    val stateStart = NSProcessInfo.processInfo.systemUptime
     val state = rememberWebViewStateWithHTMLData(data = html)
+    remember(state) { reportWebViewMeasurement("state", stateStart) }
 
+    if (baseline) {
+        WebView(
+            state = state,
+            modifier = Modifier.fillMaxSize(),
+            factory = remember {
+                { param: WebViewFactoryParam ->
+                    val start = NSProcessInfo.processInfo.systemUptime
+                    defaultWebViewFactory(param).also { reportWebViewMeasurement("native-factory", start) }
+                }
+            },
+        )
+        return
+    }
+    val tracer = remember {
+        object : CompositionTracer {
+            var scaffoldCompositions = 0
+            var events = 0
+
+            override fun isTraceInProgress(): Boolean = true
+            override fun traceEventEnd() = Unit
+            override fun traceEventStart(key: Int, dirty1: Int, dirty2: Int, info: String) {
+                events++
+                if (info.startsWith("zone.ien.utils.webview.WebViewScaffoldLayout (")) {
+                    scaffoldCompositions++
+                }
+            }
+        }
+    }
+    DisposableEffect(tracer) {
+        Composer.setTracer(tracer)
+        onDispose { Composer.setTracer(null) }
+    }
+    LaunchedEffect(tracer) {
+        delay(2000)
+        val initialCompositions = tracer.scaffoldCompositions
+        delay(4000)
+        reportWebViewCount("scaffold-scroll-compositions", tracer.scaffoldCompositions - initialCompositions)
+        reportWebViewCount("composition-trace-events", tracer.events)
+    }
     IenAdaptiveTheme(target = Theme.Cupertino) {
         AdaptiveWebViewScaffold(
             state = state,
@@ -22,6 +80,14 @@ internal fun DeviceStressWebView() {
             errorContent = { Text(text = "로컬 테스트 페이지를 불러오지 못했습니다.") },
         )
     }
+}
+
+private fun reportWebViewCount(name: String, count: Int) {
+    NSNotificationCenter.defaultCenter.postNotificationName(
+        aName = "IENDeviceStressMeasurement",
+        `object` = null,
+        userInfo = mapOf("name" to name, "count" to count),
+    )
 }
 
 private fun deviceStressHtml(): String = buildString {
@@ -53,4 +119,15 @@ private fun deviceStressHtml(): String = buildString {
         append("</article>")
     }
     append("</main></body></html>")
+}
+
+private fun reportWebViewMeasurement(name: String, startUptime: Double) {
+    NSNotificationCenter.defaultCenter.postNotificationName(
+        aName = "IENDeviceStressMeasurement",
+        `object` = null,
+        userInfo = mapOf(
+            "name" to name,
+            "durationMillis" to (NSProcessInfo.processInfo.systemUptime - startUptime) * 1000,
+        ),
+    )
 }

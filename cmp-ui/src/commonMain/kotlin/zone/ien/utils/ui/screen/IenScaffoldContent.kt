@@ -206,7 +206,7 @@ fun IenScaffold(
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .layerBackdrop(backdrop),
+                    .then(if (effectiveContentEdge.enabled) Modifier.layerBackdrop(backdrop) else Modifier),
             ) {
                 CompositionLocalProvider(LocalIenScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState)) {
                     content(contentPadding)

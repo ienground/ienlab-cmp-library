@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarHostState
@@ -30,6 +32,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.Popup
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import kotlinx.coroutines.delay
@@ -44,10 +48,18 @@ import zone.ien.utils.adaptive.component.AdaptiveCheckbox
 import zone.ien.utils.adaptive.component.AdaptiveSegmentedControl
 import zone.ien.utils.adaptive.component.AdaptiveSlider
 import zone.ien.utils.adaptive.component.AdaptiveSwitch
+import zone.ien.utils.adaptive.dialog.AlertDialog
+import zone.ien.utils.adaptive.dialog.DatePickerDialog
+import zone.ien.utils.adaptive.dialog.ProgressDialog
+import zone.ien.utils.adaptive.dialog.TextFieldDialog
+import zone.ien.utils.adaptive.dialog.TimePickerDialog
+import zone.ien.utils.adaptive.select.ExposedDropdownMenuBox
 import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
 import zone.ien.utils.example.di.KoinKey.DEFAULT_DATASTORE
 import zone.ien.utils.example.ui.screens.designsystem.DesignSystemComponentPreview
 import zone.ien.utils.example.ui.screens.designsystem.DesignSystemComponents
+import zone.ien.utils.example.ui.screens.designsystem.DesignSystemScreen
+import zone.ien.utils.example.ui.screens.designsystem.KeypadSection
 import zone.ien.utils.example.ui.screens.designsystem.playgroundControls
 import zone.ien.utils.example.ui.screens.designsystem.stressAlternateValue
 import zone.ien.utils.pref.rememberPreviewSettingsDataStore
@@ -58,8 +70,12 @@ import zone.ien.utils.ui.feedback.IenToastState
 import zone.ien.utils.ui.feedback.rememberIenToastState
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.interactive.IenSegmentedControlItem
+import zone.ien.utils.ui.interactive.IenAlphabetKeypad
+import zone.ien.utils.ui.interactive.IenFullSecureKeyboard
+import zone.ien.utils.ui.interactive.IenSecureKeyboardState
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
+import zone.ien.utils.ui.utils.TextFieldDialogData
 
 private const val DeviceStressCycles = 2
 private const val CatalogDefaultDurationMillis = 800L
@@ -85,6 +101,7 @@ internal fun DeviceStressScreen() {
 @Composable
 private fun DeviceStressContent() {
     val scrollState = rememberScrollState()
+    val keypadListState = rememberLazyListState()
     val snackbarHostState = remember { SnackbarHostState() }
     val toastState = rememberIenToastState()
     val coroutineScope = rememberCoroutineScope()
@@ -98,9 +115,20 @@ private fun DeviceStressContent() {
     val adaptiveCheckboxChecked = remember { mutableStateOf(false) }
     val adaptiveSegmentIndex = remember { mutableIntStateOf(0) }
     val adaptiveSliderValue = remember { mutableFloatStateOf(0.35f) }
+    val stockOverlaysOnly = remember { NSProcessInfo.processInfo.arguments.contains("--ien-device-stress-stock-overlays") }
+    val nativeDialogsOnly = remember { NSProcessInfo.processInfo.arguments.contains("--ien-device-stress-native-dialogs-only") }
+    val nativeDialog = remember { mutableStateOf(NativeStressDialog.Alert) }
+    val remainingOnly = remember { NSProcessInfo.processInfo.arguments.contains("--ien-device-stress-remaining-only") }
+    val catalogComponents = remember(remainingOnly) {
+        if (remainingOnly) DesignSystemComponents.filter { it.id in setOf("keypad", "menu", "modal", "tooltip", "bottom-sheet") }
+        else DesignSystemComponents
+    }
+    val keypadEnabled = remember { mutableStateOf(true) }
+    val stockOverlayVisible = remember { mutableStateOf(false) }
+    val stockOverlayDialog = remember { mutableStateOf(true) }
     val webViewOnly = remember { NSProcessInfo.processInfo.arguments.contains("--ien-device-stress-webview-only") }
     var currentProgress = 0
-    val totalCatalogCases = if (webViewOnly) 0 else DesignSystemComponents.size * DeviceStressCycles
+    val totalCatalogCases = if (webViewOnly || stockOverlaysOnly || nativeDialogsOnly) 0 else catalogComponents.size * DeviceStressCycles
 
     LaunchedEffect(Unit) {
         postDeviceStressPhase("warmup")
@@ -114,7 +142,7 @@ private fun DeviceStressContent() {
             phaseText.value = case
             progressText.value = progress
             scrollState.scrollTo(0)
-            withFrameNanos { }
+            if (case.startsWith("native/")) delay(16) else withFrameNanos { }
         }
 
         suspend fun runScrollPhase(
@@ -125,12 +153,13 @@ private fun DeviceStressContent() {
             scrollForDuration(scrollState, durationMillis, maximumScrollPx, onFrame)
         }
 
-        for (cycle in 1..(if (webViewOnly) 0 else DeviceStressCycles)) {
-            DesignSystemComponents.forEachIndexed { index, component ->
+        for (cycle in 1..(if (webViewOnly || stockOverlaysOnly || nativeDialogsOnly) 0 else DeviceStressCycles)) {
+            catalogComponents.forEachIndexed { index, component ->
                 val controls = playgroundControls(component.id)
                 val defaultValues = controls.associate { control -> control.key to control.defaultValue }
                 val alternateValues = controls.associate { control -> control.key to control.stressAlternateValue() }
-                val componentProgress = "${cycle}/$DeviceStressCycles · ${index + 1}/${DesignSystemComponents.size} · ${component.id}"
+                val componentProgress = "${cycle}/$DeviceStressCycles · ${index + 1}/${catalogComponents.size} · ${component.id}"
+                if (component.id == "keypad") keypadListState.requestScrollToItem(0)
 
                 enterPhase(
                     case = "catalog/$cycle/${component.id}/default",
@@ -150,10 +179,32 @@ private fun DeviceStressContent() {
                 }
                 runScrollPhase(CatalogAlternateDurationMillis, maximumScrollPx = 160f)
 
+                if (component.id == "keypad") {
+                    for (keypadIndex in 0..7) {
+                        enterPhase("keypad/preview/$cycle/$keypadIndex", "키패드 8종 스크롤") {}
+                        keypadListState.animateScrollToItem(keypadIndex)
+                        waitForRealtimeFrames(300)
+                    }
+                    enterPhase("keypad/playground/$cycle/initial", "키패드 상세 화면 최초 구성") {
+                        mode.value = DeviceStressMode.KeypadPlayground
+                    }
+                    waitForRealtimeFrames(800)
+                    enterPhase("keypad/bulk/$cycle/default", "키패드 8종 일괄 구성") {
+                        mode.value = DeviceStressMode.KeypadBulk
+                        controlValues.value = defaultValues
+                    }
+                    waitForRealtimeFrames(800)
+                    enterPhase("keypad/bulk/$cycle/alternate", "키패드 8종 일괄 활성 전환") {
+                        controlValues.value = alternateValues
+                    }
+                    waitForRealtimeFrames(800)
+                }
+
                 enterPhase(
                     case = "catalog/$cycle/${component.id}/unmount",
                     progress = "$componentProgress · 해제",
                 ) {
+                    mode.value = DeviceStressMode.Catalog
                     componentId.value = null
                     controlValues.value = emptyMap()
                 }
@@ -162,7 +213,33 @@ private fun DeviceStressContent() {
             }
         }
 
-        if (!webViewOnly) {
+        if (stockOverlaysOnly) {
+            mode.value = DeviceStressMode.StockOverlay
+            for (dialog in listOf(true, false)) {
+                stockOverlayDialog.value = dialog
+                repeat(5) { cycle ->
+                    enterPhase("stock/${if (dialog) "dialog" else "popup"}/$cycle/open", "Compose 기본 오버레이") {
+                        stockOverlayVisible.value = true
+                    }
+                    waitForRealtimeFrames(600)
+                    enterPhase("stock/${if (dialog) "dialog" else "popup"}/$cycle/close", "Compose 기본 오버레이 해제") {
+                        stockOverlayVisible.value = false
+                    }
+                    waitForRealtimeFrames(600)
+                }
+            }
+        }
+
+        if (!webViewOnly && !stockOverlaysOnly && !nativeDialogsOnly) {
+            for (keypadMode in listOf(DeviceStressMode.AlphabetKeypad, DeviceStressMode.SecureKeyboard)) {
+                for (enabled in listOf(true, false, true, false)) {
+                    enterPhase("keypad/$keypadMode/$enabled", "단독 키패드 활성 전환") {
+                        mode.value = keypadMode
+                        keypadEnabled.value = enabled
+                    }
+                    waitForRealtimeFrames(800)
+                }
+            }
             enterPhase("skeleton/64", "스켈레톤 64 블록") {
                 mode.value = DeviceStressMode.Skeleton
                 componentId.value = null
@@ -196,10 +273,33 @@ private fun DeviceStressContent() {
 
         }
 
-        enterPhase("webview/scroll", "WKWebView 양방향 스크롤") {
-            mode.value = DeviceStressMode.WebView
+        if (!stockOverlaysOnly && !nativeDialogsOnly) {
+            val baselineFirst = NSProcessInfo.processInfo.arguments.contains("--ien-device-stress-baseline-first")
+            val webViewModes = if (baselineFirst) listOf(DeviceStressMode.WebViewBaseline, DeviceStressMode.WebView)
+                else listOf(DeviceStressMode.WebView, DeviceStressMode.WebViewBaseline)
+            for (webViewMode in webViewModes) {
+                enterPhase(if (webViewMode == DeviceStressMode.WebView) "webview/scroll" else "webview/baseline", "WKWebView 양방향 스크롤") {
+                    mode.value = webViewMode
+                }
+                waitForRealtimeFrames(8_000)
+            }
         }
-        waitForRealtimeFrames(8_000)
+
+        if (nativeDialogsOnly || (!webViewOnly && !stockOverlaysOnly && !remainingOnly)) {
+            repeat(if (nativeDialogsOnly) 5 else DeviceStressCycles) { cycle ->
+                NativeStressDialog.entries.forEach { dialog ->
+                    enterPhase("native/${cycle + 1}/$dialog/open", "네이티브 다이얼로그 반복 표시") {
+                        nativeDialog.value = dialog
+                        mode.value = DeviceStressMode.NativeDialog
+                    }
+                    delay(1_000)
+                    enterPhase("native/${cycle + 1}/$dialog/unmount", "네이티브 다이얼로그 제거") {
+                        mode.value = DeviceStressMode.Rest
+                    }
+                    delay(800)
+                }
+            }
+        }
 
         enterPhase("rest/final", "최종 해제 및 대기") {
             mode.value = DeviceStressMode.Rest
@@ -222,7 +322,19 @@ private fun DeviceStressContent() {
                     snackbarHostState = snackbarHostState,
                     toastState = toastState,
                     coroutineScope = coroutineScope,
+                    keypadListState = keypadListState,
                 )
+                DeviceStressMode.KeypadBulk -> CatalogStressContent(
+                    scrollState = scrollState,
+                    componentId = "keypad",
+                    controlValues = controlValues.value,
+                    snackbarHostState = snackbarHostState,
+                    toastState = toastState,
+                    coroutineScope = coroutineScope,
+                    keypadListState = keypadListState,
+                    eagerKeypad = true,
+                )
+                DeviceStressMode.KeypadPlayground -> DesignSystemScreen(componentId = "keypad")
                 DeviceStressMode.Skeleton -> SkeletonStressContent(scrollState)
                 DeviceStressMode.Scaffold -> ScaffoldStressContent(
                     scrollState = scrollState,
@@ -236,6 +348,24 @@ private fun DeviceStressContent() {
                     sliderValue = adaptiveSliderValue.floatValue,
                 )
                 DeviceStressMode.WebView -> DeviceStressWebView()
+                DeviceStressMode.WebViewBaseline -> DeviceStressWebView(baseline = true)
+                DeviceStressMode.NativeDialog -> NativeDialogStressContent(nativeDialog.value)
+                DeviceStressMode.AlphabetKeypad -> IenAlphabetKeypad(
+                    onKeyClick = {}, onBackspaceClick = {}, enabled = keypadEnabled.value,
+                )
+                DeviceStressMode.SecureKeyboard -> IenFullSecureKeyboard(
+                    state = IenSecureKeyboardState(value = ""), onAction = {}, onLanguageChange = {},
+                    enabled = keypadEnabled.value,
+                )
+                DeviceStressMode.StockOverlay -> {
+                    if (stockOverlayVisible.value) {
+                        if (stockOverlayDialog.value) {
+                            Dialog(onDismissRequest = {}) { Text("Compose Dialog") }
+                        } else {
+                            Popup { Text("Compose Popup") }
+                        }
+                    }
+                }
                 DeviceStressMode.Rest -> Column(
                     modifier = Modifier.fillMaxSize().verticalScroll(scrollState),
                 ) {
@@ -260,12 +390,98 @@ private fun DeviceStressContent() {
 }
 
 private enum class DeviceStressMode {
+    KeypadBulk,
+    KeypadPlayground,
     Catalog,
     Skeleton,
     Scaffold,
     Adaptive,
     WebView,
+    WebViewBaseline,
+    StockOverlay,
+    NativeDialog,
+    AlphabetKeypad,
+    SecureKeyboard,
     Rest,
+}
+
+private enum class NativeStressDialog {
+    Alert,
+    Loading,
+    Progress,
+    TextField,
+    SingleSelection,
+    MultipleSelection,
+    Date,
+    Time,
+}
+
+@Composable
+private fun NativeDialogStressContent(dialog: NativeStressDialog) {
+    val titleRevision = remember(dialog) { mutableIntStateOf(0) }
+    if (dialog == NativeStressDialog.Date || dialog == NativeStressDialog.Time) {
+        LaunchedEffect(dialog) {
+            repeat(5) {
+                delay(120)
+                titleRevision.intValue += 1
+            }
+        }
+    }
+    when (dialog) {
+        NativeStressDialog.Alert -> AlertDialog(visible = true, title = "반복 표시", onDismiss = {})
+        NativeStressDialog.Loading -> ProgressDialog(visible = true)
+        NativeStressDialog.Progress -> {
+            val progress = remember { mutableFloatStateOf(0f) }
+            LaunchedEffect(Unit) {
+                repeat(48) {
+                    delay(16)
+                    progress.floatValue = (it + 1) / 48f
+                }
+            }
+            ProgressDialog(visible = true, progress = { progress.floatValue })
+        }
+        NativeStressDialog.TextField -> TextFieldDialog(
+            visible = true,
+            title = "입력 반복",
+            textFields = mapOf(
+                "first" to TextFieldDialogData(placeholder = "첫 번째 값", onValueChange = { it.uppercase() }),
+                "second" to TextFieldDialogData(placeholder = "두 번째 값"),
+            ),
+            onDismiss = {},
+            onConfirm = {},
+        )
+        NativeStressDialog.SingleSelection -> ExposedDropdownMenuBox(
+            title = "단일 선택 반복",
+            itemsWithLabels = mapOf(1 to "첫 번째", 2 to "두 번째"),
+            currentItem = 1,
+            onItemSelected = {},
+            trailingIconButton = { onClick, _ -> LaunchedEffect(Unit) { onClick() } },
+            textField = { value, trailingIcon -> Text(text = value); trailingIcon() },
+        )
+        NativeStressDialog.MultipleSelection -> ExposedDropdownMenuBox(
+            title = "다중 선택 반복",
+            itemsWithLabels = mapOf(1 to "첫 번째", 2 to "두 번째"),
+            currentItems = listOf(1),
+            onItemsSelected = {},
+            trailingIconButton = { onClick, _ -> LaunchedEffect(Unit) { onClick() } },
+            textField = { value, trailingIcon -> Text(text = value); trailingIcon() },
+        )
+        NativeStressDialog.Date -> DatePickerDialog(
+            visible = true,
+            initialSelectedDateMillis = 1_788_825_600_000L,
+            title = "날짜 선택 반복 ${titleRevision.intValue}",
+            onDismiss = {},
+            onConfirm = {},
+        )
+        NativeStressDialog.Time -> TimePickerDialog(
+            visible = true,
+            initialHour = 12,
+            initialMinute = 30,
+            title = "시간 선택 반복 ${titleRevision.intValue}",
+            onDismiss = {},
+            onConfirm = { _, _ -> },
+        )
+    }
 }
 
 @Composable
@@ -276,9 +492,13 @@ private fun CatalogStressContent(
     snackbarHostState: SnackbarHostState,
     toastState: IenToastState,
     coroutineScope: kotlinx.coroutines.CoroutineScope,
+    keypadListState: LazyListState,
+    eagerKeypad: Boolean = false,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(scrollState),
+        modifier = Modifier.fillMaxSize().then(
+            if (componentId == "keypad" && !eagerKeypad) Modifier else Modifier.verticalScroll(scrollState),
+        ),
     ) {
         Box(
             modifier = Modifier
@@ -289,6 +509,12 @@ private fun CatalogStressContent(
         ) {
             if (componentId == null) {
                 Text("다음 카탈로그 항목 준비")
+            } else if (componentId == "keypad") {
+                KeypadSection(
+                    controls = controlValues,
+                    listState = keypadListState,
+                    scrollable = !eagerKeypad,
+                )
             } else {
                 DesignSystemComponentPreview(
                     componentId = componentId,

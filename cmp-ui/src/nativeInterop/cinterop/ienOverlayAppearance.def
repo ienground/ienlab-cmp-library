@@ -1,0 +1,307 @@
+language = Objective-C
+package = zone.ien.utils.ui.appearance
+compilerOpts = -fobjc-arc -fblocks
+---
+#import <UIKit/UIKit.h>
+#import <objc/runtime.h>
+#import <string.h>
+
+typedef void (*IENAppearanceBeginIMP)(UIViewController *, SEL, BOOL, BOOL);
+typedef void (*IENAppearanceEndIMP)(UIViewController *, SEL);
+typedef void (*IENAppearanceLifecycleIMP)(UIViewController *, SEL, BOOL);
+
+static BOOL IENOverlayAppearanceFixInstalled;
+static IMP IENOverlayOriginalViewWillAppear;
+static IMP IENOverlayOriginalViewDidAppear;
+static IMP IENOverlayOriginalViewWillDisappear;
+static IMP IENOverlayOriginalViewDidDisappear;
+static char IENOverlayAppearanceStateKey;
+static char IENOverlayAppearanceClassGuardKey;
+
+static BOOL IENOverlayAppearanceMethodHasSignature(
+    Method method,
+    NSUInteger argumentCount,
+    const NSUInteger *booleanArgumentIndexes,
+    NSUInteger booleanArgumentCount
+) {
+    if (method == NULL) return NO;
+    NSMethodSignature *signature = [NSMethodSignature signatureWithObjCTypes:method_getTypeEncoding(method)];
+    if (signature == nil || signature.numberOfArguments != argumentCount ||
+        strcmp(signature.methodReturnType, @encode(void)) != 0) {
+        return NO;
+    }
+
+    for (NSUInteger index = 0; index < booleanArgumentCount; index++) {
+        const char *argumentType = [signature getArgumentTypeAtIndex:booleanArgumentIndexes[index]];
+        if (strcmp(argumentType, @encode(BOOL)) != 0) return NO;
+    }
+    return YES;
+}
+
+static BOOL IENOverlayAppearanceIsTargetClass(Class controllerClass) {
+    const char *className = class_getName(controllerClass);
+    return className != NULL &&
+        strstr(className, "androidx.compose.ui.scene.ComposeLayersViewController") != NULL;
+}
+
+static NSMutableDictionary *IENOverlayAppearanceState(
+    UIViewController *controller,
+    BOOL createIfMissing
+) {
+    NSMutableDictionary *state = objc_getAssociatedObject(
+        controller,
+        &IENOverlayAppearanceStateKey
+    );
+    if (state == nil && createIfMissing) {
+        state = [NSMutableDictionary dictionary];
+        objc_setAssociatedObject(
+            controller,
+            &IENOverlayAppearanceStateKey,
+            state,
+            OBJC_ASSOCIATION_RETAIN_NONATOMIC
+        );
+    }
+    return state;
+}
+
+static BOOL IENOverlayAppearanceClassDefinesMethod(Class controllerClass, SEL selector) {
+    Class superclass = class_getSuperclass(controllerClass);
+    if (superclass == Nil) return class_getInstanceMethod(controllerClass, selector) != NULL;
+
+    Method method = class_getInstanceMethod(controllerClass, selector);
+    Method inheritedMethod = class_getInstanceMethod(superclass, selector);
+    return method != NULL && method != inheritedMethod;
+}
+
+static BOOL IENOverlayAppearanceInstallTargetGuard(Class controllerClass) {
+    if (!IENOverlayAppearanceIsTargetClass(controllerClass)) return NO;
+    if (objc_getAssociatedObject(controllerClass, &IENOverlayAppearanceClassGuardKey) != nil) {
+        return YES;
+    }
+
+    SEL beginSelector = @selector(beginAppearanceTransition:animated:);
+    SEL endSelector = @selector(endAppearanceTransition);
+    if (IENOverlayAppearanceClassDefinesMethod(controllerClass, beginSelector) ||
+        IENOverlayAppearanceClassDefinesMethod(controllerClass, endSelector)) {
+        return NO;
+    }
+
+    Class superclass = class_getSuperclass(controllerClass);
+    Method beginMethod = class_getInstanceMethod(superclass, beginSelector);
+    Method endMethod = class_getInstanceMethod(superclass, endSelector);
+    const NSUInteger beginBooleanArguments[] = {2, 3};
+    if (!IENOverlayAppearanceMethodHasSignature(
+            beginMethod,
+            4,
+            beginBooleanArguments,
+            2
+        ) ||
+        !IENOverlayAppearanceMethodHasSignature(endMethod, 2, NULL, 0)) {
+        return NO;
+    }
+
+    IMP originalBegin = method_getImplementation(beginMethod);
+    IMP originalEnd = method_getImplementation(endMethod);
+    const char *beginTypes = method_getTypeEncoding(beginMethod);
+    const char *endTypes = method_getTypeEncoding(endMethod);
+
+    void (^beginBlock)(UIViewController *, BOOL, BOOL) = ^(
+        UIViewController *controller,
+        BOOL appearing,
+        BOOL animated
+    ) {
+        NSMutableDictionary *state = IENOverlayAppearanceState(controller, YES);
+        NSNumber *pendingDirection = state[@"pendingDirection"];
+        BOOL automatic = [state[@"pendingAutomatic"] boolValue];
+        BOOL forward = !automatic || pendingDirection == nil ||
+            pendingDirection.boolValue != appearing;
+        NSMutableArray *decisions = state[@"decisions"];
+        if (decisions == nil) {
+            decisions = [NSMutableArray array];
+            state[@"decisions"] = decisions;
+        }
+        [decisions addObject:@(forward)];
+
+        if (forward) {
+            NSInteger depth = [state[@"manualDepth"] integerValue];
+            state[@"manualDepth"] = @(depth + 1);
+            @try {
+                ((IENAppearanceBeginIMP)originalBegin)(
+                    controller,
+                    beginSelector,
+                    appearing,
+                    animated
+                );
+            } @finally {
+                state[@"manualDepth"] = @(depth);
+            }
+        }
+    };
+    void (^endBlock)(UIViewController *) = ^(UIViewController *controller) {
+        NSMutableDictionary *state = IENOverlayAppearanceState(controller, YES);
+        NSMutableArray *decisions = state[@"decisions"];
+        BOOL forward = YES;
+        if (decisions.count > 0) {
+            forward = [decisions.lastObject boolValue];
+            [decisions removeLastObject];
+        }
+
+        if (forward) {
+            ((IENAppearanceEndIMP)originalEnd)(controller, endSelector);
+            [state removeObjectForKey:@"pendingDirection"];
+            [state removeObjectForKey:@"pendingAutomatic"];
+        }
+    };
+
+    IMP beginImplementation = imp_implementationWithBlock(beginBlock);
+    IMP endImplementation = imp_implementationWithBlock(endBlock);
+    if (!class_addMethod(controllerClass, beginSelector, beginImplementation, beginTypes)) {
+        imp_removeBlock(beginImplementation);
+        imp_removeBlock(endImplementation);
+        return NO;
+    }
+    if (!class_addMethod(controllerClass, endSelector, endImplementation, endTypes)) {
+        class_replaceMethod(controllerClass, beginSelector, originalBegin, beginTypes);
+        imp_removeBlock(beginImplementation);
+        imp_removeBlock(endImplementation);
+        return NO;
+    }
+
+    objc_setAssociatedObject(
+        controllerClass,
+        &IENOverlayAppearanceClassGuardKey,
+        @YES,
+        OBJC_ASSOCIATION_RETAIN_NONATOMIC
+    );
+    return YES;
+}
+
+static void IENOverlayAppearanceForwardLifecycle(
+    UIViewController *controller,
+    SEL selector,
+    BOOL animated,
+    BOOL appearing,
+    BOOL willChange,
+    IMP original
+) {
+    Class controllerClass = object_getClass(controller);
+    if (IENOverlayAppearanceIsTargetClass(controllerClass)) {
+        if (IENOverlayAppearanceInstallTargetGuard(controllerClass)) {
+            NSMutableDictionary *state = IENOverlayAppearanceState(controller, YES);
+            if (willChange) {
+                NSInteger depth = [state[@"manualDepth"] integerValue];
+                state[@"pendingDirection"] = @(appearing);
+                state[@"pendingAutomatic"] = @(depth == 0);
+            } else {
+                [state removeObjectForKey:@"pendingDirection"];
+                [state removeObjectForKey:@"pendingAutomatic"];
+            }
+        }
+    }
+
+    ((IENAppearanceLifecycleIMP)original)(controller, selector, animated);
+}
+
+static void IENOverlayViewWillAppear(
+    UIViewController *controller,
+    SEL selector,
+    BOOL animated
+) {
+    IENOverlayAppearanceForwardLifecycle(
+        controller,
+        selector,
+        animated,
+        YES,
+        YES,
+        IENOverlayOriginalViewWillAppear
+    );
+}
+
+static void IENOverlayViewDidAppear(
+    UIViewController *controller,
+    SEL selector,
+    BOOL animated
+) {
+    IENOverlayAppearanceForwardLifecycle(
+        controller,
+        selector,
+        animated,
+        YES,
+        NO,
+        IENOverlayOriginalViewDidAppear
+    );
+}
+
+static void IENOverlayViewWillDisappear(
+    UIViewController *controller,
+    SEL selector,
+    BOOL animated
+) {
+    IENOverlayAppearanceForwardLifecycle(
+        controller,
+        selector,
+        animated,
+        NO,
+        YES,
+        IENOverlayOriginalViewWillDisappear
+    );
+}
+
+static void IENOverlayViewDidDisappear(
+    UIViewController *controller,
+    SEL selector,
+    BOOL animated
+) {
+    IENOverlayAppearanceForwardLifecycle(
+        controller,
+        selector,
+        animated,
+        NO,
+        NO,
+        IENOverlayOriginalViewDidDisappear
+    );
+}
+
+static inline BOOL IENEnableIenOverlayAppearanceFix(void) {
+    if (![NSThread isMainThread]) return NO;
+    if (IENOverlayAppearanceFixInstalled) return YES;
+
+    Class controllerClass = [UIViewController class];
+    SEL selectors[] = {
+        @selector(viewWillAppear:),
+        @selector(viewDidAppear:),
+        @selector(viewWillDisappear:),
+        @selector(viewDidDisappear:),
+    };
+    Method methods[4];
+    const NSUInteger lifecycleBooleanArguments[] = {2};
+    for (int index = 0; index < 4; index++) {
+        methods[index] = class_getInstanceMethod(controllerClass, selectors[index]);
+        if (!IENOverlayAppearanceMethodHasSignature(
+                methods[index],
+                3,
+                lifecycleBooleanArguments,
+                1
+            )) {
+            return NO;
+        }
+    }
+
+    IENOverlayOriginalViewWillAppear = method_getImplementation(methods[0]);
+    IENOverlayOriginalViewDidAppear = method_getImplementation(methods[1]);
+    IENOverlayOriginalViewWillDisappear = method_getImplementation(methods[2]);
+    IENOverlayOriginalViewDidDisappear = method_getImplementation(methods[3]);
+
+    IMP replacements[] = {
+        (IMP)IENOverlayViewWillAppear,
+        (IMP)IENOverlayViewDidAppear,
+        (IMP)IENOverlayViewWillDisappear,
+        (IMP)IENOverlayViewDidDisappear,
+    };
+    for (int index = 0; index < 4; index++) {
+        method_setImplementation(methods[index], replacements[index]);
+    }
+
+    IENOverlayAppearanceFixInstalled = YES;
+    return YES;
+}

@@ -68,8 +68,10 @@ class DateTimeDialogTest {
         }
     }
 
-    private class RecordingPresenter : UIViewController(nibName = null, bundle = null) {
+    internal class RecordingPresenter : UIViewController(nibName = null, bundle = null) {
         private var sheet: UIViewController? = null
+        var presentCount = 0
+            private set
         var dismissCount = 0
             private set
 
@@ -80,6 +82,7 @@ class DateTimeDialogTest {
             animated: Boolean,
             completion: (() -> Unit)?,
         ) {
+            presentCount++
             sheet = viewControllerToPresent
             completion?.invoke()
         }

@@ -33,6 +33,12 @@ kotlin {
         target.compilations.getByName("main").cinterops.create("ienBarPlacement") {
             definitionFile.set(project.file("src/nativeInterop/cinterop/ienBarPlacement.def"))
         }
+        target.compilations.getByName("main").cinterops.create("ienOverlayAppearance") {
+            definitionFile.set(project.file("src/nativeInterop/cinterop/ienOverlayAppearance.def"))
+        }
+        target.compilations.getByName("test").cinterops.create("ienOverlayAppearanceTest") {
+            definitionFile.set(project.file("src/nativeInterop/cinterop/ienOverlayAppearanceTest.def"))
+        }
     }
     wasmJs {
         browser()
@@ -82,6 +88,11 @@ kotlin {
 
 dependencies {
     androidRuntimeClasspath(libs.compose.ui.tooling)
+}
+
+// UIKit 테스트는 시스템 서비스에 연결할 수 있는 부팅된 시뮬레이터에서 실행합니다.
+tasks.withType<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest>().configureEach {
+    standalone.set(false)
 }
 
 compose.resources {

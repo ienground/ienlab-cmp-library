@@ -3,16 +3,20 @@ package zone.ien.utils.ui.screen
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.CompositionTracer
 import androidx.compose.runtime.InternalComposeTracingApi
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -42,6 +46,62 @@ class IenScaffoldPerformanceTest {
     @Test
     fun scrollingFromBottomUpdatesBottomBlurWithoutRecomposingScaffold(): TestResult =
         verifyScrolling(blurEnabled = true, fromBottom = true)
+
+    @Test
+    fun disabledBlurDoesNotDrawContentForAnUnusedBackdrop(): TestResult = runComposeUiTest {
+        val redrawState = mutableIntStateOf(0)
+        var baselineDraws = 0
+        var scaffoldContentDraws = 0
+        val controller = UIViewController()
+
+        setContent {
+            CompositionLocalProvider(LocalUIViewController provides controller) {
+                IenTheme {
+                    Row(Modifier.fillMaxSize()) {
+                        Box(
+                            Modifier
+                                .weight(1f)
+                                .fillMaxSize()
+                                .drawWithContent {
+                                    drawRect(if (redrawState.intValue == 0) Color.White else Color.LightGray)
+                                    baselineDraws++
+                                    drawContent()
+                                },
+                        )
+                        IenScaffold(
+                            modifier = Modifier.weight(1f),
+                            contentEdge = IenScaffoldContentEdge(enabled = false),
+                        ) {
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .drawWithContent {
+                                        drawRect(if (redrawState.intValue == 0) Color.White else Color.LightGray)
+                                        scaffoldContentDraws++
+                                        drawContent()
+                                    },
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        waitForIdle()
+        runOnIdle {
+            baselineDraws = 0
+            scaffoldContentDraws = 0
+            redrawState.intValue++
+        }
+        waitForIdle()
+        runOnIdle {
+            assertTrue(baselineDraws > 0, "기준 Box가 제어된 무효화에 다시 그려져야 합니다")
+            assertEquals(
+                baselineDraws,
+                scaffoldContentDraws,
+                "블러가 꺼진 Scaffold 본문은 일반 Box보다 추가로 다시 그려지면 안 됩니다",
+            )
+        }
+    }
 
     private fun verifyScrolling(blurEnabled: Boolean, fromBottom: Boolean = false): TestResult = runComposeUiTest {
         val state = ScrollState(0)

@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -208,6 +209,31 @@ class IenTooltipShape(
     private val cornerRadius: Dp,
     private val density: Density
 ) : Shape {
+    private var clipToEnd: IenTooltipClipToEnd = IenTooltipClipToEnd.None
+    private var arrowRatioState: State<Float>? = null
+
+    internal constructor(
+        placement: IenTooltipPlacement,
+        arrowRatio: Float,
+        arrowSize: Dp,
+        cornerRadius: Dp,
+        density: Density,
+        clipToEnd: IenTooltipClipToEnd,
+    ) : this(placement, arrowRatio, arrowSize, cornerRadius, density) {
+        this.clipToEnd = clipToEnd
+    }
+
+    internal constructor(
+        placement: IenTooltipPlacement,
+        arrowRatio: State<Float>,
+        arrowSize: Dp,
+        cornerRadius: Dp,
+        density: Density,
+        clipToEnd: IenTooltipClipToEnd,
+    ) : this(placement, 0.5f, arrowSize, cornerRadius, density, clipToEnd) {
+        arrowRatioState = arrowRatio
+    }
+
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
@@ -229,27 +255,50 @@ class IenTooltipShape(
 
             val arrowWidth = arrowSizePx
             val arrowHeight = arrowSizePx / 2f
-            val arrowX = w * arrowRatio.coerceIn(0.1f, 0.9f) - (arrowWidth / 2f)
+            val resolvedArrowRatio = (arrowRatioState?.value ?: arrowRatio).coerceIn(0.1f, 0.9f)
+            val arrowX = w * resolvedArrowRatio - (arrowWidth / 2f)
 
             when (placement) {
                 IenTooltipPlacement.Bottom -> {
-                    moveTo(arrowX, bodyTop)
-                    lineTo(arrowX + arrowWidth / 2f, bodyTop - arrowHeight)
-                    lineTo(arrowX + arrowWidth, bodyTop)
+                    val arrowTipX = arrowX + arrowWidth / 2f
+                    val arrowStartX = if (clipToEnd == IenTooltipClipToEnd.Right) {
+                        arrowTipX
+                    } else {
+                        arrowX
+                    }
+                    val arrowEndX = if (clipToEnd == IenTooltipClipToEnd.Left) {
+                        arrowTipX
+                    } else {
+                        arrowX + arrowWidth
+                    }
+                    moveTo(arrowStartX, bodyTop)
+                    lineTo(arrowTipX, bodyTop - arrowHeight)
+                    lineTo(arrowEndX, bodyTop)
                 }
                 IenTooltipPlacement.Top -> {
-                    moveTo(arrowX, bodyBottom)
-                    lineTo(arrowX + arrowWidth / 2f, bodyBottom + arrowHeight)
-                    lineTo(arrowX + arrowWidth, bodyBottom)
+                    val arrowTipX = arrowX + arrowWidth / 2f
+                    val arrowStartX = if (clipToEnd == IenTooltipClipToEnd.Right) {
+                        arrowTipX
+                    } else {
+                        arrowX
+                    }
+                    val arrowEndX = if (clipToEnd == IenTooltipClipToEnd.Left) {
+                        arrowTipX
+                    } else {
+                        arrowX + arrowWidth
+                    }
+                    moveTo(arrowStartX, bodyBottom)
+                    lineTo(arrowTipX, bodyBottom + arrowHeight)
+                    lineTo(arrowEndX, bodyBottom)
                 }
                 IenTooltipPlacement.Left -> {
-                    val arrowY = h * arrowRatio.coerceIn(0.1f, 0.9f)
+                    val arrowY = h * resolvedArrowRatio
                     moveTo(bodyRight, arrowY - arrowWidth / 2f)
                     lineTo(bodyRight + arrowHeight, arrowY)
                     lineTo(bodyRight, arrowY + arrowWidth / 2f)
                 }
                 IenTooltipPlacement.Right -> {
-                    val arrowY = h * arrowRatio.coerceIn(0.1f, 0.9f)
+                    val arrowY = h * resolvedArrowRatio
                     moveTo(bodyLeft, arrowY - arrowWidth / 2f)
                     lineTo(bodyLeft - arrowHeight, arrowY)
                     lineTo(bodyLeft, arrowY + arrowWidth / 2f)
@@ -440,7 +489,7 @@ private fun IenTooltipImpl(
         placement
     }
     val resolvedOffset = offset ?: IenTheme.spacing.xs
-    val motionScale by animateFloatAsState(
+    val motionScale = animateFloatAsState(
         targetValue = if (isOpen) 1f else motionVariant.hiddenScale(),
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioNoBouncy,
@@ -470,9 +519,9 @@ private fun IenTooltipImpl(
     var tooltipBodySize by remember { mutableStateOf(IntSize.Zero) }
     val shadowPopupProperties = ienTooltipShadowPopupProperties()
 
-    var dynamicArrowRatio by remember { mutableStateOf(anchorPositionByRatio) }
+    val dynamicArrowRatio = remember { mutableStateOf(anchorPositionByRatio) }
     LaunchedEffect(anchorPositionByRatio) {
-        dynamicArrowRatio = anchorPositionByRatio
+        dynamicArrowRatio.value = anchorPositionByRatio
     }
 
     val density = LocalDensity.current
@@ -551,7 +600,7 @@ private fun IenTooltipImpl(
                             density = density,
                             safeMargin = safeMargin,
                         ) { ratio ->
-                            dynamicArrowRatio = ratio
+                            dynamicArrowRatio.value = ratio
                         }
                     },
                     onDismissRequest = { updateOpen(false) },
@@ -571,7 +620,9 @@ private fun IenTooltipImpl(
                         width = width,
                         fitContentWidth = fitContentWidth,
                         drawShadow = shadowPopupProperties == null,
-                        onBodySizeChanged = { tooltipBodySize = it },
+                        onBodySizeChanged = if (shadowPopupProperties != null) {
+                            { tooltipBodySize = it }
+                        } else null,
                     )
                 }
             }
@@ -634,20 +685,19 @@ private fun IenTooltipPopup(
     content: (@Composable () -> Unit)?,
     tone: IenSemanticTone,
     messageAlign: IenTooltipMessageAlign,
-    anchorPositionByRatio: Float,
+    anchorPositionByRatio: State<Float>,
     clipToEnd: IenTooltipClipToEnd,
     placement: IenTooltipPlacement,
     motionVariant: IenTooltipMotionVariant,
-    scale: Float,
+    scale: State<Float>,
     width: Dp?,
     fitContentWidth: Boolean,
     shadowOnly: Boolean = false,
     bodySize: IntSize = IntSize.Zero,
     drawShadow: Boolean = true,
-    onBodySizeChanged: (IntSize) -> Unit = {},
+    onBodySizeChanged: ((IntSize) -> Unit)? = null,
 ) {
     val tooltipColors = resolveIenTooltipColors(tone, IenTheme.colors)
-    val arrowRatio = anchorPositionByRatio.coerceIn(0.05f, 0.95f)
     val alpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
         animationSpec = tween(
@@ -660,13 +710,14 @@ private fun IenTooltipPopup(
     )
 
     val density = LocalDensity.current
-    val tooltipShape = remember(placement, arrowRatio, density) {
+    val tooltipShape = remember(placement, anchorPositionByRatio, density, clipToEnd) {
         IenTooltipShape(
             placement = placement,
-            arrowRatio = arrowRatio,
+            arrowRatio = anchorPositionByRatio,
             arrowSize = 12.dp,
             cornerRadius = 12.dp,
-            density = density
+            density = density,
+            clipToEnd = clipToEnd,
         )
     }
 
@@ -690,8 +741,8 @@ private fun IenTooltipPopup(
         Box(
             modifier = Modifier
                 .graphicsLayer {
-                    scaleX = scale
-                    scaleY = scale
+                    scaleX = scale.value
+                    scaleY = scale.value
                     this.alpha = alpha
                     translationX = when (placement) {
                         IenTooltipPlacement.Left -> if (visible) 0f else 4f
@@ -726,7 +777,9 @@ private fun IenTooltipPopup(
             if (shadowOnly) {
                 Box(Modifier.matchParentSize().then(shadowModifier))
             } else IenSurface(
-                modifier = shadowModifier.onSizeChanged(onBodySizeChanged),
+                modifier = if (onBodySizeChanged != null) {
+                    shadowModifier.onSizeChanged(onBodySizeChanged)
+                } else shadowModifier,
                 color = tooltipColors.container,
                 contentColor = tooltipColors.content,
                 shape = tooltipShape,

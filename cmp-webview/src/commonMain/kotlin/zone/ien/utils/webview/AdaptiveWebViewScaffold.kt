@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -49,10 +51,23 @@ private sealed interface WebViewContentState {
     data object Content : WebViewContentState
 }
 
+internal fun webViewScaffoldContentEdge(
+    scrollState: WebViewScrollState,
+    fadeDistance: Float,
+): IenScaffoldContentEdge {
+    val contentEdge = IenScaffoldContentEdge(scrollableState = scrollState)
+    if (PlatformDependent.isIos) return contentEdge.copy(enabled = false)
+    return contentEdge.copy(
+        topProgress = (scrollState.offset / fadeDistance).coerceIn(0f, 1f),
+        bottomProgress = ((scrollState.maxOffset - scrollState.offset) / fadeDistance).coerceIn(0f, 1f),
+    )
+}
+
 /**
  * 큰 제목과 웹뷰를 함께 스크롤하고, 플랫폼별 상·하단 블러를 적용합니다.
  *
  * 웹뷰 상태와 탐색은 호출부가 소유하며 로딩 및 오류 콘텐츠를 교체할 수 있습니다.
+ * iOS에서는 첫 화면을 그린 뒤 네이티브 웹뷰를 생성합니다.
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -65,19 +80,38 @@ fun AdaptiveWebViewScaffold(
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     loadingContent: @Composable () -> Unit = { IenLoadingIndicator() },
 ) {
+    val scrollState = remember { WebViewScrollState() }
+    WebViewScaffoldLayout(modifier, scrollState, title, navigationIcon) { topBarHeight ->
+        ScaffoldWebView(
+            modifier = Modifier,
+            state = state,
+            navigator = navigator,
+            loadingContent = loadingContent,
+            errorContent = errorContent,
+            scrollState = scrollState,
+            topBarHeight = topBarHeight,
+        )
+    }
+}
+
+@OptIn(ExperimentalAdaptiveApi::class)
+@Composable
+internal fun WebViewScaffoldLayout(
+    modifier: Modifier,
+    scrollState: WebViewScrollState,
+    title: @Composable () -> Unit,
+    navigationIcon: @Composable () -> Unit,
+    webView: @Composable (Dp) -> Unit,
+) {
     val backdrop = rememberDefaultBackdrop()
     val titleBackdrop = rememberLayerBackdrop()
-    val scrollState = remember { WebViewScrollState() }
-    val contentEdge = IenScaffoldContentEdge(scrollableState = scrollState)
-    val fadeDistance = with(LocalDensity.current) { contentEdge.scrollFadeDistance.toPx() }
+    val fadeDistance = with(LocalDensity.current) { IenScaffoldContentEdge().scrollFadeDistance.toPx() }
+    val contentEdge = webViewScaffoldContentEdge(scrollState, fadeDistance)
     AdaptiveTopAppBarScaffold(
         navigationIcon = navigationIcon,
         title = title,
         backdrop = backdrop,
-        contentEdge = contentEdge.copy(
-            topProgress = (scrollState.offset / fadeDistance).coerceIn(0f, 1f),
-            bottomProgress = ((scrollState.maxOffset - scrollState.offset) / fadeDistance).coerceIn(0f, 1f),
-        ),
+        contentEdge = contentEdge,
         modifier = modifier,
     ) { paddingValues, title ->
         val layoutDirection = LocalLayoutDirection.current
@@ -106,15 +140,7 @@ fun AdaptiveWebViewScaffold(
                             bottom = IenTheme.spacing.md,
                         ),
                 ) { title() }
-                ScaffoldWebView(
-                    modifier = Modifier,
-                    state = state,
-                    navigator = navigator,
-                    loadingContent = loadingContent,
-                    errorContent = errorContent,
-                    scrollState = scrollState,
-                    topBarHeight = paddingValues.calculateTopPadding(),
-                )
+                webView(topBarHeight)
                 if (PlatformDependent.isIos) {
                     Box(
                         modifier = Modifier
@@ -153,6 +179,22 @@ fun AdaptiveWebViewScaffold(
 }
 
 @Composable
+internal fun WebViewAfterFirstFrame(content: @Composable () -> Unit) {
+    if (!PlatformDependent.isIos) {
+        content()
+        return
+    }
+    var ready by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        // 첫 프레임 콜백은 그리기보다 앞설 수 있어 다음 콜백까지 기다립니다.
+        withFrameNanos { }
+        withFrameNanos { }
+        ready = true
+    }
+    if (ready) content()
+}
+
+@Composable
 private fun ScaffoldWebView(
     modifier: Modifier,
     state: WebViewState,
@@ -179,15 +221,17 @@ private fun ScaffoldWebView(
         topBarHeight = topBarHeight,
     )
     Box(modifier = modifier) {
-        WebView(
-            state = state,
-            modifier = Modifier.fillMaxSize(),
-            navigator = navigator,
-            captureBackPresses = false,
-            factory = rememberWebViewFactory(scrollState),
-            onCreated = { webView: NativeWebView -> nativeWebView = webView },
-            onDispose = { _: NativeWebView -> nativeWebView = null },
-        )
+        WebViewAfterFirstFrame {
+            WebView(
+                state = state,
+                modifier = Modifier.fillMaxSize(),
+                navigator = navigator,
+                captureBackPresses = false,
+                factory = rememberWebViewFactory(scrollState),
+                onCreated = { webView: NativeWebView -> nativeWebView = webView },
+                onDispose = { _: NativeWebView -> nativeWebView = null },
+            )
+        }
         when (contentState) {
             WebViewContentState.Error -> Box(modifier = Modifier.fillMaxSize()) {
                 errorContent()

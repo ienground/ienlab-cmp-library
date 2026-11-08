@@ -89,7 +89,14 @@ fun IenSurface(
 }
 
 internal fun Modifier.drawIenBorder(border: BorderStroke, shape: Shape): Modifier =
+    drawIenBorder(shape) { border }
+
+internal fun Modifier.drawIenBorder(
+    shape: Shape,
+    borderProvider: () -> BorderStroke,
+): Modifier =
     drawWithCache {
+        val border = borderProvider()
         val width = if (border.width == Dp.Hairline) 1f else ceil(border.width.toPx())
         if (border.width.value < 0f || width == 0f || !width.isFinite() || size.minDimension <= 0f) {
             onDrawWithContent { drawContent() }

@@ -2,6 +2,7 @@ package zone.ien.utils.adaptive.select
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.uikit.LocalUIViewController
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCAction
@@ -19,7 +21,6 @@ import platform.CoreGraphics.CGRectZero
 import platform.Foundation.NSIndexPath
 import platform.Foundation.NSSelectorFromString
 import platform.UIKit.NSLayoutConstraint
-import platform.UIKit.UIApplication
 import platform.UIKit.UIBarButtonItem
 import platform.UIKit.UIBarButtonItemStyle
 import platform.UIKit.UIBarMetrics
@@ -90,6 +91,7 @@ actual fun <T> ExposedDropdownMenuBox(
     textField: @Composable (value: String, trailingIcon: @Composable () -> Unit) -> Unit
 ) {
     val nativeTintColor = IenTheme.colors.brand.toUIColor()
+    val presenter = LocalUIViewController.current
     var expanded by remember { mutableStateOf(false) }
     var pickerRef by remember { mutableStateOf<UIPickerView?>(null) }
     var tempCurrentItem by remember { mutableStateOf(currentItem) }
@@ -116,7 +118,17 @@ actual fun <T> ExposedDropdownMenuBox(
         PickerDataSourceDelegate(itemsWithLabels = itemsWithLabels, onSelectionChange = { tempCurrentItem = it })
     }
 
-    LaunchedEffect(expanded, currentItem, itemsWithLabels) {
+    LaunchedEffect(itemsWithLabels) {
+        pickerRef?.let { pickerView ->
+            pickerView.dataSource = pickerDelegate
+            pickerView.delegate = pickerDelegate
+            pickerView.reloadAllComponents()
+            val selectedIndex = itemsWithLabels.keys.indexOf(tempCurrentItem)
+            if (selectedIndex >= 0) pickerView.selectRow(selectedIndex.toLong(), animated = false, inComponent = 0)
+        }
+    }
+
+    DisposableEffect(presenter, expanded) {
         if (expanded) {
             tempCurrentItem = currentItem?.takeIf { it in itemsWithLabels.keys }
             val viewController = UIViewController().apply {
@@ -183,10 +195,18 @@ actual fun <T> ExposedDropdownMenuBox(
             sheet?.prefersScrollingExpandsWhenScrolledToEdge = true
             sheet?.delegate = sheetDelegate
 
-            UIApplication.sharedApplication.keyWindow?.rootViewController?.presentViewController(viewController, true, null)
+            presenter.presentViewController(viewController, true, null)
+            onDispose {
+                sheet?.delegate = null
+                pickerView.delegate = null
+                pickerView.dataSource = null
+                if (presenter.presentedViewController == viewController) {
+                    presenter.dismissViewControllerAnimated(true, null)
+                }
+                if (pickerRef === pickerView) pickerRef = null
+            }
         } else {
-            UIApplication.sharedApplication.keyWindow?.rootViewController?.dismissViewControllerAnimated(true, null)
-            pickerRef = null
+            onDispose {}
         }
     }
 
@@ -246,8 +266,9 @@ actual fun <T> ExposedDropdownMenuBox(
     textField: @Composable (value: String, trailingIcon: @Composable () -> Unit) -> Unit
 ) {
     val nativeTintColor = IenTheme.colors.brand.toUIColor()
+    val presenter = LocalUIViewController.current
     var expanded by remember { mutableStateOf(false) }
-    var pickerRef by remember { mutableStateOf<UIPickerView?>(null) }
+    var pickerRef by remember { mutableStateOf<ListPickerViewController<T>?>(null) }
     var tempCurrentItems by remember { mutableStateOf(currentItems.filter { it in itemsWithLabels.keys }) }
     val currentItemsWithLabels by rememberUpdatedState(itemsWithLabels)
     val currentOnItemsSelected by rememberUpdatedState(onItemsSelected)
@@ -267,7 +288,11 @@ actual fun <T> ExposedDropdownMenuBox(
         }
     } }
 
-    LaunchedEffect(expanded, currentItems, itemsWithLabels) {
+    LaunchedEffect(itemsWithLabels) {
+        pickerRef?.updateItemsWithLabels(itemsWithLabels)
+    }
+
+    DisposableEffect(presenter, expanded) {
         if (expanded) {
             val initialItems = currentItems.filter { it in itemsWithLabels.keys }
             tempCurrentItems = initialItems
@@ -298,13 +323,19 @@ actual fun <T> ExposedDropdownMenuBox(
             val sheet = navController.sheetPresentationController
             sheet?.detents = listOf(UISheetPresentationControllerDetent.largeDetent())
             sheet?.delegate = sheetDelegate
+            pickerRef = pickerViewController
 
-            UIApplication.sharedApplication.keyWindow?.rootViewController?.presentViewController(navController, true, null)
-
+            presenter.presentViewController(navController, true, null)
+            onDispose {
+                sheet?.delegate = null
+                pickerViewController.detachTableViewDelegates()
+                if (presenter.presentedViewController == navController) {
+                    presenter.dismissViewControllerAnimated(true, null)
+                }
+                if (pickerRef === pickerViewController) pickerRef = null
+            }
         } else {
-            // dismiss 로직
-            UIApplication.sharedApplication.keyWindow?.rootViewController?.dismissViewControllerAnimated(true, null)
-            pickerRef = null
+            onDispose {}
         }
     }
 
@@ -314,7 +345,7 @@ actual fun <T> ExposedDropdownMenuBox(
 }
 
 class ListPickerViewController<T>(
-    private val itemsWithLabels: Map<T, String>,
+    private var itemsWithLabels: Map<T, String>,
     private val currentItems: List<T>,
     private val onSelectionChange: (List<T>) -> Unit
 ): UIViewController(null, bundle = null), UITableViewDelegateProtocol, UITableViewDataSourceProtocol {
@@ -324,6 +355,17 @@ class ListPickerViewController<T>(
 
     override fun debugDescription(): String {
         return "ListPickerViewController(items=${itemsWithLabels.size}, selected=${currentItems.size})"
+    }
+
+    internal fun updateItemsWithLabels(itemsWithLabels: Map<T, String>) {
+        if (this.itemsWithLabels == itemsWithLabels) return
+        this.itemsWithLabels = itemsWithLabels
+        tableView.reloadData()
+    }
+
+    internal fun detachTableViewDelegates() {
+        tableView.delegate = null
+        tableView.dataSource = null
     }
 
 

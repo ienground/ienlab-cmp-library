@@ -1,0 +1,215 @@
+language = Objective-C
+package = zone.ien.utils.ui.appearance.test
+compilerOpts = -fobjc-arc
+---
+#import <UIKit/UIKit.h>
+#import <objc/runtime.h>
+#import <string.h>
+
+typedef void (*IENOverlayAppearanceTestBeginIMP)(UIViewController *, SEL, BOOL, BOOL);
+typedef void (*IENOverlayAppearanceTestEndIMP)(UIViewController *, SEL);
+
+static __unsafe_unretained UIViewController *IENOverlayAppearanceTestTargetController;
+static IMP IENOverlayAppearanceTestOriginalBegin;
+static int IENOverlayAppearanceTestBeginCountValue;
+static BOOL IENOverlayAppearanceTestCounterInstalled;
+static int IENOverlayAppearanceTestOwnedBeginCountValue;
+static int IENOverlayAppearanceTestOwnedEndCountValue;
+
+static void IENOverlayAppearanceTestOwnedBegin(
+    UIViewController *controller,
+    SEL selector,
+    BOOL appearing,
+    BOOL animated
+) {
+    IENOverlayAppearanceTestOwnedBeginCountValue++;
+    Method method = class_getInstanceMethod(
+        [UIViewController class],
+        @selector(beginAppearanceTransition:animated:)
+    );
+    if (method != NULL) {
+        ((IENOverlayAppearanceTestBeginIMP)method_getImplementation(method))(
+            controller,
+            selector,
+            appearing,
+            animated
+        );
+    }
+}
+
+static void IENOverlayAppearanceTestOwnedEnd(
+    UIViewController *controller,
+    SEL selector
+) {
+    IENOverlayAppearanceTestOwnedEndCountValue++;
+    Method method = class_getInstanceMethod(
+        [UIViewController class],
+        @selector(endAppearanceTransition)
+    );
+    if (method != NULL) {
+        ((IENOverlayAppearanceTestEndIMP)method_getImplementation(method))(controller, selector);
+    }
+}
+
+static inline UIViewController *IENOverlayAppearanceTestCreateOwnedOverrideController(void) {
+    static Class controllerClass;
+    if (controllerClass == Nil) {
+        const char *className =
+            "IenTestandroidx.compose.ui.scene.ComposeLayersViewControllerOwnedOverrideFixture";
+        controllerClass = objc_getClass(className);
+        if (controllerClass == Nil) {
+            controllerClass = objc_allocateClassPair([UIViewController class], className, 0);
+            if (controllerClass == Nil) return nil;
+
+            Method beginMethod = class_getInstanceMethod(
+                [UIViewController class],
+                @selector(beginAppearanceTransition:animated:)
+            );
+            Method endMethod = class_getInstanceMethod(
+                [UIViewController class],
+                @selector(endAppearanceTransition)
+            );
+            if (beginMethod == NULL || endMethod == NULL ||
+                !class_addMethod(
+                    controllerClass,
+                    @selector(beginAppearanceTransition:animated:),
+                    (IMP)IENOverlayAppearanceTestOwnedBegin,
+                    method_getTypeEncoding(beginMethod)
+                ) ||
+                !class_addMethod(
+                    controllerClass,
+                    @selector(endAppearanceTransition),
+                    (IMP)IENOverlayAppearanceTestOwnedEnd,
+                    method_getTypeEncoding(endMethod)
+                )) {
+                objc_disposeClassPair(controllerClass);
+                controllerClass = Nil;
+                return nil;
+            }
+            objc_registerClassPair(controllerClass);
+        }
+    }
+
+    IENOverlayAppearanceTestOwnedBeginCountValue = 0;
+    IENOverlayAppearanceTestOwnedEndCountValue = 0;
+    return [[controllerClass alloc] initWithNibName:nil bundle:nil];
+}
+
+static inline int IENOverlayAppearanceTestOwnedBeginCount(void) {
+    return IENOverlayAppearanceTestOwnedBeginCountValue;
+}
+
+static inline int IENOverlayAppearanceTestOwnedEndCount(void) {
+    return IENOverlayAppearanceTestOwnedEndCountValue;
+}
+
+static void IENOverlayAppearanceTestCountedBegin(
+    UIViewController *controller,
+    SEL selector,
+    BOOL appearing,
+    BOOL animated
+) {
+    if (IENOverlayAppearanceTestCounterInstalled &&
+        controller == IENOverlayAppearanceTestTargetController) {
+        IENOverlayAppearanceTestBeginCountValue++;
+    }
+    if (IENOverlayAppearanceTestOriginalBegin != NULL) {
+        ((void (*)(UIViewController *, SEL, BOOL, BOOL))IENOverlayAppearanceTestOriginalBegin)(
+            controller,
+            selector,
+            appearing,
+            animated
+        );
+    }
+}
+
+static inline BOOL IENOverlayAppearanceTestInstallBeginCounter(UIViewController *controller) {
+    if (![NSThread isMainThread] || controller == nil || IENOverlayAppearanceTestCounterInstalled) {
+        return NO;
+    }
+
+    Method method = class_getInstanceMethod(
+        [UIViewController class],
+        @selector(beginAppearanceTransition:animated:)
+    );
+    if (method == NULL ||
+        method_getImplementation(method) == (IMP)IENOverlayAppearanceTestCountedBegin) {
+        return NO;
+    }
+
+    IENOverlayAppearanceTestTargetController = controller;
+    IENOverlayAppearanceTestBeginCountValue = 0;
+    IENOverlayAppearanceTestOriginalBegin = method_setImplementation(
+        method,
+        (IMP)IENOverlayAppearanceTestCountedBegin
+    );
+    if (IENOverlayAppearanceTestOriginalBegin == NULL ||
+        IENOverlayAppearanceTestOriginalBegin == (IMP)IENOverlayAppearanceTestCountedBegin) {
+        IENOverlayAppearanceTestTargetController = nil;
+        IENOverlayAppearanceTestOriginalBegin = NULL;
+        return NO;
+    }
+
+    IENOverlayAppearanceTestCounterInstalled = YES;
+    return YES;
+}
+
+static inline void IENOverlayAppearanceTestSimulateAutomaticAppearance(
+    UIViewController *controller,
+    BOOL appearing
+) {
+    if (!IENOverlayAppearanceTestCounterInstalled ||
+        controller != IENOverlayAppearanceTestTargetController) {
+        return;
+    }
+    IENOverlayAppearanceTestCountedBegin(
+        controller,
+        @selector(beginAppearanceTransition:animated:),
+        appearing,
+        NO
+    );
+}
+
+static inline int IENOverlayAppearanceTestBeginCount(void) {
+    return IENOverlayAppearanceTestBeginCountValue;
+}
+
+static inline void IENOverlayAppearanceTestSimulateAutomaticCompletion(
+    UIViewController *controller
+) {
+    Method method = class_getInstanceMethod(
+        [UIViewController class],
+        @selector(endAppearanceTransition)
+    );
+    if (method == NULL) return;
+
+    IMP original = method_getImplementation(method);
+    ((void (*)(UIViewController *, SEL))original)(
+        controller,
+        @selector(endAppearanceTransition)
+    );
+}
+
+static inline void IENOverlayAppearanceTestRestoreBeginCounter(void) {
+    if (!IENOverlayAppearanceTestCounterInstalled) return;
+
+    Method method = class_getInstanceMethod(
+        [UIViewController class],
+        @selector(beginAppearanceTransition:animated:)
+    );
+    if (method != NULL &&
+        method_getImplementation(method) == (IMP)IENOverlayAppearanceTestCountedBegin) {
+        method_setImplementation(method, IENOverlayAppearanceTestOriginalBegin);
+    }
+
+    IENOverlayAppearanceTestCounterInstalled = NO;
+    IENOverlayAppearanceTestTargetController = nil;
+}
+
+static inline BOOL IENOverlayAppearanceTestIsComposeLayersController(
+    UIViewController *controller
+) {
+    const char *className = class_getName([controller class]);
+    return className != NULL &&
+        strstr(className, "androidx.compose.ui.scene.ComposeLayersViewController") != NULL;
+}

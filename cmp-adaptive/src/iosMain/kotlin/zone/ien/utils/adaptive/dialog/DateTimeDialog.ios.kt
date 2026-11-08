@@ -4,6 +4,7 @@ import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.SelectableDates
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -53,7 +54,7 @@ private fun BaseDateTimePickerDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     title: String,
-    datePicker: UIDatePicker,
+    createDatePicker: () -> UIDatePicker,
     onDismiss: () -> Unit,
     tone: IenSemanticTone = IenSemanticTone.Brand,
     onConfirm: (NSDate) -> Unit
@@ -62,9 +63,10 @@ private fun BaseDateTimePickerDialog(
     val currentOnDismiss by rememberUpdatedState(onDismiss)
     val currentOnConfirm by rememberUpdatedState(onConfirm)
     val nativeTintColor = toneColor(tone).toUIColor()
+    val nativeAppearance = remember(presenter) { DateTimePickerNativeAppearance() }
     if (!visible) return
 
-    val datePickerRef = remember(presenter) { datePicker }
+    val datePickerRef = remember(presenter) { createDatePicker() }
     val delegate = remember(presenter) { object: NSObject(), UISheetPresentationControllerDelegateProtocol {
         override fun presentationControllerDidDismiss(presentationController: UIPresentationController) {
             currentOnDismiss()
@@ -88,6 +90,9 @@ private fun BaseDateTimePickerDialog(
             tintColor = nativeTintColor
         }
         val navItem = UINavigationItem(title = title)
+        nativeAppearance.viewController = viewController
+        nativeAppearance.navBar = navBar
+        nativeAppearance.navItem = navItem
 
         navItem.leftBarButtonItem = UIBarButtonItem(
             image = UIImage.systemImageNamed("xmark"),
@@ -137,12 +142,27 @@ private fun BaseDateTimePickerDialog(
 
         presenter.presentViewController(viewController, true, null)
         onDispose {
+            nativeAppearance.viewController = null
+            nativeAppearance.navBar = null
+            nativeAppearance.navItem = null
             sheet?.delegate = null
             if (presenter.presentedViewController == viewController) {
                 presenter.dismissViewControllerAnimated(true, null)
             }
         }
     }
+
+    SideEffect {
+        nativeAppearance.viewController?.view?.tintColor = nativeTintColor
+        nativeAppearance.navBar?.tintColor = nativeTintColor
+        nativeAppearance.navItem?.title = title
+    }
+}
+
+private class DateTimePickerNativeAppearance {
+    var viewController: UIViewController? = null
+    var navBar: UINavigationBar? = null
+    var navItem: UINavigationItem? = null
 }
 
 @Composable
@@ -164,12 +184,14 @@ actual fun DatePickerDialog(
         modifier = modifier,
         visible = visible,
         title = title,
-        datePicker = UIDatePicker().apply {
-            this.datePickerMode = UIDatePickerMode.UIDatePickerModeDate
-            this.preferredDatePickerStyle = UIDatePickerStyle.UIDatePickerStyleWheels
-            initialSelectedDateMillis?.let { this.setDate(NSDate.dateWithTimeIntervalSince1970(it / 1000.0)) }
-            this.minimumDate = createNSDate(yearRange.first, 1, 1)
-            this.maximumDate = createNSDate(yearRange.last, 12, 31)
+        createDatePicker = {
+            UIDatePicker().apply {
+                this.datePickerMode = UIDatePickerMode.UIDatePickerModeDate
+                this.preferredDatePickerStyle = UIDatePickerStyle.UIDatePickerStyleWheels
+                initialSelectedDateMillis?.let { this.setDate(NSDate.dateWithTimeIntervalSince1970(it / 1000.0)) }
+                this.minimumDate = createNSDate(yearRange.first, 1, 1)
+                this.maximumDate = createNSDate(yearRange.last, 12, 31)
+            }
         },
         onDismiss = onDismiss,
         onConfirm = { onConfirm(it.timeIntervalSince1970.toLong() * 1000) }
@@ -193,10 +215,12 @@ actual fun TimePickerDialog(
         modifier = modifier,
         visible = visible,
         title = title,
-        datePicker = UIDatePicker().apply {
-            this.datePickerMode = UIDatePickerMode.UIDatePickerModeTime
-            this.preferredDatePickerStyle = UIDatePickerStyle.UIDatePickerStyleWheels
-            this.setDate(createTimeNSDate(initialHour, initialMinute))
+        createDatePicker = {
+            UIDatePicker().apply {
+                this.datePickerMode = UIDatePickerMode.UIDatePickerModeTime
+                this.preferredDatePickerStyle = UIDatePickerStyle.UIDatePickerStyleWheels
+                this.setDate(createTimeNSDate(initialHour, initialMinute))
+            }
         },
         onDismiss = onDismiss,
         onConfirm = { it.getHourMinute().let { onConfirm(it.first, it.second) } }

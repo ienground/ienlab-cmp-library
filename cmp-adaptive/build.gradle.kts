@@ -29,8 +29,11 @@ kotlin {
             instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
     }
-    iosArm64()
-    iosSimulatorArm64()
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
+        target.compilations.getByName("test").cinterops.create("ienDatePickerAllocationTest") {
+            definitionFile.set(project.file("src/nativeInterop/cinterop/ienDatePickerAllocationTest.def"))
+        }
+    }
 
     sourceSets {
         commonMain.dependencies {
@@ -75,5 +78,10 @@ kotlin {
 
 dependencies {
     androidRuntimeClasspath(libs.compose.ui.tooling)
+}
+
+// UIKit 테스트는 시스템 서비스에 연결할 수 있는 부팅된 시뮬레이터에서 실행합니다.
+tasks.withType<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest>().configureEach {
+    standalone.set(false)
 }
 
