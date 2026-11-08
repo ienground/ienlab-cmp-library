@@ -116,8 +116,8 @@ private fun currentIconStyleName(): String? =
 
 private fun currentIconStyle(): IconStyle =
     when (currentIconStyleName()) {
-        "tabler" -> IconStyle.Tabler
+        "material-filled" -> IconStyle.Material.Filled
         "material-rounded" -> IconStyle.Material.Rounded
         "material-sharp" -> IconStyle.Material.Sharp
-        else -> IconStyle.Material.Filled
+        else -> IconStyle.Tabler
     }

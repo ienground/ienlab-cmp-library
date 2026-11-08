@@ -1,7 +1,5 @@
 package zone.ien.utils.ui.feedback
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +16,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -462,7 +461,7 @@ private fun IenSkeletonElementView(
     index: Int,
     radius: Dp,
     color: Color,
-    phase: Float,
+    phase: State<Float>,
 ) {
     when (element) {
         IenSkeletonElement.Title -> IenSkeletonBlock(
@@ -597,7 +596,7 @@ private fun IenSkeletonListRow(
     index: Int,
     radius: Dp,
     color: Color,
-    phase: Float,
+    phase: State<Float>,
 ) {
     val widthFraction = when (index % 3) {
         0 -> 0.92f
@@ -626,7 +625,7 @@ private fun IenSkeletonListRowWithIcon(
     index: Int,
     radius: Dp,
     color: Color,
-    phase: Float,
+    phase: State<Float>,
 ) {
     val primaryWidthFraction = when (index % 3) {
         0 -> 0.70f
@@ -684,7 +683,7 @@ private fun IenSkeletonListRowTexts(
     index: Int,
     radius: Dp,
     color: Color,
-    phase: Float,
+    phase: State<Float>,
 ) {
     Box(modifier = Modifier.ienSkeletonMotion(phase = phase, animationIndex = index)) {
         IenListRowTexts(
@@ -707,7 +706,7 @@ private fun IenSkeletonTextBlock(
     widthFraction: Float,
     radius: Dp,
     color: Color,
-    phase: Float,
+    phase: State<Float>,
     index: Int,
 ) {
     val style = LocalTextStyle.current
@@ -731,15 +730,15 @@ private fun IenSkeletonTextBlock(
 }
 
 @Composable
-private fun rememberIenSkeletonPhase(): Float {
-    if (LocalInspectionMode.current) return 0f
+private fun rememberIenSkeletonPhase(): State<Float> {
+    val phase = remember { mutableStateOf(0f) }
+    if (LocalInspectionMode.current) return phase
 
-    var phase by remember { mutableStateOf(0f) }
     LaunchedEffect(Unit) {
         while (true) {
             withFrameMillis { frameMillis ->
                 val normalized = (frameMillis % IenSkeletonMotionDurationMillis).toFloat() / IenSkeletonMotionDurationMillis
-                phase = normalized * (PI * 2.0).toFloat()
+                phase.value = normalized * (PI * 2.0).toFloat()
             }
         }
     }
@@ -752,7 +751,7 @@ private fun IenSkeletonBlock(
     height: Dp,
     radius: Dp,
     color: Color,
-    phase: Float,
+    phase: State<Float>,
     animationIndex: Int,
     animate: Boolean = true,
     shape: Shape? = null,
@@ -775,17 +774,16 @@ private fun IenSkeletonBlock(
 
 @Composable
 private fun Modifier.ienSkeletonMotion(
-    phase: Float,
+    phase: State<Float>,
     animationIndex: Int,
 ): Modifier {
     if (LocalInspectionMode.current) return this
 
-    val delayedPhase = phase - animationIndex * 0.78f
-    val wave = ((sin(delayedPhase) + 1f) / 2f).coerceIn(0f, 1f)
-    val alpha = 0.2f + 0.8f * wave
-    val scale = 0.96f + 0.04f * wave
-
     return graphicsLayer {
+        val delayedPhase = phase.value - animationIndex * 0.78f
+        val wave = ((sin(delayedPhase) + 1f) / 2f).coerceIn(0f, 1f)
+        val alpha = 0.2f + 0.8f * wave
+        val scale = 0.96f + 0.04f * wave
         this.alpha = alpha
         scaleX = scale
         scaleY = scale

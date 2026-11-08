@@ -2,6 +2,7 @@ package zone.ien.utils.adaptive.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.dialog.IenAlertDialog
 import zone.ien.utils.ui.dialog.IenDialogActionStyle
 import zone.ien.utils.ui.dialog.IenDialogButtonLayout
@@ -29,9 +30,11 @@ actual fun AlertDialog(
     textDismiss: String,
     styleDismiss: UIAlertActionStyle,
     enabledDismiss: Boolean,
+    tone: IenSemanticTone,
     onDismiss: (() -> Unit)?
 ) {
     IenAlertDialog(
+        tone = tone,
         modifier = modifier,
         visible = visible,
         icon = icon,
@@ -78,8 +81,10 @@ actual fun AlertDialog(
     enabledConfirm: Boolean,
     buttonLayout: IenDialogButtonLayout,
     enabledDismiss: Boolean,
+    tone: IenSemanticTone,
 ) {
     IenAlertDialog(
+        tone = tone,
         modifier = modifier,
         visible = visible,
         icon = icon,
@@ -139,8 +144,10 @@ actual fun AlertDialog(
     enabledPositive: Boolean,
     buttonLayout: IenDialogButtonLayout,
     enabledNegative: Boolean,
+    tone: IenSemanticTone,
 ) {
     IenAlertDialog(
+        tone = tone,
         modifier = modifier,
         visible = visible,
         icon = icon,

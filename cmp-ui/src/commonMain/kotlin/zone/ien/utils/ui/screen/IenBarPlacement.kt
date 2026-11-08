@@ -2,6 +2,7 @@ package zone.ien.utils.ui.screen
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.ReadOnlyComposable
@@ -21,6 +22,7 @@ import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import zone.ien.utils.ui.foundation.IenTheme
@@ -31,9 +33,12 @@ internal data class IenBarPlacement(
     val controlsBottom: Dp = 0.dp,
     val centerFromRight: Dp = sideWidth / 2,
     val titleTopInset: Dp = 0.dp,
+    val isHingeClosed: Boolean? = null,
+    val divisionBounds: DpRect? = null,
+    val topStatusBounds: DpRect? = null,
 )
 
-internal val LocalIenBarPlacement = staticCompositionLocalOf<IenBarPlacement?> { null }
+internal val LocalIenBarPlacement = compositionLocalOf<IenBarPlacement?> { null }
 internal object IenSideTopBar
 
 /**

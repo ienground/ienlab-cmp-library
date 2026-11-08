@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -718,26 +719,25 @@ private fun IenNumberKeypadDigitKey(
     enabled: Boolean = true,
     height: Dp = 64.dp,
 ) {
+    val colors = IenTheme.colors
+    val elevation = IenTheme.elevation
     IenSurface(
         modifier = modifier,
-        color = if (enabled) IenTheme.colors.surfaceRaised else IenTheme.colors.surface,
-        contentColor = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
+        color = if (enabled) colors.surfaceRaised else colors.surface,
+        contentColor = if (enabled) colors.textPrimary else colors.textDisabled,
         shape = ContinuousRoundedRectangle(IenTheme.radius.default),
-        tonalElevation = if (enabled) IenTheme.elevation.raised else IenTheme.elevation.none,
+        tonalElevation = if (enabled) elevation.raised else elevation.none,
     ) {
-        Box(
+        Text(
+            text = number.toString(),
             modifier = Modifier
                 .height(height)
                 .shakeOnDisabledClick(enabled)
-                .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = number.toString(),
-                style = IenTheme.typography.title2,
-                color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
-            )
-        }
+                .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+                .wrapContentSize(Alignment.Center),
+            style = IenTheme.typography.title2,
+            color = if (enabled) colors.textPrimary else colors.textDisabled,
+        )
     }
 }
 
@@ -749,26 +749,25 @@ private fun IenNumberKeypadActionKey(
     enabled: Boolean = true,
     height: Dp = 64.dp,
 ) {
+    val colors = IenTheme.colors
+    val elevation = IenTheme.elevation
     IenSurface(
         modifier = modifier,
-        color = if (enabled) IenTheme.colors.surfaceRaised else IenTheme.colors.surface,
-        contentColor = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
+        color = if (enabled) colors.surfaceRaised else colors.surface,
+        contentColor = if (enabled) colors.textPrimary else colors.textDisabled,
         shape = ContinuousRoundedRectangle(IenTheme.radius.default),
-        tonalElevation = if (enabled) IenTheme.elevation.raised else IenTheme.elevation.none,
+        tonalElevation = if (enabled) elevation.raised else elevation.none,
     ) {
-        Box(
+        Text(
+            text = label,
             modifier = Modifier
                 .height(height)
                 .shakeOnDisabledClick(enabled)
-                .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = label,
-                style = IenTheme.typography.title3,
-                color = if (enabled) IenTheme.colors.textSecondary else IenTheme.colors.textDisabled,
-            )
-        }
+                .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+                .wrapContentSize(Alignment.Center),
+            style = IenTheme.typography.title3,
+            color = if (enabled) colors.textSecondary else colors.textDisabled,
+        )
     }
 }
 
@@ -821,36 +820,35 @@ private fun IenFullSecureInputKey(
     enabled: Boolean = true,
     height: Dp = 44.dp,
 ) {
+    val colors = IenTheme.colors
+    val elevation = IenTheme.elevation
     IenSurface(
         modifier = modifier,
-        color = if (enabled) IenTheme.colors.surfaceRaised else IenTheme.colors.surface,
-        contentColor = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
+        color = if (enabled) colors.surfaceRaised else colors.surface,
+        contentColor = if (enabled) colors.textPrimary else colors.textDisabled,
         shape = ContinuousRoundedRectangle(IenTheme.radius.sm),
-        tonalElevation = if (enabled) IenTheme.elevation.raised else IenTheme.elevation.none,
+        tonalElevation = if (enabled) elevation.raised else elevation.none,
     ) {
-        Box(
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxxs),
             modifier = Modifier
                 .height(height)
                 .shakeOnDisabledClick(enabled)
-                .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
-            contentAlignment = Alignment.Center,
+                .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+                .wrapContentSize(Alignment.Center),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xxxs),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            Text(
+                text = key.label,
+                style = IenTheme.typography.label1,
+                color = if (enabled) colors.textPrimary else colors.textDisabled,
+            )
+            key.secondaryLabel?.let {
                 Text(
-                    text = key.label,
-                    style = IenTheme.typography.label1,
-                    color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
+                    text = it,
+                    style = IenTheme.typography.caption,
+                    color = if (enabled) colors.textTertiary else colors.textDisabled,
                 )
-                key.secondaryLabel?.let {
-                    Text(
-                        text = it,
-                        style = IenTheme.typography.caption,
-                        color = if (enabled) IenTheme.colors.textTertiary else IenTheme.colors.textDisabled,
-                    )
-                }
             }
         }
     }
@@ -865,36 +863,35 @@ private fun IenFullSecureActionKey(
     height: Dp = 44.dp,
     filled: Boolean = false,
 ) {
+    val colors = IenTheme.colors
+    val elevation = IenTheme.elevation
     val background: Color = when {
-        filled && enabled -> IenTheme.colors.brand
-        enabled -> IenTheme.colors.surfaceRaised
-        else -> IenTheme.colors.surface
+        filled && enabled -> colors.brand
+        enabled -> colors.surfaceRaised
+        else -> colors.surface
     }
     val content: Color = when {
-        filled && enabled -> IenTheme.colors.onBrand
-        enabled -> IenTheme.colors.textPrimary
-        else -> IenTheme.colors.textDisabled
+        filled && enabled -> colors.onBrand
+        enabled -> colors.textPrimary
+        else -> colors.textDisabled
     }
     IenSurface(
         modifier = modifier,
         color = background,
         contentColor = content,
         shape = ContinuousRoundedRectangle(IenTheme.radius.sm),
-        tonalElevation = if (enabled) IenTheme.elevation.raised else IenTheme.elevation.none,
+        tonalElevation = if (enabled) elevation.raised else elevation.none,
     ) {
-        Box(
+        Text(
+            text = label,
             modifier = Modifier
                 .height(height)
                 .shakeOnDisabledClick(enabled)
-                .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = label,
-                style = IenTheme.typography.label1.copy(fontWeight = FontWeight.Bold),
-                color = content,
-            )
-        }
+                .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+                .wrapContentSize(Alignment.Center),
+            style = IenTheme.typography.label1.copy(fontWeight = FontWeight.Bold),
+            color = content,
+        )
     }
 }
 
@@ -905,26 +902,24 @@ private fun KeyboardKey(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
+    val colors = IenTheme.colors
     IenSurface(
         modifier = modifier,
-        color = if (enabled) IenTheme.colors.surfaceRaised else IenTheme.colors.surfaceWeak,
-        contentColor = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
+        color = if (enabled) colors.surfaceRaised else colors.surfaceWeak,
+        contentColor = if (enabled) colors.textPrimary else colors.textDisabled,
         shape = ContinuousRoundedRectangle(IenTheme.radius.sm),
-        border = BorderStroke(IenTheme.stroke.thin, IenTheme.colors.border),
+        border = BorderStroke(IenTheme.stroke.thin, colors.border),
     ) {
-        Box(
+        Text(
+            text = label,
             modifier = Modifier
                 .shakeOnDisabledClick(enabled)
                 .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
-                .padding(vertical = IenTheme.spacing.sm),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = label,
-                style = IenTheme.typography.label1,
-                color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
-            )
-        }
+                .padding(vertical = IenTheme.spacing.sm)
+                .wrapContentSize(Alignment.Center),
+            style = IenTheme.typography.label1,
+            color = if (enabled) colors.textPrimary else colors.textDisabled,
+        )
     }
 }
 
@@ -936,26 +931,25 @@ private fun IenKeypadKey(
     enabled: Boolean = true,
     height: Dp = 56.dp,
 ) {
+    val colors = IenTheme.colors
+    val elevation = IenTheme.elevation
     IenSurface(
         modifier = modifier,
-        color = if (enabled) IenTheme.colors.surfaceRaised else IenTheme.colors.surfaceWeak,
-        contentColor = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
+        color = if (enabled) colors.surfaceRaised else colors.surfaceWeak,
+        contentColor = if (enabled) colors.textPrimary else colors.textDisabled,
         shape = ContinuousRoundedRectangle(IenTheme.radius.default),
-        tonalElevation = if (enabled) IenTheme.elevation.raised else IenTheme.elevation.none,
+        tonalElevation = if (enabled) elevation.raised else elevation.none,
     ) {
-        Box(
+        Text(
+            text = label,
             modifier = Modifier
                 .height(height)
                 .shakeOnDisabledClick(enabled)
-                .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = label,
-                style = IenTheme.typography.title3,
-                color = if (enabled) IenTheme.colors.textPrimary else IenTheme.colors.textDisabled,
-            )
-        }
+                .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+                .wrapContentSize(Alignment.Center),
+            style = IenTheme.typography.title3,
+            color = if (enabled) colors.textPrimary else colors.textDisabled,
+        )
     }
 }
 

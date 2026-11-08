@@ -80,9 +80,24 @@
     <string name="clear_search">Clear search</string>
 
     <!-- Date and time wheel picker -->
-    <string name="date_picker_year">Year %1$s</string>
-    <string name="date_picker_month">Month %1$s</string>
-    <string name="date_picker_day">Day %1$s</string>
+    <string name="date_picker_field_order">mdy</string>
+    <string-array name="date_picker_months">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
+    <string name="date_picker_year">%1$s</string>
+    <string name="date_picker_month">%1$s</string>
+    <string name="date_picker_day">%1$s</string>
     <string name="time_picker_am">AM</string>
     <string name="time_picker_pm">PM</string>
     <string name="time_picker_hour">Hour %1$s</string>

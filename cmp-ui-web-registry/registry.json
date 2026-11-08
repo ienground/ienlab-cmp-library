@@ -2933,6 +2933,47 @@
       }
     },
     {
+      "name": "x-scroll-area",
+      "type": "registry:ui",
+      "title": "X Scroll Area",
+      "description": "세로 휠의 가로 스크롤 전환, 가장자리 페이드, 이전·다음 탐색 버튼을 제공하는 가로 스크롤 영역입니다.",
+      "dependencies": [
+        "cn@^0.4.0",
+        "radix-ui@^1.6.7",
+        "@tabler/icons-react@^3.49.0"
+      ],
+      "registryDependencies": [
+        "@ienlab/ien-theme",
+        "@ienlab/button",
+        "@ienlab/scroll-area"
+      ],
+      "files": [
+        {
+          "path": "ui/x-scroll-area.tsx",
+          "type": "registry:ui",
+          "target": "@ui/x-scroll-area.tsx"
+        }
+      ],
+      "meta": {
+        "category": "레이아웃",
+        "cmpIds": [],
+        "upstream": {
+          "repository": "https://github.com/yogorang/zero-registry",
+          "revision": "5710c0a7e4d54efc2f6c6b9faa1134193c432b09"
+        },
+        "exports": [
+          "useXScrollArea",
+          "XScrollArea",
+          "XScrollAreaContent",
+          "XScrollAreaNext",
+          "XScrollAreaPrevious"
+        ],
+        "preview": "previews/x-scroll-area.tsx",
+        "example": "import {\n  XScrollArea,\n  XScrollAreaContent,\n  XScrollAreaNext,\n  XScrollAreaPrevious,\n} from \"@/components/ui/x-scroll-area\"\n\nconst pages = [\"로그인\", \"대시보드\", \"설정\", \"결제\", \"온보딩\", \"장바구니\", \"상품 상세\", \"검색\"]\n\nexport function Pattern() {\n  return (\n    <XScrollArea className=\"w-full max-w-xl\" aria-label=\"화면 예시\">\n      <XScrollAreaContent>\n        {pages.map((page) => (\n          <div key={page} className=\"flex h-32 w-36 shrink-0 items-center justify-center rounded-lg border bg-card text-sm font-medium\">\n            {page}\n          </div>\n        ))}\n      </XScrollAreaContent>\n      <XScrollAreaPrevious />\n      <XScrollAreaNext />\n    </XScrollArea>\n  )\n}\nexport default Pattern\n",
+        "ienDesign": true
+      }
+    },
+    {
       "name": "scrollspy",
       "type": "registry:ui",
       "title": "Scrollspy",

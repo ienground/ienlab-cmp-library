@@ -16,18 +16,17 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.foundation.rememberScrollState
@@ -36,14 +35,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
-import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
-import androidx.compose.material3.adaptive.navigation3.LocalListDetailSceneScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -53,6 +47,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -320,7 +315,6 @@ import zone.ien.utils.ui.screen.IenFixedBottomCTA
 import zone.ien.utils.ui.screen.IenFixedDoubleBottomCTA
 import zone.ien.utils.ui.screen.IenScaffold
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
-import zone.ien.utils.ui.screen.LocalIenSideBarEnabled
 import zone.ien.utils.ui.screen.IenTooltip
 import zone.ien.utils.ui.screen.IenTooltipClipToEnd
 import zone.ien.utils.ui.screen.IenTooltipMessageAlign
@@ -357,14 +351,14 @@ import zone.ien.utils.ui.view.IenNavigationBarItem
 import zone.ien.utils.ui.view.IenNavigationBarItemDirection
 import zone.ien.utils.utils.checkDecimal
 
-private data class DesignSystemComponent(
+internal data class DesignSystemComponent(
     val id: String,
     val name: String,
     val category: String,
     val description: String,
 )
 
-private val DesignSystemComponents = listOf(
+internal val DesignSystemComponents = listOf(
     DesignSystemComponent("prefs-picker", "Prefs Picker", "입력", "설정 항목에서 날짜·시각·기간을 선택하고 확인·취소 동작을 체험합니다."),
     DesignSystemComponent("wheel-picker", "WheelPicker", "입력", "날짜·정확한 시각·시간/분/초 기간을 휠로 선택합니다."),
     DesignSystemComponent("animated-layout", "AnimatedLayout", "레이아웃", "목록 항목이 추가되거나 제거될 때 크기와 표시 상태를 전환합니다."),
@@ -433,12 +427,12 @@ private val DesignSystemComponents = listOf(
     DesignSystemComponent("primitives", "Primitives", "기초", "공통 표면과 아이콘 기본 요소입니다."),
 )
 
-private data class PlaygroundChoice(
+internal data class PlaygroundChoice(
     val label: String,
     val value: String = label,
 )
 
-private data class PlaygroundControl(
+internal data class PlaygroundControl(
     val key: String,
     val label: String,
     val defaultValue: String,
@@ -449,6 +443,25 @@ private data class PlaygroundControl(
     val maxValue: Int? = null,
     val allowDecimal: Boolean = false,
 )
+
+internal fun PlaygroundControl.stressAlternateValue(): String = when {
+    isToggle -> (!defaultValue.toBooleanStrict()).toString()
+    choices.isNotEmpty() -> choices
+        .firstOrNull { it.value != defaultValue }
+        ?.value
+        ?: defaultValue
+    minValue != null && maxValue != null -> {
+        val currentValue = defaultValue.toFloatOrNull()
+        val alternateValue = if (currentValue == maxValue.toFloat()) {
+            minValue.toFloat()
+        } else {
+            maxValue.toFloat()
+        }
+        if (allowDecimal) alternateValue.toString() else alternateValue.toInt().toString()
+    }
+    isTextInput -> "$defaultValue iOS"
+    else -> defaultValue
+}
 
 private fun toggleControl(
     key: String,
@@ -1093,7 +1106,7 @@ private val AdditionalComponentPlaygroundControls = mapOf(
     ),
 )
 
-private fun playgroundControls(componentId: String): List<PlaygroundControl> {
+internal fun playgroundControls(componentId: String): List<PlaygroundControl> {
     return ComponentPlaygroundControls[componentId].orEmpty() +
         AdditionalComponentPlaygroundControls[componentId].orEmpty()
 }
@@ -1179,6 +1192,9 @@ internal fun DesignSystemPlayground(
     showPreviewViewportControls: Boolean = false,
     initialPreviewViewport: String = PreviewViewport.Pc.storageValue,
     onPreviewViewportChange: (String) -> Unit = {},
+    leadingContent: (@Composable () -> Unit)? = null,
+    listState: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val controls = remember(componentId) { playgroundControls(componentId) }
     val values = remember(componentId) {
@@ -1190,147 +1206,146 @@ internal fun DesignSystemPlayground(
         mutableStateOf(PreviewViewport.fromStorageValue(initialPreviewViewport))
     }
     val previewValues = playgroundPreviewValues(controls, values)
+    val configurationPreviewModifier = if (componentId == "keypad") {
+        Modifier.heightIn(max = 280.dp)
+    } else {
+        Modifier
+    }
 
-    Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
-        IenCard(
-            modifier = Modifier.fillMaxWidth(),
-            variant = IenCardVariant.Outlined,
-            contentPadding = PaddingValues(0.dp),
-        ) {
-            BoxWithConstraints(Modifier.fillMaxWidth()) {
-                val sideBySide = maxWidth >= 720.dp
-                val preview: @Composable (Modifier) -> Unit = { modifier ->
-                    Column(
-                        modifier = modifier.background(IenTheme.colors.background),
-                    ) {
-                        if (showPreviewViewportControls) {
-                            IenSegmentedControl(
-                                modifier = Modifier.fillMaxWidth().padding(IenTheme.spacing.md),
-                                items = PreviewViewport.entries.map { viewport ->
-                                    IenSegmentedControlItem(value = viewport, label = viewport.label)
-                                },
-                                value = previewViewport,
-                                onChange = { viewport ->
-                                    previewViewport = viewport
-                                    onPreviewViewportChange(viewport.storageValue)
-                                },
-                                alignment = IenSegmentedControlAlignment.Fluid,
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .then(if (sideBySide) Modifier.weight(1f) else Modifier)
-                                .heightIn(min = 240.dp, max = if (sideBySide) 560.dp else 280.dp)
-                                .verticalScroll(rememberScrollState())
-                                .padding(IenTheme.spacing.xl),
-                            contentAlignment = Alignment.Center,
+    val variantControls = controls.filter { it.choices.isNotEmpty() }
+    val sections = buildList<@Composable () -> Unit> {
+        leadingContent?.let { add(it) }
+        add {
+            IenCard(
+                modifier = Modifier.fillMaxWidth(),
+                variant = IenCardVariant.Outlined,
+                contentPadding = PaddingValues(0.dp),
+            ) {
+                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    val preview: @Composable (Modifier) -> Unit = { modifier ->
+                        Column(
+                            modifier = modifier.background(IenTheme.colors.background),
                         ) {
+                            if (showPreviewViewportControls) {
+                                IenSegmentedControl(
+                                    modifier = Modifier.fillMaxWidth().padding(IenTheme.spacing.md),
+                                    items = PreviewViewport.entries.map { viewport ->
+                                        IenSegmentedControlItem(value = viewport, label = viewport.label)
+                                    },
+                                    value = previewViewport,
+                                    onChange = { viewport ->
+                                        previewViewport = viewport
+                                        onPreviewViewportChange(viewport.storageValue)
+                                    },
+                                    alignment = IenSegmentedControlAlignment.Fluid,
+                                )
+                            }
                             Box(
                                 modifier = Modifier
-                                    .widthIn(max = previewViewport.maxWidth)
-                                    .fillMaxWidth(),
+                                    .fillMaxWidth()
+                                    .heightIn(min = 240.dp, max = 280.dp)
+                                    .then(if (componentId == "keypad") Modifier else Modifier.verticalScroll(rememberScrollState()))
+                                    .padding(IenTheme.spacing.xl),
+                                contentAlignment = Alignment.Center,
                             ) {
-                                CompositionLocalProvider(
-                                    LocalComponentSectionChrome provides false,
-                                    LocalComponentVariantShowcase provides true,
+                                Box(
+                                    modifier = Modifier
+                                        .widthIn(max = previewViewport.maxWidth)
+                                        .fillMaxWidth(),
                                 ) {
-                                    DesignSystemComponentPreview(
-                                        componentId = componentId,
-                                        snackbarHostState = snackbarHostState,
-                                        toastState = toastState,
-                                        coroutineScope = coroutineScope,
-                                        controlValues = previewValues,
-                                    )
+                                    CompositionLocalProvider(
+                                        LocalComponentSectionChrome provides false,
+                                        LocalComponentVariantShowcase provides true,
+                                    ) {
+                                        DesignSystemComponentPreview(
+                                            componentId = componentId,
+                                            snackbarHostState = snackbarHostState,
+                                            toastState = toastState,
+                                            coroutineScope = coroutineScope,
+                                            controlValues = previewValues,
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                val controlPanel: @Composable (Modifier) -> Unit = { modifier ->
-                    Column(
-                        modifier = modifier
-                            .heightIn(max = if (sideBySide) 560.dp else 320.dp)
-                            .verticalScroll(rememberScrollState())
-                            .padding(IenTheme.spacing.md),
-                        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("컨트롤", style = IenTheme.typography.title3, modifier = Modifier.weight(1f))
-                            IenTextButton(
-                                onClick = {
-                                    controls.forEach { control -> values[control.key] = control.defaultValue }
-                                },
-                            ) { Text("초기화") }
-                        }
-                        controls.forEach { control ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
-                            ) {
-                                Text(
-                                    control.label,
-                                    style = IenTheme.typography.label1,
-                                    color = IenTheme.colors.textSecondary,
-                                    modifier = Modifier.weight(1f),
-                                )
-                                if (control.isToggle) {
-                                    IenSwitch(
-                                        checked = values.booleanValue(control.key, control.defaultValue.toBooleanStrict()),
-                                        onCheckedChange = { checked -> values[control.key] = checked.toString() },
+                    val controlPanel: @Composable (Modifier) -> Unit = { modifier ->
+                        Column(
+                            modifier = modifier
+                                .heightIn(max = 320.dp)
+                                .verticalScroll(rememberScrollState())
+                                .padding(IenTheme.spacing.md),
+                            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("컨트롤", style = IenTheme.typography.title3, modifier = Modifier.weight(1f))
+                                IenTextButton(
+                                    onClick = {
+                                        controls.forEach { control -> values[control.key] = control.defaultValue }
+                                    },
+                                ) { Text("초기화") }
+                            }
+                            controls.forEach { control ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                                ) {
+                                    Text(
+                                        control.label,
+                                        style = IenTheme.typography.label1,
+                                        color = IenTheme.colors.textSecondary,
+                                        modifier = Modifier.weight(1f),
                                     )
-                                } else if (control.choices.isNotEmpty()) {
-                                    var expanded by remember(componentId, control.key) { mutableStateOf(false) }
-                                    Box(Modifier.width(148.dp)) {
-                                        IenButton(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            onClick = { expanded = true },
-                                            size = IenButtonSize.Small,
-                                            variant = IenButtonVariant.Weak,
-                                        ) {
-                                            Text(control.choices.firstOrNull { it.value == values[control.key] }?.label ?: control.defaultValue)
-                                        }
-                                        IenDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                                            control.choices.forEach { choice ->
-                                                IenDropdownMenuItem(
-                                                    text = { Text(choice.label) },
-                                                    onClick = {
-                                                        values[control.key] = choice.value
-                                                        expanded = false
-                                                    },
-                                                )
+                                    if (control.isToggle) {
+                                        IenSwitch(
+                                            checked = values.booleanValue(control.key, control.defaultValue.toBooleanStrict()),
+                                            onCheckedChange = { checked -> values[control.key] = checked.toString() },
+                                        )
+                                    } else if (control.choices.isNotEmpty()) {
+                                        var expanded by remember(componentId, control.key) { mutableStateOf(false) }
+                                        Box(Modifier.width(148.dp)) {
+                                            IenButton(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                onClick = { expanded = true },
+                                                size = IenButtonSize.Small,
+                                                variant = IenButtonVariant.Weak,
+                                            ) {
+                                                Text(control.choices.firstOrNull { it.value == values[control.key] }?.label ?: control.defaultValue)
+                                            }
+                                            IenDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                                                control.choices.forEach { choice ->
+                                                    IenDropdownMenuItem(
+                                                        text = { Text(choice.label) },
+                                                        onClick = {
+                                                            values[control.key] = choice.value
+                                                            expanded = false
+                                                        },
+                                                    )
+                                                }
                                             }
                                         }
+                                    } else {
+                                        IenTextField(
+                                            value = values[control.key] ?: control.defaultValue,
+                                            onValueChange = { value -> values[control.key] = value },
+                                            modifier = Modifier.width(148.dp).keyboardDismissAction(),
+                                            label = control.label,
+                                            keyboardOptions = KeyboardOptions(
+                                                keyboardType = when {
+                                                    control.isTextInput -> KeyboardType.Text
+                                                    control.allowDecimal -> KeyboardType.Decimal
+                                                    else -> KeyboardType.Number
+                                                },
+                                            ),
+                                            supportingText = if (control.isTextInput) null else
+                                                "범위: ${control.minValue ?: Int.MIN_VALUE}–${control.maxValue ?: Int.MAX_VALUE}",
+                                        )
                                     }
-                                } else {
-                                    IenTextField(
-                                        value = values[control.key] ?: control.defaultValue,
-                                        onValueChange = { value -> values[control.key] = value },
-                                        modifier = Modifier.width(148.dp).keyboardDismissAction(),
-                                        label = control.label,
-                                        keyboardOptions = KeyboardOptions(
-                                            keyboardType = when {
-                                                control.isTextInput -> KeyboardType.Text
-                                                control.allowDecimal -> KeyboardType.Decimal
-                                                else -> KeyboardType.Number
-                                            },
-                                        ),
-                                        supportingText = if (control.isTextInput) null else
-                                            "범위: ${control.minValue ?: Int.MIN_VALUE}–${control.maxValue ?: Int.MAX_VALUE}",
-                                    )
                                 }
                             }
                         }
                     }
-                }
-                if (sideBySide) {
-                    Row(Modifier.fillMaxWidth().height(560.dp)) {
-                        preview(Modifier.weight(1f).fillMaxHeight())
-                        Box(Modifier.width(1.dp).fillMaxHeight().background(IenTheme.colors.border))
-                        controlPanel(Modifier.width(288.dp).fillMaxHeight())
-                    }
-                } else {
                     Column(Modifier.fillMaxWidth()) {
                         preview(Modifier.fillMaxWidth())
                         IenDivider.Horizontal()
@@ -1339,72 +1354,94 @@ internal fun DesignSystemPlayground(
                 }
             }
         }
-
-        val variantControls = controls.filter { it.choices.isNotEmpty() }
         if (variantControls.isNotEmpty()) {
-            IenCard(
-                modifier = Modifier.fillMaxWidth(),
-                variant = IenCardVariant.Outlined,
-                contentPadding = PaddingValues(IenTheme.spacing.md),
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
-                    Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                        Text("전체 변형", style = IenTheme.typography.title3)
-                        Text(
-                            "속성별 선택지를 실제 컴포넌트로 확인합니다.",
-                            style = IenTheme.typography.body2,
-                            color = IenTheme.colors.textSecondary,
-                        )
-                    }
-                    variantControls.forEach { control ->
-                        Text(control.label, style = IenTheme.typography.label1)
-                        control.choices.forEach { choice ->
-                            Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
-                                Text(choice.label, style = IenTheme.typography.caption)
-                                CompositionLocalProvider(
-                                    LocalComponentSectionChrome provides false,
-                                    LocalComponentVariantShowcase provides true,
-                                ) {
-                                    DesignSystemComponentPreview(
-                                        componentId = componentId,
-                                        snackbarHostState = snackbarHostState,
-                                        toastState = toastState,
-                                        coroutineScope = coroutineScope,
-                                        controlValues = previewValues + (control.key to choice.value),
-                                    )
+            add {
+                IenCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    variant = IenCardVariant.Outlined,
+                    contentPadding = PaddingValues(IenTheme.spacing.md),
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
+                            Text("전체 변형", style = IenTheme.typography.title3)
+                            Text(
+                                "속성별 선택지를 실제 컴포넌트로 확인합니다.",
+                                style = IenTheme.typography.body2,
+                                color = IenTheme.colors.textSecondary,
+                            )
+                        }
+                        variantControls.forEach { control ->
+                            Text(control.label, style = IenTheme.typography.label1)
+                            control.choices.forEach { choice ->
+                                Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)) {
+                                    Text(choice.label, style = IenTheme.typography.caption)
+                                    CompositionLocalProvider(
+                                        LocalComponentSectionChrome provides false,
+                                        LocalComponentVariantShowcase provides true,
+                                    ) {
+                                        DesignSystemComponentPreview(
+                                            componentId = componentId,
+                                            snackbarHostState = snackbarHostState,
+                                            toastState = toastState,
+                                            coroutineScope = coroutineScope,
+                                            controlValues = previewValues + (control.key to choice.value),
+                                        )
+                                    }
                                 }
                             }
+                            if (control != variantControls.last()) IenDivider.Horizontal()
                         }
-                        if (control != variantControls.last()) IenDivider.Horizontal()
                     }
                 }
             }
         }
-
         if (controls.isNotEmpty()) {
-            IenCard(
-                modifier = Modifier.fillMaxWidth(),
-                variant = IenCardVariant.Outlined,
-                contentPadding = PaddingValues(IenTheme.spacing.md),
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
-                    Text("구성 예시", style = IenTheme.typography.title3)
-                    CompositionLocalProvider(LocalComponentSectionChrome provides false) {
-                        DesignSystemComponentPreview(
-                            componentId = componentId,
-                            snackbarHostState = snackbarHostState,
-                            toastState = toastState,
-                            coroutineScope = coroutineScope,
-                            controlValues = previewValues,
-                        )
+            add {
+                IenCard(
+                    modifier = Modifier.fillMaxWidth().then(configurationPreviewModifier),
+                    variant = IenCardVariant.Outlined,
+                    contentPadding = PaddingValues(IenTheme.spacing.md),
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
+                        Text("구성 예시", style = IenTheme.typography.title3)
+                        CompositionLocalProvider(LocalComponentSectionChrome provides false) {
+                            DesignSystemComponentPreview(
+                                componentId = componentId,
+                                snackbarHostState = snackbarHostState,
+                                toastState = toastState,
+                                coroutineScope = coroutineScope,
+                                controlValues = previewValues,
+                            )
+                        }
                     }
                 }
             }
         }
     }
+    val eagerContent: @Composable () -> Unit = {
+        Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
+            sections.forEach { section -> section() }
+        }
+    }
+    if (componentId == "keypad") {
+        BoxWithConstraints {
+            if (constraints.hasBoundedHeight) {
+                LazyColumn(
+                    state = listState,
+                    contentPadding = contentPadding,
+                    verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+                ) {
+                    items(sections.size) { index -> sections[index]() }
+                }
+            } else {
+                eagerContent()
+            }
+        }
+    } else {
+        eagerContent()
+    }
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Preview
 @Composable
 fun DesignSystemScreen(
@@ -1419,80 +1456,61 @@ fun DesignSystemScreen(
         val toastState = LocalIenToastState.current
         val coroutineScope = rememberCoroutineScope()
         val scrollState = rememberScrollState()
+        val detailListState = rememberLazyListState()
         var query by rememberSaveable { mutableStateOf("") }
         var selectedCategory by rememberSaveable { mutableStateOf("전체") }
         val selectedComponent = DesignSystemComponents.firstOrNull { it.id == componentId }
-        val paneTarget = LocalListDetailSceneScope.current
-            ?.scaffoldTransitionScope?.scaffoldStateTransition?.targetState
-        val isSplitLayout = paneTarget != null &&
-            paneTarget[ListDetailPaneScaffoldRole.List] != PaneAdaptedValue.Hidden &&
-            paneTarget[ListDetailPaneScaffoldRole.Detail] != PaneAdaptedValue.Hidden
-        val isListPane = selectedComponent == null && isSplitLayout
-        val showBackButton = selectedComponent == null || !isSplitLayout
-
-        CompositionLocalProvider(
-            LocalIenSideBarEnabled provides (LocalIenSideBarEnabled.current && !isListPane),
-        ) {
-            IenScaffold(
-                modifier = modifier,
-                contentWindowInsets = if (isListPane) {
-                    ScaffoldDefaults.contentWindowInsets.only(WindowInsetsSides.Left + WindowInsetsSides.Vertical)
-                } else {
-                    ScaffoldDefaults.contentWindowInsets
-                },
-                contentEdge = IenScaffoldContentEdge(scrollableState = scrollState),
-                topBar = {
-                    IenTopBar(
-                        title = selectedComponent?.name ?: if (isListPane) "Ien UI" else "Ien CMP UI",
-                        subtitle = when {
-                            selectedComponent != null -> selectedComponent.category
-                            isListPane -> null
-                            else -> "토큰 기반 모바일 디자인 시스템"
-                        },
-                        navigationIcon = if (showBackButton) {
-                            {
-                                IenTextButton(onClick = navigateBack) {
-                                    Text(if (selectedComponent == null) "닫기" else "목록")
-                                }
-                            }
-                        } else null,
-                        actions = {
-                            IenTextButton(onClick = navigateToColor) {
-                                Text("컬러 스킴")
-                            }
-                        },
+        IenScaffold(
+            modifier = modifier,
+            contentEdge = IenScaffoldContentEdge(
+                scrollableState = if (componentId == "keypad") detailListState else scrollState,
+            ),
+            topBar = {
+                IenTopBar(
+                    title = selectedComponent?.name ?: "Ien CMP UI",
+                    subtitle = selectedComponent?.category ?: "토큰 기반 모바일 디자인 시스템",
+                    navigationIcon = {
+                        IenTextButton(onClick = navigateBack) {
+                            Text(text = if (selectedComponent == null) "닫기" else "목록")
+                        }
+                    },
+                    actions = {
+                        IenTextButton(onClick = navigateToColor) {
+                            Text("컬러 스킴")
+                        }
+                    },
+                )
+            },
+            snackbarHost = {
+                IenSnackbarHost(hostState = snackbarHostState)
+            },
+        ) { contentPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(if (componentId == "keypad") Modifier else Modifier.verticalScroll(scrollState))
+                    .padding(contentPadding)
+                    .padding(horizontal = IenTheme.spacing.md),
+            ) {
+                if (componentId != "keypad") Spacer(Modifier.height(IenTheme.spacing.md))
+                if (selectedComponent == null) {
+                    DesignSystemCatalog(
+                        query = query,
+                        onQueryChange = { query = it },
+                        selectedCategory = selectedCategory,
+                        onCategoryChange = { selectedCategory = it },
+                        onComponentClick = navigateToComponent,
                     )
-                },
-                snackbarHost = {
-                    IenSnackbarHost(hostState = snackbarHostState)
-                },
-            ) { contentPadding ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState)
-                        .padding(contentPadding)
-                        .padding(horizontal = IenTheme.spacing.md),
-                ) {
-                    Spacer(Modifier.height(IenTheme.spacing.md))
-                    if (selectedComponent == null) {
-                        DesignSystemCatalog(
-                            query = query,
-                            onQueryChange = { query = it },
-                            selectedCategory = selectedCategory,
-                            onCategoryChange = { selectedCategory = it },
-                            onComponentClick = navigateToComponent,
-                        )
-                    } else {
-                        DesignSystemComponentDetail(
-                            component = selectedComponent,
-                            snackbarHostState = snackbarHostState,
-                            toastState = toastState,
-                            coroutineScope = coroutineScope,
-                        )
-                    }
-                    Spacer(Modifier.height(IenTheme.spacing.lg))
+                } else {
+                    DesignSystemComponentDetail(
+                        component = selectedComponent,
+                        snackbarHostState = snackbarHostState,
+                        toastState = toastState,
+                        coroutineScope = coroutineScope,
+                        listState = detailListState,
+                    )
                 }
+                if (componentId != "keypad") Spacer(Modifier.height(IenTheme.spacing.lg))
             }
         }
     }
@@ -1614,21 +1632,39 @@ private fun DesignSystemComponentDetail(
     snackbarHostState: SnackbarHostState,
     toastState: IenToastState?,
     coroutineScope: CoroutineScope,
+    listState: LazyListState,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
-        IenBadge(component.category, variant = IenBadgeVariant.Line)
-        Text(component.name, style = IenTheme.typography.title1)
-        Text(
-            component.description,
-            style = IenTheme.typography.body1,
-            color = IenTheme.colors.textSecondary,
-        )
+    val header: @Composable () -> Unit = {
+        Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
+            IenBadge(component.category, variant = IenBadgeVariant.Line)
+            Text(component.name, style = IenTheme.typography.title1)
+            Text(
+                component.description,
+                style = IenTheme.typography.body1,
+                color = IenTheme.colors.textSecondary,
+            )
+        }
+    }
+    if (component.id == "keypad") {
         DesignSystemPlayground(
             componentId = component.id,
             snackbarHostState = snackbarHostState,
             toastState = toastState,
             coroutineScope = coroutineScope,
+            leadingContent = header,
+            listState = listState,
+            contentPadding = PaddingValues(top = IenTheme.spacing.md, bottom = IenTheme.spacing.lg),
         )
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
+            header()
+            DesignSystemPlayground(
+                componentId = component.id,
+                snackbarHostState = snackbarHostState,
+                toastState = toastState,
+                coroutineScope = coroutineScope,
+            )
+        }
     }
 }
 
@@ -2206,24 +2242,15 @@ fun BottomSheetSection(controls: Map<String, String> = emptyMap()) {
             disableDimmer = controls.booleanValue("disableDimmer", false),
             header = { Text("바텀시트", style = IenTheme.typography.title3) },
             cta = {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs)
-                ) {
-                    IenButton(
-                        onClick = { sheetState.hide() },
-                        modifier = Modifier.weight(1f),
-                        variant = IenButtonVariant.Weak,
-                    ) {
-                        Text("닫기")
-                    }
-                    IenButton(
-                        onClick = { sheetState.hide() },
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Text("확인")
-                    }
-                }
+                IenDoubleBottomCTA(
+                    primaryText = "확인",
+                    onPrimaryClick = { sheetState.hide() },
+                    secondaryText = "닫기",
+                    onSecondaryClick = { sheetState.hide() },
+                    background = IenBottomCTABackground.None,
+                    hasSafeAreaPadding = false,
+                    hasPaddingBottom = false,
+                )
             },
         ) {
             Text(
@@ -6096,115 +6123,158 @@ fun DialogSection(controls: Map<String, String> = emptyMap()) {
 
 @Preview
 @Composable
-fun KeypadSection(controls: Map<String, String> = emptyMap()) {
+fun KeypadSection(
+    controls: Map<String, String> = emptyMap(),
+    listState: LazyListState = rememberLazyListState(),
+    scrollable: Boolean = true,
+) {
     val enabled = !controls.disabledValue()
     IenTheme {
-        var alphabetValue by remember { mutableStateOf("") }
-        var customAlphabetValue by remember { mutableStateOf("") }
-        var numberValue by remember { mutableStateOf("") }
-        var customNumberValue by remember { mutableStateOf("") }
-        var secureNumberValue by remember { mutableStateOf("") }
-        var secureNoiseValue by remember { mutableStateOf("") }
-        var secureValue by remember { mutableStateOf("") }
-        var fullSecureValue by remember { mutableStateOf("") }
-        var secureLanguage by remember { mutableStateOf(IenSecureKeyboardLanguage.English) }
+        var alphabetValue by rememberSaveable { mutableStateOf("") }
+        var customAlphabetValue by rememberSaveable { mutableStateOf("") }
+        var numberValue by rememberSaveable { mutableStateOf("") }
+        var customNumberValue by rememberSaveable { mutableStateOf("") }
+        var secureNumberValue by rememberSaveable { mutableStateOf("") }
+        var secureNoiseValue by rememberSaveable { mutableStateOf("") }
+        var secureValue by rememberSaveable { mutableStateOf("") }
+        var fullSecureValue by rememberSaveable { mutableStateOf("") }
+        var secureLanguage by rememberSaveable(
+            stateSaver = Saver(
+                save = { it.name },
+                restore = { IenSecureKeyboardLanguage.valueOf(it) },
+            ),
+        ) { mutableStateOf(IenSecureKeyboardLanguage.English) }
         val fullSecureKeypadState = rememberIenFullSecureKeypadState()
 
-        ComponentSection(title = "Keypad") {
-            Text("Alphabet Keypad: $alphabetValue", style = IenTheme.typography.body2)
-            IenAlphabetKeypad(
-                onKeyClick = { alphabetValue += it },
-                onBackspaceClick = { alphabetValue = alphabetValue.dropLast(1) },
-                columns = controls.intValue("columns", 3).coerceIn(2, 6),
-                keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
-                enabled = enabled,
-            )
-            IenDivider.Horizontal()
-            Text("커스텀 배열: $customAlphabetValue", style = IenTheme.typography.body2)
-            IenAlphabetKeypad(
-                alphabets = listOf(
-                    "z", "y", "x",
-                    "w", "v", "u",
-                    "t", "s", "r",
-                    "q", "p", "o",
-                    "n", "m", "l",
-                    "k", "j", "i",
-                    "h", "g", "f",
-                    "e", "d", "c",
-                    "b", "a",
-                ),
-                onKeyClick = { customAlphabetValue += it },
-                onBackspaceClick = { customAlphabetValue = customAlphabetValue.dropLast(1) },
-                keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
-                enabled = enabled,
-            )
-            IenDivider.Horizontal()
-            Text("보안 알파벳 키보드: $alphabetValue", style = IenTheme.typography.body2)
-            IenAlphabetKeyboard(
-                onAction = { action ->
-                    alphabetValue = applyKeyboardAction(alphabetValue, action)
-                },
-                randomized = controls.booleanValue("randomized", false),
-                enabled = enabled,
-            )
-            IenDivider.Horizontal()
-            Text("Number Keypad: $numberValue", style = IenTheme.typography.body2)
-            IenNumberKeypad(
-                onKeyClick = { numberValue += it },
-                onBackspaceClick = { numberValue = numberValue.dropLast(1) },
-                keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
-                enabled = enabled,
-            )
-            IenDivider.Horizontal()
-            Text("커스텀 숫자 배열: $customNumberValue", style = IenTheme.typography.body2)
-            IenNumberKeypad(
-                numbers = listOf(1, 3, 5, 7, 9, 2, 4, 6, 8, 0),
-                onKeyClick = { customNumberValue += it },
-                onBackspaceClick = { customNumberValue = customNumberValue.dropLast(1) },
-                enabled = enabled,
-            )
-            IenDivider.Horizontal()
-            Text(
-                text = "보안 숫자 입력: $secureNumberValue / 더미: $secureNoiseValue",
-                style = IenTheme.typography.body2,
-            )
-            IenNumberKeypad(
-                secure = true,
-                onKeyClick = { secureNumberValue += it },
-                onBackspaceClick = {
-                    secureNumberValue = secureNumberValue.dropLast(1)
-                    secureNoiseValue = ""
-                },
-                onSecureNoiseKeyClick = {
-                    secureNoiseValue = (secureNoiseValue + it).takeLast(8)
-                },
-                keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
-                enabled = enabled,
-            )
-            IenDivider.Horizontal()
-            Text("Full Secure Keypad: $fullSecureValue", style = IenTheme.typography.body2)
-            IenFullSecureKeypad(
-                state = fullSecureKeypadState,
-                onKeyClick = { fullSecureValue += it },
-                onBackspaceClick = { fullSecureValue = fullSecureValue.dropLast(1) },
-                onSpaceClick = { fullSecureValue += " " },
-                onSubmit = { fullSecureKeypadState.reorderEmptyCells() },
-                submitButtonText = "공백 옮기기",
-                submitDisabled = fullSecureValue.isEmpty(),
-                enabled = enabled,
-            )
-            IenDivider.Horizontal()
-            IenFullSecureKeyboard(
-                state = IenSecureKeyboardState(
-                    value = secureValue,
-                    language = secureLanguage,
-                ),
-                onAction = { action ->
-                    secureValue = applyKeyboardAction(secureValue, action)
-                },
-                onLanguageChange = { secureLanguage = it },
-                enabled = enabled,
-            )
+        val keypads = listOf<@Composable () -> Unit>(
+            {
+                Text("Alphabet Keypad: $alphabetValue", style = IenTheme.typography.body2)
+                IenAlphabetKeypad(
+                    onKeyClick = { alphabetValue += it },
+                    onBackspaceClick = { alphabetValue = alphabetValue.dropLast(1) },
+                    columns = controls.intValue("columns", 3).coerceIn(2, 6),
+                    keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
+                    enabled = enabled,
+                )
+            },
+            {
+                Text("커스텀 배열: $customAlphabetValue", style = IenTheme.typography.body2)
+                IenAlphabetKeypad(
+                    alphabets = listOf(
+                        "z", "y", "x",
+                        "w", "v", "u",
+                        "t", "s", "r",
+                        "q", "p", "o",
+                        "n", "m", "l",
+                        "k", "j", "i",
+                        "h", "g", "f",
+                        "e", "d", "c",
+                        "b", "a",
+                    ),
+                    onKeyClick = { customAlphabetValue += it },
+                    onBackspaceClick = { customAlphabetValue = customAlphabetValue.dropLast(1) },
+                    keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
+                    enabled = enabled,
+                )
+            },
+            {
+                Text("보안 알파벳 키보드: $alphabetValue", style = IenTheme.typography.body2)
+                IenAlphabetKeyboard(
+                    onAction = { action ->
+                        alphabetValue = applyKeyboardAction(alphabetValue, action)
+                    },
+                    randomized = controls.booleanValue("randomized", false),
+                    enabled = enabled,
+                )
+            },
+            {
+                Text("Number Keypad: $numberValue", style = IenTheme.typography.body2)
+                IenNumberKeypad(
+                    onKeyClick = { numberValue += it },
+                    onBackspaceClick = { numberValue = numberValue.dropLast(1) },
+                    keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
+                    enabled = enabled,
+                )
+            },
+            {
+                Text("커스텀 숫자 배열: $customNumberValue", style = IenTheme.typography.body2)
+                IenNumberKeypad(
+                    numbers = listOf(1, 3, 5, 7, 9, 2, 4, 6, 8, 0),
+                    onKeyClick = { customNumberValue += it },
+                    onBackspaceClick = { customNumberValue = customNumberValue.dropLast(1) },
+                    enabled = enabled,
+                )
+            },
+            {
+                Text(
+                    text = "보안 숫자 입력: $secureNumberValue / 더미: $secureNoiseValue",
+                    style = IenTheme.typography.body2,
+                )
+                IenNumberKeypad(
+                    secure = true,
+                    onKeyClick = { secureNumberValue += it },
+                    onBackspaceClick = {
+                        secureNumberValue = secureNumberValue.dropLast(1)
+                        secureNoiseValue = ""
+                    },
+                    onSecureNoiseKeyClick = {
+                        secureNoiseValue = (secureNoiseValue + it).takeLast(8)
+                    },
+                    keyHeight = controls.intValue("keyHeight", 56).coerceIn(40, 80).dp,
+                    enabled = enabled,
+                )
+            },
+            {
+                Text("Full Secure Keypad: $fullSecureValue", style = IenTheme.typography.body2)
+                IenFullSecureKeypad(
+                    state = fullSecureKeypadState,
+                    onKeyClick = { fullSecureValue += it },
+                    onBackspaceClick = { fullSecureValue = fullSecureValue.dropLast(1) },
+                    onSpaceClick = { fullSecureValue += " " },
+                    onSubmit = { fullSecureKeypadState.reorderEmptyCells() },
+                    submitButtonText = "공백 옮기기",
+                    submitDisabled = fullSecureValue.isEmpty(),
+                    enabled = enabled,
+                )
+            },
+            {
+                IenFullSecureKeyboard(
+                    state = IenSecureKeyboardState(
+                        value = secureValue,
+                        language = secureLanguage,
+                    ),
+                    onAction = { action ->
+                        secureValue = applyKeyboardAction(secureValue, action)
+                    },
+                    onLanguageChange = { secureLanguage = it },
+                    enabled = enabled,
+                )
+            },
+        )
+        BoxWithConstraints {
+            val useLazyList = scrollable && constraints.hasBoundedHeight
+            ComponentSection(title = "Keypad") {
+                if (useLazyList) {
+                    LazyColumn(
+                        state = listState,
+                        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
+                    ) {
+                        items(keypads.size) { index ->
+                            Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
+                                if (index > 0) IenDivider.Horizontal()
+                                keypads[index]()
+                            }
+                        }
+                    }
+                } else {
+                    keypads.forEachIndexed { index, keypad ->
+                        if (index > 0) IenDivider.Horizontal()
+                        Column(verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md)) {
+                            keypad()
+                        }
+                    }
+                }
+            }
         }
     }
 }

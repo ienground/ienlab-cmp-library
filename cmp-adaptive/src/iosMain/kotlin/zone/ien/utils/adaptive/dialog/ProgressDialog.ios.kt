@@ -1,12 +1,17 @@
 package zone.ien.utils.adaptive.dialog
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import androidx.compose.ui.uikit.LocalUIViewController
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.UIKit.NSLayoutConstraint
@@ -17,7 +22,7 @@ import platform.UIKit.UIAlertControllerStyleAlert
 import platform.UIKit.UIProgressView
 import platform.UIKit.UIProgressViewStyle
 import zone.ien.hig.toUIColor
-import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.toneColor
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
@@ -25,37 +30,45 @@ actual fun ProgressDialog(
     modifier: Modifier,
     visible: Boolean,
     isLoadingIndicator: Boolean,
-    isWavyIndicator: Boolean
+    isWavyIndicator: Boolean,
+    tone: IenSemanticTone,
 ) {
     val viewController = LocalUIViewController.current
-    val nativeTintColor = IenTheme.colors.brand.toUIColor()
+    val nativeTintColor = toneColor(tone).toUIColor()
 
     var alertRef by remember { mutableStateOf<UIAlertController?>(null) }
 
-    LaunchedEffect(visible) {
-        if (visible) {
-            val alert = UIAlertController.alertControllerWithTitle("\n", null, UIAlertControllerStyleAlert)
-            alert.view.tintColor = nativeTintColor
+    SideEffect {
+        alertRef?.view?.tintColor = nativeTintColor
+    }
+    if (!visible) return
 
-            val loadingIndicator = UIActivityIndicatorView()
+    DisposableEffect(viewController) {
+        val alert = UIAlertController.alertControllerWithTitle("\n", null, UIAlertControllerStyleAlert)
+        alert.view.tintColor = nativeTintColor
 
-            loadingIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleLarge
-            loadingIndicator.color = nativeTintColor
-            loadingIndicator.hidesWhenStopped = true
-            loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
-            loadingIndicator.startAnimating()
+        val loadingIndicator = UIActivityIndicatorView()
 
-            alert.view.addSubview(loadingIndicator)
-            NSLayoutConstraint.activateConstraints(listOf(
-                loadingIndicator.centerXAnchor().constraintEqualToAnchor(alert.view.centerXAnchor),
-                loadingIndicator.centerYAnchor().constraintEqualToAnchor(alert.view.centerYAnchor)
-            ))
+        loadingIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleLarge
+        loadingIndicator.color = nativeTintColor
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
+        loadingIndicator.startAnimating()
 
-            alertRef = alert
-            viewController.presentViewController(alert, animated = true, completion = null)
-        } else {
-            alertRef?.dismissViewControllerAnimated(true, null)
-            alertRef = null
+        alert.view.addSubview(loadingIndicator)
+        NSLayoutConstraint.activateConstraints(listOf(
+            loadingIndicator.centerXAnchor().constraintEqualToAnchor(alert.view.centerXAnchor),
+            loadingIndicator.centerYAnchor().constraintEqualToAnchor(alert.view.centerYAnchor)
+        ))
+
+        alertRef = alert
+        viewController.presentViewController(alert, animated = true, completion = null)
+        onDispose {
+            loadingIndicator.stopAnimating()
+            if (viewController.presentedViewController == alert) {
+                viewController.dismissViewControllerAnimated(true, null)
+            }
+            if (alertRef == alert) alertRef = null
         }
     }
 
@@ -66,48 +79,59 @@ actual fun ProgressDialog(
     modifier: Modifier,
     visible: Boolean,
     progress: () -> Float,
-    isWavyIndicator: Boolean
+    isWavyIndicator: Boolean,
+    tone: IenSemanticTone,
 ) {
     val viewController = LocalUIViewController.current
-    val currentProgress = progress()
-    val nativeTintColor = IenTheme.colors.brand.toUIColor()
+    val currentProgress by rememberUpdatedState(progress)
+    val nativeTintColor = toneColor(tone).toUIColor()
 
     var alertRef by remember { mutableStateOf<UIAlertController?>(null) }
     var progressViewRef by remember { mutableStateOf<UIProgressView?>(null) }
 
-    LaunchedEffect(visible) {
-        if (visible) {
-            val alert = UIAlertController.alertControllerWithTitle("\n", null, UIAlertControllerStyleAlert)
-            alert.view.tintColor = nativeTintColor
-
-            val margin = 16.0
-            val progressView = UIProgressView(UIProgressViewStyle.UIProgressViewStyleDefault).apply {
-                translatesAutoresizingMaskIntoConstraints = false
-                tintColor = nativeTintColor
-            }
-
-            alert.view.addSubview(progressView)
-
-            alertRef = alert
-            progressViewRef = progressView
-
-            NSLayoutConstraint.activateConstraints(listOf(
-                progressView.leadingAnchor.constraintEqualToAnchor(alert.view.leadingAnchor, margin),
-                progressView.trailingAnchor.constraintEqualToAnchor(alert.view.trailingAnchor, -margin),
-                progressView.centerYAnchor.constraintEqualToAnchor(alert.view.centerYAnchor)
-            ))
-
-            viewController.presentViewController(alert, animated = true, completion = null)
-        } else {
-            alertRef?.dismissViewControllerAnimated(true, null)
-            alertRef = null
-            progressViewRef = null
-        }
+    SideEffect {
+        alertRef?.view?.tintColor = nativeTintColor
+        progressViewRef?.tintColor = nativeTintColor
     }
 
-    LaunchedEffect(currentProgress) {
-        if (visible) {
-            progressViewRef?.setProgress(currentProgress, animated = true)
+    LaunchedEffect(visible, progressViewRef) {
+        val progressView = progressViewRef
+        if (visible && progressView != null) {
+            snapshotFlow { currentProgress() }.collect { progressView.setProgress(it, animated = true) }
+        }
+    }
+    if (!visible) return
+
+    DisposableEffect(viewController) {
+        val alert = UIAlertController.alertControllerWithTitle("\n", null, UIAlertControllerStyleAlert)
+        alert.view.tintColor = nativeTintColor
+
+        val margin = 16.0
+        val progressView = UIProgressView(UIProgressViewStyle.UIProgressViewStyleDefault).apply {
+            translatesAutoresizingMaskIntoConstraints = false
+            tintColor = nativeTintColor
+        }
+
+        alert.view.addSubview(progressView)
+
+        alertRef = alert
+        progressViewRef = progressView
+
+        NSLayoutConstraint.activateConstraints(listOf(
+            progressView.leadingAnchor.constraintEqualToAnchor(alert.view.leadingAnchor, margin),
+            progressView.trailingAnchor.constraintEqualToAnchor(alert.view.trailingAnchor, -margin),
+            progressView.centerYAnchor.constraintEqualToAnchor(alert.view.centerYAnchor)
+        ))
+
+        viewController.presentViewController(alert, animated = true, completion = null)
+        onDispose {
+            if (viewController.presentedViewController == alert) {
+                viewController.dismissViewControllerAnimated(true, null)
+            }
+            if (alertRef == alert) {
+                alertRef = null
+                progressViewRef = null
+            }
         }
     }
 

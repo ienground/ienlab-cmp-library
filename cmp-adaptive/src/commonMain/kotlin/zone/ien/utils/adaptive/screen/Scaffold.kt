@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -34,7 +33,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ScaffoldDefaults
@@ -56,7 +54,6 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
@@ -98,9 +95,6 @@ import zone.ien.utils.ui.screen.LocalIenSideBarEnabled
 import zone.ien.utils.ui.screen.IenTopAppBar
 import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
-
-internal fun cupertinoActionsEndSpacing(hasActions: Boolean): Dp =
-    if (hasActions) 8.dp else 0.dp
 
 /**
  * 현재 테마에 맞춰 IEN 또는 Cupertino 스캐폴드를 표시합니다.
@@ -487,7 +481,6 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
                                 content = {
                                     actions?.invoke(this)
                                     primaryAction?.invoke(this)
-                                    Spacer(modifier = Modifier.width(cupertinoActionsEndSpacing(actions != null)))
                                 },
                                 modifier = Modifier
                                     .animateContentSizeWithoutClipping()
@@ -734,7 +727,6 @@ fun AdaptiveTopAppBarScaffold(
         cupertino = {
             scaffold {
                 val isSideBar = LocalAdaptiveSideBarLayout.current
-                if (!isSideBar) Spacer(modifier = Modifier.width(IenTheme.spacing.xs))
 
                 @Composable
                 fun liquidButton(

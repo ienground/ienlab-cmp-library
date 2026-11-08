@@ -1,0 +1,119 @@
+language = Objective-C
+package = zone.ien.utils.adaptive.dialog.test
+compilerOpts = -fno-objc-arc
+---
+#import <UIKit/UIKit.h>
+#import <objc/runtime.h>
+
+typedef id (*IENDatePickerAllocationTestInitWithFrameIMP)(id, SEL, CGRect);
+
+static Method IENDatePickerAllocationTestInitWithFrameMethod;
+static IMP IENDatePickerAllocationTestOriginalInitWithFrame;
+static BOOL IENDatePickerAllocationTestEnabled;
+static int IENDatePickerAllocationTestCountValue;
+
+static id IENDatePickerAllocationTestCountedInitWithFrame(id instance, SEL selector, CGRect frame)
+    ;
+
+static id IENDatePickerAllocationTestCountedInitWithFrame(
+    id instance,
+    SEL selector,
+    CGRect frame
+) {
+    id result = ((IENDatePickerAllocationTestInitWithFrameIMP)
+        IENDatePickerAllocationTestOriginalInitWithFrame)(instance, selector, frame);
+    if (IENDatePickerAllocationTestEnabled &&
+        result != nil &&
+        [result class] == [UIDatePicker class]) {
+        IENDatePickerAllocationTestCountValue++;
+    }
+    return result;
+}
+
+static inline BOOL IENDatePickerAllocationTestStart(void) {
+    SEL initSelector = @selector(initWithFrame:);
+
+    if (IENDatePickerAllocationTestInitWithFrameMethod == NULL) {
+        Method inheritedMethod = class_getInstanceMethod([UIDatePicker class], initSelector);
+        if (inheritedMethod == NULL) return NO;
+
+        IENDatePickerAllocationTestOriginalInitWithFrame = method_getImplementation(inheritedMethod);
+        unsigned int methodCount = 0;
+        Method *methods = class_copyMethodList([UIDatePicker class], &methodCount);
+        BOOL hasLocalMethod = NO;
+        for (unsigned int index = 0; index < methodCount; index++) {
+            if (method_getName(methods[index]) == initSelector) {
+                hasLocalMethod = YES;
+                break;
+            }
+        }
+        free(methods);
+
+        if (hasLocalMethod) {
+            IENDatePickerAllocationTestInitWithFrameMethod = inheritedMethod;
+        } else {
+            if (!class_addMethod(
+                [UIDatePicker class],
+                initSelector,
+                IENDatePickerAllocationTestOriginalInitWithFrame,
+                method_getTypeEncoding(inheritedMethod)
+            )) {
+                IENDatePickerAllocationTestOriginalInitWithFrame = NULL;
+                return NO;
+            }
+            IENDatePickerAllocationTestInitWithFrameMethod = class_getInstanceMethod(
+                [UIDatePicker class],
+                initSelector
+            );
+        }
+    }
+
+    if (IENDatePickerAllocationTestInitWithFrameMethod == NULL ||
+        IENDatePickerAllocationTestOriginalInitWithFrame == NULL) {
+        return NO;
+    }
+
+    if (method_getImplementation(IENDatePickerAllocationTestInitWithFrameMethod) !=
+        (IMP)IENDatePickerAllocationTestCountedInitWithFrame) {
+        method_setImplementation(
+            IENDatePickerAllocationTestInitWithFrameMethod,
+            (IMP)IENDatePickerAllocationTestCountedInitWithFrame
+        );
+    }
+
+    IENDatePickerAllocationTestCountValue = 0;
+    IENDatePickerAllocationTestEnabled = YES;
+    return YES;
+}
+
+static inline int IENDatePickerAllocationTestCount(void) {
+    return IENDatePickerAllocationTestCountValue;
+}
+
+static inline void IENDatePickerAllocationTestReset(void) {
+    IENDatePickerAllocationTestCountValue = 0;
+}
+
+static inline void IENDatePickerAllocationTestStop(void) {
+    IENDatePickerAllocationTestEnabled = NO;
+    if (IENDatePickerAllocationTestInitWithFrameMethod != NULL &&
+        IENDatePickerAllocationTestOriginalInitWithFrame != NULL) {
+        method_setImplementation(
+            IENDatePickerAllocationTestInitWithFrameMethod,
+            IENDatePickerAllocationTestOriginalInitWithFrame
+        );
+    }
+}
+
+static inline BOOL IENInvokeZeroArgumentBarButtonAction(UIBarButtonItem *button) {
+    if (button == nil) return NO;
+
+    id target = button.target;
+    SEL action = button.action;
+    if (target == nil || action == NULL || ![target respondsToSelector:action]) return NO;
+
+    IMP actionImpl = [target methodForSelector:action];
+    if (actionImpl == NULL) return NO;
+    ((void (*)(id, SEL))actionImpl)(target, action);
+    return YES;
+}

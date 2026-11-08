@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -188,7 +189,13 @@ fun <T : Number> IenNumericSpinner(
     val initialNumber = coerceSpinnerNumber(defaultNumber ?: min, min, max)
     var internalNumber by remember(min, max) { mutableStateOf(initialNumber) }
     val currentNumber = coerceSpinnerNumber(number ?: internalNumber, min, max)
-    val displayedNumber = numberFormatter(currentNumber)
+    val currentNumberState = rememberUpdatedState(currentNumber)
+    val numberFormatterState = rememberUpdatedState(numberFormatter)
+    val displayedNumber by remember {
+        derivedStateOf {
+            numberFormatterState.value(currentNumberState.value)
+        }
+    }
     val spec = numericSpinnerSpec(size)
     val canDecrease = !disable && compareSpinnerNumbers(currentNumber, min) > 0
     val canIncrease = !disable && compareSpinnerNumbers(currentNumber, max) < 0

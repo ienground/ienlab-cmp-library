@@ -1,6 +1,8 @@
 package zone.ien.utils.ui.menu
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +28,9 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -39,6 +44,7 @@ import zone.ien.utils.ui.utils.shakeOnDisabledClick
 import zone.ien.utils.ui.window.disablePlatformDialogDim
 import zone.ien.utils.ui.window.ienOverlayDialogProperties
 import zone.ien.utils.ui.window.ienOverlayWindowSize
+import zone.ien.utils.ui.window.rememberIenOverlayWindowSize
 
 private val LocalIenModalOverlayAlpha = staticCompositionLocalOf { 1f }
 
@@ -156,14 +162,7 @@ fun IenModal(
 ) {
     val motion = IenTheme.motion
     var mounted by remember { mutableStateOf(open) }
-    val overlayAlpha by animateFloatAsState(
-        targetValue = if (open) 1f else 0f,
-        animationSpec = tween(
-            durationMillis = if (open) motion.normalMillis else motion.fastMillis,
-            easing = motion.standardEasing,
-        ),
-        label = "modal_overlay_alpha",
-    )
+    val hostWindowSize by rememberIenOverlayWindowSize()
 
     LaunchedEffect(open) {
         if (open) {
@@ -184,14 +183,26 @@ fun IenModal(
         properties = properties,
     ) {
         disablePlatformDialogDim()
-        CompositionLocalProvider(LocalIenModalOverlayAlpha provides overlayAlpha) {
-            Box(
-                modifier = modifier
-                    .fillMaxSize()
-                    .ienOverlayWindowSize(),
-                content = content,
-            )
-        }
+        val dialogWindowSize = hostWindowSize
+        val visibility = remember { MutableTransitionState(false) }
+        val transition = rememberTransition(visibility, label = "modal_visibility")
+        LaunchedEffect(open) { visibility.targetState = open }
+        val alpha by transition.animateFloat(
+            transitionSpec = {
+                tween(
+                    durationMillis = if (targetState) motion.normalMillis else motion.fastMillis,
+                    easing = motion.standardEasing,
+                )
+            },
+            label = "modal_alpha",
+        ) { visible -> if (visible) 1f else 0f }
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .ienOverlayWindowSize(dialogWindowSize)
+                .graphicsLayer { this.alpha = alpha },
+            content = content,
+        )
     }
 }
 

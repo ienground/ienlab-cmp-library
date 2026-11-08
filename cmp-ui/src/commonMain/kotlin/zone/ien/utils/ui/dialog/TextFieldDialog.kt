@@ -28,6 +28,7 @@ import zone.ien.utils.ui.dialog.IenAlertDialogTitle
 import zone.ien.utils.ui.dialog.IenConfirmDialogCancelButton
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.toneColor
 import zone.ien.utils.ui.interactive.IenButton
 import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonSize
@@ -41,6 +42,7 @@ import zone.ien.utils.ui.utils.TextFieldDialogData
 /**
  * IenBaseTextFieldDialog은 텍스트 필드 다이얼로그의 기본 구조를 정의하는 컴포저블입니다.
  *
+ * @param tone 강조 요소에 적용할 의미 색상 톤
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
  * @param icon 다이얼로그의 아이콘을 나타내는 Composable
@@ -59,6 +61,7 @@ fun IenBaseTextFieldDialog(
     message: String? = null,
     onDismiss: () -> Unit,
     textFields: @Composable ColumnScope.() -> Unit,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     buttons: @Composable RowScope.() -> Unit
 ) {
     IenDialogFrame(
@@ -73,7 +76,7 @@ fun IenBaseTextFieldDialog(
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
             ) {
                 icon?.let {
-                    CompositionLocalProvider(LocalContentColor provides IenTheme.colors.brand) {
+                    CompositionLocalProvider(LocalContentColor provides toneColor(tone)) {
                         Box(contentAlignment = Alignment.Center) {
                             it()
                         }
@@ -105,6 +108,7 @@ fun IenBaseTextFieldDialog(
 /**
  * IenTextFieldDialog은 사용자 입력을 받기 위한 텍스트 필드 다이얼로그 컴포저블입니다.
  *
+ * @param tone 강조 요소에 적용할 의미 색상 톤
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
  * @param icon 다이얼로그의 아이콘을 나타내는 Composable
@@ -131,6 +135,7 @@ fun IenTextFieldDialog(
     textConfirm: String = stringResource(Res.string.ok),
     enabledDismiss: Boolean = true,
     enabledConfirm: Boolean = true,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     onConfirm: (Map<String, String>) -> Unit,
 ) {
     val textStates = remember(visible, textFields.keys) {
@@ -152,6 +157,7 @@ fun IenTextFieldDialog(
     val isConfirmEnabled = enabledConfirm && fieldsValid
 
     IenBaseTextFieldDialog(
+        tone = tone,
         modifier = modifier,
         visible = visible,
         icon = icon,
@@ -213,7 +219,7 @@ fun IenTextFieldDialog(
                     modifier = Modifier.fillMaxWidth(),
                     size = IenButtonSize.Large,
                     variant = IenButtonVariant.Fill,
-                    tone = IenSemanticTone.Brand,
+                    tone = tone,
                     state = IenButtonState(enabled = isConfirmEnabled),
                     display = IenButtonDisplay.Block,
                 ) {

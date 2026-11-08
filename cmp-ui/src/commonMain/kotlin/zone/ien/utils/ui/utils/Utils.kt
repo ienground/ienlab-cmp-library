@@ -5,16 +5,24 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
-import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -76,37 +84,74 @@ fun Modifier.instantPress(
     this
 }
 
-@Composable
-internal fun Modifier.shakeOnDisabledClick(enabled: Boolean): Modifier {
-    if (enabled) return this
+internal fun Modifier.shakeOnDisabledClick(enabled: Boolean): Modifier =
+    this then DisabledClickShakeElement(enabled)
 
-    val shakeOffset = remember { Animatable(0f) }
-    val coroutineScope = rememberCoroutineScope()
-    val shakeDistance = with(LocalDensity.current) { 6.dp.toPx() }
+private data class DisabledClickShakeElement(val enabled: Boolean) : ModifierNodeElement<DisabledClickShakeNode>() {
+    override fun create(): DisabledClickShakeNode = DisabledClickShakeNode(enabled)
 
-    return this
-        .pointerInput(shakeDistance) {
+    override fun update(node: DisabledClickShakeNode) {
+        node.updateEnabled(enabled)
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "shakeOnDisabledClick"
+        properties["enabled"] = enabled
+    }
+}
+
+private class DisabledClickShakeNode(private var enabled: Boolean) : DelegatingNode(), LayoutModifierNode {
+    override val shouldAutoInvalidate: Boolean = false
+    private var shakeOffset by mutableFloatStateOf(0f)
+    private var shakeJob: Job? = null
+
+    init {
+        delegate(SuspendingPointerInputModifierNode {
             awaitEachGesture {
-                awaitFirstDown(
-                    requireUnconsumed = false,
-                    pass = PointerEventPass.Initial,
-                )
-                coroutineScope.launch {
-                    shakeOffset.snapTo(0f)
-                    shakeOffset.animateTo(
-                        targetValue = 0f,
-                        animationSpec = keyframes {
-                            durationMillis = 200
-                            -shakeDistance at 30
-                            shakeDistance at 70
-                            -shakeDistance * 0.6f at 110
-                            shakeDistance * 0.6f at 150
-                            0f at 200
-                        },
-                    )
+                awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                if (!enabled) {
+                    val shakeDistance = 6.dp.toPx()
+                    shakeJob?.cancel()
+                    shakeJob = coroutineScope.launch {
+                        try {
+                            Animatable(0f).animateTo(
+                                targetValue = 0f,
+                                animationSpec = keyframes {
+                                    durationMillis = 200
+                                    -shakeDistance at 30
+                                    shakeDistance at 70
+                                    -shakeDistance * 0.6f at 110
+                                    shakeDistance * 0.6f at 150
+                                    0f at 200
+                                },
+                            ) { shakeOffset = value }
+                        } finally {
+                            shakeOffset = 0f
+                        }
+                    }
                 }
                 waitForUpOrCancellation(pass = PointerEventPass.Initial)
             }
+        })
+    }
+
+    fun updateEnabled(enabled: Boolean) {
+        this.enabled = enabled
+        if (enabled) {
+            shakeJob?.cancel()
+            shakeOffset = 0f
         }
-        .offset { IntOffset(x = shakeOffset.value.roundToInt(), y = 0) }
+    }
+
+    override fun onDetach() {
+        shakeJob?.cancel()
+        shakeOffset = 0f
+    }
+
+    override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {
+        val placeable = measurable.measure(constraints)
+        return layout(placeable.width, placeable.height) {
+            placeable.placeRelativeWithLayer(shakeOffset.roundToInt(), 0)
+        }
+    }
 }

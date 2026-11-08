@@ -205,7 +205,7 @@ export function toKotlinIdentifier(value: string): string {
 export function generateKotlinTheme(
   schemes: ColorSchemes,
   appName = "App",
-  iconStyle: IconStyle = "material-filled",
+  iconStyle: IconStyle = "tabler",
 ): string {
   const name = toKotlinIdentifier(appName);
   const needsColorImport = (["light", "dark"] as const).some((mode) =>

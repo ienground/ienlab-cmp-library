@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
@@ -175,12 +176,14 @@ fun IenScaffold(
     val scrollFadeDistancePx = with(LocalDensity.current) {
         effectiveContentEdge.scrollFadeDistance.toPx().coerceAtLeast(1f)
     }
-    val scrollTopProgress = effectiveContentEdge.scrollableState?.topEdgeProgress(scrollFadeDistancePx)
-        ?: 0f
-    val scrollBottomProgress = effectiveContentEdge.scrollableState?.bottomEdgeProgress(scrollFadeDistancePx)
-        ?: 0f
-    val effectiveTopProgress = effectiveContentEdge.topProgress.coerceIn(0f, 1f) * scrollTopProgress
-    val effectiveBottomProgress = effectiveContentEdge.bottomProgress.coerceIn(0f, 1f) * scrollBottomProgress
+    val effectiveTopProgress = {
+        effectiveContentEdge.topProgress.coerceIn(0f, 1f) *
+            (effectiveContentEdge.scrollableState?.topEdgeProgress(scrollFadeDistancePx) ?: 0f)
+    }
+    val effectiveBottomProgress = {
+        effectiveContentEdge.bottomProgress.coerceIn(0f, 1f) *
+            (effectiveContentEdge.scrollableState?.bottomEdgeProgress(scrollFadeDistancePx) ?: 0f)
+    }
     var bottomBarHeightPx by remember { mutableStateOf(0) }
     val targetBottomBarHeight = if (bottomBar == null) {
         0.dp
@@ -203,7 +206,7 @@ fun IenScaffold(
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .layerBackdrop(backdrop),
+                    .then(if (effectiveContentEdge.enabled) Modifier.layerBackdrop(backdrop) else Modifier),
             ) {
                 CompositionLocalProvider(LocalIenScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState)) {
                     content(contentPadding)
@@ -237,16 +240,24 @@ fun IenScaffold(
     val retainedScaffoldContent = remember {
         movableContentOf<PaddingValues> { padding -> currentScaffoldContent(padding) }
     }
+    val currentTopBar by rememberUpdatedState(topBar)
+    val retainedTopBar = remember { movableContentOf { currentTopBar() } }
+    val currentBottomBar by rememberUpdatedState(bottomBar)
+    val retainedBottomBar = remember { movableContentOf { currentBottomBar?.invoke() } }
+    val currentSnackbarHost by rememberUpdatedState(snackbarHost)
+    val retainedSnackbarHost = remember { movableContentOf { currentSnackbarHost() } }
+    val currentFloating by rememberUpdatedState(floating)
+    val retainedFloating = remember { movableContentOf { currentFloating() } }
     CompositionLocalProvider(LocalIenBarPlacement provides placement) {
         if (isSideBar) {
             IenSideBarScaffold(
                 modifier = modifier,
                 placement = placement,
                 topBarVisibility = topBarVisibility,
-                topBar = topBar,
-                bottomBar = bottomBar,
-                snackbarHost = snackbarHost,
-                floating = floating,
+                topBar = retainedTopBar,
+                bottomBar = retainedBottomBar.takeIf { bottomBar != null },
+                snackbarHost = retainedSnackbarHost,
+                floating = retainedFloating,
                 floatingPosition = floatingActionButtonPosition,
                 containerColor = containerColor,
                 contentColor = contentColor,
@@ -260,15 +271,15 @@ fun IenScaffold(
                     Box(Modifier.graphicsLayer {
                         translationY = -size.height * (1f - topBarVisibility)
                         alpha = topBarVisibility
-                    }) { topBar() }
+                    }) { retainedTopBar() }
                 },
                 bottomBar = {
                     if (bottomBar != null) {
-                        Box(Modifier.onSizeChanged { bottomBarHeightPx = it.height }) { bottomBar() }
+                        Box(Modifier.onSizeChanged { bottomBarHeightPx = it.height }) { retainedBottomBar() }
                     }
                 },
-                snackbarHost = snackbarHost,
-                floatingActionButton = floating,
+                snackbarHost = retainedSnackbarHost,
+                floatingActionButton = retainedFloating,
                 floatingActionButtonPosition = floatingActionButtonPosition,
                 containerColor = containerColor,
                 contentColor = contentColor,
@@ -393,22 +404,24 @@ private fun IenScaffoldEdgeBlur(
     backdrop: LayerBackdrop,
     showTop: Boolean,
     showBottom: Boolean,
-    topProgress: Float,
+    topProgress: () -> Float,
     topBarVisibility: Float,
-    bottomProgress: Float,
+    bottomProgress: () -> Float,
     topHeight: Dp,
     topFadeHeight: Dp,
     bottomHeight: Dp,
     radius: Dp,
     color: Color,
 ) {
+    val hasTopProgress by remember(topProgress) { derivedStateOf { topProgress() > 0f } }
+    val hasBottomProgress by remember(bottomProgress) { derivedStateOf { bottomProgress() > 0f } }
     val animatedTopHeight by animateDpAsState(
         targetValue = topHeight,
         animationSpec = tween(IenTheme.motion.normalMillis, easing = IenTheme.motion.standardEasing),
         label = "top_bar_blur_height",
     )
     Box(modifier = modifier) {
-        if (showTop && topProgress > 0f) {
+        if (showTop && hasTopProgress) {
             Box(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
@@ -451,13 +464,13 @@ private fun IenScaffoldEdgeBlur(
                                 setFloatUniform("solidFraction", TopBlurSolidFraction)
                                 setColorUniform("tint", color.copy(alpha = 0.42f))
                                 setFloatUniform("tintIntensity", 0.24f)
-                                setFloatUniform("edgeIntensity", topProgress)
+                                setFloatUniform("edgeIntensity", topProgress())
                             }
                         },
                     ),
             )
         }
-        if (showBottom && bottomProgress > 0f) {
+        if (showBottom && hasBottomProgress) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -491,7 +504,7 @@ private fun IenScaffoldEdgeBlur(
                                 setFloatUniform("size", size.width, size.height)
                                 setColorUniform("tint", color.copy(alpha = 0.42f))
                                 setFloatUniform("tintIntensity", 0.24f)
-                                setFloatUniform("edgeIntensity", bottomProgress)
+                                setFloatUniform("edgeIntensity", bottomProgress())
                             }
                         },
                     ),

@@ -5,6 +5,7 @@ import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.SelectableDates
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import zone.ien.utils.ui.foundation.IenSemanticTone
 
 /**
  * 날짜 선택 다이얼로그 컴포저블
@@ -19,6 +20,7 @@ import androidx.compose.ui.Modifier
  * @param title 제목
  * @param onDismiss 닫기 버튼 클릭 시 실행할 함수
  * @param onConfirm 확인 버튼 클릭 시 실행할 함수 (선택된 날짜 밀리초)
+ * @param tone 강조 요소에 적용할 의미 색상 톤
  * @return 날짜 선택 다이얼로그 컴포저블
  */
 @Composable
@@ -32,6 +34,7 @@ expect fun DatePickerDialog(
     selectableDates: SelectableDates = DatePickerDefaults.AllDates,
     title: String,
     onDismiss: () -> Unit,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     onConfirm: (Long) -> Unit,
 )
 
@@ -46,6 +49,7 @@ expect fun DatePickerDialog(
  * @param title 제목
  * @param onDismiss 닫기 버튼 클릭 시 실행할 함수
  * @param onConfirm 확인 버튼 클릭 시 실행할 함수 (시, 분)
+ * @param tone 강조 요소에 적용할 의미 색상 톤
  * @return 시간 선택 다이얼로그 컴포저블
  */
 @Composable
@@ -57,5 +61,6 @@ expect fun TimePickerDialog(
     is24Hour: Boolean = false,
     title: String,
     onDismiss: () -> Unit,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     onConfirm: (Int, Int) -> Unit
 )

@@ -54,6 +54,7 @@ enum class IenDialogActionStyle {
  * @param title 다이얼로그의 제목
  * @param message 다이얼로그의 내용
  * @param onDismiss 다이얼로그를 닫기 위한 콜백 함수
+ * @param tone 아이콘에 적용할 의미 색상 톤
  * @param buttons 다이얼로그의 버튼을 나타내는 Composable
  */
 @Composable
@@ -64,6 +65,7 @@ fun IenBaseAlertDialog(
     title: String?,
     message: String? = null,
     onDismiss: () -> Unit,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     buttons: @Composable RowScope.() -> Unit
 ) {
     IenAlertDialogFrame(
@@ -73,7 +75,7 @@ fun IenBaseAlertDialog(
         title = title,
         message = message,
         onDismiss = onDismiss,
-        tone = IenSemanticTone.Brand,
+        tone = tone,
         actions = {
             Row(
                 modifier = Modifier.fillMaxWidth(),

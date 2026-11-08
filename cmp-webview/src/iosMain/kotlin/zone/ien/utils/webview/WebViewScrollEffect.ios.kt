@@ -113,10 +113,10 @@ internal actual fun WebViewScrollEffect(
                 val bottomProgress = ((scrollState.maxOffset - scrollState.offset) / fadeDistance).coerceIn(0f, 1f)
                 topBlur.hidden = topProgress == 0f || topHeight <= 0.0
                 bottomBlur.hidden = bottomProgress == 0f || bottomHeight <= 0.0
-                val topMaskChanged = topMask.opacity != topProgress || topMaskView.bounds.useContents {
+                val topMaskChanged = topMaskView.image == null || topMaskView.bounds.useContents {
                     size.width != width || size.height != topHeight
                 }
-                val bottomMaskChanged = bottomMask.opacity != bottomProgress || bottomMaskView.bounds.useContents {
+                val bottomMaskChanged = bottomMaskView.image == null || bottomMaskView.bounds.useContents {
                     size.width != width || size.height != bottomHeight
                 }
                 if (topMaskChanged || bottomMaskChanged) {
@@ -126,7 +126,6 @@ internal actual fun WebViewScrollEffect(
                         topMaskView.setFrame(topBlur.bounds)
                         topMask.setFrame(CGRectMake(0.0, 0.0, 1.0, topHeight))
                         topMask.locations = listOf(0.0, ((topHeight - topFadeHeight * 0.58) / topHeight).coerceIn(0.0, 1.0), 1.0)
-                        topMask.opacity = topProgress
                         topMaskView.image = UIGraphicsImageRenderer(size = CGSizeMake(1.0, topHeight)).imageWithActions {
                             topMask.renderInContext(it!!.CGContext)
                         }
@@ -136,7 +135,6 @@ internal actual fun WebViewScrollEffect(
                     if (bottomMaskChanged && bottomHeight > 0.0) {
                         bottomMaskView.setFrame(bottomBlur.bounds)
                         bottomMask.setFrame(CGRectMake(0.0, 0.0, 1.0, bottomHeight))
-                        bottomMask.opacity = bottomProgress
                         bottomMaskView.image = UIGraphicsImageRenderer(size = CGSizeMake(1.0, bottomHeight)).imageWithActions {
                             bottomMask.renderInContext(it!!.CGContext)
                         }
@@ -145,6 +143,8 @@ internal actual fun WebViewScrollEffect(
                     }
                     CATransaction.commit()
                 }
+                topMaskView.alpha = topProgress.toDouble()
+                bottomMaskView.alpha = bottomProgress.toDouble()
             }
             val observer = object : NSObject(), ObserverProtocol {
                 override fun observeValueForKeyPath(

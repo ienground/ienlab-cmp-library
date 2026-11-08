@@ -26,12 +26,14 @@ import zone.ien.utils.adaptive.section.IenSectionLinkAdaptation
 import zone.ien.utils.pref.LocalPrefsAdaptive
 import zone.ien.utils.pref.LocalPrefsDataStore
 import zone.ien.utils.ui.dialog.IenDatePickerDialog
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.section.IenSectionColors
 import zone.ien.utils.ui.section.IenSectionLinkDefault
 
 /**
  * 날짜를 밀리초 단위 Long으로 저장하는 설정 항목입니다. 기본값과 저장값은 선택 연도 범위 안의 날짜여야 합니다.
  *
+ * @param tone 내부 다이얼로그의 강조 색상 톤
  * @param yearRange 선택 가능한 연도 범위입니다.
  */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
@@ -53,6 +55,7 @@ fun SectionScope.DatePickerPref(
     adaptation: AdaptationScope<HigSectionLinkAdaptation, IenSectionLinkAdaptation>.() -> Unit = {},
     dialogModifier: Modifier = Modifier,
     yearRange: IntRange = DatePickerDefaults.YearRange,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var showDialog by rememberSaveable(key.name) { mutableStateOf(false) }
@@ -83,6 +86,7 @@ fun SectionScope.DatePickerPref(
 
     PrefsDatePickerDialog(
         modifier = dialogModifier,
+        tone = tone,
         yearRange = yearRange,
         visible = showDialog,
         initialSelectedDateMillis = value,
@@ -104,6 +108,7 @@ fun SectionScope.DatePickerPref(
 /**
  * 다른 불리언 설정값에 따라 활성화되는 날짜 선택 항목입니다. 저장 단위와 선택 옵션은 기본 오버로드와 같습니다.
  *
+ * @param tone 내부 다이얼로그의 강조 색상 톤
  * @param enabled 활성화를 제어하는 설정 키와 기본값입니다.
  */
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
@@ -125,6 +130,7 @@ fun SectionScope.DatePickerPref(
     adaptation: AdaptationScope<HigSectionLinkAdaptation, IenSectionLinkAdaptation>.() -> Unit = {},
     dialogModifier: Modifier = Modifier,
     yearRange: IntRange = DatePickerDefaults.YearRange,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     val dataStore = LocalPrefsDataStore.current
     val prefs by remember(dataStore) { dataStore.data }.collectAsState(initial = null)
@@ -146,6 +152,7 @@ fun SectionScope.DatePickerPref(
         trailingContent = trailingContent,
         adaptation = adaptation,
         dialogModifier = dialogModifier,
+        tone = tone,
         yearRange = yearRange,
     )
 }
@@ -159,15 +166,18 @@ private fun PrefsDatePickerDialog(
     yearRange: IntRange,
     title: String,
     onDismiss: () -> Unit,
+    tone: IenSemanticTone,
     onConfirm: (Long) -> Unit,
 ) {
     if (LocalPrefsAdaptive.current) {
         DatePickerDialog(
+            tone = tone,
             modifier = modifier, visible = visible, initialSelectedDateMillis = initialSelectedDateMillis,
             yearRange = yearRange, title = title, onDismiss = onDismiss, onConfirm = onConfirm,
         )
     } else {
         IenDatePickerDialog(
+            tone = tone,
             modifier = modifier, visible = visible, initialSelectedDateMillis = initialSelectedDateMillis,
             yearRange = yearRange, title = title, onDismiss = onDismiss, onConfirm = onConfirm,
         )

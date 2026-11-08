@@ -41,3 +41,5 @@ include(":cmp-filekit-gitlive")
 include(":cmp-coil")
 
 include(":cmp-webview")
+
+include(":cmp-tutorial")

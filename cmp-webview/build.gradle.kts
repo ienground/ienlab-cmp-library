@@ -61,9 +61,18 @@ kotlin {
 
         iosMain.dependencies {
         }
+
+        iosTest.dependencies {
+            implementation(libs.compose.ui.test)
+        }
     }
 }
 
 dependencies {
     androidRuntimeClasspath(libs.compose.ui.tooling)
+}
+
+// UIKit 테스트는 시스템 서비스에 연결할 수 있는 부팅된 시뮬레이터에서 실행합니다.
+tasks.withType<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest>().configureEach {
+    standalone.set(false)
 }

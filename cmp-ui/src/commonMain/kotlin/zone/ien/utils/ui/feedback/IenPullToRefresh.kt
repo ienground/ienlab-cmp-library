@@ -7,9 +7,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -163,6 +163,7 @@ fun IenPullToRefreshIndicator(
     val ready = isRefreshing || fraction >= 1f
     val colors = IenTheme.colors
     val shape = ContinuousRoundedRectangle(IenTheme.radius.full)
+    val borderWidth = IenTheme.stroke.thin
     val readyProgress = animateFloatAsState(
         targetValue = if (ready) 1f else 0f,
         animationSpec = tween(
@@ -207,15 +208,13 @@ fun IenPullToRefreshIndicator(
                     offset = DpOffset(IenTheme.spacing.none, IenTheme.spacing.xxs),
                 ),
             )
-            .drawIenBorder(
-                BorderStroke(
-                    IenTheme.stroke.thin,
-                    lerp(colors.border, colors.brandWeak, readyProgress.value),
-                ),
-                shape,
-            )
+            .drawIenBorder(shape) {
+                BorderStroke(borderWidth, lerp(colors.border, colors.brandWeak, readyProgress.value))
+            }
             .clip(shape)
-            .background(lerp(containerColor, colors.brandWeak, readyProgress.value), shape)
+            .drawBehind {
+                drawRect(lerp(containerColor, colors.brandWeak, readyProgress.value))
+            }
             .semantics {
                 liveRegion = LiveRegionMode.Polite
                 stateDescription = description

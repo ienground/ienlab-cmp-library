@@ -275,7 +275,7 @@ function ComponentPage({
   const [previewLoaded, setPreviewLoaded] = useState(false);
   const [previewHeight, setPreviewHeight] = useState(minimumPreviewHeight);
   const previewFrameRef = useRef<HTMLIFrameElement>(null);
-  const [iconStyle, setIconStyle] = useState<IconStyle>("material-filled");
+  const [iconStyle, setIconStyle] = useState<IconStyle>("tabler");
   const [customColorSchemes, setCustomColorSchemes] =
     useState<ColorSchemes | null>(null);
   const activeComponent = useMemo(
@@ -456,6 +456,19 @@ function ComponentPage({
   return (
     <>
       <header className="topbar">
+        <Link
+          className="header-brand"
+          to="/components"
+          aria-label="IENLAB 데모 홈"
+        >
+          <img alt="" src={ienlabLogo} width={32} height={32} />
+          <span className="header-brand-label">
+            <span className="header-brand-name">cmp-library</span>
+            <Badge className="header-version" variant="weak">
+              v{libraryVersion}
+            </Badge>
+          </span>
+        </Link>
         <nav className="header-navigation" aria-label="데모 페이지">
           <Button
             asChild
@@ -493,19 +506,6 @@ function ComponentPage({
             </Link>
           </Button>
         </nav>
-        <Link
-          className="header-brand"
-          to="/components"
-          aria-label="IENLAB 데모 홈"
-        >
-          <img alt="" src={ienlabLogo} width={32} height={32} />
-          <span className="header-brand-label">
-            <span className="header-brand-name">cmp-library</span>
-            <Badge className="header-version" variant="weak">
-              v{libraryVersion}
-            </Badge>
-          </span>
-        </Link>
         <div className="topbar-actions">
           {!isProjectsPage && <Button
             aria-expanded={mobileNavigationOpen}
@@ -533,30 +533,28 @@ function ComponentPage({
               <Monitor aria-hidden="true" />
             )}
           </Button>
-          {(isWebPage || isProjectsPage) && (
-            <div className="flex items-center gap-0.5" role="group" aria-label="프리뷰 언어 / Preview language">
-              <Button
-                aria-label="한국어"
-                aria-pressed={webLanguage === "ko"}
-                onClick={() => onWebLanguageChange("ko")}
-                size="sm"
-                title="한국어"
-                variant={webLanguage === "ko" ? "line" : "ghost"}
-              >
-                KO
-              </Button>
-              <Button
-                aria-label="English"
-                aria-pressed={webLanguage === "en"}
-                onClick={() => onWebLanguageChange("en")}
-                size="sm"
-                title="English"
-                variant={webLanguage === "en" ? "line" : "ghost"}
-              >
-                EN
-              </Button>
-            </div>
-          )}
+          <div className="flex items-center gap-0.5" role="group" aria-label="프리뷰 언어 / Preview language">
+            <Button
+              aria-label="한국어"
+              aria-pressed={webLanguage === "ko"}
+              onClick={() => onWebLanguageChange("ko")}
+              size="sm"
+              title="한국어"
+              variant={webLanguage === "ko" ? "line" : "ghost"}
+            >
+              KO
+            </Button>
+            <Button
+              aria-label="English"
+              aria-pressed={webLanguage === "en"}
+              onClick={() => onWebLanguageChange("en")}
+              size="sm"
+              title="English"
+              variant={webLanguage === "en" ? "line" : "ghost"}
+            >
+              EN
+            </Button>
+          </div>
           <Button
             asChild
             className="github-link"
@@ -901,7 +899,7 @@ function SidebarContents({
     <div className="sidebar-content">
       <div className="sidebar-heading">
         <p className="toc-title">
-          {isColorSchemePage ? "컬러 스킴" : isWebPage ? "(00) 웹 컴포넌트" : "(00) 컴포넌트"}
+          {isColorSchemePage ? "컬러 스킴" : isWebPage ? "웹 컴포넌트" : "컴포넌트"}
         </p>
         {!isColorSchemePage && (
           <Badge variant="weak">{filteredCatalog.length}</Badge>
@@ -949,10 +947,10 @@ function SidebarContents({
               {visibleCategories.length === 0 ? (
                 <p className="empty-search">검색 결과가 없습니다.</p>
               ) : (
-                visibleCategories.map((group, index) => (
+                visibleCategories.map((group) => (
                   <div className="navigation-group" key={group.category}>
                     <Typography variant="title1" asChild><h2>
-                      ({String(index + 1).padStart(2, "0")}) {group.category}
+                      {group.category}
                     </h2></Typography>
                     {group.items.map((item) => {
                       const isActive = activeComponentId === item.id;
@@ -975,7 +973,7 @@ function SidebarContents({
                             to={`/${isWebPage ? "web" : "components"}/${item.id}/${activePage}`}
                           >
                             <span>{item.name}</span>
-                            <code>{isWebPage ? `@ienlab/${item.id}` : item.api[0]}</code>
+                            <code className="sr-only">{isWebPage ? `@ienlab/${item.id}` : item.api[0]}</code>
                           </Link>
                         </Button>
                       );

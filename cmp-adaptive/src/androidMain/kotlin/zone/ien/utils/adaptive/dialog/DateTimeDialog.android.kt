@@ -4,6 +4,7 @@ import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.SelectableDates
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.dialog.IenDatePickerDialog
 import zone.ien.utils.ui.dialog.IenTimePickerDialog
 
@@ -18,9 +19,11 @@ actual fun DatePickerDialog(
     selectableDates: SelectableDates,
     title: String,
     onDismiss: () -> Unit,
+    tone: IenSemanticTone,
     onConfirm: (Long) -> Unit
 ) {
     IenDatePickerDialog(
+        tone = tone,
         modifier = modifier,
         visible = visible,
         initialSelectedDateMillis = initialSelectedDateMillis,
@@ -43,9 +46,11 @@ actual fun TimePickerDialog(
     is24Hour: Boolean,
     title: String,
     onDismiss: () -> Unit,
+    tone: IenSemanticTone,
     onConfirm: (Int, Int) -> Unit
 ) {
     IenTimePickerDialog(
+        tone = tone,
         modifier = modifier,
         visible = visible,
         initialHour = initialHour,

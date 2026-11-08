@@ -1,6 +1,10 @@
 package zone.ien.utils.ui.window
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.DialogProperties
@@ -24,3 +28,7 @@ internal actual fun ienOverlayDialogProperties(
     usePlatformDefaultWidth = false,
     decorFitsSystemWindows = false,
 )
+
+@Composable
+internal actual fun rememberIenOverlayWindowSize(): State<IntSize> =
+    rememberUpdatedState(LocalWindowInfo.current.containerSize)

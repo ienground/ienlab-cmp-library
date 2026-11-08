@@ -69,7 +69,7 @@ export function useTextField({
     const form = input?.form
     if (!input || !form || value !== undefined) return
     const reset = (event: Event) => {
-      queueMicrotask(() => {
+      setTimeout(() => {
         if (!event.defaultPrevented) setLocalValue(String(defaultValue ?? ""))
       })
     }

@@ -2,6 +2,7 @@ package zone.ien.utils.adaptive.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.dialog.IenTextFieldDialog
 import zone.ien.utils.ui.utils.TextFieldDialogData
 
@@ -20,9 +21,11 @@ actual fun TextFieldDialog(
     styleConfirm: UIAlertActionStyle,
     enabledDismiss: Boolean,
     enabledConfirm: Boolean,
+    tone: IenSemanticTone,
     onConfirm: (Map<String, String>) -> Unit
 ) {
     IenTextFieldDialog(
+        tone = tone,
         modifier = modifier,
         visible = visible,
         icon = icon,

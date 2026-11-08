@@ -13,11 +13,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.toneColor
+import zone.ien.utils.ui.interactive.toneWeakColor
 
 /**
  * IenProgressDialog은 진행 상태를 표시하는 다이얼로그를 제공하는 컴포저블입니다.
  *
+ * @param tone 강조 요소에 적용할 의미 색상 톤
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
  * @param isLoadingIndicator 로딩 인디케이터 표시 여부
@@ -29,7 +33,8 @@ fun IenProgressDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     isLoadingIndicator: Boolean = true,
-    isWavyIndicator: Boolean = true
+    isWavyIndicator: Boolean = true,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     IenDialogFrame(
         visible = visible,
@@ -43,11 +48,22 @@ fun IenProgressDialog(
             modifier = Modifier.fillMaxWidth()
         ) {
             if (isLoadingIndicator) {
-                LoadingIndicator(modifier = Modifier.padding(IenTheme.spacing.md))
+                LoadingIndicator(
+                    color = toneColor(tone),
+                    modifier = Modifier.padding(IenTheme.spacing.md),
+                )
             } else if (isWavyIndicator) {
-                CircularWavyProgressIndicator(modifier = Modifier.padding(IenTheme.spacing.md))
+                CircularWavyProgressIndicator(
+                    color = toneColor(tone),
+                    trackColor = toneWeakColor(tone),
+                    modifier = Modifier.padding(IenTheme.spacing.md),
+                )
             } else {
-                CircularProgressIndicator(modifier = Modifier.padding(IenTheme.spacing.md))
+                CircularProgressIndicator(
+                    color = toneColor(tone),
+                    trackColor = toneWeakColor(tone),
+                    modifier = Modifier.padding(IenTheme.spacing.md),
+                )
             }
         }
     }
@@ -56,6 +72,7 @@ fun IenProgressDialog(
 /**
  * 수치적으로 진행률을 표현할 수 있는 진행 상태 다이얼로그를 제공하는 컴포저블입니다.
  *
+ * @param tone 강조 요소에 적용할 의미 색상 톤
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
  * @param progress 0.0f에서 1.0f 사이의 진행률을 반환하는 콜백 함수
@@ -67,7 +84,8 @@ fun IenProgressDialog(
     modifier: Modifier = Modifier,
     visible: Boolean,
     progress: () -> Float,
-    isWavyIndicator: Boolean = true
+    isWavyIndicator: Boolean = true,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     val currentProgress by animateFloatAsState(
         targetValue = progress.invoke().let { if (it > 1f) 1f else if (it < 0f) 0f else it }
@@ -87,11 +105,15 @@ fun IenProgressDialog(
             if (isWavyIndicator) {
                 CircularWavyProgressIndicator(
                     progress = { currentProgress },
+                    color = toneColor(tone),
+                    trackColor = toneWeakColor(tone),
                     modifier = Modifier.padding(IenTheme.spacing.md)
                 )
             } else {
                 CircularProgressIndicator(
                     progress = { currentProgress },
+                    color = toneColor(tone),
+                    trackColor = toneWeakColor(tone),
                     modifier = Modifier.padding(IenTheme.spacing.md)
                 )
             }

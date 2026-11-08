@@ -6,7 +6,7 @@
   "description": "기존 IEN 웹 컴포넌트의 반경과 글자 크기를 유지하는 기본 프로젝트입니다.",
   "config": {
     "style": "radix-nova",
-    "iconLibrary": "lucide",
+    "iconLibrary": "tabler",
     "tailwind": { "baseColor": "neutral", "cssVariables": true },
     "aliases": {
       "components": "@/components",

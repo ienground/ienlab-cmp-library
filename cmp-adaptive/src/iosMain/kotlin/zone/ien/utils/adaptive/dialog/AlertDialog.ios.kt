@@ -1,12 +1,16 @@
 package zone.ien.utils.adaptive.dialog
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import zone.ien.utils.ui.foundation.IenSemanticTone
 import androidx.compose.ui.uikit.LocalUIViewController
 import platform.UIKit.UIAlertAction
 import platform.UIKit.UIAlertActionStyleCancel
@@ -16,7 +20,7 @@ import platform.UIKit.UIAlertController
 import platform.UIKit.UIAlertControllerStyleAlert
 import zone.ien.hig.toUIColor
 import zone.ien.utils.ui.dialog.IenDialogButtonLayout
-import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.toneColor
 
 /**
  * 알림 다이얼로그 버튼 스타일을 UIKit 스타일로 변환하는 함수
@@ -44,28 +48,40 @@ fun HigBaseAlertDialog(
     visible: Boolean,
     title: String?,
     message: String?,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     buttons: (UIAlertController) -> Unit
 ) {
     val viewController = LocalUIViewController.current
-    val nativeTintColor = IenTheme.colors.brand.toUIColor()
+    val nativeTintColor = toneColor(tone).toUIColor()
     var alertRef by remember { mutableStateOf<UIAlertController?>(null) }
 
-    LaunchedEffect(visible) {
-        if (visible) {
-            val alert = UIAlertController.alertControllerWithTitle(
-                title = title,
-                message = message,
-                preferredStyle = UIAlertControllerStyleAlert
-            )
-
-            buttons(alert)
+    SideEffect {
+        alertRef?.let { alert ->
+            alert.title = title
+            alert.message = message
             alert.view.tintColor = nativeTintColor
+        }
+    }
 
-            alertRef = alert
-            viewController.presentViewController(alert, animated = true, completion = null)
-        } else {
-            alertRef?.dismissViewControllerAnimated(true, null)
-            alertRef = null
+    if (!visible) return
+
+    DisposableEffect(viewController) {
+        val alert = UIAlertController.alertControllerWithTitle(
+            title = title,
+            message = message,
+            preferredStyle = UIAlertControllerStyleAlert
+        )
+
+        buttons(alert)
+        alert.view.tintColor = nativeTintColor
+
+        alertRef = alert
+        viewController.presentViewController(alert, animated = true, completion = null)
+        onDispose {
+            if (viewController.presentedViewController == alert) {
+                viewController.dismissViewControllerAnimated(true, null)
+            }
+            if (alertRef == alert) alertRef = null
         }
     }
 
@@ -94,8 +110,10 @@ actual fun AlertDialog(
     textDismiss: String,
     styleDismiss: UIAlertActionStyle,
     enabledDismiss: Boolean,
+    tone: IenSemanticTone,
     onDismiss: (() -> Unit)?
 ) {
+    val currentOnDismiss by rememberUpdatedState(onDismiss)
     var dismissActionRef by remember { mutableStateOf<UIAlertAction?>(null) }
 
     LaunchedEffect(enabledDismiss) {
@@ -103,16 +121,17 @@ actual fun AlertDialog(
     }
 
     HigBaseAlertDialog(
+        tone = tone,
         visible = visible,
         title = title,
         message = message
     ) { alertController ->
-        onDismiss?.let { callback ->
+        onDismiss?.let {
             val dismissAction = UIAlertAction.actionWithTitle(
                 title = textDismiss,
                 style = styleDismiss.toStyle(),
                 handler = {
-                    callback()
+                    currentOnDismiss?.invoke()
                 }
             ).apply {
                 setEnabled(enabledDismiss)
@@ -158,7 +177,10 @@ actual fun AlertDialog(
     enabledConfirm: Boolean,
     buttonLayout: IenDialogButtonLayout,
     enabledDismiss: Boolean,
+    tone: IenSemanticTone,
 ) {
+    val currentOnDismiss by rememberUpdatedState(onDismiss)
+    val currentOnConfirm by rememberUpdatedState(onConfirm)
     var dismissActionRef by remember { mutableStateOf<UIAlertAction?>(null) }
     var confirmActionRef by remember { mutableStateOf<UIAlertAction?>(null) }
 
@@ -170,6 +192,7 @@ actual fun AlertDialog(
     }
 
     HigBaseAlertDialog(
+        tone = tone,
         visible = visible,
         title = title,
         message = message
@@ -178,7 +201,7 @@ actual fun AlertDialog(
             title = textDismiss,
             style = styleDismiss.toStyle(),
             handler = {
-                onDismiss()
+                currentOnDismiss()
             }
         ).apply {
             setEnabled(enabledDismiss)
@@ -188,7 +211,7 @@ actual fun AlertDialog(
             title = textConfirm,
             style = styleConfirm.toStyle(),
             handler = {
-                onConfirm()
+                currentOnConfirm()
             }
         ).apply {
             setEnabled(enabledConfirm)
@@ -243,7 +266,11 @@ actual fun AlertDialog(
     enabledPositive: Boolean,
     buttonLayout: IenDialogButtonLayout,
     enabledNegative: Boolean,
+    tone: IenSemanticTone,
 ) {
+    val currentOnNeutral by rememberUpdatedState(onNeutral)
+    val currentOnNegative by rememberUpdatedState(onNegative)
+    val currentOnPositive by rememberUpdatedState(onPositive)
     var neutralActionRef by remember { mutableStateOf<UIAlertAction?>(null) }
     var negativeActionRef by remember { mutableStateOf<UIAlertAction?>(null) }
     var positiveActionRef by remember { mutableStateOf<UIAlertAction?>(null) }
@@ -259,6 +286,7 @@ actual fun AlertDialog(
     }
 
     HigBaseAlertDialog(
+        tone = tone,
         visible = visible,
         title = title,
         message = message
@@ -267,7 +295,7 @@ actual fun AlertDialog(
             title = textNeutral,
             style = styleNeutral.toStyle(),
             handler = {
-                onNeutral()
+                currentOnNeutral()
             }
         ).apply {
             setEnabled(enabledNeutral)
@@ -277,7 +305,7 @@ actual fun AlertDialog(
             title = textNegative,
             style = styleNegative.toStyle(),
             handler = {
-                onNegative()
+                currentOnNegative()
             }
         ).apply {
             setEnabled(enabledNegative)
@@ -287,7 +315,7 @@ actual fun AlertDialog(
             title = textPositive,
             style = stylePositive.toStyle(),
             handler = {
-                onPositive()
+                currentOnPositive()
             }
         ).apply {
             setEnabled(enabledPositive)

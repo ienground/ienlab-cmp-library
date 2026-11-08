@@ -3,6 +3,7 @@ package zone.ien.utils.ui.window
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -12,8 +13,9 @@ internal fun shouldUseIenOverlayWindowBounds(containerSize: IntSize): Boolean =
     containerSize.width > 0 && containerSize.height > 0
 
 @Composable
-internal fun Modifier.ienOverlayWindowSize(): Modifier {
-    val containerSize = LocalWindowInfo.current.containerSize
+internal fun Modifier.ienOverlayWindowSize(
+    containerSize: IntSize = LocalWindowInfo.current.containerSize,
+): Modifier {
     val density = LocalDensity.current
 
     return if (shouldUseIenOverlayWindowBounds(containerSize)) {
@@ -25,3 +27,9 @@ internal fun Modifier.ienOverlayWindowSize(): Modifier {
         fillMaxSize()
     }
 }
+
+internal fun isIenOverlayReady(expectedSize: IntSize, windowSize: IntSize, layoutSize: IntSize): Boolean =
+    shouldUseIenOverlayWindowBounds(expectedSize) && windowSize == expectedSize && layoutSize == expectedSize
+
+@Composable
+internal expect fun rememberIenOverlayWindowSize(): State<IntSize>

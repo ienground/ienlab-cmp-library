@@ -1266,16 +1266,10 @@ fun AdaptiveBackButton(
             },
             cupertino = {
                 CupertinoLiquidIconButton(
-                    modifier = (if (LocalAdaptiveSideBarLayout.current) {
-                        modifier
-                    } else {
-                        modifier.padding(horizontal = IenTheme.spacing.md)
-                    })
-                        .graphicsLayer {
-                            this.alpha = alpha
-                            this.compositingStrategy = CompositingStrategy.ModulateAlpha
-                        }
-                    ,
+                    modifier = modifier.graphicsLayer {
+                        this.alpha = alpha
+                        this.compositingStrategy = CompositingStrategy.ModulateAlpha
+                    },
                     enabled = enabled,
                     backdrop = backdrop,
                     isBackgroundAdaptive = isBackgroundAdaptive,

@@ -1,11 +1,14 @@
 package zone.ien.utils.example
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeUIViewController
+import platform.Foundation.NSProcessInfo
+import platform.UIKit.UIViewController
+import zone.ien.utils.initializeIenIos
 
-@OptIn(ExperimentalComposeUiApi::class)
-fun MainViewController() = ComposeUIViewController(
-    configure = {
-        parallelRendering = false
+fun MainViewController(): UIViewController {
+    initializeIenIos()
+    val isDeviceStressRun = NSProcessInfo.processInfo.arguments.contains("--ien-device-stress")
+    return ComposeUIViewController {
+        if (isDeviceStressRun) DeviceStressScreen() else App()
     }
-) { App() }
+}

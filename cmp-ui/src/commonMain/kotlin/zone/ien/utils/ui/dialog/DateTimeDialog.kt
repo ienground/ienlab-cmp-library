@@ -34,6 +34,9 @@ import zone.ien.utils.cmp_ui.generated.resources.cancel
 import zone.ien.utils.cmp_ui.generated.resources.ok
 import zone.ien.utils.ui.foundation.IenSemanticTone
 import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.toneColor
+import zone.ien.utils.ui.interactive.toneOnColor
+import zone.ien.utils.ui.interactive.toneWeakColor
 import zone.ien.utils.ui.interactive.IenButton
 import zone.ien.utils.ui.interactive.IenButtonDisplay
 import zone.ien.utils.ui.interactive.IenButtonSize
@@ -48,6 +51,7 @@ import zone.ien.utils.ui.utils.rememberMyDatePickerState
 /**
  * IenDatePickerDialog은 날짜 선택 다이얼로그를 제공하는 컴포저블입니다.
  *
+ * @param tone 강조 요소에 적용할 의미 색상 톤
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
  * @param initialSelectedDateMillis 초기 선택된 날짜 (밀리초 단위)
@@ -71,6 +75,7 @@ fun IenDatePickerDialog(
     selectableDates: SelectableDates = DatePickerDefaults.AllDates,
     title: String,
     onDismiss: () -> Unit,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     onConfirm: (Long) -> Unit,
 ) {
     if (visible) {
@@ -116,6 +121,7 @@ fun IenDatePickerDialog(
                         .padding(start = IenTheme.spacing.xl, end = IenTheme.spacing.xl, top = IenTheme.spacing.md),
                 )
                 IenDateWheelPicker(
+                    tone = tone,
                     value = selectedDate,
                     onValueChange = {
                         selectedDate = it
@@ -144,7 +150,7 @@ fun IenDatePickerDialog(
                         modifier = Modifier.weight(1f),
                         size = IenButtonSize.Large,
                         variant = IenButtonVariant.Fill,
-                        tone = IenSemanticTone.Brand,
+                        tone = tone,
                         state = IenButtonState(enabled = canConfirm),
                         display = IenButtonDisplay.Block,
                     ) {
@@ -159,6 +165,7 @@ fun IenDatePickerDialog(
 /**
  * IenTimePickerDialog은 시간 선택 다이얼로그를 제공하는 컴포저블입니다.
  *
+ * @param tone 강조 요소에 적용할 의미 색상 톤
  * @param modifier 다이얼로그에 적용할 Modifier
  * @param visible 다이얼로그의 표시 여부
  * @param initialHour 초기 선택된 시간 (24시간 제)
@@ -178,6 +185,7 @@ fun IenTimePickerDialog(
     is24Hour: Boolean = false,
     title: String,
     onDismiss: () -> Unit,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
     onConfirm: (Int, Int) -> Unit
 ) {
     if (visible) {
@@ -201,6 +209,7 @@ fun IenTimePickerDialog(
         ) {
             IenAlertDialogTitle(text = title)
             IenTimeWheelPicker(
+                tone = tone,
                 value = selectedTime,
                 onValueChange = { selectedTime = it },
                 use24HourFormat = is24Hour,
@@ -224,7 +233,7 @@ fun IenTimePickerDialog(
                     modifier = Modifier.weight(1f),
                     size = IenButtonSize.Large,
                     variant = IenButtonVariant.Fill,
-                    tone = IenSemanticTone.Brand,
+                    tone = tone,
                     display = IenButtonDisplay.Block,
                 ) {
                     Text(stringResource(Res.string.ok))
@@ -238,6 +247,7 @@ fun IenTimePickerDialog(
  * IenDatePicker는 IEN 색상 체계를 적용한 날짜 선택 컴포넌트입니다.
  *
  * @param state 날짜 선택 상태
+ * @param tone 강조 요소에 적용할 의미 색상 톤
  * @param modifier 적용할 Modifier
  * @param title 상단 제목
  */
@@ -247,6 +257,7 @@ fun IenDatePicker(
     state: DatePickerState,
     modifier: Modifier = Modifier,
     title: String,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     DatePicker(
         state = state,
@@ -257,13 +268,13 @@ fun IenDatePicker(
             weekdayContentColor = IenTheme.colors.textSecondary,
             subheadContentColor = IenTheme.colors.textSecondary,
             navigationContentColor = IenTheme.colors.textPrimary,
-            currentYearContentColor = IenTheme.colors.brand,
-            selectedYearContentColor = IenTheme.colors.onBrand,
-            selectedYearContainerColor = IenTheme.colors.brand,
-            selectedDayContentColor = IenTheme.colors.onBrand,
-            selectedDayContainerColor = IenTheme.colors.brand,
-            todayContentColor = IenTheme.colors.brand,
-            todayDateBorderColor = IenTheme.colors.brand,
+            currentYearContentColor = toneColor(tone),
+            selectedYearContentColor = toneOnColor(tone),
+            selectedYearContainerColor = toneColor(tone),
+            selectedDayContentColor = toneOnColor(tone),
+            selectedDayContainerColor = toneColor(tone),
+            todayContentColor = toneColor(tone),
+            todayDateBorderColor = toneColor(tone),
             dividerColor = IenTheme.colors.border,
         ),
         title = {
@@ -282,6 +293,7 @@ fun IenDatePicker(
  * IenTimePicker는 IEN 색상 체계를 적용한 시간 선택 컴포넌트입니다.
  *
  * @param state 시간 선택 상태
+ * @param tone 강조 요소에 적용할 의미 색상 톤
  * @param modifier 적용할 Modifier
  * @param isDial 다이얼 방식 사용 여부
  */
@@ -291,17 +303,18 @@ fun IenTimePicker(
     state: TimePickerState,
     modifier: Modifier = Modifier,
     isDial: Boolean = true,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     val timePickerColors = TimePickerDefaults.colors(
-        selectorColor = IenTheme.colors.brand,
-        clockDialSelectedContentColor = IenTheme.colors.onBrand,
+        selectorColor = toneColor(tone),
+        clockDialSelectedContentColor = toneOnColor(tone),
         clockDialUnselectedContentColor = IenTheme.colors.textPrimary,
-        timeSelectorSelectedContainerColor = IenTheme.colors.brandWeak,
-        timeSelectorSelectedContentColor = IenTheme.colors.brand,
+        timeSelectorSelectedContainerColor = toneWeakColor(tone),
+        timeSelectorSelectedContentColor = toneColor(tone),
         timeSelectorUnselectedContainerColor = IenTheme.colors.surfaceWeak,
         timeSelectorUnselectedContentColor = IenTheme.colors.textPrimary,
-        periodSelectorSelectedContainerColor = IenTheme.colors.brandWeak,
-        periodSelectorSelectedContentColor = IenTheme.colors.brand,
+        periodSelectorSelectedContainerColor = toneWeakColor(tone),
+        periodSelectorSelectedContentColor = toneColor(tone),
         periodSelectorUnselectedContainerColor = IenTheme.colors.surfaceRaised,
         periodSelectorUnselectedContentColor = IenTheme.colors.textPrimary,
     )

@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
@@ -149,7 +150,13 @@ fun AdaptiveNavigationBar(
                                 icon = if (selected && currentTheme == Theme.Material3 && item.selectedIcon != null) item.selectedIcon else item.icon
                             )
                         },
-                        label = { Text(text = item.label) },
+                        label = {
+                            Text(
+                                text = item.label,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        },
                         direction = item.direction,
                         badge = item.badge,
                     )
@@ -349,7 +356,13 @@ private fun AdaptiveNavigationBarNative(
                                     contentDescription = item.label,
                                 )
                             },
-                            label = { Text(text = item.label) },
+                            label = {
+                                Text(
+                                    text = item.label,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            },
                             direction = directions[index],
                             alwaysShowLabel = navigationBarAdaptation.alwaysShowLabel,
                         )

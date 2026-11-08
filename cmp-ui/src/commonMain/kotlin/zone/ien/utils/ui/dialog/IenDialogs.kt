@@ -16,13 +16,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.clickable
+import zone.ien.utils.ui.menu.IenModal
+import zone.ien.utils.ui.window.ienOverlayDialogProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.kyant.capsule.ContinuousRoundedRectangle
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
@@ -166,6 +168,7 @@ fun IenAlertDialog(
  * @param modifier 다이얼로그 프레임에 적용할 Modifier
  * @param confirmText 확인 버튼에 표시될 텍스트
  * @param dismissText 취소 버튼에 표시될 텍스트
+ * @param tone 확인 버튼의 의미 색상 톤. destructive가 true이면 Danger를 우선 적용합니다.
  * @param destructive 확인 버튼의 동작이 파괴적인 작업(예: 삭제)인지 여부. true일 경우 Danger 톤 적용
  * @param closeOnDimmerClick 바깥 어두운 배경(Dimmer)을 클릭했을 때 다이얼로그를 닫을지 여부
  * @param closeOnBackEvent 뒤로가기 버튼을 눌렀을 때 다이얼로그를 닫을지 여부
@@ -193,6 +196,7 @@ fun IenConfirmDialog(
     buttonLayout: IenDialogButtonLayout = IenDialogButtonLayout.Horizontal,
     enabledDismiss: Boolean = true,
     enabledConfirm: Boolean = true,
+    tone: IenSemanticTone = IenSemanticTone.Brand,
 ) {
     IenConfirmDialog(
         visible = visible,
@@ -221,7 +225,7 @@ fun IenConfirmDialog(
             IenConfirmDialogConfirmButton(
                 text = confirmText,
                 onClick = onConfirmClick,
-                tone = if (destructive) IenSemanticTone.Danger else IenSemanticTone.Brand,
+                tone = if (destructive) IenSemanticTone.Danger else tone,
                 enabled = enabledConfirm,
             )
         },
@@ -511,28 +515,30 @@ private fun IenDialogFrame(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     LaunchedEffect(visible) {
-        if (visible) {
-            onEntered?.invoke()
-        } else {
-            onExited?.invoke()
-        }
+        if (visible) onEntered?.invoke()
     }
-    if (!visible) return
-    Dialog(
-        onDismissRequest = {
-            if (closeOnDimmerClick || closeOnBackEvent) {
-                onClose()
-            }
-        },
-        properties = DialogProperties(
+    IenModal(
+        open = visible,
+        onOpenChange = { if (!it) onClose() },
+        onExited = onExited,
+        properties = ienOverlayDialogProperties(
             dismissOnBackPress = closeOnBackEvent,
-            dismissOnClickOutside = closeOnDimmerClick,
+            dismissOnClickOutside = false,
         ),
     ) {
+        IenModal.Overlay(onClick = if (closeOnDimmerClick) onClose else null)
         IenSurface(
             modifier = modifier
+                .align(Alignment.Center)
+                .padding(horizontal = IenTheme.spacing.xl)
+                .widthIn(max = 320.dp)
                 .fillMaxWidth()
-                .widthIn(max = 320.dp),
+                .clickable(
+                    indication = null,
+                    interactionSource = androidx.compose.runtime.remember {
+                        androidx.compose.foundation.interaction.MutableInteractionSource()
+                    },
+                ) {},
             color = IenTheme.colors.surfaceRaised,
             shape = ContinuousRoundedRectangle(IenTheme.radius.xl),
             tonalElevation = IenTheme.elevation.overlay,

@@ -25,6 +25,19 @@ static inline CGRect IENStatusRegion(UIView *view) {
     return CGRectZero;
 }
 
+static inline CGRect IENDivisionRegion(UIView *view) {
+    if (@available(iOS 27.1, *)) {
+        CGRect result = CGRectNull;
+        for (UIViewReservedRegion *region in [view reservedRegionsOfKind:UIViewReservedRegionKind.divisionRegionKind]) {
+            if (region.active && !CGRectIsEmpty(region.frame)) {
+                result = CGRectIsNull(result) ? region.frame : CGRectUnion(result, region.frame);
+            }
+        }
+        return CGRectIsNull(result) ? CGRectZero : result;
+    }
+    return CGRectZero;
+}
+
 static inline CGRect IENCameraRegion(UIView *view) {
     CGRect statusFrame = IENStatusRegion(view);
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 270100

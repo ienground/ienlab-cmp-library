@@ -324,6 +324,7 @@ fun IenBottomCTA(
  * @param primaryText 주 버튼 텍스트
  * @param onPrimaryClick 주 버튼 클릭 콜백
  * @param primaryButtonWeight 주 버튼의 상대 너비 비율
+ * @param fixedAboveKeyboard 키보드 표시 시 키보드 위에 배치할지 여부
  * @param secondaryText 부 버튼 텍스트
  * @param onSecondaryClick 부 버튼 클릭 콜백
  * @param secondaryButtonWeight 부 버튼의 상대 너비 비율
@@ -366,6 +367,7 @@ fun IenDoubleBottomCTA(
     bottomAccessory: (@Composable () -> Unit)? = null,
     primaryButtonWeight: Float = 1f,
     secondaryButtonWeight: Float = 1f,
+    fixedAboveKeyboard: Boolean = false,
 ) {
     IenDoubleBottomCTA(
         modifier = modifier,
@@ -382,6 +384,7 @@ fun IenDoubleBottomCTA(
         bottomAccessory = bottomAccessory,
         leftButtonWeight = secondaryButtonWeight,
         rightButtonWeight = primaryButtonWeight,
+        fixedAboveKeyboard = fixedAboveKeyboard,
         leftButton = {
             IenBottomCTAButton(
                 text = secondaryText,
@@ -416,6 +419,7 @@ fun IenDoubleBottomCTA(
  * @param rightButton 우측 버튼 컴포저블 슬롯. null이면 우측 영역을 생성하지 않습니다.
  * @param leftButtonWeight 두 버튼이 모두 있을 때 좌측 버튼 영역의 상대 너비 비율
  * @param rightButtonWeight 두 버튼이 모두 있을 때 우측 버튼 영역의 상대 너비 비율
+ * @param fixedAboveKeyboard 키보드 표시 시 키보드 위에 배치할지 여부
  * @param modifier 적용할 Modifier
  * @param background 하단 바 배경 스타일 ([IenBottomCTABackground])
  * @param hasSafeAreaPadding 세이프 에어리어 패딩 계산 적용 여부
@@ -449,6 +453,7 @@ fun IenDoubleBottomCTA(
     bottomAccessory: (@Composable () -> Unit)? = null,
     leftButtonWeight: Float = 1f,
     rightButtonWeight: Float = 1f,
+    fixedAboveKeyboard: Boolean = false,
 ) {
     val hasBothButtons = leftButton != null && rightButton != null
     if (hasBothButtons) {
@@ -466,7 +471,7 @@ fun IenDoubleBottomCTA(
         hasSafeAreaPadding = hasSafeAreaPadding,
         hasPaddingBottom = hasPaddingBottom,
         fixed = fixed,
-        fixedAboveKeyboard = false,
+        fixedAboveKeyboard = fixedAboveKeyboard,
         takeSpace = takeSpace,
         show = show,
         showAfterDelay = showAfterDelay,
@@ -652,6 +657,7 @@ fun BoxScope.IenFixedBottomCTA(
  * @param rightButton 우측 버튼 컴포저블 슬롯. null이면 우측 영역을 생성하지 않습니다.
  * @param leftButtonWeight 두 버튼이 모두 있을 때 좌측 버튼 영역의 상대 너비 비율
  * @param rightButtonWeight 두 버튼이 모두 있을 때 우측 버튼 영역의 상대 너비 비율
+ * @param fixedAboveKeyboard 키보드 표시 시 키보드 위에 배치할지 여부
  * @param modifier 적용할 Modifier
  * @param background 하단 바 배경 스타일 ([IenBottomCTABackground])
  * @param hasSafeAreaPadding 세이프 에어리어 패딩 계산 적용 여부
@@ -681,6 +687,7 @@ fun BoxScope.IenFixedDoubleBottomCTA(
     bottomAccessory: (@Composable () -> Unit)? = null,
     leftButtonWeight: Float = 1f,
     rightButtonWeight: Float = 1f,
+    fixedAboveKeyboard: Boolean = false,
 ) {
     IenDoubleBottomCTA(
         leftButton = leftButton,
@@ -700,6 +707,7 @@ fun BoxScope.IenFixedDoubleBottomCTA(
         bottomAccessory = bottomAccessory,
         leftButtonWeight = leftButtonWeight,
         rightButtonWeight = rightButtonWeight,
+        fixedAboveKeyboard = fixedAboveKeyboard,
     )
 }
 
