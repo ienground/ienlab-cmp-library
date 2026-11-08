@@ -20,6 +20,15 @@ function SplitInput({ value, defaultValue, onValueChange, lengths, labels, separ
   const [local, setLocal] = React.useState(defaultValue ?? lengths.map(() => ""))
   const values = value ?? local
   const inputs = React.useRef<(HTMLInputElement | null)[]>([])
+  React.useEffect(() => {
+    const form = inputs.current[0]?.form
+    if (!form || value !== undefined) return
+    const reset = (event: Event) => setTimeout(() => {
+      if (!event.defaultPrevented) setLocal(defaultValue ?? lengths.map(() => ""))
+    })
+    form.addEventListener("reset", reset)
+    return () => form.removeEventListener("reset", reset)
+  }, [value, defaultValue, lengths])
   const update = (index: number, next: string) => {
     const result = lengths.map((_, i) => i === index ? next : values[i] ?? "")
     if (value === undefined) setLocal(result)

@@ -1,7 +1,7 @@
 "use client"
 
 import { useId, useLayoutEffect, useEffect, useRef, useState } from "react"
-import type { ComponentProps, KeyboardEvent, ReactNode } from "react"
+import type { ComponentProps, KeyboardEvent, PointerEvent, ReactNode } from "react"
 import { cn } from "cn"
 import type { IenToneProps } from "@/lib/ien-theme"
 import { useIenTheme } from "@/lib/ien-theme-context"
@@ -33,7 +33,7 @@ export function useWheelPickerValue<T>({ value, defaultValue, onValueChange, ope
   useEffect(() => {
     const form = fieldRef.current?.form
     if (!form || value !== undefined) return
-    const reset = (event: Event) => queueMicrotask(() => {
+    const reset = (event: Event) => setTimeout(() => {
       if (!event.defaultPrevented) { setLocal(defaultValue); setDraft(defaultValue); setLocalOpen(false) }
     })
     form.addEventListener("reset", reset)
@@ -110,7 +110,10 @@ export function IenWheelColumn({
   const animateCenter = useRef(false)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const settleRef = useRef<() => void>(() => {})
+  const pendingCenter = useRef<(() => void) | null>(null)
   const typed = useRef({ text: "", at: 0 })
+  const drag = useRef<{ pointerId: number; y: number; top: number; moved: boolean } | null>(null)
+  const suppressClick = useRef(false)
   const [windowIndex, setWindowIndex] = useState(highlightedIndex)
   const virtual = options.length > 300
   const start = virtual ? Math.max(0, windowIndex - 10) : 0
@@ -123,9 +126,15 @@ export function IenWheelColumn({
   useLayoutEffect(() => {
     const list = listRef.current
     if (!list) return
+    drag.current = null
+    list.style.scrollSnapType = ""
     userScrolling.current = false
     if (timer.current) clearTimeout(timer.current)
     const center = () => {
+      if (virtual && !list.querySelector(`[aria-posinset="${Math.max(0, highlightedIndex) + 1}"]`)) {
+        pendingCenter.current = center
+        return
+      }
       list.scrollTo({ top: Math.max(0, highlightedIndex) * rowHeight(list), behavior:
         animateCenter.current && !window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "smooth" : "instant" })
       animateCenter.current = false
@@ -141,10 +150,13 @@ export function IenWheelColumn({
       center()
     })
     observer.observe(list)
-    return () => observer.disconnect()
+    return () => { pendingCenter.current = null; observer.disconnect() }
   }, [highlightedIndex, highlightedValue, selectedIndex, options.length, fade, virtual])
 
   useLayoutEffect(() => {
+    const center = pendingCenter.current
+    pendingCenter.current = null
+    center?.()
     if (listRef.current) syncWheel(listRef.current, fade)
   }, [start, end, fade])
 
@@ -160,7 +172,7 @@ export function IenWheelColumn({
 
   settleRef.current = () => {
     const list = listRef.current
-    if (!list || !editable || !userScrolling.current) return
+    if (!list || !editable || !userScrolling.current || drag.current) return
     userScrolling.current = false
     if (timer.current) clearTimeout(timer.current)
     const center = Math.round(list.scrollTop / rowHeight(list))
@@ -173,9 +185,23 @@ export function IenWheelColumn({
     else list.scrollTo({ top: nearest * rowHeight(list), behavior: "smooth" })
   }
 
+  const finishDrag = (event: PointerEvent<HTMLDivElement>) => {
+    const current = drag.current
+    if (!current || current.pointerId !== event.pointerId) return
+    drag.current = null
+    const list = event.currentTarget
+    list.style.scrollSnapType = ""
+    if (list.hasPointerCapture(event.pointerId)) list.releasePointerCapture(event.pointerId)
+    if (current.moved) settleRef.current()
+  }
+
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!editable) {
+      if (["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight", "Home", "End", "PageDown", "PageUp", " "].includes(event.key)) event.preventDefault()
+      return
+    }
     if (onListKeyDown) return onListKeyDown(event)
-    if (!editable || event.ctrlKey || event.metaKey || event.altKey || event.nativeEvent.isComposing) return
+    if (event.ctrlKey || event.metaKey || event.altKey || event.nativeEvent.isComposing) return
     const enabled = options.flatMap((option, index) => option.disabled ? [] : [index])
     let next: number | undefined
     switch (event.key) {
@@ -216,9 +242,40 @@ export function IenWheelColumn({
       <div ref={listRef} role="listbox" aria-labelledby={`${id}-label`} aria-describedby={describedBy}
         aria-activedescendant={highlightedIndex >= start && highlightedIndex < end ? optionId(highlightedIndex) : undefined}
         aria-disabled={disabled || undefined} aria-readonly={readOnly || undefined} tabIndex={disabled ? -1 : 0}
-        data-slot={`${slotPrefix}-column-list`} onKeyDown={disabled ? undefined : onKeyDown}
+        data-slot={`${slotPrefix}-column-list`} onKeyDown={onKeyDown}
         onWheel={() => { if (editable) userScrolling.current = true }}
-        onPointerDown={() => { if (editable) userScrolling.current = true }}
+        onPointerDown={(event) => {
+          suppressClick.current = false
+          if (!editable) return
+          userScrolling.current = true
+          if (event.pointerType !== "mouse" || event.button !== 0) return
+          drag.current = { pointerId: event.pointerId, y: event.clientY, top: event.currentTarget.scrollTop, moved: false }
+          event.currentTarget.focus({ preventScroll: true })
+          event.preventDefault()
+        }}
+        onPointerMove={(event) => {
+          const current = drag.current
+          if (!editable || !current || current.pointerId !== event.pointerId) return
+          const distance = event.clientY - current.y
+          if (!current.moved && Math.abs(distance) < 4) return
+          if (!current.moved) {
+            current.moved = true
+            suppressClick.current = true
+            event.currentTarget.setPointerCapture(event.pointerId)
+            event.currentTarget.style.scrollSnapType = "none"
+          }
+          event.preventDefault()
+          event.currentTarget.scrollTop = current.top - distance
+        }}
+        onPointerUp={finishDrag}
+        onPointerCancel={finishDrag}
+        onLostPointerCapture={finishDrag}
+        onClickCapture={(event) => {
+          if (!suppressClick.current) return
+          suppressClick.current = false
+          event.preventDefault()
+          event.stopPropagation()
+        }}
         onScroll={(event) => {
           const list = event.currentTarget
           syncWheel(list, fade)

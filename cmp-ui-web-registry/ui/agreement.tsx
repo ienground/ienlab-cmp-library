@@ -17,15 +17,30 @@ export type AgreementProps = Omit<React.ComponentProps<"fieldset">, "onChange" |
 function Agreement({ items, value, defaultValue = [], onValueChange, label, name, disabled, className, ...props }: AgreementProps) {
   const language = useIenLanguage("ko")
   const [local, setLocal] = React.useState(defaultValue)
+  const allRef = React.useRef<HTMLButtonElement>(null)
+  const resetting = React.useRef(false)
+  React.useEffect(() => {
+    const form = allRef.current?.form
+    if (!form) return
+    const reset = (event: Event) => {
+      resetting.current = true
+      setTimeout(() => {
+        resetting.current = false
+        if (!event.defaultPrevented && value === undefined) setLocal(defaultValue)
+      })
+    }
+    form.addEventListener("reset", reset, true)
+    return () => form.removeEventListener("reset", reset, true)
+  }, [value, defaultValue])
   const selected = new Set(value ?? local)
   const editable = items.filter((item) => !item.disabled)
   const all = editable.length > 0 && editable.every((item) => selected.has(item.value))
   const partial = !all && editable.some((item) => selected.has(item.value))
-  const update = (next: Set<string>) => { const result = items.filter((item) => next.has(item.value)).map((item) => item.value); if (value === undefined) setLocal(result); onValueChange?.(result) }
+  const update = (next: Set<string>) => { if (resetting.current) return; const result = items.filter((item) => next.has(item.value)).map((item) => item.value); if (value === undefined) setLocal(result); onValueChange?.(result) }
   return <fieldset {...props} disabled={disabled} data-slot="agreement" className={cn("min-w-0 space-y-2", className)}>
     <legend className="sr-only">{label ?? (language === "ko" ? "약관 동의" : "Agreements")}</legend>
     <label className="flex min-h-14 cursor-pointer items-center gap-3 rounded-xl bg-(--ien-surface-weak) px-4 py-3 font-semibold">
-      <Checkbox checked={all ? true : partial ? "indeterminate" : false} disabled={disabled || editable.length === 0} onCheckedChange={() => { const next = new Set(selected); for (const item of editable) { if (all) next.delete(item.value); else next.add(item.value) }; update(next) }} />
+      <Checkbox ref={allRef} checked={all ? true : partial ? "indeterminate" : false} disabled={disabled || editable.length === 0} onCheckedChange={() => { const next = new Set(selected); for (const item of editable) { if (all) next.delete(item.value); else next.add(item.value) }; update(next) }} />
       {label ?? (language === "ko" ? "전체 동의" : "Agree to all")}
     </label>
     {items.map((item) => <div key={item.value} className="px-4 py-2">

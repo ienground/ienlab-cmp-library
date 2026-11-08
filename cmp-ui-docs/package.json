@@ -13,7 +13,8 @@
     "copy:compose": "node scripts/copy-compose-preview.mjs",
     "build:site": "npm run build && npm run build:registry && npm run copy:compose",
     "test:preview": "npm run generate:api && node --test scripts/preview.test.mjs",
-    "import:reui": "node scripts/import-reui.mjs"
+    "import:reui": "node scripts/import-reui.mjs",
+    "test:browser": "node --test scripts/components.browser.test.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.5.0",
@@ -46,6 +47,7 @@
   },
   "devDependencies": {
     "@babel/parser": "^8.0.7",
+    "@playwright/test": "^1.65.0",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",

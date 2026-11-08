@@ -44,7 +44,7 @@ fun DocsApp(
     showPreviewViewportControls: Boolean = false,
     initialPreviewViewport: String = "pc",
     onPreviewViewportChange: (String) -> Unit = {},
-    iconStyle: IconStyle = IconStyle.Material.Filled,
+    iconStyle: IconStyle = IconStyle.Tabler,
 ) {
     val defaultTokens = defaultIenTokens()
     val docsTokens = defaultTokens.copy(
