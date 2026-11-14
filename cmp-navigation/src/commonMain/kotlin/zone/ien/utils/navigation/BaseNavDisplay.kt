@@ -2,9 +2,12 @@ package zone.ien.utils.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.SizeTransform
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -22,6 +25,7 @@ import androidx.navigation3.ui.defaultPopTransitionSpec
 import androidx.navigation3.ui.defaultTransitionSpec
 import androidx.navigationevent.NavigationEvent
 import zone.ien.utils.navigation.transition.fadeInOutPopTransitionSpec
+import zone.ien.utils.ui.screen.LocalIenTopBarTransition
 
 /**
  * 네비게이션 디스플레이를 생성하는 기본 Composable 함수
@@ -37,6 +41,8 @@ import zone.ien.utils.navigation.transition.fadeInOutPopTransitionSpec
  * @param transitionSpec 전환 스펙
  * @param popTransitionSpec pop 전환 스펙
  * @param predictivePopTransitionSpec 예측 pop 전환 스펙
+ * @param animateTopBar Material·Cupertino 상단 버튼의 위치·크기·내용을 화면 전환과 함께 전환합니다.
+ * 기본값은 false이며, IenTopAppBar와 AdaptiveTopAppBarScaffold에서 사용합니다.
  * @param entryProvider NavEntry 제공자
  */
 @Composable
@@ -57,21 +63,36 @@ fun <T : NavKey> BaseNavDisplay(
     transitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform = defaultTransitionSpec(),
     popTransitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform = defaultPopTransitionSpec(),
     predictivePopTransitionSpec: AnimatedContentTransitionScope<Scene<T>>.(@NavigationEvent.SwipeEdge Int) -> ContentTransform = fadeInOutPopTransitionSpec(),
+    animateTopBar: Boolean = false,
     entryProvider: (key: T) -> NavEntry<T>,
 ) {
-    NavDisplay(
-        backStack = backStack,
-        modifier = modifier,
-        contentAlignment = contentAlignment,
-        onBack = onBack,
-        entryDecorators = entryDecorators,
-        sceneStrategies = sceneStrategies,
-        sceneDecoratorStrategies = sceneDecoratorStrategies,
-        sharedTransitionScope = sharedTransitionScope,
-        sizeTransform = sizeTransform,
-        transitionSpec = transitionSpec,
-        popTransitionSpec = popTransitionSpec,
-        predictivePopTransitionSpec = predictivePopTransitionSpec,
-        entryProvider = entryProvider
-    )
+    @Composable
+    fun Display(scope: SharedTransitionScope?) {
+        val topBarTransition = remember(scope, animateTopBar) {
+            if (animateTopBar && scope != null) NavigationTopBarTransition(scope) else null
+        }
+        CompositionLocalProvider(LocalIenTopBarTransition provides topBarTransition) {
+            NavDisplay(
+                backStack = backStack,
+                modifier = modifier,
+                contentAlignment = contentAlignment,
+                onBack = onBack,
+                entryDecorators = entryDecorators,
+                sceneStrategies = sceneStrategies,
+                sceneDecoratorStrategies = sceneDecoratorStrategies,
+                sharedTransitionScope = scope,
+                sizeTransform = sizeTransform,
+                transitionSpec = transitionSpec,
+                popTransitionSpec = popTransitionSpec,
+                predictivePopTransitionSpec = predictivePopTransitionSpec,
+                entryProvider = entryProvider
+            )
+        }
+    }
+
+    if (animateTopBar && sharedTransitionScope == null) {
+        SharedTransitionLayout { Display(this) }
+    } else {
+        Display(sharedTransitionScope)
+    }
 }

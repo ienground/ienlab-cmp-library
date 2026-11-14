@@ -1,4 +1,5 @@
 language = Objective-C
+excludeDependentModules = true
 package = zone.ien.utils.ui.uikit
 ---
 #import <UIKit/UIKit.h>

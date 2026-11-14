@@ -63,6 +63,7 @@ fun RootNavigationGraph(
     BaseNavDisplay(
         backStack = backStack,
         modifier = modifier,
+        animateTopBar = true,
         entryProvider = entryProvider {
             entry<RootRoute.Home> {
                 HomeScreen(

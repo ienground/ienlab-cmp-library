@@ -83,6 +83,8 @@ import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.menu.IenActionsMenu
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.screen.IenTopBarTransition
+import zone.ien.utils.ui.screen.LocalIenTopBarTransition
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.LocalIsHigTopBarCenterAligned
 import zone.ien.utils.ui.screen.LocalIsM3TopBarCenterAligned
@@ -463,16 +465,23 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
 
             @Composable
             fun TopBar() {
+                val transition = LocalIenTopBarTransition.current
                 CupertinoTopAppBar(
                     title = title,
                     subtitle = subtitle,
                     modifier = topBarModifier,
-                    navigationIcon = { navigationIcon?.invoke() },
+                    navigationIcon = {
+                        if (navigationIcon != null) {
+                            Box(transition?.modifier(IenTopBarTransition.Slot.NavigationIcon) ?: Modifier) {
+                                navigationIcon()
+                            }
+                        }
+                    },
                     actions = {
                         if (isSideBar) {
                             actions?.invoke(this)
                             primaryAction?.invoke(this)
-                        } else {
+                        } else if (actions != null || primaryAction != null) {
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(
                                     IenTheme.spacing.xxs + IenTheme.spacing.xxxs,
@@ -483,6 +492,7 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
                                     primaryAction?.invoke(this)
                                 },
                                 modifier = Modifier
+                                    .then(transition?.modifier(IenTopBarTransition.Slot.Actions) ?: Modifier)
                                     .animateContentSizeWithoutClipping()
                                     .heightIn(min = 48.dp)
                             )

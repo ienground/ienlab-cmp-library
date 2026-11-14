@@ -265,16 +265,24 @@ fun IenTopBar(
     floatingSlots: Boolean = true,
     primaryAction: (@Composable RowScope.() -> Unit)? = null,
 ) {
+    val transition = LocalIenTopBarTransition.current
     val groupedActions: (@Composable RowScope.() -> Unit)? =
         if (actions != null || primaryAction != null) {
             {
                 actions?.let {
-                    IenTopBarFloatingSlot(enabled = floatingSlots) {
+                    IenTopBarFloatingSlot(
+                        enabled = floatingSlots,
+                        modifier = transition?.modifier(IenTopBarTransition.Slot.Actions) ?: Modifier,
+                    ) {
                         IenTopBarActionsRow(it)
                     }
                 }
                 primaryAction?.let {
-                    IenTopBarFloatingSlot(enabled = floatingSlots, tone = IenSemanticTone.Brand) {
+                    IenTopBarFloatingSlot(
+                        enabled = floatingSlots,
+                        tone = IenSemanticTone.Brand,
+                        modifier = transition?.modifier(IenTopBarTransition.Slot.PrimaryAction) ?: Modifier,
+                    ) {
                         IenTopBarActionsRow(it)
                     }
                 }
@@ -549,7 +557,12 @@ private fun IenTopBarNavigationIconSlot(content: @Composable () -> Unit) {
         LocalContentColor provides IenTheme.colors.textPrimary,
         LocalIenNavigationButtonVariant provides IenButtonVariant.Ghost,
     ) {
-        content()
+        val transition = LocalIenTopBarTransition.current
+        if (transition != null) {
+            Box(transition.modifier(IenTopBarTransition.Slot.NavigationIcon)) { content() }
+        } else {
+            content()
+        }
     }
 }
 
@@ -558,10 +571,15 @@ private fun IenTopBarNavigationIconSlot(content: @Composable () -> Unit) {
 private fun IenTopBarFloatingSlot(
     enabled: Boolean,
     tone: IenSemanticTone = IenSemanticTone.Neutral,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     if (!enabled) {
-        content()
+        if (modifier != Modifier) {
+            Box(modifier) { content() }
+        } else {
+            content()
+        }
         return
     }
 
@@ -594,7 +612,7 @@ private fun IenTopBarFloatingSlot(
     }
 
     Box(
-        modifier = Modifier.graphicsLayer {
+        modifier = modifier.graphicsLayer {
             clip = false
         },
         contentAlignment = Alignment.Center,
