@@ -509,6 +509,29 @@ val appleState = rememberFirebaseAppleSignInState(
 appleState.launch()
 ```
 
+### 플랫폼 내비게이션 바 (iOS 네이티브 내비게이션)
+
+iOS UIKit `UINavigationController`처럼 플랫폼이 내비게이션 바를 그리는 화면(예: compose-swift-navigation3의 네이티브 화면)에서는, 그 바가 차지하는 여백을 compose-hig의 `LocalCupertinoNativeBarsPadding`으로 넘깁니다. Cupertino와 IEN 두 디자인이 같은 값을 따르므로 앱은 한 곳에서만 제공합니다.
+
+```kotlin
+NativeNavigationFrame(frame = { content ->
+    CompositionLocalProvider(
+        LocalCupertinoNativeBarsPadding provides if (LocalNativeScreen.current) nativeContentPadding() else null,
+    ) {
+        AppTheme(content)
+    }
+}) { /* NativeStack / NativeTabs */ }
+```
+
+값이 있으면 다음처럼 동작합니다. 기본값 `null`이면 지금과 같습니다.
+
+- `AdaptiveTopAppBarScaffold`, `AdaptiveScaffold`, `IenScaffold`는 상단 바를 그리지 않고, 콘텐츠 여백으로 플랫폼 바 여백을 넘깁니다. 하단 바가 있으면 아래 여백은 그 높이입니다. 콘텐츠의 `imePadding()`은 0이 됩니다(여백에 키보드 영역이 들어 있음).
+- `IenTopAppBar`, `AdaptiveTopAppBar`, 큰 제목(`TopBarMode.Expanded`의 제목)은 그리지 않습니다. 제목과 버튼은 플랫폼 바에 선언합니다.
+- `IenScaffold`의 상단 블러와 Duo 사이드 바 배치는 쓰지 않습니다. 하단 블러는 하단 바가 있을 때만 그립니다.
+- `AdaptiveWebViewScaffold`는 iOS 상단 블러를 그리지 않습니다.
+- 바텀시트(`IenBottomSheet`) 안에서는 적용하지 않습니다. 시트는 자기 상단 바를 그립니다.
+- Cupertino 디자인의 동작은 compose-hig 문서의 "플랫폼 내비게이션 바"를 따릅니다. compose-hig `27.2.7-alpha01-dev02` 이상이 필요합니다.
+
 ---
 
 ## 🌿 Git 브랜치 전략 & 커밋 메시지 규칙

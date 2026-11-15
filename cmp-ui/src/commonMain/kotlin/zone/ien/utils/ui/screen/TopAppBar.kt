@@ -8,6 +8,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import zone.ien.hig.LocalCupertinoNativeBarsPadding
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.screen.IenTopBar
 import zone.ien.utils.ui.screen.IenTopBarTitleAlignment
@@ -25,6 +26,9 @@ import zone.ien.utils.ui.screen.IenTopBarTitleAlignment
  * @param isCenterAligned 중앙 정렬 여부
  * @param mode 상단 바 표시 방식
  * @param primaryAction 일반 액션 컨테이너와 분리해 표시할 주요 액션
+ *
+ * 플랫폼이 내비게이션 바를 그리는 화면(compose-hig `LocalCupertinoNativeBarsPadding`이 있는 화면)에서는
+ * 그리지 않습니다. 제목과 버튼은 플랫폼 바에 따로 선언합니다.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,6 +44,7 @@ fun IenTopAppBar(
     mode: TopBarMode = TopBarMode.Static,
     primaryAction: (@Composable RowScope.() -> Unit)? = null,
 ) {
+    if (LocalCupertinoNativeBarsPadding.current != null) return
     IenTopBar(
         title = title,
         subtitle = subtitle,
