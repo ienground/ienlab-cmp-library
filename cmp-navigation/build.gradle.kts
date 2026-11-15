@@ -69,6 +69,7 @@ kotlin {
 
         iosTest.dependencies {
             implementation(libs.compose.ui.test)
+            implementation(libs.hig.adaptive)
         }
     }
 }

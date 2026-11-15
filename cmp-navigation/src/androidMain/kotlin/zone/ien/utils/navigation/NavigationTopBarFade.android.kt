@@ -12,12 +12,18 @@ import androidx.compose.ui.graphics.graphicsLayer
 
 @Composable
 internal actual fun navigationTopBarFade(scope: AnimatedVisibilityScope): Modifier {
-    val opacity = scope.transition.animateFloat(
+    val cupertino = useCupertinoTopBarTransition
+    val opacity = if (cupertino) navigationTopBarOpacity(scope) else scope.transition.animateFloat(
         transitionSpec = { spring(stiffness = Spring.StiffnessMediumLow) },
         label = "TopBarOpacity",
     ) { if (it == EnterExitState.Visible) 1f else 0f }
     return Modifier.graphicsLayer {
         alpha = opacity.value
+        if (cupertino) {
+            val scale = 1f + (TopBarHiddenScale - 1f) * (1f - alpha)
+            scaleX = scale
+            scaleY = scale
+        }
         // 오프스크린 버퍼의 경계에서 Android 그림자가 잘리지 않게 합니다.
         compositingStrategy = CompositingStrategy.ModulateAlpha
         clip = false

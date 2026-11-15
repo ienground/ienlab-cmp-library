@@ -16,3 +16,6 @@ interface IenTopBarTransition {
 
 /** 전환 호스트가 없으면 상단 바는 기존 방식으로 표시됩니다. */
 val LocalIenTopBarTransition = staticCompositionLocalOf<IenTopBarTransition?> { null }
+
+/** Cupertino 상단 바에서만 확정 시점의 확대·축소 전환을 사용합니다. */
+val LocalIenCupertinoTopBarTransition = staticCompositionLocalOf { false }

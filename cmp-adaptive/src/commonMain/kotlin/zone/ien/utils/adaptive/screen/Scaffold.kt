@@ -84,6 +84,7 @@ import zone.ien.utils.ui.menu.IenActionsMenu
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
 import zone.ien.utils.ui.screen.IenTopBarTransition
+import zone.ien.utils.ui.screen.LocalIenCupertinoTopBarTransition
 import zone.ien.utils.ui.screen.LocalIenTopBarTransition
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.LocalIsHigTopBarCenterAligned
@@ -394,7 +395,10 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
                 )
             }
 
-            CompositionLocalProvider(LocalBackdrop provides backdrop) {
+            CompositionLocalProvider(
+                LocalBackdrop provides backdrop,
+                LocalIenCupertinoTopBarTransition provides false,
+            ) {
                 IenScaffold(
                     modifier = modifier.onGloballyPositioned {
                         scaffoldCoordinates.value = it
@@ -509,6 +513,7 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
 
             CompositionLocalProvider(
                 LocalBackdrop provides it.backdrop,
+                LocalIenCupertinoTopBarTransition provides true,
                 LocalCupertinoRightSystemArea provides ownsRightSystemArea,
                 LocalIenSideBarEnabled provides ownsRightSystemArea,
                 LocalAdaptiveSideBarLayout provides isSideBar,
