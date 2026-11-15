@@ -220,7 +220,7 @@ await writeFile(
 const designScreenSource = await readFile(
   path.join(
     repositoryDirectory,
-    "example/composeApp/src/commonMain/kotlin/zone/ien/utils/example/ui/screens/designsystem/DesignSystemScreen.kt",
+    "example/shared/src/commonMain/kotlin/zone/ien/utils/example/ui/screens/designsystem/DesignSystemScreen.kt",
   ),
   "utf8",
 );

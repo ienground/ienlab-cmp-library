@@ -140,7 +140,7 @@ SwiftUI `@main` 진입점에서 `FirebaseApp.configure()`와 URL 핸들러를 �
 
 ```swift
 import SwiftUI
-import ComposeApp
+import Shared
 import FirebaseCore
 import FirebaseAuth
 
@@ -285,7 +285,7 @@ Xcode 프로젝트에 "Compile Kotlin Framework" 빌드 페이즈가 있어야 K
 
 ```sh
 cd "$SRCROOT/.."
-../gradlew :example:composeApp:embedAndSignAppleFrameworkForXcode
+../gradlew :example:shared:embedAndSignAppleFrameworkForXcode
 ```
 
 ---
@@ -339,7 +339,7 @@ Android는 `MyApplication`에서, iOS는 `iOSApp.swift`의 `init()`에서 호출
 
 ### 5. BuildKonfig 설정
 
-이 라이브러리는 `com.codingfeline.buildkonfig` 플러그인을 사용하여 컴파일 타임 상수를 주입합니다. 예제 `composeApp/build.gradle.kts`의 설정:
+이 라이브러리는 `com.codingfeline.buildkonfig` 플러그인을 사용하여 컴파일 타임 상수를 주입합니다. 예제 `shared/build.gradle.kts`의 설정:
 
 ```kotlin
 buildkonfig {
@@ -462,7 +462,7 @@ npm --prefix cmp-ui-docs run build:site
 ```
 example/
 ├── androidApp/         # Android Host 앱 (Application, AndroidManifest)
-├── composeApp/         # 공통 Compose 코드 (commonMain/androidMain/iosMain)
+├── shared/             # 공통 Compose 코드 (commonMain/androidMain/iosMain)
 └── iosApp/             # iOS Host 앱 (SwiftUI, Xcode)
 ```
 

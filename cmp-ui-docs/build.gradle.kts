@@ -2,7 +2,7 @@ import org.gradle.api.tasks.Sync
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 val sharedDesignSystemSource = rootProject.file(
-    "example/composeApp/src/commonMain/kotlin/zone/ien/utils/example/ui/screens/designsystem/DesignSystemScreen.kt",
+    "example/shared/src/commonMain/kotlin/zone/ien/utils/example/ui/screens/designsystem/DesignSystemScreen.kt",
 )
 val generatedDesignSystemSource = layout.buildDirectory.dir(
     "generated/sharedDesignSystem/kotlin/zone/ien/utils/example/ui/screens/designsystem",
