@@ -1,5 +1,6 @@
 language = Objective-C
 package = zone.ien.utils.ui.appearance
+excludeFilter = **
 compilerOpts = -fobjc-arc -fblocks
 ---
 #import <UIKit/UIKit.h>

@@ -1,5 +1,6 @@
 language = Objective-C
 package = zone.ien.utils.adaptive.dialog.test
+excludeFilter = **
 compilerOpts = -fno-objc-arc
 ---
 #import <UIKit/UIKit.h>
