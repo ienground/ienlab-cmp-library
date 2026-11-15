@@ -3,6 +3,8 @@ package zone.ien.utils.example.ui.navigation
 import zone.ien.utils.icon.IconStyle
 import androidx.compose.animation.SharedTransitionLayout
 import zone.ien.hig.adaptive.ProvideNavigationTopBarTransition
+import zone.ien.hig.adaptive.Theme
+import zone.ien.hig.adaptive.currentTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavBackStack
@@ -63,7 +65,8 @@ fun RootNavigationGraph(
     val resultStore = rememberResultStore()
 
     SharedTransitionLayout(modifier = modifier) {
-        ProvideNavigationTopBarTransition(this) {
+        @Composable
+        fun NavigationContent() {
             BaseNavDisplay(
                 backStack = backStack,
                 sharedTransitionScope = this@SharedTransitionLayout,
@@ -166,6 +169,13 @@ fun RootNavigationGraph(
                     }
                 }
             )
+        }
+        if (currentTheme == Theme.Cupertino) {
+            ProvideNavigationTopBarTransition(this) {
+                NavigationContent()
+            }
+        } else {
+            NavigationContent()
         }
     }
 }
