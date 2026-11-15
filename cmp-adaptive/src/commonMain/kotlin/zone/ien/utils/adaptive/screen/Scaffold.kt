@@ -467,8 +467,8 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
                     title = title,
                     subtitle = subtitle,
                     modifier = topBarModifier,
-                    navigationIcon = { navigationIcon?.invoke() },
-                    actions = {
+                    navigationIcon = navigationIcon,
+                    actions = if (actions == null && primaryAction == null) null else ({
                         if (isSideBar) {
                             actions?.invoke(this)
                             primaryAction?.invoke(this)
@@ -487,7 +487,7 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
                                     .heightIn(min = 48.dp)
                             )
                         }
-                    },
+                    }),
                     windowInsets = it.topBarWindowInsets,
                     isCenterAligned = it.isCenterAligned,
                     isBackgroundAdaptive = it.isBackgroundAdaptive,
