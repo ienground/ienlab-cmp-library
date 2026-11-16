@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
@@ -29,6 +30,7 @@ import androidx.navigation3.runtime.NavKey
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import zone.ien.utils.ui.screen.IenTopBarTransition
+import zone.ien.utils.ui.screen.LocalIenCupertinoTopBarTransition
 import zone.ien.utils.ui.screen.LocalIenTopBarTransition
 
 class ShadowTransitionTestActivity : ComponentActivity()
@@ -51,39 +53,41 @@ class NavigationTopBarShadowTest {
     fun unmatchedButtonKeepsAndroidElevationShadow() = verifyOverflow(false, syntheticOverflow = false)
 
     private fun verifyOverflow(matched: Boolean, syntheticOverflow: Boolean = true) = runAndroidComposeUiTest<ShadowTransitionTestActivity> {
-        val stack = NavBackStack<NavKey>(Root)
+        val stack = NavBackStack<NavKey>(Root, Detail)
         setContent {
-            Box(Modifier.size(320.dp, 480.dp).background(Color.White)) {
-                BaseNavDisplay(
-                    backStack = stack,
-                    animateTopBar = true,
-                    transitionSpec = {
-                        slideInHorizontally(tween(1000)) { it } togetherWith
-                            slideOutHorizontally(tween(1000)) { -it / 3 }
-                    },
-                ) { key ->
-                    NavEntry(key) {
-                        Box(Modifier.fillMaxSize().background(Color.White)) {
-                            if (matched || key == Detail) {
-                                Box(Modifier.offset(64.dp, 128.dp)) {
-                                    Box(
-                                        LocalIenTopBarTransition.current!!
-                                            .modifier(IenTopBarTransition.Slot.Actions)
-                                            .size(48.dp)
-                                            .drawBehind {
-                                                // 안드로이드 그림자 강도와 무관하게 경계 밖 렌더링도 검증합니다.
-                                                if (syntheticOverflow) {
-                                                    val overflow = 12.dp.toPx()
-                                                    drawRect(
-                                                        Color.Black.copy(alpha = 0.25f),
-                                                        Offset(-overflow, -overflow),
-                                                        Size(size.width + overflow * 2, size.height + overflow * 2),
-                                                    )
+            CompositionLocalProvider(LocalIenCupertinoTopBarTransition provides true) {
+                Box(Modifier.size(320.dp, 480.dp).background(Color.White)) {
+                    BaseNavDisplay(
+                        backStack = stack,
+                        animateTopBar = true,
+                        popTransitionSpec = {
+                            slideInHorizontally(tween(1000)) { -it / 3 } togetherWith
+                                slideOutHorizontally(tween(1000)) { it }
+                        },
+                    ) { key ->
+                        NavEntry(key) {
+                            Box(Modifier.fillMaxSize().background(Color.White)) {
+                                if (matched || key == Detail) {
+                                    Box(Modifier.offset(64.dp, 128.dp)) {
+                                        Box(
+                                            LocalIenTopBarTransition.current!!
+                                                .modifier(IenTopBarTransition.Slot.Actions)
+                                                .size(48.dp)
+                                                .drawBehind {
+                                                    // 안드로이드 그림자 강도와 무관하게 경계 밖 렌더링도 검증합니다.
+                                                    if (syntheticOverflow) {
+                                                        val overflow = 12.dp.toPx()
+                                                        drawRect(
+                                                            Color.Black.copy(alpha = 0.25f),
+                                                            Offset(-overflow, -overflow),
+                                                            Size(size.width + overflow * 2, size.height + overflow * 2),
+                                                        )
+                                                    }
                                                 }
-                                            }
-                                            .shadow(16.dp, RectangleShape, clip = false)
-                                            .background(Color.Red),
-                                    )
+                                                .shadow(16.dp, RectangleShape, clip = false)
+                                                .background(Color.Red),
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -93,7 +97,7 @@ class NavigationTopBarShadowTest {
         }
         waitForIdle()
         mainClock.autoAdvance = false
-        runOnUiThread { stack.add(Detail) }
+        runOnUiThread { stack.navigateBack() }
         mainClock.advanceTimeBy(160)
         waitForIdle()
         val pixels = onRoot().captureToImage().toPixelMap()
