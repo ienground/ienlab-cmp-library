@@ -83,12 +83,18 @@ fun IenProvideSectionStyle(
     title: @Composable (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val nativeScroll = scrollState?.let { rememberNativeScreenScroll(it) }
     Column(
         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
         modifier = Modifier
             .conditional(fullHeight) { fillMaxHeight() }
             .layerBackdrop(backdrop)
-            .conditional(scrollState != null) { scrollState?.let { this.verticalScroll(it) } ?: this }
+            .conditional(scrollState != null) {
+                verticalScroll(
+                    state = requireNotNull(scrollState),
+                    enabled = nativeScroll?.userScrollEnabled ?: true,
+                )
+            }
             .clip(shape)
             .then(modifier),
         content = {

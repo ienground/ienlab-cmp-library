@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,6 +45,7 @@ import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
 import zone.ien.utils.ui.feedback.IenLoadingIndicator
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
+import zone.ien.utils.ui.screen.NativeScreenBar
 import zone.ien.utils.utils.PlatformDependent
 
 private sealed interface WebViewContentState {
@@ -70,6 +72,30 @@ internal fun webViewScaffoldContentEdge(
  * 웹뷰 상태와 탐색은 호출부가 소유하며 로딩 및 오류 콘텐츠를 교체할 수 있습니다.
  * iOS에서는 첫 화면을 그린 뒤 네이티브 웹뷰를 생성합니다.
  */
+@OptIn(ExperimentalAdaptiveApi::class)
+@Composable
+fun AdaptiveWebViewScaffold(
+    modifier: Modifier = Modifier,
+    state: WebViewState,
+    title: String,
+    navigationIcon: @Composable () -> Unit,
+    errorContent: @Composable () -> Unit,
+    navigator: WebViewNavigator = rememberWebViewNavigator(),
+    loadingContent: @Composable () -> Unit = { IenLoadingIndicator() },
+) {
+    NativeScreenBar(title = title)
+    AdaptiveWebViewScaffold(
+        modifier = modifier,
+        state = state,
+        title = { Text(text = title) },
+        navigationIcon = navigationIcon,
+        errorContent = errorContent,
+        navigator = navigator,
+        loadingContent = loadingContent,
+    )
+}
+
+/** 사용자 지정 제목 콘텐츠를 사용하는 웹뷰 스캐폴드입니다. */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun AdaptiveWebViewScaffold(

@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.scrollingbubble
 
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -98,6 +99,7 @@ fun ScrollingBubbleScreen(
 ) {
     IenTheme {
         val lazyListState = rememberLazyListState()
+        val nativeScroll = rememberNativeScreenScroll(lazyListState)
 
         IenScaffold(
             modifier = modifier,
@@ -129,6 +131,7 @@ fun ScrollingBubbleScreen(
                 },
             ) {
                 LazyColumn(
+                    userScrollEnabled = nativeScroll?.userScrollEnabled ?: true,
                     state = lazyListState,
                     modifier = Modifier.fillMaxSize(),
                 ) {

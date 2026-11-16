@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.lazy
 
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,6 +39,7 @@ fun LazySectionScreen(
 ) {
     val backdrop = rememberDefaultBackdrop()
     val lazyListState = rememberLazyListState()
+    val nativeScroll = rememberNativeScreenScroll(lazyListState)
 //    val isMaterialTheme = currentTheme == Theme.Material3
     var isMaterialTheme by remember { mutableStateOf(!isIos) }
     var enabled by remember { mutableStateOf(false) }
@@ -63,6 +65,7 @@ fun LazySectionScreen(
             modifier = modifier
         ) { pv, title ->
             LazyColumn(
+                userScrollEnabled = nativeScroll?.userScrollEnabled ?: true,
                 state = lazyListState,
                 contentPadding = pv,
                 modifier = Modifier

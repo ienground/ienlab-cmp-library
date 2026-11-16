@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.bottomcta
 
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,6 +61,8 @@ fun BottomCTATestScreen(
     modifier: Modifier = Modifier,
     navigateBack: () -> Unit,
 ) {
+    val scrollState = rememberScrollState()
+    val nativeScroll = rememberNativeScreenScroll(scrollState)
     var renderer by rememberSaveable { mutableStateOf("adaptive") }
     var accessory by rememberSaveable { mutableStateOf(false) }
     var acknowledged by rememberSaveable { mutableStateOf(false) }
@@ -118,7 +121,10 @@ fun BottomCTATestScreen(
                     Column(
                         modifier = Modifier.fillMaxSize()
                             .imePadding()
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(
+                                state = scrollState,
+                                enabled = nativeScroll?.userScrollEnabled ?: true,
+                            )
                             .padding(contentPadding)
                             .padding(IenTheme.spacing.md),
                         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),

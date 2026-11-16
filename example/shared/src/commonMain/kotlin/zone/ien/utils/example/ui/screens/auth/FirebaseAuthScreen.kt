@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.auth
 
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,6 +42,8 @@ fun FirebaseAuthScreen(
     modifier: Modifier = Modifier,
     navigateBack: () -> Unit,
 ) {
+    val scrollState = rememberScrollState()
+    val nativeScroll = rememberNativeScreenScroll(scrollState)
     val backdrop = rememberDefaultBackdrop()
     var lastResult by remember { mutableStateOf<Result<FirebaseUser?>?>(null) }
     var currentUser by remember { mutableStateOf<FirebaseUser?>(null) }
@@ -74,7 +77,10 @@ fun FirebaseAuthScreen(
             Column(
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
                 modifier = Modifier
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(
+                        state = scrollState,
+                        enabled = nativeScroll?.userScrollEnabled ?: true,
+                    )
                     .padding(pv)
                     .padding(horizontal = IenTheme.spacing.xl)
             ) {

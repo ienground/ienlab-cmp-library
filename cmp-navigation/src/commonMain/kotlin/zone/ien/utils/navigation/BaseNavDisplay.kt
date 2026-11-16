@@ -71,7 +71,18 @@ fun <T : NavKey> BaseNavDisplay(
     animateTopBar: Boolean = false,
     entryProvider: (key: T) -> NavEntry<T>,
 ) {
-    if (NativeBaseNavDisplay(backStack, onBack, entryDecorators, entryProvider)) return
+    val guards = LocalNavigationEntryGuards.current.filter { it.backStack === backStack }
+    val provider: (T) -> NavEntry<T> = { route ->
+        val entry = entryProvider(route)
+        NavEntry(route, contentKey = entry.contentKey, metadata = entry.metadata) {
+            if (guards.all { it.isAllowed(route) }) entry.Content()
+        }
+    }
+    val visibleBackStack = if (guards.isEmpty()) backStack else {
+        backStack.filter { route -> guards.all { it.isAllowed(route) } }.ifEmpty { backStack.take(1) }
+    }
+    if (NavigationTabEntry(backStack, provider)) return
+    if (NativeBaseNavDisplay(backStack, onBack, entryDecorators, provider, visibleBackStack)) return
 
     @Composable
     fun Display(scope: SharedTransitionScope?) {
@@ -80,7 +91,7 @@ fun <T : NavKey> BaseNavDisplay(
         }
         CompositionLocalProvider(LocalIenTopBarTransition provides topBarTransition) {
             NavDisplay(
-                backStack = backStack,
+                backStack = visibleBackStack,
                 modifier = modifier,
                 contentAlignment = contentAlignment,
                 onBack = onBack,
@@ -92,7 +103,7 @@ fun <T : NavKey> BaseNavDisplay(
                 transitionSpec = transitionSpec,
                 popTransitionSpec = popTransitionSpec,
                 predictivePopTransitionSpec = predictivePopTransitionSpec,
-                entryProvider = entryProvider
+                entryProvider = provider
             )
         }
     }

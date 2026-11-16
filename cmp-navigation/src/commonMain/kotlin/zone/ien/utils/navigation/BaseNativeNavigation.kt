@@ -1,5 +1,6 @@
 package zone.ien.utils.navigation
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -17,15 +18,129 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import zone.ien.navigation.NativeNavigationFrame
 import zone.ien.navigation.NativeStack
 import zone.ien.navigation.NativeTab
+import zone.ien.navigation.nativeScreen
 import zone.ien.navigation.NativeTabs
 import zone.ien.utils.ui.screen.ProvideNativeScreenPadding
 
 private val LocalNativeNavigationEnabled = staticCompositionLocalOf { false }
 private val LocalNativeNavigationTopEntry = staticCompositionLocalOf { true }
 private val LocalNativeParentEntries = staticCompositionLocalOf<NativeParentEntries?> { null }
+private val LocalNativeTabConfiguration = staticCompositionLocalOf<NativeTabConfiguration?> { null }
+private class NavigationRouteOverride(val backStack: NavBackStack<*>, val route: NavKey)
+private val LocalNavigationRouteOverride = staticCompositionLocalOf<NavigationRouteOverride?> { null }
+internal class NavigationEntryGuard(
+    val backStack: NavBackStack<*>,
+    val isAllowed: (NavKey) -> Boolean,
+)
+internal val LocalNavigationEntryGuards = staticCompositionLocalOf<List<NavigationEntryGuard>> { emptyList() }
 private const val NavigationGraphMetadata = "zone.ien.utils.navigation.graph"
 
 internal expect val usesNativeNavigationPlatform: Boolean
+
+private class NativeTabConfiguration(
+    val tabs: List<NativeTab<NavKey>>,
+    val selectedTab: Int,
+    val onTabSelected: (Int) -> Unit,
+    val entries: Map<NavKey, NavEntry<NavKey>>,
+    val overlay: @Composable () -> Unit,
+)
+
+/**
+ * 기존 [BaseNavDisplay]를 감싸 첫 엔트리를 네이티브 탭으로 표시합니다.
+ * [tabBackStack]은 앱과 UIKit이 함께 사용하는 탭 선택 상태이며, 상세 화면의 push/pop은
+ * 기존 BaseNavDisplay의 백스택을 그대로 사용합니다. 다른 플랫폼에서는 [content]를 실행합니다.
+ * [overlay]는 현재 보이는 화면 위에서 한 번 실행됩니다.
+ */
+@Composable
+fun <T : NavKey> BaseNavigationTabs(
+    tabBackStack: NavBackStack<T>,
+    tabs: List<T>,
+    title: @Composable (T) -> String,
+    systemImage: (T) -> String,
+    tabContent: @Composable (T) -> Unit,
+    largeTitle: Boolean = true,
+    overlay: @Composable () -> Unit = {},
+    content: @Composable () -> Unit,
+) {
+    if (!isNativeNavigation) {
+        content()
+        overlay()
+        return
+    }
+    require(tabs.isNotEmpty() && tabs.distinct().size == tabs.size) { "탭은 비어 있거나 중복될 수 없습니다." }
+    val titles = tabs.associateWith { title(it) }
+    val configuration = NativeTabConfiguration(
+        tabs = tabs.map { NativeTab<NavKey>(titles.getValue(it), systemImage(it), listOf(it)) },
+        selectedTab = tabs.indexOf(tabBackStack.lastOrNull()).coerceAtLeast(0),
+        onTabSelected = { index -> tabBackStack.replaceTop(tabs[index]) },
+        entries = tabs.associate { route ->
+            route to NavEntry<NavKey>(
+                key = route,
+                metadata = nativeScreen(title = titles.getValue(route), largeTitle = largeTitle),
+            ) {
+                CompositionLocalProvider(
+                    LocalNavigationRouteOverride provides NavigationRouteOverride(tabBackStack, route),
+                ) { tabContent(route) }
+            }
+        },
+        overlay = overlay,
+    )
+    CompositionLocalProvider(LocalNativeTabConfiguration provides configuration, content = content)
+}
+
+/** 현재 화면을 렌더링하는 route입니다. 탭별 화면에서는 공유 선택 상태와 독립된 해당 탭의 route를 반환합니다. */
+@Composable
+@Suppress("UNCHECKED_CAST")
+fun <T : NavKey> currentNavigationRoute(backStack: NavBackStack<T>): T? {
+    val override = LocalNavigationRouteOverride.current
+    // 동일한 typed 백스택으로 등록한 route만 해당 백스택의 타입으로 되돌립니다.
+    return if (override != null && override.backStack === backStack) override.route as T else backStack.lastOrNull()
+}
+
+/** 현재 화면이 사용자 입력과 화면 전용 부수 효과를 실행할 수 있는 최상위 화면인지 반환합니다. */
+val isNavigationEntryActive: Boolean
+    @Composable get() = !isNativeNavigation || isNativeNavigationTopEntry
+
+/** UIKit 탭 바를 사용하는 화면에서는 앱의 탭 바를 중복 표시하지 않습니다. */
+@Composable
+fun BaseNavigationTabBar(content: @Composable () -> Unit) {
+    if (LocalNavigationRouteOverride.current == null) content()
+}
+
+/**
+ * 허용하지 않은 엔트리의 내용과 진입 효과를 차단합니다.
+ * 차단된 최상위 엔트리는 루트를 남기고 제거한 뒤 [onDenied]에 전달합니다.
+ */
+@Composable
+@Suppress("UNCHECKED_CAST")
+fun <T : NavKey> BaseNavigationGuard(
+    backStack: NavBackStack<T>,
+    isAllowed: (T) -> Boolean,
+    onDenied: (T) -> Unit = {},
+    content: @Composable () -> Unit,
+) {
+    val latestOnDenied by rememberUpdatedState(onDenied)
+    val denied = backStack.lastOrNull()?.takeUnless(isAllowed)
+    LaunchedEffect(denied) {
+        if (denied != null) {
+            if (backStack.size > 1 && backStack.lastOrNull() == denied) backStack.removeLastOrNull()
+            latestOnDenied(denied)
+        }
+    }
+    // BaseNavDisplay는 동일한 typed 백스택의 엔트리에만 이 정책을 적용합니다.
+    val guards = LocalNavigationEntryGuards.current + NavigationEntryGuard(backStack) { isAllowed(it as T) }
+    CompositionLocalProvider(LocalNavigationEntryGuards provides guards, content = content)
+}
+
+@Composable
+internal fun <T : NavKey> NavigationTabEntry(
+    backStack: NavBackStack<T>,
+    entryProvider: (T) -> NavEntry<T>,
+): Boolean {
+    if (LocalNavigationRouteOverride.current?.backStack !== backStack) return false
+    currentNavigationRoute(backStack)?.let { entryProvider(it).Content() }
+    return true
+}
 
 /** 현재 호스트가 네이티브 내비게이션을 사용하는지 반환합니다. */
 val isNativeNavigation: Boolean
@@ -97,12 +212,14 @@ internal fun nativeParentEntries(
 }
 
 @Composable
-private fun <T : NavKey> currentEntryProvider(provider: (T) -> NavEntry<T>): (T) -> NavEntry<T> {
-    val latestProvider by rememberUpdatedState(provider)
+private fun <T : NavKey> currentEntryProvider(keys: List<T>, provider: (T) -> NavEntry<T>): (T) -> NavEntry<T> {
+    val latestEntries by rememberUpdatedState(keys.associateWith(provider))
     return remember {
         { key ->
-            val entry = latestProvider(key)
-            NavEntry(key, contentKey = entry.contentKey, metadata = entry.metadata) { latestProvider(key).Content() }
+            val entry = latestEntries.getValue(key)
+            NavEntry(key, contentKey = entry.contentKey, metadata = entry.metadata) {
+                (latestEntries[key] ?: entry).Content()
+            }
         }
     }
 }
@@ -129,15 +246,39 @@ internal fun <T : NavKey> NativeBaseNavDisplay(
     onBack: () -> Unit,
     entryDecorators: List<NavEntryDecorator<T>>,
     entryProvider: (T) -> NavEntry<T>,
+    visibleBackStack: List<T> = backStack,
 ): Boolean {
     if (!isNativeNavigation) return false
-    val provider = currentEntryProvider(entryProvider)
-    val decorated = rememberDecoratedNavEntries(backStack, entryDecorators, provider)
-    val currentDecorated by rememberUpdatedState(backStack.zip(decorated).toMap())
-    val firstKey = backStack.firstOrNull()
-    if (firstKey != null && isNavigationGraph(provider(firstKey))) {
+    val provider = currentEntryProvider(visibleBackStack, entryProvider)
+    val decorated = rememberDecoratedNavEntries(visibleBackStack, entryDecorators, provider)
+    val currentDecorated by rememberUpdatedState(visibleBackStack.zip(decorated).toMap())
+    val firstKey = visibleBackStack.firstOrNull()
+    val tabConfiguration = LocalNativeTabConfiguration.current
+    if (tabConfiguration != null) {
+        val sharedEntries = visibleBackStack.drop(1).zip(decorated.drop(1))
+            .associate { keyedEntry(it.first, it.second) }
+        val entries = tabConfiguration.entries + sharedEntries
+        CompositionLocalProvider(LocalNativeTabConfiguration provides null) {
+            NativeTabNavDisplay<NavKey>(
+                tabs = tabConfiguration.tabs,
+                selectedTab = tabConfiguration.selectedTab,
+                onTabSelected = tabConfiguration.onTabSelected,
+                sharedBackStack = visibleBackStack.drop(1),
+                onSharedBack = onBack,
+                sharedEntryDecorators = emptyList(),
+                entryProvider = { route ->
+                    val entry = entries.getValue(route)
+                    NavEntry(route, contentKey = entry.contentKey, metadata = entry.metadata) {
+                        entry.Content()
+                        if (isNativeNavigationTopEntry) tabConfiguration.overlay()
+                    }
+                },
+                otherPlatforms = {},
+            )
+        }
+    } else if (firstKey != null && isNavigationGraph(provider(firstKey))) {
         val parent = nativeParentEntries(
-            localEntries = backStack.drop(1).zip(decorated.drop(1)).map { keyedEntry(it.first, it.second) },
+            localEntries = visibleBackStack.drop(1).zip(decorated.drop(1)).map { keyedEntry(it.first, it.second) },
             localOnBack = onBack,
             parent = LocalNativeParentEntries.current,
             localHasEntries = { backStack.size > 1 },
@@ -148,9 +289,9 @@ internal fun <T : NavKey> NativeBaseNavDisplay(
             "상위 공유 화면이 있는 하위 그래프는 BaseTabNavDisplay로 선언해야 합니다."
         }
         NativeStack(
-            backStack = backStack,
+            backStack = visibleBackStack,
             onBack = onBack,
-            entryDecorators = listOf(topEntryDecorator<T>(backStack.lastOrNull()?.let { provider(it).contentKey })),
+            entryDecorators = listOf(topEntryDecorator<T>(visibleBackStack.lastOrNull()?.let { provider(it).contentKey })),
             entryProvider = { route ->
                 val entry = currentDecorated.getValue(route)
                 NavEntry(route, contentKey = entry.contentKey, metadata = entry.metadata) {
@@ -182,11 +323,39 @@ fun <T : NavKey> BaseTabNavDisplay(
     entryProvider: (T) -> NavEntry<T>,
     otherPlatforms: @Composable () -> Unit,
 ) {
+    NativeTabNavDisplay(
+        tabs = tabs,
+        selectedTab = selectedTab,
+        onTabSelected = onTabSelected,
+        sharedBackStack = sharedBackStack,
+        onSharedBack = onSharedBack,
+        entryDecorators = entryDecorators,
+        sharedEntryDecorators = entryDecorators,
+        entryProvider = entryProvider,
+        otherPlatforms = otherPlatforms,
+    )
+}
+
+@Composable
+private fun <T : NavKey> NativeTabNavDisplay(
+    tabs: List<NativeTab<T>>,
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit,
+    sharedBackStack: List<T> = emptyList(),
+    onSharedBack: () -> Unit,
+    entryDecorators: List<NavEntryDecorator<NavKey>> = listOf(
+        rememberSaveableStateHolderNavEntryDecorator(),
+        rememberViewModelStoreNavEntryDecorator(),
+    ),
+    sharedEntryDecorators: List<NavEntryDecorator<NavKey>> = entryDecorators,
+    entryProvider: (T) -> NavEntry<T>,
+    otherPlatforms: @Composable () -> Unit,
+) {
     if (!isNativeNavigation) {
         otherPlatforms()
         return
     }
-    val provider = currentEntryProvider(entryProvider)
+    val provider = entryProvider
     val parent = LocalNativeParentEntries.current
     val rawEntries = (tabs.flatMap { it.backStack } + sharedBackStack)
         .associate { route -> keyedEntry(route, provider(route)) }
@@ -200,7 +369,7 @@ fun <T : NavKey> BaseTabNavDisplay(
     val tabEntries = tabs.mapIndexed { index, tab ->
         key(index) { rememberDecoratedNavEntries<NavKey>(tab.backStack, entryDecorators, promotedProvider) }
     }
-    val sharedEntries = rememberDecoratedNavEntries<NavKey>(sharedBackStack, entryDecorators, promotedProvider)
+    val sharedEntries = rememberDecoratedNavEntries<NavKey>(sharedBackStack, sharedEntryDecorators, promotedProvider)
     val localEntries = (tabs.flatMapIndexed { index, tab ->
         tab.backStack.zip(tabEntries[index]).map { it.first to it.second }
     } + sharedBackStack.zip(sharedEntries).map { it.first to it.second })

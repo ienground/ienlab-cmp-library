@@ -1,5 +1,7 @@
 package zone.ien.utils.example.ui.screens.navigation
 
+import androidx.compose.foundation.lazy.rememberLazyListState
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,6 +50,8 @@ fun NavigationScreen(
     navigateBack: () -> Unit
 ) {
     val backdrop = rememberDefaultBackdrop()
+    val listState = rememberLazyListState()
+    val nativeScroll = rememberNativeScreenScroll(listState)
     var selected by remember { mutableStateOf(false) }
     var isMaterialTheme by remember { mutableStateOf(true) }
     var isNative by remember { mutableStateOf(true) }
@@ -132,6 +136,8 @@ fun NavigationScreen(
             modifier = modifier
         ) { pv, title ->
             LazyColumn(
+                state = listState,
+                userScrollEnabled = nativeScroll?.userScrollEnabled ?: true,
                 contentPadding = pv,
                 modifier = Modifier.layerBackdrop(backdrop)
             ) {

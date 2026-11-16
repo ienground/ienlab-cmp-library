@@ -67,6 +67,7 @@ import zone.ien.utils.adaptive.view.DropdownMenuSectionNative
 import zone.ien.utils.example.Android
 import zone.ien.utils.example.ui.navigation.RootRoute
 import zone.ien.utils.ui.menu.ActionMenuItem
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.icon.IconData
@@ -110,6 +111,12 @@ private val menuItems = listOf(
     HomeMenuItem("BottomCTA 테스트", RootRoute.BottomCTATest, Color(0xFF3182F6)),
 )
 
+internal fun sampleRouteTitle(route: RootRoute): String = when (route) {
+    RootRoute.Home -> "IENGROUND"
+    is RootRoute.DesignSystemComponent -> route.componentId.replace("-", " ")
+    else -> menuItems.first { it.route == route }.name
+}
+
 @Suppress("FrequentlyChangingValue")
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -131,6 +138,7 @@ fun HomeScreen(
     val snackbarState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    val nativeScroll = rememberNativeScreenScroll(scrollState)
     var bottomText by remember { mutableStateOf("") }
     var nativeInputText by remember { mutableStateOf("") }
     var textFieldText by remember { mutableStateOf("") }
@@ -331,7 +339,10 @@ fun HomeScreen(
             Row(
                 modifier = Modifier
                     .layerBackdrop(backdrop)
-                    .verticalScroll(scrollState)
+                    .verticalScroll(
+                        state = scrollState,
+                        enabled = nativeScroll?.userScrollEnabled ?: true,
+                    )
                     .padding(pv)
                     .imePadding(),
             ) {

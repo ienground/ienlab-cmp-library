@@ -78,6 +78,7 @@ import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.cupertinoScrollEdge
 import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.navigation.NativeScrollContent
 import zone.ien.navigation.NativeBarButton
 import zone.ien.utils.adaptive.menu.HigActionMenu
 import zone.ien.utils.adaptive.menu.HigActionsMenu
@@ -189,8 +190,10 @@ fun AdaptiveScaffold(
                         contentEdge.scrollableState?.let { scrollState ->
                             Modifier.cupertinoScrollEdge(scrollState)
                         }
-                        CompositionLocalProvider(LocalBackdrop provides null) {
-                            content(contentPadding)
+                        NativeScrollContent {
+                            CompositionLocalProvider(LocalBackdrop provides null) {
+                                content(contentPadding)
+                            }
                         }
                     },
                 )
@@ -563,21 +566,23 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
                         contentEdge.scrollableState?.let { scrollState ->
                             Modifier.cupertinoScrollEdge(scrollState)
                         }
-                        CompositionLocalProvider(
-                            LocalBackdrop provides null,
-                            LocalTopBarScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState),
-                        ) {
-                            content(
-                                contentPadding,
-                                {
-                                    if (topBarMode == TopBarMode.Expanded) {
-                                        CupertinoNavigationTitle(
-                                            title = title,
-                                            subtitle = subtitle
-                                        )
+                        NativeScrollContent {
+                            CompositionLocalProvider(
+                                LocalBackdrop provides null,
+                                LocalTopBarScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState),
+                            ) {
+                                content(
+                                    contentPadding,
+                                    {
+                                        if (topBarMode == TopBarMode.Expanded) {
+                                            CupertinoNavigationTitle(
+                                                title = title,
+                                                subtitle = subtitle
+                                            )
+                                        }
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 )
