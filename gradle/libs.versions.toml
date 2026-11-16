@@ -16,13 +16,13 @@ buildkonfig = "0.23.0"
 kotlinx-browser = "0.5.0"
 
 # firebase
-kmp-firebase = "2026.10.0"
-kmp-firebase-gitlive = "3.0.0-alpha02"
+kmp-firebase = "2026.11.0"
+kmp-firebase-gitlive = "3.0.0-beta1"
 firebase-firestore = "27.2.0"
 firebase-storage = "23.0.0"
 firebase-common = "23.0.0"
 firebase-auth = "25.0.0"
-google-services = "4.5.0"
+google-services = "4.6.0"
 
 # ui
 activity-compose = "1.13.0"
