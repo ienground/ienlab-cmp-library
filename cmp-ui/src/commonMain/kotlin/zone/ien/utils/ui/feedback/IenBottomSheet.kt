@@ -58,6 +58,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import zone.ien.hig.LocalCupertinoNativeBarsPadding
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.drawPlainBackdrop
 import com.kyant.backdrop.effects.blur
@@ -357,7 +359,7 @@ private fun IenBottomSheetInternal(
     val sidePlacement = placement?.takeIf { !innerDisplay && it.sideWidth > 0.dp }
     val safeInsets = WindowInsets.safeDrawing
 
-    Dialog(
+    IenSheetDialog(
         onDismissRequest = { state.hide() },
         properties = ienOverlayDialogProperties(
             dismissOnBackPress = true,
@@ -605,6 +607,21 @@ private fun IenBottomSheetInternal(
                 }
             }
         }
+    }
+}
+
+/**
+ * 시트를 띄우는 대화상자입니다. 시트는 자기 상단 바를 그리므로, 시트를 띄운 화면의 플랫폼 내비게이션 바
+ * (compose-hig `LocalCupertinoNativeBarsPadding`)를 시트 안에 전달하지 않습니다.
+ */
+@Composable
+private fun IenSheetDialog(
+    onDismissRequest: () -> Unit,
+    properties: DialogProperties,
+    content: @Composable () -> Unit,
+) {
+    CompositionLocalProvider(LocalCupertinoNativeBarsPadding provides null) {
+        Dialog(onDismissRequest = onDismissRequest, properties = properties, content = content)
     }
 }
 

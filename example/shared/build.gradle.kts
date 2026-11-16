@@ -18,7 +18,7 @@ val localProps = Properties().apply { rootProject.file("local.properties").takeI
 
 kotlin {
     android {
-        namespace = "zone.ien.utils.example.lib"
+        namespace = "zone.ien.utils.example.shared"
         compileSdk {
             version = release(libs.versions.android.compileSdk.get().toInt()) {
                 minorApiLevel = libs.versions.android.compileSdkMinor.get().toInt()
@@ -43,7 +43,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "ComposeApp"
+            baseName = "Shared"
             isStatic = true
         }
     }

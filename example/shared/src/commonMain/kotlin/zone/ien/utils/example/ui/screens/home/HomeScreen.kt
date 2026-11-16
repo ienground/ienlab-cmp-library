@@ -305,8 +305,18 @@ fun HomeScreen(
                     )
                 }
             },
-            title = { Text(text = "IENGROUND") },
-            subtitle = { Text(text = "Sub Title") },
+            title = {
+                Text(
+                    text = "IENGROUND",
+                    maxLines = 1
+                )
+            },
+            subtitle = {
+                Text(
+                    text = "Sub Title",
+                    maxLines = 1
+                )
+            },
             topBarMode = TopBarMode.Expanded,
             adaptation = {
                 material {

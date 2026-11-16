@@ -140,7 +140,7 @@ SwiftUI `@main` 진입점에서 `FirebaseApp.configure()`와 URL 핸들러를 �
 
 ```swift
 import SwiftUI
-import ComposeApp
+import Shared
 import FirebaseCore
 import FirebaseAuth
 
@@ -285,7 +285,7 @@ Xcode 프로젝트에 "Compile Kotlin Framework" 빌드 페이즈가 있어야 K
 
 ```sh
 cd "$SRCROOT/.."
-../gradlew :example:composeApp:embedAndSignAppleFrameworkForXcode
+../gradlew :example:shared:embedAndSignAppleFrameworkForXcode
 ```
 
 ---
@@ -339,7 +339,7 @@ Android는 `MyApplication`에서, iOS는 `iOSApp.swift`의 `init()`에서 호출
 
 ### 5. BuildKonfig 설정
 
-이 라이브러리는 `com.codingfeline.buildkonfig` 플러그인을 사용하여 컴파일 타임 상수를 주입합니다. 예제 `composeApp/build.gradle.kts`의 설정:
+이 라이브러리는 `com.codingfeline.buildkonfig` 플러그인을 사용하여 컴파일 타임 상수를 주입합니다. 예제 `shared/build.gradle.kts`의 설정:
 
 ```kotlin
 buildkonfig {
@@ -462,7 +462,7 @@ npm --prefix cmp-ui-docs run build:site
 ```
 example/
 ├── androidApp/         # Android Host 앱 (Application, AndroidManifest)
-├── composeApp/         # 공통 Compose 코드 (commonMain/androidMain/iosMain)
+├── shared/             # 공통 Compose 코드 (commonMain/androidMain/iosMain)
 └── iosApp/             # iOS Host 앱 (SwiftUI, Xcode)
 ```
 
@@ -508,6 +508,29 @@ val appleState = rememberFirebaseAppleSignInState(
 )
 appleState.launch()
 ```
+
+### 플랫폼 내비게이션 바 (iOS 네이티브 내비게이션)
+
+iOS UIKit `UINavigationController`처럼 플랫폼이 내비게이션 바를 그리는 화면(예: compose-swift-navigation3의 네이티브 화면)에서는, 그 바가 차지하는 여백을 compose-hig의 `LocalCupertinoNativeBarsPadding`으로 넘깁니다. Cupertino와 IEN 두 디자인이 같은 값을 따르므로 앱은 한 곳에서만 제공합니다.
+
+```kotlin
+NativeNavigationFrame(frame = { content ->
+    CompositionLocalProvider(
+        LocalCupertinoNativeBarsPadding provides if (LocalNativeScreen.current) nativeContentPadding() else null,
+    ) {
+        AppTheme(content)
+    }
+}) { /* NativeStack / NativeTabs */ }
+```
+
+값이 있으면 다음처럼 동작합니다. 기본값 `null`이면 지금과 같습니다.
+
+- `AdaptiveTopAppBarScaffold`, `AdaptiveScaffold`, `IenScaffold`는 상단 바를 그리지 않습니다. 콘텐츠 여백은 `contentWindowInsets`가 여백을 두는 변만 플랫폼 바 여백으로 바꾸고, 0인 변은 그대로 0입니다(compose-hig `withCupertinoNativeBars` 규칙). 그래서 `RootWrapper`처럼 `WindowInsets(0)`으로 쓰는 틀은 여백을 더하지 않고, 그 안의 화면 스캐폴드만 여백을 받습니다. 부모가 이미 소비한 인셋은 제외합니다. 하단 바가 있으면 아래 여백은 그 높이와 남은 플랫폼 아래 여백 중 큰 값입니다. 콘텐츠의 `imePadding()`은 0이 됩니다(여백에 키보드 영역이 들어 있음).
+- `IenTopAppBar`, `AdaptiveTopAppBar`, 큰 제목(`TopBarMode.Expanded`의 제목)은 그리지 않습니다. 제목과 버튼은 플랫폼 바에 선언합니다.
+- `IenScaffold`의 상단 블러와 Duo 사이드 바 배치는 쓰지 않습니다. 하단 블러는 하단 바가 있을 때만 그립니다.
+- `AdaptiveWebViewScaffold`는 iOS 상단 블러를 그리지 않습니다.
+- 바텀시트(`IenBottomSheet`) 안에서는 적용하지 않습니다. 시트는 자기 상단 바를 그립니다.
+- Cupertino 디자인의 동작은 compose-hig 문서의 "플랫폼 내비게이션 바"를 따릅니다. compose-hig `27.2.7-alpha01-dev03` 이상이 필요합니다.
 
 ---
 
