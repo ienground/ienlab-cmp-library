@@ -29,6 +29,11 @@ import zone.ien.utils.ui.screen.LocalIenTopBarTransition
 
 /**
  * 네비게이션 디스플레이를 생성하는 기본 Composable 함수
+ *
+ * [BaseNavigationFrame]이 iOS 네이티브 모드를 활성화하면 NativeStack을 사용합니다.
+ * [BaseNavDisplay.navigationGraph]로 표시한 루트 엔트리는 UI 없는 하위 탭 그래프로
+ * 실행하며, 상위 공유 화면과 그래프의 상태·ViewModel 수명을 공통으로 관리합니다.
+ *
  * @param backStack 네비게이션 백스택
  * @param modifier Modifier
  * @param contentAlignment 콘텐츠 정렬
@@ -66,6 +71,8 @@ fun <T : NavKey> BaseNavDisplay(
     animateTopBar: Boolean = false,
     entryProvider: (key: T) -> NavEntry<T>,
 ) {
+    if (NativeBaseNavDisplay(backStack, onBack, entryDecorators, entryProvider)) return
+
     @Composable
     fun Display(scope: SharedTransitionScope?) {
         val topBarTransition = remember(scope, animateTopBar) {

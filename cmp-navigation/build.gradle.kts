@@ -36,10 +36,15 @@ kotlin {
         }
     }
     iosArm64()
-    iosSimulatorArm64()
+    iosSimulatorArm64 {
+        binaries.withType<org.jetbrains.kotlin.gradle.plugin.mpp.TestExecutable> {
+            linkerOpts("-sectcreate", "__TEXT", "__info_plist", file("src/iosTest/Info.plist").absolutePath)
+        }
+    }
 
     sourceSets {
         commonMain.dependencies {
+            api(libs.swift.navigation3)
             api(libs.compose.adaptive)
             api(libs.compose.adaptive.navigation3)
             implementation(libs.compose.navigation3)

@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ScaffoldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -77,6 +78,7 @@ import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.cupertinoScrollEdge
 import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.navigation.NativeBarButton
 import zone.ien.utils.adaptive.menu.HigActionMenu
 import zone.ien.utils.adaptive.menu.HigActionsMenu
 import zone.ien.utils.adaptive.theme.ienCupertinoGlassProminentButtonColors
@@ -97,6 +99,7 @@ import zone.ien.utils.ui.screen.isIenSideBarLayout
 import zone.ien.utils.ui.screen.isIenSideBarAvailable
 import zone.ien.utils.ui.screen.LocalIenSideBarEnabled
 import zone.ien.utils.ui.screen.IenTopAppBar
+import zone.ien.utils.ui.screen.NativeScreenBar
 import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
@@ -580,6 +583,80 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
                 )
             }
         }
+    )
+}
+
+/**
+ * 문자열 제목을 Compose와 native 내비게이션 바에 함께 제공하는 스캐폴드입니다.
+ *
+ * @param modifier 스캐폴드 수정자
+ * @param topBarModifier 상단 바 수정자
+ * @param title Compose와 native 내비게이션 바에서 사용할 제목
+ * @param subtitle 부제목
+ * @param showTopBar Compose 상단 바 표시 여부
+ * @param navigationIcon Compose 상단 바 내비게이션 아이콘
+ * @param nativeLeading native 내비게이션 바 왼쪽에 표시할 사용자 지정 버튼
+ * @param actions 상단 바 액션
+ * @param primaryAction 주요 액션
+ * @param bottomBar 하단 바
+ * @param snackbarHost 스낵바 호스트
+ * @param floatingActionButton 플로팅 액션 버튼
+ * @param fabPosition Material 상단 바의 플로팅 액션 버튼 위치
+ * @param higFabPosition Cupertino 상단 바의 플로팅 액션 버튼 위치
+ * @param contentEdge 콘텐츠 모서리 효과 설정
+ * @param topBarMode 상단 바 표시 방식
+ * @param adaptation 어댑테이션 설정
+ * @param backdrop 스캐폴드 기본 배경 레이어
+ * @param content 스캐폴드 콘텐츠
+ */
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun AdaptiveTopAppBarScaffold(
+    modifier: Modifier = Modifier,
+    topBarModifier: Modifier = Modifier,
+    title: String,
+    subtitle: @Composable (() -> Unit)? = null,
+    showTopBar: Boolean = true,
+    navigationIcon: (@Composable () -> Unit)? = null,
+    nativeLeading: List<NativeBarButton> = emptyList(),
+    actions: List<ActionMenuItem> = emptyList(),
+    primaryAction: ActionMenuItem.IconMenuItem? = null,
+    bottomBar: (@Composable () -> Unit)? = null,
+    snackbarHost: @Composable () -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
+    fabPosition: FabPosition = FabPosition.Center,
+    higFabPosition: FabPosition = fabPosition,
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
+    topBarMode: TopBarMode = LocalTopBarMode.current,
+    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {},
+    backdrop: LayerBackdrop = LocalBackdrop.current ?: rememberDefaultBackdrop(),
+    content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
+) {
+    val isNativeScreen = NativeScreenBar(
+        title = title,
+        leading = nativeLeading,
+        actions = actions,
+        primaryAction = primaryAction,
+    )
+    AdaptiveTopAppBarScaffold(
+        modifier = modifier,
+        topBarModifier = topBarModifier,
+        title = { Text(text = title) },
+        subtitle = subtitle,
+        showTopBar = showTopBar && !isNativeScreen,
+        navigationIcon = navigationIcon,
+        actions = actions,
+        primaryAction = primaryAction,
+        bottomBar = bottomBar,
+        snackbarHost = snackbarHost,
+        floatingActionButton = floatingActionButton,
+        fabPosition = fabPosition,
+        higFabPosition = higFabPosition,
+        contentEdge = contentEdge,
+        topBarMode = topBarMode,
+        adaptation = adaptation,
+        backdrop = backdrop,
+        content = content,
     )
 }
 

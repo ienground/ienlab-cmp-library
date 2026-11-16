@@ -39,6 +39,7 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.screen.LocalTopBarScaffoldScrollState
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.screen.LocalIenScaffoldScrollState
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
 import zone.ien.utils.ui.section.IenSection
 import zone.ien.utils.ui.section.ienSectionBackground
 import zone.ien.utils.ui.utils.conditional
@@ -139,6 +140,7 @@ fun AdaptiveProvideSectionStyle(
             )
         },
         cupertino = {
+            val nativeScroll = scrollState?.let { rememberNativeScreenScroll(it) }
             ProvideSectionStyle(
                 style = style,
             ) {
@@ -146,7 +148,13 @@ fun AdaptiveProvideSectionStyle(
                     modifier = Modifier
                         .layerBackdrop(backdrop)
                         .conditional(fullHeight) { fillMaxHeight() }
-                        .conditional(scrollState != null) { scrollState?.let { this.verticalScroll(it) } ?: this }
+                        .conditional(scrollState != null) {
+                            val state = requireNotNull(scrollState)
+                            verticalScroll(
+                                state,
+                                enabled = nativeScroll?.userScrollEnabled ?: true,
+                            )
+                        }
                         .clip(shape)
                         .sectionBackground(style)
                         .then(modifier)
