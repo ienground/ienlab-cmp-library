@@ -68,7 +68,7 @@ class IenNativeBarsTest {
 
         onNodeWithTag("top-bar").assertDoesNotExist()
         onNodeWithTag("custom-top-bar").assertDoesNotExist()
-        // contentWindowInsets are replaced by the platform bars' padding.
+        // The sides contentWindowInsets pads are replaced by the platform bars' padding.
         onNodeWithTag("body").assertPositionInRootIsEqualTo(0.dp, 100.dp)
         onNodeWithTag("body").assertHeightIsEqualTo(400.dp - 100.dp - 30.dp)
     }
@@ -79,6 +79,33 @@ class IenNativeBarsTest {
 
         onNodeWithTag("body").assertPositionInRootIsEqualTo(0.dp, 100.dp)
         onNodeWithTag("body").assertHeightIsEqualTo(400.dp - 100.dp - 50.dp)
+    }
+
+    @Test
+    fun aContainerWithoutInsetsStaysWithoutInsets() = runComposeUiTest {
+        // e.g. RootWrapper: an app-wide wrapper that hosts every screen in a scaffold with WindowInsets(0)
+        setContent {
+            NativeBars {
+                IenScaffold(modifier = Modifier.size(240.dp, 400.dp), contentWindowInsets = WindowInsets(0)) { padding ->
+                    Box(Modifier.fillMaxSize().padding(padding).testTag("body"))
+                }
+            }
+        }
+        onNodeWithTag("body").assertPositionInRootIsEqualTo(0.dp, 0.dp)
+        onNodeWithTag("body").assertHeightIsEqualTo(400.dp)
+    }
+
+    @Test
+    fun aScreenInsideAContainerGetsThePaddingOnce() = runComposeUiTest {
+        setContent {
+            NativeBars {
+                IenScaffold(modifier = Modifier.size(240.dp, 400.dp), contentWindowInsets = WindowInsets(0)) { outer ->
+                    Box(Modifier.fillMaxSize().padding(outer)) { Screen() }
+                }
+            }
+        }
+        onNodeWithTag("body").assertPositionInRootIsEqualTo(0.dp, 100.dp)
+        onNodeWithTag("body").assertHeightIsEqualTo(400.dp - 100.dp - 30.dp)
     }
 
     @Test

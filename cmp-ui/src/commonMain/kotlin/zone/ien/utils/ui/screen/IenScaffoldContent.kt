@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import zone.ien.hig.LocalCupertinoNativeBarsPadding
+import zone.ien.hig.withCupertinoNativeBars
 import zone.ien.utils.ui.foundation.IenTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -130,7 +131,8 @@ internal fun resolveBottomBlurHeight(
  * @param content 스크래프트 내부에 표시될 메인 콘텐츠
  *
  * 플랫폼이 내비게이션 바를 그리는 화면(compose-hig `LocalCupertinoNativeBarsPadding`이 있는 화면)에서는
- * [topBar]를 그리지 않고, 콘텐츠 여백으로 [contentWindowInsets] 대신 플랫폼 바 여백을 넘깁니다.
+ * [topBar]를 그리지 않고, [contentWindowInsets]가 여백을 두는 변을 플랫폼 바 여백으로 바꿉니다
+ * (compose-hig `withCupertinoNativeBars`, 0인 변은 0).
  * 이 여백에는 키보드가 가린 영역도 들어 있어 콘텐츠의 `imePadding()`은 0이 됩니다.
  * 상단 블러는 플랫폼 바가 대신하므로 그리지 않고, 사이드 바 배치도 쓰지 않습니다.
  */
@@ -213,13 +215,17 @@ fun IenScaffold(
     )
     val density = LocalDensity.current
     val hasBottomBar by rememberUpdatedState(bottomBar != null)
-    val nativeContentInsets = nativeBarsPadding?.let { remember(it) { NativeBarsWindowInsets(it) } }
-    val nativeContentPadding = nativeBarsPadding?.let { native ->
-        remember(native, density) {
-            NativeBarsContentPadding(native) {
+    // compose-hig CupertinoScaffold와 같은 규칙: contentWindowInsets가 여백을 두는 변만 플랫폼 바 여백으로 바꾼다
+    // (0인 변은 0). 여백 없는 틀(WindowInsets(0))로 쓰는 스캐폴드는 여백을 더하지 않는다.
+    val effectiveWindowInsets = contentWindowInsets.withCupertinoNativeBars()
+    val nativeContentPadding = if (nativeBarsPadding != null) {
+        remember(effectiveWindowInsets, density) {
+            NativeBarsContentPadding(effectiveWindowInsets, density) {
                 if (hasBottomBar) with(density) { bottomBarHeightPx.takeIf { it > 0 }?.toDp() } else null
             }
         }
+    } else {
+        null
     }
 
     val scaffoldContent: @Composable (PaddingValues) -> Unit = { contentPadding ->
@@ -312,7 +318,7 @@ fun IenScaffold(
                 floatingActionButtonPosition = floatingActionButtonPosition,
                 containerColor = containerColor,
                 contentColor = contentColor,
-                contentWindowInsets = nativeContentInsets ?: contentWindowInsets,
+                contentWindowInsets = effectiveWindowInsets,
                 // 플랫폼 바 여백은 프레임마다 바뀔 수 있다. 같은 객체를 넘겨 콘텐츠가 레이아웃 시점에 읽게 한다.
                 content = { padding -> retainedScaffoldContent(nativeContentPadding ?: padding) },
             )
