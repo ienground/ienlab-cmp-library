@@ -48,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
@@ -592,11 +593,17 @@ private fun IenTopBarFloatingSlot(
             pressedTokens - token
         }
     }
+    val contentPadding = IenTheme.spacing.xxs
 
     Box(
-        modifier = Modifier.graphicsLayer {
-            clip = false
-        },
+        modifier = Modifier
+            .graphicsLayer { clip = false }
+            .drawWithContent {
+                val emptySize = contentPadding.toPx() * 2
+                if (size.width > emptySize && size.height > emptySize) {
+                    drawContent()
+                }
+            },
         contentAlignment = Alignment.Center,
     ) {
         Box(
@@ -626,7 +633,7 @@ private fun IenTopBarFloatingSlot(
         Box(
             modifier = Modifier
                 .clip(CircleShape)
-                .padding(horizontal = IenTheme.spacing.xxs, vertical = IenTheme.spacing.xxs),
+                .padding(contentPadding),
             contentAlignment = Alignment.Center,
         ) {
             CompositionLocalProvider(

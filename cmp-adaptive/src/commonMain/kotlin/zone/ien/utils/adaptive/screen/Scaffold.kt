@@ -70,6 +70,7 @@ import zone.ien.hig.CupertinoTopAppBarDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.FabPosition
 import zone.ien.hig.LocalCupertinoRightSystemArea
+import zone.ien.hig.LocalCupertinoNativeBarsPadding
 import zone.ien.hig.adaptive.Adaptation
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
@@ -467,8 +468,8 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
                     title = title,
                     subtitle = subtitle,
                     modifier = topBarModifier,
-                    navigationIcon = { navigationIcon?.invoke() },
-                    actions = {
+                    navigationIcon = navigationIcon,
+                    actions = if (actions == null && primaryAction == null) null else ({
                         if (isSideBar) {
                             actions?.invoke(this)
                             primaryAction?.invoke(this)
@@ -487,7 +488,7 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
                                     .heightIn(min = 48.dp)
                             )
                         }
-                    },
+                    }),
                     windowInsets = it.topBarWindowInsets,
                     isCenterAligned = it.isCenterAligned,
                     isBackgroundAdaptive = it.isBackgroundAdaptive,
@@ -958,6 +959,7 @@ internal class TopAppBarScaffoldAdaptation(
     }
 }
 
+/** 큰 제목입니다. 플랫폼이 내비게이션 바를 그리는 화면에서는 그 바가 큰 제목을 보이므로 그리지 않습니다. */
 @Composable
 private fun IenNavigationTitle(
     title: @Composable () -> Unit,
@@ -966,6 +968,7 @@ private fun IenNavigationTitle(
     scaffoldCoordinates: LayoutCoordinates?,
     onVisibilityChange: (Boolean) -> Unit,
 ) {
+    if (LocalCupertinoNativeBarsPadding.current != null) return
     var offsetDifference by remember { mutableStateOf(0f) }
     var actualTitleHeight by remember { mutableStateOf(0f) }
     val topAppBarExists = topBarHeight > 0f

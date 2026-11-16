@@ -1,6 +1,7 @@
 package zone.ien.utils.webview
 
 import androidx.compose.foundation.background
+import zone.ien.hig.LocalCupertinoNativeBarsPadding
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -107,6 +108,8 @@ internal fun WebViewScaffoldLayout(
     val titleBackdrop = rememberLayerBackdrop()
     val fadeDistance = with(LocalDensity.current) { IenScaffoldContentEdge().scrollFadeDistance.toPx() }
     val contentEdge = webViewScaffoldContentEdge(scrollState, fadeDistance)
+    // 플랫폼 내비게이션 바가 있으면 상단 바와 그 아래 블러는 플랫폼이 그린다.
+    val hasNativeBars = LocalCupertinoNativeBarsPadding.current != null
     AdaptiveTopAppBarScaffold(
         navigationIcon = navigationIcon,
         title = title,
@@ -141,7 +144,7 @@ internal fun WebViewScaffoldLayout(
                         ),
                 ) { title() }
                 webView(topBarHeight)
-                if (PlatformDependent.isIos) {
+                if (PlatformDependent.isIos && !hasNativeBars) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()

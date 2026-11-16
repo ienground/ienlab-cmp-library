@@ -1,7 +1,7 @@
 import { sampleLines } from "./generated-sample-lines.js";
 const uiSource = "cmp-ui/src/commonMain/kotlin/zone/ien/utils/ui/";
 const sampleSource =
-  "example/composeApp/src/commonMain/kotlin/zone/ien/utils/example/ui/screens/designsystem/DesignSystemScreen.kt";
+  "example/shared/src/commonMain/kotlin/zone/ien/utils/example/ui/screens/designsystem/DesignSystemScreen.kt";
 
 function component(
   id,
