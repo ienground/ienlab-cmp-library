@@ -56,6 +56,9 @@ kotlin {
         }
 
         getByName("androidDeviceTest").dependencies {
+            implementation(libs.compose.ui.test)
+            implementation(libs.activity.compose)
+            implementation(libs.espresso.core)
             implementation(libs.runner)
             implementation(libs.core)
             implementation(libs.junit)
@@ -63,5 +66,15 @@ kotlin {
 
         iosMain.dependencies {
         }
+
+        iosTest.dependencies {
+            implementation(libs.compose.ui.test)
+            implementation(libs.hig.adaptive)
+        }
     }
+}
+
+// UIKit 전환 테스트는 부팅된 시뮬레이터의 시스템 서비스를 사용합니다.
+tasks.withType<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest>().configureEach {
+    standalone.set(false)
 }

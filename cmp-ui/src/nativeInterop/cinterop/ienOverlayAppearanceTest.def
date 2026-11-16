@@ -1,4 +1,5 @@
 language = Objective-C
+excludeDependentModules = true
 package = zone.ien.utils.ui.appearance.test
 excludeFilter = **
 compilerOpts = -fobjc-arc
