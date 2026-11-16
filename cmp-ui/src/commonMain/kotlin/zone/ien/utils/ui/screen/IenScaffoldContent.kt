@@ -13,6 +13,10 @@ import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.MutableWindowInsets
+import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -136,6 +140,7 @@ internal fun resolveBottomBlurHeight(
  * 이 여백에는 키보드가 가린 영역도 들어 있어 콘텐츠의 `imePadding()`은 0이 됩니다.
  * 상단 블러는 플랫폼 바가 대신하므로 그리지 않고, 사이드 바 배치도 쓰지 않습니다.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun IenScaffold(
     modifier: Modifier = Modifier,
@@ -218,9 +223,10 @@ fun IenScaffold(
     // compose-hig CupertinoScaffold와 같은 규칙: contentWindowInsets가 여백을 두는 변만 플랫폼 바 여백으로 바꾼다
     // (0인 변은 0). 여백 없는 틀(WindowInsets(0))로 쓰는 스캐폴드는 여백을 더하지 않는다.
     val effectiveWindowInsets = contentWindowInsets.withCupertinoNativeBars()
+    val remainingWindowInsets = remember(effectiveWindowInsets) { MutableWindowInsets(effectiveWindowInsets) }
     val nativeContentPadding = if (nativeBarsPadding != null) {
-        remember(effectiveWindowInsets, density) {
-            NativeBarsContentPadding(effectiveWindowInsets, density) {
+        remember(remainingWindowInsets, density) {
+            NativeBarsContentPadding(remainingWindowInsets, density) {
                 if (hasBottomBar) with(density) { bottomBarHeightPx.takeIf { it > 0 }?.toDp() } else null
             }
         }
@@ -298,7 +304,15 @@ fun IenScaffold(
             )
         } else {
             Scaffold(
-                modifier = modifier,
+                modifier = modifier.then(
+                    if (nativeBarsPadding != null) {
+                        Modifier.onConsumedWindowInsetsChanged {
+                            remainingWindowInsets.insets = effectiveWindowInsets.exclude(it)
+                        }
+                    } else {
+                        Modifier
+                    },
+                ),
                 topBar = {
                     // 플랫폼 바가 상단 바 자리를 대신한다.
                     if (nativeBarsPadding == null) {

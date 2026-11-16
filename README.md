@@ -525,7 +525,7 @@ NativeNavigationFrame(frame = { content ->
 
 값이 있으면 다음처럼 동작합니다. 기본값 `null`이면 지금과 같습니다.
 
-- `AdaptiveTopAppBarScaffold`, `AdaptiveScaffold`, `IenScaffold`는 상단 바를 그리지 않습니다. 콘텐츠 여백은 `contentWindowInsets`가 여백을 두는 변만 플랫폼 바 여백으로 바꾸고, 0인 변은 그대로 0입니다(compose-hig `withCupertinoNativeBars` 규칙). 그래서 `RootWrapper`처럼 `WindowInsets(0)`으로 쓰는 틀은 여백을 더하지 않고, 그 안의 화면 스캐폴드만 여백을 받습니다. 하단 바가 있으면 아래 여백은 그 높이입니다. 콘텐츠의 `imePadding()`은 0이 됩니다(여백에 키보드 영역이 들어 있음).
+- `AdaptiveTopAppBarScaffold`, `AdaptiveScaffold`, `IenScaffold`는 상단 바를 그리지 않습니다. 콘텐츠 여백은 `contentWindowInsets`가 여백을 두는 변만 플랫폼 바 여백으로 바꾸고, 0인 변은 그대로 0입니다(compose-hig `withCupertinoNativeBars` 규칙). 그래서 `RootWrapper`처럼 `WindowInsets(0)`으로 쓰는 틀은 여백을 더하지 않고, 그 안의 화면 스캐폴드만 여백을 받습니다. 부모가 이미 소비한 인셋은 제외합니다. 하단 바가 있으면 아래 여백은 그 높이와 남은 플랫폼 아래 여백 중 큰 값입니다. 콘텐츠의 `imePadding()`은 0이 됩니다(여백에 키보드 영역이 들어 있음).
 - `IenTopAppBar`, `AdaptiveTopAppBar`, 큰 제목(`TopBarMode.Expanded`의 제목)은 그리지 않습니다. 제목과 버튼은 플랫폼 바에 선언합니다.
 - `IenScaffold`의 상단 블러와 Duo 사이드 바 배치는 쓰지 않습니다. 하단 블러는 하단 바가 있을 때만 그립니다.
 - `AdaptiveWebViewScaffold`는 iOS 상단 블러를 그리지 않습니다.

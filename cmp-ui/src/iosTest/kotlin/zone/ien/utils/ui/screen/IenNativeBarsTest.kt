@@ -1,5 +1,6 @@
 package zone.ien.utils.ui.screen
 
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -79,6 +80,32 @@ class IenNativeBarsTest {
 
         onNodeWithTag("body").assertPositionInRootIsEqualTo(0.dp, 100.dp)
         onNodeWithTag("body").assertHeightIsEqualTo(400.dp - 100.dp - 50.dp)
+    }
+
+    @Test
+    fun consumedParentPaddingIsNotAppliedAgain() = runComposeUiTest {
+        setContent {
+            NativeBars {
+                val consumed = PaddingValues(top = 60.dp, bottom = 10.dp)
+                Box(Modifier.padding(consumed).consumeWindowInsets(consumed)) {
+                    Screen()
+                }
+            }
+        }
+
+        onNodeWithTag("body").assertPositionInRootIsEqualTo(0.dp, 100.dp)
+        onNodeWithTag("body").assertHeightIsEqualTo(400.dp - 40.dp - 20.dp)
+    }
+
+    @Test
+    fun platformBottomPaddingLargerThanBottomBarIsPreserved() = runComposeUiTest {
+        setContent {
+            NativeBars(padding = PaddingValues(top = 100.dp, bottom = 200.dp)) {
+                Screen(bottomBar = { Box(Modifier.fillMaxWidth().height(50.dp)) })
+            }
+        }
+
+        onNodeWithTag("body").assertHeightIsEqualTo(400.dp - 100.dp - 200.dp)
     }
 
     @Test
