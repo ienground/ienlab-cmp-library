@@ -41,8 +41,8 @@ import zone.ien.utils.ui.screen.LocalIenTopBarTransition
  * @param transitionSpec 전환 스펙
  * @param popTransitionSpec pop 전환 스펙
  * @param predictivePopTransitionSpec 예측 pop 전환 스펙
- * @param animateTopBar Material·Cupertino 상단 버튼의 위치·크기·내용을 화면 전환과 함께 전환합니다.
- * 기본값은 false이며, IenTopAppBar와 AdaptiveTopAppBarScaffold에서 사용합니다.
+ * @param animateTopBar Cupertino 상단 버튼의 위치·크기·내용을 화면 전환과 함께 전환합니다.
+ * 기본값은 false이며, Material에서는 적용하지 않습니다.
  * @param entryProvider NavEntry 제공자
  */
 @Composable

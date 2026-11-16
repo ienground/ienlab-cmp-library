@@ -1,8 +1,6 @@
 package zone.ien.utils.navigation
 
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -15,7 +13,7 @@ import zone.ien.utils.ui.foundation.IenTheme
 @Composable
 internal actual fun navigationTopBarFade(scope: AnimatedVisibilityScope): Modifier = with(scope) {
     val shadowOutset = maxOf(24.dp, IenTheme.elevation.floating * 3)
-    val opacity = if (useCupertinoTopBarTransition) navigationTopBarOpacity(scope) else null
+    val opacity = navigationTopBarOpacity(scope)
     Modifier
         .layout { measurable, constraints ->
             val outset = shadowOutset.roundToPx()
@@ -25,17 +23,11 @@ internal actual fun navigationTopBarFade(scope: AnimatedVisibilityScope): Modifi
             }
         }
         // 페이드 렌더링 영역만 확장하고 버튼의 배치와 공유 경계는 유지합니다.
-        .then(
-            if (opacity != null) {
-                Modifier.graphicsLayer {
-                    alpha = opacity.value
-                    val scale = 1f + (TopBarHiddenScale - 1f) * (1f - alpha)
-                    scaleX = scale
-                    scaleY = scale
-                }
-            } else {
-                Modifier.animateEnterExit(enter = fadeIn(), exit = fadeOut())
-            },
-        )
+        .graphicsLayer {
+            alpha = opacity.value
+            val scale = 1f + (TopBarHiddenScale - 1f) * (1f - alpha)
+            scaleX = scale
+            scaleY = scale
+        }
         .padding(shadowOutset)
 }

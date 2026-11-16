@@ -83,17 +83,18 @@ class NavigationTopBarTransitionTest {
     fun actionsStayAtTheTrailingEdgeUntilTheFinalFade() = verifyButtonPosition(true, actions = true)
 
     @Test
-    fun materialNavigationButtonStaysAtTheTop() = verifyButtonPosition(true, material = true)
-
-    @Test
-    fun materialUnmatchedNavigationButtonStaysAtTheTop() = verifyButtonPosition(false, material = true)
-
-    @Test
-    fun materialActionsStayAtTheTrailingEdgeUntilTheFinalFade() = verifyButtonPosition(true, actions = true, material = true)
-
-    @Test
-    fun materialPrimaryActionResizesAtTheTrailingEdge() =
-        verifyButtonPosition(true, actions = true, material = true, primary = true)
+    fun materialSlotsDoNotApplyTopBarTransitions() = runComposeUiTest {
+        setContent {
+            CompositionLocalProvider(LocalIenCupertinoTopBarTransition provides false) {
+                SharedTransitionLayout {
+                    val transition = remember(this) { NavigationTopBarTransition(this) }
+                    IenTopBarTransition.Slot.entries.forEach { slot ->
+                        kotlin.test.assertSame(Modifier, transition.modifier(slot), "$slot")
+                    }
+                }
+            }
+        }
+    }
 
     @Test
     fun matchedButtonShadowSurvivesSlowPop() = verifyShadowDuringPop(true)
@@ -176,7 +177,7 @@ class NavigationTopBarTransitionTest {
         verifyCommittedActions(cancel = false, progress = 0.98f, incomingOnly = true)
 
     @Test
-    fun materialActionsFollowPredictiveBackProgress() = verifyCommittedActions(cancel = true, theme = Theme.Material3)
+    fun materialActionsMoveWithTheScreenDuringPredictiveBack() = verifyCommittedActions(cancel = true, theme = Theme.Material3)
 
     private fun verifyCommittedActions(
         cancel: Boolean,
@@ -243,7 +244,7 @@ class NavigationTopBarTransitionTest {
             val color = onRoot().captureToImage().toPixelMap()[if (actions) 288 else 24, 24]
             if (theme == Theme.Material3) {
                 if (fraction == 0.35f) {
-                    assertTrue(color.green > 0.05f || color.blue > 0.05f, "Material 액션은 제스처 진행도에 따라 페이드해야 합니다: $color")
+                    assertTrue(color.green > 0.05f || color.blue > 0.05f, "Material 액션은 별도 전환 없이 본문과 함께 이동해야 합니다: $color")
                 }
             } else assertTrue(
                 if (incomingOnly) color.red > 0.95f && color.green > 0.95f && color.blue > 0.95f

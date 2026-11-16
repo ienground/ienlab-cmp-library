@@ -33,10 +33,11 @@ internal class NavigationTopBarTransition(
 ) : IenTopBarTransition {
     @Composable
     override fun modifier(slot: IenTopBarTransition.Slot): Modifier = with(scope) {
+        if (!useCupertinoTopBarTransition) return@with Modifier
         val visibilityScope = LocalNavAnimatedContentScope.current
         val transition = visibilityScope.transition
         val isRunning = { transition.currentState != transition.targetState }
-        if (useCupertinoTopBarTransition && slot == IenTopBarTransition.Slot.Actions) {
+        if (slot == IenTopBarTransition.Slot.Actions) {
             val overlayZIndex = if (transition.currentState == EnterExitState.Visible) 2f else 1f
             return@with Modifier
                 .renderInSharedTransitionScopeOverlay(renderInOverlay = isRunning, zIndexInOverlay = overlayZIndex)
