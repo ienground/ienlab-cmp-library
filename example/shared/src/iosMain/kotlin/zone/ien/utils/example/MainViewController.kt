@@ -11,7 +11,6 @@ import androidx.compose.ui.viewinterop.UIKitInteropInteractionMode
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.window.ComposeUIViewController
 import kotlinx.cinterop.ExperimentalForeignApi
-import platform.Foundation.NSProcessInfo
 import platform.UIKit.UIViewController
 import zone.ien.navigation.NativeNavigationViewController
 import zone.ien.utils.initializeIenIos
@@ -19,7 +18,6 @@ import zone.ien.utils.initializeIenIos
 @OptIn(ExperimentalForeignApi::class)
 fun MainViewController(): UIViewController {
     initializeIenIos()
-    val isDeviceStressRun = NSProcessInfo.processInfo.arguments.contains("--ien-device-stress")
     val state = SampleAppState()
     var nativeNavigation by mutableStateOf(false)
     val onNativeNavigationChanged: (Boolean) -> Unit = { nativeNavigation = it }
@@ -32,19 +30,15 @@ fun MainViewController(): UIViewController {
         }
     }
     return ComposeUIViewController {
-        if (isDeviceStressRun) {
-            DeviceStressScreen()
-        } else {
-            key(nativeNavigation) {
-                UIKitViewController(
-                    factory = { if (nativeNavigation) nativeController else composeController },
-                    modifier = Modifier.fillMaxSize(),
-                    properties = UIKitInteropProperties(
-                        interactionMode = UIKitInteropInteractionMode.NonCooperative,
-                        isNativeAccessibilityEnabled = true,
-                    ),
-                )
-            }
+        key(nativeNavigation) {
+            UIKitViewController(
+                factory = { if (nativeNavigation) nativeController else composeController },
+                modifier = Modifier.fillMaxSize(),
+                properties = UIKitInteropProperties(
+                    interactionMode = UIKitInteropInteractionMode.NonCooperative,
+                    isNativeAccessibilityEnabled = true,
+                ),
+            )
         }
     }
 }

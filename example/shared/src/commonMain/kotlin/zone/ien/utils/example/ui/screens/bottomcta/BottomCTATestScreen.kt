@@ -262,7 +262,7 @@ private fun BottomCTATestScaffold(
         AdaptiveScaffold(modifier = modifier, bottomBar = bottomBar) { outerPadding ->
             AdaptiveTopAppBarScaffold(
                 modifier = Modifier.fillMaxSize(),
-                title = { Text("중첩 Scaffold 테스트") },
+                title = "중첩 Scaffold 테스트",
                 navigationIcon = { AdaptiveBackButton(onClick = navigateBack) },
                 actions = actions,
                 primaryAction = primaryAction,
@@ -277,7 +277,7 @@ private fun BottomCTATestScaffold(
     } else if (renderer == "adaptive") {
         AdaptiveTopAppBarScaffold(
             modifier = modifier,
-            title = { Text("BottomCTA 테스트") },
+            title = "BottomCTA 테스트",
             navigationIcon = { AdaptiveBackButton(onClick = navigateBack) },
             actions = actions,
             primaryAction = primaryAction,

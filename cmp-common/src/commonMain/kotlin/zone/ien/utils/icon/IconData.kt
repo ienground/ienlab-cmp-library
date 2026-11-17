@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.graphics.vector.ImageVector
 import zone.ien.utils.icon.IconData.Paint
 import zone.ien.utils.icon.IconData.Vector
@@ -77,3 +78,10 @@ fun ComplexIcon(
     }
 }
 
+
+/** Vector와 Painter 아이콘을 공통 Painter로 변환합니다. */
+@Composable
+fun IconData.asPainter(): Painter = when (this) {
+    is Vector -> rememberVectorPainter(imageVector)
+    is Paint -> painter
+}

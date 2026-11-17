@@ -66,7 +66,7 @@ fun PlaygroundScreen(
         AdaptiveTopAppBarScaffold(
             topBarMode = TopBarMode.Expanded,
             navigationIcon = { AdaptiveBackButton(backdrop = backdrop, visible = visible) { navigateBack() } },
-            title = { Text(text = "Playground") },
+            title = "Playground",
             subtitle = { Text(text = "IENGROUND") },
             actions = listOf(
                 ActionMenuItem.IconMenuItem.ShownIfRoom(

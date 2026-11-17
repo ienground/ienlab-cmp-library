@@ -445,25 +445,6 @@ internal data class PlaygroundControl(
     val allowDecimal: Boolean = false,
 )
 
-internal fun PlaygroundControl.stressAlternateValue(): String = when {
-    isToggle -> (!defaultValue.toBooleanStrict()).toString()
-    choices.isNotEmpty() -> choices
-        .firstOrNull { it.value != defaultValue }
-        ?.value
-        ?: defaultValue
-    minValue != null && maxValue != null -> {
-        val currentValue = defaultValue.toFloatOrNull()
-        val alternateValue = if (currentValue == maxValue.toFloat()) {
-            minValue.toFloat()
-        } else {
-            maxValue.toFloat()
-        }
-        if (allowDecimal) alternateValue.toString() else alternateValue.toInt().toString()
-    }
-    isTextInput -> "$defaultValue iOS"
-    else -> defaultValue
-}
-
 private fun toggleControl(
     key: String,
     label: String,

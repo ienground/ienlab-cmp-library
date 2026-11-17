@@ -1,5 +1,35 @@
 package zone.ien.utils.navigation
 
+import androidx.compose.runtime.mutableStateOf
+import platform.UIKit.UIColor
+import zone.ien.hig.adaptive.Theme
+import zone.ien.hig.adaptive.MaterialThemeSpec
+import zone.ien.hig.adaptive.AdaptiveTheme
+import kotlin.test.assertTrue
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.foundation.defaultIenTokens
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.Modifier
+import platform.CoreGraphics.CGPointMake
+import platform.UIKit.UIScrollView
+import zone.ien.utils.ui.screen.IenLazyColumn
+import zone.ien.utils.ui.screen.ienVerticalScroll
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.unit.dp
+import zone.ien.utils.icon.IconData
+import zone.ien.utils.ui.menu.ActionMenuItem
+import zone.ien.utils.ui.screen.NativeScreenBar
+import platform.UIKit.UIBarButtonItem
+import platform.UIKit.tabBarItem
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.snapshots.Snapshot
@@ -22,7 +52,9 @@ import platform.UIKit.UIViewController
 import platform.UIKit.UIWindow
 import platform.UIKit.UIScreen
 import kotlinx.cinterop.ExperimentalForeignApi
+import platform.UIKit.navigationItem
 import platform.UIKit.childViewControllers
+import zone.ien.navigation.nativeScreen
 import zone.ien.navigation.NativeNavigationViewController
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -42,6 +74,113 @@ class NativeNavigationRootTest {
     @Test
     fun `네이티브 루트까지 pop은 부모와 하위 공유 스택을 함께 정리한다`() = verifyGraph(popAll = true)
 
+    @OptIn(ExperimentalForeignApi::class)
+    @Test
+    fun `테마 brand는 화면 구성 전에 탭에 적용되고 다크 테마 변경을 따른다`() {
+        val dark = mutableStateOf(false)
+        val defaults = defaultIenTokens()
+        val tokens = defaults.copy(
+            lightColors = defaults.lightColors.copy(brand = Color.Red),
+            darkColors = defaults.darkColors.copy(brand = Color.Blue),
+        )
+        val stack = NavBackStack(TabKey.Timer)
+        var screenThemeApplied = false
+        val controller = NativeNavigationViewController {
+            BaseNavigationFrame(
+                providers = { content ->
+                    IenTheme(darkTheme = dark.value, tokens = tokens, content = content)
+                },
+                frame = { content ->
+                    AdaptiveTheme(target = Theme.Cupertino, material = MaterialThemeSpec.Default()) {
+                        SideEffect { screenThemeApplied = true }
+                        content()
+                    }
+                },
+            ) {
+                BaseNavigationTabs(
+                    tabBackStack = stack, tabs = TabKey.entries, title = { it.name },
+                    systemImage = { "house" }, tabContent = {},
+                ) {
+                    BaseNavDisplay(stack, entryProvider = { NavEntry(it) {} })
+                }
+            }
+        }
+        controller.loadViewIfNeeded()
+        val tabs = assertIs<UITabBarController>(controller.childViewControllers.single())
+        assertEquals(UIColor(red = 1.0, green = 0.0, blue = 0.0, alpha = 1.0), tabs.tabBar.tintColor)
+        val window = UIWindow(frame = UIScreen.mainScreen.bounds)
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        try {
+            repeat(10) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }
+            assertTrue(screenThemeApplied, "실제 화면에서는 Cupertino 테마와 햅틱 환경이 함께 구성되어야 합니다.")
+            dark.value = true
+            Snapshot.sendApplyNotifications()
+            repeat(10) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }
+            assertEquals(UIColor(red = 0.0, green = 0.0, blue = 1.0, alpha = 1.0), tabs.tabBar.tintColor)
+        } finally {
+            window.hidden = true
+            window.rootViewController = null
+        }
+    }
+
+    @OptIn(ExperimentalForeignApi::class)
+    @Test
+    fun `공통 스크롤 컨테이너는 목록과 일반 스크롤을 UIKit에 연결한다`() {
+        val showList = mutableStateOf(true)
+        val listState = LazyListState()
+        val scrollState = ScrollState(0)
+        val stack = NavBackStack(Route("scroll"))
+        val controller = NativeNavigationViewController {
+            BaseNavigationFrame {
+                BaseNavDisplay(stack, entryProvider = { key ->
+                    NavEntry(key) {
+                        if (showList.value) {
+                            IenLazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
+                                items(100) { Box(Modifier.height(40.dp)) }
+                            }
+                        } else {
+                            Column(Modifier.fillMaxSize().ienVerticalScroll(scrollState)) {
+                                repeat(100) { Box(Modifier.height(40.dp)) }
+                            }
+                        }
+                    }
+                })
+            }
+        }
+        val window = UIWindow(frame = UIScreen.mainScreen.bounds)
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        try {
+            repeat(20) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }
+            val navigation = assertIs<UINavigationController>(controller.childViewControllers.single())
+            val scrollView = assertIs<UIScrollView>(navigation.topViewController!!.view)
+            scrollView.setContentOffset(CGPointMake(0.0, 200.0), animated = false)
+            repeat(10) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }
+            assertTrue(listState.firstVisibleItemIndex > 0, "UIKit 스크롤이 LazyListState에 전달되어야 합니다.")
+            showList.value = false
+            Snapshot.sendApplyNotifications()
+            repeat(20) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }
+            scrollView.setContentOffset(CGPointMake(0.0, 200.0), animated = false)
+            repeat(10) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }
+            assertTrue(scrollState.value > 0, "컨테이너 교체 후에는 새 ScrollState로 연결되어야 합니다.")
+        } finally {
+            window.hidden = true
+            window.rootViewController = null
+        }
+    }
+
+    private val tabIcon = ImageVector.Builder(
+        name = "TabIcon", defaultWidth = 24.dp, defaultHeight = 24.dp, viewportWidth = 24f, viewportHeight = 24f,
+    ).apply {
+        path(fill = SolidColor(Color.Black)) {
+            moveTo(4f, 4f)
+            lineTo(20f, 4f)
+            lineTo(12f, 20f)
+            close()
+        }
+    }.build()
+
     private enum class MainKey : NavKey { Home, Detail, Denied }
     private enum class TabKey : NavKey { Timer, Settings }
 
@@ -56,13 +195,15 @@ class NativeNavigationRootTest {
         var deniedEntries = 0
         var deniedCallbacks = 0
         val renderedTabs = mutableMapOf<TabKey, TabKey>()
+        val routeActivity = mutableMapOf<TabKey, Boolean>()
         val controller = NativeNavigationViewController {
             BaseNavigationFrame {
                 BaseNavigationTabs(
                     tabBackStack = tabStack,
                     tabs = TabKey.entries,
                     title = { it.name },
-                    systemImage = { "flame" },
+                    icon = { IconData.Vector(tabIcon) },
+                    selectedIcon = { IconData.Paint(ColorPainter(Color.Black)) },
                     tabContent = { tab ->
                         BaseNavigationTabBar { SideEffect { tabBars++ } }
                         BaseNavDisplay(
@@ -70,7 +211,11 @@ class NativeNavigationRootTest {
                             entryProvider = { key ->
                                 NavEntry(key) {
                                     val current = currentNavigationRoute(tabStack)
-                                    SideEffect { renderedTabs[tab] = requireNotNull(current) }
+                                    val active = isNavigationRouteActive(tabStack, tab)
+                                    SideEffect {
+                                        renderedTabs[tab] = requireNotNull(current)
+                                        routeActivity[tab] = active
+                                    }
                                 }
                             },
                         )
@@ -98,8 +243,11 @@ class NativeNavigationRootTest {
                             }),
                             entryProvider = { key ->
                                 check(key in mainStack) { "제거된 엔트리의 provider를 다시 조회하면 안 됩니다." }
-                                NavEntry(key) {
+                                NavEntry(key, metadata = nativeScreen(title = key.name)) {
                                     check(key != MainKey.Home) { "탭 루트는 UIKit이 표시해야 합니다." }
+                                    NativeScreenBar(actions = listOf(ActionMenuItem.IconMenuItem.AlwaysShown(
+                                        title = "저장", onClick = {}, icon = IconData.Vector(tabIcon),
+                                    )))
                                     if (key == MainKey.Denied) SideEffect { deniedEntries++ }
                                 }
                             },
@@ -108,6 +256,11 @@ class NativeNavigationRootTest {
                 }
             }
         }
+        controller.loadViewIfNeeded()
+        val initialTabs = assertIs<UITabBarController>(controller.childViewControllers.single())
+        val initialStack = assertIs<UINavigationController>(initialTabs.viewControllers!![0])
+        assertEquals("Detail", initialStack.topViewController!!.navigationItem.title)
+        assertEquals(0, detailDecorators, "화면 본문이 구성되기 전에도 초기 제목을 표시해야 합니다.")
         val window = UIWindow(frame = UIScreen.mainScreen.bounds)
         window.rootViewController = controller
         window.makeKeyAndVisible()
@@ -117,10 +270,13 @@ class NativeNavigationRootTest {
             assertEquals(2, tabs.viewControllers!!.size)
             val timer = assertIs<UINavigationController>(tabs.viewControllers!![0])
             assertEquals(2, timer.viewControllers.size)
+            assertNotNull(timer.tabBarItem.image)
+            assertNotNull(timer.tabBarItem.selectedImage)
             timer.topViewController!!.loadViewIfNeeded()
             repeat(10) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.05)) }
             assertEquals(1, detailDecorators, "공유 엔트리 decorator는 중복 실행되면 안 됩니다.")
             assertEquals(1, overlays, "overlay는 보이는 화면에서만 실행되어야 합니다.")
+            assertNotNull(assertIs<UIBarButtonItem>(timer.topViewController!!.navigationItem.rightBarButtonItems!!.single()).image)
 
             timer.popToRootViewControllerAnimated(false)
             timer.delegate!!.navigationController(timer, didShowViewController = timer.topViewController!!, animated = false)
@@ -138,6 +294,7 @@ class NativeNavigationRootTest {
             Snapshot.sendApplyNotifications()
             repeat(10) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.05)) }
             assertEquals(TabKey.Settings, renderedTabs[TabKey.Settings])
+            assertEquals(true, routeActivity[TabKey.Settings])
             assertEquals(TabKey.Timer, renderedTabs[TabKey.Timer], "숨겨진 탭의 route는 다른 탭 선택으로 바뀌면 안 됩니다.")
             assertEquals(0, tabBars, "네이티브 탭 위에 앱 탭 바를 중복 표시하면 안 됩니다.")
 

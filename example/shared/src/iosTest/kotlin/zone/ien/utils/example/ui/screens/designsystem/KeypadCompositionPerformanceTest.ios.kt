@@ -3,14 +3,11 @@ package zone.ien.utils.example.ui.screens.designsystem
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.Clipboard
@@ -36,22 +33,10 @@ import platform.UIKit.UIViewController
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.alloc
-import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.ptr
 import kotlinx.coroutines.test.TestResult
-import platform.posix.CLOCK_PROCESS_CPUTIME_ID
-import platform.posix.clock_gettime
-import platform.posix.timespec
 import zone.ien.utils.ui.foundation.IenTheme
-import zone.ien.utils.ui.interactive.IenFullSecureKeyboard
-import zone.ien.utils.ui.interactive.IenKeyboardAction
-import zone.ien.utils.ui.interactive.IenSecureKeyboardState
 import zone.ien.utils.ui.interactive.IenTextField
 import zone.ien.utils.initializeIenIos
-
-private const val KeypadCpuSamples = 7
 
 class KeypadCompositionPerformanceTest {
     @OptIn(ExperimentalTestApi::class, ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
@@ -88,22 +73,6 @@ class KeypadCompositionPerformanceTest {
         } finally {
             ComposeFoundationFlags.isNewContextMenuEnabled = previous
         }
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun boundedEagerStressStillComposesEveryKeypad(): TestResult = runComposeUiTest {
-        setContent {
-            IenTheme {
-                Box(Modifier.fillMaxWidth().heightIn(min = 240.dp, max = 280.dp)) {
-                    KeypadSection(scrollable = false)
-                }
-            }
-        }
-        waitForIdle()
-        onNodeWithText("Alphabet Keypad: ").assertExists()
-        onNodeWithText("Full Secure Keypad: ").assertExists()
-        onNode(hasText("한국어") or hasText("한글")).assertExists()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -169,62 +138,6 @@ class KeypadCompositionPerformanceTest {
         onNodeWithText("Alphabet Keypad: A").assertExists()
     }
 
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun enabledTransitionComparesOneSecureKeyboardWithTheFullShowcase(): TestResult = runComposeUiTest {
-        mainClock.autoAdvance = false
-        val enabled = mutableStateOf(true)
-        val showFullShowcase = mutableStateOf(false)
-
-        setContent {
-            val secureKeyboardState = remember { IenSecureKeyboardState(value = "") }
-            IenTheme {
-                if (showFullShowcase.value) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 240.dp, max = 280.dp)
-                            .verticalScroll(rememberScrollState()),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        KeypadSection(
-                            controls = mapOf("disabled" to (!enabled.value).toString()),
-                        )
-                    }
-                } else {
-                    IenFullSecureKeyboard(
-                        state = secureKeyboardState,
-                        onAction = { _: IenKeyboardAction -> },
-                        onLanguageChange = {},
-                        enabled = enabled.value,
-                    )
-                }
-            }
-        }
-
-        mainClock.advanceTimeByFrame()
-        waitForIdle()
-
-        fun measureEnabledTransitionCpuNanos(): Long {
-            val start = processCpuTimeNanos()
-            runOnIdle { enabled.value = !enabled.value }
-            mainClock.advanceTimeByFrame()
-            waitForIdle()
-            return processCpuTimeNanos() - start
-        }
-
-        val singleKeyboardSamples = List(KeypadCpuSamples) { measureEnabledTransitionCpuNanos() }
-        runOnIdle { showFullShowcase.value = true }
-        mainClock.advanceTimeByFrame()
-        waitForIdle()
-        val showcaseSamples = List(KeypadCpuSamples) { measureEnabledTransitionCpuNanos() }
-
-        val singleKeyboardMedian = singleKeyboardSamples.median()
-        val showcaseMedian = showcaseSamples.median()
-        println(
-            "iOS 키패드 활성 전환 프로세스 CPU 중앙값: " +
-                "singleSecureKeyboard=${singleKeyboardMedian / 1_000_000.0}ms, " +
-                "fullKeypadShowcase=${showcaseMedian / 1_000_000.0}ms",
-        )
-    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -240,15 +153,4 @@ private class CountingClipboard : Clipboard {
     override suspend fun setClipEntry(clipEntry: ClipEntry?) {
         entry = clipEntry
     }
-}
-
-private fun List<Long>.median(): Long = sorted()[size / 2]
-
-@OptIn(ExperimentalForeignApi::class)
-private fun processCpuTimeNanos(): Long = memScoped {
-    val time = alloc<timespec>()
-    check(clock_gettime(CLOCK_PROCESS_CPUTIME_ID.toUInt(), time.ptr) == 0) {
-        "iOS 프로세스 CPU 시간을 읽을 수 없습니다"
-    }
-    time.tv_sec * 1_000_000_000L + time.tv_nsec
 }

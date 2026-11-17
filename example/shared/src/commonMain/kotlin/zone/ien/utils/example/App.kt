@@ -170,7 +170,11 @@ fun App(
         )
     }
     if (nativeNavigation) {
-        BaseNavigationFrame(frame = frame, content = navigation)
+        BaseNavigationFrame(
+            providers = { content -> IenTheme(tokens = tokens, content = content) },
+            frame = frame,
+            content = navigation,
+        )
     } else {
         frame(navigation)
     }

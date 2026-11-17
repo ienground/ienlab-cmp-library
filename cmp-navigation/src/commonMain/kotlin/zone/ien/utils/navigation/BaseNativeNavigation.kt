@@ -15,10 +15,15 @@ import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import zone.ien.navigation.NativeNavigationTint
 import zone.ien.navigation.NativeNavigationFrame
 import zone.ien.navigation.NativeStack
-import zone.ien.navigation.NativeTab
+import zone.ien.navigation.NativeTab as SwiftNativeTab
+import zone.ien.utils.icon.IconData
+import zone.ien.utils.icon.asPainter
 import zone.ien.navigation.nativeScreen
+import zone.ien.navigation.NativeTabBarTint
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.navigation.NativeTabs
 import zone.ien.utils.ui.screen.ProvideNativeScreenPadding
 
@@ -38,7 +43,7 @@ private const val NavigationGraphMetadata = "zone.ien.utils.navigation.graph"
 internal expect val usesNativeNavigationPlatform: Boolean
 
 private class NativeTabConfiguration(
-    val tabs: List<NativeTab<NavKey>>,
+    val tabs: List<SwiftNativeTab<NavKey>>,
     val selectedTab: Int,
     val onTabSelected: (Int) -> Unit,
     val entries: Map<NavKey, NavEntry<NavKey>>,
@@ -62,6 +67,60 @@ fun <T : NavKey> BaseNavigationTabs(
     overlay: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
+    NavigationTabs(
+        tabBackStack, tabs, title,
+        createTab = { route, label -> SwiftNativeTab(label, systemImage(route), listOf(route)) },
+        tabContent, largeTitle, overlay, content,
+    )
+}
+
+/** IconData의 기본·선택 아이콘을 실제 UIKit 탭으로 전달합니다. */
+@Composable
+fun <T : NavKey> NativeTab(
+    title: String,
+    icon: IconData,
+    backStack: List<T>,
+    selectedIcon: IconData? = null,
+    onBack: () -> Unit = { (backStack as? MutableList<T>)?.removeLastOrNull() },
+): SwiftNativeTab<T> = SwiftNativeTab(
+    title = title,
+    backStack = backStack,
+    image = icon.asPainter(),
+    selectedImage = selectedIcon?.asPainter(),
+    onBack = onBack,
+)
+
+/** 기존 탭의 IconData와 선택 아이콘을 사용하여 BaseNavDisplay를 감쌉니다. */
+@Composable
+fun <T : NavKey> BaseNavigationTabs(
+    tabBackStack: NavBackStack<T>,
+    tabs: List<T>,
+    title: @Composable (T) -> String,
+    icon: @Composable (T) -> IconData,
+    tabContent: @Composable (T) -> Unit,
+    selectedIcon: @Composable (T) -> IconData? = { null },
+    largeTitle: Boolean = true,
+    overlay: @Composable () -> Unit = {},
+    content: @Composable () -> Unit,
+) {
+    NavigationTabs(
+        tabBackStack, tabs, title,
+        createTab = { route, label -> NativeTab<NavKey>(label, icon(route), listOf(route), selectedIcon(route)) },
+        tabContent, largeTitle, overlay, content,
+    )
+}
+
+@Composable
+private fun <T : NavKey> NavigationTabs(
+    tabBackStack: NavBackStack<T>,
+    tabs: List<T>,
+    title: @Composable (T) -> String,
+    createTab: @Composable (T, String) -> SwiftNativeTab<NavKey>,
+    tabContent: @Composable (T) -> Unit,
+    largeTitle: Boolean,
+    overlay: @Composable () -> Unit,
+    content: @Composable () -> Unit,
+) {
     if (!isNativeNavigation) {
         content()
         overlay()
@@ -70,7 +129,7 @@ fun <T : NavKey> BaseNavigationTabs(
     require(tabs.isNotEmpty() && tabs.distinct().size == tabs.size) { "탭은 비어 있거나 중복될 수 없습니다." }
     val titles = tabs.associateWith { title(it) }
     val configuration = NativeTabConfiguration(
-        tabs = tabs.map { NativeTab<NavKey>(titles.getValue(it), systemImage(it), listOf(it)) },
+        tabs = tabs.map { createTab(it, titles.getValue(it)) },
         selectedTab = tabs.indexOf(tabBackStack.lastOrNull()).coerceAtLeast(0),
         onTabSelected = { index -> tabBackStack.replaceTop(tabs[index]) },
         entries = tabs.associate { route ->
@@ -85,7 +144,9 @@ fun <T : NavKey> BaseNavigationTabs(
         },
         overlay = overlay,
     )
-    CompositionLocalProvider(LocalNativeTabConfiguration provides configuration, content = content)
+    NativeTabBarTint(IenTheme.colors.brand) {
+        CompositionLocalProvider(LocalNativeTabConfiguration provides configuration, content = content)
+    }
 }
 
 /** 현재 화면을 렌더링하는 route입니다. 탭별 화면에서는 공유 선택 상태와 독립된 해당 탭의 route를 반환합니다. */
@@ -100,6 +161,11 @@ fun <T : NavKey> currentNavigationRoute(backStack: NavBackStack<T>): T? {
 /** 현재 화면이 사용자 입력과 화면 전용 부수 효과를 실행할 수 있는 최상위 화면인지 반환합니다. */
 val isNavigationEntryActive: Boolean
     @Composable get() = !isNativeNavigation || isNativeNavigationTopEntry
+
+/** 해당 백스택의 현재 route가 [route]이며 화면이 활성 상태인지 확인합니다. */
+@Composable
+fun <T : NavKey> isNavigationRouteActive(backStack: NavBackStack<T>, route: T): Boolean =
+    isNavigationEntryActive && currentNavigationRoute(backStack) == route
 
 /** UIKit 탭 바를 사용하는 화면에서는 앱의 탭 바를 중복 표시하지 않습니다. */
 @Composable
@@ -153,7 +219,8 @@ val isNativeNavigationTopEntry: Boolean
 /**
  * 기존 테마와 DI를 유지하며 네이티브 내비게이션을 활성화합니다.
  * iOS에서는 NativeNavigationViewController 안에서 호출해야 합니다.
- * [providers]는 UI 없는 DI 공급자, [frame]은 각 화면의 테마와 루트 UI를 담당합니다.
+ * [providers]는 UI에 의존하지 않는 IenTheme 토큰·DI 공급자입니다.
+ * IenAdaptiveTheme·CupertinoTheme 등 화면 테마와 루트 UI는 [frame]에 둡니다.
  */
 @Composable
 fun BaseNavigationFrame(
@@ -164,7 +231,9 @@ fun BaseNavigationFrame(
     NativeNavigationFrame(
         providers = { body ->
             CompositionLocalProvider(LocalNativeNavigationEnabled provides usesNativeNavigationPlatform) {
-                providers(body)
+                providers {
+                    NativeNavigationTint(IenTheme.colors.brand, content = body)
+                }
             }
         },
         frame = { body ->
@@ -311,7 +380,7 @@ internal fun <T : NavKey> NativeBaseNavDisplay(
  */
 @Composable
 fun <T : NavKey> BaseTabNavDisplay(
-    tabs: List<NativeTab<T>>,
+    tabs: List<SwiftNativeTab<T>>,
     selectedTab: Int,
     onTabSelected: (Int) -> Unit,
     sharedBackStack: List<T> = emptyList(),
@@ -338,7 +407,7 @@ fun <T : NavKey> BaseTabNavDisplay(
 
 @Composable
 private fun <T : NavKey> NativeTabNavDisplay(
-    tabs: List<NativeTab<T>>,
+    tabs: List<SwiftNativeTab<T>>,
     selectedTab: Int,
     onTabSelected: (Int) -> Unit,
     sharedBackStack: List<T> = emptyList(),
@@ -380,7 +449,7 @@ private fun <T : NavKey> NativeTabNavDisplay(
     val selectedEntries = tabs.getOrNull(selectedTab)?.backStack.orEmpty()
     val topKey = parentKeys.lastOrNull() ?: sharedBackStack.lastOrNull() ?: selectedEntries.lastOrNull()
     NativeTabs<NavKey>(
-        tabs = tabs.map { NativeTab<NavKey>(it.title, it.systemImage, it.backStack, it.onBack) },
+        tabs = tabs.map { SwiftNativeTab<NavKey>(it.title, it.systemImage, it.backStack, it.image, it.selectedImage, it.onBack) },
         selectedTab = selectedTab,
         onTabSelected = onTabSelected,
         sharedBackStack = sharedBackStack + parentKeys,

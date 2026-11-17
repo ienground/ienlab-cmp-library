@@ -1,13 +1,35 @@
 package zone.ien.utils.ui.screen
 
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.ScrollableDefaults
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.graphics.painter.Painter
+import zone.ien.utils.icon.IconData
+import zone.ien.utils.icon.asPainter
 import androidx.compose.ui.graphics.Color
 import zone.ien.hig.LocalCupertinoNativeBarsPadding
 import zone.ien.navigation.LocalNativeScreen
-import zone.ien.navigation.NativeBarButton
+import zone.ien.navigation.NativeBarButton as SwiftNativeBarButton
+import zone.ien.navigation.NativeMenuAction
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
+import org.jetbrains.compose.resources.stringResource
+import zone.ien.utils.cmp_ui.generated.resources.Res
+import zone.ien.utils.cmp_ui.generated.resources.more_options
+import zone.ien.utils.ui.menu.splitMenuItems
 import zone.ien.navigation.NativeBarItems
 import zone.ien.navigation.NativeScroll
 import zone.ien.navigation.NativeSearchBar
@@ -47,20 +69,50 @@ public fun ProvideNativeScreenPadding(content: @Composable () -> Unit) {
 @Composable
 public fun NativeScreenBar(
     title: String? = null,
-    leading: List<NativeBarButton> = emptyList(),
+    leading: List<SwiftNativeBarButton> = emptyList(),
     actions: List<ActionMenuItem> = emptyList(),
     primaryAction: ActionMenuItem.IconMenuItem? = null,
 ): Boolean {
     val isNativeScreen = LocalNativeScreen.current && LocalCupertinoNativeBarsPadding.current != null
     if (isNativeScreen) {
+        val images = (actions + listOfNotNull(primaryAction)).filter { it.visible }.associateWith { action ->
+            val icon = when (action) {
+                is ActionMenuItem.IconMenuItem -> action.icon
+                is ActionMenuItem.NeverShown -> action.icon
+            }
+            icon?.asPainter()
+        }
         NativeBarItems(
             title = title,
             leading = leading,
-            trailing = actions.toNativeBarButtons(primaryAction),
+            trailing = actions.toNativeBarButtons(
+                primaryAction = primaryAction,
+                images = images,
+                maxVisibleItems = with(LocalDensity.current) {
+                    val width = LocalWindowInfo.current.containerSize.width.toDp().value
+                    val reservedButtons = leading.size + if (primaryAction?.visible == true) 1 else 0
+                    (width / 2f / 44f - reservedButtons).toInt().coerceIn(0, 3)
+                },
+                overflowTitle = stringResource(Res.string.more_options),
+            ),
         )
     }
     return isNativeScreen
 }
+
+/** 기존 IconData로 네이티브 선행 버튼과 툴바 버튼을 구성합니다. */
+@Composable
+fun NativeBarButton(
+    title: String,
+    icon: IconData? = null,
+    enabled: Boolean = true,
+    onClick: () -> Unit = {},
+): SwiftNativeBarButton = SwiftNativeBarButton(
+    title = title,
+    image = icon?.asPainter(),
+    enabled = enabled,
+    onClick = onClick,
+)
 
 /**
  * 검색 상태를 UIKit 검색창에 연결합니다.
@@ -115,20 +167,84 @@ private fun isNativeScreen(): Boolean =
 
 internal fun List<ActionMenuItem>.toNativeBarButtons(
     primaryAction: ActionMenuItem.IconMenuItem? = null,
-): List<NativeBarButton> {
-    val actions = this
+    images: Map<ActionMenuItem, Painter?> = emptyMap(),
+    maxVisibleItems: Int = 3,
+    overflowTitle: String = "더보기",
+): List<SwiftNativeBarButton> {
+    val menuItems = splitMenuItems(this, maxVisibleItems)
     return buildList {
-        actions.filter { it.visible }.forEach { action ->
-            add(action.toNativeBarButton())
+        menuItems.alwaysShownItems.forEach { action ->
+            add(action.toNativeBarButton(images[action]))
+        }
+        if (menuItems.overflowItems.isNotEmpty()) {
+            add(SwiftNativeBarButton(
+                title = overflowTitle,
+                systemImage = "ellipsis",
+                menu = menuItems.overflowItems.map { action ->
+                    NativeMenuAction(
+                        title = action.title,
+                        image = images[action],
+                        enabled = action.enabled,
+                        badge = (action as? ActionMenuItem.IconMenuItem)?.badge ?: 0,
+                        onClick = action.onClick,
+                    )
+                },
+            ))
         }
         primaryAction?.takeIf { it.visible }?.let { action ->
-            add(action.toNativeBarButton())
+            add(action.toNativeBarButton(images[action], isPrimary = true))
         }
     }
 }
 
-private fun ActionMenuItem.toNativeBarButton(): NativeBarButton = NativeBarButton(
+private fun ActionMenuItem.toNativeBarButton(image: Painter?, isPrimary: Boolean = false): SwiftNativeBarButton = SwiftNativeBarButton(
     title = title,
     enabled = enabled,
+    image = image,
+    badge = (this as? ActionMenuItem.IconMenuItem)?.badge ?: 0,
+    isPrimary = isPrimary,
     onClick = onClick,
 )
+
+/** 세로 스크롤과 네이티브 상단 바 연결을 함께 구성합니다. 다른 플랫폼에서는 일반 verticalScroll로 동작합니다. */
+fun Modifier.ienVerticalScroll(
+    state: ScrollState,
+    enabled: Boolean = true,
+    flingBehavior: FlingBehavior? = null,
+    reverseScrolling: Boolean = false,
+): Modifier = composed {
+    val nativeScroll = rememberNativeScreenScroll(state)
+    verticalScroll(
+        state = state,
+        enabled = enabled && (nativeScroll?.userScrollEnabled ?: true),
+        flingBehavior = flingBehavior,
+        reverseScrolling = reverseScrolling,
+    )
+}
+
+/** 일반 LazyColumn 옵션을 유지하며 목록 상태를 네이티브 상단 바에 연결합니다. */
+@Composable
+fun IenLazyColumn(
+    modifier: Modifier = Modifier,
+    state: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    reverseLayout: Boolean = false,
+    verticalArrangement: Arrangement.Vertical = if (!reverseLayout) Arrangement.Top else Arrangement.Bottom,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
+    content: LazyListScope.() -> Unit,
+) {
+    val nativeScroll = rememberNativeScreenScroll(state)
+    LazyColumn(
+        modifier = modifier,
+        state = state,
+        contentPadding = contentPadding,
+        reverseLayout = reverseLayout,
+        verticalArrangement = verticalArrangement,
+        horizontalAlignment = horizontalAlignment,
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled && (nativeScroll?.userScrollEnabled ?: true),
+        content = content,
+    )
+}

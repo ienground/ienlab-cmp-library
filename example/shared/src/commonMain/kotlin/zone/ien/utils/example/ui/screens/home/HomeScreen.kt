@@ -159,44 +159,47 @@ fun HomeScreen(
                 scrollableState = scrollState,
             ),
             actions = if (isDropdownMenu) listOf(
-                ActionMenuItem.IconMenuItem.ShownIfRoom(
-                    title = "Text",
-                    onClick = {},
+                ActionMenuItem.IconMenuItem.AlwaysShown(
+                    title = "고정 액션",
+                    onClick = {
+                        coroutineScope.launch { snackbarState.showSnackbar("고정 액션을 눌렀습니다.") }
+                    },
                     badge = 1,
                     icon = IconData.Vector(Android)
                 ),
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
-                    title = "Text",
+                    title = "숫자 배지",
                     onClick = {},
                     badge = 2,
                     icon = IconData.Vector(Android)
                 ),
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
-                    title = "Text",
+                    title = "표시점 배지",
                     onClick = {},
-                    badge = 3,
+                    badge = -1,
                     icon = IconData.Vector(Android)
                 ),
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
-                    title = "Text",
+                    title = "비활성 액션",
+                    onClick = {},
+                    enabled = false,
+                    badge = 4,
+                    icon = IconData.Vector(Android)
+                ),
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "추가 액션 1",
                     onClick = {},
                     badge = 4,
                     icon = IconData.Vector(Android)
                 ),
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
-                    title = "Text",
+                    title = "추가 액션 2",
                     onClick = {},
                     badge = 4,
                     icon = IconData.Vector(Android)
                 ),
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
-                    title = "Text",
-                    onClick = {},
-                    badge = 4,
-                    icon = IconData.Vector(Android)
-                ),
-                ActionMenuItem.IconMenuItem.ShownIfRoom(
-                    title = "Text",
+                    title = "추가 액션 3",
                     onClick = {},
                     badge = 4,
                     icon = IconData.Vector(Android)
@@ -211,6 +214,13 @@ fun HomeScreen(
 //                    onClick = {},
 //                    icon = IconData.Vector(Android)
 //                ),
+                ActionMenuItem.NeverShown(
+                    title = "메뉴 전용 액션",
+                    icon = IconData.Vector(Android),
+                    onClick = {
+                        coroutineScope.launch { snackbarState.showSnackbar("메뉴 전용 액션을 눌렀습니다.") }
+                    },
+                ),
             ) else if (showSingle) listOf(
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
                     title = "Text",
@@ -313,12 +323,7 @@ fun HomeScreen(
                     )
                 }
             },
-            title = {
-                Text(
-                    text = "IENGROUND",
-                    maxLines = 1
-                )
-            },
+            title = "IENGROUND",
             subtitle = {
                 Text(
                     text = "Sub Title",

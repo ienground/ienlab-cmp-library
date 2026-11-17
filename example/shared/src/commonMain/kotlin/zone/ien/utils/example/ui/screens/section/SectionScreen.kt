@@ -70,7 +70,7 @@ fun SectionScreen(
                 scrollableState = scrollState,
             ),
             topBarMode = TopBarMode.Expanded,
-            title = { Text(text = "Title") },
+            title = "Title",
             adaptation = {
                 cupertino {
                     this.backdrop = backdrop
