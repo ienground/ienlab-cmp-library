@@ -1,5 +1,6 @@
 package zone.ien.utils.navigation
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import platform.UIKit.UIColor
 import zone.ien.hig.adaptive.Theme
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.uikit.LocalUIViewController
 import platform.CoreGraphics.CGPointMake
 import platform.UIKit.UIScrollView
 import zone.ien.utils.ui.screen.IenLazyColumn
@@ -41,6 +43,7 @@ import platform.Foundation.NSDate
 import platform.Foundation.NSRunLoop
 import platform.Foundation.runUntilDate
 import platform.Foundation.dateWithTimeIntervalSinceNow
+import platform.Foundation.timeIntervalSinceNow
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
@@ -56,6 +59,7 @@ import platform.UIKit.navigationItem
 import platform.UIKit.childViewControllers
 import zone.ien.navigation.nativeScreen
 import zone.ien.navigation.NativeNavigationViewController
+import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -64,6 +68,33 @@ import kotlin.test.assertNotSame
 import kotlin.test.assertNotNull
 
 class NativeNavigationRootTest {
+    private val navigationVisible = mutableStateOf(true)
+    private var nativeHost: UIViewController? = null
+
+    private fun navigationController(
+        create: (@Composable () -> Unit) -> UIViewController = { NativeNavigationViewController(content = it) },
+        content: @Composable () -> Unit,
+    ): UIViewController = create {
+        if (navigationVisible.value) {
+            val host = LocalUIViewController.current
+            SideEffect { nativeHost = host }
+            content()
+        }
+    }
+
+    @AfterTest
+    fun removeNativeNavigation() {
+        val host = nativeHost ?: return
+        nativeHost = null
+        navigationVisible.value = false
+        Snapshot.sendApplyNotifications()
+        val deadline = NSDate.dateWithTimeIntervalSinceNow(1.0)
+        while (host.childViewControllers.isNotEmpty() && deadline.timeIntervalSinceNow > 0) {
+            NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02))
+        }
+        assertTrue(host.childViewControllers.isEmpty(), "테스트가 끝나면 네이티브 내비게이션 화면을 정리해야 합니다.")
+    }
+
     private data class Route(val name: String) : NavKey
     private class ScopeModel(private val cleared: () -> Unit) : ViewModel() {
         override fun onCleared() = cleared()
@@ -86,7 +117,7 @@ class NativeNavigationRootTest {
         )
         val stack = NavBackStack(TabKey.Timer)
         var screenThemeApplied = false
-        val controller = NativeNavigationViewController {
+        val controller = navigationController {
             BaseNavigationFrame(
                 tokens = tokens,
                 darkTheme = dark.value,
@@ -132,7 +163,7 @@ class NativeNavigationRootTest {
         val listState = LazyListState()
         val scrollState = ScrollState(0)
         val stack = NavBackStack(Route("scroll"))
-        val controller = NativeNavigationViewController {
+        val controller = navigationController {
             BaseNavigationFrame {
                 BaseNavDisplay(stack, entryProvider = { key ->
                     NavEntry(key) {
@@ -211,7 +242,7 @@ class NativeNavigationRootTest {
         var deniedCallbacks = 0
         val renderedTabs = mutableMapOf<TabKey, TabKey>()
         val routeActivity = mutableMapOf<TabKey, Boolean>()
-        val controller = NativeNavigationViewController {
+        val controller = navigationController {
             BaseNavigationFrame {
                 BaseNavigationTabs(
                     tabBackStack = tabStack,
@@ -334,7 +365,7 @@ class NativeNavigationRootTest {
         val first = Route("화면")
         val second = Route("개별")
         val stack = NavBackStack(first, second)
-        val controller = NativeNavigationViewController {
+        val controller = navigationController {
             BaseNavigationFrame {
                 BaseNavDisplay(
                     backStack = stack,
@@ -367,7 +398,7 @@ class NativeNavigationRootTest {
     @OptIn(ExperimentalForeignApi::class)
     @Test
     fun `iOS 공통 호스트는 초기화와 네이티브 화면 연결을 수행한다`() {
-        val controller = BaseNavigationViewController {
+        val controller = navigationController(create = ::BaseNavigationViewController) {
             BaseNavigationFrame {
                 BaseNavDisplay(
                     backStack = NavBackStack(Route("호스트")),
@@ -404,7 +435,7 @@ class NativeNavigationRootTest {
         var hostOwner: ViewModelStoreOwner? = null
         var graphOwner: ViewModelStoreOwner? = null
         var cleared = 0
-        val controller = NativeNavigationViewController {
+        val controller = navigationController {
             BaseNavigationFrame {
                 hostOwner = LocalViewModelStoreOwner.current
                 BaseNavDisplay(
