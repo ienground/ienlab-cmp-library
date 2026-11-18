@@ -1,7 +1,6 @@
 package zone.ien.utils.example.ui.navigation
 
 import zone.ien.utils.icon.IconStyle
-import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavBackStack
@@ -30,6 +29,10 @@ import zone.ien.utils.example.ui.screens.bottomcta.BottomCTATestScreen
 import zone.ien.utils.navigation.BaseNavDisplay
 import zone.ien.utils.navigation.navigateBack
 import zone.ien.utils.navigation.result.rememberResultStore
+import zone.ien.utils.navigation.result.ResultStore
+import androidx.navigation3.runtime.NavEntry
+import zone.ien.navigation.nativeScreen
+import zone.ien.utils.example.ui.screens.home.sampleRouteTitle
 
 @Serializable
 sealed interface RootRoute: NavKey {
@@ -58,116 +61,120 @@ fun RootNavigationGraph(
     backStack: NavBackStack<RootRoute>,
     iconStyle: IconStyle,
     onIconStyleChange: (IconStyle) -> Unit,
+    resultStore: ResultStore = rememberResultStore(),
 ) {
-    val resultStore = rememberResultStore()
-
-    SharedTransitionLayout(modifier = modifier) {
-        @Composable
-        fun NavigationContent() {
-            BaseNavDisplay(
+    val screens = entryProvider<RootRoute> {
+        entry<RootRoute.Home> {
+            HomeScreen(
                 backStack = backStack,
-                sharedTransitionScope = this@SharedTransitionLayout,
-                animateTopBar = true,
-                entryProvider = entryProvider {
-                    entry<RootRoute.Home> {
-                        HomeScreen(
-                            backStack = backStack,
-                            resultStore = resultStore,
-                            iconStyle = iconStyle,
-                            onIconStyleChange = onIconStyleChange,
-                        )
-                    }
-                    entry<RootRoute.Settings> {
-                        SettingsScreen(
-                            navigateBack = { backStack.navigateBack() }
-                        )
-                    }
-                    entry<RootRoute.Playground> {
-                        PlaygroundScreen(
-                            navigateBack = { backStack.navigateBack() }
-                        )
-                    }
-                    entry<RootRoute.IenPlayground> {
-                        IenPlaygroundScreen(
-                            navigateBack = { backStack.navigateBack() }
-                        )
-                    }
-                    entry<RootRoute.HapticFeedbackTest> {
-                        HapticFeedbackTestScreen(
-                            navigateBack = { backStack.navigateBack() }
-                        )
-                    }
-                    entry<RootRoute.AdaptivePlayground> {
-                        AdaptivePlaygroundScreen(
-                            navigateBack = { backStack.navigateBack() }
-                        )
-                    }
-                    entry<RootRoute.Section> {
-                        SectionScreen(
-                            navigateBack = { backStack.navigateBack() },
-                            resultStore = resultStore
-                        )
-                    }
-                    entry<RootRoute.LazySection> {
-                        LazySectionScreen(
-                            navigateBack = { backStack.navigateBack() }
-                        )
-                    }
-                    entry<RootRoute.Navigation> {
-                        NavigationScreen(
-                            navigateBack = { backStack.navigateBack() }
-                        )
-                    }
-                    entry<RootRoute.DesignSystem> {
-                        DesignSystemScreen(
-                            navigateBack = { backStack.navigateBack() },
-                            navigateToColor = { backStack.add(RootRoute.ColorTokens) },
-                            navigateToComponent = {
-                                val route = RootRoute.DesignSystemComponent(it)
-                                if (backStack.lastOrNull() != route) {
-                                    backStack.add(route)
-                                }
-                            },
-                        )
-                    }
-                    entry<RootRoute.DesignSystemComponent> { route ->
-                        DesignSystemScreen(
-                            navigateBack = { backStack.navigateBack() },
-                            navigateToColor = { backStack.add(RootRoute.ColorTokens) },
-                            componentId = route.componentId,
-                        )
-                    }
-                    entry<RootRoute.ColorTokens> {
-                        ColorTokenScreen(
-                            navigateBack = { backStack.navigateBack() }
-                        )
-                    }
-                    entry<RootRoute.FirebaseAuth> {
-                        FirebaseAuthScreen(
-                            navigateBack = { backStack.navigateBack() }
-                        )
-                    }
-                    entry<RootRoute.AuthForm> {
-                        AuthFormScreen(
-                            navigateBack = { backStack.navigateBack() },
-                        )
-                    }
-                    entry<RootRoute.ScrollingBubble> {
-                        ScrollingBubbleScreen(
-                            navigateBack = { backStack.navigateBack() },
-                        )
-                    }
-                    entry<RootRoute.Permission> {
-                        PermissionScreen(
-                            navigateBack = { backStack.navigateBack() },
-                        )
-                    }
-                    entry<RootRoute.BottomCTATest> {
-                        BottomCTATestScreen(navigateBack = { backStack.navigateBack() })
-                    }
-                }
+                resultStore = resultStore,
+                iconStyle = iconStyle,
+                onIconStyleChange = onIconStyleChange,
             )
         }
-        NavigationContent()
+        entry<RootRoute.Settings> {
+            SettingsScreen(
+                navigateBack = { backStack.navigateBack() }
+            )
+        }
+        entry<RootRoute.Playground> {
+            PlaygroundScreen(
+                navigateBack = { backStack.navigateBack() }
+            )
+        }
+        entry<RootRoute.IenPlayground> {
+            IenPlaygroundScreen(
+                navigateBack = { backStack.navigateBack() }
+            )
+        }
+        entry<RootRoute.HapticFeedbackTest> {
+            HapticFeedbackTestScreen(
+                navigateBack = { backStack.navigateBack() }
+            )
+        }
+        entry<RootRoute.AdaptivePlayground> {
+            AdaptivePlaygroundScreen(
+                navigateBack = { backStack.navigateBack() }
+            )
+        }
+        entry<RootRoute.Section> {
+            SectionScreen(
+                navigateBack = { backStack.navigateBack() },
+                resultStore = resultStore
+            )
+        }
+        entry<RootRoute.LazySection> {
+            LazySectionScreen(
+                navigateBack = { backStack.navigateBack() }
+            )
+        }
+        entry<RootRoute.Navigation> {
+            NavigationScreen(
+                navigateBack = { backStack.navigateBack() }
+            )
+        }
+        entry<RootRoute.DesignSystem> {
+            DesignSystemScreen(
+                navigateBack = { backStack.navigateBack() },
+                navigateToColor = { backStack.add(RootRoute.ColorTokens) },
+                navigateToComponent = {
+                    val route = RootRoute.DesignSystemComponent(it)
+                    if (backStack.lastOrNull() != route) {
+                        backStack.add(route)
+                    }
+                },
+            )
+        }
+        entry<RootRoute.DesignSystemComponent> { route ->
+            DesignSystemScreen(
+                navigateBack = { backStack.navigateBack() },
+                navigateToColor = { backStack.add(RootRoute.ColorTokens) },
+                componentId = route.componentId,
+            )
+        }
+        entry<RootRoute.ColorTokens> {
+            ColorTokenScreen(
+                navigateBack = { backStack.navigateBack() }
+            )
+        }
+        entry<RootRoute.FirebaseAuth> {
+            FirebaseAuthScreen(
+                navigateBack = { backStack.navigateBack() }
+            )
+        }
+        entry<RootRoute.AuthForm> {
+            AuthFormScreen(
+                navigateBack = { backStack.navigateBack() },
+            )
+        }
+        entry<RootRoute.ScrollingBubble> {
+            ScrollingBubbleScreen(
+                navigateBack = { backStack.navigateBack() },
+            )
+        }
+        entry<RootRoute.Permission> {
+            PermissionScreen(
+                navigateBack = { backStack.navigateBack() },
+            )
+        }
+        entry<RootRoute.BottomCTATest> {
+            BottomCTATestScreen(navigateBack = { backStack.navigateBack() })
+        }
     }
+    BaseNavDisplay(
+        modifier = modifier,
+        backStack = backStack,
+        animateTopBar = true,
+        entryProvider = { route ->
+            val screen = screens(route)
+            NavEntry(
+                key = route,
+                contentKey = screen.contentKey,
+                metadata = screen.metadata + nativeScreen(
+                    title = sampleRouteTitle(route),
+                    largeTitle = route == RootRoute.Home,
+                ),
+            ) { screen.Content() }
+        },
+    )
 }

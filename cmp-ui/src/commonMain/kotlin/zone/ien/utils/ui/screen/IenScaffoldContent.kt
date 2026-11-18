@@ -48,6 +48,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import zone.ien.navigation.NativeScrollContent
 import zone.ien.hig.LocalCupertinoNativeBarsPadding
 import zone.ien.hig.withCupertinoNativeBars
 import zone.ien.utils.ui.foundation.IenTheme
@@ -241,7 +242,7 @@ fun IenScaffold(
             // 플랫폼 바 여백에 키보드가 가린 영역이 이미 들어 있다.
             if (nativeBarsPadding != null) Modifier.consumeWindowInsets(WindowInsets.ime) else Modifier,
         )) {
-            Box(
+            NativeScrollContent(
                 modifier = Modifier
                     .matchParentSize()
                     .then(if (effectiveContentEdge.enabled) Modifier.layerBackdrop(backdrop) else Modifier),

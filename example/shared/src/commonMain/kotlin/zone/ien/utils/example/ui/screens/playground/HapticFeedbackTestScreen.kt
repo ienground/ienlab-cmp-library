@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.playground
 
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +29,7 @@ fun HapticFeedbackTestScreen(
     val hapticFeedback = LocalHapticFeedback.current
     val hapticFeedbackTypes = remember { HapticFeedbackType.values() }
     val scrollState = rememberScrollState()
+    val nativeScroll = rememberNativeScreenScroll(scrollState)
 
     IenTheme {
         IenTopAppBarScaffold(
@@ -40,7 +42,10 @@ fun HapticFeedbackTestScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(scrollState)
+                    .verticalScroll(
+                        state = scrollState,
+                        enabled = nativeScroll?.userScrollEnabled ?: true,
+                    )
                     .padding(contentPadding)
                     .padding(IenTheme.spacing.md),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),

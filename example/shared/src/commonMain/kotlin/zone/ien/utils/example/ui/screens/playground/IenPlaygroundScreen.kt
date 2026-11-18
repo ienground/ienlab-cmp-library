@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.playground
 
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -124,6 +125,7 @@ fun IenPlaygroundScreen(
     var darkTheme by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
+    val nativeScroll = rememberNativeScreenScroll(scrollState)
 
     IenTheme(darkTheme = darkTheme) {
         val bottomBarWindowInsets = if (!navigationBarVisible && bottomBarVisible) {
@@ -211,7 +213,10 @@ fun IenPlaygroundScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(IenTheme.colors.background)
-                    .verticalScroll(scrollState)
+                    .verticalScroll(
+                        state = scrollState,
+                        enabled = nativeScroll?.userScrollEnabled ?: true,
+                    )
                     .padding(paddingValues)
                     .padding(IenTheme.spacing.md),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xl)

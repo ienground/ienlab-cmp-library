@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.playground
 
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -86,6 +87,7 @@ fun AdaptivePlaygroundScreen(
 ) {
     val backdrop = rememberDefaultBackdrop()
     val scrollState = rememberScrollState()
+    val nativeScroll = rememberNativeScreenScroll(scrollState)
     var isMaterialTheme by remember { mutableStateOf(true) }
     var darkTheme by remember { mutableStateOf(false) }
     var enabled by remember { mutableStateOf(true) }
@@ -164,7 +166,10 @@ fun AdaptivePlaygroundScreen(
                     .fillMaxSize()
                     .layerBackdrop(backdrop)
                     .background(IenTheme.colors.background)
-                    .verticalScroll(scrollState)
+                    .verticalScroll(
+                        state = scrollState,
+                        enabled = nativeScroll?.userScrollEnabled ?: true,
+                    )
                     .padding(paddingValues)
                     .padding(horizontal = IenTheme.spacing.lg, vertical = IenTheme.spacing.md),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.lg),

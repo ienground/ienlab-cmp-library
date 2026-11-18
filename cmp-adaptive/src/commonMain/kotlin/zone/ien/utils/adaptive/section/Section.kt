@@ -39,6 +39,7 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.screen.LocalTopBarScaffoldScrollState
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.screen.LocalIenScaffoldScrollState
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
 import zone.ien.utils.ui.section.IenSection
 import zone.ien.utils.ui.section.ienSectionBackground
 import zone.ien.utils.ui.utils.conditional
@@ -82,12 +83,18 @@ fun IenProvideSectionStyle(
     title: @Composable (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val nativeScroll = scrollState?.let { rememberNativeScreenScroll(it) }
     Column(
         verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
         modifier = Modifier
             .conditional(fullHeight) { fillMaxHeight() }
             .layerBackdrop(backdrop)
-            .conditional(scrollState != null) { scrollState?.let { this.verticalScroll(it) } ?: this }
+            .conditional(scrollState != null) {
+                verticalScroll(
+                    state = requireNotNull(scrollState),
+                    enabled = nativeScroll?.userScrollEnabled ?: true,
+                )
+            }
             .clip(shape)
             .then(modifier),
         content = {
@@ -139,6 +146,7 @@ fun AdaptiveProvideSectionStyle(
             )
         },
         cupertino = {
+            val nativeScroll = scrollState?.let { rememberNativeScreenScroll(it) }
             ProvideSectionStyle(
                 style = style,
             ) {
@@ -146,7 +154,13 @@ fun AdaptiveProvideSectionStyle(
                     modifier = Modifier
                         .layerBackdrop(backdrop)
                         .conditional(fullHeight) { fillMaxHeight() }
-                        .conditional(scrollState != null) { scrollState?.let { this.verticalScroll(it) } ?: this }
+                        .conditional(scrollState != null) {
+                            val state = requireNotNull(scrollState)
+                            verticalScroll(
+                                state,
+                                enabled = nativeScroll?.userScrollEnabled ?: true,
+                            )
+                        }
                         .clip(shape)
                         .sectionBackground(style)
                         .then(modifier)

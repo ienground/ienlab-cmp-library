@@ -5,19 +5,20 @@ android-minSdk = "29"
 android-compileSdk = "37"
 android-compileSdkMinor = "1"
 android-targetSdk = "37"
-lib-version-name = "3.8.1-dev02"
+lib-version-name = "3.8.1-dev08"
 
 # plugin
 compose-plugin = "1.12.2"
 compose-plugin-experimental = "1.12.0-alpha03"
 compose-navigation3 = "1.2.0"
+swift-navigation3 = "1.0.0-alpha02"
 compose-adaptive = "1.3.0"
-buildkonfig = "0.23.0"
+buildkonfig = "0.24.0"
 kotlinx-browser = "0.5.0"
 
 # firebase
-kmp-firebase = "2026.11.0"
-kmp-firebase-gitlive = "3.0.0-beta1"
+kmp-firebase = "2026.10.0"
+kmp-firebase-gitlive = "3.0.0-alpha02"
 firebase-firestore = "27.2.0"
 firebase-storage = "23.0.0"
 firebase-common = "23.0.0"
@@ -62,6 +63,7 @@ android-ui-graphics = "1.12.1"
 androidx-core = "1.19.1"
 
 [libraries]
+swift-navigation3 = { module = "zone.ien.navigation:navigation", version.ref = "swift-navigation3" }
 taptarget = { group = "zone.ien.taptargetcmp", name = "taptarget", version.ref = "taptarget" }
 webview = { group = "io.github.kevinnzou", name = "compose-webview-multiplatform", version.ref = "webview" }
 

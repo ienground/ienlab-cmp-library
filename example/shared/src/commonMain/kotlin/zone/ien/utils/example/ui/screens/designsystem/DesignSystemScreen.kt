@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.designsystem
 
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
@@ -443,25 +444,6 @@ internal data class PlaygroundControl(
     val maxValue: Int? = null,
     val allowDecimal: Boolean = false,
 )
-
-internal fun PlaygroundControl.stressAlternateValue(): String = when {
-    isToggle -> (!defaultValue.toBooleanStrict()).toString()
-    choices.isNotEmpty() -> choices
-        .firstOrNull { it.value != defaultValue }
-        ?.value
-        ?: defaultValue
-    minValue != null && maxValue != null -> {
-        val currentValue = defaultValue.toFloatOrNull()
-        val alternateValue = if (currentValue == maxValue.toFloat()) {
-            minValue.toFloat()
-        } else {
-            maxValue.toFloat()
-        }
-        if (allowDecimal) alternateValue.toString() else alternateValue.toInt().toString()
-    }
-    isTextInput -> "$defaultValue iOS"
-    else -> defaultValue
-}
 
 private fun toggleControl(
     key: String,
@@ -1426,7 +1408,9 @@ internal fun DesignSystemPlayground(
     if (componentId == "keypad") {
         BoxWithConstraints {
             if (constraints.hasBoundedHeight) {
+                val nativeScroll = rememberNativeScreenScroll(listState)
                 LazyColumn(
+                    userScrollEnabled = nativeScroll?.userScrollEnabled ?: true,
                     state = listState,
                     contentPadding = contentPadding,
                     verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
@@ -1456,6 +1440,7 @@ fun DesignSystemScreen(
         val toastState = LocalIenToastState.current
         val coroutineScope = rememberCoroutineScope()
         val scrollState = rememberScrollState()
+        val nativeScroll = if (componentId != "keypad") rememberNativeScreenScroll(scrollState) else null
         val detailListState = rememberLazyListState()
         var query by rememberSaveable { mutableStateOf("") }
         var selectedCategory by rememberSaveable { mutableStateOf("전체") }
@@ -1488,7 +1473,12 @@ fun DesignSystemScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (componentId == "keypad") Modifier else Modifier.verticalScroll(scrollState))
+                    .then(
+                        if (componentId == "keypad") Modifier else Modifier.verticalScroll(
+                            state = scrollState,
+                            enabled = nativeScroll?.userScrollEnabled ?: true,
+                        )
+                    )
                     .padding(contentPadding)
                     .padding(horizontal = IenTheme.spacing.md),
             ) {

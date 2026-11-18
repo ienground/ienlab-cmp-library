@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.auth
 
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,6 +63,8 @@ fun AuthFormScreen(
     modifier: Modifier = Modifier,
     navigateBack: () -> Unit,
 ) {
+    val scrollState = rememberScrollState()
+    val nativeScroll = rememberNativeScreenScroll(scrollState)
     val backdrop = rememberDefaultBackdrop()
     var mode by remember { mutableStateOf(IenAuthFormMode.Login) }
     var email by remember { mutableStateOf("") }
@@ -181,7 +184,10 @@ fun AuthFormScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(
+                                state = scrollState,
+                                enabled = nativeScroll?.userScrollEnabled ?: true,
+                            )
                             .heightIn(min = maxHeight),
                         verticalArrangement = Arrangement.Center,
                     ) {

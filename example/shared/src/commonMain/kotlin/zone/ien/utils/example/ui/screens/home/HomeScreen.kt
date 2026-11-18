@@ -67,6 +67,7 @@ import zone.ien.utils.adaptive.view.DropdownMenuSectionNative
 import zone.ien.utils.example.Android
 import zone.ien.utils.example.ui.navigation.RootRoute
 import zone.ien.utils.ui.menu.ActionMenuItem
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.icon.IconData
@@ -110,6 +111,12 @@ private val menuItems = listOf(
     HomeMenuItem("BottomCTA 테스트", RootRoute.BottomCTATest, Color(0xFF3182F6)),
 )
 
+internal fun sampleRouteTitle(route: RootRoute): String = when (route) {
+    RootRoute.Home -> "IENGROUND"
+    is RootRoute.DesignSystemComponent -> route.componentId.replace("-", " ")
+    else -> menuItems.first { it.route == route }.name
+}
+
 @Suppress("FrequentlyChangingValue")
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -131,6 +138,7 @@ fun HomeScreen(
     val snackbarState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    val nativeScroll = rememberNativeScreenScroll(scrollState)
     var bottomText by remember { mutableStateOf("") }
     var nativeInputText by remember { mutableStateOf("") }
     var textFieldText by remember { mutableStateOf("") }
@@ -151,44 +159,47 @@ fun HomeScreen(
                 scrollableState = scrollState,
             ),
             actions = if (isDropdownMenu) listOf(
-                ActionMenuItem.IconMenuItem.ShownIfRoom(
-                    title = "Text",
-                    onClick = {},
+                ActionMenuItem.IconMenuItem.AlwaysShown(
+                    title = "고정 액션",
+                    onClick = {
+                        coroutineScope.launch { snackbarState.showSnackbar("고정 액션을 눌렀습니다.") }
+                    },
                     badge = 1,
                     icon = IconData.Vector(Android)
                 ),
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
-                    title = "Text",
+                    title = "숫자 배지",
                     onClick = {},
                     badge = 2,
                     icon = IconData.Vector(Android)
                 ),
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
-                    title = "Text",
+                    title = "표시점 배지",
                     onClick = {},
-                    badge = 3,
+                    badge = -1,
                     icon = IconData.Vector(Android)
                 ),
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
-                    title = "Text",
+                    title = "비활성 액션",
+                    onClick = {},
+                    enabled = false,
+                    badge = 4,
+                    icon = IconData.Vector(Android)
+                ),
+                ActionMenuItem.IconMenuItem.ShownIfRoom(
+                    title = "추가 액션 1",
                     onClick = {},
                     badge = 4,
                     icon = IconData.Vector(Android)
                 ),
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
-                    title = "Text",
+                    title = "추가 액션 2",
                     onClick = {},
                     badge = 4,
                     icon = IconData.Vector(Android)
                 ),
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
-                    title = "Text",
-                    onClick = {},
-                    badge = 4,
-                    icon = IconData.Vector(Android)
-                ),
-                ActionMenuItem.IconMenuItem.ShownIfRoom(
-                    title = "Text",
+                    title = "추가 액션 3",
                     onClick = {},
                     badge = 4,
                     icon = IconData.Vector(Android)
@@ -203,6 +214,13 @@ fun HomeScreen(
 //                    onClick = {},
 //                    icon = IconData.Vector(Android)
 //                ),
+                ActionMenuItem.NeverShown(
+                    title = "메뉴 전용 액션",
+                    icon = IconData.Vector(Android),
+                    onClick = {
+                        coroutineScope.launch { snackbarState.showSnackbar("메뉴 전용 액션을 눌렀습니다.") }
+                    },
+                ),
             ) else if (showSingle) listOf(
                 ActionMenuItem.IconMenuItem.ShownIfRoom(
                     title = "Text",
@@ -305,12 +323,7 @@ fun HomeScreen(
                     )
                 }
             },
-            title = {
-                Text(
-                    text = "IENGROUND",
-                    maxLines = 1
-                )
-            },
+            title = "IENGROUND",
             subtitle = {
                 Text(
                     text = "Sub Title",
@@ -331,7 +344,10 @@ fun HomeScreen(
             Row(
                 modifier = Modifier
                     .layerBackdrop(backdrop)
-                    .verticalScroll(scrollState)
+                    .verticalScroll(
+                        state = scrollState,
+                        enabled = nativeScroll?.userScrollEnabled ?: true,
+                    )
                     .padding(pv)
                     .imePadding(),
             ) {

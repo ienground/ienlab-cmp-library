@@ -509,7 +509,153 @@ val appleState = rememberFirebaseAppleSignInState(
 appleState.launch()
 ```
 
+<a id="native-navigation-integration"></a>
+
 ### 플랫폼 내비게이션 바 (iOS 네이티브 내비게이션)
+
+`cmp-navigation`의 `BaseNavDisplay`를 사용하는 앱은 아래 wrapper로 기존 Navigation 3 그래프를 재사용합니다. iOS는 UIKit 탭·스택을 사용하고, 다른 플랫폼은 기존 Compose 화면과 Nav3 백스택을 사용합니다.
+
+이 절은 **ienlab-cmp 소비 앱의 통합 가이드**입니다. `BaseNavigationFrame`, `BaseNavigationTabs`, `BaseNavigationGuard`는 이 저장소의 API입니다. 기반 라이브러리의 `NativeStack`, `NativeTabs`, 상태 복원 등은 [compose-swift-navigation3의 한국어 README](https://github.com/ienground/compose-swift-navigation3/blob/main/README_ko.md#migration)를 참고하세요.
+
+#### 1. iOS 호스트와 공통 프레임
+
+기본 iOS 진입점은 다음과 같습니다. 별도의 Swift 내비게이션 계층은 필요하지 않습니다.
+
+```kotlin
+fun MainViewController(): UIViewController = BaseNavigationViewController { App() }
+```
+
+공통 `App()`에서 DI 공급자와 화면 UI를 분리합니다. `AppTheme`, `AppNavigation`, DI 공급자는 소비 앱의 기존 구현을 사용합니다.
+
+```kotlin
+BaseNavigationFrame(
+    tokens = appTokens(),
+    providers = { content -> ProvideAppDependencies { content() } },
+    frame = { content ->
+        AppTheme { AppRootUI { content() } }
+    },
+) {
+    AppNavigation()
+}
+```
+
+`BaseNavigationViewController`가 iOS 호환 보정 초기화와 UIKit 상호작용·접근성 연결을 처리하므로 소비 앱에서 `ComposeUIViewController`·`UIKitViewController`를 다시 감싸지 않습니다. `tokens`를 받는 `BaseNavigationFrame`은 호스트와 화면에 `IenTheme`을 공급합니다. `darkTheme`도 함께 지정할 수 있으며, `providers`에는 DI처럼 UI에 의존하지 않는 공급자만 둡니다. 기존 `providers`·`frame` overload도 유지합니다. `appTokens()`는 앱의 기존 `IenTokens` 생성 함수입니다. `BaseNavigationFrame`은 공급된 `IenTheme.colors.brand`를 UIKit 내비게이션 바·툴바·뒤로가기·주요 액션의 강조색으로 전달하며, 테마 토큰 변경도 반영합니다. 네이티브 탭 구성과 개별 화면이 같은 테마를 사용하며, `BaseNavigationTabs`는 `IenTheme.colors.brand`를 선택 탭의 아이콘·제목 색으로 자동 전달합니다. 라이트·다크 테마 변경도 반영하며 비선택 탭은 시스템 기본색을 유지합니다. `frame`에는 `IenAdaptiveTheme`·`CupertinoTheme`를 포함한 화면 테마와 루트 UI를 둡니다. 화면 테마는 `LocalHapticFeedback` 등 UI 환경에 의존하므로 UI 없는 호스트의 `providers`에서 실행하면 안 됩니다. `BaseNavigationFrame`이 바 여백을 연결하므로 앱에서 `LocalCupertinoNativeBarsPadding`을 다시 제공하지 않습니다. 스플래시·업데이트 검사 화면도 `BaseNavDisplay`의 엔트리로 선언합니다.
+
+#### 2. 기존 Nav3 그래프에 탭 wrapper 적용
+
+다음 코드는 소비 앱의 기존 `mainBackStack`, `tabBackStack`, `tabRoutes`, `entries`, 화면 함수를 연결하는 예입니다. `entries`의 첫 엔트리는 앱의 탭 루트이며, 그 뒤의 엔트리는 선택한 탭 위에 열리는 공유 상세 화면입니다. `TabContent()`는 기존 탭 그래프를 그립니다.
+
+```kotlin
+BaseNavigationGuard(
+    backStack = mainBackStack,
+    isAllowed = { route -> canOpen(route) },
+    onDenied = { route -> showAccessMessage(route) },
+) {
+    BaseNavigationTabs(
+        tabBackStack = tabBackStack,
+        tabs = tabRoutes,
+        title = { route -> stringResource(route.label) },
+        icon = { route -> route.icon },
+        selectedIcon = { route -> route.selectedIcon },
+        tabContent = { TabContent() },
+        overlay = { AppFeedback() },
+    ) {
+        BaseNavDisplay(
+            backStack = mainBackStack,
+            entryProvider = entries,
+        )
+    }
+}
+```
+
+- `BaseNavigationTabs`는 기존 `BaseNavDisplay`를 감쌉니다. `tabBackStack`은 앱과 UIKit이 공유하는 탭 선택 상태입니다. 현재 wrapper는 각 탭을 루트 엔트리 하나로 선언하며, 상세 화면은 `mainBackStack`에 쌓습니다. 탭마다 독립된 상세 백스택을 직접 구성하려면 `BaseTabNavDisplay`를 사용합니다.
+- `title`은 탭 제목이고, `icon`·`selectedIcon`은 기존 `IconData.Vector` 또는 `IconData.Paint`입니다. 변환은 라이브러리가 처리하며 UIKit의 선택·비활성 tint를 사용합니다. 기존 `systemImage` overload도 유지합니다. 탭은 기본적으로 큰 제목을 사용하며, `largeTitle = false`로 인라인 제목을 선택할 수 있습니다.
+- `tabContent`에는 해당 탭의 기존 화면 구성을 선언합니다. 화면 구성이 탭마다 다르면 인자로 받은 route로 구분합니다.
+- 로그인 안내·오류 다이얼로그·토스트처럼 현재 화면 위에 표시할 UI는 `overlay`에 둡니다. 네이티브 모드의 그래프 선언 본문에 직접 UI를 만들지 않습니다.
+- `BaseNavigationGuard`는 선택 사항입니다. 앱은 접근 허용 규칙과 거부 안내만 제공하고, guard가 차단된 화면의 렌더링·진입 효과를 막고 루트를 남긴 채 최상위 차단 엔트리를 제거합니다.
+- 앱에서 `NativeTab` 생성, 서로 다른 route를 `NavKey`로 재포장, 공유 스택의 `drop(1)`·pop 분배, 네이티브용 decorator, `otherPlatforms` 분기를 다시 구현하지 않습니다.
+
+직접 탭 목록을 구성할 때도 `ienlab-cmp`의 `NativeTab` 팩토리를 사용하면 `Painter` 변환을 앱에서 하지 않아도 됩니다. 기본·선택 이미지는 UIKit 탭 아이콘으로 전달되며, 선택 아이콘을 생략하면 UIKit이 기본 이미지를 사용합니다.
+
+```kotlin
+import zone.ien.utils.navigation.NativeTab
+
+NativeTab(
+    title = tabTitle,
+    icon = route.icon,
+    selectedIcon = route.selectedIcon,
+    backStack = tabBackStack,
+)
+```
+
+바깥 루트 그래프가 로그인 화면과 메인 탭 그래프를 함께 관리한다면, 메인 그래프 엔트리에 메타데이터를 붙입니다. 나머지 엔트리의 typed route와 이동 콜백은 유지합니다.
+
+```kotlin
+entry<RootRoute.Main>(metadata = BaseNavDisplay.navigationGraph()) {
+    MainNavigationGraph()
+}
+```
+
+탭 화면에서는 공유 선택 상태의 `lastOrNull()` 대신 `currentNavigationRoute(tabBackStack)`을 사용합니다. 숨겨진 탭도 자신의 route를 유지하며, 내부 `BaseNavDisplay`는 wrapper가 지정한 탭 엔트리를 표시합니다. `directRoute` 인자나 `entries(route).Content()` 우회 경로를 앱에 추가할 필요가 없습니다.
+
+```kotlin
+val route = currentNavigationRoute(tabBackStack)
+val isActive = isNavigationEntryActive
+
+BaseNavigationTabBar {
+    AppBottomNavigation()
+}
+```
+
+`isNavigationEntryActive`는 네이티브 화면의 최상위 여부를 전달합니다. 음성 인식·튜토리얼 등 화면 전용 부수 효과의 실행 조건에 사용합니다. `BaseNavigationTabBar`는 네이티브 탭 화면에서 앱 탭 바를 숨기고, 다른 환경에서는 기존 탭 바를 표시합니다.
+
+#### 3. 화면 제목·액션·스크롤·검색 연결
+
+`AdaptiveTopAppBarScaffold`의 문자열 `title` overload를 사용하면 제목과 지원되는 액션을 네이티브 바에 전달합니다. `ActionMenuItem.icon`도 같은 `IconData`를 전달하므로 기존 액션 아이콘을 재사용합니다. 추가 선행 버튼과 툴바 버튼은 `zone.ien.utils.ui.screen.NativeBarButton(title, icon = ..., onClick = ...)` 팩토리로 선언하고 `nativeLeading` 등에 전달합니다. 고정 route 메타데이터는 `nativeScreen(title = ..., largeTitle = ...)`로 지정할 수도 있습니다.
+
+액션의 `AlwaysShown`은 상단 바에 유지하고, `ShownIfRoom`은 화면 너비와 선행·주요 액션을 고려한 표시 공간(최대 3개)에 따라 더보기 메뉴로 이동합니다. `NeverShown`은 항상 더보기 메뉴에 표시하며 숨긴 항목은 공간을 차지하지 않습니다. 주요 액션은 더보기 버튼 뒤에 고정하고 일반 액션 그룹과 간격을 둡니다. 네이티브 바에서는 UIKit 강조 스타일로 표시합니다. 아이콘·활성 상태·클릭 동작을 메뉴 안에서도 유지합니다. 배지는 0이면 숨김, 양수이면 숫자, 음수이면 표시점이며, 상단 바 버튼에는 원본 색상을 보존한 배지 이미지로, 더보기 메뉴 안에서는 UIKit 부제목으로 표시합니다.
+
+여러 entry가 같은 메타데이터 생성 규칙을 쓰면 `BaseNavDisplay.entryMetadata`에 모읍니다. 예를 들어 `entryMetadata = { route -> nativeScreen(title = stringResource(route.titleResource)) }`로 기본 제목을 제공하면 각 `entry`에 같은 `metadata` 인자를 반복하지 않아도 됩니다. 개별 entry의 메타데이터가 우선하며, 기본 메타데이터는 진입 시 사용합니다. 화면 진입 후 바뀌는 제목과 액션은 문자열 `title` 스캐폴드나 `NativeScreenBar`에 전달합니다.
+
+주 세로 스크롤에는 `ienVerticalScroll` 또는 `IenLazyColumn`을 사용합니다. 상태 연결과 Compose 제스처 전환을 공통 컴포넌트가 처리합니다. 기존 저수준 `rememberNativeScreenScroll` API도 유지합니다.
+
+```kotlin
+val scrollState = rememberScrollState()
+
+AdaptiveTopAppBarScaffold(title = screenTitle) { padding, title ->
+    Column(
+        modifier = Modifier
+            .ienVerticalScroll(scrollState)
+            .padding(padding),
+    ) {
+        title()
+        ScreenContent()
+    }
+}
+```
+
+목록은 `IenLazyColumn(state = listState, ...) { ... }`으로 선언합니다. 일반 `LazyColumn`의 배치·패딩·fling·사용자 스크롤 옵션을 유지합니다. 이 연결이 있어야 UIKit이 큰 제목 접힘과 스크롤 경계 효과를 추적할 수 있습니다. `IenProvideSectionStyle`·`AdaptiveProvideSectionStyle`이 소유하는 스크롤은 컴포넌트에서 연결하므로 화면에서 중복 연결하지 않습니다. 중첩 미리보기·작은 보조 목록을 주 스크롤로 등록하지 않습니다.
+
+위 스캐폴드의 `padding`에는 네이티브 바 여백이 이미 포함되므로 바 여백을 추가로 더하지 않습니다.
+
+```kotlin
+val usesNativeSearch = NativeScreenSearch(
+    query = query,
+    onQueryChange = onQueryChange,
+    placeholder = searchPlaceholder,
+)
+if (!usesNativeSearch) {
+    AppSearchField()
+}
+```
+
+네이티브 검색창이 연결된 경우 기존 검색 필드를 숨깁니다. 입력 제한·검증과 실제 검색 동작은 소비 앱이 기존 규칙을 유지합니다. 시트는 자체 상단 바와 스크롤을 사용하며, 부모 화면의 네이티브 스크롤을 대신 등록하지 않습니다.
+
+#### 바 여백과 기존 컴포넌트의 동작
+
+`BaseNavigationFrame`을 사용하지 않고 기반 라이브러리를 직접 연결하는 경우에만 다음처럼 여백을 수동 제공합니다.
+
+
 
 iOS UIKit `UINavigationController`처럼 플랫폼이 내비게이션 바를 그리는 화면(예: compose-swift-navigation3의 네이티브 화면)에서는, 그 바가 차지하는 여백을 compose-hig의 `LocalCupertinoNativeBarsPadding`으로 넘깁니다. Cupertino와 IEN 두 디자인이 같은 값을 따르므로 앱은 한 곳에서만 제공합니다.
 

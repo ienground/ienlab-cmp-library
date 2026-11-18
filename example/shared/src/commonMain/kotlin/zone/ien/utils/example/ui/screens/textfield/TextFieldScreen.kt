@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.textfield
 
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -61,6 +62,7 @@ fun TextFieldScreen(
 
     val focusRequester = remember { FocusRequester() }
     val lazyListState = rememberLazyListState()
+    val nativeScroll = rememberNativeScreenScroll(lazyListState)
     val snackbarState = remember { SnackbarHostState() }
     var text by remember { mutableStateOf("") }
 
@@ -135,6 +137,8 @@ fun TextFieldScreen(
         modifier = modifier
     ) { pv, ->
         LazyColumn(
+            userScrollEnabled = nativeScroll?.userScrollEnabled ?: true,
+            state = lazyListState,
             modifier = Modifier
         ) {
             itemsIndexed(items = listOf("1", "2", "3")) { index, item ->

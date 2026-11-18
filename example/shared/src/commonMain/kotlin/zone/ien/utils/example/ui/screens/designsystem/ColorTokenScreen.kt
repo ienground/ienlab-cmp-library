@@ -1,5 +1,6 @@
 package zone.ien.utils.example.ui.screens.designsystem
 
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -85,6 +86,7 @@ fun ColorTokenScreen(
 
     IenTheme(tokens = tokens, darkTheme = darkTheme) {
         val scrollState = rememberScrollState()
+        val nativeScroll = rememberNativeScreenScroll(scrollState)
 
         IenScaffold(
             modifier = modifier,
@@ -107,7 +109,10 @@ fun ColorTokenScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(IenTheme.colors.background)
-                    .verticalScroll(scrollState)
+                    .verticalScroll(
+                        state = scrollState,
+                        enabled = nativeScroll?.userScrollEnabled ?: true,
+                    )
                     .padding(contentPadding)
                     .padding(IenTheme.spacing.md),
                 verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.md),
