@@ -49,7 +49,7 @@ kotlin {
             api(libs.compose.adaptive.navigation3)
             implementation(libs.compose.navigation3)
             api(projects.cmpCommon)
-            implementation(projects.cmpUi)
+            api(projects.cmpUi)
             implementation(libs.lifecycle.viewmodel)
             implementation(libs.serialization)
         }

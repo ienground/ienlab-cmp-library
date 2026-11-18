@@ -87,9 +87,8 @@ class NativeNavigationRootTest {
         var screenThemeApplied = false
         val controller = NativeNavigationViewController {
             BaseNavigationFrame(
-                providers = { content ->
-                    IenTheme(darkTheme = dark.value, tokens = tokens, content = content)
-                },
+                tokens = tokens,
+                darkTheme = dark.value,
                 frame = { content ->
                     AdaptiveTheme(target = Theme.Cupertino, material = MaterialThemeSpec.Default()) {
                         SideEffect { screenThemeApplied = true }
@@ -307,6 +306,70 @@ class NativeNavigationRootTest {
             assertEquals(1, settings.viewControllers.size)
             assertEquals(0, deniedEntries, "허용되지 않은 화면의 내용과 진입 효과를 실행하면 안 됩니다.")
             assertEquals(1, deniedCallbacks)
+        } finally {
+            window.hidden = true
+            window.rootViewController = null
+        }
+    }
+
+    @OptIn(ExperimentalForeignApi::class)
+    @Test
+    fun `공통 entry 메타데이터는 개별 설정을 우선하고 뒤로가기 시 화면을 보존한다`() {
+        val first = Route("화면")
+        val second = Route("개별")
+        val stack = NavBackStack(first, second)
+        val controller = NativeNavigationViewController {
+            BaseNavigationFrame {
+                BaseNavDisplay(
+                    backStack = stack,
+                    entryMetadata = { route -> nativeScreen(title = "기본 ${route.name}") },
+                    entryProvider = { route ->
+                        NavEntry(route, metadata = if (route == second) nativeScreen(title = "개별 제목") else emptyMap()) {}
+                    },
+                )
+            }
+        }
+        controller.loadViewIfNeeded()
+        val navigation = assertIs<UINavigationController>(controller.childViewControllers.single())
+        assertEquals("개별 제목", navigation.topViewController!!.navigationItem.title)
+        val firstController = navigation.viewControllers.first() as UIViewController
+        val window = UIWindow(frame = UIScreen.mainScreen.bounds)
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        try {
+            stack.removeLastOrNull()
+            Snapshot.sendApplyNotifications()
+            repeat(25) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }
+            assertEquals("기본 화면", navigation.topViewController!!.navigationItem.title)
+            kotlin.test.assertSame(firstController, navigation.topViewController)
+        } finally {
+            window.hidden = true
+            window.rootViewController = null
+        }
+    }
+
+    @OptIn(ExperimentalForeignApi::class)
+    @Test
+    fun `iOS 공통 호스트는 초기화와 네이티브 화면 연결을 수행한다`() {
+        val controller = BaseNavigationViewController {
+            BaseNavigationFrame {
+                BaseNavDisplay(
+                    backStack = NavBackStack(Route("호스트")),
+                    entryMetadata = { nativeScreen(title = it.name) },
+                    entryProvider = { NavEntry(it) {} },
+                )
+            }
+        }
+        val window = UIWindow(frame = UIScreen.mainScreen.bounds)
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        try {
+            repeat(20) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }
+            fun findNavigation(root: UIViewController): UINavigationController? =
+                root as? UINavigationController ?: root.childViewControllers
+                    .filterIsInstance<UIViewController>().firstNotNullOfOrNull(::findNavigation)
+            val navigation = assertNotNull(findNavigation(controller))
+            assertEquals("호스트", navigation.topViewController!!.navigationItem.title)
         } finally {
             window.hidden = true
             window.rootViewController = null

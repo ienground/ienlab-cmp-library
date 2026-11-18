@@ -1,5 +1,7 @@
 package zone.ien.utils.navigation
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import zone.ien.utils.ui.foundation.IenTokens
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -215,6 +217,26 @@ val isNativeNavigation: Boolean
 /** 현재 엔트리가 선택된 탭과 상위 공유 화면을 합친 스택의 맨 위인지 반환합니다. */
 val isNativeNavigationTopEntry: Boolean
     @Composable get() = LocalNativeNavigationTopEntry.current
+
+/**
+ * 테마 토큰을 호스트와 각 화면에 공급하며 네이티브 내비게이션을 활성화합니다.
+ * [providers]에는 DI 공급자, [frame]에는 화면 테마와 루트 UI를 둡니다.
+ * 브랜드 색상과 라이트·다크 변경은 UIKit 바에도 반영됩니다.
+ */
+@Composable
+fun BaseNavigationFrame(
+    tokens: IenTokens,
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    providers: @Composable (content: @Composable () -> Unit) -> Unit = { it() },
+    frame: @Composable (content: @Composable () -> Unit) -> Unit = { it() },
+    content: @Composable () -> Unit,
+) {
+    BaseNavigationFrame(
+        providers = { body -> IenTheme(darkTheme = darkTheme, tokens = tokens) { providers(body) } },
+        frame = frame,
+        content = content,
+    )
+}
 
 /**
  * 기존 테마와 DI를 유지하며 네이티브 내비게이션을 활성화합니다.

@@ -71,15 +71,62 @@ fun <T : NavKey> BaseNavDisplay(
     animateTopBar: Boolean = false,
     entryProvider: (key: T) -> NavEntry<T>,
 ) {
+    BaseNavDisplay(
+        backStack = backStack,
+        modifier = modifier,
+        contentAlignment = contentAlignment,
+        onBack = onBack,
+        entryDecorators = entryDecorators,
+        sceneStrategies = sceneStrategies,
+        sceneDecoratorStrategies = sceneDecoratorStrategies,
+        sharedTransitionScope = sharedTransitionScope,
+        sizeTransform = sizeTransform,
+        transitionSpec = transitionSpec,
+        popTransitionSpec = popTransitionSpec,
+        predictivePopTransitionSpec = predictivePopTransitionSpec,
+        animateTopBar = animateTopBar,
+        entryMetadata = { emptyMap() },
+        entryProvider = entryProvider,
+    )
+}
+
+/**
+ * route별 기본 진입 메타데이터를 공통으로 제공하는 [BaseNavDisplay]입니다.
+ * 개별 entry의 메타데이터가 우선하며, 진입 후 바뀌는 제목·액션은 `NativeScreenBar`로 전달합니다.
+ */
+@Composable
+fun <T : NavKey> BaseNavDisplay(
+    backStack: NavBackStack<T>,
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.TopStart,
+    onBack: () -> Unit = { if (backStack.size > 1) backStack.navigateBack() },
+    entryDecorators: List<NavEntryDecorator<T>> =
+        listOf(
+            rememberSaveableStateHolderNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator() // 뷰모델 꺼짐 보장
+        ),
+    sceneStrategies: List<SceneStrategy<T>> = listOf(SinglePaneSceneStrategy()),
+    sceneDecoratorStrategies: List<SceneDecoratorStrategy<T>> = emptyList(),
+    sharedTransitionScope: SharedTransitionScope? = null,
+    sizeTransform: SizeTransform? = null,
+    transitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform = defaultTransitionSpec(),
+    popTransitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform = defaultPopTransitionSpec(),
+    predictivePopTransitionSpec: AnimatedContentTransitionScope<Scene<T>>.(@NavigationEvent.SwipeEdge Int) -> ContentTransform = fadeInOutPopTransitionSpec(),
+    animateTopBar: Boolean = false,
+    entryMetadata: @Composable (T) -> Map<String, Any>,
+    entryProvider: (key: T) -> NavEntry<T>,
+) {
     val guards = LocalNavigationEntryGuards.current.filter { it.backStack === backStack }
-    val provider: (T) -> NavEntry<T> = { route ->
-        val entry = entryProvider(route)
-        NavEntry(route, contentKey = entry.contentKey, metadata = entry.metadata) {
-            if (guards.all { it.isAllowed(route) }) entry.Content()
-        }
-    }
     val visibleBackStack = if (guards.isEmpty()) backStack else {
         backStack.filter { route -> guards.all { it.isAllowed(route) } }.ifEmpty { backStack.take(1) }
+    }
+    val metadata = (visibleBackStack + listOfNotNull(currentNavigationRoute(backStack))).distinct()
+        .associateWith { entryMetadata(it) }
+    val provider: (T) -> NavEntry<T> = { route ->
+        val entry = entryProvider(route)
+        NavEntry(route, contentKey = entry.contentKey, metadata = metadata[route].orEmpty() + entry.metadata) {
+            if (guards.all { it.isAllowed(route) }) entry.Content()
+        }
     }
     if (NavigationTabEntry(backStack, provider)) return
     if (NativeBaseNavDisplay(backStack, onBack, entryDecorators, provider, visibleBackStack)) return

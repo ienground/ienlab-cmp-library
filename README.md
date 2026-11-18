@@ -522,19 +522,15 @@ appleState.launch()
 기본 iOS 진입점은 다음과 같습니다. 별도의 Swift 내비게이션 계층은 필요하지 않습니다.
 
 ```kotlin
-fun MainViewController(): UIViewController {
-    initializeIenIos()
-    return NativeNavigationViewController { App() }
-}
+fun MainViewController(): UIViewController = BaseNavigationViewController { App() }
 ```
 
 공통 `App()`에서 DI 공급자와 화면 UI를 분리합니다. `AppTheme`, `AppNavigation`, DI 공급자는 소비 앱의 기존 구현을 사용합니다.
 
 ```kotlin
 BaseNavigationFrame(
-    providers = { content ->
-        IenTheme(tokens = appTokens()) { ProvideAppDependencies { content() } }
-    },
+    tokens = appTokens(),
+    providers = { content -> ProvideAppDependencies { content() } },
     frame = { content ->
         AppTheme { AppRootUI { content() } }
     },
@@ -543,7 +539,7 @@ BaseNavigationFrame(
 }
 ```
 
-`providers`에는 `IenTheme`의 토큰·DI처럼 UI에 의존하지 않는 공급자만 둡니다. `appTokens()`는 앱의 기존 `IenTokens` 생성 함수입니다. `BaseNavigationFrame`은 공급된 `IenTheme.colors.brand`를 UIKit 내비게이션 바·툴바·뒤로가기·주요 액션의 강조색으로 전달하며, 테마 토큰 변경도 반영합니다. 네이티브 탭 구성과 개별 화면이 같은 테마를 사용하며, `BaseNavigationTabs`는 `IenTheme.colors.brand`를 선택 탭의 아이콘·제목 색으로 자동 전달합니다. 라이트·다크 테마 변경도 반영하며 비선택 탭은 시스템 기본색을 유지합니다. `frame`에는 `IenAdaptiveTheme`·`CupertinoTheme`를 포함한 화면 테마와 루트 UI를 둡니다. 화면 테마는 `LocalHapticFeedback` 등 UI 환경에 의존하므로 UI 없는 호스트의 `providers`에서 실행하면 안 됩니다. `BaseNavigationFrame`이 바 여백을 연결하므로 앱에서 `LocalCupertinoNativeBarsPadding`을 다시 제공하지 않습니다. 스플래시·업데이트 검사 화면도 `BaseNavDisplay`의 엔트리로 선언합니다.
+`BaseNavigationViewController`가 iOS 호환 보정 초기화와 UIKit 상호작용·접근성 연결을 처리하므로 소비 앱에서 `ComposeUIViewController`·`UIKitViewController`를 다시 감싸지 않습니다. `tokens`를 받는 `BaseNavigationFrame`은 호스트와 화면에 `IenTheme`을 공급합니다. `darkTheme`도 함께 지정할 수 있으며, `providers`에는 DI처럼 UI에 의존하지 않는 공급자만 둡니다. 기존 `providers`·`frame` overload도 유지합니다. `appTokens()`는 앱의 기존 `IenTokens` 생성 함수입니다. `BaseNavigationFrame`은 공급된 `IenTheme.colors.brand`를 UIKit 내비게이션 바·툴바·뒤로가기·주요 액션의 강조색으로 전달하며, 테마 토큰 변경도 반영합니다. 네이티브 탭 구성과 개별 화면이 같은 테마를 사용하며, `BaseNavigationTabs`는 `IenTheme.colors.brand`를 선택 탭의 아이콘·제목 색으로 자동 전달합니다. 라이트·다크 테마 변경도 반영하며 비선택 탭은 시스템 기본색을 유지합니다. `frame`에는 `IenAdaptiveTheme`·`CupertinoTheme`를 포함한 화면 테마와 루트 UI를 둡니다. 화면 테마는 `LocalHapticFeedback` 등 UI 환경에 의존하므로 UI 없는 호스트의 `providers`에서 실행하면 안 됩니다. `BaseNavigationFrame`이 바 여백을 연결하므로 앱에서 `LocalCupertinoNativeBarsPadding`을 다시 제공하지 않습니다. 스플래시·업데이트 검사 화면도 `BaseNavDisplay`의 엔트리로 선언합니다.
 
 #### 2. 기존 Nav3 그래프에 탭 wrapper 적용
 
@@ -618,6 +614,8 @@ BaseNavigationTabBar {
 `AdaptiveTopAppBarScaffold`의 문자열 `title` overload를 사용하면 제목과 지원되는 액션을 네이티브 바에 전달합니다. `ActionMenuItem.icon`도 같은 `IconData`를 전달하므로 기존 액션 아이콘을 재사용합니다. 추가 선행 버튼과 툴바 버튼은 `zone.ien.utils.ui.screen.NativeBarButton(title, icon = ..., onClick = ...)` 팩토리로 선언하고 `nativeLeading` 등에 전달합니다. 고정 route 메타데이터는 `nativeScreen(title = ..., largeTitle = ...)`로 지정할 수도 있습니다.
 
 액션의 `AlwaysShown`은 상단 바에 유지하고, `ShownIfRoom`은 화면 너비와 선행·주요 액션을 고려한 표시 공간(최대 3개)에 따라 더보기 메뉴로 이동합니다. `NeverShown`은 항상 더보기 메뉴에 표시하며 숨긴 항목은 공간을 차지하지 않습니다. 주요 액션은 더보기 버튼 뒤에 고정하고 일반 액션 그룹과 간격을 둡니다. 네이티브 바에서는 UIKit 강조 스타일로 표시합니다. 아이콘·활성 상태·클릭 동작을 메뉴 안에서도 유지합니다. 배지는 0이면 숨김, 양수이면 숫자, 음수이면 표시점이며, 상단 바 버튼에는 원본 색상을 보존한 배지 이미지로, 더보기 메뉴 안에서는 UIKit 부제목으로 표시합니다.
+
+여러 entry가 같은 메타데이터 생성 규칙을 쓰면 `BaseNavDisplay.entryMetadata`에 모읍니다. 예를 들어 `entryMetadata = { route -> nativeScreen(title = stringResource(route.titleResource)) }`로 기본 제목을 제공하면 각 `entry`에 같은 `metadata` 인자를 반복하지 않아도 됩니다. 개별 entry의 메타데이터가 우선하며, 기본 메타데이터는 진입 시 사용합니다. 화면 진입 후 바뀌는 제목과 액션은 문자열 `title` 스캐폴드나 `NativeScreenBar`에 전달합니다.
 
 주 세로 스크롤에는 `ienVerticalScroll` 또는 `IenLazyColumn`을 사용합니다. 상태 연결과 Compose 제스처 전환을 공통 컴포넌트가 처리합니다. 기존 저수준 `rememberNativeScreenScroll` API도 유지합니다.
 
