@@ -213,7 +213,7 @@ fun Modifier.ienVerticalScroll(
     flingBehavior: FlingBehavior? = null,
     reverseScrolling: Boolean = false,
 ): Modifier = composed {
-    val nativeScroll = rememberNativeScreenScroll(state)
+    val nativeScroll = if (enabled) rememberNativeScreenScroll(state) else null
     verticalScroll(
         state = state,
         enabled = enabled && (nativeScroll?.userScrollEnabled ?: true),
@@ -235,7 +235,7 @@ fun IenLazyColumn(
     userScrollEnabled: Boolean = true,
     content: LazyListScope.() -> Unit,
 ) {
-    val nativeScroll = rememberNativeScreenScroll(state)
+    val nativeScroll = if (userScrollEnabled) rememberNativeScreenScroll(state) else null
     LazyColumn(
         modifier = modifier,
         state = state,

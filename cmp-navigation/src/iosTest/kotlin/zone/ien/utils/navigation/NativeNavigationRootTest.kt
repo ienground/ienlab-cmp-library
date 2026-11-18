@@ -58,6 +58,7 @@ import zone.ien.navigation.nativeScreen
 import zone.ien.navigation.NativeNavigationViewController
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotSame
 import kotlin.test.assertNotNull
@@ -127,6 +128,7 @@ class NativeNavigationRootTest {
     @Test
     fun `공통 스크롤 컨테이너는 목록과 일반 스크롤을 UIKit에 연결한다`() {
         val showList = mutableStateOf(true)
+        val userScrollEnabled = mutableStateOf(true)
         val listState = LazyListState()
         val scrollState = ScrollState(0)
         val stack = NavBackStack(Route("scroll"))
@@ -135,11 +137,15 @@ class NativeNavigationRootTest {
                 BaseNavDisplay(stack, entryProvider = { key ->
                     NavEntry(key) {
                         if (showList.value) {
-                            IenLazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
+                            IenLazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                state = listState,
+                                userScrollEnabled = userScrollEnabled.value,
+                            ) {
                                 items(100) { Box(Modifier.height(40.dp)) }
                             }
                         } else {
-                            Column(Modifier.fillMaxSize().ienVerticalScroll(scrollState)) {
+                            Column(Modifier.fillMaxSize().ienVerticalScroll(scrollState, enabled = userScrollEnabled.value)) {
                                 repeat(100) { Box(Modifier.height(40.dp)) }
                             }
                         }
@@ -157,7 +163,17 @@ class NativeNavigationRootTest {
             scrollView.setContentOffset(CGPointMake(0.0, 200.0), animated = false)
             repeat(10) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }
             assertTrue(listState.firstVisibleItemIndex > 0, "UIKit 스크롤이 LazyListState에 전달되어야 합니다.")
+            userScrollEnabled.value = false
+            Snapshot.sendApplyNotifications()
+            repeat(20) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }
+            assertFalse(scrollView.scrollEnabled, "목록의 사용자 스크롤을 끄면 UIKit 제스처도 비활성화되어야 합니다.")
+
             showList.value = false
+            Snapshot.sendApplyNotifications()
+            repeat(20) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }
+            assertFalse(scrollView.scrollEnabled, "비활성화된 일반 스크롤에는 UIKit 제스처가 연결되면 안 됩니다.")
+
+            userScrollEnabled.value = true
             Snapshot.sendApplyNotifications()
             repeat(20) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }
             scrollView.setContentOffset(CGPointMake(0.0, 200.0), animated = false)
