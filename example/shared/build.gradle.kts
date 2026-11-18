@@ -1,0 +1,117 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import java.util.Properties
+import kotlin.apply
+
+plugins {
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
+    alias(libs.plugins.serialization)
+    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.buildkonfig)
+}
+
+val localProps = Properties().apply { rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) } }
+
+
+kotlin {
+    android {
+        namespace = "zone.ien.utils.example.shared"
+        compileSdk {
+            version = release(libs.versions.android.compileSdk.get().toInt()) {
+                minorApiLevel = libs.versions.android.compileSdkMinor.get().toInt()
+            }
+        }
+        minSdk = libs.versions.android.minSdk.get().toInt()
+
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_21)
+        }
+
+        androidResources {
+            enable = true
+        }
+
+        withHostTestBuilder {
+        }
+    }
+    
+    listOf(
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "Shared"
+            isStatic = true
+        }
+    }
+    
+    sourceSets {
+//        androidMain.dependencies {
+//            implementation(libs.activity.compose)
+//        }
+        commonMain.dependencies {
+            implementation(libs.compose.material3)
+            implementation(libs.compose.preview)
+            implementation(libs.compose.resources)
+
+            implementation(libs.lifecycle.viewmodel)
+            implementation(libs.lifecycle.runtime)
+
+            implementation(libs.backdrop)
+            implementation(libs.haze)
+
+            implementation(libs.kotlinx.io.core)
+            implementation(libs.kdatetime)
+            implementation(libs.datastore.pref)
+
+            implementation(libs.bundles.hig)
+            implementation(libs.capsule)
+            implementation(libs.placeholder)
+
+            implementation(libs.bundles.koin)
+            implementation(libs.compose.inputactions)
+
+            implementation(projects.cmpCommon)
+            implementation(projects.cmpAdaptive)
+            implementation(projects.cmpUi)
+            implementation(projects.cmpDate)
+            implementation(projects.cmpIcon)
+            implementation(projects.cmpUtils)
+            implementation(projects.cmpNavigation)
+           implementation(projects.cmpPref)
+           implementation(projects.cmpFilekit)
+           implementation(projects.cmpFirebase)
+            implementation(projects.cmpWebview)
+       }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
+
+        iosTest.dependencies {
+            implementation(libs.compose.ui.test)
+        }
+    }
+}
+
+dependencies {
+    androidRuntimeClasspath(libs.compose.ui.tooling)
+}
+
+buildkonfig {
+    packageName = "zone.ien.utils.example"
+    defaultConfigs {
+        val clientId = localProps.getProperty("GCP_WEB_CLIENT_ID")
+            ?: project.findProperty("GCP_WEB_CLIENT_ID") as? String
+            ?: System.getenv("GCP_WEB_CLIENT_ID")
+            ?: ""
+        buildConfigField(STRING, "GCP_WEB_CLIENT_ID", clientId)
+    }
+}
+
+// UIKit 테스트는 시스템 서비스에 연결할 수 있는 부팅된 시뮬레이터에서 실행합니다.
+tasks.withType<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest>().configureEach {
+    standalone.set(false)
+}

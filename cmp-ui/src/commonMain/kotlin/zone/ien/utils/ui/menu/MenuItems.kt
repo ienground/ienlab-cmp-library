@@ -340,20 +340,21 @@ private fun IenActionsLayout(modifier: Modifier, content: @Composable RowScope.(
     }
 }
 
-private data class MenuItems(
+internal data class MenuItems(
     val alwaysShownItems: List<ActionMenuItem.IconMenuItem>,
     val overflowItems: List<ActionMenuItem>,
 )
 
-private fun splitMenuItems(
+internal fun splitMenuItems(
     items: List<ActionMenuItem>,
     maxVisibleItems: Int,
 ): MenuItems {
-    val alwaysShownItems: MutableList<ActionMenuItem.IconMenuItem> = items.filterIsInstance<ActionMenuItem.IconMenuItem.AlwaysShown>().toMutableList()
-    val ifRoomItems: MutableList<ActionMenuItem.IconMenuItem> = items.filterIsInstance<ActionMenuItem.IconMenuItem.ShownIfRoom>().toMutableList()
-    val overflowItems = items.filterIsInstance<ActionMenuItem.NeverShown>()
+    val visibleItems = items.filter { it.visible }
+    val alwaysShownItems: MutableList<ActionMenuItem.IconMenuItem> = visibleItems.filterIsInstance<ActionMenuItem.IconMenuItem.AlwaysShown>().toMutableList()
+    val ifRoomItems: MutableList<ActionMenuItem.IconMenuItem> = visibleItems.filterIsInstance<ActionMenuItem.IconMenuItem.ShownIfRoom>().toMutableList()
+    val overflowItems = visibleItems.filterIsInstance<ActionMenuItem.NeverShown>()
 
-    val hasOverflow = overflowItems.isNotEmpty() || (alwaysShownItems.size + ifRoomItems.size - 1) > maxVisibleItems
+    val hasOverflow = overflowItems.isNotEmpty() || (alwaysShownItems.size + ifRoomItems.size) > maxVisibleItems
     val usedSlots = alwaysShownItems.size + (if (hasOverflow) 1 else 0)
     val availableSlots = maxVisibleItems - usedSlots
     if (availableSlots > 0 && ifRoomItems.isNotEmpty()) {

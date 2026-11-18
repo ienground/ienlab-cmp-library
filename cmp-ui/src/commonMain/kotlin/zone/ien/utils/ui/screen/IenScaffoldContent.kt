@@ -13,8 +13,14 @@ import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.MutableWindowInsets
+import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -42,6 +48,9 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import zone.ien.navigation.NativeScrollContent
+import zone.ien.hig.LocalCupertinoNativeBarsPadding
+import zone.ien.hig.withCupertinoNativeBars
 import zone.ien.utils.ui.foundation.IenTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -125,7 +134,14 @@ internal fun resolveBottomBlurHeight(
  * @param contentWindowInsets 콘텐츠 영역에 적용할 윈도우 인셋
  * @param contentEdge 콘텐츠 영역 모서리 블러 효과 설정
  * @param content 스크래프트 내부에 표시될 메인 콘텐츠
+ *
+ * 플랫폼이 내비게이션 바를 그리는 화면(compose-hig `LocalCupertinoNativeBarsPadding`이 있는 화면)에서는
+ * [topBar]를 그리지 않고, [contentWindowInsets]가 여백을 두는 변을 플랫폼 바 여백으로 바꿉니다
+ * (compose-hig `withCupertinoNativeBars`, 0인 변은 0).
+ * 이 여백에는 키보드가 가린 영역도 들어 있어 콘텐츠의 `imePadding()`은 0이 됩니다.
+ * 상단 블러는 플랫폼 바가 대신하므로 그리지 않고, 사이드 바 배치도 쓰지 않습니다.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun IenScaffold(
     modifier: Modifier = Modifier,
@@ -140,8 +156,9 @@ fun IenScaffold(
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    val nativeBarsPadding = LocalCupertinoNativeBarsPadding.current
     val devicePlacement by rememberIenBarPlacement()
-    val placement = if (LocalIenSideBarEnabled.current) {
+    val placement = if (LocalIenSideBarEnabled.current && nativeBarsPadding == null) {
         LocalIenBarPlacement.current ?: devicePlacement
     } else {
         null
@@ -163,10 +180,14 @@ fun IenScaffold(
         label = "ienDuoTopBarVisibility",
     )
     val defaultScrollState = rememberScrollState()
-    val effectiveContentEdge = if (contentEdge.scrollableState == null) {
+    val effectiveContentEdge = (if (contentEdge.scrollableState == null) {
         contentEdge.copy(scrollableState = defaultScrollState)
     } else {
         contentEdge
+    }).let { edge ->
+        // 플랫폼 바가 스크롤 가장자리 효과를 그린다. 하단 블러는 Compose 하단 바가 있을 때만 둔다.
+        if (nativeBarsPadding == null) edge
+        else edge.copy(topEnabled = false, bottomEnabled = edge.bottomEnabled && bottomBar != null)
     }
     val contentEdgeColor = contentEdge.color ?: containerColor
     val backdrop = rememberLayerBackdrop {
@@ -198,12 +219,30 @@ fun IenScaffold(
         ),
         label = "bottom_bar_blur_height",
     )
+    val density = LocalDensity.current
+    val hasBottomBar by rememberUpdatedState(bottomBar != null)
+    // compose-hig CupertinoScaffold와 같은 규칙: contentWindowInsets가 여백을 두는 변만 플랫폼 바 여백으로 바꾼다
+    // (0인 변은 0). 여백 없는 틀(WindowInsets(0))로 쓰는 스캐폴드는 여백을 더하지 않는다.
+    val effectiveWindowInsets = contentWindowInsets.withCupertinoNativeBars()
+    val remainingWindowInsets = remember(effectiveWindowInsets) { MutableWindowInsets(effectiveWindowInsets) }
+    val nativeContentPadding = if (nativeBarsPadding != null) {
+        remember(remainingWindowInsets, density) {
+            NativeBarsContentPadding(remainingWindowInsets, density) {
+                if (hasBottomBar) with(density) { bottomBarHeightPx.takeIf { it > 0 }?.toDp() } else null
+            }
+        }
+    } else {
+        null
+    }
 
     val scaffoldContent: @Composable (PaddingValues) -> Unit = { contentPadding ->
         Box(modifier = Modifier.fillMaxSize().then(
             if (isSideBar) Modifier.nestedScroll(scrollConnection) else Modifier,
+        ).then(
+            // 플랫폼 바 여백에 키보드가 가린 영역이 이미 들어 있다.
+            if (nativeBarsPadding != null) Modifier.consumeWindowInsets(WindowInsets.ime) else Modifier,
         )) {
-            Box(
+            NativeScrollContent(
                 modifier = Modifier
                     .matchParentSize()
                     .then(if (effectiveContentEdge.enabled) Modifier.layerBackdrop(backdrop) else Modifier),
@@ -223,7 +262,7 @@ fun IenScaffold(
                     bottomProgress = effectiveBottomProgress,
                     topHeight = resolveTopBlurHeight(
                         topHeight = effectiveContentEdge.topHeight,
-                        topBarHeight = if (extendTopBlur) contentPadding.calculateTopPadding() else 0.dp,
+                        topBarHeight = if (extendTopBlur && nativeBarsPadding == null) contentPadding.calculateTopPadding() else 0.dp,
                     ),
                     topFadeHeight = effectiveContentEdge.topHeight,
                     bottomHeight = resolveBottomBlurHeight(
@@ -266,12 +305,23 @@ fun IenScaffold(
             )
         } else {
             Scaffold(
-                modifier = modifier,
+                modifier = modifier.then(
+                    if (nativeBarsPadding != null) {
+                        Modifier.onConsumedWindowInsetsChanged {
+                            remainingWindowInsets.insets = effectiveWindowInsets.exclude(it)
+                        }
+                    } else {
+                        Modifier
+                    },
+                ),
                 topBar = {
-                    Box(Modifier.graphicsLayer {
-                        translationY = -size.height * (1f - topBarVisibility)
-                        alpha = topBarVisibility
-                    }) { retainedTopBar() }
+                    // 플랫폼 바가 상단 바 자리를 대신한다.
+                    if (nativeBarsPadding == null) {
+                        Box(Modifier.graphicsLayer {
+                            translationY = -size.height * (1f - topBarVisibility)
+                            alpha = topBarVisibility
+                        }) { retainedTopBar() }
+                    }
                 },
                 bottomBar = {
                     if (bottomBar != null) {
@@ -283,8 +333,9 @@ fun IenScaffold(
                 floatingActionButtonPosition = floatingActionButtonPosition,
                 containerColor = containerColor,
                 contentColor = contentColor,
-                contentWindowInsets = contentWindowInsets,
-                content = retainedScaffoldContent,
+                contentWindowInsets = effectiveWindowInsets,
+                // 플랫폼 바 여백은 프레임마다 바뀔 수 있다. 같은 객체를 넘겨 콘텐츠가 레이아웃 시점에 읽게 한다.
+                content = { padding -> retainedScaffoldContent(nativeContentPadding ?: padding) },
             )
         }
     }

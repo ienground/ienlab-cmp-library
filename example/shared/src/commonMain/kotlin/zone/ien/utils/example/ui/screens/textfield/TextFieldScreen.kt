@@ -1,0 +1,167 @@
+package zone.ien.utils.example.ui.screens.textfield
+
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousRoundedRectangle
+import org.jetbrains.compose.resources.stringResource
+import zone.ien.hig.adaptive.AdaptiveHorizontalDivider
+import zone.ien.hig.adaptive.AdaptiveWidget
+import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.adaptive.adaptiveComponent
+import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.utils.cmp_ui.generated.resources.Res
+import zone.ien.utils.cmp_ui.generated.resources.save
+import zone.ien.utils.icon.IconData
+import zone.ien.utils.icon.SystemIcons
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenButtonSize
+import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenIconButton
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.screen.IenScaffold
+import zone.ien.utils.ui.screen.IenScaffoldContentEdge
+import zone.ien.utils.ui.view.textfield.PlaceholderBasicTextField
+import zone.ien.utils.example.ui.keyboardDismissAction
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAdaptiveApi::class)
+@Composable
+fun TextFieldScreen(
+    modifier: Modifier = Modifier
+) {
+    val backdrop = rememberDefaultBackdrop()
+
+    val focusRequester = remember { FocusRequester() }
+    val lazyListState = rememberLazyListState()
+    val nativeScroll = rememberNativeScreenScroll(lazyListState)
+    val snackbarState = remember { SnackbarHostState() }
+    var text by remember { mutableStateOf("") }
+
+//    InfScrollDetector(
+//        listState = lazyListState,
+//        isLoading = answersInfoStateList.isLoading,
+//        hasMore = answersInfoStateList.hasMore,
+//        onLoadNext = {
+//            viewModel.loadNextPage()
+//        }
+//    )
+
+    IenScaffold(
+//        navigationIcon = { AdaptiveBackButton(backdrop = backdrop) { navigateBack() } },
+        snackbarHost = { SnackbarHost(snackbarState) },
+        contentEdge = IenScaffoldContentEdge(
+            scrollableState = lazyListState,
+        ),
+//        title = { Text(text = stringResource(Res.string.daily_mission)) },
+        bottomBar = {
+            BottomAppBar(
+                containerColor = adaptiveComponent(
+                    material = { BottomAppBarDefaults.containerColor },
+                    cupertino = { Color.Transparent }
+                )
+            ) {
+                Column {
+                    AdaptiveWidget(
+                        material = {},
+                        cupertino = {
+                            AdaptiveHorizontalDivider()
+                        }
+                    )
+                    Row(
+                        verticalAlignment = Alignment.Bottom,
+                        modifier = Modifier
+                            .padding(horizontal = IenTheme.spacing.xs, vertical = IenTheme.spacing.xxs)
+                            .fillMaxWidth()
+                    ) {
+                        PlaceholderBasicTextField(
+                            value = text,
+                            onValueChange = { text = it },
+                            placeholder = { Text(text = stringResource(Res.string.save)) },
+                            cursorBrush = SolidColor(IenTheme.colors.textPrimary),
+                            contentPadding = PaddingValues(vertical = IenTheme.spacing.sm),
+                            maxLines = 6,
+                            modifier = Modifier
+                                .focusRequester(focusRequester)
+                                .background(IenTheme.colors.surface, ContinuousRoundedRectangle(IenTheme.radius.xl))
+                                .padding(horizontal = IenTheme.spacing.md)
+                                .weight(1f)
+                                .keyboardDismissAction()
+
+                        )
+                        IenIconButton(
+                            onClick = {
+                            },
+                            modifier = Modifier.size(48.dp),
+                            size = IenButtonSize.Medium,
+                            variant = IenButtonVariant.Ghost,
+                            tone = IenSemanticTone.Neutral,
+                        ) {
+                            IenIcon(
+                                icon = IconData.Vector(SystemIcons.Close),
+                                contentDescription = null
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        modifier = modifier
+    ) { pv, ->
+        LazyColumn(
+            userScrollEnabled = nativeScroll?.userScrollEnabled ?: true,
+            state = lazyListState,
+            modifier = Modifier
+        ) {
+            itemsIndexed(items = listOf("1", "2", "3")) { index, item ->
+                Text(
+                    text = item,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .background(listOf(Color.Red, Color.Blue, Color.Green)[index % 3])
+                )
+            }
+        }
+//        ScreenBody(
+//            uiState = viewModel.uiState,
+//            onItemValueChanged = viewModel::updateUiState,
+//            missionInfoState = missionInfoState,
+//            answersInfoStateList = answersInfoStateList,
+//            userInfoState = userInfoState,
+//            lazyListState = lazyListState,
+//            paddingValues = pv,
+//            currentDate = currentDate,
+//            onSelectDateChanged = viewModel::changeDate,
+//            modifier = Modifier.layerBackdrop(backdrop)
+//        )
+    }
+}

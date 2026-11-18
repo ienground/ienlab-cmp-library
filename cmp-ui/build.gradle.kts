@@ -43,6 +43,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            api(libs.swift.navigation3)
             api(libs.kdatetime)
             api(libs.kotlinx.datetime)
             implementation(libs.compose.material3)

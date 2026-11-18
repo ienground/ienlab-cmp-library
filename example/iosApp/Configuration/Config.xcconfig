@@ -1,5 +1,8 @@
 TEAM_ID=
 
+FRAMEWORK_SEARCH_PATHS = $(inherited) "$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
+OTHER_LDFLAGS = $(inherited) -framework Shared
+
 PRODUCT_NAME=IENLAB Example
 PRODUCT_BUNDLE_IDENTIFIER=zone.ien.utils.example.Example$(TEAM_ID)
 

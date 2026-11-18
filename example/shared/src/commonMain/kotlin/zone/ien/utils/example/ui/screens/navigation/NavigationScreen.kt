@@ -1,0 +1,204 @@
+package zone.ien.utils.example.ui.screens.navigation
+
+import androidx.compose.foundation.lazy.rememberLazyListState
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.kyant.backdrop.backdrops.layerBackdrop
+import org.jetbrains.compose.resources.stringResource
+import zone.ien.hig.CupertinoNavigationBar
+import zone.ien.hig.CupertinoNavigationBarItem
+import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.utils.adaptive.component.AdaptiveSwitch
+import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.adaptive.Theme
+import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.utils.adaptive.component.AdaptiveBackButton
+import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
+import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
+import zone.ien.utils.adaptive.view.AdaptiveNavigationBar
+import zone.ien.utils.adaptive.view.NavigationBarItem
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.view.IenNavigationBarType
+import zone.ien.utils.icon.Adaptive
+import zone.ien.utils.icon.IconData
+import zone.ien.utils.icon.SystemIcons
+import zone.ien.utils.ui.view.IenNavigationBarItemDirection
+
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
+@Composable
+fun NavigationScreen(
+    modifier: Modifier = Modifier,
+    navigateBack: () -> Unit
+) {
+    val backdrop = rememberDefaultBackdrop()
+    val listState = rememberLazyListState()
+    val nativeScroll = rememberNativeScreenScroll(listState)
+    var selected by remember { mutableStateOf(false) }
+    var isMaterialTheme by remember { mutableStateOf(true) }
+    var isNative by remember { mutableStateOf(true) }
+    var useNavigationBar2 by remember { mutableStateOf(false) }
+    var isVerticalDirection by remember { mutableStateOf(false) }
+    val itemDirection = if (isVerticalDirection) {
+        IenNavigationBarItemDirection.Vertical
+    } else {
+        IenNavigationBarItemDirection.Horizontal
+    }
+
+    @Composable
+    fun OptionSwitch(
+        text: String,
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = IenTheme.spacing.md, vertical = IenTheme.spacing.xs),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(text)
+            AdaptiveSwitch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+            )
+        }
+    }
+
+    val items = listOf(
+        NavigationBarItem(
+            onClick = { selected = true },
+            icon = IconData.Adaptive(
+                material = { SystemIcons.Delete },
+                cupertino = { "trash.fill" }
+            ),
+            label = "Delete",
+            direction = itemDirection,
+        ),
+        NavigationBarItem(
+            onClick = { selected = false },
+            icon = IconData.Adaptive(
+                material = { SystemIcons.Save },
+                cupertino = { "checkmark" }
+            ),
+            label = "Very Long Save",
+            direction = itemDirection,
+            badge = 3,
+        )
+    )
+
+    IenAdaptiveTheme(
+        target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino
+    ) {
+        AdaptiveTopAppBarScaffold(
+            backdrop = backdrop,
+            adaptation = {
+                material { isCenterAligned = true }
+            },
+            navigationIcon = { AdaptiveBackButton(onClick = navigateBack) },
+            bottomBar = {
+                AdaptiveNavigationBar(
+                    selectedTabIndex = if (selected) 0 else 1,
+                    onTabSelected = { selected = it == 0 },
+                    isNative = isNative,
+                    adaptation = {
+                        material {
+                            this.alwaysShowLabel = false
+                            this.type = if (useNavigationBar2) {
+                                IenNavigationBarType.Type2
+                            } else {
+                                IenNavigationBarType.Type1
+                            }
+                        }
+                    },
+                    items = items,
+                )
+            },
+            modifier = modifier
+        ) { pv, title ->
+            LazyColumn(
+                state = listState,
+                userScrollEnabled = nativeScroll?.userScrollEnabled ?: true,
+                contentPadding = pv,
+                modifier = Modifier.layerBackdrop(backdrop)
+            ) {
+                item {
+                    OptionSwitch(
+                        text = "Material 테마",
+                        checked = isMaterialTheme,
+                        onCheckedChange = { isMaterialTheme = it }
+                    )
+                }
+                item {
+                    OptionSwitch(
+                        text = "네이티브 바",
+                        checked = isNative,
+                        onCheckedChange = { isNative = it }
+                    )
+                }
+                item {
+                    OptionSwitch(
+                        text = "NavigationBar type 2",
+                        checked = useNavigationBar2,
+                        onCheckedChange = { useNavigationBar2 = it },
+                    )
+                }
+                item {
+                    OptionSwitch(
+                        text = "세로 방향",
+                        checked = isVerticalDirection,
+                        onCheckedChange = {
+                            isVerticalDirection = it
+                            if (it) {
+                                isMaterialTheme = true
+                                isNative = false
+                            }
+                        }
+                    )
+                }
+                items(items = (0 until 20).toList(), key = null) {
+                    Box(
+                        modifier = Modifier
+                            .height(200.dp)
+                            .background(if (it % 2 == 0) Color.Cyan else Color.Green)
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "${it}"
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ScreenPreview() {
+    IenAdaptiveTheme(Theme.Material3) {
+        NavigationScreen(
+            navigateBack = {}
+        )
+    }
+}

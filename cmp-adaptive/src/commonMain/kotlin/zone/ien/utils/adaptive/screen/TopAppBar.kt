@@ -69,8 +69,8 @@ fun AdaptiveTopAppBar(
             CupertinoTopAppBar(
                 title = title,
                 modifier = modifier,
-                navigationIcon = { navigationIcon?.invoke() },
-                actions = { actions?.invoke(this) },
+                navigationIcon = navigationIcon,
+                actions = actions,
                 windowInsets = it.windowInsets,
                 isCenterAligned = it.isCenterAligned,
                 isBackgroundAdaptive = it.isBackgroundAdaptive,

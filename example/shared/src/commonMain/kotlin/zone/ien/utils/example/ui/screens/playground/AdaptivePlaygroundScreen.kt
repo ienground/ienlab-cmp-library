@@ -1,0 +1,599 @@
+package zone.ien.utils.example.ui.screens.playground
+
+import zone.ien.utils.ui.screen.rememberNativeScreenScroll
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.capsule.ContinuousCapsule
+import com.kyant.capsule.ContinuousRoundedRectangle
+import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.adaptive.Theme
+import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.utils.adaptive.component.AdaptiveBackButton
+import zone.ien.utils.adaptive.component.AdaptiveButton
+import zone.ien.utils.adaptive.component.AdaptiveCheckbox
+import zone.ien.utils.adaptive.component.AdaptiveDotCheckbox
+import zone.ien.utils.adaptive.component.AdaptiveExtendedFloatingActionButton
+import zone.ien.utils.adaptive.component.AdaptiveFilledIconButton
+import zone.ien.utils.adaptive.component.AdaptiveIconButton
+import zone.ien.utils.adaptive.component.AdaptiveIconToggleButton
+import zone.ien.utils.adaptive.component.AdaptiveLineCheckbox
+import zone.ien.utils.adaptive.component.AdaptiveMediumFloatingActionButton
+import zone.ien.utils.adaptive.component.AdaptiveRangeSlider
+import zone.ien.utils.adaptive.component.AdaptiveSegmentedControl
+import zone.ien.utils.adaptive.component.AdaptiveSlider
+import zone.ien.utils.adaptive.component.AdaptiveSwitch
+import zone.ien.utils.adaptive.component.AdaptiveTextButton
+import zone.ien.utils.adaptive.component.AdaptiveTonalButton
+import zone.ien.utils.adaptive.component.AdaptiveToggleButton
+import zone.ien.utils.adaptive.screen.AdaptiveTopAppBarScaffold
+import zone.ien.utils.adaptive.shimmer.adaptivePlaceholder
+import zone.ien.utils.adaptive.theme.IenAdaptiveTheme
+import zone.ien.utils.adaptive.view.AdaptiveCircularProgressIndicator
+import zone.ien.utils.adaptive.view.AdaptiveLoadingIndicator
+import zone.ien.utils.adaptive.view.AdaptiveNavigationBar
+import zone.ien.utils.adaptive.view.NavigationBarItem
+import zone.ien.utils.icon.Adaptive
+import zone.ien.utils.icon.IconData
+import zone.ien.utils.icon.SystemIcons
+import zone.ien.utils.ui.foundation.IenSemanticTone
+import zone.ien.utils.ui.foundation.IenTheme
+import zone.ien.utils.ui.interactive.IenButtonDefault
+import zone.ien.utils.ui.interactive.IenButtonDisplay
+import zone.ien.utils.ui.interactive.IenButtonSize
+import zone.ien.utils.ui.interactive.IenButtonState
+import zone.ien.utils.ui.interactive.IenButtonVariant
+import zone.ien.utils.ui.interactive.IenSegmentedControlItem
+import zone.ien.utils.ui.interactive.IenToggleButton
+import zone.ien.utils.ui.interactive.IenToggleButtonDefault
+import zone.ien.utils.ui.primitives.IenIcon
+import zone.ien.utils.ui.list.IenSwipeBox
+import zone.ien.utils.ui.list.IenSwipeBoxItem
+import zone.ien.utils.ui.screen.IenScaffoldContentEdge
+import zone.ien.utils.ui.screen.TopBarMode
+
+@OptIn(ExperimentalAdaptiveApi::class)
+@Composable
+fun AdaptivePlaygroundScreen(
+    modifier: Modifier = Modifier,
+    navigateBack: () -> Unit = {},
+) {
+    val backdrop = rememberDefaultBackdrop()
+    val scrollState = rememberScrollState()
+    val nativeScroll = rememberNativeScreenScroll(scrollState)
+    var isMaterialTheme by remember { mutableStateOf(true) }
+    var darkTheme by remember { mutableStateOf(false) }
+    var enabled by remember { mutableStateOf(true) }
+    var switchChecked by remember { mutableStateOf(true) }
+    var checkboxChecked by remember { mutableStateOf(true) }
+    var dotChecked by remember { mutableStateOf(false) }
+    var lineChecked by remember { mutableStateOf(true) }
+    var toggleChecked by remember { mutableStateOf(true) }
+    var iconToggleChecked by remember { mutableStateOf(false) }
+    var showPlaceholder by remember { mutableStateOf(true) }
+    var sliderValue by remember { mutableFloatStateOf(0.64f) }
+    var sliderRange by remember { mutableStateOf(0.2f..0.7f) }
+    var segmentedIndex by remember { mutableIntStateOf(0) }
+    var swipeActionCount by remember { mutableIntStateOf(0) }
+    var topBarMode by remember { mutableStateOf(TopBarMode.Expanded) }
+    var showSubtitle by remember { mutableStateOf(true) }
+    var selectedNavigationIndex by remember { mutableIntStateOf(0) }
+    var isNativeNavigationBar by remember { mutableStateOf(true) }
+
+    IenAdaptiveTheme(
+        target = if (isMaterialTheme) Theme.Material3 else Theme.Cupertino,
+        darkTheme = darkTheme,
+    ) {
+        AdaptiveTopAppBarScaffold(
+            backdrop = backdrop,
+            navigationIcon = {
+                AdaptiveBackButton(
+                    onClick = navigateBack,
+                )
+            },
+            title = { Text("Adaptive Playground") },
+            subtitle = if (showSubtitle) {
+                { Text(if (isMaterialTheme) "Material3 + Ien" else "Cupertino + HIG") }
+            } else null,
+            modifier = modifier,
+            contentEdge = IenScaffoldContentEdge(
+                scrollableState = scrollState,
+            ),
+            topBarMode = topBarMode,
+            bottomBar = {
+                AdaptiveNavigationBar(
+                    selectedTabIndex = selectedNavigationIndex,
+                    onTabSelected = { selectedNavigationIndex = it },
+                    isNative = isNativeNavigationBar,
+                    items = listOf(
+                        NavigationBarItem(
+                            onClick = { selectedNavigationIndex = 0 },
+                            icon = IconData.Adaptive(
+                                material = { SystemIcons.Save },
+                                cupertino = { "checkmark" },
+                            ),
+                            label = "Save",
+                        ),
+                        NavigationBarItem(
+                            onClick = { selectedNavigationIndex = 1 },
+                            icon = IconData.Adaptive(
+                                material = { SystemIcons.Edit },
+                                cupertino = { "pencil" },
+                            ),
+                            label = "Edit",
+                        ),
+                        NavigationBarItem(
+                            onClick = { selectedNavigationIndex = 2 },
+                            icon = IconData.Adaptive(
+                                material = { SystemIcons.Schedule },
+                                cupertino = { "calendar" },
+                            ),
+                            label = "Schedule",
+                        ),
+                    ),
+                )
+            },
+        ) { paddingValues, title ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .layerBackdrop(backdrop)
+                    .background(IenTheme.colors.background)
+                    .verticalScroll(
+                        state = scrollState,
+                        enabled = nativeScroll?.userScrollEnabled ?: true,
+                    )
+                    .padding(paddingValues)
+                    .padding(horizontal = IenTheme.spacing.lg, vertical = IenTheme.spacing.md),
+                verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.lg),
+            ) {
+                title()
+
+                PlaygroundGroup(title = "Theme") {
+                    PlaygroundSwitchRow(
+                        text = "Material theme",
+                        checked = isMaterialTheme,
+                        onCheckedChange = { isMaterialTheme = it },
+                    )
+                    PlaygroundSwitchRow(
+                        text = "Dark theme",
+                        checked = darkTheme,
+                        onCheckedChange = { darkTheme = it },
+                    )
+                    PlaygroundSwitchRow(
+                        text = "Components enabled",
+                        checked = enabled,
+                        onCheckedChange = { enabled = it },
+                    )
+                    PlaygroundSwitchRow(
+                        text = "Native navigation bar",
+                        checked = isNativeNavigationBar,
+                        onCheckedChange = { isNativeNavigationBar = it },
+                    )
+                    PlaygroundSwitchRow(
+                        text = "Show subtitle",
+                        checked = showSubtitle,
+                        onCheckedChange = { showSubtitle = it },
+                    )
+                    AdaptiveSegmentedControl(
+                        items = listOf(
+                            IenSegmentedControlItem("static", "Static"),
+                            IenSegmentedControlItem("expanded", "Expanded"),
+                        ),
+                        value = when (topBarMode) {
+                            TopBarMode.Static -> "static"
+                            TopBarMode.Expanded -> "expanded"
+                        },
+                        onChange = { value ->
+                            topBarMode = when (value) {
+                                "static" -> TopBarMode.Static
+                                else -> TopBarMode.Expanded
+                            }
+                        },
+                    )
+                }
+
+                PlaygroundGroup(title = "Buttons") {
+                    AdaptiveButton(
+                        onClick = {},
+                        state = IenButtonState(enabled = enabled),
+                        display = IenButtonDisplay.Full,
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            SampleIcon()
+                            Text("Primary action")
+                        }
+                    }
+                    AdaptiveButton(
+                        onClick = {},
+                        state = IenButtonState(enabled = enabled),
+                        variant = IenButtonVariant.Weak,
+                        tone = IenSemanticTone.Success,
+                        display = IenButtonDisplay.Full,
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text("Weak action")
+                            SampleIcon()
+                        }
+                    }
+                    AdaptiveButton(
+                        onClick = {},
+                        state = IenButtonState(enabled = enabled),
+                        display = IenButtonDisplay.Full,
+                        colors = IenButtonDefault.colors(
+                            container = Color(0xFF111827),
+                            content = Color.White,
+                            border = Color(0xFF111827),
+                        ),
+                    ) {
+                        Text("Colors fill action")
+                    }
+                    AdaptiveButton(
+                        onClick = {},
+                        state = IenButtonState(enabled = enabled),
+                        display = IenButtonDisplay.Full,
+                        colors = IenButtonDefault.colors(
+                            variant = IenButtonVariant.Line,
+                            content = IenTheme.colors.info,
+                            border = IenTheme.colors.info,
+                        ),
+                    ) {
+                        Text("Colors line action")
+                    }
+                    AdaptiveToggleButton(
+                        checked = toggleChecked,
+                        onCheckedChange = { toggleChecked = it },
+                        state = IenButtonState(enabled = enabled),
+                        display = IenButtonDisplay.Full,
+                        shapes = IenToggleButtonDefault.shapes(
+                            checked = ContinuousCapsule(),
+                            unchecked = ContinuousRoundedRectangle(IenTheme.radius.default),
+                        ),
+                        colors = IenToggleButtonDefault.colors(
+                            checkedTone = IenSemanticTone.Success,
+                            uncheckedTone = IenSemanticTone.Neutral,
+                            checkedBackgroundBrush = Brush.linearGradient(
+                                listOf(
+                                    Color(0xFF34D399),
+                                    Color(0xFF10B981),
+                                    Color(0xFF2DD4BF),
+                                )
+                            ),
+                        ),
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            SampleIcon()
+                            Text(if (toggleChecked) "Toggle enabled" else "Toggle disabled")
+                        }
+                    }
+                    AdaptiveTonalButton(
+                        onClick = {},
+                        state = IenButtonState(enabled = enabled),
+                        display = IenButtonDisplay.Full,
+                        adaptation = {
+                            material {
+                                variant = IenButtonVariant.Line
+                                tone = IenSemanticTone.Warning
+                            }
+                            cupertino {
+                                isBackgroundAdaptive = false
+                            }
+                        },
+                    ) {
+                        Text("Adaptation override")
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm)) {
+                        AdaptiveTextButton(
+                            onClick = {},
+                            state = IenButtonState(enabled = enabled),
+                        ) {
+                            Text("Text button")
+                        }
+                        AdaptiveIconButton(
+                            onClick = {},
+                            state = IenButtonState(enabled = enabled),
+                            size = IenButtonSize.Medium,
+                        ) {
+                            SampleIcon()
+                        }
+                        AdaptiveFilledIconButton(
+                            onClick = {},
+                            state = IenButtonState(enabled = enabled),
+                            size = IenButtonSize.Medium,
+                        ) {
+                            SampleIcon()
+                        }
+                        AdaptiveIconToggleButton(
+                            checked = iconToggleChecked,
+                            onCheckedChange = { iconToggleChecked = it },
+                            state = IenButtonState(enabled = enabled),
+                            size = IenButtonSize.Medium,
+                            shapes = IenToggleButtonDefault.shapes(
+                                checked = CircleShape,
+                                unchecked = ContinuousRoundedRectangle(IenTheme.radius.sm),
+                            ),
+                        ) {
+                            SampleIcon()
+                        }
+                    }
+                    AdaptiveExtendedFloatingActionButton(
+                        onClick = {},
+                        state = IenButtonState(enabled = enabled),
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            SampleIcon()
+                            Text("Extended floating action")
+                        }
+                    }
+                    AdaptiveMediumFloatingActionButton(
+                        onClick = {},
+                        content = { SampleIcon() },
+                    )
+                }
+
+                PlaygroundGroup(title = "Selection") {
+                    PlaygroundSwitchRow(
+                        text = "AdaptiveSwitch",
+                        checked = switchChecked,
+                        enabled = enabled,
+                        onCheckedChange = { switchChecked = it },
+                    )
+                    AdaptiveSegmentedControl(
+                        items = listOf("One", "Two", "Three"),
+                        selectedIndex = segmentedIndex,
+                        onSelectedIndexChange = { segmentedIndex = it },
+                        enabled = enabled,
+                    )
+                    AdaptiveSegmentedControl(
+                        items = listOf(
+                            IenSegmentedControlItem("small", "Small"),
+                            IenSegmentedControlItem("regular", "Regular"),
+                            IenSegmentedControlItem("large", "Large", enabled = false),
+                        ),
+                        value = when (segmentedIndex) {
+                            0 -> "small"
+                            1 -> "regular"
+                            else -> "large"
+                        },
+                        onChange = { value ->
+                            segmentedIndex = when (value) {
+                                "small" -> 0
+                                "regular" -> 1
+                                else -> 2
+                            }
+                        },
+                        enabled = enabled,
+                    )
+                    AdaptiveCheckbox(
+                        checked = checkboxChecked,
+                        onCheckedChange = { checkboxChecked = it },
+                        enabled = enabled,
+                        label = "Circle checkbox",
+                    )
+                    AdaptiveDotCheckbox(
+                        checked = dotChecked,
+                        onCheckedChange = { dotChecked = it },
+                        enabled = enabled,
+                        label = "Dot checkbox",
+                    )
+                    AdaptiveLineCheckbox(
+                        checked = lineChecked,
+                        onCheckedChange = { lineChecked = it },
+                        enabled = enabled,
+                        label = "Line checkbox",
+                    )
+                }
+
+                PlaygroundGroup(title = "Adaptive Placeholder") {
+                    PlaygroundSwitchRow(
+                        text = "Loading content",
+                        checked = showPlaceholder,
+                        onCheckedChange = { showPlaceholder = it },
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = IenTheme.colors.surfaceRaised,
+                                shape = ContinuousRoundedRectangle(IenTheme.radius.default),
+                            )
+                            .padding(IenTheme.spacing.md),
+                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(44.dp)
+                                .adaptivePlaceholder(
+                                    enabled = showPlaceholder,
+                                    adaptation = {
+                                        material { shape = CircleShape }
+                                        cupertino { shape = CircleShape }
+                                    },
+                                ),
+                        )
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                        ) {
+                            Text(
+                                text = "Avery Johnson",
+                                modifier = Modifier
+                                    .fillMaxWidth(0.62f)
+                                    .adaptivePlaceholder(enabled = showPlaceholder),
+                            )
+                            Text(
+                                text = "Product designer",
+                                modifier = Modifier
+                                    .fillMaxWidth(0.46f)
+                                    .adaptivePlaceholder(enabled = showPlaceholder),
+                            )
+                        }
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(112.dp)
+                            .adaptivePlaceholder(enabled = showPlaceholder),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text("Featured content")
+                    }
+                }
+
+                PlaygroundGroup(title = "SwipeBox") {
+                    IenSwipeBox(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(72.dp),
+                        actionItemBuilder = {
+                            end {
+                                IenSwipeBoxItem(
+                                    onClick = { swipeActionCount += 1 },
+                                    tone = IenSemanticTone.Danger,
+                                    onClickLabel = "삭제",
+                                    label = "삭제",
+                                )
+                            }
+                        },
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = IenTheme.spacing.md),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text("왼쪽으로 밀어 액션을 확인하세요")
+                        }
+                    }
+                    Text("액션 실행 ${swipeActionCount}회")
+                }
+
+                PlaygroundGroup(title = "Feedback") {
+                    AdaptiveSlider(
+                        value = sliderValue,
+                        onValueChange = { sliderValue = it },
+                        enabled = enabled,
+                        label = "Slider",
+                        valueLabel = "${(sliderValue * 100).toInt()}%",
+                    )
+                    AdaptiveRangeSlider(
+                        value = sliderRange,
+                        onValueChange = { sliderRange = it },
+                        enabled = enabled,
+                    )
+                    Text(
+                        text = "범위 ${(sliderRange.start * 100).toInt()}%–${(sliderRange.endInclusive * 100).toInt()}%",
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.lg),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        AdaptiveCircularProgressIndicator()
+                        AdaptiveLoadingIndicator()
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(IenTheme.spacing.xl))
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlaygroundGroup(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+    ) {
+        Text(
+            text = title,
+            style = IenTheme.typography.title3,
+            color = IenTheme.colors.textPrimary,
+        )
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(IenTheme.spacing.sm),
+            content = content,
+        )
+    }
+}
+
+@Composable
+private fun PlaygroundSwitchRow(
+    text: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(text = text)
+        AdaptiveSwitch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            enabled = enabled,
+        )
+    }
+}
+
+@Composable
+private fun SampleIcon() {
+    IenIcon(
+        icon = IconData.Vector(SystemIcons.Save),
+        contentDescription = null,
+        modifier = Modifier.size(IenTheme.icon.md),
+    )
+}
+
+@Preview
+@Composable
+private fun AdaptivePlaygroundScreenPreview() {
+    AdaptivePlaygroundScreen()
+}

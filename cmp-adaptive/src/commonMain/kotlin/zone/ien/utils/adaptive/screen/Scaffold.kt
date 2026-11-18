@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ScaffoldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -70,12 +71,15 @@ import zone.ien.hig.CupertinoTopAppBarDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.FabPosition
 import zone.ien.hig.LocalCupertinoRightSystemArea
+import zone.ien.hig.LocalCupertinoNativeBarsPadding
 import zone.ien.hig.adaptive.Adaptation
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.cupertinoScrollEdge
 import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.navigation.NativeScrollContent
+import zone.ien.navigation.NativeBarButton
 import zone.ien.utils.adaptive.menu.HigActionMenu
 import zone.ien.utils.adaptive.menu.HigActionsMenu
 import zone.ien.utils.adaptive.theme.ienCupertinoGlassProminentButtonColors
@@ -83,6 +87,9 @@ import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.ui.menu.IenActionsMenu
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.primitives.IenProvideTextStyle
+import zone.ien.utils.ui.screen.IenTopBarTransition
+import zone.ien.utils.ui.screen.LocalIenCupertinoTopBarTransition
+import zone.ien.utils.ui.screen.LocalIenTopBarTransition
 import zone.ien.utils.ui.screen.IenScaffoldContentEdge
 import zone.ien.utils.ui.screen.LocalIsHigTopBarCenterAligned
 import zone.ien.utils.ui.screen.LocalIsM3TopBarCenterAligned
@@ -93,6 +100,7 @@ import zone.ien.utils.ui.screen.isIenSideBarLayout
 import zone.ien.utils.ui.screen.isIenSideBarAvailable
 import zone.ien.utils.ui.screen.LocalIenSideBarEnabled
 import zone.ien.utils.ui.screen.IenTopAppBar
+import zone.ien.utils.ui.screen.NativeScreenBar
 import zone.ien.utils.ui.screen.TopBarMode
 import zone.ien.utils.utils.ui.animateContentSizeWithoutClipping
 
@@ -182,8 +190,10 @@ fun AdaptiveScaffold(
                         contentEdge.scrollableState?.let { scrollState ->
                             Modifier.cupertinoScrollEdge(scrollState)
                         }
-                        CompositionLocalProvider(LocalBackdrop provides null) {
-                            content(contentPadding)
+                        NativeScrollContent {
+                            CompositionLocalProvider(LocalBackdrop provides null) {
+                                content(contentPadding)
+                            }
                         }
                     },
                 )
@@ -392,7 +402,10 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
                 )
             }
 
-            CompositionLocalProvider(LocalBackdrop provides backdrop) {
+            CompositionLocalProvider(
+                LocalBackdrop provides backdrop,
+                LocalIenCupertinoTopBarTransition provides false,
+            ) {
                 IenScaffold(
                     modifier = modifier.onGloballyPositioned {
                         scaffoldCoordinates.value = it
@@ -463,16 +476,23 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
 
             @Composable
             fun TopBar() {
+                val transition = LocalIenTopBarTransition.current
                 CupertinoTopAppBar(
                     title = title,
                     subtitle = subtitle,
                     modifier = topBarModifier,
-                    navigationIcon = { navigationIcon?.invoke() },
-                    actions = {
+                    navigationIcon = navigationIcon?.let { icon ->
+                        {
+                            Box(transition?.modifier(IenTopBarTransition.Slot.NavigationIcon) ?: Modifier) {
+                                icon()
+                            }
+                        }
+                    },
+                    actions = if (actions == null && primaryAction == null) null else ({
                         if (isSideBar) {
                             actions?.invoke(this)
                             primaryAction?.invoke(this)
-                        } else {
+                        } else if (actions != null || primaryAction != null) {
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(
                                     IenTheme.spacing.xxs + IenTheme.spacing.xxxs,
@@ -483,11 +503,12 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
                                     primaryAction?.invoke(this)
                                 },
                                 modifier = Modifier
+                                    .then(transition?.modifier(IenTopBarTransition.Slot.Actions) ?: Modifier)
                                     .animateContentSizeWithoutClipping()
                                     .heightIn(min = 48.dp)
                             )
                         }
-                    },
+                    }),
                     windowInsets = it.topBarWindowInsets,
                     isCenterAligned = it.isCenterAligned,
                     isBackgroundAdaptive = it.isBackgroundAdaptive,
@@ -499,6 +520,7 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
 
             CompositionLocalProvider(
                 LocalBackdrop provides it.backdrop,
+                LocalIenCupertinoTopBarTransition provides true,
                 LocalCupertinoRightSystemArea provides ownsRightSystemArea,
                 LocalIenSideBarEnabled provides ownsRightSystemArea,
                 LocalAdaptiveSideBarLayout provides isSideBar,
@@ -544,26 +566,102 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
                         contentEdge.scrollableState?.let { scrollState ->
                             Modifier.cupertinoScrollEdge(scrollState)
                         }
-                        CompositionLocalProvider(
-                            LocalBackdrop provides null,
-                            LocalTopBarScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState),
-                        ) {
-                            content(
-                                contentPadding,
-                                {
-                                    if (topBarMode == TopBarMode.Expanded) {
-                                        CupertinoNavigationTitle(
-                                            title = title,
-                                            subtitle = subtitle
-                                        )
+                        NativeScrollContent {
+                            CompositionLocalProvider(
+                                LocalBackdrop provides null,
+                                LocalTopBarScaffoldScrollState provides (effectiveContentEdge.scrollableState as? ScrollState),
+                            ) {
+                                content(
+                                    contentPadding,
+                                    {
+                                        if (topBarMode == TopBarMode.Expanded) {
+                                            CupertinoNavigationTitle(
+                                                title = title,
+                                                subtitle = subtitle
+                                            )
+                                        }
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 )
             }
         }
+    )
+}
+
+/**
+ * 문자열 제목을 Compose와 native 내비게이션 바에 함께 제공하는 스캐폴드입니다.
+ *
+ * @param modifier 스캐폴드 수정자
+ * @param topBarModifier 상단 바 수정자
+ * @param title Compose와 native 내비게이션 바에서 사용할 제목
+ * @param subtitle 부제목
+ * @param showTopBar Compose 상단 바 표시 여부
+ * @param navigationIcon Compose 상단 바 내비게이션 아이콘
+ * @param nativeLeading native 내비게이션 바 왼쪽에 표시할 사용자 지정 버튼
+ * @param actions 상단 바 액션
+ * @param primaryAction 주요 액션
+ * @param bottomBar 하단 바
+ * @param snackbarHost 스낵바 호스트
+ * @param floatingActionButton 플로팅 액션 버튼
+ * @param fabPosition Material 상단 바의 플로팅 액션 버튼 위치
+ * @param higFabPosition Cupertino 상단 바의 플로팅 액션 버튼 위치
+ * @param contentEdge 콘텐츠 모서리 효과 설정
+ * @param topBarMode 상단 바 표시 방식
+ * @param adaptation 어댑테이션 설정
+ * @param backdrop 스캐폴드 기본 배경 레이어
+ * @param content 스캐폴드 콘텐츠
+ */
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun AdaptiveTopAppBarScaffold(
+    modifier: Modifier = Modifier,
+    topBarModifier: Modifier = Modifier,
+    title: String,
+    subtitle: @Composable (() -> Unit)? = null,
+    showTopBar: Boolean = true,
+    navigationIcon: (@Composable () -> Unit)? = null,
+    nativeLeading: List<NativeBarButton> = emptyList(),
+    actions: List<ActionMenuItem> = emptyList(),
+    primaryAction: ActionMenuItem.IconMenuItem? = null,
+    bottomBar: (@Composable () -> Unit)? = null,
+    snackbarHost: @Composable () -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
+    fabPosition: FabPosition = FabPosition.Center,
+    higFabPosition: FabPosition = fabPosition,
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
+    topBarMode: TopBarMode = LocalTopBarMode.current,
+    adaptation: AdaptationScope<HigTopAppBarScaffoldAdaptation, IenTopAppBarScaffoldAdaptation>.() -> Unit = {},
+    backdrop: LayerBackdrop = LocalBackdrop.current ?: rememberDefaultBackdrop(),
+    content: @Composable (PaddingValues, @Composable () -> Unit) -> Unit
+) {
+    val isNativeScreen = NativeScreenBar(
+        title = title,
+        leading = nativeLeading,
+        actions = actions,
+        primaryAction = primaryAction,
+    )
+    AdaptiveTopAppBarScaffold(
+        modifier = modifier,
+        topBarModifier = topBarModifier,
+        title = { Text(text = title) },
+        subtitle = subtitle,
+        showTopBar = showTopBar && !isNativeScreen,
+        navigationIcon = navigationIcon,
+        actions = actions,
+        primaryAction = primaryAction,
+        bottomBar = bottomBar,
+        snackbarHost = snackbarHost,
+        floatingActionButton = floatingActionButton,
+        fabPosition = fabPosition,
+        higFabPosition = higFabPosition,
+        contentEdge = contentEdge,
+        topBarMode = topBarMode,
+        adaptation = adaptation,
+        backdrop = backdrop,
+        content = content,
     )
 }
 
@@ -958,6 +1056,7 @@ internal class TopAppBarScaffoldAdaptation(
     }
 }
 
+/** 큰 제목입니다. 플랫폼이 내비게이션 바를 그리는 화면에서는 그 바가 큰 제목을 보이므로 그리지 않습니다. */
 @Composable
 private fun IenNavigationTitle(
     title: @Composable () -> Unit,
@@ -966,6 +1065,7 @@ private fun IenNavigationTitle(
     scaffoldCoordinates: LayoutCoordinates?,
     onVisibilityChange: (Boolean) -> Unit,
 ) {
+    if (LocalCupertinoNativeBarsPadding.current != null) return
     var offsetDifference by remember { mutableStateOf(0f) }
     var actualTitleHeight by remember { mutableStateOf(0f) }
     val topAppBarExists = topBarHeight > 0f
