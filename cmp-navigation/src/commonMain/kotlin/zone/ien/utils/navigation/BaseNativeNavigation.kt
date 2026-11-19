@@ -24,6 +24,7 @@ import zone.ien.navigation.NativeTab as SwiftNativeTab
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.asPainter
 import zone.ien.navigation.nativeScreen
+import zone.ien.navigation.nativeTitleImage
 import zone.ien.navigation.NativeTabBarTint
 import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.navigation.NativeTabs
@@ -56,6 +57,7 @@ private class NativeTabConfiguration(
  * 기존 [BaseNavDisplay]를 감싸 첫 엔트리를 네이티브 탭으로 표시합니다.
  * [tabBackStack]은 앱과 UIKit이 함께 사용하는 탭 선택 상태이며, 상세 화면의 push/pop은
  * 기존 BaseNavDisplay의 백스택을 그대로 사용합니다. 다른 플랫폼에서는 [content]를 실행합니다.
+ * 첫 엔트리의 제목 이미지는 네이티브 탭의 제목 영역에 표시됩니다.
  * [overlay]는 현재 보이는 화면 위에서 한 번 실행됩니다.
  */
 @Composable
@@ -105,9 +107,37 @@ fun <T : NavKey> BaseNavigationTabs(
     overlay: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
+    BaseNavigationTabs(
+        tabBackStack, tabs, title, icon, tabContent, badgeCount = { null },
+        selectedIcon, largeTitle, overlay, content,
+    )
+}
+
+/** [badgeCount]가 양수인 탭에 숫자 배지를 표시합니다. */
+@Composable
+fun <T : NavKey> BaseNavigationTabs(
+    tabBackStack: NavBackStack<T>,
+    tabs: List<T>,
+    title: @Composable (T) -> String,
+    icon: @Composable (T) -> IconData,
+    tabContent: @Composable (T) -> Unit,
+    badgeCount: @Composable (T) -> Int?,
+    selectedIcon: @Composable (T) -> IconData? = { null },
+    largeTitle: Boolean = true,
+    overlay: @Composable () -> Unit = {},
+    content: @Composable () -> Unit,
+) {
     NavigationTabs(
         tabBackStack, tabs, title,
-        createTab = { route, label -> NativeTab<NavKey>(label, icon(route), listOf(route), selectedIcon(route)) },
+        createTab = { route, label ->
+            SwiftNativeTab<NavKey>(
+                title = label,
+                backStack = listOf(route),
+                image = icon(route).asPainter(),
+                selectedImage = selectedIcon(route)?.asPainter(),
+                badgeCount = badgeCount(route),
+            )
+        },
         tabContent, largeTitle, overlay, content,
     )
 }
@@ -348,7 +378,16 @@ internal fun <T : NavKey> NativeBaseNavDisplay(
     if (tabConfiguration != null) {
         val sharedEntries = visibleBackStack.drop(1).zip(decorated.drop(1))
             .associate { keyedEntry(it.first, it.second) }
-        val entries = tabConfiguration.entries + sharedEntries
+        val titleImage = decorated.firstOrNull()?.nativeTitleImage
+        val tabEntries = if (titleImage == null) tabConfiguration.entries else {
+            val titleImageMetadata = nativeScreen(titleImage = titleImage)
+            tabConfiguration.entries.mapValues { (route, entry) ->
+                NavEntry(route, contentKey = entry.contentKey, metadata = titleImageMetadata + entry.metadata) {
+                    entry.Content()
+                }
+            }
+        }
+        val entries = tabEntries + sharedEntries
         CompositionLocalProvider(LocalNativeTabConfiguration provides null) {
             NativeTabNavDisplay<NavKey>(
                 tabs = tabConfiguration.tabs,
@@ -471,7 +510,17 @@ private fun <T : NavKey> NativeTabNavDisplay(
     val selectedEntries = tabs.getOrNull(selectedTab)?.backStack.orEmpty()
     val topKey = parentKeys.lastOrNull() ?: sharedBackStack.lastOrNull() ?: selectedEntries.lastOrNull()
     NativeTabs<NavKey>(
-        tabs = tabs.map { SwiftNativeTab<NavKey>(it.title, it.systemImage, it.backStack, it.image, it.selectedImage, it.onBack) },
+        tabs = tabs.map { tab ->
+            SwiftNativeTab<NavKey>(
+                title = tab.title,
+                systemImage = tab.systemImage,
+                backStack = tab.backStack,
+                image = tab.image,
+                selectedImage = tab.selectedImage,
+                badgeCount = tab.badgeCount,
+                onBack = tab.onBack,
+            )
+        },
         selectedTab = selectedTab,
         onTabSelected = onTabSelected,
         sharedBackStack = sharedBackStack + parentKeys,

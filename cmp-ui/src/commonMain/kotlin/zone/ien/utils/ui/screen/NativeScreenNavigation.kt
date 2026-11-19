@@ -21,6 +21,7 @@ import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.asPainter
 import androidx.compose.ui.graphics.Color
 import zone.ien.hig.LocalCupertinoNativeBarsPadding
+import zone.ien.navigation.LocalNativeNavigationBarHidden
 import zone.ien.navigation.LocalNativeScreen
 import zone.ien.navigation.NativeBarButton as SwiftNativeBarButton
 import zone.ien.navigation.NativeMenuAction
@@ -40,16 +41,17 @@ import zone.ien.utils.ui.menu.ActionMenuItem
 /**
  * 현재 native 화면의 내비게이션 바 여백을 Cupertino 구성 요소에 제공합니다.
  *
- * 기존에 바 여백이 제공된 화면에서는 해당 값을 유지하고, native 화면에서는 navigation host의 여백을 사용합니다.
+ * 네이티브 바가 숨겨진 화면은 자체 스캐폴드가 안전 영역을 처리합니다.
+ * 그 외 네이티브 화면은 내비게이션 호스트의 여백을 사용합니다.
  *
  * @param content 여백을 제공할 콘텐츠
  */
 @Composable
 public fun ProvideNativeScreenPadding(content: @Composable () -> Unit) {
-    val padding = if (LocalNativeScreen.current) {
-        nativeContentPadding()
-    } else {
-        LocalCupertinoNativeBarsPadding.current
+    val padding = when {
+        LocalNativeNavigationBarHidden.current -> null
+        LocalNativeScreen.current -> nativeContentPadding()
+        else -> LocalCupertinoNativeBarsPadding.current
     }
     CompositionLocalProvider(
         LocalCupertinoNativeBarsPadding provides padding,
