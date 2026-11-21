@@ -79,7 +79,7 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.cupertinoScrollEdge
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.navigation.NativeScrollContent
-import zone.ien.navigation.NativeBarButton
+import zone.ien.navigation.NativeBarComponent
 import zone.ien.utils.adaptive.menu.HigActionMenu
 import zone.ien.utils.adaptive.menu.HigActionsMenu
 import zone.ien.utils.adaptive.theme.ienCupertinoGlassProminentButtonColors
@@ -600,7 +600,7 @@ private fun AdaptiveTopAppBarScaffoldWithPrimaryAction(
  * @param subtitle 부제목
  * @param showTopBar Compose 상단 바 표시 여부
  * @param navigationIcon Compose 상단 바 내비게이션 아이콘
- * @param nativeLeading native 내비게이션 바 왼쪽에 표시할 사용자 지정 버튼
+ * @param nativeLeading 네이티브 내비게이션 바 왼쪽에 표시할 항목
  * @param actions 상단 바 액션
  * @param primaryAction 주요 액션
  * @param bottomBar 하단 바
@@ -623,7 +623,7 @@ fun AdaptiveTopAppBarScaffold(
     subtitle: @Composable (() -> Unit)? = null,
     showTopBar: Boolean = true,
     navigationIcon: (@Composable () -> Unit)? = null,
-    nativeLeading: List<NativeBarButton> = emptyList(),
+    nativeLeading: List<NativeBarComponent> = emptyList(),
     actions: List<ActionMenuItem> = emptyList(),
     primaryAction: ActionMenuItem.IconMenuItem? = null,
     bottomBar: (@Composable () -> Unit)? = null,

@@ -24,6 +24,8 @@ import zone.ien.hig.LocalCupertinoNativeBarsPadding
 import zone.ien.navigation.LocalNativeNavigationBarHidden
 import zone.ien.navigation.LocalNativeScreen
 import zone.ien.navigation.NativeBarButton as SwiftNativeBarButton
+import zone.ien.navigation.NativeBarComponent
+import zone.ien.navigation.NativeBarText
 import zone.ien.navigation.NativeMenuAction
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -63,7 +65,7 @@ public fun ProvideNativeScreenPadding(content: @Composable () -> Unit) {
  * UIKit 내비게이션 바가 있는 화면에 제목과 액션을 연결합니다.
  *
  * @param title 내비게이션 바 제목
- * @param leading 왼쪽에 표시할 사용자 지정 native 버튼
+ * @param leading 왼쪽에 표시할 네이티브 항목
  * @param actions 오른쪽에 표시할 액션 항목
  * @param primaryAction 오른쪽 끝에 표시할 주요 액션
  * @return native 화면이면 `true`
@@ -71,7 +73,7 @@ public fun ProvideNativeScreenPadding(content: @Composable () -> Unit) {
 @Composable
 public fun NativeScreenBar(
     title: String? = null,
-    leading: List<SwiftNativeBarButton> = emptyList(),
+    leading: List<NativeBarComponent> = emptyList(),
     actions: List<ActionMenuItem> = emptyList(),
     primaryAction: ActionMenuItem.IconMenuItem? = null,
 ): Boolean {
@@ -92,8 +94,14 @@ public fun NativeScreenBar(
                 images = images,
                 maxVisibleItems = with(LocalDensity.current) {
                     val width = LocalWindowInfo.current.containerSize.width.toDp().value
-                    val reservedButtons = leading.size + if (primaryAction?.visible == true) 1 else 0
-                    (width / 2f / 44f - reservedButtons).toInt().coerceIn(0, 3)
+                    val leadingWidth = leading.fold(0f) { total, item ->
+                        total + when (item) {
+                            is NativeBarText -> item.width
+                            is SwiftNativeBarButton -> 44f
+                        }
+                    }
+                    val primaryWidth = if (primaryAction?.visible == true) 44f else 0f
+                    ((width / 2f - leadingWidth - primaryWidth) / 44f).toInt().coerceIn(0, 3)
                 },
                 overflowTitle = stringResource(Res.string.more_options),
             ),

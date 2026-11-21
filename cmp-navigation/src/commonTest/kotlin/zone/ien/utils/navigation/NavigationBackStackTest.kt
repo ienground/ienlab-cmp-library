@@ -9,6 +9,30 @@ import kotlin.test.assertNull
 class NavigationBackStackTest {
     private data object Root : NavKey
     private data object Detail : NavKey
+    private data class Item(val id: String) : NavKey
+
+    @Test
+    fun navigateToAddsRouteOnlyOnce() {
+        val backStack = NavBackStack<NavKey>(Root)
+
+        backStack.navigateTo(Detail)
+        backStack.navigateTo(Detail)
+
+        assertEquals(listOf(Root, Detail), backStack.toList())
+    }
+
+    @Test
+    fun navigateToPopsToExistingRouteAndDistinguishesArguments() {
+        val first = Item("first")
+        val second = Item("second")
+        val backStack = NavBackStack<NavKey>(Root, first)
+
+        backStack.navigateTo(second)
+        assertEquals(listOf(Root, first, second), backStack.toList())
+
+        backStack.navigateTo(Item("first"))
+        assertEquals(listOf(Root, first), backStack.toList())
+    }
 
     @Test
     fun navigateBackRemovesAndReturnsTopEntry() {

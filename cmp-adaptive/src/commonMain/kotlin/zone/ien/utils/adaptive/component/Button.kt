@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,7 +53,10 @@ import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.screen.LocalBackdrop
 import zone.ien.utils.adaptive.screen.LocalAdaptiveSideBarLayout
+import zone.ien.navigation.NativeFloatingActionButton
+import zone.ien.navigation.isNativeFloatingActionButtonAvailable
 import zone.ien.utils.icon.IconData
+import zone.ien.utils.icon.asPainter
 import zone.ien.utils.icon.LocalBackButtonIcon
 import zone.ien.utils.icon.LocalButtonProviderDefault
 import zone.ien.utils.adaptive.theme.ienCupertinoGlassProminentButtonColors
@@ -66,6 +70,7 @@ import zone.ien.utils.ui.interactive.IenButtonSize
 import zone.ien.utils.ui.interactive.IenButtonState
 import zone.ien.utils.ui.interactive.IenButtonVariant
 import zone.ien.utils.ui.interactive.IenExtendedFab
+import zone.ien.utils.ui.interactive.IenFab
 import zone.ien.utils.ui.interactive.IenIconButton
 import zone.ien.utils.ui.interactive.IenIconToggleButton
 import zone.ien.utils.ui.interactive.IenTextButton
@@ -759,6 +764,36 @@ fun AdaptiveExtendedFloatingActionButton(
             }
         },
     )
+}
+
+/** 라벨과 아이콘을 사용해 스캐폴드의 FAB 슬롯에 플랫폼 버튼을 표시합니다. */
+@Composable
+fun AdaptiveExtendedFloatingActionButton(
+    label: String,
+    icon: IconData,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+) {
+    val nativeIcon = if (isNativeFloatingActionButtonAvailable) icon.asPainter() else null
+    if (nativeIcon != null) {
+        NativeFloatingActionButton(
+            label = label,
+            icon = nativeIcon,
+            modifier = modifier,
+            enabled = enabled,
+            tint = IenTheme.colors.brand,
+            onClick = onClick,
+        )
+    } else {
+        IenFab(
+            onClick = onClick,
+            icon = { IenIcon(icon = icon, contentDescription = null) },
+            text = { Text(text = label) },
+            modifier = modifier,
+            state = IenButtonState(enabled = enabled),
+        )
+    }
 }
 
 /**

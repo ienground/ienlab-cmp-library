@@ -4,6 +4,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.kyant.backdrop.Backdrop
 import zone.ien.hig.CupertinoSwitch
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.AdaptiveWidget
@@ -22,6 +23,28 @@ fun AdaptiveSwitch(
     enabled: Boolean = true,
     thumbContent: @Composable (() -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
+) {
+    AdaptiveSwitch(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = modifier,
+        enabled = enabled,
+        thumbContent = thumbContent,
+        interactionSource = interactionSource,
+        backdrop = null,
+    )
+}
+
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
+@Composable
+fun AdaptiveSwitch(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    thumbContent: @Composable (() -> Unit)? = null,
+    interactionSource: MutableInteractionSource? = null,
+    backdrop: Backdrop?,
 ) {
     AdaptiveWidget(
         material = {
@@ -42,7 +65,7 @@ fun AdaptiveSwitch(
                 enabled = enabled,
                 colors = ienCupertinoSwitchColors(),
                 interactionSource = interactionSource ?: remember { MutableInteractionSource() },
-                backdrop = LocalBackdrop.current ?: rememberDefaultBackdrop(),
+                backdrop = backdrop ?: LocalBackdrop.current ?: rememberDefaultBackdrop(),
             )
         },
     )
