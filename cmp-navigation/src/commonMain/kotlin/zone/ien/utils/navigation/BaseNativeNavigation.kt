@@ -1,6 +1,7 @@
 package zone.ien.utils.navigation
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.imePadding
 import zone.ien.utils.ui.foundation.IenTokens
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
@@ -10,6 +11,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
@@ -243,6 +245,11 @@ internal fun <T : NavKey> NavigationTabEntry(
 /** 현재 호스트가 네이티브 내비게이션을 사용하는지 반환합니다. */
 val isNativeNavigation: Boolean
     @Composable get() = LocalNativeNavigationEnabled.current
+
+/** Compose 호스트에만 키보드 여백을 적용합니다. 네이티브 화면은 호스트가 키보드 여백을 관리합니다. */
+@Composable
+fun Modifier.navigationImePadding(): Modifier =
+    if (isNativeNavigation) this else imePadding()
 
 /** 현재 엔트리가 선택된 탭과 상위 공유 화면을 합친 스택의 맨 위인지 반환합니다. */
 val isNativeNavigationTopEntry: Boolean

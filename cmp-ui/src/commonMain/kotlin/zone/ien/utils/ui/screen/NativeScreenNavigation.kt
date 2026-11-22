@@ -14,6 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.painter.Painter
@@ -253,6 +258,36 @@ fun IenLazyColumn(
         reverseLayout = reverseLayout,
         verticalArrangement = verticalArrangement,
         horizontalAlignment = horizontalAlignment,
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled && (nativeScroll?.userScrollEnabled ?: true),
+        content = content,
+    )
+}
+
+/** 그리드 상태를 네이티브 스크롤에 연결합니다. 중첩 콘텐츠는 [nativeScrollEnabled]로 연결을 끌 수 있습니다. */
+@Composable
+fun IenLazyVerticalGrid(
+    columns: GridCells,
+    modifier: Modifier = Modifier,
+    state: LazyGridState = rememberLazyGridState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    reverseLayout: Boolean = false,
+    verticalArrangement: Arrangement.Vertical = if (!reverseLayout) Arrangement.Top else Arrangement.Bottom,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
+    nativeScrollEnabled: Boolean = true,
+    content: LazyGridScope.() -> Unit,
+) {
+    val nativeScroll = if (nativeScrollEnabled && userScrollEnabled && isNativeScreen()) rememberNativeScroll(state) else null
+    LazyVerticalGrid(
+        columns = columns,
+        modifier = modifier,
+        state = state,
+        contentPadding = contentPadding,
+        reverseLayout = reverseLayout,
+        verticalArrangement = verticalArrangement,
+        horizontalArrangement = horizontalArrangement,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled && (nativeScroll?.userScrollEnabled ?: true),
         content = content,

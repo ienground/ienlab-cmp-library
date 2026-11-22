@@ -45,6 +45,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -55,6 +56,7 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
@@ -134,6 +136,69 @@ fun AdaptiveScaffold(
     contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    AdaptiveScaffold(
+        reserveNativeFloatingActionButtonSpace = false,
+        modifier = modifier,
+        topBar = topBar,
+        bottomBar = bottomBar,
+        snackbarHost = snackbarHost,
+        floatingActionButton = floatingActionButton,
+        floatingActionButtonPosition = floatingActionButtonPosition,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        contentWindowInsets = contentWindowInsets,
+        contentEdge = contentEdge,
+        content = content,
+    )
+}
+
+/**
+ * [AdaptiveScaffold]에서 네이티브 FAB와 콘텐츠가 겹치지 않도록 선택적으로 여백을 확보합니다.
+ * [contentPadding]을 전달하면 상위 스캐폴드의 여백을 기준으로 네이티브 FAB 공간을 더합니다.
+ */
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
+@Composable
+fun AdaptiveScaffold(
+    reserveNativeFloatingActionButtonSpace: Boolean,
+    contentPadding: PaddingValues? = null,
+    modifier: Modifier = Modifier,
+    topBar: @Composable () -> Unit = {},
+    bottomBar: (@Composable () -> Unit)? = null,
+    snackbarHost: @Composable () -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
+    floatingActionButtonPosition: FabPosition = FabPosition.End,
+    containerColor: Color = Color.Unspecified,
+    contentColor: Color = Color.Unspecified,
+    contentWindowInsets: WindowInsets? = null,
+    contentEdge: IenScaffoldContentEdge = IenScaffoldContentEdge(enabled = false),
+    content: @Composable (PaddingValues) -> Unit,
+) {
+    val fabHeight = remember { mutableStateOf(0.dp) }
+    val onNativeFabHeightChanged: ((Dp) -> Unit)? = if (reserveNativeFloatingActionButtonSpace) {
+        remember { { height -> fabHeight.value = height } }
+    } else null
+    val fabSlot: @Composable () -> Unit = {
+        CompositionLocalProvider(LocalAdaptiveNativeFabHeightChanged provides onNativeFabHeightChanged) {
+            floatingActionButton()
+        }
+    }
+    val paddedContent: @Composable (PaddingValues) -> Unit = { scaffoldPadding ->
+        val padding = contentPadding ?: scaffoldPadding
+        if (onNativeFabHeightChanged == null) {
+            content(padding)
+        } else {
+            val spacing = IenTheme.spacing.md
+            val paddingWithFab = remember(padding, spacing) {
+                object : PaddingValues by padding {
+                    override fun calculateBottomPadding(): Dp {
+                        val height = fabHeight.value
+                        return padding.calculateBottomPadding() + if (height > 0.dp) height + spacing else 0.dp
+                    }
+                }
+            }
+            content(paddingWithFab)
+        }
+    }
     val backdrop = LocalBackdrop.current ?: rememberDefaultBackdrop()
 
     AdaptiveWidget(
@@ -144,7 +209,7 @@ fun AdaptiveScaffold(
                     topBar = topBar,
                     bottomBar = bottomBar,
                     snackbarHost = snackbarHost,
-                    floating = floatingActionButton,
+                    floating = fabSlot,
                     floatingActionButtonPosition = when (floatingActionButtonPosition) {
                         FabPosition.End -> androidx.compose.material3.FabPosition.End
                         else -> androidx.compose.material3.FabPosition.Center
@@ -155,7 +220,7 @@ fun AdaptiveScaffold(
                     contentEdge = contentEdge,
                     content = { contentPadding ->
                         CompositionLocalProvider(LocalBackdrop provides null) {
-                            content(contentPadding)
+                            paddedContent(contentPadding)
                         }
                     },
                 )
@@ -176,7 +241,7 @@ fun AdaptiveScaffold(
                     topBar = topBar,
                     bottomBar = { bottomBar?.invoke() },
                     snackbarHost = snackbarHost,
-                    floatingActionButton = floatingActionButton,
+                    floatingActionButton = fabSlot,
                     floatingActionButtonPosition = floatingActionButtonPosition,
                     containerColor = containerColor.takeOrElse {
                         CupertinoScaffoldDefaults.containerColor
@@ -192,7 +257,7 @@ fun AdaptiveScaffold(
                         }
                         NativeScrollContent {
                             CompositionLocalProvider(LocalBackdrop provides null) {
-                                content(contentPadding)
+                                paddedContent(contentPadding)
                             }
                         }
                     },
@@ -201,6 +266,8 @@ fun AdaptiveScaffold(
         },
     )
 }
+
+internal val LocalAdaptiveNativeFabHeightChanged = staticCompositionLocalOf<((Dp) -> Unit)?> { null }
 
 /**
  * 적응형 상단바 스캐폴드 컴포저블

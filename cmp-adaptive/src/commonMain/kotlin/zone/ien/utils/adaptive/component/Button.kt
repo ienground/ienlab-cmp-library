@@ -15,11 +15,14 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -28,6 +31,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -55,6 +60,7 @@ import zone.ien.utils.adaptive.screen.LocalBackdrop
 import zone.ien.utils.adaptive.screen.LocalAdaptiveSideBarLayout
 import zone.ien.navigation.NativeFloatingActionButton
 import zone.ien.navigation.isNativeFloatingActionButtonAvailable
+import zone.ien.utils.adaptive.screen.LocalAdaptiveNativeFabHeightChanged
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.asPainter
 import zone.ien.utils.icon.LocalBackButtonIcon
@@ -775,16 +781,58 @@ fun AdaptiveExtendedFloatingActionButton(
     enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
+    AdaptiveExtendedFloatingActionButton(
+        label = label,
+        icon = icon,
+        modifier = modifier,
+        enabled = enabled,
+        extendedFallback = false,
+        onClick = onClick,
+    )
+}
+
+/** 네이티브 FAB를 사용할 수 없는 화면에서 [IenExtendedFab] 스타일을 선택할 수 있습니다. */
+@Composable
+fun AdaptiveExtendedFloatingActionButton(
+    label: String,
+    icon: IconData,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    extendedFallback: Boolean,
+    onClick: () -> Unit,
+) {
     val nativeIcon = if (isNativeFloatingActionButtonAvailable) icon.asPainter() else null
     if (nativeIcon != null) {
+        val onHeightChanged = LocalAdaptiveNativeFabHeightChanged.current
+        val measuredModifier = if (onHeightChanged == null) modifier else {
+            val density = LocalDensity.current
+            DisposableEffect(onHeightChanged) {
+                onDispose { onHeightChanged(0.dp) }
+            }
+            modifier.onSizeChanged { onHeightChanged(with(density) { it.height.toDp() }) }
+        }
         NativeFloatingActionButton(
             label = label,
             icon = nativeIcon,
-            modifier = modifier,
+            modifier = measuredModifier,
             enabled = enabled,
             tint = IenTheme.colors.brand,
             onClick = onClick,
         )
+    } else if (extendedFallback) {
+        IenExtendedFab(
+            onClick = onClick,
+            modifier = modifier,
+            state = IenButtonState(enabled = enabled),
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(IenTheme.spacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IenIcon(icon = icon, contentDescription = label)
+                Text(text = label)
+            }
+        }
     } else {
         IenFab(
             onClick = onClick,
