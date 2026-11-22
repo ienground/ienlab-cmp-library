@@ -12,7 +12,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
@@ -200,6 +204,34 @@ val isNavigationEntryActive: Boolean
 @Composable
 fun <T : NavKey> isNavigationRouteActive(backStack: NavBackStack<T>, route: T): Boolean =
     isNavigationEntryActive && currentNavigationRoute(backStack) == route
+
+/**
+ * 백스택에 같은 스코프의 화면이 남아 있는 동안 ViewModel 소유자를 공유합니다.
+ * 스코프는 메모리에 유지되며 별도의 SavedStateHandle을 만들지 않습니다.
+ */
+@Composable
+fun <T : NavKey, S : Any> rememberNavigationViewModelStoreOwners(
+    backStack: NavBackStack<T>,
+    scopeOf: (T) -> S?,
+): Map<S, ViewModelStoreOwner> = backStack.mapNotNull(scopeOf).distinct().associateWith { scope ->
+    key(scope) { rememberViewModelStoreOwner(savedStateRegistryOwner = null) }
+}
+
+/** 활성 네이티브 엔트리에만 화면 전용 뒤로가기를 등록합니다. */
+@Composable
+fun NativeNavigationBackHandler(
+    screen: ScreenInfo,
+    enabled: Boolean = true,
+    onBack: () -> Unit,
+) {
+    if (isNativeNavigation) {
+        NavigationBackHandler(
+            state = rememberNavigationEventState(screen),
+            isBackEnabled = isNavigationEntryActive && enabled,
+            onBackCompleted = onBack,
+        )
+    }
+}
 
 /** UIKit 탭 바를 사용하는 화면에서는 앱의 탭 바를 중복 표시하지 않습니다. */
 @Composable

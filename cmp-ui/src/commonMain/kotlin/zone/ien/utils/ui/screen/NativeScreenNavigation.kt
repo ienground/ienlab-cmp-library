@@ -39,8 +39,10 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.ui.menu.splitMenuItems
 import zone.ien.navigation.NativeBarItems
+import zone.ien.navigation.NativeBarSubtitle
 import zone.ien.navigation.NativeScroll
 import zone.ien.navigation.NativeSearchBar
+import zone.ien.navigation.nativeBarTransitionPlaceholder
 import zone.ien.navigation.nativeContentPadding
 import zone.ien.navigation.rememberNativeScroll
 import zone.ien.utils.ui.menu.ActionMenuItem
@@ -114,6 +116,33 @@ public fun NativeScreenBar(
     }
     return isNativeScreen
 }
+
+/** 제목, 부제목과 액션을 같은 네이티브 바에 연결합니다. */
+@Composable
+fun NativeScreenBar(
+    title: String?,
+    subtitle: String?,
+    leading: List<NativeBarComponent> = emptyList(),
+    actions: List<ActionMenuItem> = emptyList(),
+    primaryAction: ActionMenuItem.IconMenuItem? = null,
+): Boolean {
+    val usesNativeBar = NativeScreenBar(title, leading, actions, primaryAction)
+    if (usesNativeBar) NativeBarSubtitle(subtitle)
+    return usesNativeBar
+}
+
+/** 실제 화면의 액션 정의로 화면 전환에 사용할 비활성 버튼을 구성합니다. */
+@Composable
+fun initialNativeBarButton(
+    action: ActionMenuItem.IconMenuItem,
+    isPrimary: Boolean = false,
+    systemImage: String? = null,
+): SwiftNativeBarButton = nativeBarTransitionPlaceholder(
+    title = action.title,
+    image = if (systemImage == null) action.icon?.asPainter() else null,
+    systemImage = systemImage,
+    isPrimary = isPrimary,
+)
 
 /** 기존 IconData로 네이티브 선행 버튼과 툴바 버튼을 구성합니다. */
 @Composable

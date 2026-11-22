@@ -82,6 +82,7 @@ import zone.ien.hig.cupertinoScrollEdge
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.navigation.NativeScrollContent
 import zone.ien.navigation.NativeBarComponent
+import zone.ien.navigation.NativeBarSubtitle
 import zone.ien.utils.adaptive.menu.HigActionMenu
 import zone.ien.utils.adaptive.menu.HigActionsMenu
 import zone.ien.utils.adaptive.theme.ienCupertinoGlassProminentButtonColors
@@ -268,6 +269,13 @@ fun AdaptiveScaffold(
 }
 
 internal val LocalAdaptiveNativeFabHeightChanged = staticCompositionLocalOf<((Dp) -> Unit)?> { null }
+
+/** 같은 텍스트를 UIKit 부제목과 적응형 스캐폴드의 Compose 부제목 슬롯에 제공합니다. */
+@Composable
+fun adaptiveTopAppBarSubtitle(text: String?): (@Composable () -> Unit)? {
+    NativeBarSubtitle(text)
+    return text?.let { subtitle -> { Text(text = subtitle) } }
+}
 
 /**
  * 적응형 상단바 스캐폴드 컴포저블

@@ -66,6 +66,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotSame
 import kotlin.test.assertNotNull
+import kotlin.test.assertSame
 
 class NativeNavigationRootTest {
     private val navigationVisible = mutableStateOf(true)
@@ -389,6 +390,49 @@ class NativeNavigationRootTest {
             repeat(25) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }
             assertEquals("기본 화면", navigation.topViewController!!.navigationItem.title)
             kotlin.test.assertSame(firstController, navigation.topViewController)
+        } finally {
+            window.hidden = true
+            window.rootViewController = null
+        }
+    }
+
+    @OptIn(ExperimentalForeignApi::class)
+    @Test
+    fun `같은 세션의 마지막 화면이 빠질 때만 공유 ViewModel을 정리한다`() {
+        val stack = NavBackStack(Route("루트"), Route("채팅"), Route("리뷰"))
+        var currentModel: ScopeModel? = null
+        var cleared = 0
+        val controller = navigationController {
+            BaseNavigationFrame {
+                val owners = rememberNavigationViewModelStoreOwners(stack) { route ->
+                    "대화".takeIf { route.name != "루트" }
+                }
+                val model = owners["대화"]?.let { owner ->
+                    viewModel<ScopeModel>(viewModelStoreOwner = owner) { ScopeModel { cleared++ } }
+                }
+                SideEffect { currentModel = model }
+                BaseNavDisplay(backStack = stack, entryProvider = { NavEntry(it) {} })
+            }
+        }
+        val window = UIWindow(frame = UIScreen.mainScreen.bounds)
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        try {
+            fun removeTopAndWait() {
+                stack.removeLastOrNull()
+                Snapshot.sendApplyNotifications()
+                repeat(25) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }
+            }
+            repeat(25) {
+                if (currentModel == null) NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02))
+            }
+            val initialModel = assertNotNull(currentModel)
+            removeTopAndWait()
+            assertSame(initialModel, currentModel)
+            assertEquals(0, cleared)
+            removeTopAndWait()
+            assertEquals(null, currentModel)
+            assertEquals(1, cleared)
         } finally {
             window.hidden = true
             window.rootViewController = null
