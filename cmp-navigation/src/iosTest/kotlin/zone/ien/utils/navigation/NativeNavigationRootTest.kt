@@ -298,12 +298,11 @@ class NativeNavigationRootTest {
         val controller = navigationController {
             BaseNavigationFrame {
                 BaseNavigationTabs(
-                    tabBackStack = tabStack,
-                    tabs = TabKey.entries,
-                    title = { it.name },
-                    icon = { IconData.Vector(tabIcon) },
-                    selectedIcon = { IconData.Paint(ColorPainter(Color.Black)) },
-                    tabContent = { tab ->
+                    tabStack,
+                    TabKey.entries,
+                    { it.name },
+                    { IconData.Vector(tabIcon) },
+                    { tab ->
                         BaseNavigationTabBar { SideEffect { tabBars++ } }
                         BaseNavDisplay(
                             backStack = tabStack,
@@ -319,6 +318,7 @@ class NativeNavigationRootTest {
                             },
                         )
                     },
+                    { IconData.Paint(ColorPainter(Color.Black)) },
                     overlay = {
                         DisposableEffect(Unit) {
                             overlays++

@@ -78,7 +78,7 @@ fun <T : NavKey> BaseNavigationTabs(
     overlay: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
-    BaseNavigationTabs(tabBackStack, tabs, title, systemImage, { null }, tabContent, largeTitle, overlay, content)
+    BaseNavigationTabs(tabBackStack, tabs, title, systemImage, tabContent, largeTitle, overlay, titleImage = { null }, content)
 }
 
 /** [titleImage]가 반환한 이미지를 해당 탭의 네이티브 상단바에 표시합니다. */
@@ -88,10 +88,10 @@ fun <T : NavKey> BaseNavigationTabs(
     tabs: List<T>,
     title: @Composable (T) -> String,
     systemImage: (T) -> String,
-    titleImage: @Composable (T) -> Painter?,
     tabContent: @Composable (T) -> Unit,
     largeTitle: Boolean = true,
     overlay: @Composable () -> Unit = {},
+    titleImage: @Composable (T) -> Painter?,
     content: @Composable () -> Unit,
 ) {
     NavigationTabs(
@@ -131,8 +131,8 @@ fun <T : NavKey> BaseNavigationTabs(
     content: @Composable () -> Unit,
 ) {
     BaseNavigationTabs(
-        tabBackStack, tabs, title, icon, tabContent, badgeCount = { null },
-        selectedIcon, largeTitle, overlay, content,
+        tabBackStack, tabs, title, icon, tabContent, selectedIcon, largeTitle, overlay,
+        badgeCount = { null }, content,
     )
 }
 
@@ -144,10 +144,10 @@ fun <T : NavKey> BaseNavigationTabs(
     title: @Composable (T) -> String,
     icon: @Composable (T) -> IconData,
     tabContent: @Composable (T) -> Unit,
-    badgeCount: @Composable (T) -> Int?,
     selectedIcon: @Composable (T) -> IconData? = { null },
     largeTitle: Boolean = true,
     overlay: @Composable () -> Unit = {},
+    badgeCount: @Composable (T) -> Int?,
     content: @Composable () -> Unit,
 ) {
     BaseNavigationTabs(
