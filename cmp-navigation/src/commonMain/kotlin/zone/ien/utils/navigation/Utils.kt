@@ -25,6 +25,17 @@ fun <T : NavKey> NavBackStack<T>.navigateBack(): T? {
 }
 
 /**
+ * 지정한 Route가 백스택에 있으면 그 화면까지 돌아가고, 없으면 새 화면으로 추가합니다.
+ *
+ * @param route 이동할 Route
+ */
+fun <T : NavKey> NavBackStack<T>.navigateTo(route: T) {
+    Snapshot.withMutableSnapshot {
+        if (!popUpTo(route)) add(route)
+    }
+}
+
+/**
  * 뒤로가기를 처리합니다.
  *
  * 백스택에 이전 화면이 있으면 마지막 요소를 제거하고,

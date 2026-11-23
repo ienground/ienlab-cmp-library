@@ -14,15 +14,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.painter.Painter
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.asPainter
 import androidx.compose.ui.graphics.Color
 import zone.ien.hig.LocalCupertinoNativeBarsPadding
+import zone.ien.navigation.LocalNativeNavigationBarHidden
 import zone.ien.navigation.LocalNativeScreen
 import zone.ien.navigation.NativeBarButton as SwiftNativeBarButton
+import zone.ien.navigation.NativeBarComponent
+import zone.ien.navigation.NativeBarText
 import zone.ien.navigation.NativeMenuAction
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -31,28 +40,35 @@ import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.ui.menu.splitMenuItems
 import zone.ien.navigation.NativeBarItems
+import zone.ien.navigation.NativeBarSubtitle
 import zone.ien.navigation.NativeScroll
 import zone.ien.navigation.NativeSearchBar
+import zone.ien.navigation.nativeBarTransitionPlaceholder
 import zone.ien.navigation.nativeContentPadding
 import zone.ien.navigation.rememberNativeScroll
 import zone.ien.utils.ui.menu.ActionMenuItem
 
+internal val LocalNativeScreenScrollEnabled = staticCompositionLocalOf<Boolean?> { null }
+
 /**
  * 현재 native 화면의 내비게이션 바 여백을 Cupertino 구성 요소에 제공합니다.
  *
- * 기존에 바 여백이 제공된 화면에서는 해당 값을 유지하고, native 화면에서는 navigation host의 여백을 사용합니다.
+ * 네이티브 바가 숨겨진 화면은 자체 스캐폴드가 안전 영역을 처리합니다.
+ * 그 외 네이티브 화면은 내비게이션 호스트의 여백을 사용합니다.
  *
  * @param content 여백을 제공할 콘텐츠
  */
 @Composable
 public fun ProvideNativeScreenPadding(content: @Composable () -> Unit) {
-    val padding = if (LocalNativeScreen.current) {
-        nativeContentPadding()
-    } else {
-        LocalCupertinoNativeBarsPadding.current
+    val isNativeScreen = LocalNativeScreen.current
+    val padding = when {
+        LocalNativeNavigationBarHidden.current -> null
+        isNativeScreen -> nativeContentPadding()
+        else -> LocalCupertinoNativeBarsPadding.current
     }
     CompositionLocalProvider(
         LocalCupertinoNativeBarsPadding provides padding,
+        LocalNativeScreenScrollEnabled provides isNativeScreen,
         content = content,
     )
 }
@@ -61,7 +77,7 @@ public fun ProvideNativeScreenPadding(content: @Composable () -> Unit) {
  * UIKit 내비게이션 바가 있는 화면에 제목과 액션을 연결합니다.
  *
  * @param title 내비게이션 바 제목
- * @param leading 왼쪽에 표시할 사용자 지정 native 버튼
+ * @param leading 왼쪽에 표시할 네이티브 항목
  * @param actions 오른쪽에 표시할 액션 항목
  * @param primaryAction 오른쪽 끝에 표시할 주요 액션
  * @return native 화면이면 `true`
@@ -69,12 +85,12 @@ public fun ProvideNativeScreenPadding(content: @Composable () -> Unit) {
 @Composable
 public fun NativeScreenBar(
     title: String? = null,
-    leading: List<SwiftNativeBarButton> = emptyList(),
+    leading: List<NativeBarComponent> = emptyList(),
     actions: List<ActionMenuItem> = emptyList(),
     primaryAction: ActionMenuItem.IconMenuItem? = null,
 ): Boolean {
-    val isNativeScreen = LocalNativeScreen.current && LocalCupertinoNativeBarsPadding.current != null
-    if (isNativeScreen) {
+    val hasNativeBar = hasNativeNavigationBar()
+    if (hasNativeBar) {
         val images = (actions + listOfNotNull(primaryAction)).filter { it.visible }.associateWith { action ->
             val icon = when (action) {
                 is ActionMenuItem.IconMenuItem -> action.icon
@@ -90,15 +106,48 @@ public fun NativeScreenBar(
                 images = images,
                 maxVisibleItems = with(LocalDensity.current) {
                     val width = LocalWindowInfo.current.containerSize.width.toDp().value
-                    val reservedButtons = leading.size + if (primaryAction?.visible == true) 1 else 0
-                    (width / 2f / 44f - reservedButtons).toInt().coerceIn(0, 3)
+                    val leadingWidth = leading.fold(0f) { total, item ->
+                        total + when (item) {
+                            is NativeBarText -> item.width
+                            is SwiftNativeBarButton -> 44f
+                        }
+                    }
+                    val primaryWidth = if (primaryAction?.visible == true) 44f else 0f
+                    ((width / 2f - leadingWidth - primaryWidth) / 44f).toInt().coerceIn(0, 3)
                 },
                 overflowTitle = stringResource(Res.string.more_options),
             ),
         )
     }
-    return isNativeScreen
+    return hasNativeBar
 }
+
+/** 제목, 부제목과 액션을 같은 네이티브 바에 연결합니다. */
+@Composable
+fun NativeScreenBar(
+    title: String?,
+    subtitle: String?,
+    leading: List<NativeBarComponent> = emptyList(),
+    actions: List<ActionMenuItem> = emptyList(),
+    primaryAction: ActionMenuItem.IconMenuItem? = null,
+): Boolean {
+    val usesNativeBar = NativeScreenBar(title, leading, actions, primaryAction)
+    if (usesNativeBar) NativeBarSubtitle(subtitle)
+    return usesNativeBar
+}
+
+/** 실제 화면의 액션 정의로 화면 전환에 사용할 비활성 버튼을 구성합니다. */
+@Composable
+fun initialNativeBarButton(
+    action: ActionMenuItem.IconMenuItem,
+    isPrimary: Boolean = false,
+    systemImage: String? = null,
+): SwiftNativeBarButton = nativeBarTransitionPlaceholder(
+    title = action.title,
+    image = if (systemImage == null) action.icon?.asPainter() else null,
+    systemImage = systemImage,
+    isPrimary = isPrimary,
+)
 
 /** 기존 IconData로 네이티브 선행 버튼과 툴바 버튼을 구성합니다. */
 @Composable
@@ -128,11 +177,11 @@ public fun NativeScreenSearch(
     onQueryChange: (String) -> Unit,
     placeholder: String,
 ): Boolean {
-    val isNativeScreen = LocalNativeScreen.current && LocalCupertinoNativeBarsPadding.current != null
-    if (isNativeScreen) {
+    val hasNativeBar = hasNativeNavigationBar()
+    if (hasNativeBar) {
         NativeSearchBar(query = query, onQueryChange = onQueryChange, placeholder = placeholder)
     }
-    return isNativeScreen
+    return hasNativeBar
 }
 
 /**
@@ -146,7 +195,7 @@ public fun NativeScreenSearch(
 public fun rememberNativeScreenScroll(
     state: LazyListState,
     background: Color = Color.Unspecified,
-): NativeScroll? = if (isNativeScreen()) rememberNativeScroll(state, background) else null
+): NativeScroll? = if (isNativeScreenScrollEnabled()) rememberNativeScroll(state, background) else null
 
 /**
  * [ScrollState]를 native 세로 스크롤과 연결합니다.
@@ -159,11 +208,15 @@ public fun rememberNativeScreenScroll(
 public fun rememberNativeScreenScroll(
     state: ScrollState,
     background: Color = Color.Unspecified,
-): NativeScroll? = if (isNativeScreen()) rememberNativeScroll(state, background) else null
+): NativeScroll? = if (isNativeScreenScrollEnabled()) rememberNativeScroll(state, background) else null
 
 @Composable
-private fun isNativeScreen(): Boolean =
+private fun hasNativeNavigationBar(): Boolean =
     LocalNativeScreen.current && LocalCupertinoNativeBarsPadding.current != null
+
+@Composable
+private fun isNativeScreenScrollEnabled(): Boolean =
+    LocalNativeScreenScrollEnabled.current ?: hasNativeNavigationBar()
 
 internal fun List<ActionMenuItem>.toNativeBarButtons(
     primaryAction: ActionMenuItem.IconMenuItem? = null,
@@ -243,6 +296,40 @@ fun IenLazyColumn(
         reverseLayout = reverseLayout,
         verticalArrangement = verticalArrangement,
         horizontalAlignment = horizontalAlignment,
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled && (nativeScroll?.userScrollEnabled ?: true),
+        content = content,
+    )
+}
+
+/** 그리드 상태를 네이티브 스크롤에 연결합니다. 중첩 콘텐츠는 [nativeScrollEnabled]로 연결을 끌 수 있습니다. */
+@Composable
+fun IenLazyVerticalGrid(
+    columns: GridCells,
+    modifier: Modifier = Modifier,
+    state: LazyGridState = rememberLazyGridState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    reverseLayout: Boolean = false,
+    verticalArrangement: Arrangement.Vertical = if (!reverseLayout) Arrangement.Top else Arrangement.Bottom,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
+    nativeScrollEnabled: Boolean = true,
+    content: LazyGridScope.() -> Unit,
+) {
+    val nativeScroll = if (nativeScrollEnabled && userScrollEnabled && isNativeScreenScrollEnabled()) {
+        rememberNativeScroll(state)
+    } else {
+        null
+    }
+    LazyVerticalGrid(
+        columns = columns,
+        modifier = modifier,
+        state = state,
+        contentPadding = contentPadding,
+        reverseLayout = reverseLayout,
+        verticalArrangement = verticalArrangement,
+        horizontalArrangement = horizontalArrangement,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled && (nativeScroll?.userScrollEnabled ?: true),
         content = content,
