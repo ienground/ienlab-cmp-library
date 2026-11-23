@@ -50,6 +50,8 @@ import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import platform.UIKit.UINavigationController
+import platform.UIKit.UIImageView
+import platform.UIKit.UINavigationItemLargeTitleDisplayMode
 import platform.UIKit.UITabBarController
 import platform.UIKit.UIViewController
 import platform.UIKit.UIWindow
@@ -64,6 +66,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotSame
 import kotlin.test.assertNotNull
 import kotlin.test.assertSame
@@ -106,6 +109,45 @@ class NativeNavigationRootTest {
 
     @Test
     fun `네이티브 루트까지 pop은 부모와 하위 공유 스택을 함께 정리한다`() = verifyGraph(popAll = true)
+
+    @Test
+    fun `제목 이미지는 지정한 탭에만 적용하고 큰 제목을 접는다`() {
+        val stack = NavBackStack(TabKey.Timer)
+        val logoColor = mutableStateOf(Color.Red)
+        val controller = navigationController {
+            BaseNavigationFrame {
+                BaseNavigationTabs(
+                    tabBackStack = stack,
+                    tabs = TabKey.entries,
+                    title = { it.name },
+                    icon = { IconData.Paint(ColorPainter(Color.Black)) },
+                    titleImage = { if (it == TabKey.Timer) ColorPainter(logoColor.value) else null },
+                    tabContent = {},
+                ) {
+                    BaseNavDisplay(stack, entryProvider = { NavEntry(it) {} })
+                }
+            }
+        }
+
+        controller.loadViewIfNeeded()
+        val tabs = assertIs<UITabBarController>(controller.childViewControllers.single())
+        val (timer, settings) = assertNotNull(tabs.viewControllers).map {
+            assertNotNull(assertIs<UINavigationController>(it).topViewController).navigationItem
+        }
+        val titleView = assertIs<UIImageView>(timer.titleView)
+        val initialImage = assertNotNull(titleView.image)
+        assertEquals(TabKey.Timer.name, timer.title)
+        assertEquals(UINavigationItemLargeTitleDisplayMode.UINavigationItemLargeTitleDisplayModeNever, timer.largeTitleDisplayMode)
+        assertEquals(null, settings.titleView)
+        assertEquals(TabKey.Settings.name, settings.title)
+        assertEquals(UINavigationItemLargeTitleDisplayMode.UINavigationItemLargeTitleDisplayModeAlways, settings.largeTitleDisplayMode)
+
+        logoColor.value = Color.Blue
+        Snapshot.sendApplyNotifications()
+        repeat(10) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }
+        assertEquals(titleView, timer.titleView)
+        assertNotEquals(initialImage, assertNotNull(titleView.image))
+    }
 
     @OptIn(ExperimentalForeignApi::class)
     @Test
@@ -158,7 +200,16 @@ class NativeNavigationRootTest {
 
     @OptIn(ExperimentalForeignApi::class)
     @Test
-    fun `공통 스크롤 컨테이너는 목록과 일반 스크롤을 UIKit에 연결한다`() {
+    fun `공통 스크롤 컨테이너는 목록과 일반 스크롤을 UIKit에 연결한다`() =
+        verifyNativeScroll(hidesNavigationBar = false)
+
+    @OptIn(ExperimentalForeignApi::class)
+    @Test
+    fun `내비게이션 바를 숨겨도 목록과 일반 스크롤은 UIKit에 연결된다`() =
+        verifyNativeScroll(hidesNavigationBar = true)
+
+    @OptIn(ExperimentalForeignApi::class)
+    private fun verifyNativeScroll(hidesNavigationBar: Boolean) {
         val showList = mutableStateOf(true)
         val userScrollEnabled = mutableStateOf(true)
         val listState = LazyListState()
@@ -167,7 +218,7 @@ class NativeNavigationRootTest {
         val controller = navigationController {
             BaseNavigationFrame {
                 BaseNavDisplay(stack, entryProvider = { key ->
-                    NavEntry(key) {
+                    NavEntry(key, metadata = nativeScreen(hidesNavigationBar = hidesNavigationBar)) {
                         if (showList.value) {
                             IenLazyColumn(
                                 modifier = Modifier.fillMaxSize(),
@@ -191,6 +242,7 @@ class NativeNavigationRootTest {
         try {
             repeat(20) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }
             val navigation = assertIs<UINavigationController>(controller.childViewControllers.single())
+            assertEquals(hidesNavigationBar, navigation.navigationBarHidden)
             val scrollView = assertIs<UIScrollView>(navigation.topViewController!!.view)
             scrollView.setContentOffset(CGPointMake(0.0, 200.0), animated = false)
             repeat(10) { NSRunLoop.mainRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.02)) }

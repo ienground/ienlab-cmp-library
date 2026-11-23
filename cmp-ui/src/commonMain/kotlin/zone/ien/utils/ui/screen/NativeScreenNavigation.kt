@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.painter.Painter
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.asPainter
@@ -47,6 +48,8 @@ import zone.ien.navigation.nativeContentPadding
 import zone.ien.navigation.rememberNativeScroll
 import zone.ien.utils.ui.menu.ActionMenuItem
 
+internal val LocalNativeScreenScrollEnabled = staticCompositionLocalOf<Boolean?> { null }
+
 /**
  * 현재 native 화면의 내비게이션 바 여백을 Cupertino 구성 요소에 제공합니다.
  *
@@ -57,13 +60,15 @@ import zone.ien.utils.ui.menu.ActionMenuItem
  */
 @Composable
 public fun ProvideNativeScreenPadding(content: @Composable () -> Unit) {
+    val isNativeScreen = LocalNativeScreen.current
     val padding = when {
         LocalNativeNavigationBarHidden.current -> null
-        LocalNativeScreen.current -> nativeContentPadding()
+        isNativeScreen -> nativeContentPadding()
         else -> LocalCupertinoNativeBarsPadding.current
     }
     CompositionLocalProvider(
         LocalCupertinoNativeBarsPadding provides padding,
+        LocalNativeScreenScrollEnabled provides isNativeScreen,
         content = content,
     )
 }
@@ -84,8 +89,8 @@ public fun NativeScreenBar(
     actions: List<ActionMenuItem> = emptyList(),
     primaryAction: ActionMenuItem.IconMenuItem? = null,
 ): Boolean {
-    val isNativeScreen = LocalNativeScreen.current && LocalCupertinoNativeBarsPadding.current != null
-    if (isNativeScreen) {
+    val hasNativeBar = hasNativeNavigationBar()
+    if (hasNativeBar) {
         val images = (actions + listOfNotNull(primaryAction)).filter { it.visible }.associateWith { action ->
             val icon = when (action) {
                 is ActionMenuItem.IconMenuItem -> action.icon
@@ -114,7 +119,7 @@ public fun NativeScreenBar(
             ),
         )
     }
-    return isNativeScreen
+    return hasNativeBar
 }
 
 /** 제목, 부제목과 액션을 같은 네이티브 바에 연결합니다. */
@@ -172,11 +177,11 @@ public fun NativeScreenSearch(
     onQueryChange: (String) -> Unit,
     placeholder: String,
 ): Boolean {
-    val isNativeScreen = LocalNativeScreen.current && LocalCupertinoNativeBarsPadding.current != null
-    if (isNativeScreen) {
+    val hasNativeBar = hasNativeNavigationBar()
+    if (hasNativeBar) {
         NativeSearchBar(query = query, onQueryChange = onQueryChange, placeholder = placeholder)
     }
-    return isNativeScreen
+    return hasNativeBar
 }
 
 /**
@@ -190,7 +195,7 @@ public fun NativeScreenSearch(
 public fun rememberNativeScreenScroll(
     state: LazyListState,
     background: Color = Color.Unspecified,
-): NativeScroll? = if (isNativeScreen()) rememberNativeScroll(state, background) else null
+): NativeScroll? = if (isNativeScreenScrollEnabled()) rememberNativeScroll(state, background) else null
 
 /**
  * [ScrollState]를 native 세로 스크롤과 연결합니다.
@@ -203,11 +208,15 @@ public fun rememberNativeScreenScroll(
 public fun rememberNativeScreenScroll(
     state: ScrollState,
     background: Color = Color.Unspecified,
-): NativeScroll? = if (isNativeScreen()) rememberNativeScroll(state, background) else null
+): NativeScroll? = if (isNativeScreenScrollEnabled()) rememberNativeScroll(state, background) else null
 
 @Composable
-private fun isNativeScreen(): Boolean =
+private fun hasNativeNavigationBar(): Boolean =
     LocalNativeScreen.current && LocalCupertinoNativeBarsPadding.current != null
+
+@Composable
+private fun isNativeScreenScrollEnabled(): Boolean =
+    LocalNativeScreenScrollEnabled.current ?: hasNativeNavigationBar()
 
 internal fun List<ActionMenuItem>.toNativeBarButtons(
     primaryAction: ActionMenuItem.IconMenuItem? = null,
@@ -308,7 +317,11 @@ fun IenLazyVerticalGrid(
     nativeScrollEnabled: Boolean = true,
     content: LazyGridScope.() -> Unit,
 ) {
-    val nativeScroll = if (nativeScrollEnabled && userScrollEnabled && isNativeScreen()) rememberNativeScroll(state) else null
+    val nativeScroll = if (nativeScrollEnabled && userScrollEnabled && isNativeScreenScrollEnabled()) {
+        rememberNativeScroll(state)
+    } else {
+        null
+    }
     LazyVerticalGrid(
         columns = columns,
         modifier = modifier,

@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -77,10 +78,26 @@ fun <T : NavKey> BaseNavigationTabs(
     overlay: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
+    BaseNavigationTabs(tabBackStack, tabs, title, systemImage, { null }, tabContent, largeTitle, overlay, content)
+}
+
+/** [titleImage]가 반환한 이미지를 해당 탭의 네이티브 상단바에 표시합니다. */
+@Composable
+fun <T : NavKey> BaseNavigationTabs(
+    tabBackStack: NavBackStack<T>,
+    tabs: List<T>,
+    title: @Composable (T) -> String,
+    systemImage: (T) -> String,
+    titleImage: @Composable (T) -> Painter?,
+    tabContent: @Composable (T) -> Unit,
+    largeTitle: Boolean = true,
+    overlay: @Composable () -> Unit = {},
+    content: @Composable () -> Unit,
+) {
     NavigationTabs(
         tabBackStack, tabs, title,
         createTab = { route, label -> SwiftNativeTab(label, systemImage(route), listOf(route)) },
-        tabContent, largeTitle, overlay, content,
+        tabContent, largeTitle, titleImage, overlay, content,
     )
 }
 
@@ -133,6 +150,30 @@ fun <T : NavKey> BaseNavigationTabs(
     overlay: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
+    BaseNavigationTabs(
+        tabBackStack, tabs, title, icon, tabContent, badgeCount,
+        titleImage = { null }, selectedIcon, largeTitle, overlay, content,
+    )
+}
+
+/**
+ * [titleImage]가 이미지를 반환한 탭은 이미지 제목을 상단바에 고정합니다.
+ * [title]은 탭 이름과 접근성 텍스트에 쓰이며, 이미지가 없는 탭은 [largeTitle] 설정을 따릅니다.
+ */
+@Composable
+fun <T : NavKey> BaseNavigationTabs(
+    tabBackStack: NavBackStack<T>,
+    tabs: List<T>,
+    title: @Composable (T) -> String,
+    icon: @Composable (T) -> IconData,
+    tabContent: @Composable (T) -> Unit,
+    badgeCount: @Composable (T) -> Int? = { null },
+    titleImage: @Composable (T) -> Painter?,
+    selectedIcon: @Composable (T) -> IconData? = { null },
+    largeTitle: Boolean = true,
+    overlay: @Composable () -> Unit = {},
+    content: @Composable () -> Unit,
+) {
     NavigationTabs(
         tabBackStack, tabs, title,
         createTab = { route, label ->
@@ -144,7 +185,7 @@ fun <T : NavKey> BaseNavigationTabs(
                 badgeCount = badgeCount(route),
             )
         },
-        tabContent, largeTitle, overlay, content,
+        tabContent, largeTitle, titleImage, overlay, content,
     )
 }
 
@@ -156,6 +197,7 @@ private fun <T : NavKey> NavigationTabs(
     createTab: @Composable (T, String) -> SwiftNativeTab<NavKey>,
     tabContent: @Composable (T) -> Unit,
     largeTitle: Boolean,
+    titleImage: @Composable (T) -> Painter?,
     overlay: @Composable () -> Unit,
     content: @Composable () -> Unit,
 ) {
@@ -171,9 +213,18 @@ private fun <T : NavKey> NavigationTabs(
         selectedTab = tabs.indexOf(tabBackStack.lastOrNull()).coerceAtLeast(0),
         onTabSelected = { index -> tabBackStack.replaceTop(tabs[index]) },
         entries = tabs.associate { route ->
+            val titlePainter: (@Composable () -> Painter)? = key(route) {
+                val image = titleImage(route)
+                val currentImage by rememberUpdatedState(image)
+                image?.let { { currentImage ?: it } }
+            }
             route to NavEntry<NavKey>(
                 key = route,
-                metadata = nativeScreen(title = titles.getValue(route), largeTitle = largeTitle),
+                metadata = nativeScreen(
+                    title = titles.getValue(route),
+                    largeTitle = largeTitle && titlePainter == null,
+                    titleImage = titlePainter,
+                ),
             ) {
                 CompositionLocalProvider(
                     LocalNavigationRouteOverride provides NavigationRouteOverride(tabBackStack, route),
