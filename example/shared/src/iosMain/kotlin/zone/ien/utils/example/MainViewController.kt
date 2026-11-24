@@ -12,7 +12,7 @@ import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.window.ComposeUIViewController
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.UIKit.UIViewController
-import zone.ien.navigation.NativeNavigationViewController
+import zone.ien.navite.NativeNavigationViewController
 import zone.ien.utils.initializeIenIos
 
 @OptIn(ExperimentalForeignApi::class)

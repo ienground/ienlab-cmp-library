@@ -80,9 +80,9 @@ import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.cupertinoScrollEdge
 import zone.ien.hig.utils.rememberDefaultBackdrop
-import zone.ien.navigation.NativeScrollContent
-import zone.ien.navigation.NativeBarComponent
-import zone.ien.navigation.NativeBarSubtitle
+import zone.ien.navite.NativeScrollContent
+import zone.ien.navite.NativeBarComponent
+import zone.ien.navite.NativeBarSubtitle
 import zone.ien.utils.adaptive.menu.HigActionMenu
 import zone.ien.utils.adaptive.menu.HigActionsMenu
 import zone.ien.utils.adaptive.theme.ienCupertinoGlassProminentButtonColors

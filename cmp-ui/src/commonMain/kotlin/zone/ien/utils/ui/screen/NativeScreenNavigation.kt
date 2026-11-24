@@ -27,25 +27,25 @@ import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.asPainter
 import androidx.compose.ui.graphics.Color
 import zone.ien.hig.LocalCupertinoNativeBarsPadding
-import zone.ien.navigation.LocalNativeNavigationBarHidden
-import zone.ien.navigation.LocalNativeScreen
-import zone.ien.navigation.NativeBarButton as SwiftNativeBarButton
-import zone.ien.navigation.NativeBarComponent
-import zone.ien.navigation.NativeBarText
-import zone.ien.navigation.NativeMenuAction
+import zone.ien.navite.LocalNativeNavigationBarHidden
+import zone.ien.navite.LocalNativeScreen
+import zone.ien.navite.NativeBarButton as SwiftNativeBarButton
+import zone.ien.navite.NativeBarComponent
+import zone.ien.navite.NativeBarText
+import zone.ien.navite.NativeMenuAction
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import org.jetbrains.compose.resources.stringResource
 import zone.ien.utils.cmp_ui.generated.resources.Res
 import zone.ien.utils.cmp_ui.generated.resources.more_options
 import zone.ien.utils.ui.menu.splitMenuItems
-import zone.ien.navigation.NativeBarItems
-import zone.ien.navigation.NativeBarSubtitle
-import zone.ien.navigation.NativeScroll
-import zone.ien.navigation.NativeSearchBar
-import zone.ien.navigation.nativeBarTransitionPlaceholder
-import zone.ien.navigation.nativeContentPadding
-import zone.ien.navigation.rememberNativeScroll
+import zone.ien.navite.NativeBarItems
+import zone.ien.navite.NativeBarSubtitle
+import zone.ien.navite.NativeScroll
+import zone.ien.navite.NativeSearchBar
+import zone.ien.navite.nativeBarTransitionPlaceholder
+import zone.ien.navite.nativeContentPadding
+import zone.ien.navite.rememberNativeScroll
 import zone.ien.utils.ui.menu.ActionMenuItem
 
 internal val LocalNativeScreenScrollEnabled = staticCompositionLocalOf<Boolean?> { null }

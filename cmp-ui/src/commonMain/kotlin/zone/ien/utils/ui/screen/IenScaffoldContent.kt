@@ -48,7 +48,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import zone.ien.navigation.NativeScrollContent
+import zone.ien.navite.NativeScrollContent
 import zone.ien.hig.LocalCupertinoNativeBarsPadding
 import zone.ien.hig.withCupertinoNativeBars
 import zone.ien.utils.ui.foundation.IenTheme

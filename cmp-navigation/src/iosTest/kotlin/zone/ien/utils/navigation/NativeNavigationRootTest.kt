@@ -59,8 +59,8 @@ import platform.UIKit.UIScreen
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.UIKit.navigationItem
 import platform.UIKit.childViewControllers
-import zone.ien.navigation.nativeScreen
-import zone.ien.navigation.NativeNavigationViewController
+import zone.ien.navite.nativeScreen
+import zone.ien.navite.NativeNavigationViewController
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

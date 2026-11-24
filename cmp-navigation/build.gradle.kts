@@ -44,7 +44,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            api(libs.swift.navigation3)
+            api(libs.navite)
             api(libs.compose.adaptive)
             api(libs.compose.adaptive.navigation3)
             implementation(libs.compose.navigation3)
