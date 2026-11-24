@@ -470,9 +470,10 @@ internal fun <T : NavKey> NativeBaseNavDisplay(
             .associate { keyedEntry(it.first, it.second) }
         val titleImage = decorated.firstOrNull()?.nativeTitleImage
         val tabEntries = if (titleImage == null) tabConfiguration.entries else {
-            val titleImageMetadata = nativeScreen(titleImage = titleImage)
+            val titleImageMetadata = nativeScreen(largeTitle = false, titleImage = titleImage)
             tabConfiguration.entries.mapValues { (route, entry) ->
-                NavEntry(route, contentKey = entry.contentKey, metadata = titleImageMetadata + entry.metadata) {
+                if (entry.nativeTitleImage != null) return@mapValues entry
+                NavEntry(route, contentKey = entry.contentKey, metadata = entry.metadata + titleImageMetadata) {
                     entry.Content()
                 }
             }

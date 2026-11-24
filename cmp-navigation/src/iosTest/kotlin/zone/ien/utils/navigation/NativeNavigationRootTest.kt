@@ -149,6 +149,40 @@ class NativeNavigationRootTest {
         assertNotEquals(initialImage, assertNotNull(titleView.image))
     }
 
+    @Test
+    fun `루트 제목 이미지를 상속한 탭은 큰 제목을 접는다`() {
+        val stack = NavBackStack(TabKey.Timer)
+        val controller = navigationController {
+            BaseNavigationFrame {
+                BaseNavigationTabs(
+                    tabBackStack = stack,
+                    tabs = TabKey.entries,
+                    title = { it.name },
+                    systemImage = { "house" },
+                    tabContent = {},
+                ) {
+                    BaseNavDisplay(
+                        stack,
+                        entryProvider = { key ->
+                            NavEntry(key, metadata = nativeScreen(titleImage = { ColorPainter(Color.Red) })) {}
+                        },
+                    )
+                }
+            }
+        }
+
+        controller.loadViewIfNeeded()
+        val tabs = assertIs<UITabBarController>(controller.childViewControllers.single())
+        val controllers = assertNotNull(tabs.viewControllers)
+        assertEquals(TabKey.entries.size, controllers.size)
+        TabKey.entries.zip(controllers).forEach { (route, tab) ->
+            val item = assertNotNull(assertIs<UINavigationController>(tab).topViewController).navigationItem
+            assertNotNull(assertIs<UIImageView>(item.titleView).image)
+            assertEquals(route.name, item.title)
+            assertEquals(UINavigationItemLargeTitleDisplayMode.UINavigationItemLargeTitleDisplayModeNever, item.largeTitleDisplayMode)
+        }
+    }
+
     @OptIn(ExperimentalForeignApi::class)
     @Test
     fun `테마 brand는 화면 구성 전에 탭에 적용되고 다크 테마 변경을 따른다`() {
