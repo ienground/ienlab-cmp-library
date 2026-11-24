@@ -58,8 +58,8 @@ import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.utils.adaptive.screen.LocalBackdrop
 import zone.ien.utils.adaptive.screen.LocalAdaptiveSideBarLayout
-import zone.ien.navigation.NativeFloatingActionButton
-import zone.ien.navigation.isNativeFloatingActionButtonAvailable
+import zone.ien.navite.NativeFloatingActionButton
+import zone.ien.navite.isNativeFloatingActionButtonAvailable
 import zone.ien.utils.adaptive.screen.LocalAdaptiveNativeFabHeightChanged
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.asPainter

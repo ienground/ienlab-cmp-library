@@ -31,7 +31,7 @@ import zone.ien.utils.navigation.navigateBack
 import zone.ien.utils.navigation.result.rememberResultStore
 import zone.ien.utils.navigation.result.ResultStore
 import androidx.navigation3.runtime.NavEntry
-import zone.ien.navigation.nativeScreen
+import zone.ien.navite.nativeScreen
 import zone.ien.utils.example.ui.screens.home.sampleRouteTitle
 
 @Serializable

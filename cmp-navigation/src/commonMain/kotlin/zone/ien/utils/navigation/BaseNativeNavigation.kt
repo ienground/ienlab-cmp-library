@@ -24,17 +24,17 @@ import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
-import zone.ien.navigation.NativeNavigationTint
-import zone.ien.navigation.NativeNavigationFrame
-import zone.ien.navigation.NativeStack
-import zone.ien.navigation.NativeTab as SwiftNativeTab
+import zone.ien.navite.NativeNavigationTint
+import zone.ien.navite.NativeNavigationFrame
+import zone.ien.navite.NativeStack
+import zone.ien.navite.NativeTab as SwiftNativeTab
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.asPainter
-import zone.ien.navigation.nativeScreen
-import zone.ien.navigation.nativeTitleImage
-import zone.ien.navigation.NativeTabBarTint
+import zone.ien.navite.nativeScreen
+import zone.ien.navite.nativeTitleImage
+import zone.ien.navite.NativeTabBarTint
 import zone.ien.utils.ui.foundation.IenTheme
-import zone.ien.navigation.NativeTabs
+import zone.ien.navite.NativeTabs
 import zone.ien.utils.ui.screen.ProvideNativeScreenPadding
 
 private val LocalNativeNavigationEnabled = staticCompositionLocalOf { false }
