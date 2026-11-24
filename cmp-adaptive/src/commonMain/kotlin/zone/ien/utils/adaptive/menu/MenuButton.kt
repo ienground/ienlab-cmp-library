@@ -11,6 +11,7 @@ import zone.ien.utils.cmp_ui.generated.resources.save
 import zone.ien.utils.icon.SystemIcons
 import zone.ien.utils.ui.menu.ActionMenuItem
 import zone.ien.utils.icon.IconData
+import zone.ien.utils.ui.screen.initialNativeBarButton
 
 /**
  * 삭제 메뉴 버튼 컴포저블
@@ -52,17 +53,40 @@ fun adaptiveSaveButton(
     visible: Boolean = true,
     enabled: Boolean = true,
     onClick: () -> Unit
-) =  ActionMenuItem.IconMenuItem.ShownIfRoom(
-    title = stringResource(Res.string.save),
+) = saveAction(
     icon = IconData.Paint(
         AdaptiveIcons.painter(
             material = { SystemIcons.Save },
-            cupertino = { "checkmark" }
+            cupertino = { SaveSystemImage }
         )
     ),
     onClick = onClick,
     visible = visible,
-    enabled = enabled
+    enabled = enabled,
+)
+
+@Composable
+private fun saveAction(
+    icon: IconData?,
+    visible: Boolean = true,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+) = ActionMenuItem.IconMenuItem.ShownIfRoom(
+    title = stringResource(Res.string.save),
+    icon = icon,
+    onClick = onClick,
+    visible = visible,
+    enabled = enabled,
+)
+
+private const val SaveSystemImage = "checkmark"
+
+/** 저장 액션과 같은 제목·아이콘을 사용하는 네이티브 전환용 버튼입니다. */
+@Composable
+fun initialNativeSaveButton() = initialNativeBarButton(
+    action = saveAction(icon = null) {},
+    isPrimary = true,
+    systemImage = SaveSystemImage,
 )
 
 /**

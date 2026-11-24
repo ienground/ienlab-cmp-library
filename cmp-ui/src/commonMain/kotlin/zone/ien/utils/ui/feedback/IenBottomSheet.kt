@@ -80,6 +80,7 @@ import zone.ien.utils.ui.primitives.IenSurface
 import zone.ien.utils.ui.screen.IenBarPlacement
 import zone.ien.utils.ui.screen.LocalIenBarPlacement
 import zone.ien.utils.ui.screen.LocalIenSideBarEnabled
+import zone.ien.utils.ui.screen.LocalNativeScreenScrollEnabled
 import zone.ien.utils.ui.screen.rememberIenBarPlacement
 import zone.ien.utils.ui.window.disablePlatformDialogDim
 import zone.ien.utils.ui.window.ienOverlayDialogProperties
@@ -611,8 +612,7 @@ private fun IenBottomSheetInternal(
 }
 
 /**
- * 시트를 띄우는 대화상자입니다. 시트는 자기 상단 바를 그리므로, 시트를 띄운 화면의 플랫폼 내비게이션 바
- * (compose-hig `LocalCupertinoNativeBarsPadding`)를 시트 안에 전달하지 않습니다.
+ * 시트 내부에서 자체 상단 바와 스크롤을 사용하도록 구성합니다.
  */
 @Composable
 private fun IenSheetDialog(
@@ -620,7 +620,10 @@ private fun IenSheetDialog(
     properties: DialogProperties,
     content: @Composable () -> Unit,
 ) {
-    CompositionLocalProvider(LocalCupertinoNativeBarsPadding provides null) {
+    CompositionLocalProvider(
+        LocalCupertinoNativeBarsPadding provides null,
+        LocalNativeScreenScrollEnabled provides false,
+    ) {
         Dialog(onDismissRequest = onDismissRequest, properties = properties, content = content)
     }
 }

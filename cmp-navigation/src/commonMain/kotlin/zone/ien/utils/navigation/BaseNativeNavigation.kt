@@ -1,6 +1,7 @@
 package zone.ien.utils.navigation
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.imePadding
 import zone.ien.utils.ui.foundation.IenTokens
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
@@ -10,23 +11,30 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
-import zone.ien.navigation.NativeNavigationTint
-import zone.ien.navigation.NativeNavigationFrame
-import zone.ien.navigation.NativeStack
-import zone.ien.navigation.NativeTab as SwiftNativeTab
+import zone.ien.navite.NativeNavigationTint
+import zone.ien.navite.NativeNavigationFrame
+import zone.ien.navite.NativeStack
+import zone.ien.navite.NativeTab as SwiftNativeTab
 import zone.ien.utils.icon.IconData
 import zone.ien.utils.icon.asPainter
-import zone.ien.navigation.nativeScreen
-import zone.ien.navigation.NativeTabBarTint
+import zone.ien.navite.nativeScreen
+import zone.ien.navite.nativeTitleImage
+import zone.ien.navite.NativeTabBarTint
 import zone.ien.utils.ui.foundation.IenTheme
-import zone.ien.navigation.NativeTabs
+import zone.ien.navite.NativeTabs
 import zone.ien.utils.ui.screen.ProvideNativeScreenPadding
 
 private val LocalNativeNavigationEnabled = staticCompositionLocalOf { false }
@@ -56,6 +64,7 @@ private class NativeTabConfiguration(
  * 기존 [BaseNavDisplay]를 감싸 첫 엔트리를 네이티브 탭으로 표시합니다.
  * [tabBackStack]은 앱과 UIKit이 함께 사용하는 탭 선택 상태이며, 상세 화면의 push/pop은
  * 기존 BaseNavDisplay의 백스택을 그대로 사용합니다. 다른 플랫폼에서는 [content]를 실행합니다.
+ * 첫 엔트리의 제목 이미지는 네이티브 탭의 제목 영역에 표시됩니다.
  * [overlay]는 현재 보이는 화면 위에서 한 번 실행됩니다.
  */
 @Composable
@@ -69,10 +78,26 @@ fun <T : NavKey> BaseNavigationTabs(
     overlay: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
+    BaseNavigationTabs(tabBackStack, tabs, title, systemImage, tabContent, largeTitle, overlay, titleImage = { null }, content)
+}
+
+/** [titleImage]가 반환한 이미지를 해당 탭의 네이티브 상단바에 표시합니다. */
+@Composable
+fun <T : NavKey> BaseNavigationTabs(
+    tabBackStack: NavBackStack<T>,
+    tabs: List<T>,
+    title: @Composable (T) -> String,
+    systemImage: (T) -> String,
+    tabContent: @Composable (T) -> Unit,
+    largeTitle: Boolean = true,
+    overlay: @Composable () -> Unit = {},
+    titleImage: @Composable (T) -> Painter?,
+    content: @Composable () -> Unit,
+) {
     NavigationTabs(
         tabBackStack, tabs, title,
         createTab = { route, label -> SwiftNativeTab(label, systemImage(route), listOf(route)) },
-        tabContent, largeTitle, overlay, content,
+        tabContent, largeTitle, titleImage, overlay, content,
     )
 }
 
@@ -105,10 +130,62 @@ fun <T : NavKey> BaseNavigationTabs(
     overlay: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
+    BaseNavigationTabs(
+        tabBackStack, tabs, title, icon, tabContent, selectedIcon, largeTitle, overlay,
+        badgeCount = { null }, content,
+    )
+}
+
+/** [badgeCount]가 양수인 탭에 숫자 배지를 표시합니다. */
+@Composable
+fun <T : NavKey> BaseNavigationTabs(
+    tabBackStack: NavBackStack<T>,
+    tabs: List<T>,
+    title: @Composable (T) -> String,
+    icon: @Composable (T) -> IconData,
+    tabContent: @Composable (T) -> Unit,
+    selectedIcon: @Composable (T) -> IconData? = { null },
+    largeTitle: Boolean = true,
+    overlay: @Composable () -> Unit = {},
+    badgeCount: @Composable (T) -> Int?,
+    content: @Composable () -> Unit,
+) {
+    BaseNavigationTabs(
+        tabBackStack, tabs, title, icon, tabContent, badgeCount,
+        titleImage = { null }, selectedIcon, largeTitle, overlay, content,
+    )
+}
+
+/**
+ * [titleImage]가 이미지를 반환한 탭은 이미지 제목을 상단바에 고정합니다.
+ * [title]은 탭 이름과 접근성 텍스트에 쓰이며, 이미지가 없는 탭은 [largeTitle] 설정을 따릅니다.
+ */
+@Composable
+fun <T : NavKey> BaseNavigationTabs(
+    tabBackStack: NavBackStack<T>,
+    tabs: List<T>,
+    title: @Composable (T) -> String,
+    icon: @Composable (T) -> IconData,
+    tabContent: @Composable (T) -> Unit,
+    badgeCount: @Composable (T) -> Int? = { null },
+    titleImage: @Composable (T) -> Painter?,
+    selectedIcon: @Composable (T) -> IconData? = { null },
+    largeTitle: Boolean = true,
+    overlay: @Composable () -> Unit = {},
+    content: @Composable () -> Unit,
+) {
     NavigationTabs(
         tabBackStack, tabs, title,
-        createTab = { route, label -> NativeTab<NavKey>(label, icon(route), listOf(route), selectedIcon(route)) },
-        tabContent, largeTitle, overlay, content,
+        createTab = { route, label ->
+            SwiftNativeTab<NavKey>(
+                title = label,
+                backStack = listOf(route),
+                image = icon(route).asPainter(),
+                selectedImage = selectedIcon(route)?.asPainter(),
+                badgeCount = badgeCount(route),
+            )
+        },
+        tabContent, largeTitle, titleImage, overlay, content,
     )
 }
 
@@ -120,6 +197,7 @@ private fun <T : NavKey> NavigationTabs(
     createTab: @Composable (T, String) -> SwiftNativeTab<NavKey>,
     tabContent: @Composable (T) -> Unit,
     largeTitle: Boolean,
+    titleImage: @Composable (T) -> Painter?,
     overlay: @Composable () -> Unit,
     content: @Composable () -> Unit,
 ) {
@@ -135,9 +213,18 @@ private fun <T : NavKey> NavigationTabs(
         selectedTab = tabs.indexOf(tabBackStack.lastOrNull()).coerceAtLeast(0),
         onTabSelected = { index -> tabBackStack.replaceTop(tabs[index]) },
         entries = tabs.associate { route ->
+            val titlePainter: (@Composable () -> Painter)? = key(route) {
+                val image = titleImage(route)
+                val currentImage by rememberUpdatedState(image)
+                image?.let { { currentImage ?: it } }
+            }
             route to NavEntry<NavKey>(
                 key = route,
-                metadata = nativeScreen(title = titles.getValue(route), largeTitle = largeTitle),
+                metadata = nativeScreen(
+                    title = titles.getValue(route),
+                    largeTitle = largeTitle && titlePainter == null,
+                    titleImage = titlePainter,
+                ),
             ) {
                 CompositionLocalProvider(
                     LocalNavigationRouteOverride provides NavigationRouteOverride(tabBackStack, route),
@@ -168,6 +255,34 @@ val isNavigationEntryActive: Boolean
 @Composable
 fun <T : NavKey> isNavigationRouteActive(backStack: NavBackStack<T>, route: T): Boolean =
     isNavigationEntryActive && currentNavigationRoute(backStack) == route
+
+/**
+ * 백스택에 같은 스코프의 화면이 남아 있는 동안 ViewModel 소유자를 공유합니다.
+ * 스코프는 메모리에 유지되며 별도의 SavedStateHandle을 만들지 않습니다.
+ */
+@Composable
+fun <T : NavKey, S : Any> rememberNavigationViewModelStoreOwners(
+    backStack: NavBackStack<T>,
+    scopeOf: (T) -> S?,
+): Map<S, ViewModelStoreOwner> = backStack.mapNotNull(scopeOf).distinct().associateWith { scope ->
+    key(scope) { rememberViewModelStoreOwner(savedStateRegistryOwner = null) }
+}
+
+/** 활성 네이티브 엔트리에만 화면 전용 뒤로가기를 등록합니다. */
+@Composable
+fun NativeNavigationBackHandler(
+    screen: ScreenInfo,
+    enabled: Boolean = true,
+    onBack: () -> Unit,
+) {
+    if (isNativeNavigation) {
+        NavigationBackHandler(
+            state = rememberNavigationEventState(screen),
+            isBackEnabled = isNavigationEntryActive && enabled,
+            onBackCompleted = onBack,
+        )
+    }
+}
 
 /** UIKit 탭 바를 사용하는 화면에서는 앱의 탭 바를 중복 표시하지 않습니다. */
 @Composable
@@ -213,6 +328,11 @@ internal fun <T : NavKey> NavigationTabEntry(
 /** 현재 호스트가 네이티브 내비게이션을 사용하는지 반환합니다. */
 val isNativeNavigation: Boolean
     @Composable get() = LocalNativeNavigationEnabled.current
+
+/** Compose 호스트에만 키보드 여백을 적용합니다. 네이티브 화면은 호스트가 키보드 여백을 관리합니다. */
+@Composable
+fun Modifier.navigationImePadding(): Modifier =
+    if (isNativeNavigation) this else imePadding()
 
 /** 현재 엔트리가 선택된 탭과 상위 공유 화면을 합친 스택의 맨 위인지 반환합니다. */
 val isNativeNavigationTopEntry: Boolean
@@ -348,7 +468,17 @@ internal fun <T : NavKey> NativeBaseNavDisplay(
     if (tabConfiguration != null) {
         val sharedEntries = visibleBackStack.drop(1).zip(decorated.drop(1))
             .associate { keyedEntry(it.first, it.second) }
-        val entries = tabConfiguration.entries + sharedEntries
+        val titleImage = decorated.firstOrNull()?.nativeTitleImage
+        val tabEntries = if (titleImage == null) tabConfiguration.entries else {
+            val titleImageMetadata = nativeScreen(largeTitle = false, titleImage = titleImage)
+            tabConfiguration.entries.mapValues { (route, entry) ->
+                if (entry.nativeTitleImage != null) return@mapValues entry
+                NavEntry(route, contentKey = entry.contentKey, metadata = entry.metadata + titleImageMetadata) {
+                    entry.Content()
+                }
+            }
+        }
+        val entries = tabEntries + sharedEntries
         CompositionLocalProvider(LocalNativeTabConfiguration provides null) {
             NativeTabNavDisplay<NavKey>(
                 tabs = tabConfiguration.tabs,
@@ -471,7 +601,17 @@ private fun <T : NavKey> NativeTabNavDisplay(
     val selectedEntries = tabs.getOrNull(selectedTab)?.backStack.orEmpty()
     val topKey = parentKeys.lastOrNull() ?: sharedBackStack.lastOrNull() ?: selectedEntries.lastOrNull()
     NativeTabs<NavKey>(
-        tabs = tabs.map { SwiftNativeTab<NavKey>(it.title, it.systemImage, it.backStack, it.image, it.selectedImage, it.onBack) },
+        tabs = tabs.map { tab ->
+            SwiftNativeTab<NavKey>(
+                title = tab.title,
+                systemImage = tab.systemImage,
+                backStack = tab.backStack,
+                image = tab.image,
+                selectedImage = tab.selectedImage,
+                badgeCount = tab.badgeCount,
+                onBack = tab.onBack,
+            )
+        },
         selectedTab = selectedTab,
         onTabSelected = onTabSelected,
         sharedBackStack = sharedBackStack + parentKeys,

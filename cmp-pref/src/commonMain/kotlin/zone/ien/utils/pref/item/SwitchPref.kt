@@ -9,8 +9,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.compositeOver
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
 import kotlinx.coroutines.launch
 import zone.ien.hig.adaptive.AdaptationScope
 import zone.ien.hig.adaptive.AdaptiveWidget
@@ -23,6 +25,7 @@ import zone.ien.utils.adaptive.section.IenSectionItemAdaptation
 import zone.ien.utils.pref.LocalPrefsAdaptive
 import zone.ien.utils.pref.LocalPrefsDataStore
 import zone.ien.utils.pref.LocalPrefsSwitchAdaptive
+import zone.ien.utils.ui.foundation.IenTheme
 import zone.ien.utils.ui.section.IenSectionColors
 import zone.ien.utils.ui.section.IenSectionLinkDefault
 import zone.ien.utils.ui.section.item
@@ -151,11 +154,13 @@ fun SectionScope.SwitchPref(
                         supportingContent = if (checked) summaryOn?.let { { Text(it) } } else summaryOff?.let { { Text(it) } },
                         colors = colors,
                         trailingContent = {
+                            val rowBackground = colors.containerColor.compositeOver(IenTheme.colors.surfaceRaised)
                             AdaptiveSwitch(
                                 checked = checked,
                                 onCheckedChange = { edit(it) },
                                 enabled = enabled,
                                 interactionSource = interactionSource,
+                                backdrop = rememberCanvasBackdrop { drawRect(rowBackground) },
                             )
                         },
                         title = { Text(title) },

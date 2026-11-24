@@ -9,7 +9,7 @@ import androidx.compose.ui.viewinterop.UIKitViewController
 import androidx.compose.ui.window.ComposeUIViewController
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.UIKit.UIViewController
-import zone.ien.navigation.NativeNavigationViewController
+import zone.ien.navite.NativeNavigationViewController
 import zone.ien.utils.initializeIenIos
 
 internal actual val usesNativeNavigationPlatform: Boolean = true
